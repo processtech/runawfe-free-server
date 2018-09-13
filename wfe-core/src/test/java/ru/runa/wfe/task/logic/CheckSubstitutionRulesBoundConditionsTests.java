@@ -14,7 +14,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.user.dao.IExecutorDao;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -33,13 +33,13 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
     public Object[][] getTestcases() {
         return new Object[][] { { "applies with one of DataAccessException testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(IExecutorDao executorDao) {
                 Actor actor = mock(Actor.class);
                 when(actor.isActive()).thenReturn(true);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
-                when(executorDAO.getActor(new Long(2))).thenThrow(mock(org.springframework.dao.DataAccessException.class));
-                when(executorDAO.getActor(new Long(3))).thenReturn(actor);
-                when(executorDAO.getActor(new Long(4))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(2))).thenThrow(mock(org.springframework.dao.DataAccessException.class));
+                when(executorDao.getActor(new Long(3))).thenReturn(actor);
+                when(executorDao.getActor(new Long(4))).thenReturn(actor);
             }
 
             @Override
@@ -56,13 +56,13 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
         } }, { "applies with one of ExecutorDoesNotExistException testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(IExecutorDao executorDao) {
                 Actor actor = mock(Actor.class);
                 when(actor.isActive()).thenReturn(true);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
-                when(executorDAO.getActor(new Long(2))).thenThrow(mock(ExecutorDoesNotExistException.class));
-                when(executorDAO.getActor(new Long(3))).thenReturn(actor);
-                when(executorDAO.getActor(new Long(4))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(2))).thenThrow(mock(ExecutorDoesNotExistException.class));
+                when(executorDao.getActor(new Long(3))).thenReturn(actor);
+                when(executorDao.getActor(new Long(4))).thenReturn(actor);
             }
 
             @Override
@@ -82,10 +82,10 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
             Actor actor;
 
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(IExecutorDao executorDao) {
                 actor = mock(Actor.class);
                 when(actor.isActive()).thenReturn(true);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
             }
 
             @Override
@@ -104,9 +104,9 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
             Actor actor;
 
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(IExecutorDao executorDao) {
                 actor = mock(Actor.class);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
             }
 
             @Override
@@ -131,10 +131,10 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
             Actor actor;
 
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(IExecutorDao executorDao) {
                 actor = mock(Actor.class);
                 when(actor.isActive()).thenReturn(true);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
             }
 
             @Override

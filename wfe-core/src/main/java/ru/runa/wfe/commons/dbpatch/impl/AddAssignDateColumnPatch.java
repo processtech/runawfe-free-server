@@ -17,7 +17,7 @@ import com.google.common.base.Objects;
 
 public class AddAssignDateColumnPatch extends DBPatch {
     @Autowired
-    private ProcessLogDao processLogDAO;
+    private ProcessLogDao processLogDao;
 
     @Override
     protected List<String> getDDLQueriesBefore() {
@@ -36,7 +36,7 @@ public class AddAssignDateColumnPatch extends DBPatch {
             ProcessLogFilter filter = new ProcessLogFilter(((Number) row[1]).longValue());
             filter.setRootClassName(TaskAssignLog.class.getName());
             filter.setNodeId((String) row[2]);
-            List<ProcessLog> logs = processLogDAO.getAll(filter);
+            List<ProcessLog> logs = processLogDao.getAll(filter);
             for (ProcessLog processLog : logs) {
                 TaskAssignLog taskAssignLog = (TaskAssignLog) processLog;
                 if (Objects.equal(taskId, taskAssignLog.getTaskId())) {

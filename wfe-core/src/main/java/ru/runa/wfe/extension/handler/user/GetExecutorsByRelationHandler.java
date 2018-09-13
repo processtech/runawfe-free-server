@@ -11,13 +11,13 @@ import ru.runa.wfe.relation.RelationPair;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 import com.google.common.collect.Lists;
 
 public class GetExecutorsByRelationHandler extends CommonParamBasedHandler {
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
     @Autowired
     private RelationDao relationDAO;
     @Autowired
@@ -31,7 +31,7 @@ public class GetExecutorsByRelationHandler extends CommonParamBasedHandler {
         boolean recursively = handlerData.getInputParamValueNotNull(boolean.class, "recursively");
         List<Executor> parameters = Lists.newArrayList(parameter);
         if (recursively) {
-            parameters.addAll(executorDAO.getExecutorParentsAll(parameter, false));
+            parameters.addAll(executorDao.getExecutorParentsAll(parameter, false));
         }
         Relation relation = relationDAO.getNotNull(relationName);
         List<RelationPair> pairs;

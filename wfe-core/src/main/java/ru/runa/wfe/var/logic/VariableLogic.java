@@ -89,7 +89,7 @@ public class VariableLogic extends WFCommonLogic {
         Process process = processDao.getNotNull(processId);
         ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
         permissionDAO.checkAllowed(user, Permission.LIST, process);
-        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(Sets.newHashSet(process));
+        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(process));
         ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process, variables, true);
         for (VariableDefinition variableDefinition : parsedProcessDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
@@ -104,7 +104,7 @@ public class VariableLogic extends WFCommonLogic {
         Map<Long, List<WfVariable>> result = Maps.newHashMap();
         List<Process> processes = processDao.find(processIds);
         processes = filterSecuredObject(user, processes, Permission.LIST);
-        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(processes);
+        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(processes);
         for (Process process : processes) {
             List<WfVariable> list = Lists.newArrayList();
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
@@ -187,7 +187,7 @@ public class VariableLogic extends WFCommonLogic {
     }
 
     public WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) {
-        Task task = taskDAO.getNotNull(taskId);
+        Task task = taskDao.getNotNull(taskId);
         if (task.getIndex() == null) {
             return getVariable(user, processId, variableName);
         }
@@ -215,7 +215,7 @@ public class VariableLogic extends WFCommonLogic {
         permissionDAO.checkAllowed(user, Permission.LIST, process);
         ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process);
-        processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
+        processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
         executionContext.setVariableValues(variables);
     }
 

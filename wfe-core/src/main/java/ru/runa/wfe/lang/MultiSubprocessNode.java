@@ -38,7 +38,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     @Autowired
     private transient ProcessFactory processFactory;
     @Autowired
-    private transient NodeProcessDao nodeProcessDAO;
+    private transient NodeProcessDao nodeProcessDao;
 
     private String discriminatorCondition;
 
@@ -183,7 +183,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     private void leaveBackCompatiblePre410(ExecutionContext executionContext, Transition transition) {
         if (executionContext.getNotEndedSubprocesses().size() == 0) {
             log.debug("Leaving multisubprocess state [in backcompatibility mode] due to 0 active subprocesses");
-            List<Process> subprocesses = nodeProcessDAO.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
+            List<Process> subprocesses = nodeProcessDao.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
                     executionContext.getToken(), null);
             if (!subprocesses.isEmpty()) {
                 ParsedProcessDefinition parsedSubProcessDefinition = getSubProcessDefinition();

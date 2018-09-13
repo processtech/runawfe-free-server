@@ -14,11 +14,11 @@ public class UnassignedTaskAssigner {
     @Autowired
     private TaskAssigner taskAssigner;
     @Autowired
-    private TaskDao taskDAO;
+    private TaskDao taskDao;
 
     @Transactional
     public void execute() {
-        List<Task> unassignedTasks = taskDAO.findUnassignedTasksInActiveProcesses();
+        List<Task> unassignedTasks = taskDao.findUnassignedTasksInActiveProcesses();
         log.debug("Unassigned tasks: " + unassignedTasks.size());
         for (Task unassignedTask : unassignedTasks) {
             taskAssigner.assignTask(unassignedTask);

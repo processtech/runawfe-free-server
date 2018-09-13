@@ -98,10 +98,10 @@ public class BotLogic extends CommonLogic {
         if (getBot(user, bot.getBotStation().getId(), bot.getUsername()) != null) {
             throw new BotAlreadyExistsException(bot.getUsername());
         }
-        if (executorDAO.isExecutorExist(bot.getUsername()) && executorDAO.isExecutorExist(SystemProperties.getBotsGroupName())) {
-            Actor botActor = executorDAO.getActor(bot.getUsername());
-            Group botsGroup = executorDAO.getGroup(SystemProperties.getBotsGroupName());
-            executorDAO.addExecutorToGroup(botActor, botsGroup);
+        if (executorDao.isExecutorExist(bot.getUsername()) && executorDao.isExecutorExist(SystemProperties.getBotsGroupName())) {
+            Actor botActor = executorDao.getActor(bot.getUsername());
+            Group botsGroup = executorDao.getGroup(SystemProperties.getBotsGroupName());
+            executorDao.addExecutorToGroup(botActor, botsGroup);
         }
         bot = botDAO.create(bot);
         incrementBotStationVersion(bot);
@@ -150,10 +150,10 @@ public class BotLogic extends CommonLogic {
             removeBotTask(user, botTask.getId());
         }
         Bot bot = getBotNotNull(user, id);
-        if (executorDAO.isExecutorExist(bot.getUsername()) && executorDAO.isExecutorExist(SystemProperties.getBotsGroupName())) {
-            Actor botActor = executorDAO.getActor(bot.getUsername());
-            Group botsGroup = executorDAO.getGroup(SystemProperties.getBotsGroupName());
-            executorDAO.removeExecutorFromGroup(botActor, botsGroup);
+        if (executorDao.isExecutorExist(bot.getUsername()) && executorDao.isExecutorExist(SystemProperties.getBotsGroupName())) {
+            Actor botActor = executorDao.getActor(bot.getUsername());
+            Group botsGroup = executorDao.getGroup(SystemProperties.getBotsGroupName());
+            executorDao.removeExecutorFromGroup(botActor, botsGroup);
         }
         botDAO.delete(id);
     }

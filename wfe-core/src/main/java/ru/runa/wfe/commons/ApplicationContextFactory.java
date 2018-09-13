@@ -19,7 +19,7 @@ import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.hibernate.Converters;
-import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.async.INodeAsyncExecutor;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
@@ -34,7 +34,7 @@ import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.task.logic.ITaskNotifier;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.logic.VariableLogic;
 
@@ -148,12 +148,12 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return dbType;
     }
 
-    public static ExecutorDAO getExecutorDAO() {
-        return getContext().getBean(ExecutorDAO.class);
+    public static ExecutorDao getExecutorDao() {
+        return getContext().getBean(ExecutorDao.class);
     }
 
-    public static DeploymentDao getDeploymentDAO() {
-        return getContext().getBean(DeploymentDao.class);
+    public static ProcessDefinitionDao getDeploymentDAO() {
+        return getContext().getBean(ProcessDefinitionDao.class);
     }
 
     public static PermissionDAO getPermissionDAO() {

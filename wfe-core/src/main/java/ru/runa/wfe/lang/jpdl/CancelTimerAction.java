@@ -30,11 +30,11 @@ import ru.runa.wfe.lang.Action;
 public class CancelTimerAction extends Action {
     private static final long serialVersionUID = 1L;
     @Autowired
-    private transient JobDao jobDAO;
+    private transient JobDao jobDao;
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        jobDAO.deleteByToken(executionContext.getToken());
+        jobDao.deleteByToken(executionContext.getToken());
         executionContext.addLog(new ActionLog(this));
     }
 

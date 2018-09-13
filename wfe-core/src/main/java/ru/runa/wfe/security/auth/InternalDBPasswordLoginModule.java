@@ -44,8 +44,8 @@ public class InternalDBPasswordLoginModule extends LoginModuleBase {
             return null;
         }
         String password = new String(passwordChars);
-        Actor actor = executorDAO.getActor(actorName);
-        if (executorDAO.isPasswordValid(actor, password)) {
+        Actor actor = executorDao.getActor(actorName);
+        if (executorDao.isPasswordValid(actor, password)) {
             return actor;
         }
         throw new LoginException("Invalid login or password");

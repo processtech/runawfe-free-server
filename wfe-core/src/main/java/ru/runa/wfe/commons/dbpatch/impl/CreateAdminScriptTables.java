@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.security.dao.PermissionDAO;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 public class CreateAdminScriptTables extends DBPatch {
 
     @Autowired
-    protected ExecutorDAO executorDAO;
+    protected ExecutorDao executorDao;
     @Autowired
     protected PermissionDAO permissionDAO;
 

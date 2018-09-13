@@ -42,7 +42,7 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 @CommonsLog
 public class NodeAsyncExecutionBean implements MessageListener {
     @Autowired
-    private TokenDao tokenDAO;
+    private TokenDao tokenDao;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
     @Resource
@@ -75,7 +75,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
 
                 @Override
                 protected void doExecuteInTransaction() {
-                    Token token = tokenDAO.getNotNull(tokenId);
+                    Token token = tokenDao.getNotNull(tokenId);
                     if (token.getProcess().hasEnded()) {
                         log.debug("Ignored execution in ended " + token.getProcess());
                         return;

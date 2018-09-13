@@ -51,7 +51,7 @@ public class ProfileLogic extends CommonLogic {
     public List<Profile> getProfiles(User user, List<Long> actorIds) throws ExecutorDoesNotExistException {
         List<Profile> result = Lists.newArrayListWithCapacity(actorIds.size());
         for (Long actorId : actorIds) {
-            Actor actor = executorDAO.getActor(actorId);
+            Actor actor = executorDao.getActor(actorId);
             permissionDAO.checkAllowed(user, Permission.LIST, actor);
             result.add(getProfile(actor));
         }
@@ -64,7 +64,7 @@ public class ProfileLogic extends CommonLogic {
             profile = new Profile(actor);
             profileDAO.create(profile);
         }
-        profile.setAdministrator(executorDAO.isAdministrator(actor));
+        profile.setAdministrator(executorDao.isAdministrator(actor));
         List<BatchPresentation> sharedPresentations = batchPresentationDAO.getAllShared();
         Set<BatchPresentation> existing = profile.getBatchPresentations();
         for (BatchPresentation presentation : sharedPresentations) {

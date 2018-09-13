@@ -19,7 +19,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 @Transactional
 @CommonsLog
@@ -27,7 +27,7 @@ public class DbTransactionalInitializer {
     @Autowired
     private ConstantDao constantDAO;
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
     @Autowired
     private PermissionDAO permissionDAO;
     @Autowired
@@ -87,14 +87,14 @@ public class DbTransactionalInitializer {
         // create privileged Executors
         String administratorName = SystemProperties.getAdministratorName();
         Actor admin = new Actor(administratorName, administratorName, administratorName);
-        admin = executorDAO.create(admin);
-        executorDAO.setPassword(admin, SystemProperties.getAdministratorDefaultPassword());
+        admin = executorDao.create(admin);
+        executorDao.setPassword(admin, SystemProperties.getAdministratorDefaultPassword());
         String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-        Group adminGroup = executorDAO.create(new Group(administratorsGroupName, administratorsGroupName));
-        executorDAO.create(new Group(SystemProperties.getBotsGroupName(), SystemProperties.getBotsGroupName()));
+        Group adminGroup = executorDao.create(new Group(administratorsGroupName, administratorsGroupName));
+        executorDao.create(new Group(SystemProperties.getBotsGroupName(), SystemProperties.getBotsGroupName()));
         List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
-        executorDAO.addExecutorToGroup(admin, adminGroup);
-        executorDAO.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
+        executorDao.addExecutorToGroup(admin, adminGroup);
+        executorDao.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
         for (SecuredObjectType t : SecuredObjectType.values()) {
             permissionDAO.addType(t, adminWithGroupExecutors);
         }

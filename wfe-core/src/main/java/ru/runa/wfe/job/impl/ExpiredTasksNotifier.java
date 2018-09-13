@@ -31,7 +31,7 @@ public class ExpiredTasksNotifier {
     private EmailUtils.ProcessNameFilter includeProcessNameFilter;
     private EmailUtils.ProcessNameFilter excludeProcessNameFilter;
     @Autowired
-    private TaskDao taskDAO;
+    private TaskDao taskDao;
     @Autowired
     private long scheduledTimerTaskPeriod;
 
@@ -80,7 +80,7 @@ public class ExpiredTasksNotifier {
             return;
         }
         Date curDate = Calendar.getInstance().getTime();
-        List<Task> tasks = taskDAO.getAllExpiredTasks(curDate);
+        List<Task> tasks = taskDao.getAllExpiredTasks(curDate);
         for (Task task : tasks) {
             if ((task.getDeadlineDate().getTime() + scheduledTimerTaskPeriod) < curDate.getTime()) {
                 continue;

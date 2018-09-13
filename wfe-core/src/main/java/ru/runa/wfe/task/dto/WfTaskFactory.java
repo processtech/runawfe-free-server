@@ -28,7 +28,7 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * {@link WfTask} factory.
@@ -40,7 +40,7 @@ public class WfTaskFactory implements IWfTaskFactory {
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
 
     /**
      * @param variableNamesToInclude
@@ -63,7 +63,7 @@ public class WfTaskFactory implements IWfTaskFactory {
             val escalationGroup = (EscalationGroup) task.getExecutor();
             val originalExecutor = escalationGroup.getOriginalExecutor();
             if (originalExecutor instanceof Group) {
-                escalated = !executorDAO.isExecutorInGroup(targetActor, (Group) originalExecutor);
+                escalated = !executorDao.isExecutorInGroup(targetActor, (Group) originalExecutor);
             } else {
                 escalated = !Objects.equal(originalExecutor, targetActor);
             }

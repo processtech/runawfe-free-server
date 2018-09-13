@@ -66,7 +66,7 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Is one execution of a {@link ParsedProcessDefinition}.
@@ -230,8 +230,8 @@ public class Process extends SecuredObjectBase {
 
         // make sure all the timers for this process are canceled
         // after the process end updates are posted to the database
-        JobDao jobDAO = ApplicationContextFactory.getJobDAO();
-        jobDAO.deleteByProcess(this);
+        JobDao jobDao = ApplicationContextFactory.getJobDAO();
+        jobDao.deleteByProcess(this);
         if (canceller != null) {
             executionContext.addLog(new ProcessCancelLog(canceller));
         } else {
@@ -280,12 +280,12 @@ public class Process extends SecuredObjectBase {
             }
         }
         if (SystemProperties.deleteTemporaryGroupsOnProcessEnd()) {
-            ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-            List<TemporaryGroup> groups = executorDAO.getTemporaryGroups(id);
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
+            List<TemporaryGroup> groups = executorDao.getTemporaryGroups(id);
             for (TemporaryGroup temporaryGroup : groups) {
                 if (ApplicationContextFactory.getProcessDAO().getDependentProcessIds(temporaryGroup).isEmpty()) {
                     log.debug("Cleaning " + temporaryGroup);
-                    executorDAO.remove(temporaryGroup);
+                    executorDao.remove(temporaryGroup);
                 } else {
                     log.debug("Group " + temporaryGroup + " deletion postponed");
                 }

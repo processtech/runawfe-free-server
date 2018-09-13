@@ -29,7 +29,7 @@ public class TransitionLogPatch extends DBPatch {
     @Autowired
     private ProcessDao processDao;
     @Autowired
-    private ProcessLogDao processLogDAO;
+    private ProcessLogDao processLogDao;
 
     @Override
     public void executeDML(Session session) {
@@ -59,7 +59,7 @@ public class TransitionLogPatch extends DBPatch {
                     transitionLog.setProcessId(process.getId());
                     transitionLog.setTokenId(process.getRootToken().getId());
                     transitionLog.setCreateDate(new Date());
-                    processLogDAO.create(transitionLog);
+                    processLogDao.create(transitionLog);
                     success++;
                 } catch (Exception e) {
                     log.warn(e);

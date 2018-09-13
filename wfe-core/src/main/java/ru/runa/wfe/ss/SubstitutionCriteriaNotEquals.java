@@ -64,7 +64,7 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
         }
         Set<Executor> confActors = new HashSet<Executor>();
         if (executor instanceof Group) {
-            confActors.addAll(ApplicationContextFactory.getExecutorDAO().getGroupActors((Group) executor));
+            confActors.addAll(ApplicationContextFactory.getExecutorDao().getGroupActors((Group) executor));
         } else {
             confActors.add(executor);
         }

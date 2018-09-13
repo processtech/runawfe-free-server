@@ -17,7 +17,7 @@ import ru.runa.wfe.task.dto.IWfTaskFactory;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.user.dao.IExecutorDao;
 
 public abstract class TestCaseDataSet implements ITestCaseDataSet {
 
@@ -27,7 +27,7 @@ public abstract class TestCaseDataSet implements ITestCaseDataSet {
     }
 
     @Override
-    public void mockRules(IExecutorDAO executorDAO) {
+    public void mockRules(IExecutorDao executorDao) {
 
     }
 
@@ -42,7 +42,7 @@ public abstract class TestCaseDataSet implements ITestCaseDataSet {
     }
 
     @Override
-    public void mockRules(IGenericDAO<Task> taskDAO) {
+    public void mockRules(IGenericDAO<Task> taskDao) {
 
     }
 

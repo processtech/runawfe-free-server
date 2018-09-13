@@ -31,8 +31,8 @@ import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.hibernate.HibernateUtil;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.dao.DeploymentDao;
-import ru.runa.wfe.definition.dao.DeploymentVersionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
@@ -73,7 +73,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     }
 
     @Override
-    public ParsedProcessDefinition getDefinition(DeploymentDao deploymentDao, DeploymentVersionDao deploymentVersionDAO, long processDefinitionVersionId) {
+    public ParsedProcessDefinition getDefinition(ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long processDefinitionVersionId) {
         ParsedProcessDefinition parsedProcessDefinition;
         // synchronized (this) {
         parsedProcessDefinition = definitionVersionIdToDefinition.get(processDefinitionVersionId);
@@ -81,7 +81,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
             return parsedProcessDefinition;
         }
         // }
-        var dwv = deploymentDao.findDeployment(processDefinitionVersionId);
+        var dwv = processDefinitionDao.findDeployment(processDefinitionVersionId);
         var d = dwv.processDefinition;
         var dv = dwv.processDefinitionVersion;
 
@@ -99,7 +99,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
 
     @Override
     public ParsedProcessDefinition getLatestDefinition(
-            DeploymentDao deploymentDao, DeploymentVersionDao deploymentVersionDAO, @NonNull String definitionName
+            ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, @NonNull String definitionName
     ) {
         log.warn("getLatestDefinition(..., deploymentName) is deprecated, use getLatestDefinition(..., deploymentId)");
 
@@ -107,38 +107,38 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         // synchronized (this) {
         processDefinitionVersionId = deploymentNameToDeploymentVersionId.get(definitionName);
         if (processDefinitionVersionId != null) {
-            return getDefinition(deploymentDao, deploymentVersionDAO, processDefinitionVersionId);
+            return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
         }
         // }
 
         // TODO Suboptimal: can we use whole entities instead of just id?
-        processDefinitionVersionId = deploymentDao.findLatestDeployment(definitionName).processDefinitionVersion.getId();
+        processDefinitionVersionId = processDefinitionDao.findLatestDeployment(definitionName).processDefinitionVersion.getId();
         synchronized (this) {
             if (!isLocked.get()) {
                 deploymentNameToDeploymentVersionId.put(definitionName, processDefinitionVersionId);
             }
         }
-        return getDefinition(deploymentDao, deploymentVersionDAO, processDefinitionVersionId);
+        return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
     }
 
     @Override
-    public ParsedProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, DeploymentVersionDao deploymentVersionDAO, long deploymentId) {
+    public ParsedProcessDefinition getLatestDefinition(ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long deploymentId) {
         Long processDefinitionVersionId;
         // synchronized (this) {
         processDefinitionVersionId = deploymentIdToDeploymentVersionId.get(deploymentId);
         if (processDefinitionVersionId != null) {
-            return getDefinition(deploymentDao, deploymentVersionDAO, processDefinitionVersionId);
+            return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
         }
         // }
 
         // TODO Suboptimal: can we use whole entities instead of just id?
-        processDefinitionVersionId = deploymentDao.findLatestDeployment(deploymentId).processDefinitionVersion.getId();
+        processDefinitionVersionId = processDefinitionDao.findLatestDeployment(deploymentId).processDefinitionVersion.getId();
         synchronized (this) {
             if (!isLocked.get()) {
                 deploymentIdToDeploymentVersionId.put(deploymentId, processDefinitionVersionId);
             }
         }
-        return getDefinition(deploymentDao, deploymentVersionDAO, processDefinitionVersionId);
+        return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
     }
 
     @Override

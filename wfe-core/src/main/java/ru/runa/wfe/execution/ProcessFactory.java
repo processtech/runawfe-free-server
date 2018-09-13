@@ -24,7 +24,7 @@ import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 public class ProcessFactory {
     @Autowired
@@ -32,11 +32,11 @@ public class ProcessFactory {
     @Autowired
     private PermissionDAO permissionDAO;
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
     @Autowired
-    private NodeProcessDao nodeProcessDAO;
+    private NodeProcessDao nodeProcessDao;
     @Autowired
-    private SwimlaneDao swimlaneDAO;
+    private SwimlaneDao swimlaneDao;
 
     private static final Map<Permission, Permission> DEFINITION_TO_PROCESS_PERMISSION_MAP = new HashMap<Permission, Permission>() {{
         put(Permission.READ_PROCESS, Permission.READ);
@@ -73,7 +73,7 @@ public class ProcessFactory {
 
     private void grantProcessPermissions(ParsedProcessDefinition parsedProcessDefinition, Process process, Actor actor) {
         boolean permissionsAreSetToProcessStarter = false;
-        Executor processStarter = executorDAO.getExecutor(SystemExecutors.PROCESS_STARTER_NAME);
+        Executor processStarter = executorDao.getExecutor(SystemExecutors.PROCESS_STARTER_NAME);
         Set<Permission> processStarterPermissions = getProcessPermissions(processStarter, parsedProcessDefinition);
         for (Executor executor : permissionDAO.getExecutorsWithPermission(parsedProcessDefinition.getProcessDefinition())) {
             Set<Permission> permissions = getProcessPermissions(executor, parsedProcessDefinition);
@@ -95,7 +95,7 @@ public class ProcessFactory {
         Process parentProcess = parentExecutionContext.getProcess();
         Node subProcessNode = parentExecutionContext.getNode();
         ExecutionContext subExecutionContext = createProcessInternal(parsedProcessDefinition, variables, null, parentProcess, null);
-        nodeProcessDAO.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index));
+        nodeProcessDao.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index));
         return subExecutionContext.getProcess();
     }
 
@@ -144,7 +144,7 @@ public class ProcessFactory {
         executionContext.setVariableValues(variables);
         if (actor != null) {
             SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
-            Swimlane swimlane = swimlaneDAO.findOrCreate(process, swimlaneDefinition);
+            Swimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
             swimlane.assignExecutor(executionContext, actor, false);
         }
         return executionContext;

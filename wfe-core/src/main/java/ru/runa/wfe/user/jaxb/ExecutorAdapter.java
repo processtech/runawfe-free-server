@@ -24,7 +24,7 @@ public class ExecutorAdapter extends XmlAdapter<WfExecutor, Executor> {
 
     @Override
     public Executor unmarshal(WfExecutor executor) {
-        return ApplicationContextFactory.getExecutorDAO().getExecutor(executor.getId());
+        return ApplicationContextFactory.getExecutorDao().getExecutor(executor.getId());
     }
 
 }

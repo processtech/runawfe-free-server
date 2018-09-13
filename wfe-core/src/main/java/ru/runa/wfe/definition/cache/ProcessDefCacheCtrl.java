@@ -9,16 +9,16 @@ import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.dao.DeploymentDao;
-import ru.runa.wfe.definition.dao.DeploymentVersionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache> implements DefinitionCache {
 
     @Autowired
-    private DeploymentDao deploymentDao;
+    private ProcessDefinitionDao processDefinitionDao;
     @Autowired
-    private DeploymentVersionDao deploymentVersionDAO;
+    private ProcessDefinitionVersionDao processDefinitionVersionDao;
 
     public ProcessDefCacheCtrl() {
         super(
@@ -32,17 +32,17 @@ class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache
 
     @Override
     public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(stateMachine).getDefinition(deploymentDao, deploymentVersionDAO, processDefinitionVersionId);
+        return CachingLogic.getCacheImpl(stateMachine).getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
     }
 
     @Override
     public ParsedProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(deploymentDao, deploymentVersionDAO, definitionName);
+        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionDao, processDefinitionVersionDao, definitionName);
     }
 
     @Override
     public ParsedProcessDefinition getLatestDefinition(long deploymentId) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(deploymentDao, deploymentVersionDAO, deploymentId);
+        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionDao, processDefinitionVersionDao, deploymentId);
     }
 
     private static class ProcessDefinitionCacheFactory extends SMCacheFactory<ManageableProcessDefinitionCache> {

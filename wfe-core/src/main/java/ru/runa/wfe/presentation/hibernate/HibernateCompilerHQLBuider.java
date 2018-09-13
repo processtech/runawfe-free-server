@@ -39,7 +39,7 @@ import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.security.dao.QPermissionMapping;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Builds HQL query for {@link BatchPresentation}.
@@ -336,13 +336,13 @@ public class HibernateCompilerHQLBuider {
             Assert.isTrue(Objects.equals(subst, PermissionSubstitutions.getForCheck(pp.types[i], pp.permission)));
         }
 
-        ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
+        ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
         PermissionDAO permissionDAO = ApplicationContextFactory.getPermissionDAO();
         HibernateQueryFactory queryFactory = HibernateQueryFactory.getInstance();
 
         // Need to check privileged & list permissions only once.
         // ATTENTION!!! Also, HQL query with two conditions (on both type and listType) always returns empty rowset. :(
-        List<Long> executorIds = executorDAO.getActorAndNotTemporaryGroupsIds(pp.user.getActor());
+        List<Long> executorIds = executorDao.getActorAndNotTemporaryGroupsIds(pp.user.getActor());
         if (permissionDAO.hasPrivilegedExecutor(executorIds)) {
             return result;
         }

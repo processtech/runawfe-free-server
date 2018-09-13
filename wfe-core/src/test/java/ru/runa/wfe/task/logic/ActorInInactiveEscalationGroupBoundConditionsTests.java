@@ -20,7 +20,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.user.dao.IExecutorDao;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -103,10 +103,10 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         }
 
         @Override
-        public void mockRules(IExecutorDAO executorDAO) {
-            when(executorDAO.getGroupActors(any(EscalationGroup.class))).thenReturn(groupActors);
+        public void mockRules(IExecutorDao executorDao) {
+            when(executorDao.getGroupActors(any(EscalationGroup.class))).thenReturn(groupActors);
             for (Actor a : groupActors) {
-                when(executorDAO.getActor(a.getId())).thenReturn(a);
+                when(executorDao.getActor(a.getId())).thenReturn(a);
             }
         }
 

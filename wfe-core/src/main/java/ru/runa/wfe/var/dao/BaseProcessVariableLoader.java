@@ -34,7 +34,7 @@ public class BaseProcessVariableLoader {
     private final ParsedProcessDefinition parsedProcessDefinition;
     private final SubprocessSyncCache subprocessSyncCache;
     @Autowired
-    private NodeProcessDao nodeProcessDAO;
+    private NodeProcessDao nodeProcessDao;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
@@ -128,7 +128,7 @@ public class BaseProcessVariableLoader {
 
         private NodeProcess getSubprocessNodeInfo(Process process) {
             if (!subprocessesInfoMap.containsKey(process)) {
-                NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDAO.findBySubProcessId(process.getId());
+                NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDao.findBySubProcessId(process.getId());
                 if (nodeProcess != null) {
                     Map<String, String> readVariableNames = Maps.newHashMap();
                     Map<String, String> syncVariableNames = Maps.newHashMap();

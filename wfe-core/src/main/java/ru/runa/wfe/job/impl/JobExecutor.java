@@ -15,13 +15,13 @@ public class JobExecutor {
     protected final Log log = LogFactory.getLog(getClass());
 
     @Autowired
-    private JobDao jobDAO;
+    private JobDao jobDao;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
 
     @Transactional
     public void execute() {
-        List<Job> jobs = jobDAO.getExpiredJobs();
+        List<Job> jobs = jobDao.getExpiredJobs();
         log.debug("Expired jobs: " + jobs.size());
         for (Job job : jobs) {
             try {

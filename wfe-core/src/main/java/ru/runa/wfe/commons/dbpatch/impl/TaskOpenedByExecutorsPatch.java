@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 import com.google.common.collect.Lists;
 
@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 public class TaskOpenedByExecutorsPatch extends DBPatch {
 
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
 
     @Override
     protected List<String> getDDLQueriesAfter() {
@@ -55,7 +55,7 @@ public class TaskOpenedByExecutorsPatch extends DBPatch {
             Long taskId = ((Number) scrollableResults.get(0)).longValue();
             try {
                 Long executorId = ((Number) scrollableResults.get(1)).longValue();
-                Executor executor = executorDAO.getExecutor(executorId);
+                Executor executor = executorDao.getExecutor(executorId);
                 if (executor instanceof Actor) {
                     q = "INSERT INTO BPM_TASK_OPENED VALUES (" + taskId + ", " + executorId + ")";
                     session.createSQLQuery(q).executeUpdate();

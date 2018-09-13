@@ -15,7 +15,7 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public class AddTokenMessageSelectorPatch extends DBPatch implements IDbPatchPostProcessor {
     @Autowired
-    TokenDao tokenDAO;
+    TokenDao tokenDao;
     @Autowired
     ProcessDefinitionLoader processDefinitionLoader;
 
@@ -29,7 +29,7 @@ public class AddTokenMessageSelectorPatch extends DBPatch implements IDbPatchPos
 
     @Override
     public void postExecute() throws Exception {
-        List<Token> tokens = tokenDAO.findByMessageSelectorIsNullAndExecutionStatusIsActive();
+        List<Token> tokens = tokenDao.findByMessageSelectorIsNullAndExecutionStatusIsActive();
         log.info("Updating " + tokens.size() + " tokens message selector");
         for (Token token : tokens) {
             ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());

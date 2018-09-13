@@ -15,12 +15,12 @@ import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 public class CreateReportsTables extends DBPatch implements IDbPatchPostProcessor {
 
     @Autowired
-    protected ExecutorDAO executorDAO;
+    protected ExecutorDao executorDao;
     @Autowired
     protected PermissionDAO permissionDAO;
 
@@ -83,9 +83,9 @@ public class CreateReportsTables extends DBPatch implements IDbPatchPostProcesso
         if (permissionDAO.getPrivilegedExecutors(SecuredObjectType.REPORT).isEmpty()) {
             log.info("Adding " + SecuredObjectType.REPORT + " tokens message hash");
             String administratorName = SystemProperties.getAdministratorName();
-            Actor admin = executorDAO.getActor(administratorName);
+            Actor admin = executorDao.getActor(administratorName);
             String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-            Group adminGroup = executorDAO.getGroup(administratorsGroupName);
+            Group adminGroup = executorDao.getGroup(administratorsGroupName);
             List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
             permissionDAO.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
         }

@@ -10,7 +10,7 @@ import ru.runa.wfe.commons.dbpatch.DBPatch;
 
 public class AddSubprocessBindingDatePatch extends DBPatch {
     @Autowired
-    private ProcessLogDao processLogDAO;
+    private ProcessLogDao processLogDao;
 
     @Override
     protected List<String> getDDLQueriesBefore() {

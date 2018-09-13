@@ -35,7 +35,7 @@ import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -50,9 +50,9 @@ import com.google.common.io.ByteStreams;
  */
 public class EmailTaskNotifierActionHandler extends ActionHandlerBase {
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
     @Autowired
-    private TaskDao taskDAO;
+    private TaskDao taskDao;
     private byte[] configBytes;
 
     @Override
@@ -68,14 +68,14 @@ public class EmailTaskNotifierActionHandler extends ActionHandlerBase {
 
     @Override
     public void execute(ExecutionContext executionContext) throws Exception {
-        List<Actor> actors = executorDAO.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged());
+        List<Actor> actors = executorDao.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged());
         for (Actor actor : actors) {
             if (!actor.isActive()) {
                 continue;
             }
             String email = actor.getEmail();
             if (!Strings.isNullOrEmpty(email)) {
-                List<Task> taskList = taskDAO.findByExecutor(actor);
+                List<Task> taskList = taskDao.findByExecutor(actor);
                 for (Task task : taskList) {
                     if (!Objects.equal(task, executionContext.getTask())) {
                         EmailConfig config = EmailConfigParser.parse(configBytes);

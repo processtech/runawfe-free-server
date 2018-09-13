@@ -46,9 +46,9 @@ public class AuditLogic extends CommonLogic {
     @Autowired
     private ProcessDao processDao;
     @Autowired
-    private ProcessLogDao processLogDAO;
+    private ProcessLogDao processLogDao;
     @Autowired
-    private NodeProcessDao nodeProcessDAO;
+    private NodeProcessDao nodeProcessDao;
 
     public void login(User user) {
         permissionDAO.checkAllowed(user, Permission.LOGIN, SecuredSingleton.EXECUTORS);
@@ -59,13 +59,13 @@ public class AuditLogic extends CommonLogic {
         ru.runa.wfe.execution.Process process = processDao.getNotNull(filter.getProcessId());
         permissionDAO.checkAllowed(user, Permission.LIST, process);
         ProcessLogs result = new ProcessLogs(filter.getProcessId());
-        List<ProcessLog> logs = processLogDAO.getAll(filter);
+        List<ProcessLog> logs = processLogDao.getAll(filter);
         result.addLogs(logs, filter.isIncludeSubprocessLogs());
         if (filter.isIncludeSubprocessLogs()) {
-            for (ru.runa.wfe.execution.Process subprocess : nodeProcessDAO.getSubprocessesRecursive(process)) {
+            for (ru.runa.wfe.execution.Process subprocess : nodeProcessDao.getSubprocessesRecursive(process)) {
                 ProcessLogFilter subprocessFilter = new ProcessLogFilter(subprocess.getId());
                 subprocessFilter.setSeverities(filter.getSeverities());
-                logs = processLogDAO.getAll(subprocessFilter);
+                logs = processLogDao.getAll(subprocessFilter);
                 result.addLogs(logs, filter.isIncludeSubprocessLogs());
             }
         }
@@ -74,7 +74,7 @@ public class AuditLogic extends CommonLogic {
 
     public Object getProcessLogValue(User user, Long logId) {
         Preconditions.checkNotNull(logId, "logId");
-        ProcessLog processLog = processLogDAO.getNotNull(logId);
+        ProcessLog processLog = processLogDao.getNotNull(logId);
         permissionDAO.checkAllowed(user, Permission.LIST, SecuredObjectType.PROCESS, processLog.getProcessId());
         return processLog.getBytesObject();
     }

@@ -6,7 +6,7 @@ import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 
 @Component
-public class DeploymentVersionDao extends GenericDao<ProcessDefinitionVersion> {
+public class ProcessDefinitionVersionDao extends GenericDao<ProcessDefinitionVersion> {
 
     @Override
     protected void checkNotNull(ProcessDefinitionVersion entity, Object identity) {

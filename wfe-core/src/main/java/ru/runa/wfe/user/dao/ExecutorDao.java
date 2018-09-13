@@ -59,7 +59,7 @@ import ru.runa.wfe.user.cache.ExecutorCache;
  */
 @Component
 @SuppressWarnings("unchecked")
-public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
+public class ExecutorDao extends CommonDAO implements IExecutorDao {
     private static final String ID_PROPERTY_NAME = "id";
     private static final String CODE_PROPERTY_NAME = "code";
 

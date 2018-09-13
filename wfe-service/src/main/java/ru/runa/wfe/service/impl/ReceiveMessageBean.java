@@ -67,7 +67,7 @@ import ru.runa.wfe.var.VariableMapping;
 @CommonsLog
 public class ReceiveMessageBean implements MessageListener {
     @Autowired
-    private TokenDao tokenDAO;
+    private TokenDao tokenDao;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
     @Resource
@@ -88,15 +88,15 @@ public class ReceiveMessageBean implements MessageListener {
             if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
                 if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
                     String messageSelector = Utils.getObjectMessageStrictSelector(message);
-                    tokens = tokenDAO.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
+                    tokens = tokenDao.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
                     log.debug("Checking " + tokens.size() + " tokens by messageSelector = " + messageSelector);
                 } else {
                     Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(message);
-                    tokens = tokenDAO.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
+                    tokens = tokenDao.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
                     log.debug("Checking " + tokens.size() + " tokens by messageSelectors = " + messageSelectors);
                 }
             } else {
-                tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
+                tokens = tokenDao.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
                 log.debug("Checking " + tokens.size() + " tokens");
             }
             for (Token token : tokens) {
@@ -164,7 +164,7 @@ public class ReceiveMessageBean implements MessageListener {
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
                     log.info("Handling " + message + " for " + data);
-                    Token token = tokenDAO.getNotNull(data.tokenId);
+                    Token token = tokenDao.getNotNull(data.tokenId);
                     if (!Objects.equal(token.getNodeId(), data.node.getNodeId())) {
                         throw new InternalApplicationException(token + " not in " + data.node.getNodeId());
                     }

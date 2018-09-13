@@ -59,7 +59,7 @@ public class ExecutorLogic extends CommonLogic {
     @Autowired
     private RelationPairDao relationPairDAO;
     @Autowired
-    private SubstitutionDao substitutionDAO;
+    private SubstitutionDao substitutionDao;
     @Autowired
     private AuthorizationLogic authorizationLogic;
 
@@ -69,17 +69,17 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public boolean isExecutorExist(User user, String executorName) {
-        if (!executorDAO.isExecutorExist(executorName)) {
+        if (!executorDao.isExecutorExist(executorName)) {
             return false;
         }
-        Executor executor = executorDAO.getExecutor(executorName);
+        Executor executor = executorDao.getExecutor(executorName);
         permissionDAO.checkAllowed(user, Permission.LIST, executor);
         return true;
     }
 
     public Executor update(User user, Executor executor) {
         checkPermissionsOnExecutor(user, executor, Permission.UPDATE);
-        return executorDAO.update(executor);
+        return executorDao.update(executor);
     }
 
     public List<? extends Executor> getExecutors(User user, BatchPresentation batchPresentation) {
@@ -93,27 +93,27 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public Actor getActor(User user, String name) {
-        return checkPermissionsOnExecutor(user, executorDAO.getActor(name), Permission.LIST);
+        return checkPermissionsOnExecutor(user, executorDao.getActor(name), Permission.LIST);
     }
 
     public Actor getActorCaseInsensitive(String login) {
-        return executorDAO.getActorCaseInsensitive(login);
+        return executorDao.getActorCaseInsensitive(login);
     }
 
     public Group getGroup(User user, String name) {
-        return checkPermissionsOnExecutor(user, executorDAO.getGroup(name), Permission.LIST);
+        return checkPermissionsOnExecutor(user, executorDao.getGroup(name), Permission.LIST);
     }
 
     public Executor getExecutor(User user, String name) {
-        return checkPermissionsOnExecutor(user, executorDAO.getExecutor(name), Permission.LIST);
+        return checkPermissionsOnExecutor(user, executorDao.getExecutor(name), Permission.LIST);
     }
 
     public boolean isAdministrator(User user) {
-        return executorDAO.isAdministrator(user.getActor());
+        return executorDao.isAdministrator(user.getActor());
     }
 
     public void remove(User user, List<Long> ids) {
-        List<Executor> executors = checkPermissionsOnExecutors(user, executorDAO.getExecutors(ids), Permission.DELETE);
+        List<Executor> executors = checkPermissionsOnExecutors(user, executorDao.getExecutors(ids), Permission.DELETE);
         for (Executor executor : executors) {
             remove(executor);
         }
@@ -134,13 +134,13 @@ public class ExecutorLogic extends CommonLogic {
         permissionDAO.deleteOwnPermissions(executor);
         permissionDAO.deleteAllPermissions(executor);
         relationPairDAO.removeAllRelationPairs(executor);
-        substitutionDAO.deleteAllActorSubstitutions(executor.getId());
-        executorDAO.remove(executor);
+        substitutionDao.deleteAllActorSubstitutions(executor.getId());
+        executorDao.remove(executor);
     }
 
     public <T extends Executor> T create(User user, T executor) {
         permissionDAO.checkAllowed(user, Permission.CREATE, SecuredSingleton.EXECUTORS);
-        executorDAO.create(executor);
+        executorDao.create(executor);
         Collection<Permission> selfPermissions = SystemProperties.getDefaultPermissions(executor.getSecuredObjectType());
         permissionDAO.setPermissions(user.getActor(), ApplicablePermissions.listVisible(executor), executor);
         permissionDAO.setPermissions(executor, selfPermissions, executor);
@@ -152,15 +152,15 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public void addExecutorsToGroup(User user, List<Long> executorIds, Long groupId) {
-        List<Executor> executors = executorDAO.getExecutors(executorIds);
-        Group group = executorDAO.getGroup(groupId);
+        List<Executor> executors = executorDao.getExecutors(executorIds);
+        Group group = executorDao.getGroup(groupId);
         addExecutorsToGroupInternal(user, executors, group);
     }
 
     private void addExecutorsToGroupInternal(User user, List<? extends Executor> executors, Group group) {
         checkPermissionsOnExecutors(user, executors, Permission.UPDATE);
         checkPermissionsOnExecutor(user, group, Permission.UPDATE);
-        executorDAO.addExecutorsToGroup(executors, group);
+        executorDao.addExecutorsToGroup(executors, group);
     }
 
     public void addExecutorToGroups(User user, Executor executor, List<Group> groups) {
@@ -168,15 +168,15 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public void addExecutorToGroups(User user, Long executorId, List<Long> groupIds) {
-        Executor executor = executorDAO.getExecutor(executorId);
-        List<Group> groups = executorDAO.getGroups(groupIds);
+        Executor executor = executorDao.getExecutor(executorId);
+        List<Group> groups = executorDao.getGroups(groupIds);
         addExecutorToGroupsInternal(user, executor, groups);
     }
 
     private void addExecutorToGroupsInternal(User user, Executor executor, List<Group> groups) {
         checkPermissionsOnExecutor(user, executor, Permission.UPDATE);
         checkPermissionsOnExecutors(user, groups, Permission.UPDATE);
-        executorDAO.addExecutorToGroups(executor, groups);
+        executorDao.addExecutorToGroups(executor, groups);
     }
 
     public List<Executor> getGroupChildren(User user, Group group, BatchPresentation batchPresentation, boolean isExclude) {
@@ -197,13 +197,13 @@ public class ExecutorLogic extends CommonLogic {
 
     public List<Actor> getGroupActors(User user, Group group) {
         checkPermissionsOnExecutor(user, group, Permission.READ);
-        Set<Actor> groupActors = executorDAO.getGroupActors(group);
+        Set<Actor> groupActors = executorDao.getGroupActors(group);
         return filterSecuredObject(user, Lists.newArrayList(groupActors), Permission.LIST);
     }
 
     public List<Executor> getAllExecutorsFromGroup(User user, Group group) {
         checkPermissionsOnExecutor(user, group, Permission.READ);
-        return filterSecuredObject(user, executorDAO.getAllNonGroupExecutorsFromGroup(group), Permission.LIST);
+        return filterSecuredObject(user, executorDao.getAllNonGroupExecutorsFromGroup(group), Permission.LIST);
     }
 
     public void removeExecutorsFromGroup(User user, List<? extends Executor> executors, Group group) {
@@ -211,29 +211,29 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public void removeExecutorsFromGroup(User user, List<Long> executorIds, Long groupId) {
-        List<Executor> executors = executorDAO.getExecutors(executorIds);
-        Group group = executorDAO.getGroup(groupId);
+        List<Executor> executors = executorDao.getExecutors(executorIds);
+        Group group = executorDao.getGroup(groupId);
         removeExecutorsFromGroupInternal(user, executors, group);
     }
 
     private void removeExecutorsFromGroupInternal(User user, List<? extends Executor> executors, Group group) {
         checkPermissionsOnExecutor(user, group, Permission.UPDATE);
         checkPermissionsOnExecutors(user, executors, Permission.LIST);
-        executorDAO.removeExecutorsFromGroup(executors, group);
+        executorDao.removeExecutorsFromGroup(executors, group);
     }
 
     public void removeExecutorFromGroups(User user, Executor executor, List<Group> groups) {
         checkPermissionsOnExecutor(user, executor, Permission.UPDATE);
         checkPermissionsOnExecutors(user, groups, Permission.UPDATE);
-        executorDAO.removeExecutorFromGroups(executor, groups);
+        executorDao.removeExecutorFromGroups(executor, groups);
     }
 
     public void removeExecutorFromGroups(User user, Long executorId, List<Long> groupIds) {
-        Executor executor = executorDAO.getExecutor(executorId);
-        List<Group> groups = executorDAO.getGroups(groupIds);
+        Executor executor = executorDao.getExecutor(executorId);
+        List<Group> groups = executorDao.getGroups(groupIds);
         checkPermissionsOnExecutor(user, executor, Permission.UPDATE);
         checkPermissionsOnExecutors(user, groups, Permission.UPDATE);
-        executorDAO.removeExecutorFromGroups(executor, groups);
+        executorDao.removeExecutorFromGroups(executor, groups);
     }
 
     public void setPassword(User user, Actor actor, String password) {
@@ -242,12 +242,12 @@ public class ExecutorLogic extends CommonLogic {
             throw new WeakPasswordException();
         }
         authorizationLogic.checkAllowedUpdateExecutor(user, actor);
-        executorDAO.setPassword(actor, password);
+        executorDao.setPassword(actor, password);
     }
 
     public Actor setStatus(User user, Actor actor, boolean isActive, boolean callHandlers) {
         checkPermissionsOnExecutor(user, actor, Permission.UPDATE_STATUS);
-        Actor updated = executorDAO.setStatus(actor, isActive);
+        Actor updated = executorDao.setStatus(actor, isActive);
         if (callHandlers) {
             for (SetStatusHandler handler : setStatusHandlers) {
                 try {
@@ -277,21 +277,21 @@ public class ExecutorLogic extends CommonLogic {
     public boolean isExecutorInGroup(User user, Executor executor, Group group) {
         checkPermissionsOnExecutor(user, executor, Permission.LIST);
         checkPermissionsOnExecutor(user, group, Permission.LIST);
-        return executorDAO.isExecutorInGroup(executor, group);
+        return executorDao.isExecutorInGroup(executor, group);
     }
 
     public Executor getExecutor(User user, Long id) {
-        return checkPermissionsOnExecutor(user, executorDAO.getExecutor(id), Permission.READ);
+        return checkPermissionsOnExecutor(user, executorDao.getExecutor(id), Permission.READ);
     }
 
     public Actor getActorByCode(User user, Long code) {
-        return checkPermissionsOnExecutor(user, executorDAO.getActorByCode(code), Permission.LIST);
+        return checkPermissionsOnExecutor(user, executorDao.getActorByCode(code), Permission.LIST);
     }
 
     public Group saveTemporaryGroup(Group temporaryGroup, Collection<? extends Executor> newGroupExecutors) {
-        if (executorDAO.isExecutorExist(temporaryGroup.getName())) {
-            temporaryGroup = (Group) executorDAO.getExecutor(temporaryGroup.getName());
-            Set<Executor> oldGroupExecutors = executorDAO.getGroupChildren(temporaryGroup);
+        if (executorDao.isExecutorExist(temporaryGroup.getName())) {
+            temporaryGroup = (Group) executorDao.getExecutor(temporaryGroup.getName());
+            Set<Executor> oldGroupExecutors = executorDao.getGroupChildren(temporaryGroup);
             Set<Executor> executorsToDelete = new HashSet<>();
             Set<Executor> executorsToAdd = new HashSet<>();
             for (Executor executor : oldGroupExecutors) {
@@ -304,17 +304,17 @@ public class ExecutorLogic extends CommonLogic {
                     executorsToAdd.add(executor);
                 }
             }
-            executorDAO.deleteExecutorsFromGroup(temporaryGroup, executorsToDelete);
+            executorDao.deleteExecutorsFromGroup(temporaryGroup, executorsToDelete);
             addNewExecutorsToGroup(temporaryGroup, executorsToAdd);
         } else {
-            temporaryGroup = executorDAO.create(temporaryGroup);
+            temporaryGroup = executorDao.create(temporaryGroup);
             addNewExecutorsToGroup(temporaryGroup, newGroupExecutors);
         }
         return temporaryGroup;
     }
 
     private void addNewExecutorsToGroup(Group temporaryGroup, Collection<? extends Executor> newGroupExecutors) {
-        executorDAO.addExecutorsToGroup(newGroupExecutors, temporaryGroup);
+        executorDao.addExecutorsToGroup(newGroupExecutors, temporaryGroup);
         if (SystemProperties.setPermissionsToTemporaryGroups()) {
             Set<Executor> grantedExecutors = Sets.newHashSet();
             grantedExecutors.addAll(newGroupExecutors);

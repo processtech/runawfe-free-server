@@ -28,8 +28,8 @@ import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.dao.SystemLogDao;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.definition.dao.DeploymentDao;
-import ru.runa.wfe.definition.dao.DeploymentVersionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
@@ -69,25 +69,25 @@ public class WFCommonLogic extends CommonLogic {
     protected SubstitutionLogic substitutionLogic;
 
     @Autowired
-    protected DeploymentDao deploymentDao;
+    protected ProcessDefinitionDao processDefinitionDao;
     @Autowired
-    protected DeploymentVersionDao deploymentVersionDAO;
+    protected ProcessDefinitionVersionDao processDefinitionVersionDao;
     @Autowired
-    protected NodeProcessDao nodeProcessDAO;
+    protected NodeProcessDao nodeProcessDao;
     @Autowired
-    protected TaskDao taskDAO;
+    protected TaskDao taskDao;
     @Autowired
-    protected VariableDao variableDAO;
+    protected VariableDao variableDao;
     @Autowired
-    protected ProcessLogDao processLogDAO;
+    protected ProcessLogDao processLogDao;
     @Autowired
-    protected JobDao jobDAO;
+    protected JobDao jobDao;
     @Autowired
-    protected SwimlaneDao swimlaneDAO;
+    protected SwimlaneDao swimlaneDao;
     @Autowired
-    protected TokenDao tokenDAO;
+    protected TokenDao tokenDao;
     @Autowired
-    protected SystemLogDao systemLogDAO;
+    protected SystemLogDao systemLogDao;
 
     public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) {
         return processDefinitionLoader.getDefinition(processDefinitionVersionId);
@@ -148,7 +148,7 @@ public class WFCommonLogic extends CommonLogic {
                     return TaskCompletionBy.ASSIGNED_EXECUTOR;
                 }
             } else {
-                Set<Actor> groupActors = executorDAO.getGroupActors((Group) taskExecutor);
+                Set<Actor> groupActors = executorDao.getGroupActors((Group) taskExecutor);
                 if (groupActors.contains(actor)) {
                     return TaskCompletionBy.ASSIGNED_EXECUTOR;
                 }
@@ -160,8 +160,8 @@ public class WFCommonLogic extends CommonLogic {
         }
         for (String groupName : SystemProperties.getProcessAdminGroupNames()) {
             try {
-                Group group = executorDAO.getGroup(groupName);
-                if (executorDAO.getGroupActors(group).contains(actor)) {
+                Group group = executorDao.getGroup(groupName);
+                if (executorDao.getGroupActors(group).contains(actor)) {
                     return TaskCompletionBy.ADMIN;
                 }
             } catch (ExecutorDoesNotExistException e) {
@@ -186,26 +186,26 @@ public class WFCommonLogic extends CommonLogic {
         if (task.getExecutor() instanceof Actor) {
             return Sets.newHashSet((Actor) task.getExecutor());
         } else {
-            return executorDAO.getGroupActors((Group) task.getExecutor());
+            return executorDao.getGroupActors((Group) task.getExecutor());
         }
     }
 
     protected void deleteProcess(User user, Process process) {
         log.debug("deleting process " + process);
         permissionDAO.deleteAllPermissions(process);
-        List<Process> subProcesses = nodeProcessDAO.getSubprocesses(process);
-        nodeProcessDAO.deleteByProcess(process);
+        List<Process> subProcesses = nodeProcessDao.getSubprocesses(process);
+        nodeProcessDao.deleteByProcess(process);
         for (Process subProcess : subProcesses) {
             log.debug("deleting sub process " + subProcess.getId());
             deleteProcess(user, subProcess);
         }
-        processLogDAO.deleteAll(process);
-        jobDAO.deleteByProcess(process);
-        variableDAO.deleteAll(process);
+        processLogDao.deleteAll(process);
+        jobDao.deleteByProcess(process);
+        variableDao.deleteAll(process);
         processDao.delete(process);
-        taskDAO.deleteAll(process);
-        swimlaneDAO.deleteAll(process);
-        systemLogDAO.create(new ProcessDeleteLog(user.getActor().getId(), process.getProcessDefinitionVersion().getProcessDefinition().getName(), process.getId()));
+        taskDao.deleteAll(process);
+        swimlaneDao.deleteAll(process);
+        systemLogDao.create(new ProcessDeleteLog(user.getActor().getId(), process.getProcessDefinitionVersion().getProcessDefinition().getName(), process.getId()));
     }
 
     /**

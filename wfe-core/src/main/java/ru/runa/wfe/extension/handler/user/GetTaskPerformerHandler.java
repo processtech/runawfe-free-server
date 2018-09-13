@@ -9,15 +9,15 @@ import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 public class GetTaskPerformerHandler extends CommonParamBasedHandler {
 
     @Autowired
-    private ProcessLogDao processLogDAO;
+    private ProcessLogDao processLogDao;
 
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
 
     @Override
     protected void executeAction(HandlerData handlerData) throws Exception {
@@ -25,12 +25,12 @@ public class GetTaskPerformerHandler extends CommonParamBasedHandler {
         ProcessLogFilter filter = new ProcessLogFilter(handlerData.getProcessId());
         filter.setNodeId(nodeId);
         ProcessLogs processLogs = new ProcessLogs();
-        processLogs.addLogs(processLogDAO.getAll(filter), false);
+        processLogs.addLogs(processLogDao.getAll(filter), false);
         TaskEndLog taskEndLog = processLogs.getLastOrNull(TaskEndLog.class);
         if (taskEndLog == null) {
             throw new InternalApplicationException("No task end log found for node " + nodeId);
         }
-        Object result = executorDAO.getExecutor(taskEndLog.getActorName());
+        Object result = executorDao.getExecutor(taskEndLog.getActorName());
         handlerData.setOutputParam("result", result);
     }
 

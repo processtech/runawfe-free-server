@@ -41,7 +41,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.file.IFileVariable;
 
@@ -190,8 +190,8 @@ public class EmailUtils {
                 emails.add(actor.getEmail().trim());
             }
         } else if (executor instanceof Group) {
-            ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-            Collection<Actor> actors = executorDAO.getGroupActors((Group) executor);
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
+            Collection<Actor> actors = executorDao.getGroupActors((Group) executor);
             for (Actor actor : actors) {
                 if (actor.isActive() && !Utils.isNullOrEmpty(actor.getEmail())) {
                     emails.add(actor.getEmail().trim());

@@ -16,7 +16,7 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 public abstract class LoginModuleBase implements LoginModule {
     protected final Log log = LogFactory.getLog(getClass());
@@ -26,7 +26,7 @@ public abstract class LoginModuleBase implements LoginModule {
     private User user;
     private Actor actor;
     @Autowired
-    protected ExecutorDAO executorDAO;
+    protected ExecutorDao executorDao;
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {

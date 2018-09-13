@@ -52,7 +52,7 @@ import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 
 /**
@@ -68,7 +68,7 @@ public class PermissionDAO extends CommonDAO {
     private static final Set<Long> nonEmptySet = Collections.singleton(1L);
 
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
     @Autowired
     private SessionFactory sessionFactory;
 
@@ -334,7 +334,7 @@ public class PermissionDAO extends CommonDAO {
     }
 
     private Set<Executor> getExecutorWithAllHisGroups(Executor executor) {
-        Set<Executor> set = new HashSet<>(executorDAO.getExecutorParentsAll(executor, false));
+        Set<Executor> set = new HashSet<>(executorDao.getExecutorParentsAll(executor, false));
         set.add(executor);
         return set;
     }

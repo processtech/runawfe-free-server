@@ -19,9 +19,9 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     @Autowired
     protected transient TaskFactory taskFactory;
     @Autowired
-    protected transient TaskDao taskDAO;
+    protected transient TaskDao taskDao;
     @Autowired
-    protected transient SwimlaneDao swimlaneDAO;
+    protected transient SwimlaneDao swimlaneDao;
 
     protected boolean async;
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
@@ -53,7 +53,7 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     }
 
     public void endTokenTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo) {
-        List<Task> tasks = taskDAO.findByToken(executionContext.getToken());
+        List<Task> tasks = taskDao.findByToken(executionContext.getToken());
         log.debug("Ending " + executionContext.getToken() + " tasks " + tasks + " with " + taskCompletionInfo);
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
@@ -65,7 +65,7 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     }
 
     protected Swimlane getInitializedSwimlaneNotNull(ExecutionContext executionContext, TaskDefinition taskDefinition) {
-        return swimlaneDAO.findOrCreateInitialized(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlane());
+        return swimlaneDao.findOrCreateInitialized(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlane());
     }
 
     @Override

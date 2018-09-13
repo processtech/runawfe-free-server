@@ -9,7 +9,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.IExecutorLoader;
 
-public interface IExecutorDAO extends IExecutorLoader {
+public interface IExecutorDao extends IExecutorLoader {
 
     /**
      * Load {@linkplain Actor} by name. Throws exception if load is impossible, or exist group with same name.

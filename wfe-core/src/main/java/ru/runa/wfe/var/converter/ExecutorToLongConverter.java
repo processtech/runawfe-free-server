@@ -29,7 +29,7 @@ public class ExecutorToLongConverter implements Converter {
             return null;
         }
         try {
-            return ApplicationContextFactory.getExecutorDAO().getExecutor(executorId);
+            return ApplicationContextFactory.getExecutorDao().getExecutor(executorId);
         } catch (ExecutorDoesNotExistException e) {
             log.warn(e);
             return null;

@@ -44,7 +44,7 @@ public class CreateTimerAction extends Action {
     private String repeatDurationString;
 
     @Autowired
-    private transient JobDao jobDAO;
+    private transient JobDao jobDao;
 
     @Override
     public void execute(ExecutionContext executionContext) {
@@ -54,7 +54,7 @@ public class CreateTimerAction extends Action {
         timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDate));
         timerJob.setRepeatDurationString(repeatDurationString);
         timerJob.setOutTransitionName(transitionName);
-        jobDAO.create(timerJob);
+        jobDao.create(timerJob);
         log.debug("Created " + timerJob + " for duration '" + dueDate + "'");
         executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
     }

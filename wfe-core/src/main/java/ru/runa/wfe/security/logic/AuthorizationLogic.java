@@ -126,7 +126,7 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public boolean isAllowedUpdateExecutor(User user, Long id) {
-        return isAllowedUpdateExecutor(user, executorDAO.getExecutor(id));
+        return isAllowedUpdateExecutor(user, executorDao.getExecutor(id));
     }
 
     public List<Permission> getIssuedPermissions(User user, Executor performer, SecuredObject securedObject) {
@@ -236,7 +236,7 @@ public class AuthorizationLogic extends CommonLogic {
 
     private void setPermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions,
             boolean deleteExisting) {
-        Executor executor = executorDAO.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
+        Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
         permissionDAO.checkAllowed(user, Permission.LIST, executor);
 
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
@@ -319,7 +319,7 @@ public class AuthorizationLogic extends CommonLogic {
      * @param permissions Null if called from removeAllPermissions().
      */
     private void removePermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        Executor executor = executorDAO.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
+        Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
         permissionDAO.checkAllowed(user, Permission.LIST, executor);
 
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
@@ -354,14 +354,14 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public void setPermissions(User user, List<Long> executorIds, Collection<Permission> permissions, SecuredObject securedObject) {
-        List<Executor> executors = executorDAO.getExecutors(executorIds);
+        List<Executor> executors = executorDao.getExecutors(executorIds);
         for (Executor executor : executors) {
             setPermissions(user, executor, permissions, securedObject);
         }
     }
 
     public void setPermissions(User user, List<Long> executorIds, List<Collection<Permission>> permissions, SecuredObject securedObject) {
-        List<Executor> executors = executorDAO.getExecutors(executorIds);
+        List<Executor> executors = executorDao.getExecutors(executorIds);
         Preconditions.checkArgument(executors.size() == permissions.size(), "arrays length differs");
         for (int i = 0; i < executors.size(); i++) {
             setPermissions(user, executors.get(i), permissions.get(i), securedObject);
@@ -369,7 +369,7 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public void setPermissions(User user, Long executorId, Collection<Permission> permissions, SecuredObject securedObject) {
-        Executor executor = executorDAO.getExecutor(executorId);
+        Executor executor = executorDao.getExecutor(executorId);
         setPermissions(user, executor, permissions, securedObject);
     }
 

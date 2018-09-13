@@ -19,7 +19,7 @@ import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.ss.logic.ISubstitutionLogic;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.user.dao.IExecutorDao;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -101,9 +101,9 @@ public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends Abstr
         Map<Long, Actor> actors = Maps.newHashMap();
 
         @Override
-        public void mockRules(IExecutorDAO executorDAO) {
+        public void mockRules(IExecutorDao executorDao) {
             for (Map.Entry<Long, Actor> entry : actors.entrySet()) {
-                when(executorDAO.getActor(entry.getKey())).thenReturn(entry.getValue());
+                when(executorDao.getActor(entry.getKey())).thenReturn(entry.getValue());
             }
         }
 

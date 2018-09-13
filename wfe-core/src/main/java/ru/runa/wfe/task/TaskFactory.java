@@ -19,7 +19,7 @@ import ru.runa.wfe.user.Executor;
 
 public class TaskFactory {
     @Autowired
-    private TaskDao taskDAO;
+    private TaskDao taskDao;
 
     /**
      * creates a new task on the given task, in the given execution context.
@@ -31,8 +31,8 @@ public class TaskFactory {
         task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), getDeadlineDuration(taskDefinition)));
         task.setDeadlineDateExpression(taskDefinition.getDeadlineDuration());
         task.setIndex(index);
-        taskDAO.create(task);
-        taskDAO.flushPendingChanges();
+        taskDao.create(task);
+        taskDao.flushPendingChanges();
         executionContext.addLog(new TaskCreateLog(task));
         taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
         task.setSwimlane(swimlane);

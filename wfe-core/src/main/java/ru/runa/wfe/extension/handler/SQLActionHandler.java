@@ -52,7 +52,7 @@ import ru.runa.wfe.commons.sqltask.SwimlaneResult;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandlerBase;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -67,7 +67,7 @@ import ru.runa.wfe.var.format.ListFormat;
  */
 public class SQLActionHandler extends ActionHandlerBase {
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
 
     @Override
     public void execute(ExecutionContext executionContext) throws Exception {
@@ -148,11 +148,11 @@ public class SQLActionHandler extends ActionHandlerBase {
             if (result instanceof SwimlaneResult) {
                 Actor actor = null;
                 if ("code".equals(fieldName)) {
-                    actor = executorDAO.getActorByCode(((Number) newValue).longValue());
+                    actor = executorDao.getActorByCode(((Number) newValue).longValue());
                 } else if ("id".equals(fieldName)) {
-                    actor = executorDAO.getActor(((Number) newValue).longValue());
+                    actor = executorDao.getActor(((Number) newValue).longValue());
                 } else {
-                    actor = executorDAO.getActor(newValue.toString());
+                    actor = executorDao.getActor(newValue.toString());
                 }
                 newValue = Long.toString(actor.getCode());
             } else if (result.isFieldSetup()) {
@@ -188,7 +188,7 @@ public class SQLActionHandler extends ActionHandlerBase {
             Parameter parameter = query.getParameter(i);
             Object value = in.getValue(parameter.getVariableName());
             if (parameter instanceof SwimlaneParameter) {
-                Actor actor = executorDAO.getActorByCode(Long.parseLong((String) value));
+                Actor actor = executorDao.getActorByCode(Long.parseLong((String) value));
                 value = PropertyUtils.getProperty(actor, ((SwimlaneParameter) parameter).getFieldName());
             } else if (parameter.isFieldSetup()) {
                 value = PropertyUtils.getProperty(value, parameter.getFieldName());

@@ -40,7 +40,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Created on 14.03.2005
@@ -50,7 +50,7 @@ public class CommonLogic {
     @Autowired
     protected PermissionDAO permissionDAO;
     @Autowired
-    protected ExecutorDAO executorDAO;
+    protected ExecutorDao executorDao;
     @Autowired
     protected LocalizationDao localizationDAO;
     @Autowired
@@ -154,7 +154,7 @@ public class CommonLogic {
     }
 
     public void saveLocalizations(User user, List<Localization> localizations) {
-        if (!executorDAO.isAdministrator(user.getActor())) {
+        if (!executorDao.isAdministrator(user.getActor())) {
             throw new AuthorizationException("Not admin");
         }
         localizationDAO.saveLocalizations(localizations, true);
