@@ -56,17 +56,17 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
      * @return Not null.
      * @throws DefinitionDoesNotExistException If not found
      */
-    public ProcessDefinitionWithVersion findLatestDeployment(@NonNull String deploymentName) {
+    public ProcessDefinitionWithVersion findLatestDefinition(@NonNull String definitionName) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
                 .from(dv)
                 .innerJoin(dv.processDefinition, d)
-                .where(d.name.eq(deploymentName))
+                .where(d.name.eq(definitionName))
                 .orderBy(dv.version.desc())
                 .fetchFirst();
         if (t == null) {
-            throw new DefinitionDoesNotExistException(deploymentName);
+            throw new DefinitionDoesNotExistException(definitionName);
         }
         return new ProcessDefinitionWithVersion(t.get(d), t.get(dv));
     }
@@ -75,22 +75,22 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
      * @return Not null.
      * @throws DefinitionDoesNotExistException If not found
      */
-    public ProcessDefinitionWithVersion findLatestDeployment(long deploymentId) {
+    public ProcessDefinitionWithVersion findLatestDefinition(long definitionId) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
                 .from(dv)
                 .innerJoin(dv.processDefinition, d)
-                .where(d.id.eq(deploymentId))
+                .where(d.id.eq(definitionId))
                 .orderBy(dv.version.desc())
                 .fetchFirst();
         if (t == null) {
-            throw new DefinitionDoesNotExistException("deploymentId = " + deploymentId);
+            throw new DefinitionDoesNotExistException("definitionId = " + definitionId);
         }
         return new ProcessDefinitionWithVersion(t.get(d), t.get(dv));
     }
 
-    public ProcessDefinitionWithVersion findDeployment(@NonNull String name, long version) {
+    public ProcessDefinitionWithVersion findDefinition(@NonNull String name, long version) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
@@ -105,10 +105,11 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
     }
 
     /**
-     * Eager load both ProcessDefinition and ProcessDefinitionVersion. Probably this could be done "more Hibernate way" (like marking @ManyToOne field
-     * ProcessDefinitionVersion.deployment as eager loaded if that's possible), but this implementation is a step closer to getting rid of Hibernate.
+     * Eager load both ProcessDefinition and ProcessDefinitionVersion. Probably this could be done "more Hibernate way"
+     * (like marking @ManyToOne field ProcessDefinitionVersion.processDefinition as eager loaded if that's possible),
+     * but this implementation is a step closer to getting rid of Hibernate.
      */
-    public ProcessDefinitionWithVersion findDeployment(long processDefinitionVersionId) {
+    public ProcessDefinitionWithVersion findDefinition(long processDefinitionVersionId) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.processDefinition, d).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
@@ -121,7 +122,7 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
     /**
      * queries the database for definition names.
      */
-    public List<String> findDeploymentNames() {
+    public List<String> findDefinitionNames() {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         return queryFactory.selectDistinct(d.name).from(d).orderBy(d.name.desc()).fetch();
     }
@@ -129,21 +130,21 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
     /**
      * Returns ids of all ProcessDefinitionVersion-s which belong to same ProcessDefinition as processDefinitionVersionId, ordered by version.
      */
-    public List<Long> findAllDeploymentVersionIds(long processDefinitionVersionId, boolean ascending) {
+    public List<Long> findAllDefinitionVersionIds(long processDefinitionVersionId, boolean ascending) {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
 
         // TODO This can be implemented as subquery (hopefully in Hibernate):
-        Long deploymentId = queryFactory.select(dv.processDefinition.id).from(dv).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
-        Preconditions.checkNotNull(deploymentId);
+        Long definitionId = queryFactory.select(dv.processDefinition.id).from(dv).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
+        Preconditions.checkNotNull(definitionId);
 
         return queryFactory.select(dv.id)
                 .from(dv)
-                .where(dv.processDefinition.id.eq(deploymentId))
+                .where(dv.processDefinition.id.eq(definitionId))
                 .orderBy(ascending ? dv.version.asc() : dv.version.desc())
                 .fetch();
     }
 
-    public List<Long> findDeploymentVersionIds(String name, Long from, Long to) {
+    public List<Long> findDefinitionVersionIds(String name, Long from, Long to) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
@@ -154,16 +155,16 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
                 .fetch();
     }
 
-    public Long findDeploymentVersionIdLatestVersionLessThan(long deploymentId, long version) {
+    public Long findDefinitionVersionIdLatestVersionLessThan(long definitionId, long version) {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
-                .where(dv.processDefinition.id.eq(deploymentId).and(dv.version.lt(version)))
+                .where(dv.processDefinition.id.eq(definitionId).and(dv.version.lt(version)))
                 .orderBy(dv.version.desc())
                 .fetchFirst();
     }
 
-    public Long findDeploymentVersionIdLatestVersionBeforeDate(String name, Date date) {
+    public Long findDefinitionVersionIdLatestBeforeDate(String name, Date date) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
@@ -175,10 +176,10 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
     /**
      * queries the database for all versions of process definitions with the given name, ordered by version (descending).
      * 
-     * @deprecated use findAllDeploymentVersionIds
+     * @deprecated use findAllDefinitionVersionIds
      */
     @Deprecated
-    public List<ProcessDefinitionWithVersion> findAllDeploymentVersions(String name) {
+    public List<ProcessDefinitionWithVersion> findAllDefinitionVersions(String name) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         List<Tuple> tt = queryFactory.select(d, dv)

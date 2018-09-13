@@ -106,12 +106,12 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     protected ParsedProcessDefinition getSubProcessDefinition() {
         long version = getParsedProcessDefinition().getProcessDefinitionVersion().getVersion();
         if (version < 0) {
-            ProcessDefinitionWithVersion dwv = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
+            ProcessDefinitionWithVersion dwv = ApplicationContextFactory.getDeploymentDAO().findDefinition(subProcessName, version);
             return processDefinitionLoader.getDefinition(dwv.processDefinitionVersion.getId());
         }
         Date beforeDate = getParsedProcessDefinition().getProcessDefinitionVersion().getSubprocessBindingDate();
         if (beforeDate != null) {
-            Long processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findDeploymentVersionIdLatestVersionBeforeDate(subProcessName, beforeDate);
+            Long processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findDefinitionVersionIdLatestBeforeDate(subProcessName, beforeDate);
             if (processDefinitionVersionId == null) {
                 throw new InternalApplicationException("No definition \"" + subProcessName + "\" found before " + CalendarUtil.formatDateTime(beforeDate));
             }

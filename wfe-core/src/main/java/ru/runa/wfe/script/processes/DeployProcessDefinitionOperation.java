@@ -38,6 +38,6 @@ public class DeployProcessDefinitionOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         List<String> parsedType = Splitter.on("/").splitToList(Strings.isNullOrEmpty(type) ? "Script" : type);
-        context.getDefinitionLogic().deployProcessDefinition(context.getUser(), context.getExternalResource(file), parsedType);
+        context.getProcessDefinitionLogic().deployProcessDefinition(context.getUser(), context.getExternalResource(file), parsedType);
     }
 }

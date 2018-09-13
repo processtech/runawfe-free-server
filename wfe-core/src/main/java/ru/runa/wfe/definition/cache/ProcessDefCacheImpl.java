@@ -81,7 +81,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
             return parsedProcessDefinition;
         }
         // }
-        var dwv = processDefinitionDao.findDeployment(processDefinitionVersionId);
+        var dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
         var d = dwv.processDefinition;
         var dv = dwv.processDefinitionVersion;
 
@@ -112,7 +112,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         // }
 
         // TODO Suboptimal: can we use whole entities instead of just id?
-        processDefinitionVersionId = processDefinitionDao.findLatestDeployment(definitionName).processDefinitionVersion.getId();
+        processDefinitionVersionId = processDefinitionDao.findLatestDefinition(definitionName).processDefinitionVersion.getId();
         synchronized (this) {
             if (!isLocked.get()) {
                 deploymentNameToDeploymentVersionId.put(definitionName, processDefinitionVersionId);
@@ -132,7 +132,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         // }
 
         // TODO Suboptimal: can we use whole entities instead of just id?
-        processDefinitionVersionId = processDefinitionDao.findLatestDeployment(deploymentId).processDefinitionVersion.getId();
+        processDefinitionVersionId = processDefinitionDao.findLatestDefinition(deploymentId).processDefinitionVersion.getId();
         synchronized (this) {
             if (!isLocked.get()) {
                 deploymentIdToDeploymentVersionId.put(deploymentId, processDefinitionVersionId);

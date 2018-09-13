@@ -331,8 +331,8 @@ public class ExecutionLogic extends WFCommonLogic {
                     "to 'true' in system.properties or wfe.custom.system.properties"
             );
         }
-        ProcessDefinitionWithVersion dwv = processDefinitionDao.findDeployment(processDefinitionVersionId);
-        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.findDeployment(dwv.processDefinition.getName(), newVersion);
+        ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
+        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.findDefinition(dwv.processDefinition.getName(), newVersion);
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(dwv.processDefinition.getName());
         filter.setDefinitionVersion(dwv.processDefinitionVersion.getVersion());
@@ -361,7 +361,7 @@ public class ExecutionLogic extends WFCommonLogic {
         if (newDeploymentVersion == dv.getVersion()) {
             return false;
         }
-        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.findDeployment(dv.getProcessDefinition().getName(), newDeploymentVersion);
+        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.findDefinition(dv.getProcessDefinition().getName(), newDeploymentVersion);
         process.setProcessDefinitionVersion(nextDWV.processDefinitionVersion);
         processDao.update(process);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),

@@ -35,7 +35,7 @@ import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.definition.logic.DefinitionLogic;
+import ru.runa.wfe.definition.logic.ProcessDefinitionLogic;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
@@ -71,7 +71,7 @@ import ru.runa.wfe.var.logic.VariableLogic;
 public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionServiceRemote, ExecutionServiceRemoteWS {
 
     @Autowired
-    private DefinitionLogic definitionLogic;
+    private ProcessDefinitionLogic processDefinitionLogic;
     @Autowired
     private ExecutionLogic executionLogic;
     @Autowired
@@ -95,7 +95,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @WebResult(name = "result")
     public Long startProcessWS(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
             @WebParam(name = "variables") List<Variable> variables) {
-        WfDefinition definition = definitionLogic.getLatestProcessDefinition(user, definitionName);
+        WfDefinition definition = processDefinitionLogic.getLatestProcessDefinition(user, definitionName);
         ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(definition.getId());
         return startProcess(user, definitionName, VariableConverter.unmarshal(parsedProcessDefinition, variables));
     }

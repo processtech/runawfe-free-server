@@ -51,7 +51,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         if (!Strings.isNullOrEmpty(name)) {
-            processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findLatestDeployment(name).processDefinitionVersion.getId();
+            processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findLatestDefinition(name).processDefinitionVersion.getId();
         }
         List<String> parsedType = null;
         if (Strings.isNullOrEmpty(type)) {
@@ -59,7 +59,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
         }
         try {
             byte[] scriptBytes = Files.toByteArray(new File(file));
-            context.getDefinitionLogic().redeployProcessDefinition(context.getUser(), processDefinitionVersionId, scriptBytes, parsedType);
+            context.getProcessDefinitionLogic().redeployProcessDefinition(context.getUser(), processDefinitionVersionId, scriptBytes, parsedType);
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
