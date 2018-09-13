@@ -22,9 +22,9 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.EntityWithType;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.DeploymentWithVersion;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -59,7 +59,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     public WfDefinition() {
     }
 
-    public WfDefinition(Deployment d, ProcessDefinitionVersion dv) {
+    public WfDefinition(ProcessDefinition d, ProcessDefinitionVersion dv) {
         id = dv.getId();
         version = dv.getVersion();
         name = d.getName();
@@ -72,12 +72,12 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         subprocessBindingDate = dv.getSubprocessBindingDate();
     }
 
-    public WfDefinition(DeploymentWithVersion dwv) {
-        this(dwv.deployment, dwv.processDefinitionVersion);
+    public WfDefinition(ProcessDefinitionWithVersion dwv) {
+        this(dwv.processDefinition, dwv.processDefinitionVersion);
     }
 
     public WfDefinition(ParsedProcessDefinition pd, boolean canBeStarted) {
-        this(pd.getDeployment(), pd.getProcessDefinitionVersion());
+        this(pd.getProcessDefinition(), pd.getProcessDefinitionVersion());
         hasHtmlDescription = pd.getFileData(IFileDataProvider.INDEX_FILE_NAME) != null;
         hasStartImage = pd.getFileData(IFileDataProvider.START_IMAGE_FILE_NAME) != null;
         hasDisabledImage = pd.getFileData(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;

@@ -29,7 +29,7 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
 
     @Override
     public void setName(String name) {
-        deployment.setName(name);
+        processDefinition.setName(name);
     }
 
     @Override

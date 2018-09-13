@@ -47,7 +47,7 @@ public class ProcessFactory {
         Set<Permission> result = new HashSet<>();
         for (Map.Entry<Permission, Permission> kv : DEFINITION_TO_PROCESS_PERMISSION_MAP.entrySet()) {
             // Using isAllowed() because it takes DEFINITIONS list & executor groups into account.
-            if (permissionDAO.isAllowed(executor, kv.getKey(), parsedProcessDefinition.getDeployment(), false)) {
+            if (permissionDAO.isAllowed(executor, kv.getKey(), parsedProcessDefinition.getProcessDefinition(), false)) {
                 result.add(kv.getValue());
             }
         }
@@ -75,7 +75,7 @@ public class ProcessFactory {
         boolean permissionsAreSetToProcessStarter = false;
         Executor processStarter = executorDAO.getExecutor(SystemExecutors.PROCESS_STARTER_NAME);
         Set<Permission> processStarterPermissions = getProcessPermissions(processStarter, parsedProcessDefinition);
-        for (Executor executor : permissionDAO.getExecutorsWithPermission(parsedProcessDefinition.getDeployment())) {
+        for (Executor executor : permissionDAO.getExecutorsWithPermission(parsedProcessDefinition.getProcessDefinition())) {
             Set<Permission> permissions = getProcessPermissions(executor, parsedProcessDefinition);
             if (Objects.equal(actor, executor)) {
                 permissions = CollectionUtil.unionSet(permissions, processStarterPermissions);
@@ -108,7 +108,7 @@ public class ProcessFactory {
 
     private void grantSubprocessPermissions(ParsedProcessDefinition parsedProcessDefinition, Process subProcess, Process parentProcess) {
         Set<Executor> executors = new HashSet<>();
-        executors.addAll(permissionDAO.getExecutorsWithPermission(parsedProcessDefinition.getDeployment()));
+        executors.addAll(permissionDAO.getExecutorsWithPermission(parsedProcessDefinition.getProcessDefinition()));
         executors.addAll(permissionDAO.getExecutorsWithPermission(parentProcess));
         for (Executor executor : executors) {
             List<Permission> permissionsByParentProcess = permissionDAO.getIssuedPermissions(executor, parentProcess);

@@ -29,7 +29,7 @@ import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.hibernate.HibernateUtil;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.dao.DeploymentDao;
 import ru.runa.wfe.definition.dao.DeploymentVersionDao;
@@ -49,12 +49,12 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     private final Cache<Long, ParsedProcessDefinition> definitionVersionIdToDefinition;
 
     /**
-     * Key is Deployment.name, value is ProcessDefinitionVersion.id.
+     * Key is ProcessDefinition.name, value is ProcessDefinitionVersion.id.
      */
     private final Cache<String, Long> deploymentNameToDeploymentVersionId;
 
     /**
-     * Key is Deployment.name, value is ProcessDefinitionVersion.id.
+     * Key is ProcessDefinition.name, value is ProcessDefinitionVersion.id.
      */
     private final Cache<Long, Long> deploymentIdToDeploymentVersionId;
 
@@ -82,7 +82,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         }
         // }
         var dwv = deploymentDao.findDeployment(processDefinitionVersionId);
-        var d = dwv.deployment;
+        var d = dwv.processDefinition;
         var dv = dwv.processDefinitionVersion;
 
         // TODO Do we really need to unproxy? Maybe Hibernate.initialize(d), ...(dv) would be enoug? Cannot ParsedProcessDefinition hold detached proxies?
@@ -152,9 +152,9 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
             return true;
         }
 
-        if (changedObject.object instanceof Deployment) {
+        if (changedObject.object instanceof ProcessDefinition) {
 
-            val d = (Deployment) changedObject.object;
+            val d = (ProcessDefinition) changedObject.object;
             Preconditions.checkArgument(d.getId() != null);
             isLocked.set(true);
             onChangeDeploymentImpl(d);
@@ -167,8 +167,8 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
             isLocked.set(true);
             definitionVersionIdToDefinition.remove(dv.getId());
             dv = HibernateUtil.unproxyWithoutInitialize(dv);
-            if (dv != null && dv.getDeployment() != null) {
-                onChangeDeploymentImpl(dv.getDeployment());
+            if (dv != null && dv.getProcessDefinition() != null) {
+                onChangeDeploymentImpl(dv.getProcessDefinition());
             }
             return true;
 
@@ -179,7 +179,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         }
     }
 
-    private void onChangeDeploymentImpl(Deployment d) {
+    private void onChangeDeploymentImpl(ProcessDefinition d) {
         definitionVersionIdToDefinition.remove(deploymentIdToDeploymentVersionId.getAndRemove(d.getId()));
         definitionVersionIdToDefinition.remove(deploymentNameToDeploymentVersionId.getAndRemove(d.getName()));
     }

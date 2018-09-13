@@ -33,7 +33,10 @@ public class ProcessDao extends GenericDao<Process> {
      */
     public List<Process> findAllProcesses(Long deploymentId) {
         QProcess p = QProcess.process;
-        return queryFactory.selectFrom(p).where(p.processDefinitionVersion.deployment.id.eq(deploymentId)).orderBy(p.startDate.desc()).fetch();
+        return queryFactory.selectFrom(p)
+                .where(p.processDefinitionVersion.processDefinition.id.eq(deploymentId))
+                .orderBy(p.startDate.desc())
+                .fetch();
     }
 
     public List<Process> find(List<Long> ids) {
@@ -57,7 +60,7 @@ public class ProcessDao extends GenericDao<Process> {
         QProcess p = QProcess.process;
         JPQLQuery<Process> q = queryFactory.selectFrom(p).where();
         if (filter.getDefinitionName() != null) {
-            q.where(p.processDefinitionVersion.deployment.name.eq(filter.getDefinitionName()));
+            q.where(p.processDefinitionVersion.processDefinition.name.eq(filter.getDefinitionName()));
         }
         if (filter.getDefinitionVersion() != null) {
             q.where(p.processDefinitionVersion.version.eq(filter.getDefinitionVersion()));

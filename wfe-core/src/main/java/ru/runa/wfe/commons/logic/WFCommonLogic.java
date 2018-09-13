@@ -205,7 +205,7 @@ public class WFCommonLogic extends CommonLogic {
         processDao.delete(process);
         taskDAO.deleteAll(process);
         swimlaneDAO.deleteAll(process);
-        systemLogDAO.create(new ProcessDeleteLog(user.getActor().getId(), process.getProcessDefinitionVersion().getDeployment().getName(), process.getId()));
+        systemLogDAO.create(new ProcessDeleteLog(user.getActor().getId(), process.getProcessDefinitionVersion().getProcessDefinition().getName(), process.getId()));
     }
 
     /**

@@ -27,7 +27,7 @@ public class ProcessDefinitionVersion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private Deployment deployment;
+    private ProcessDefinition processDefinition;
     private Long version;
     private byte[] content;
     private Date createDate;
@@ -48,16 +48,16 @@ public class ProcessDefinitionVersion implements Serializable {
         this.id = id;
     }
 
-    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = ProcessDefinition.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_VERSION_DEFINITION")
     @Index(name = "IX_VERSION_DEFINITION")
-    public Deployment getDeployment() {
-        return deployment;
+    public ProcessDefinition getProcessDefinition() {
+        return processDefinition;
     }
 
-    public void setDeployment(Deployment deployment) {
-        this.deployment = deployment;
+    public void setProcessDefinition(ProcessDefinition processDefinition) {
+        this.processDefinition = processDefinition;
     }
 
     @Column(name = "VERSION", nullable = false)
@@ -148,14 +148,14 @@ public class ProcessDefinitionVersion implements Serializable {
     }
 
     @Transient
-    public DeploymentWithVersion createCopyWithDeployment() {
+    public ProcessDefinitionWithVersion createCopyWithDeployment() {
         val o = new ProcessDefinitionVersion();
         o.id = id;
-        o.deployment = deployment.createCopy();
+        o.processDefinition = processDefinition.createCopy();
         o.version = version;
         o.content = content;
         o.createDate = createDate;
         o.subprocessBindingDate = subprocessBindingDate;
-        return new DeploymentWithVersion(o.deployment, o);
+        return new ProcessDefinitionWithVersion(o.processDefinition, o);
     }
 }

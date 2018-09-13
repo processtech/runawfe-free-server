@@ -7,7 +7,7 @@ import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.dao.DeploymentDao;
 import ru.runa.wfe.definition.dao.DeploymentVersionDao;
@@ -24,7 +24,7 @@ class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache
         super(
                 new ProcessDefinitionCacheFactory(),
                 new ArrayList<ListenObjectDefinition>() {{
-                    add(new ListenObjectDefinition(Deployment.class, ListenObjectLogType.ALL));
+                    add(new ListenObjectDefinition(ProcessDefinition.class, ListenObjectLogType.ALL));
                     add(new ListenObjectDefinition(ProcessDefinitionVersion.class, ListenObjectLogType.ALL));
                 }}
         );

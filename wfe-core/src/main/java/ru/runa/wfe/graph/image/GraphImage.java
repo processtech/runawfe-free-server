@@ -86,7 +86,7 @@ public class GraphImage {
             if (entry.getValue().isActive()) {
                 lineWidth *= 2;
             }
-            if (parsedProcessDefinition.getDeployment().getLanguage() == Language.BPMN2) {
+            if (parsedProcessDefinition.getProcessDefinition().getLanguage() == Language.BPMN2) {
                 lineWidth *= 2;
             }
             entry.getKey().setRenderHits(entry.getValue());

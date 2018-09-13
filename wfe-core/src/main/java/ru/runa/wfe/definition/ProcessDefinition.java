@@ -22,7 +22,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 @Entity
 @Table(name = "BPM_DEFINITION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Deployment extends SecuredObject {
+public class ProcessDefinition extends SecuredObject {
     private static final long serialVersionUID = 1L;
     private Long id;
     private String name;
@@ -112,8 +112,8 @@ public class Deployment extends SecuredObject {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Deployment)) return false;
-        Deployment x = (Deployment) o;
+        if (!(o instanceof ProcessDefinition)) return false;
+        ProcessDefinition x = (ProcessDefinition) o;
         return Objects.equal(id, x.id);
     }
 
@@ -128,8 +128,8 @@ public class Deployment extends SecuredObject {
     }
 
     @Transient
-    public Deployment createCopy() {
-        Deployment o = new Deployment();
+    public ProcessDefinition createCopy() {
+        ProcessDefinition o = new ProcessDefinition();
         o.id = id;
         o.name = name;
         o.language = language;

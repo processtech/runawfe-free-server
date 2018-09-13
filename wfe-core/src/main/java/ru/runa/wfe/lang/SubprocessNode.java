@@ -12,7 +12,7 @@ import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.definition.DeploymentWithVersion;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.NodeProcess;
@@ -106,7 +106,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     protected ParsedProcessDefinition getSubProcessDefinition() {
         long version = getParsedProcessDefinition().getProcessDefinitionVersion().getVersion();
         if (version < 0) {
-            DeploymentWithVersion dwv = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
+            ProcessDefinitionWithVersion dwv = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
             return processDefinitionLoader.getDefinition(dwv.processDefinitionVersion.getId());
         }
         Date beforeDate = getParsedProcessDefinition().getProcessDefinitionVersion().getSubprocessBindingDate();

@@ -43,7 +43,7 @@ import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.DeploymentWithVersion;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -205,7 +205,7 @@ public class ExecutionLogic extends WFCommonLogic {
             variables = Maps.newHashMap();
         }
         if (SystemProperties.isCheckProcessStartPermissions()) {
-            permissionDAO.checkAllowed(user, Permission.START, parsedProcessDefinition.getDeployment());
+            permissionDAO.checkAllowed(user, Permission.START, parsedProcessDefinition.getProcessDefinition());
         }
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
         val extraVariablesMap = new HashMap<String, Object>();
@@ -331,10 +331,10 @@ public class ExecutionLogic extends WFCommonLogic {
                     "to 'true' in system.properties or wfe.custom.system.properties"
             );
         }
-        DeploymentWithVersion dwv = deploymentDao.findDeployment(processDefinitionVersionId);
-        DeploymentWithVersion nextDWV = deploymentDao.findDeployment(dwv.deployment.getName(), newVersion);
+        ProcessDefinitionWithVersion dwv = deploymentDao.findDeployment(processDefinitionVersionId);
+        ProcessDefinitionWithVersion nextDWV = deploymentDao.findDeployment(dwv.processDefinition.getName(), newVersion);
         ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(dwv.deployment.getName());
+        filter.setDefinitionName(dwv.processDefinition.getName());
         filter.setDefinitionVersion(dwv.processDefinitionVersion.getVersion());
         filter.setFinished(false);
         List<Process> processes = processDao.getProcesses(filter);
@@ -361,7 +361,7 @@ public class ExecutionLogic extends WFCommonLogic {
         if (newDeploymentVersion == dv.getVersion()) {
             return false;
         }
-        DeploymentWithVersion nextDWV = deploymentDao.findDeployment(dv.getDeployment().getName(), newDeploymentVersion);
+        ProcessDefinitionWithVersion nextDWV = deploymentDao.findDeployment(dv.getProcessDefinition().getName(), newDeploymentVersion);
         process.setProcessDefinitionVersion(nextDWV.processDefinitionVersion);
         processDao.update(process);
         processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),

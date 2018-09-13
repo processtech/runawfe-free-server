@@ -165,7 +165,7 @@ public class JbpmRefactoringPatch extends DBPatch {
         sql.add(getDDLRenameColumn("SYSTEM_LOG", "ACTOR_CODE", new ColumnDef("ACTOR_ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("SYSTEM_LOG", "PROCESS_INSTANCE", new ColumnDef("PROCESS_ID", Types.BIGINT)));
 
-        // ru.runa.wfe.definition.Deployment
+        // ru.runa.wfe.definition.ProcessDefinition
         sql.add(getDDLRenameTable("JBPM_PROCESSDEFINITION", "BPM_PROCESS_DEFINITION"));
         sql.add(getDDLDropColumn("BPM_PROCESS_DEFINITION", "CLASS_"));
         sql.add(getDDLDropForeignKey("BPM_PROCESS_DEFINITION", getObjectName("FK_PROCDEF_STRTSTA")));

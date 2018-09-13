@@ -47,26 +47,26 @@ public class DefinitionClassPresentation extends ClassPresentation {
     private static final ClassPresentation INSTANCE = new DefinitionClassPresentation();
 
     private DefinitionClassPresentation() {
-        super(Deployment.class, classNameSQL + ".version=(select max(temp.version) from " + Deployment.class.getName() + " as temp where "
+        super(ProcessDefinition.class, classNameSQL + ".version=(select max(temp.version) from " + ProcessDefinition.class.getName() + " as temp where "
                 + classNameSQL + ".name=temp.name)", false, new FieldDescriptor[] {
                 // display name field type DB source isSort filter mode
                 // get value/show in web getter parameters
-                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Deployment.class, "name"), true, 1,
+                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(ProcessDefinition.class, "name"), true, 1,
                         BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
                         Permission.START, "name" }),
-                new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Deployment.class, "description"), true,
+                new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(ProcessDefinition.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
-                new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(Deployment.class, "category"), true,
+                new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ProcessDefinition.class, "category"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}),
-                new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "createDate"), true,
+                new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDBSource(ProcessDefinition.class, "createDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTDBuilder", new Object[] {}),
-                new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "createActor"), false,
+                new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDBSource(ProcessDefinition.class, "createActor"), false,
                         FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionCreateActorTDBuilder", new Object[] {}),
-                new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "updateDate"), true,
+                new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDBSource(ProcessDefinition.class, "updateDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTDBuilder", new Object[] {}),
-                new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "updateActor"), false,
+                new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(ProcessDefinition.class, "updateActor"), false,
                         FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}),
-                new FieldDescriptor(SUBPROCESS_BINDING_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "subprocessBindingDate"),
+                new FieldDescriptor(SUBPROCESS_BINDING_DATE, Date.class.getName(), new DefaultDBSource(ProcessDefinition.class, "subprocessBindingDate"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionSubprocessBindingDateTDBuilder", new Object[] {})
                         .setVisible(false) });
     }

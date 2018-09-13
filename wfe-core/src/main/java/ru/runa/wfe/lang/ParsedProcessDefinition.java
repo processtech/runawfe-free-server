@@ -31,9 +31,9 @@ import java.util.Map;
 import lombok.NonNull;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.DeploymentWithVersion;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
@@ -49,7 +49,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 public class ParsedProcessDefinition extends GraphElement implements IFileDataProvider {
     private static final long serialVersionUID = 1L;
     // TODO remove association for efficiency
-    protected Deployment deployment;
+    protected ProcessDefinition processDefinition;
     protected ProcessDefinitionVersion processDefinitionVersion;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
     protected StartNode startNode;
@@ -69,14 +69,14 @@ public class ParsedProcessDefinition extends GraphElement implements IFileDataPr
     protected ParsedProcessDefinition() {
     }
 
-    public ParsedProcessDefinition(@NonNull Deployment d, @NonNull ProcessDefinitionVersion dv) {
-        this.deployment = d;
+    public ParsedProcessDefinition(@NonNull ProcessDefinition d, @NonNull ProcessDefinitionVersion dv) {
+        this.processDefinition = d;
         this.processDefinitionVersion = dv;
         parsedProcessDefinition = this;
     }
 
-    public ParsedProcessDefinition(DeploymentWithVersion dwv) {
-        this(dwv.deployment, dwv.processDefinitionVersion);
+    public ParsedProcessDefinition(ProcessDefinitionWithVersion dwv) {
+        this(dwv.processDefinition, dwv.processDefinitionVersion);
     }
 
     /**
@@ -87,34 +87,34 @@ public class ParsedProcessDefinition extends GraphElement implements IFileDataPr
     }
 
     /**
-     * @return deployment.name
+     * @return processDefinition.name
      */
     @Override
     public String getName() {
-        return deployment.getName();
+        return processDefinition.getName();
     }
 
     @Override
     public void setName(String name) {
-        if (deployment.getName() != null) {
+        if (processDefinition.getName() != null) {
             // don't override name from database
             return;
         }
-        deployment.setName(name);
+        processDefinition.setName(name);
     }
 
     @Override
     public String getDescription() {
-        return deployment.getDescription();
+        return processDefinition.getDescription();
     }
 
     @Override
     public void setDescription(String description) {
-        deployment.setDescription(description);
+        processDefinition.setDescription(description);
     }
 
-    public Deployment getDeployment() {
-        return deployment;
+    public ProcessDefinition getProcessDefinition() {
+        return processDefinition;
     }
 
     public ProcessDefinitionVersion getProcessDefinitionVersion() {
@@ -540,8 +540,8 @@ public class ParsedProcessDefinition extends GraphElement implements IFileDataPr
 
     @Override
     public String toString() {
-        if (deployment != null) {
-            return deployment.toString();
+        if (processDefinition != null) {
+            return processDefinition.toString();
         }
         return name;
     }

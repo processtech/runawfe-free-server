@@ -32,11 +32,11 @@ public class ProcessDefinitionParser implements ProcessArchiveParser {
         if ("process-definition".equals(root.getName())) {
             JpdlXmlReader reader = ApplicationContextFactory.autowireBean(new JpdlXmlReader(document));
             reader.readProcessDefinition(parsedProcessDefinition);
-            parsedProcessDefinition.getDeployment().setLanguage(Language.JPDL);
+            parsedProcessDefinition.getProcessDefinition().setLanguage(Language.JPDL);
         } else if ("definitions".equals(root.getName())) {
             BpmnXmlReader reader = ApplicationContextFactory.autowireBean(new BpmnXmlReader(document));
             reader.readProcessDefinition(parsedProcessDefinition);
-            parsedProcessDefinition.getDeployment().setLanguage(Language.BPMN2);
+            parsedProcessDefinition.getProcessDefinition().setLanguage(Language.BPMN2);
         } else {
             throw new InternalApplicationException("Couldn't determine language from content");
         }

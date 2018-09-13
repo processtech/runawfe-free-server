@@ -35,7 +35,7 @@ import java.util.zip.ZipInputStream;
 import lombok.NonNull;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -62,13 +62,13 @@ public class ProcessArchive {
             IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)." + IFileDataProvider.PROCESSDEFINITION_XML_FILE_NAME
     );
 
-    private final Deployment deployment;
+    private final ProcessDefinition processDefinition;
     private final ProcessDefinitionVersion processDefinitionVersion;
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 
-    public ProcessArchive(@NonNull Deployment d, @NonNull ProcessDefinitionVersion dv) {
+    public ProcessArchive(@NonNull ProcessDefinition d, @NonNull ProcessDefinitionVersion dv) {
         try {
-            this.deployment = d;
+            this.processDefinition = d;
             this.processDefinitionVersion = dv;
             ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(dv.getContent()));
             ZipEntry zipEntry = zis.getNextEntry();
@@ -87,7 +87,7 @@ public class ProcessArchive {
     }
 
     public ParsedProcessDefinition parseProcessDefinition() {
-        ParsedProcessDefinition parsedProcessDefinition = new ParsedProcessDefinition(deployment, processDefinitionVersion);
+        ParsedProcessDefinition parsedProcessDefinition = new ParsedProcessDefinition(processDefinition, processDefinitionVersion);
 
         for (ProcessArchiveParser processArchiveParser : processArchiveParsers) {
             processArchiveParser.readFromArchive(this, parsedProcessDefinition);

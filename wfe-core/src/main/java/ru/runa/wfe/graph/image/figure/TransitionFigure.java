@@ -285,7 +285,7 @@ public class TransitionFigure {
     }
 
     protected boolean isJpdlCanvas() {
-        return transition.getParsedProcessDefinition().getDeployment().getLanguage().equals(Language.JPDL);
+        return transition.getParsedProcessDefinition().getProcessDefinition().getLanguage().equals(Language.JPDL);
     }
 
     private Point getConnectionMidpoint(Point start, Point end, double part) {

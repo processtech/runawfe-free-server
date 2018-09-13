@@ -15,7 +15,7 @@
 	/>
 	
 	<cache
-		name="ru.runa.wfe.definition.Deployment"
+		name="ru.runa.wfe.definition.ProcessDefinitioninition"
 		maxElementsInMemory="1000"
 	/ -->
 

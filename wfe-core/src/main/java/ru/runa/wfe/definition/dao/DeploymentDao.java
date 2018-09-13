@@ -31,22 +31,22 @@ import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.DeploymentWithVersion;
-import ru.runa.wfe.definition.QDeployment;
+import ru.runa.wfe.definition.ProcessDefinition;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
+import ru.runa.wfe.definition.QProcessDefinition;
 import ru.runa.wfe.definition.QProcessDefinitionVersion;
 
 /**
- * DAO for {@link Deployment}.
+ * DAO for {@link ProcessDefinition}.
  * 
  * @author dofs
  * @since 4.0
  */
 @Component
-public class DeploymentDao extends GenericDao<Deployment> {
+public class DeploymentDao extends GenericDao<ProcessDefinition> {
 
     @Override
-    protected void checkNotNull(Deployment entity, Object identity) {
+    protected void checkNotNull(ProcessDefinition entity, Object identity) {
         if (entity == null) {
             throw new DefinitionDoesNotExistException(String.valueOf(identity));
         }
@@ -56,95 +56,99 @@ public class DeploymentDao extends GenericDao<Deployment> {
      * @return Not null.
      * @throws DefinitionDoesNotExistException If not found
      */
-    public DeploymentWithVersion findLatestDeployment(@NonNull String deploymentName) {
-        QDeployment d = QDeployment.deployment;
+    public ProcessDefinitionWithVersion findLatestDeployment(@NonNull String deploymentName) {
+        QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
                 .from(dv)
-                .innerJoin(dv.deployment, d)
+                .innerJoin(dv.processDefinition, d)
                 .where(d.name.eq(deploymentName))
                 .orderBy(dv.version.desc())
                 .fetchFirst();
         if (t == null) {
             throw new DefinitionDoesNotExistException(deploymentName);
         }
-        return new DeploymentWithVersion(t.get(d), t.get(dv));
+        return new ProcessDefinitionWithVersion(t.get(d), t.get(dv));
     }
 
     /**
      * @return Not null.
      * @throws DefinitionDoesNotExistException If not found
      */
-    public DeploymentWithVersion findLatestDeployment(long deploymentId) {
-        QDeployment d = QDeployment.deployment;
+    public ProcessDefinitionWithVersion findLatestDeployment(long deploymentId) {
+        QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
                 .from(dv)
-                .innerJoin(dv.deployment, d)
+                .innerJoin(dv.processDefinition, d)
                 .where(d.id.eq(deploymentId))
                 .orderBy(dv.version.desc())
                 .fetchFirst();
         if (t == null) {
             throw new DefinitionDoesNotExistException("deploymentId = " + deploymentId);
         }
-        return new DeploymentWithVersion(t.get(d), t.get(dv));
+        return new ProcessDefinitionWithVersion(t.get(d), t.get(dv));
     }
 
-    public DeploymentWithVersion findDeployment(@NonNull String name, long version) {
-        QDeployment d = QDeployment.deployment;
+    public ProcessDefinitionWithVersion findDeployment(@NonNull String name, long version) {
+        QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
-        Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.deployment, d).where(d.name.eq(name).and(dv.version.eq(version))).fetchFirst();
+        Tuple t = queryFactory.select(d, dv)
+                .from(dv)
+                .innerJoin(dv.processDefinition, d)
+                .where(d.name.eq(name).and(dv.version.eq(version)))
+                .fetchFirst();
         if (t == null) {
             throw new DefinitionDoesNotExistException(name + " v" + version);
         }
-        return new DeploymentWithVersion(t.get(d), t.get(dv));
+        return new ProcessDefinitionWithVersion(t.get(d), t.get(dv));
     }
 
     /**
-     * Eager load both Deployment and ProcessDefinitionVersion. Probably this could be done "more Hibernate way" (like marking @ManyToOne field
+     * Eager load both ProcessDefinition and ProcessDefinitionVersion. Probably this could be done "more Hibernate way" (like marking @ManyToOne field
      * ProcessDefinitionVersion.deployment as eager loaded if that's possible), but this implementation is a step closer to getting rid of Hibernate.
      */
-    public DeploymentWithVersion findDeployment(long processDefinitionVersionId) {
-        QDeployment d = QDeployment.deployment;
+    public ProcessDefinitionWithVersion findDeployment(long processDefinitionVersionId) {
+        QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
-        Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.deployment, d).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
+        Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.processDefinition, d).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
         if (t == null) {
             throw new DefinitionDoesNotExistException("processDefinitionVersionId = " + processDefinitionVersionId);
         }
-        return new DeploymentWithVersion(t.get(d), t.get(dv));
+        return new ProcessDefinitionWithVersion(t.get(d), t.get(dv));
     }
 
     /**
      * queries the database for definition names.
      */
     public List<String> findDeploymentNames() {
-        QDeployment d = QDeployment.deployment;
+        QProcessDefinition d = QProcessDefinition.processDefinition;
         return queryFactory.selectDistinct(d.name).from(d).orderBy(d.name.desc()).fetch();
     }
 
     /**
-     * Returns ids of all ProcessDefinitionVersion-s which belong to same Deployment as processDefinitionVersionId, ordered by version.
+     * Returns ids of all ProcessDefinitionVersion-s which belong to same ProcessDefinition as processDefinitionVersionId, ordered by version.
      */
     public List<Long> findAllDeploymentVersionIds(long processDefinitionVersionId, boolean ascending) {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
 
         // TODO This can be implemented as subquery (hopefully in Hibernate):
-        Long deploymentId = queryFactory.select(dv.deployment.id).from(dv).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
+        Long deploymentId = queryFactory.select(dv.processDefinition.id).from(dv).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
         Preconditions.checkNotNull(deploymentId);
 
         return queryFactory.select(dv.id)
                 .from(dv)
-                .where(dv.deployment.id.eq(deploymentId))
+                .where(dv.processDefinition.id.eq(deploymentId))
                 .orderBy(ascending ? dv.version.asc() : dv.version.desc())
                 .fetch();
     }
 
     public List<Long> findDeploymentVersionIds(String name, Long from, Long to) {
-        QDeployment d = QDeployment.deployment;
+        QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
-                .innerJoin(dv.deployment, d)
+                .innerJoin(dv.processDefinition, d)
                 .where(d.name.eq(name).and(dv.version.between(from, to)))
                 .orderBy(dv.version.asc())
                 .fetch();
@@ -154,17 +158,17 @@ public class DeploymentDao extends GenericDao<Deployment> {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
-                .where(dv.deployment.id.eq(deploymentId).and(dv.version.lt(version)))
+                .where(dv.processDefinition.id.eq(deploymentId).and(dv.version.lt(version)))
                 .orderBy(dv.version.desc())
                 .fetchFirst();
     }
 
     public Long findDeploymentVersionIdLatestVersionBeforeDate(String name, Date date) {
-        QDeployment d = QDeployment.deployment;
+        QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
-                .innerJoin(dv.deployment, d)
+                .innerJoin(dv.processDefinition, d)
                 .where(d.name.eq(name).and(dv.createDate.lt(date))).orderBy(dv.version.desc()).fetchFirst();
     }
 
@@ -174,20 +178,20 @@ public class DeploymentDao extends GenericDao<Deployment> {
      * @deprecated use findAllDeploymentVersionIds
      */
     @Deprecated
-    public List<DeploymentWithVersion> findAllDeploymentVersions(String name) {
-        QDeployment d = QDeployment.deployment;
+    public List<ProcessDefinitionWithVersion> findAllDeploymentVersions(String name) {
+        QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         List<Tuple> tt = queryFactory.select(d, dv)
                 .from(dv)
-                .innerJoin(dv.deployment, d)
+                .innerJoin(dv.processDefinition, d)
                 .where(d.name.eq(name))
                 .orderBy(dv.version.desc())
                 .fetch();
 
         // TODO After migrating to Spring5, use stream() with lambdas.
-        val result = new ArrayList<DeploymentWithVersion>(tt.size());
+        val result = new ArrayList<ProcessDefinitionWithVersion>(tt.size());
         for (Tuple t : tt) {
-            result.add(new DeploymentWithVersion(t.get(d), t.get(dv)));
+            result.add(new ProcessDefinitionWithVersion(t.get(d), t.get(dv)));
         }
         return result;
     }
