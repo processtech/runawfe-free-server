@@ -6,7 +6,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
 import ru.runa.wfe.user.dao.ExecutorDAO;
@@ -14,7 +14,7 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 public class GetTaskPerformerHandler extends CommonParamBasedHandler {
 
     @Autowired
-    private ProcessLogDAO processLogDAO;
+    private ProcessLogDao processLogDAO;
 
     @Autowired
     private ExecutorDAO executorDAO;

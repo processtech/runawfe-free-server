@@ -17,17 +17,17 @@ import org.apache.commons.logging.LogFactory;
  *            entity class
  */
 @SuppressWarnings("unchecked")
-public abstract class GenericDAO<T> extends CommonDAO implements IGenericDAO<T> {
+public abstract class GenericDao<T> extends CommonDAO implements IGenericDAO<T> {
     protected final Log log = LogFactory.getLog(getClass());
     private final Class<T> entityClass;
 
     /**
      * Constructor
      */
-    public GenericDAO() {
-        // Spring can create proxy between GenericDAO and its subclass; so search deeper for GenericDAO superclass.
+    public GenericDao() {
+        // Spring can create proxy between GenericDao and its subclass; so search deeper for GenericDao superclass.
         Class c = getClass();
-        while (c.getSuperclass() != GenericDAO.class) {
+        while (c.getSuperclass() != GenericDao.class) {
             c = c.getSuperclass();
         }
 

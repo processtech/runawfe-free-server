@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import org.hibernate.classic.Session;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
@@ -18,7 +18,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 
 @Component
-public class ReportDAO extends GenericDAO<ReportDefinition> {
+public class ReportDao extends GenericDao<ReportDefinition> {
 
     private static final SecuredObjectType[] SECURED_OBJECTS = new SecuredObjectType[] { SecuredObjectType.REPORT };
 

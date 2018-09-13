@@ -14,12 +14,12 @@ import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.lang.jpdl.CreateTimerAction;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
 
 public class TaskFactory {
     @Autowired
-    private TaskDAO taskDAO;
+    private TaskDao taskDAO;
 
     /**
      * creates a new task on the given task, in the given execution context.

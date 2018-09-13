@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.SubprocessStartLog;
 import ru.runa.wfe.commons.CollectionUtil;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.ProcessDAO;
-import ru.runa.wfe.execution.dao.SwimlaneDAO;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
@@ -28,15 +28,15 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 
 public class ProcessFactory {
     @Autowired
-    private ProcessDAO processDAO;
+    private ProcessDao processDao;
     @Autowired
     private PermissionDAO permissionDAO;
     @Autowired
     private ExecutorDAO executorDAO;
     @Autowired
-    private NodeProcessDAO nodeProcessDAO;
+    private NodeProcessDao nodeProcessDAO;
     @Autowired
-    private SwimlaneDAO swimlaneDAO;
+    private SwimlaneDao swimlaneDAO;
 
     private static final Map<Permission, Permission> DEFINITION_TO_PROCESS_PERMISSION_MAP = new HashMap<Permission, Permission>() {{
         put(Permission.READ_PROCESS, Permission.READ);
@@ -123,10 +123,10 @@ public class ProcessFactory {
     private ExecutionContext createProcessInternal(ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables, Actor actor,
             Process parentProcess, Map<String, Object> transientVariables) {
         Preconditions.checkNotNull(parsedProcessDefinition, "can't create a process when parsedProcessDefinition is null");
-        Process process = new Process(parsedProcessDefinition.getDeploymentVersion());
+        Process process = new Process(parsedProcessDefinition.getProcessDefinitionVersion());
         Token rootToken = new Token(parsedProcessDefinition, process);
         process.setRootToken(rootToken);
-        processDAO.create(process);
+        processDao.create(process);
         if (parentProcess != null) {
             process.setParentId(parentProcess.getId());
         }

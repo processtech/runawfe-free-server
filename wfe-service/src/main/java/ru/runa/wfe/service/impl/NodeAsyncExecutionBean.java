@@ -24,7 +24,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -42,7 +42,7 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 @CommonsLog
 public class NodeAsyncExecutionBean implements MessageListener {
     @Autowired
-    private TokenDAO tokenDAO;
+    private TokenDao tokenDAO;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
     @Resource

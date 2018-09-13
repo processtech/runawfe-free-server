@@ -32,7 +32,7 @@ import lombok.NonNull;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.DeploymentVersion;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.DeploymentWithVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
@@ -50,7 +50,7 @@ public class ParsedProcessDefinition extends GraphElement implements IFileDataPr
     private static final long serialVersionUID = 1L;
     // TODO remove association for efficiency
     protected Deployment deployment;
-    protected DeploymentVersion deploymentVersion;
+    protected ProcessDefinitionVersion processDefinitionVersion;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
     protected StartNode startNode;
     protected final List<Node> nodes = Lists.newArrayList();
@@ -69,21 +69,21 @@ public class ParsedProcessDefinition extends GraphElement implements IFileDataPr
     protected ParsedProcessDefinition() {
     }
 
-    public ParsedProcessDefinition(@NonNull Deployment d, @NonNull DeploymentVersion dv) {
+    public ParsedProcessDefinition(@NonNull Deployment d, @NonNull ProcessDefinitionVersion dv) {
         this.deployment = d;
-        this.deploymentVersion = dv;
+        this.processDefinitionVersion = dv;
         parsedProcessDefinition = this;
     }
 
     public ParsedProcessDefinition(DeploymentWithVersion dwv) {
-        this(dwv.deployment, dwv.deploymentVersion);
+        this(dwv.deployment, dwv.processDefinitionVersion);
     }
 
     /**
-     * @return deploymentVersion.id
+     * @return processDefinitionVersion.id
      */
     public Long getId() {
-        return deploymentVersion.getId();
+        return processDefinitionVersion.getId();
     }
 
     /**
@@ -117,8 +117,8 @@ public class ParsedProcessDefinition extends GraphElement implements IFileDataPr
         return deployment;
     }
 
-    public DeploymentVersion getDeploymentVersion() {
-        return deploymentVersion;
+    public ProcessDefinitionVersion getProcessDefinitionVersion() {
+        return processDefinitionVersion;
     }
 
     public ProcessDefinitionAccessType getAccessType() {

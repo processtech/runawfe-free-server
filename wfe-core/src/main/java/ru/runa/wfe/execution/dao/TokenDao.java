@@ -3,7 +3,7 @@ package ru.runa.wfe.execution.dao;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.QToken;
 import ru.runa.wfe.execution.Token;
@@ -16,7 +16,7 @@ import ru.runa.wfe.lang.NodeType;
  * @since 4.0
  */
 @Component
-public class TokenDAO extends GenericDAO<Token> {
+public class TokenDao extends GenericDao<Token> {
 
     public List<Token> findByNodeTypeAndExecutionStatusIsActive(NodeType nodeType) {
         QToken t = QToken.token;

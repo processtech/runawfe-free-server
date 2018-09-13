@@ -51,7 +51,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         if (!Strings.isNullOrEmpty(name)) {
-            processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findLatestDeployment(name).deploymentVersion.getId();
+            processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findLatestDeployment(name).processDefinitionVersion.getId();
         }
         List<String> parsedType = null;
         if (Strings.isNullOrEmpty(type)) {

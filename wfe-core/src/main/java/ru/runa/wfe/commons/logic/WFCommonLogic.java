@@ -25,28 +25,28 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessDeleteLog;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
-import ru.runa.wfe.audit.dao.SystemLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.SystemLogDao;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.definition.dao.DeploymentDAO;
-import ru.runa.wfe.definition.dao.DeploymentVersionDAO;
+import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.DeploymentVersionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.SwimlaneDAO;
-import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.SwimlaneDao;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.ss.logic.SubstitutionLogic;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionBy;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
@@ -56,7 +56,7 @@ import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.validation.ValidatorContext;
 import ru.runa.wfe.validation.ValidatorManager;
 import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.dao.VariableDAO;
+import ru.runa.wfe.var.dao.VariableDao;
 
 /**
  * Created on 15.03.2005
@@ -69,25 +69,25 @@ public class WFCommonLogic extends CommonLogic {
     protected SubstitutionLogic substitutionLogic;
 
     @Autowired
-    protected DeploymentDAO deploymentDAO;
+    protected DeploymentDao deploymentDao;
     @Autowired
-    protected DeploymentVersionDAO deploymentVersionDAO;
+    protected DeploymentVersionDao deploymentVersionDAO;
     @Autowired
-    protected NodeProcessDAO nodeProcessDAO;
+    protected NodeProcessDao nodeProcessDAO;
     @Autowired
-    protected TaskDAO taskDAO;
+    protected TaskDao taskDAO;
     @Autowired
-    protected VariableDAO variableDAO;
+    protected VariableDao variableDAO;
     @Autowired
-    protected ProcessLogDAO processLogDAO;
+    protected ProcessLogDao processLogDAO;
     @Autowired
-    protected JobDAO jobDAO;
+    protected JobDao jobDAO;
     @Autowired
-    protected SwimlaneDAO swimlaneDAO;
+    protected SwimlaneDao swimlaneDAO;
     @Autowired
-    protected TokenDAO tokenDAO;
+    protected TokenDao tokenDAO;
     @Autowired
-    protected SystemLogDAO systemLogDAO;
+    protected SystemLogDao systemLogDAO;
 
     public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) {
         return processDefinitionLoader.getDefinition(processDefinitionVersionId);
@@ -202,10 +202,10 @@ public class WFCommonLogic extends CommonLogic {
         processLogDAO.deleteAll(process);
         jobDAO.deleteByProcess(process);
         variableDAO.deleteAll(process);
-        processDAO.delete(process);
+        processDao.delete(process);
         taskDAO.deleteAll(process);
         swimlaneDAO.deleteAll(process);
-        systemLogDAO.create(new ProcessDeleteLog(user.getActor().getId(), process.getDeploymentVersion().getDeployment().getName(), process.getId()));
+        systemLogDAO.create(new ProcessDeleteLog(user.getActor().getId(), process.getProcessDefinitionVersion().getDeployment().getName(), process.getId()));
     }
 
     /**

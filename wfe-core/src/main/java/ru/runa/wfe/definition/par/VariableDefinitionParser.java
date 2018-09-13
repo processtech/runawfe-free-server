@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.dao.LocalizationDAO;
+import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -37,9 +37,9 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String STORE_TYPE = "storeType";
 
     @Autowired
-    private LocalizationDAO localizationDAO;
+    private LocalizationDao localizationDAO;
 
-    public void setLocalizationDAO(LocalizationDAO localizationDAO) {
+    public void setLocalizationDAO(LocalizationDao localizationDAO) {
         this.localizationDAO = localizationDAO;
     }
 
@@ -138,7 +138,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 variableDefinition.setDefaultValue(value);
             } catch (Exception e) {
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
-                        || parsedProcessDefinition.getDeploymentVersion().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())
+                        || parsedProcessDefinition.getProcessDefinitionVersion().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())
                 ) {
                     throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue + "'", e);
                 } else {

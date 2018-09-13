@@ -23,7 +23,7 @@ import ru.runa.wfe.user.Actor;
 
 @Entity
 @Table(name = "BPM_DEFINITION_VERSION")
-public class DeploymentVersion implements Serializable {
+public class ProcessDefinitionVersion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
@@ -132,8 +132,8 @@ public class DeploymentVersion implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof DeploymentVersion)) return false;
-        DeploymentVersion x = (DeploymentVersion) o;
+        if (!(o instanceof ProcessDefinitionVersion)) return false;
+        ProcessDefinitionVersion x = (ProcessDefinitionVersion) o;
         return Objects.equal(id, x.id);
     }
 
@@ -149,7 +149,7 @@ public class DeploymentVersion implements Serializable {
 
     @Transient
     public DeploymentWithVersion createCopyWithDeployment() {
-        val o = new DeploymentVersion();
+        val o = new ProcessDefinitionVersion();
         o.id = id;
         o.deployment = deployment.createCopy();
         o.version = version;

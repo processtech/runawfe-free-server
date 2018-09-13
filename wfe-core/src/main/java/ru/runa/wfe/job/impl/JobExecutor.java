@@ -8,14 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.job.Job;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public class JobExecutor {
     protected final Log log = LogFactory.getLog(getClass());
 
     @Autowired
-    private JobDAO jobDAO;
+    private JobDao jobDAO;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
 
@@ -26,7 +26,7 @@ public class JobExecutor {
         for (Job job : jobs) {
             try {
                 log.debug("executing " + job);
-                ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(job.getProcess().getDeploymentVersion().getId());
+                ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(job.getProcess().getProcessDefinitionVersion().getId());
                 ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, job.getToken());
                 job.execute(executionContext);
             } catch (Exception e) {

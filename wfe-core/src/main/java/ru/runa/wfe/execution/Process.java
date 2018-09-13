@@ -50,10 +50,10 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.definition.DeploymentVersion;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.extension.ProcessEndHandler;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.Node;
@@ -85,14 +85,14 @@ public class Process extends SecuredObjectBase {
     private Date endDate;
     private Token rootToken;
     private String hierarchyIds;
-    private DeploymentVersion deploymentVersion;
+    private ProcessDefinitionVersion processDefinitionVersion;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public Process() {
     }
 
-    public Process(DeploymentVersion deploymentVersion) {
-        setDeploymentVersion(deploymentVersion);
+    public Process(ProcessDefinitionVersion processDefinitionVersion) {
+        setProcessDefinitionVersion(processDefinitionVersion);
         setStartDate(new Date());
     }
 
@@ -161,16 +161,16 @@ public class Process extends SecuredObjectBase {
         this.endDate = endDate;
     }
 
-    @ManyToOne(targetEntity = DeploymentVersion.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = ProcessDefinitionVersion.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION_VERSION")
     @Index(name = "IX_PROCESS_DEFINITION_VERSION")
-    public DeploymentVersion getDeploymentVersion() {
-        return deploymentVersion;
+    public ProcessDefinitionVersion getProcessDefinitionVersion() {
+        return processDefinitionVersion;
     }
 
-    public void setDeploymentVersion(DeploymentVersion deploymentVersion) {
-        this.deploymentVersion = deploymentVersion;
+    public void setProcessDefinitionVersion(ProcessDefinitionVersion processDefinitionVersion) {
+        this.processDefinitionVersion = processDefinitionVersion;
     }
 
     @ManyToOne(targetEntity = Token.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
@@ -230,7 +230,7 @@ public class Process extends SecuredObjectBase {
 
         // make sure all the timers for this process are canceled
         // after the process end updates are posted to the database
-        JobDAO jobDAO = ApplicationContextFactory.getJobDAO();
+        JobDao jobDAO = ApplicationContextFactory.getJobDAO();
         jobDAO.deleteByProcess(this);
         if (canceller != null) {
             executionContext.addLog(new ProcessCancelLog(canceller));

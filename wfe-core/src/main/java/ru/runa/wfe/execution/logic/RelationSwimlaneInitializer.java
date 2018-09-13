@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.relation.dao.RelationDAO;
-import ru.runa.wfe.relation.dao.RelationPairDAO;
+import ru.runa.wfe.relation.dao.RelationDao;
+import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.var.IVariableProvider;
@@ -30,9 +30,9 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
     @Autowired
     private ExecutorDAO executorDAO;
     @Autowired
-    private RelationDAO relationDAO;
+    private RelationDao relationDAO;
     @Autowired
-    private RelationPairDAO relationPairDAO;
+    private RelationPairDao relationPairDAO;
 
     public static boolean isValid(String initializer) {
         return initializer != null && initializer.startsWith(RELATION_BEGIN);

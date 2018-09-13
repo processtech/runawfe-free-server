@@ -33,7 +33,7 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
@@ -52,7 +52,7 @@ public class EmailTaskNotifierActionHandler extends ActionHandlerBase {
     @Autowired
     private ExecutorDAO executorDAO;
     @Autowired
-    private TaskDAO taskDAO;
+    private TaskDao taskDAO;
     private byte[] configBytes;
 
     @Override

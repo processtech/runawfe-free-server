@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationDoesNotExistException;
 import ru.runa.wfe.bot.QBotStation;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 
 /**
  * DAO level interface for managing bot stations.
@@ -13,7 +13,7 @@ import ru.runa.wfe.commons.dao.GenericDAO;
  * @since 2.0
  */
 @Component
-public class BotStationDAO extends GenericDAO<BotStation> {
+public class BotStationDao extends GenericDao<BotStation> {
 
     @Override
     protected void checkNotNull(BotStation entity, Object identity) {

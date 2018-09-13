@@ -230,7 +230,7 @@ public class TaskLogic extends WFCommonLogic {
 
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
-        Process process = processDAO.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         permissionDAO.checkAllowed(user, Permission.LIST, process);
         for (Task task : taskDAO.findByProcess(process)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));

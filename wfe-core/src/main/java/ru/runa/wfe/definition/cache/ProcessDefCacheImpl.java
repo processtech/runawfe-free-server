@@ -30,9 +30,9 @@ import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.hibernate.HibernateUtil;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.DeploymentVersion;
-import ru.runa.wfe.definition.dao.DeploymentDAO;
-import ru.runa.wfe.definition.dao.DeploymentVersionDAO;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.DeploymentVersionDao;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
@@ -44,17 +44,17 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     public static final String definitionIdToDefinitionVersionIdCacheName = "ru.runa.wfe.definition.cache.deploymentIdToDeploymentVersionId";
 
     /**
-     * Key is DeploymentVersion.id.
+     * Key is ProcessDefinitionVersion.id.
      */
     private final Cache<Long, ParsedProcessDefinition> definitionVersionIdToDefinition;
 
     /**
-     * Key is Deployment.name, value is DeploymentVersion.id.
+     * Key is Deployment.name, value is ProcessDefinitionVersion.id.
      */
     private final Cache<String, Long> deploymentNameToDeploymentVersionId;
 
     /**
-     * Key is Deployment.name, value is DeploymentVersion.id.
+     * Key is Deployment.name, value is ProcessDefinitionVersion.id.
      */
     private final Cache<Long, Long> deploymentIdToDeploymentVersionId;
 
@@ -73,7 +73,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     }
 
     @Override
-    public ParsedProcessDefinition getDefinition(DeploymentDAO deploymentDAO, DeploymentVersionDAO deploymentVersionDAO, long processDefinitionVersionId) {
+    public ParsedProcessDefinition getDefinition(DeploymentDao deploymentDao, DeploymentVersionDao deploymentVersionDAO, long processDefinitionVersionId) {
         ParsedProcessDefinition parsedProcessDefinition;
         // synchronized (this) {
         parsedProcessDefinition = definitionVersionIdToDefinition.get(processDefinitionVersionId);
@@ -81,9 +81,9 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
             return parsedProcessDefinition;
         }
         // }
-        var dwv = deploymentDAO.findDeployment(processDefinitionVersionId);
+        var dwv = deploymentDao.findDeployment(processDefinitionVersionId);
         var d = dwv.deployment;
-        var dv = dwv.deploymentVersion;
+        var dv = dwv.processDefinitionVersion;
 
         // TODO Do we really need to unproxy? Maybe Hibernate.initialize(d), ...(dv) would be enoug? Cannot ParsedProcessDefinition hold detached proxies?
         dv = HibernateUtil.unproxy(dv);
@@ -99,7 +99,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
 
     @Override
     public ParsedProcessDefinition getLatestDefinition(
-            DeploymentDAO deploymentDAO, DeploymentVersionDAO deploymentVersionDAO, @NonNull String definitionName
+            DeploymentDao deploymentDao, DeploymentVersionDao deploymentVersionDAO, @NonNull String definitionName
     ) {
         log.warn("getLatestDefinition(..., deploymentName) is deprecated, use getLatestDefinition(..., deploymentId)");
 
@@ -107,38 +107,38 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         // synchronized (this) {
         processDefinitionVersionId = deploymentNameToDeploymentVersionId.get(definitionName);
         if (processDefinitionVersionId != null) {
-            return getDefinition(deploymentDAO, deploymentVersionDAO, processDefinitionVersionId);
+            return getDefinition(deploymentDao, deploymentVersionDAO, processDefinitionVersionId);
         }
         // }
 
         // TODO Suboptimal: can we use whole entities instead of just id?
-        processDefinitionVersionId = deploymentDAO.findLatestDeployment(definitionName).deploymentVersion.getId();
+        processDefinitionVersionId = deploymentDao.findLatestDeployment(definitionName).processDefinitionVersion.getId();
         synchronized (this) {
             if (!isLocked.get()) {
                 deploymentNameToDeploymentVersionId.put(definitionName, processDefinitionVersionId);
             }
         }
-        return getDefinition(deploymentDAO, deploymentVersionDAO, processDefinitionVersionId);
+        return getDefinition(deploymentDao, deploymentVersionDAO, processDefinitionVersionId);
     }
 
     @Override
-    public ParsedProcessDefinition getLatestDefinition(DeploymentDAO deploymentDAO, DeploymentVersionDAO deploymentVersionDAO, long deploymentId) {
+    public ParsedProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, DeploymentVersionDao deploymentVersionDAO, long deploymentId) {
         Long processDefinitionVersionId;
         // synchronized (this) {
         processDefinitionVersionId = deploymentIdToDeploymentVersionId.get(deploymentId);
         if (processDefinitionVersionId != null) {
-            return getDefinition(deploymentDAO, deploymentVersionDAO, processDefinitionVersionId);
+            return getDefinition(deploymentDao, deploymentVersionDAO, processDefinitionVersionId);
         }
         // }
 
         // TODO Suboptimal: can we use whole entities instead of just id?
-        processDefinitionVersionId = deploymentDAO.findLatestDeployment(deploymentId).deploymentVersion.getId();
+        processDefinitionVersionId = deploymentDao.findLatestDeployment(deploymentId).processDefinitionVersion.getId();
         synchronized (this) {
             if (!isLocked.get()) {
                 deploymentIdToDeploymentVersionId.put(deploymentId, processDefinitionVersionId);
             }
         }
-        return getDefinition(deploymentDAO, deploymentVersionDAO, processDefinitionVersionId);
+        return getDefinition(deploymentDao, deploymentVersionDAO, processDefinitionVersionId);
     }
 
     @Override
@@ -160,9 +160,9 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
             onChangeDeploymentImpl(d);
             return true;
 
-        } else if (changedObject.object instanceof DeploymentVersion) {
+        } else if (changedObject.object instanceof ProcessDefinitionVersion) {
 
-            var dv = (DeploymentVersion) changedObject.object;
+            var dv = (ProcessDefinitionVersion) changedObject.object;
             Preconditions.checkArgument(dv.getId() != null);
             isLocked.set(true);
             definitionVersionIdToDefinition.remove(dv.getId());

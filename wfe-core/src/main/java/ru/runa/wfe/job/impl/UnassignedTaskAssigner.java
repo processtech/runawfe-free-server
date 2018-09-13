@@ -6,7 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.task.logic.TaskAssigner;
 
 public class UnassignedTaskAssigner {
@@ -14,7 +14,7 @@ public class UnassignedTaskAssigner {
     @Autowired
     private TaskAssigner taskAssigner;
     @Autowired
-    private TaskDAO taskDAO;
+    private TaskDao taskDAO;
 
     @Transactional
     public void execute() {

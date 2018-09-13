@@ -25,10 +25,10 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.dao.Localization;
-import ru.runa.wfe.commons.dao.LocalizationDAO;
-import ru.runa.wfe.commons.dao.SettingDAO;
+import ru.runa.wfe.commons.dao.LocalizationDao;
+import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
-import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
@@ -52,11 +52,11 @@ public class CommonLogic {
     @Autowired
     protected ExecutorDAO executorDAO;
     @Autowired
-    protected LocalizationDAO localizationDAO;
+    protected LocalizationDao localizationDAO;
     @Autowired
-    protected ProcessDAO processDAO;
+    protected ProcessDao processDao;
     @Autowired
-    protected SettingDAO settingDAO;
+    protected SettingDao settingDAO;
 
     // For the sake of mering DAO and logic layers:
     @Autowired

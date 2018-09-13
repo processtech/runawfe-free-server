@@ -34,7 +34,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DBType;
 import ru.runa.wfe.commons.SystemProperties;
@@ -42,16 +42,16 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.SwimlaneDAO;
-import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.SwimlaneDao;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.job.Job;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
@@ -60,7 +60,7 @@ import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
-import ru.runa.wfe.var.dao.VariableDAO;
+import ru.runa.wfe.var.dao.VariableDao;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
@@ -84,19 +84,19 @@ public class ExecutionContext {
     @Autowired
     private VariableCreator variableCreator;
     @Autowired
-    private TokenDAO tokenDAO;
+    private TokenDao tokenDAO;
     @Autowired
-    private NodeProcessDAO nodeProcessDAO;
+    private NodeProcessDao nodeProcessDAO;
     @Autowired
-    private ProcessLogDAO processLogDAO;
+    private ProcessLogDao processLogDAO;
     @Autowired
-    private VariableDAO variableDAO;
+    private VariableDao variableDAO;
     @Autowired
-    private TaskDAO taskDAO;
+    private TaskDao taskDAO;
     @Autowired
-    private JobDAO jobDAO;
+    private JobDao jobDAO;
     @Autowired
-    private SwimlaneDAO swimlaneDAO;
+    private SwimlaneDao swimlaneDAO;
 
     protected ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token,
             Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {

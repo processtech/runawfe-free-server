@@ -17,7 +17,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils.Parameters;
 import ru.runa.wfe.var.ISelectable;
@@ -38,7 +38,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     @Autowired
     private transient ProcessFactory processFactory;
     @Autowired
-    private transient NodeProcessDAO nodeProcessDAO;
+    private transient NodeProcessDao nodeProcessDAO;
 
     private String discriminatorCondition;
 

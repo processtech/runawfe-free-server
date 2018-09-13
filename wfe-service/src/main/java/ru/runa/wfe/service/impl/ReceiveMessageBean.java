@@ -47,7 +47,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -67,7 +67,7 @@ import ru.runa.wfe.var.VariableMapping;
 @CommonsLog
 public class ReceiveMessageBean implements MessageListener {
     @Autowired
-    private TokenDAO tokenDAO;
+    private TokenDao tokenDAO;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
     @Resource

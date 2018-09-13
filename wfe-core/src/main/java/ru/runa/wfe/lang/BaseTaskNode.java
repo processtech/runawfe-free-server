@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.SwimlaneDAO;
+import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskFactory;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 
 public abstract class BaseTaskNode extends InteractionNode implements BoundaryEventContainer, Synchronizable {
     private static final long serialVersionUID = 1L;
@@ -19,9 +19,9 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     @Autowired
     protected transient TaskFactory taskFactory;
     @Autowired
-    protected transient TaskDAO taskDAO;
+    protected transient TaskDao taskDAO;
     @Autowired
-    protected transient SwimlaneDAO swimlaneDAO;
+    protected transient SwimlaneDao swimlaneDAO;
 
     protected boolean async;
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @since 4.0
  */
 @Component
-public class LocalizationDAO extends GenericDAO<Localization> {
+public class LocalizationDao extends GenericDao<Localization> {
 
     private Map<String, String> localizations = Maps.newHashMap();
 

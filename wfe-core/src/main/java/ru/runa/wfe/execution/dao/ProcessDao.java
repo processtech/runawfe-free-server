@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -19,7 +19,7 @@ import ru.runa.wfe.task.QTask;
 import ru.runa.wfe.user.Executor;
 
 @Component
-public class ProcessDAO extends GenericDAO<Process> {
+public class ProcessDao extends GenericDao<Process> {
 
     @Override
     protected void checkNotNull(Process entity, Object identity) {
@@ -33,7 +33,7 @@ public class ProcessDAO extends GenericDAO<Process> {
      */
     public List<Process> findAllProcesses(Long deploymentId) {
         QProcess p = QProcess.process;
-        return queryFactory.selectFrom(p).where(p.deploymentVersion.deployment.id.eq(deploymentId)).orderBy(p.startDate.desc()).fetch();
+        return queryFactory.selectFrom(p).where(p.processDefinitionVersion.deployment.id.eq(deploymentId)).orderBy(p.startDate.desc()).fetch();
     }
 
     public List<Process> find(List<Long> ids) {
@@ -57,10 +57,10 @@ public class ProcessDAO extends GenericDAO<Process> {
         QProcess p = QProcess.process;
         JPQLQuery<Process> q = queryFactory.selectFrom(p).where();
         if (filter.getDefinitionName() != null) {
-            q.where(p.deploymentVersion.deployment.name.eq(filter.getDefinitionName()));
+            q.where(p.processDefinitionVersion.deployment.name.eq(filter.getDefinitionName()));
         }
         if (filter.getDefinitionVersion() != null) {
-            q.where(p.deploymentVersion.version.eq(filter.getDefinitionVersion()));
+            q.where(p.processDefinitionVersion.version.eq(filter.getDefinitionVersion()));
         }
         if (filter.getId() != null) {
             q.where(p.id.eq(filter.getId()));

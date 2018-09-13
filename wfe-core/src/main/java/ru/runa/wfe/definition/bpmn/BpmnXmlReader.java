@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.dao.LocalizationDAO;
+import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.logic.SwimlaneUtils;
@@ -125,7 +125,7 @@ public class BpmnXmlReader {
     private static final String GLOBAL = "global";
 
     @Autowired
-    private LocalizationDAO localizationDAO;
+    private LocalizationDao localizationDAO;
 
     private final Document document;
 

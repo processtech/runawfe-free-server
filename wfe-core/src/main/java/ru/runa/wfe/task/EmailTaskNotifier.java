@@ -81,7 +81,7 @@ public class EmailTaskNotifier implements ITaskNotifier {
         }
         try {
             log.debug("About " + task + " assigned to " + task.getExecutor() + ", previous: " + previousExecutor);
-            final String processName = task.getProcess().getDeploymentVersion().getDeployment().getName();
+            final String processName = task.getProcess().getProcessDefinitionVersion().getDeployment().getName();
             if (!EmailUtils.isProcessNameMatching(processName, includeProcessNameFilter, excludeProcessNameFilter)) {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;

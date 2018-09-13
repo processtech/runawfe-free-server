@@ -18,7 +18,7 @@ import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -198,7 +198,7 @@ public class ParallelGateway extends Node {
                     protected void doExecuteInTransaction() throws Exception {
                         log.debug("Executing " + this);
                         ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDAO().getNotNull(processId);
-                        TokenDAO tokenDAO = ApplicationContextFactory.getTokenDAO();
+                        TokenDao tokenDAO = ApplicationContextFactory.getTokenDAO();
                         List<Token> endedTokens = tokenDAO.findByProcessAndNodeIdAndExecutionStatusIsEndedAndAbleToReactivateParent(process,
                                 gateway.getNodeId());
                         if (endedTokens.isEmpty()) {
@@ -261,7 +261,7 @@ public class ParallelGateway extends Node {
                     protected void doExecuteInTransaction() throws Exception {
                         log.debug("Executing " + this);
                         ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDAO().getNotNull(processId);
-                        TokenDAO tokenDAO = ApplicationContextFactory.getTokenDAO();
+                        TokenDao tokenDAO = ApplicationContextFactory.getTokenDAO();
                         List<Token> failedTokens = tokenDAO.findByProcessAndNodeIdAndExecutionStatusIsFailed(process, gateway.getNodeId());
                         if (failedTokens.isEmpty()) {
                             log.warn("no failed tokens found");

@@ -8,7 +8,7 @@ import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dto.WfVariable;
 
 /**
- * Supports variable loading via {@link VariableDAO} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component in
+ * Supports variable loading via {@link VariableDao} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component in
  * case of mass variables loading.
  *
  * @author AL
@@ -17,26 +17,26 @@ import ru.runa.wfe.var.dto.WfVariable;
 public class VariableLoaderDAOFallback extends VariableLoader {
 
     /**
-     * {@link VariableDAO} for loading variables if no preloaded variable is available.
+     * {@link VariableDao} for loading variables if no preloaded variable is available.
      */
-    private final VariableDAO dao;
+    private final VariableDao dao;
 
     /**
      * Preloaded variables. For each process contains map from variable name to variable. If no entry for variable name exists in preloaded variables,
-     * then it will be loaded via {@link VariableDAO}.
+     * then it will be loaded via {@link VariableDao}.
      */
     private final Map<Process, Map<String, Variable<?>>> loadedVariables;
 
     /**
-     * Supports variable loading via {@link VariableDAO} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component
+     * Supports variable loading via {@link VariableDao} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component
      * in case of mass variables loading.
      *
      * @param dao
-     *            {@link VariableDAO} for loading variables if no preloaded variable is available.
+     *            {@link VariableDao} for loading variables if no preloaded variable is available.
      * @param loadedVariables
      *            Preloaded variables. For each process contains map from variable name to variable. May be null.
      */
-    public VariableLoaderDAOFallback(VariableDAO dao, Map<Process, Map<String, Variable<?>>> loadedVariables) {
+    public VariableLoaderDAOFallback(VariableDao dao, Map<Process, Map<String, Variable<?>>> loadedVariables) {
         this.dao = dao;
         this.loadedVariables = loadedVariables == null ? new HashMap<>() : loadedVariables;
     }

@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 // TODO rm700
 @Transactional
-public class SettingDAO extends GenericDAO<Setting> {
+public class SettingDao extends GenericDao<Setting> {
 
     private Setting get(String fileName, String name) {
         QSetting s = QSetting.setting;

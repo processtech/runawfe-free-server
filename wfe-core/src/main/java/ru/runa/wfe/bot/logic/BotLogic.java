@@ -31,9 +31,9 @@ import ru.runa.wfe.bot.BotStationDoesNotExistException;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.BotTaskAlreadyExistsException;
 import ru.runa.wfe.bot.BotTaskDoesNotExistException;
-import ru.runa.wfe.bot.dao.BotDAO;
-import ru.runa.wfe.bot.dao.BotStationDAO;
-import ru.runa.wfe.bot.dao.BotTaskDAO;
+import ru.runa.wfe.bot.dao.BotDao;
+import ru.runa.wfe.bot.dao.BotStationDao;
+import ru.runa.wfe.bot.dao.BotTaskDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.security.Permission;
@@ -44,11 +44,11 @@ import ru.runa.wfe.user.User;
 
 public class BotLogic extends CommonLogic {
     @Autowired
-    private BotStationDAO botStationDAO;
+    private BotStationDao botStationDAO;
     @Autowired
-    private BotDAO botDAO;
+    private BotDao botDAO;
     @Autowired
-    private BotTaskDAO botTaskDAO;
+    private BotTaskDao botTaskDAO;
 
     public List<BotStation> getBotStations() {
         return botStationDAO.getAll();

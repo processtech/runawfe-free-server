@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.dao.ConstantDAO;
+import ru.runa.wfe.commons.dao.ConstantDao;
 import ru.runa.wfe.commons.dao.Localization;
-import ru.runa.wfe.commons.dao.LocalizationDAO;
+import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.logic.LocalizationParser;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
@@ -25,13 +25,13 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 @CommonsLog
 public class DbTransactionalInitializer {
     @Autowired
-    private ConstantDAO constantDAO;
+    private ConstantDao constantDAO;
     @Autowired
     private ExecutorDAO executorDAO;
     @Autowired
     private PermissionDAO permissionDAO;
     @Autowired
-    private LocalizationDAO localizationDAO;
+    private LocalizationDao localizationDAO;
 
     public void execute(DBPatch dbPatch, int databaseVersion) throws Exception {
         dbPatch.execute();

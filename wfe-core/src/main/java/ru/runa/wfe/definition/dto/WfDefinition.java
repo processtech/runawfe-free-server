@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.EntityWithType;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.DeploymentVersion;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.DeploymentWithVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
@@ -59,7 +59,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     public WfDefinition() {
     }
 
-    public WfDefinition(Deployment d, DeploymentVersion dv) {
+    public WfDefinition(Deployment d, ProcessDefinitionVersion dv) {
         id = dv.getId();
         version = dv.getVersion();
         name = d.getName();
@@ -73,11 +73,11 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     }
 
     public WfDefinition(DeploymentWithVersion dwv) {
-        this(dwv.deployment, dwv.deploymentVersion);
+        this(dwv.deployment, dwv.processDefinitionVersion);
     }
 
     public WfDefinition(ParsedProcessDefinition pd, boolean canBeStarted) {
-        this(pd.getDeployment(), pd.getDeploymentVersion());
+        this(pd.getDeployment(), pd.getProcessDefinitionVersion());
         hasHtmlDescription = pd.getFileData(IFileDataProvider.INDEX_FILE_NAME) != null;
         hasStartImage = pd.getFileData(IFileDataProvider.START_IMAGE_FILE_NAME) != null;
         hasDisabledImage = pd.getFileData(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;

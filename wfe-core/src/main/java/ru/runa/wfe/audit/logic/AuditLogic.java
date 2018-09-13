@@ -24,11 +24,11 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.security.Permission;
@@ -44,11 +44,11 @@ import ru.runa.wfe.user.User;
  */
 public class AuditLogic extends CommonLogic {
     @Autowired
-    private ProcessDAO processDAO;
+    private ProcessDao processDao;
     @Autowired
-    private ProcessLogDAO processLogDAO;
+    private ProcessLogDao processLogDAO;
     @Autowired
-    private NodeProcessDAO nodeProcessDAO;
+    private NodeProcessDao nodeProcessDAO;
 
     public void login(User user) {
         permissionDAO.checkAllowed(user, Permission.LOGIN, SecuredSingleton.EXECUTORS);
@@ -56,7 +56,7 @@ public class AuditLogic extends CommonLogic {
 
     public ProcessLogs getProcessLogs(User user, ProcessLogFilter filter) {
         Preconditions.checkNotNull(filter.getProcessId(), "filter.processId");
-        ru.runa.wfe.execution.Process process = processDAO.getNotNull(filter.getProcessId());
+        ru.runa.wfe.execution.Process process = processDao.getNotNull(filter.getProcessId());
         permissionDAO.checkAllowed(user, Permission.LIST, process);
         ProcessLogs result = new ProcessLogs(filter.getProcessId());
         List<ProcessLog> logs = processLogDAO.getAll(filter);

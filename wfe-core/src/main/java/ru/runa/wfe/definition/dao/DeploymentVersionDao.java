@@ -1,15 +1,15 @@
 package ru.runa.wfe.definition.dao;
 
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DeploymentVersion;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 
 @Component
-public class DeploymentVersionDAO extends GenericDAO<DeploymentVersion> {
+public class DeploymentVersionDao extends GenericDao<ProcessDefinitionVersion> {
 
     @Override
-    protected void checkNotNull(DeploymentVersion entity, Object identity) {
+    protected void checkNotNull(ProcessDefinitionVersion entity, Object identity) {
         if (entity == null) {
             throw new DefinitionDoesNotExistException(String.valueOf(identity));
         }

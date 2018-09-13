@@ -10,14 +10,14 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.TransitionLog;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
-import ru.runa.wfe.definition.DeploymentVersion;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.Transition;
@@ -27,9 +27,9 @@ public class TransitionLogPatch extends DBPatch {
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ProcessDAO processDAO;
+    private ProcessDao processDao;
     @Autowired
-    private ProcessLogDAO processLogDAO;
+    private ProcessLogDao processLogDAO;
 
     @Override
     public void executeDML(Session session) {
@@ -47,9 +47,9 @@ public class TransitionLogPatch extends DBPatch {
         ScrollableResults scrollableResults = session.createSQLQuery(q).scroll(ScrollMode.FORWARD_ONLY);
         int failed = 0;
         int success = 0;
-        val failedDeployments = new HashMap<DeploymentVersion, Date>();
+        val failedDeployments = new HashMap<ProcessDefinitionVersion, Date>();
         while (scrollableResults.next()) {
-            Process process = processDAO.get(((Number) scrollableResults.get(0)).longValue());
+            Process process = processDao.get(((Number) scrollableResults.get(0)).longValue());
             try {
                 ParsedProcessDefinition definition = processDefinitionLoader.getDefinition(process);
                 try {
@@ -66,7 +66,7 @@ public class TransitionLogPatch extends DBPatch {
                     failed++;
                 }
             } catch (InvalidDefinitionException e) {
-                DeploymentVersion dv = process.getDeploymentVersion();
+                ProcessDefinitionVersion dv = process.getProcessDefinitionVersion();
                 if (failedDeployments.containsKey(dv)) {
                     Date endDate = failedDeployments.get(dv);
                     if (endDate != null && (process.getEndDate() == null || endDate.before(process.getEndDate()))) {

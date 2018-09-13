@@ -42,7 +42,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
-import ru.runa.wfe.definition.DeploymentVersion;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.DeploymentWithVersion;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
@@ -136,7 +136,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public WfProcess getProcess(User user, Long id) throws ProcessDoesNotExistException {
-        Process process = processDAO.getNotNull(id);
+        Process process = processDao.getNotNull(id);
         permissionDAO.checkAllowed(user, Permission.LIST, process);
         return new WfProcess(process);
     }
@@ -150,7 +150,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
-        Process process = processDAO.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         List<Process> subprocesses;
         if (recursive) {
             subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
@@ -162,7 +162,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public List<WfJob> getJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
-        Process process = processDAO.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         permissionDAO.checkAllowed(user, Permission.LIST, process);
         List<Job> jobs = jobDAO.findByProcess(process);
         if (recursive) {
@@ -179,7 +179,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public List<WfToken> getTokens(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
-        Process process = processDAO.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         permissionDAO.checkAllowed(user, Permission.LIST, process);
         List<WfToken> result = Lists.newArrayList();
         result.addAll(getTokens(process));
@@ -229,7 +229,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId) {
         try {
-            Process process = processDAO.getNotNull(processId);
+            Process process = processDao.getNotNull(processId);
             permissionDAO.checkAllowed(user, Permission.LIST, process);
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             Token highlightedToken = null;
@@ -257,8 +257,8 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) {
-        Process process = processDAO.getNotNull(processId);
-        ParsedProcessDefinition definition = getDefinition(process.getDeploymentVersion().getId());
+        Process process = processDao.getNotNull(processId);
+        ParsedProcessDefinition definition = getDefinition(process.getProcessDefinitionVersion().getId());
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
@@ -275,8 +275,8 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) {
-        Process process = processDAO.getNotNull(processId);
-        ParsedProcessDefinition definition = getDefinition(process.getDeploymentVersion().getId());
+        Process process = processDao.getNotNull(processId);
+        ParsedProcessDefinition definition = getDefinition(process.getProcessDefinitionVersion().getId());
         List<NodeProcess> nodeProcesses = nodeProcessDAO.getNodeProcesses(process, null, nodeId, null);
         ProcessLogs processLogs = null;
         if (DrawProperties.isLogsInGraphEnabled()) {
@@ -299,7 +299,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public byte[] getProcessHistoryDiagram(User user, Long processId, Long taskId, String subprocessId) throws ProcessDoesNotExistException {
         try {
-            Process process = processDAO.getNotNull(processId);
+            Process process = processDao.getNotNull(processId);
             permissionDAO.checkAllowed(user, Permission.LIST, process);
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             List<ProcessLog> logs = processLogDAO.getAll(processId);
@@ -313,7 +313,7 @@ public class ExecutionLogic extends WFCommonLogic {
     public List<NodeGraphElement> getProcessHistoryDiagramElements(User user, Long processId, Long taskId, String subprocessId)
             throws ProcessDoesNotExistException {
         try {
-            Process process = processDAO.getNotNull(processId);
+            Process process = processDao.getNotNull(processId);
             permissionDAO.checkAllowed(user, Permission.LIST, process);
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             List<ProcessLog> logs = processLogDAO.getAll(processId);
@@ -331,18 +331,18 @@ public class ExecutionLogic extends WFCommonLogic {
                     "to 'true' in system.properties or wfe.custom.system.properties"
             );
         }
-        DeploymentWithVersion dwv = deploymentDAO.findDeployment(processDefinitionVersionId);
-        DeploymentWithVersion nextDWV = deploymentDAO.findDeployment(dwv.deployment.getName(), newVersion);
+        DeploymentWithVersion dwv = deploymentDao.findDeployment(processDefinitionVersionId);
+        DeploymentWithVersion nextDWV = deploymentDao.findDeployment(dwv.deployment.getName(), newVersion);
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(dwv.deployment.getName());
-        filter.setDefinitionVersion(dwv.deploymentVersion.getVersion());
+        filter.setDefinitionVersion(dwv.processDefinitionVersion.getVersion());
         filter.setFinished(false);
-        List<Process> processes = processDAO.getProcesses(filter);
+        List<Process> processes = processDao.getProcesses(filter);
         for (Process process : processes) {
-            process.setDeploymentVersion(nextDWV.deploymentVersion);
-            processDAO.update(process);
+            process.setProcessDefinitionVersion(nextDWV.processDefinitionVersion);
+            processDao.update(process);
             processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION,
-                    dwv.deploymentVersion.getVersion(), newVersion), process, null);
+                    dwv.processDefinitionVersion.getVersion(), newVersion), process, null);
         }
         return processes.size();
     }
@@ -354,23 +354,23 @@ public class ExecutionLogic extends WFCommonLogic {
                     "to 'true' in system.properties or wfe.custom.system.properties"
             );
         }
-        Process process = processDAO.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         // TODO checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
-        DeploymentVersion dv = process.getDeploymentVersion();
+        ProcessDefinitionVersion dv = process.getProcessDefinitionVersion();
         long newDeploymentVersion = version != null ? version : dv.getVersion() + 1;
         if (newDeploymentVersion == dv.getVersion()) {
             return false;
         }
-        DeploymentWithVersion nextDWV = deploymentDAO.findDeployment(dv.getDeployment().getName(), newDeploymentVersion);
-        process.setDeploymentVersion(nextDWV.deploymentVersion);
-        processDAO.update(process);
+        DeploymentWithVersion nextDWV = deploymentDao.findDeployment(dv.getDeployment().getName(), newDeploymentVersion);
+        process.setProcessDefinitionVersion(nextDWV.processDefinitionVersion);
+        processDao.update(process);
         processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),
                 newDeploymentVersion), process, null);
         return true;
     }
 
     public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
-        Process process = processDAO.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
         permissionDAO.checkAllowed(user, Permission.LIST, process);
         List<SwimlaneDefinition> swimlanes = parsedProcessDefinition.getSwimlanes();
@@ -391,7 +391,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) {
-        Process process = processDAO.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
         SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getSwimlaneNotNull(swimlaneName);
         Swimlane swimlane = swimlaneDAO.findOrCreate(process, swimlaneDefinition);
@@ -403,7 +403,7 @@ public class ExecutionLogic extends WFCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new InternalApplicationException("Only administrator can activate process");
         }
-        Process process = processDAO.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         boolean resetCaches = process.getExecutionStatus() == ExecutionStatus.SUSPENDED;
         activateProcessWithSubprocesses(user, process);
         if (resetCaches) {
@@ -419,7 +419,7 @@ public class ExecutionLogic extends WFCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new InternalApplicationException("Only administrator can suspend process");
         }
-        suspendProcessWithSubprocesses(user, processDAO.getNotNull(processId));
+        suspendProcessWithSubprocesses(user, processDao.getNotNull(processId));
         TransactionListeners.addListener(new CacheResetTransactionListener(), true);
         log.info("Process " + processId + " suspended");
     }
@@ -443,7 +443,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     private List<Process> getProcessesInternal(User user, ProcessFilter filter) {
-        List<Process> processes = processDAO.getProcesses(filter);
+        List<Process> processes = processDao.getProcesses(filter);
         processes = filterSecuredObject(user, processes, Permission.LIST);
         return processes;
     }

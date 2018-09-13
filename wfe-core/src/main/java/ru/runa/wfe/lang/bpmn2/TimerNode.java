@@ -19,7 +19,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.job.TimerJob;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.Delegation;
@@ -35,7 +35,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
     private Delegation actionDelegation;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
-    private transient JobDAO jobDAO;
+    private transient JobDao jobDAO;
 
     @Override
     public List<BoundaryEvent> getBoundaryEvents() {

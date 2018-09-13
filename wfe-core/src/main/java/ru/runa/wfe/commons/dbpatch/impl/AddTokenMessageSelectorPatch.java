@@ -9,13 +9,13 @@ import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public class AddTokenMessageSelectorPatch extends DBPatch implements IDbPatchPostProcessor {
     @Autowired
-    TokenDAO tokenDAO;
+    TokenDao tokenDAO;
     @Autowired
     ProcessDefinitionLoader processDefinitionLoader;
 

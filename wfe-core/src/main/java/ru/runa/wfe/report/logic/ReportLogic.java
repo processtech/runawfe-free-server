@@ -14,7 +14,7 @@ import ru.runa.wfe.report.ReportParameter;
 import ru.runa.wfe.report.ReportParameterMissingException;
 import ru.runa.wfe.report.ReportParameterUnknownException;
 import ru.runa.wfe.report.ReportWithNameExistsException;
-import ru.runa.wfe.report.dao.ReportDAO;
+import ru.runa.wfe.report.dao.ReportDao;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.impl.GetCompiledReportParametersDescription;
@@ -27,7 +27,7 @@ import ru.runa.wfe.user.User;
 public class ReportLogic extends WFCommonLogic {
 
     @Autowired
-    protected ReportDAO reportDAO;
+    protected ReportDao reportDAO;
 
     public List<WfReport> getReportDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         return reportDAO.getReportDefinitions(user, batchPresentation, enablePaging);

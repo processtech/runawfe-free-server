@@ -28,8 +28,8 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.IExecutionContextFactory;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
@@ -47,7 +47,7 @@ import ru.runa.wfe.ss.logic.ISubstitutionLogic;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.cache.TaskCache;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.task.dto.IWfTaskFactory;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
@@ -58,7 +58,7 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.dao.VariableDAO;
+import ru.runa.wfe.var.dao.VariableDao;
 
 /**
  * Task list builder component.
@@ -81,7 +81,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private TaskDAO taskDAO;
+    private TaskDao taskDAO;
     @Autowired
     private IProcessLogDAO<ProcessLog> processLogDAO;
     @Autowired
@@ -89,11 +89,11 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
     @Autowired
     private IBatchPresentationCompilerFactory<?> batchPresentationCompilerFactory;
     @Autowired
-    private ProcessDAO processDAO;
+    private ProcessDao processDao;
     @Autowired
-    private NodeProcessDAO nodeProcessDAO;
+    private NodeProcessDao nodeProcessDAO;
     @Autowired
-    private VariableDAO variableDAO;
+    private VariableDao variableDAO;
     @Autowired
     private PermissionDAO permissionDAO;
 
@@ -123,7 +123,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
                     !openedTasks.contains(state.getTask().getId()));
             if (!Utils.isNullOrEmpty(variableNames)) {
                 Process process = state.getTask().getProcess();
-                ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process.getDeploymentVersion().getId());
+                ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process.getProcessDefinitionVersion().getId());
                 ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process, variables, false);
                 for (String variableName : variableNames) {
                     wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
@@ -153,7 +153,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
                     !openedTasks.contains(state.getTask().getId()));
             if (!Utils.isNullOrEmpty(variableNames)) {
                 Process process = state.getTask().getProcess();
-                ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process.getDeploymentVersion().getId());
+                ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process.getProcessDefinitionVersion().getId());
                 ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process, variables, false);
                 for (String variableName : variableNames) {
                     wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
@@ -378,7 +378,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
     }
 
     private void includeAdministrativeTasks(List<TaskInListState> result, Actor actor, Long processId) {
-        Process process = processDAO.get(processId);
+        Process process = processDao.get(processId);
         if (process == null || process.hasEnded()) {
             return;
         }

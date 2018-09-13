@@ -27,13 +27,13 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
-import ru.runa.wfe.presentation.dao.BatchPresentationDAO;
+import ru.runa.wfe.presentation.dao.BatchPresentationDao;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ProfileDAO;
+import ru.runa.wfe.user.dao.ProfileDao;
 
 /**
  * Actor's profile management.
@@ -44,9 +44,9 @@ import ru.runa.wfe.user.dao.ProfileDAO;
 public class ProfileLogic extends CommonLogic {
 
     @Autowired
-    private ProfileDAO profileDAO;
+    private ProfileDao profileDAO;
     @Autowired
-    private BatchPresentationDAO batchPresentationDAO;
+    private BatchPresentationDao batchPresentationDAO;
 
     public List<Profile> getProfiles(User user, List<Long> actorIds) throws ExecutorDoesNotExistException {
         List<Profile> result = Lists.newArrayListWithCapacity(actorIds.size());

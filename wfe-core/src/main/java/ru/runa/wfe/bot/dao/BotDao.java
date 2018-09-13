@@ -23,7 +23,7 @@ import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotDoesNotExistException;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.QBot;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.User;
 
 /**
@@ -33,7 +33,7 @@ import ru.runa.wfe.user.User;
  * @since 2.0
  */
 @Component
-public class BotDAO extends GenericDAO<Bot> {
+public class BotDao extends GenericDao<Bot> {
 
     @Override
     protected void checkNotNull(Bot entity, Object identity) {

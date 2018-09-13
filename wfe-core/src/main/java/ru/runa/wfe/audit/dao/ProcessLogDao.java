@@ -17,7 +17,7 @@ import ru.runa.wfe.audit.QProcessLog;
 import ru.runa.wfe.audit.QTransitionLog;
 import ru.runa.wfe.audit.Severity;
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -30,7 +30,7 @@ import ru.runa.wfe.lang.ParsedSubprocessDefinition;
  * @since 4.0
  */
 @Component
-public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLogDAO<ProcessLog> {
+public class ProcessLogDao extends GenericDao<ProcessLog> implements IProcessLogDAO<ProcessLog> {
 
     @Autowired
     private ProcessLogAwareDao customizationDao;

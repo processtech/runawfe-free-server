@@ -28,7 +28,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
  * tables (drops tables if such tables already exists) and records.
  */
 @Component
-public class ConstantDAO extends GenericDAO<Constant> {
+public class ConstantDao extends GenericDao<Constant> {
     private static final String DATABASE_VERSION_VARIABLE_NAME = "ru.runa.database_version";
 
     public Integer getDatabaseVersion() throws Exception {

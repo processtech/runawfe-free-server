@@ -3,7 +3,7 @@ package ru.runa.wfe.ss.dao;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.ss.QSubstitution;
 import ru.runa.wfe.ss.QSubstitutionCriteria;
 import ru.runa.wfe.ss.Substitution;
@@ -16,7 +16,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
  * @since 4.0
  */
 @Component
-public class SubstitutionCriteriaDAO extends GenericDAO<SubstitutionCriteria> {
+public class SubstitutionCriteriaDao extends GenericDao<SubstitutionCriteria> {
 
     @Override
     public SubstitutionCriteria create(SubstitutionCriteria entity) {

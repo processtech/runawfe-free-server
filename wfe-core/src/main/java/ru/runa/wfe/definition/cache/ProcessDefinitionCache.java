@@ -18,17 +18,17 @@
 package ru.runa.wfe.definition.cache;
 
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.dao.DeploymentDAO;
-import ru.runa.wfe.definition.dao.DeploymentVersionDAO;
+import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.DeploymentVersionDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 interface ProcessDefinitionCache {
-    ParsedProcessDefinition getDefinition(DeploymentDAO deploymentDAO, DeploymentVersionDAO deploymentVersionDAO, long processDefinitionVersionId)
+    ParsedProcessDefinition getDefinition(DeploymentDao deploymentDao, DeploymentVersionDao deploymentVersionDAO, long processDefinitionVersionId)
             throws DefinitionDoesNotExistException;
 
-    ParsedProcessDefinition getLatestDefinition(DeploymentDAO deploymentDAO, DeploymentVersionDAO deploymentVersionDAO, String definitionName)
+    ParsedProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, DeploymentVersionDao deploymentVersionDAO, String definitionName)
             throws DefinitionDoesNotExistException;
 
-    ParsedProcessDefinition getLatestDefinition(DeploymentDAO deploymentDAO, DeploymentVersionDAO deploymentVersionDAO, long deploymentId)
+    ParsedProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, DeploymentVersionDao deploymentVersionDAO, long deploymentId)
             throws DefinitionDoesNotExistException;
 }

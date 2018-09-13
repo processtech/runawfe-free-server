@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
@@ -42,7 +42,7 @@ import ru.runa.wfe.user.Executor;
  * @since 3.3
  */
 @Component
-public class RelationPairDAO extends GenericDAO<RelationPair> {
+public class RelationPairDao extends GenericDao<RelationPair> {
 
     @Override
     protected void checkNotNull(RelationPair entity, Object identity) {

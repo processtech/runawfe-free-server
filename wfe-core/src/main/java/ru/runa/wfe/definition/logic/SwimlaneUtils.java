@@ -1,7 +1,7 @@
 package ru.runa.wfe.definition.logic;
 
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
-import ru.runa.wfe.commons.dao.LocalizationDAO;
+import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 
 public class SwimlaneUtils {
@@ -12,7 +12,7 @@ public class SwimlaneUtils {
      * @param swimlaneDefinition
      * @param localizationDAO
      */
-    public static void setOrgFunctionLabel(SwimlaneDefinition swimlaneDefinition, LocalizationDAO localizationDAO) {
+    public static void setOrgFunctionLabel(SwimlaneDefinition swimlaneDefinition, LocalizationDao localizationDAO) {
         if (swimlaneDefinition.getDelegation() != null && swimlaneDefinition.getDelegation().getConfiguration() != null) {
             String conf = swimlaneDefinition.getDelegation().getConfiguration();
             swimlaneDefinition.setOrgFunctionLabel(conf);

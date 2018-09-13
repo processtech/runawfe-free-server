@@ -4,15 +4,15 @@ import lombok.NonNull;
 
 public class DeploymentWithVersion {
     public final Deployment deployment;
-    public final DeploymentVersion deploymentVersion;
+    public final ProcessDefinitionVersion processDefinitionVersion;
 
-    public DeploymentWithVersion(@NonNull Deployment deployment, @NonNull DeploymentVersion deploymentVersion) {
+    public DeploymentWithVersion(@NonNull Deployment deployment, @NonNull ProcessDefinitionVersion processDefinitionVersion) {
         this.deployment = deployment;
-        this.deploymentVersion = deploymentVersion;
+        this.processDefinitionVersion = processDefinitionVersion;
     }
 
     @Override
     public String toString() {
-        return "(" + deployment + ", " + deploymentVersion + ")";
+        return "(" + deployment + ", " + processDefinitionVersion + ")";
     }
 }

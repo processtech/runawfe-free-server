@@ -32,7 +32,7 @@ import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.job.TimerJob;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.GraphElement;
@@ -44,7 +44,7 @@ public class CreateTimerAction extends Action {
     private String repeatDurationString;
 
     @Autowired
-    private transient JobDAO jobDAO;
+    private transient JobDao jobDAO;
 
     @Override
     public void execute(ExecutionContext executionContext) {

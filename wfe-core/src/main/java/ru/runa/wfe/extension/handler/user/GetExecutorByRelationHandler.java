@@ -8,8 +8,8 @@ import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.relation.dao.RelationDAO;
-import ru.runa.wfe.relation.dao.RelationPairDAO;
+import ru.runa.wfe.relation.dao.RelationDao;
+import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
@@ -19,9 +19,9 @@ public class GetExecutorByRelationHandler extends CommonParamBasedHandler {
     @Autowired
     private ExecutorDAO executorDAO;
     @Autowired
-    private RelationDAO relationDAO;
+    private RelationDao relationDAO;
     @Autowired
-    private RelationPairDAO relationPairDAO;
+    private RelationPairDao relationPairDAO;
 
     @Override
     protected void executeAction(HandlerData handlerData) throws Exception {

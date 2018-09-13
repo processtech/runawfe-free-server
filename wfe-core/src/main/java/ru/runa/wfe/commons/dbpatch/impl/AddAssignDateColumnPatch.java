@@ -10,14 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskAssignLog;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 
 import com.google.common.base.Objects;
 
 public class AddAssignDateColumnPatch extends DBPatch {
     @Autowired
-    private ProcessLogDAO processLogDAO;
+    private ProcessLogDao processLogDAO;
 
     @Override
     protected List<String> getDDLQueriesBefore() {

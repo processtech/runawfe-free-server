@@ -19,7 +19,7 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
     }
 
     public ParsedSubprocessDefinition(ParsedProcessDefinition parsedParentProcessDefinition) {
-        super(parsedParentProcessDefinition.getDeploymentVersion().createCopyWithDeployment());
+        super(parsedParentProcessDefinition.getProcessDefinitionVersion().createCopyWithDeployment());
         this.parsedParentProcessDefinition = parsedParentProcessDefinition;
     }
 

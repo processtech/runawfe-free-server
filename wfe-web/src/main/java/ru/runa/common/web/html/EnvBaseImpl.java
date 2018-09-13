@@ -57,6 +57,6 @@ public abstract class EnvBaseImpl implements Env {
     }
 
     // TODO This probably can be optimized: it stores processDefinitionVersionId as key, but should store deploymentId,
-    //      since permissions check applies to Deployment, not to DeploymentVersion.
+    //      since permissions check applies to Deployment, not to ProcessDefinitionVersion.
     private final Map<Long, Boolean> processDefPermissionCache = new HashMap<>();
 }

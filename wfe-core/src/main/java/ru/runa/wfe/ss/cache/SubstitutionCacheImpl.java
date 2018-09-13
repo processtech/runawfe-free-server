@@ -35,7 +35,7 @@ import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContextStub;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.TerminatorSubstitution;
-import ru.runa.wfe.ss.dao.SubstitutionDAO;
+import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
@@ -134,7 +134,7 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
         Map<Long, TreeMap<Substitution, HashSet<Long>>> result = Maps.newHashMap();
         final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
         try {
-            final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
+            final SubstitutionDao substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
             for (Substitution substitution : substitutionDAO.getAll()) {
                 if (!initializationContext.isInitializationStillRequired()) {
                     return result;

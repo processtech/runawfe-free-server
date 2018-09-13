@@ -26,7 +26,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
-import ru.runa.wfe.execution.dao.SwimlaneDAO;
+import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.ActionHandlerBase;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
@@ -43,7 +43,7 @@ public class AssignSwimlaneActionHandler extends ActionHandlerBase {
     private String swimlaneName;
     private String swimlaneInitializer;
     @Autowired
-    private SwimlaneDAO swimlaneDAO;
+    private SwimlaneDao swimlaneDAO;
 
     @Override
     public void setConfiguration(String configuration) {

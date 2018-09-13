@@ -6,7 +6,7 @@ import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.BotTaskDoesNotExistException;
 import ru.runa.wfe.bot.QBotTask;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 
 /**
  * DAO level interface for managing bot tasks.
@@ -15,7 +15,7 @@ import ru.runa.wfe.commons.dao.GenericDAO;
  * @since 2.0
  */
 @Component
-public class BotTaskDAO extends GenericDAO<BotTask> {
+public class BotTaskDao extends GenericDao<BotTask> {
 
     @Override
     protected void checkNotNull(BotTask entity, Object identity) {

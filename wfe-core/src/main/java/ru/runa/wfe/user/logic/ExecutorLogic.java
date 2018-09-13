@@ -32,21 +32,21 @@ import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
-import ru.runa.wfe.relation.dao.RelationPairDAO;
+import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.security.WeakPasswordException;
 import ru.runa.wfe.security.logic.AuthorizationLogic;
-import ru.runa.wfe.ss.dao.SubstitutionDAO;
+import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorParticipatesInProcessesException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ProfileDAO;
+import ru.runa.wfe.user.dao.ProfileDao;
 
 /**
  * Created on 14.03.2005
@@ -55,11 +55,11 @@ public class ExecutorLogic extends CommonLogic {
     private List<SetStatusHandler> setStatusHandlers;
 
     @Autowired
-    private ProfileDAO profileDAO;
+    private ProfileDao profileDAO;
     @Autowired
-    private RelationPairDAO relationPairDAO;
+    private RelationPairDao relationPairDAO;
     @Autowired
-    private SubstitutionDAO substitutionDAO;
+    private SubstitutionDao substitutionDAO;
     @Autowired
     private AuthorizationLogic authorizationLogic;
 
@@ -124,7 +124,7 @@ public class ExecutorLogic extends CommonLogic {
         if (permissionDAO.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
             throw new AuthorizationException(executor.getName() + " can not be removed");
         }
-        Set<Long> processIds = processDAO.getDependentProcessIds(executor);
+        Set<Long> processIds = processDao.getDependentProcessIds(executor);
         if (processIds.size() > 0) {
             throw new ExecutorParticipatesInProcessesException(executor.getName(), processIds);
         }

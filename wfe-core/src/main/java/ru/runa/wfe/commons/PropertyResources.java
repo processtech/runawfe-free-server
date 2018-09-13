@@ -12,7 +12,7 @@ import java.util.Properties;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.dao.SettingDAO;
+import ru.runa.wfe.commons.dao.SettingDao;
 
 @CommonsLog
 public class PropertyResources {
@@ -23,7 +23,7 @@ public class PropertyResources {
 
     private static final Map<String, String> propertiesCache = Maps.newHashMap();
 
-    private SettingDAO settingDAO = null;
+    private SettingDao settingDAO = null;
 
     public static void setDatabaseAvailable(boolean available) {
         databaseAvailable = available;
@@ -74,7 +74,7 @@ public class PropertyResources {
                 try {
                     settingDAO = ApplicationContextFactory.getSettingDAO();
                 } catch (Exception e) {
-                    log.error("No SettingDAO available", e);
+                    log.error("No SettingDao available", e);
                 }
             }
             if (settingDAO != null) {

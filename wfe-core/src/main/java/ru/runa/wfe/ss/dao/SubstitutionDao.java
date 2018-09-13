@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.ss.QSubstitution;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionDoesNotExistException;
@@ -33,7 +33,7 @@ import ru.runa.wfe.user.Actor;
  * @since 2.0
  */
 @Component
-public class SubstitutionDAO extends GenericDAO<Substitution> {
+public class SubstitutionDao extends GenericDao<Substitution> {
 
     @Override
     public Substitution create(Substitution entity) {

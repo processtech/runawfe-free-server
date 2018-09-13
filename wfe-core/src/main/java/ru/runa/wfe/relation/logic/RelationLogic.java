@@ -29,8 +29,8 @@ import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationAlreadyExistException;
 import ru.runa.wfe.relation.RelationDoesNotExistException;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.relation.dao.RelationDAO;
-import ru.runa.wfe.relation.dao.RelationPairDAO;
+import ru.runa.wfe.relation.dao.RelationDao;
+import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.Executor;
@@ -43,9 +43,9 @@ import ru.runa.wfe.user.User;
  */
 public class RelationLogic extends CommonLogic {
     @Autowired
-    private RelationDAO relationDAO;
+    private RelationDao relationDAO;
     @Autowired
-    private RelationPairDAO relationPairDAO;
+    private RelationPairDao relationPairDAO;
 
     /**
      * Add {@link RelationPair} to {@link Relation} with specified name.

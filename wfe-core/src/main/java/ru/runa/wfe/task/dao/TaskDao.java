@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
@@ -37,7 +37,7 @@ import ru.runa.wfe.user.Executor;
 
 @Component
 @SuppressWarnings("unchecked")
-public class TaskDAO extends GenericDAO<Task> {
+public class TaskDao extends GenericDao<Task> {
 
     @Override
     protected void checkNotNull(Task entity, Object identity) {

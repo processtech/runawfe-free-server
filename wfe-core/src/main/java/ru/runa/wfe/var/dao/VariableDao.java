@@ -12,14 +12,14 @@ import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.var.QVariable;
 import ru.runa.wfe.var.Variable;
 
 @Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class VariableDAO extends GenericDAO<Variable> {
+public class VariableDao extends GenericDao<Variable> {
 
     public Variable<?> get(Process process, String name) {
         QVariable v = QVariable.variable;

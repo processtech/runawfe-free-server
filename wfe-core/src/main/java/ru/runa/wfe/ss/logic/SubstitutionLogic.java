@@ -30,8 +30,8 @@ import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.SubstitutionDoesNotExistException;
 import ru.runa.wfe.ss.cache.SubstitutionCache;
-import ru.runa.wfe.ss.dao.SubstitutionCriteriaDAO;
-import ru.runa.wfe.ss.dao.SubstitutionDAO;
+import ru.runa.wfe.ss.dao.SubstitutionCriteriaDao;
+import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
@@ -45,9 +45,9 @@ public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic
     @Autowired
     private SubstitutionCache substitutionCacheCtrl;
     @Autowired
-    private SubstitutionDAO substitutionDAO;
+    private SubstitutionDao substitutionDAO;
     @Autowired
-    private SubstitutionCriteriaDAO substitutionCriteriaDAO;
+    private SubstitutionCriteriaDao substitutionCriteriaDAO;
 
     public void create(User user, Substitution substitution) {
         Actor actor = executorDAO.getActor(substitution.getActorId());

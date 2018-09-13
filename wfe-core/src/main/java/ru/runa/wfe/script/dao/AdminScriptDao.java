@@ -22,12 +22,12 @@
 package ru.runa.wfe.script.dao;
 
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.script.QAdminScript;
 
 @Component
-public class AdminScriptDAO extends GenericDAO<AdminScript> {
+public class AdminScriptDao extends GenericDao<AdminScript> {
 
     public AdminScript getByName(String name) {
         QAdminScript as = QAdminScript.adminScript;

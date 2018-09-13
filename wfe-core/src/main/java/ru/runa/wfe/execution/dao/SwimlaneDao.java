@@ -2,7 +2,7 @@ package ru.runa.wfe.execution.dao;
 
 import java.util.List;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.QSwimlane;
@@ -18,7 +18,7 @@ import ru.runa.wfe.lang.SwimlaneDefinition;
  * @since 4.0
  */
 @Component
-public class SwimlaneDAO extends GenericDAO<Swimlane> {
+public class SwimlaneDao extends GenericDao<Swimlane> {
 
     public List<Swimlane> findByProcess(Process process) {
         QSwimlane s = QSwimlane.swimlane;

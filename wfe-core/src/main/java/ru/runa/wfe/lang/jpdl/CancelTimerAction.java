@@ -24,13 +24,13 @@ package ru.runa.wfe.lang.jpdl;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Action;
 
 public class CancelTimerAction extends Action {
     private static final long serialVersionUID = 1L;
     @Autowired
-    private transient JobDAO jobDAO;
+    private transient JobDao jobDAO;
 
     @Override
     public void execute(ExecutionContext executionContext) {

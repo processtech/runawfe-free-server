@@ -13,8 +13,8 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.lang.MultiSubprocessNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -34,11 +34,11 @@ public class BaseProcessVariableLoader {
     private final ParsedProcessDefinition parsedProcessDefinition;
     private final SubprocessSyncCache subprocessSyncCache;
     @Autowired
-    private NodeProcessDAO nodeProcessDAO;
+    private NodeProcessDao nodeProcessDAO;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ProcessDAO processDAO;
+    private ProcessDao processDao;
 
     public BaseProcessVariableLoader(VariableLoader variableLoader, ParsedProcessDefinition parsedProcessDefinition, Process process) {
         this.variableLoader = variableLoader;
@@ -75,7 +75,7 @@ public class BaseProcessVariableLoader {
             name = subprocessSyncCache.getBaseProcessReadVariableName(process, name);
             if (name != null) {
                 log.debug("Loading variable '" + name + "' from process '" + baseProcessId + "'");
-                Process baseProcess = processDAO.getNotNull(baseProcessId);
+                Process baseProcess = processDao.getNotNull(baseProcessId);
                 ParsedProcessDefinition parsedBaseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
                 WfVariable baseVariable = variableLoader.getVariable(parsedBaseProcessDefinition, baseProcess, name);
                 if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null

@@ -5,7 +5,7 @@ import org.apache.commons.logging.Log;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
-import ru.runa.wfe.var.dao.VariableDAO;
+import ru.runa.wfe.var.dao.VariableDao;
 import ru.runa.wfe.var.dto.WfVariable;
 
 /**
@@ -31,7 +31,7 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
     /**
      * DAO instance for work with variables.
      */
-    private final VariableDAO variableDAO;
+    private final VariableDao variableDAO;
 
     /**
      * Creates context for {@link ConvertToSimpleVariables} operation.
@@ -48,7 +48,7 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
      *            DAO instance for work with variables.
      */
     public ConvertToSimpleVariablesOnSaveContext(VariableDefinition variableDefinition, Object value, Process process,
-            BaseProcessVariableLoader baseProcessVariableLoader, VariableDAO variableDAO) {
+            BaseProcessVariableLoader baseProcessVariableLoader, VariableDao variableDAO) {
         super();
         this.variableDefinition = variableDefinition;
         this.value = value;

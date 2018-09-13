@@ -29,12 +29,12 @@ import java.util.List;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.DeploymentWithVersion;
 import ru.runa.wfe.definition.QDeployment;
-import ru.runa.wfe.definition.QDeploymentVersion;
+import ru.runa.wfe.definition.QProcessDefinitionVersion;
 
 /**
  * DAO for {@link Deployment}.
@@ -43,7 +43,7 @@ import ru.runa.wfe.definition.QDeploymentVersion;
  * @since 4.0
  */
 @Component
-public class DeploymentDAO extends GenericDAO<Deployment> {
+public class DeploymentDao extends GenericDao<Deployment> {
 
     @Override
     protected void checkNotNull(Deployment entity, Object identity) {
@@ -58,7 +58,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
      */
     public DeploymentWithVersion findLatestDeployment(@NonNull String deploymentName) {
         QDeployment d = QDeployment.deployment;
-        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
                 .from(dv)
                 .innerJoin(dv.deployment, d)
@@ -77,7 +77,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
      */
     public DeploymentWithVersion findLatestDeployment(long deploymentId) {
         QDeployment d = QDeployment.deployment;
-        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
                 .from(dv)
                 .innerJoin(dv.deployment, d)
@@ -92,7 +92,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
 
     public DeploymentWithVersion findDeployment(@NonNull String name, long version) {
         QDeployment d = QDeployment.deployment;
-        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.deployment, d).where(d.name.eq(name).and(dv.version.eq(version))).fetchFirst();
         if (t == null) {
             throw new DefinitionDoesNotExistException(name + " v" + version);
@@ -101,12 +101,12 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     /**
-     * Eager load both Deployment and DeploymentVersion. Probably this could be done "more Hibernate way" (like marking @ManyToOne field
-     * DeploymentVersion.deployment as eager loaded if that's possible), but this implementation is a step closer to getting rid of Hibernate.
+     * Eager load both Deployment and ProcessDefinitionVersion. Probably this could be done "more Hibernate way" (like marking @ManyToOne field
+     * ProcessDefinitionVersion.deployment as eager loaded if that's possible), but this implementation is a step closer to getting rid of Hibernate.
      */
     public DeploymentWithVersion findDeployment(long processDefinitionVersionId) {
         QDeployment d = QDeployment.deployment;
-        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.deployment, d).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
         if (t == null) {
             throw new DefinitionDoesNotExistException("processDefinitionVersionId = " + processDefinitionVersionId);
@@ -123,10 +123,10 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     /**
-     * Returns ids of all DeploymentVersion-s which belong to same Deployment as processDefinitionVersionId, ordered by version.
+     * Returns ids of all ProcessDefinitionVersion-s which belong to same Deployment as processDefinitionVersionId, ordered by version.
      */
     public List<Long> findAllDeploymentVersionIds(long processDefinitionVersionId, boolean ascending) {
-        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
 
         // TODO This can be implemented as subquery (hopefully in Hibernate):
         Long deploymentId = queryFactory.select(dv.deployment.id).from(dv).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
@@ -141,7 +141,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
 
     public List<Long> findDeploymentVersionIds(String name, Long from, Long to) {
         QDeployment d = QDeployment.deployment;
-        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
                 .innerJoin(dv.deployment, d)
@@ -151,7 +151,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     public Long findDeploymentVersionIdLatestVersionLessThan(long deploymentId, long version) {
-        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
                 .where(dv.deployment.id.eq(deploymentId).and(dv.version.lt(version)))
@@ -161,7 +161,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
 
     public Long findDeploymentVersionIdLatestVersionBeforeDate(String name, Date date) {
         QDeployment d = QDeployment.deployment;
-        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
                 .innerJoin(dv.deployment, d)
@@ -176,7 +176,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     @Deprecated
     public List<DeploymentWithVersion> findAllDeploymentVersions(String name) {
         QDeployment d = QDeployment.deployment;
-        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         List<Tuple> tt = queryFactory.select(d, dv)
                 .from(dv)
                 .innerJoin(dv.deployment, d)
