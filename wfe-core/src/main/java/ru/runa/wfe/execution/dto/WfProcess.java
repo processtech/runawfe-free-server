@@ -60,7 +60,7 @@ public class WfProcess extends SecuredObjectBase {
 
     public WfProcess(Process process) {
         id = process.getId();
-        name = process.getProcessDefinitionVersion().getProcessDefinition().getName();
+        name = process.getProcessDefinitionVersion().getDefinition().getName();
         definitionId = process.getProcessDefinitionVersion().getId();
         version = process.getProcessDefinitionVersion().getVersion().intValue();
         startDate = process.getStartDate();

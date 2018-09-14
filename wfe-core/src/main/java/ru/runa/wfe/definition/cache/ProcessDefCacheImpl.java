@@ -167,8 +167,8 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
             isLocked.set(true);
             definitionVersionIdToDefinition.remove(dv.getId());
             dv = HibernateUtil.unproxyWithoutInitialize(dv);
-            if (dv != null && dv.getProcessDefinition() != null) {
-                onChangeDeploymentImpl(dv.getProcessDefinition());
+            if (dv != null && dv.getDefinition() != null) {
+                onChangeDeploymentImpl(dv.getDefinition());
             }
             return true;
 

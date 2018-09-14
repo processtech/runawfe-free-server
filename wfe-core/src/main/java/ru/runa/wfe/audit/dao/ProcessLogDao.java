@@ -54,7 +54,7 @@ public class ProcessLogDao extends GenericDao<ProcessLog> implements IProcessLog
             List<ProcessLog> logs = getAll(processId);
             if (definition instanceof ParsedSubprocessDefinition) {
                 ParsedSubprocessDefinition subprocessDefinition = (ParsedSubprocessDefinition) definition;
-                String subprocessNodeId = subprocessDefinition.getParentParsedProcessDefinition().getEmbeddedSubprocessNodeIdNotNull(
+                String subprocessNodeId = subprocessDefinition.getParent().getEmbeddedSubprocessNodeIdNotNull(
                         subprocessDefinition.getName());
                 boolean embeddedSubprocessLogs = false;
                 boolean childSubprocessLogs = false;

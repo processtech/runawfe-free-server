@@ -47,16 +47,15 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                 new FieldDescriptor[] {
                         // display name field type DB source isSort filter mode
                         // get value/show in web getter parameters
-                        new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(ProcessDefinition.class, "name"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
-                                        Permission.START, "name" }),
+                        new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(ProcessDefinitionVersion.class, "definition.name"),
+                                true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder",
+                                new Object[] { Permission.START, "name" }),
                         new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDBSource(ProcessDefinition.class, "version"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.LIST,
-                                        "version" }),
-                        new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(ProcessDefinition.class, "description"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
-                        new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ProcessDefinition.class, "category"),
-                                true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}),
+                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.LIST, "version" }),
+                        new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(ProcessDefinition.class, "definition.description"),
+                                true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
+                        new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ProcessDefinition.class,
+                                "definition.category"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}),
                         new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDBSource(ProcessDefinition.class, "createDate"), true,
                                 FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTDBuilder", new Object[] {}),
                         new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDBSource(ProcessDefinition.class, "createActor"), false,
@@ -65,8 +64,8 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                                 FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTDBuilder", new Object[] {}),
                         new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(ProcessDefinition.class, "updateActor"), false,
                                 FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}),
-                        new FieldDescriptor(PROCESSES_COUNT, String.class.getName(), new DefaultDBSource(ProcessDefinition.class, "name"), false,
-                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionProcessesCountTDBuilder", new Object[] {}) });
+                        new FieldDescriptor(PROCESSES_COUNT, String.class.getName(), new DefaultDBSource(ProcessDefinition.class, "definition.name"),
+                                false, FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionProcessesCountTDBuilder", new Object[] {}) });
     }
 
     public static ClassPresentation getInstance() {

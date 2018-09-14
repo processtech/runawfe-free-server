@@ -361,7 +361,7 @@ public class ExecutionLogic extends WFCommonLogic {
         if (newDeploymentVersion == dv.getVersion()) {
             return false;
         }
-        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.getByNameAndVersion(dv.getProcessDefinition().getName(), newDeploymentVersion);
+        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.getByNameAndVersion(dv.getDefinition().getName(), newDeploymentVersion);
         process.setProcessDefinitionVersion(nextDWV.processDefinitionVersion);
         processDao.update(process);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),

@@ -129,7 +129,7 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
             dwvOld.processDefinition.setCategories(categories);
         }
         d = dwvOld.processDefinition;
-        dv.setProcessDefinition(d);
+        dv.setDefinition(d);
 
         dv.setCreateDate(new Date());
         dv.setCreateActor(user.getActor());
@@ -362,6 +362,9 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
         return definition.getVariable(variableName, true);
     }
 
+    /**
+     * @param batchPresentation of type DEFINITIONS.
+     */
     public List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         CompilerParameters parameters = CompilerParameters.create(enablePaging).loadOnlyIdentity();
         return getProcessDefinitions(user, batchPresentation, parameters);
@@ -372,6 +375,9 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
         return new PresentationCompiler<ProcessDefinition>(batchPresentation).getCount(parameters);
     }
 
+    /**
+     * @param batchPresentation of type DEFINITIONS_HISTORY.
+     */
     public List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         val result = new ArrayList<WfDefinition>();
         List<String> processNameRestriction = getProcessNameRestriction(user);
@@ -379,9 +385,9 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
             return result;
         }
         CompilerParameters parameters = CompilerParameters.create(enablePaging).addOwners(new RestrictionsToOwners(processNameRestriction, "name"));
-        List<ProcessDefinition> processDefinitions = new PresentationCompiler<ProcessDefinition>(batchPresentation).getBatch(parameters);
-        for (ProcessDefinition processDefinition : processDefinitions) {
-//            result.add(new WfDefinition(processDefinition));   // TODO Refactor class presentations!
+        List<ProcessDefinitionVersion> versions = new PresentationCompiler<ProcessDefinitionVersion>(batchPresentation).getBatch(parameters);
+        for (ProcessDefinitionVersion dv : versions) {
+            result.add(new WfDefinition(dv));
         }
         return result;
     }
@@ -390,7 +396,7 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
         try {
             val d = new ProcessDefinition();
             val dv = new ProcessDefinitionVersion();
-            dv.setProcessDefinition(d);
+            dv.setDefinition(d);
             dv.setContent(data);
             ProcessArchive archive = new ProcessArchive(d, dv);
             return archive.parseProcessDefinition();
@@ -496,11 +502,11 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
 
     private static final class StartProcessPermissionCheckCallback extends CheckMassPermissionCallback {
         private final List<WfDefinition> result;
-        private final Map<ProcessDefinition, ParsedProcessDefinition> processDefinitions;
+        private final Map<ProcessDefinition, ParsedProcessDefinition> parsedDefinitions;
 
-        private StartProcessPermissionCheckCallback(List<WfDefinition> result, Map<ProcessDefinition, ParsedProcessDefinition> processDefinitions) {
+        private StartProcessPermissionCheckCallback(List<WfDefinition> result, Map<ProcessDefinition, ParsedProcessDefinition> parsedDefinitions) {
             this.result = result;
-            this.processDefinitions = processDefinitions;
+            this.parsedDefinitions = parsedDefinitions;
         }
 
         @Override
@@ -514,11 +520,12 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
         }
 
         private void addDefinitionToResult(SecuredObject securedObject, boolean canBeStarted) {
-            ParsedProcessDefinition definition = processDefinitions.get(securedObject);
-            if (definition != null) {
-                result.add(new WfDefinition(definition, canBeStarted));
+            val d = (ProcessDefinition) securedObject;
+            ParsedProcessDefinition parsed = parsedDefinitions.get(d);
+            if (parsed != null) {
+                result.add(new WfDefinition(parsed, canBeStarted));
             } else {
-                result.add(new WfDefinition((ProcessDefinition) securedObject));
+                result.add(new WfDefinition(d, d.getLatestVersion()));
             }
         }
     }

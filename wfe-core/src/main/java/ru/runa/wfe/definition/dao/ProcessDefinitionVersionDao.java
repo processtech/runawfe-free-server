@@ -18,6 +18,6 @@ public class ProcessDefinitionVersionDao extends GenericDao<ProcessDefinitionVer
 
     public void deleteAll(long processDefinitionId) {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
-        queryFactory.delete(dv).where(dv.processDefinition.id.eq(processDefinitionId)).execute();
+        queryFactory.delete(dv).where(dv.definition.id.eq(processDefinitionId)).execute();
     }
 }

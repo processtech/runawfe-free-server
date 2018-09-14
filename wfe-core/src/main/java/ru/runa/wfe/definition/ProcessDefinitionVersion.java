@@ -27,7 +27,7 @@ public class ProcessDefinitionVersion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private ProcessDefinition processDefinition;
+    private ProcessDefinition definition;
     private Long version;
     private Long subVersion;
     private byte[] content;
@@ -53,12 +53,12 @@ public class ProcessDefinitionVersion implements Serializable {
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_VERSION_DEFINITION")
     @Index(name = "IX_VERSION_DEFINITION")
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
+    public ProcessDefinition getDefinition() {
+        return definition;
     }
 
-    public void setProcessDefinition(ProcessDefinition processDefinition) {
-        this.processDefinition = processDefinition;
+    public void setDefinition(ProcessDefinition definition) {
+        this.definition = definition;
     }
 
     @Column(name = "VERSION", nullable = false)
@@ -158,14 +158,14 @@ public class ProcessDefinitionVersion implements Serializable {
     }
 
     @Transient
-    public ProcessDefinitionWithVersion createCopyWithDeployment() {
+    public ProcessDefinitionWithVersion createCopyWithDefinition() {
         val o = new ProcessDefinitionVersion();
         o.id = id;
-        o.processDefinition = processDefinition.createCopy();
+        o.definition = definition.createCopy();
         o.version = version;
         o.content = content;
         o.createDate = createDate;
         o.subprocessBindingDate = subprocessBindingDate;
-        return new ProcessDefinitionWithVersion(o.processDefinition, o);
+        return new ProcessDefinitionWithVersion(o.definition, o);
     }
 }

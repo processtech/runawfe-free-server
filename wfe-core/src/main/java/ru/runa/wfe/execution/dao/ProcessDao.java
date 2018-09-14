@@ -47,13 +47,13 @@ public class ProcessDao extends GenericDao<Process> {
         QNodeProcess np = QNodeProcess.nodeProcess;
         return queryFactory.select(d0.name)
                 .from(dv, p, np, p0, dv0, d0)
-                .where(dv.processDefinition.id.eq(processDefinitionId)
+                .where(dv.definition.id.eq(processDefinitionId)
                         .and(p.processDefinitionVersion.eq(dv))
                         .and(np.subProcess.eq(p))
                         .and(p0.eq(np.process))
                         .and(dv0.eq(p0.processDefinitionVersion))
-                        .and(dv0.processDefinition.id.ne(processDefinitionId))
-                        .and(d0.eq(dv0.processDefinition))
+                        .and(dv0.definition.id.ne(processDefinitionId))
+                        .and(d0.eq(dv0.definition))
                 )
                 .fetchFirst();
     }
@@ -64,7 +64,7 @@ public class ProcessDao extends GenericDao<Process> {
     public List<Process> findAllProcessesForAllDefinitionVersions(Long processDefinitionId) {
         QProcess p = QProcess.process;
         return queryFactory.selectFrom(p)
-                .where(p.processDefinitionVersion.processDefinition.id.eq(processDefinitionId))
+                .where(p.processDefinitionVersion.definition.id.eq(processDefinitionId))
                 .orderBy(p.startDate.desc())
                 .fetch();
     }
@@ -90,7 +90,7 @@ public class ProcessDao extends GenericDao<Process> {
         QProcess p = QProcess.process;
         JPQLQuery<Process> q = queryFactory.selectFrom(p).where();
         if (filter.getDefinitionName() != null) {
-            q.where(p.processDefinitionVersion.processDefinition.name.eq(filter.getDefinitionName()));
+            q.where(p.processDefinitionVersion.definition.name.eq(filter.getDefinitionName()));
         }
         if (filter.getDefinitionVersion() != null) {
             q.where(p.processDefinitionVersion.version.eq(filter.getDefinitionVersion()));

@@ -13,18 +13,18 @@ import ru.runa.wfe.var.VariableDefinition;
 
 public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
     private static final long serialVersionUID = 1L;
-    private ParsedProcessDefinition parsedParentProcessDefinition;
+    private ParsedProcessDefinition parent;
 
     protected ParsedSubprocessDefinition() {
     }
 
-    public ParsedSubprocessDefinition(ParsedProcessDefinition parsedParentProcessDefinition) {
-        super(parsedParentProcessDefinition.getProcessDefinitionVersion().createCopyWithDeployment());
-        this.parsedParentProcessDefinition = parsedParentProcessDefinition;
+    public ParsedSubprocessDefinition(ParsedProcessDefinition parent) {
+        super(parent.getProcessDefinitionVersion().createCopyWithDefinition());
+        this.parent = parent;
     }
 
-    public ParsedProcessDefinition getParentParsedProcessDefinition() {
-        return parsedParentProcessDefinition;
+    public ParsedProcessDefinition getParent() {
+        return parent;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
 
     @Override
     public Map<String, ParsedSubprocessDefinition> getEmbeddedSubprocesses() {
-        return parsedParentProcessDefinition.getEmbeddedSubprocesses();
+        return parent.getEmbeddedSubprocesses();
     }
 
     @Override
@@ -92,62 +92,62 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
 
     @Override
     public void addInteraction(String name, Interaction interaction) {
-        parsedParentProcessDefinition.addInteraction(name, interaction);
+        parent.addInteraction(name, interaction);
     }
 
     @Override
     public UserType getUserType(String name) {
-        return parsedParentProcessDefinition.getUserType(name);
+        return parent.getUserType(name);
     }
 
     @Override
     public UserType getUserTypeNotNull(String name) {
-        return parsedParentProcessDefinition.getUserTypeNotNull(name);
+        return parent.getUserTypeNotNull(name);
     }
 
     @Override
     public VariableDefinition getVariable(String name, boolean searchInSwimlanes) {
-        return parsedParentProcessDefinition.getVariable(name, searchInSwimlanes);
+        return parent.getVariable(name, searchInSwimlanes);
     }
 
     @Override
     public VariableDefinition getVariableNotNull(String name, boolean searchInSwimlanes) {
-        return parsedParentProcessDefinition.getVariableNotNull(name, searchInSwimlanes);
+        return parent.getVariableNotNull(name, searchInSwimlanes);
     }
 
     @Override
     public List<VariableDefinition> getVariables() {
-        return parsedParentProcessDefinition.getVariables();
+        return parent.getVariables();
     }
 
     @Override
     public Interaction getInteractionNotNull(String nodeId) {
-        return parsedParentProcessDefinition.getInteractionNotNull(nodeId);
+        return parent.getInteractionNotNull(nodeId);
     }
 
     @Override
     public byte[] getFileData(String fileName) {
-        return parsedParentProcessDefinition.getFileData(fileName);
+        return parent.getFileData(fileName);
     }
 
     @Override
     public byte[] getFileDataNotNull(String fileName) {
-        return parsedParentProcessDefinition.getFileDataNotNull(fileName);
+        return parent.getFileDataNotNull(fileName);
     }
 
     @Override
     public List<SwimlaneDefinition> getSwimlanes() {
-        return parsedParentProcessDefinition.getSwimlanes();
+        return parent.getSwimlanes();
     }
 
     @Override
     public SwimlaneDefinition getSwimlane(String swimlaneName) {
-        return parsedParentProcessDefinition.getSwimlane(swimlaneName);
+        return parent.getSwimlane(swimlaneName);
     }
 
     @Override
     public SwimlaneDefinition getSwimlaneNotNull(String swimlaneName) {
-        return parsedParentProcessDefinition.getSwimlaneNotNull(swimlaneName);
+        return parent.getSwimlaneNotNull(swimlaneName);
     }
 
 }

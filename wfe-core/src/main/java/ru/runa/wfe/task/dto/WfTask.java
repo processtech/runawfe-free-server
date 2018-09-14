@@ -89,7 +89,7 @@ public class WfTask implements Serializable {
         this.processHierarchyIds = task.getProcess().getHierarchyIds();
         this.tokenId = task.getToken().getId();
         this.definitionId = task.getProcess().getProcessDefinitionVersion().getId();
-        this.definitionName = task.getProcess().getProcessDefinitionVersion().getProcessDefinition().getName();
+        this.definitionName = task.getProcess().getProcessDefinitionVersion().getDefinition().getName();
         this.swimlaneName = task.getSwimlane() != null ? task.getSwimlane().getName() : "";
         this.creationDate = task.getCreateDate();
         this.deadlineDate = task.getDeadlineDate();

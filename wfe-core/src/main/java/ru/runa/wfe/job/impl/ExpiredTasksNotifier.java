@@ -85,7 +85,7 @@ public class ExpiredTasksNotifier {
             if ((task.getDeadlineDate().getTime() + scheduledTimerTaskPeriod) < curDate.getTime()) {
                 continue;
             }
-            final String processName = task.getProcess().getProcessDefinitionVersion().getProcessDefinition().getName();
+            final String processName = task.getProcess().getProcessDefinitionVersion().getDefinition().getName();
             if (!EmailUtils.isProcessNameMatching(processName, includeProcessNameFilter, excludeProcessNameFilter)) {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;

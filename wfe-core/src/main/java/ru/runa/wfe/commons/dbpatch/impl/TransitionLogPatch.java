@@ -81,7 +81,7 @@ public class TransitionLogPatch extends DBPatch {
         log.info("-------------------- RESULT OF " + getClass());
         for (val entry : failedDeployments.entrySet()) {
             val dv = entry.getKey();
-            val d = dv.getProcessDefinition();
+            val d = dv.getDefinition();
             log.warn("Unparsed definition " + d + " / " + dv + ", last process end date = " + entry.getValue());
         }
         log.info("Reverted history [for parsed definitions] result: success " + success + ", failed " + failed);

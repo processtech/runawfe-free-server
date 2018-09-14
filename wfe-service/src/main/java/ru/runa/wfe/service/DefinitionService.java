@@ -283,6 +283,8 @@ public interface DefinitionService {
      * 
      * @param user
      *            authorized user
+     * @param batchPresentation
+     *            of type DEFINITIONS
      * @return not <code>null</code>
      */
     List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging);
@@ -301,6 +303,8 @@ public interface DefinitionService {
      * 
      * @param user
      *            authorized user
+     * @param batchPresentation
+     *            of type DEFINITIONS_HISTORY
      * @return not <code>null</code>
      */
     List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging);

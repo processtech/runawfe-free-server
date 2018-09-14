@@ -70,7 +70,7 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
                 .from(dv)
-                .innerJoin(dv.processDefinition, d)
+                .innerJoin(dv.definition, d)
                 .where(d.name.eq(name).and(dv.version.eq(version)))
                 .fetchFirst();
         if (t == null) {
@@ -89,7 +89,7 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
                 .from(dv)
-                .innerJoin(dv.processDefinition, d)
+                .innerJoin(dv.definition, d)
                 .where(d.name.eq(definitionName))
                 .orderBy(dv.version.desc())
                 .fetchFirst();
@@ -125,7 +125,7 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
     public ProcessDefinitionWithVersion findDefinition(long processDefinitionVersionId) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
-        Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.processDefinition, d).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
+        Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.definition, d).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
         if (t == null) {
             throw new DefinitionDoesNotExistException("processDefinitionVersionId = " + processDefinitionVersionId);
         }
@@ -147,12 +147,12 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
 
         // TODO This can be implemented as subquery (hopefully in Hibernate):
-        Long definitionId = queryFactory.select(dv.processDefinition.id).from(dv).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
+        Long definitionId = queryFactory.select(dv.definition.id).from(dv).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
         Preconditions.checkNotNull(definitionId);
 
         return queryFactory.select(dv.id)
                 .from(dv)
-                .where(dv.processDefinition.id.eq(definitionId))
+                .where(dv.definition.id.eq(definitionId))
                 .orderBy(ascending ? dv.version.asc() : dv.version.desc())
                 .fetch();
     }
@@ -162,7 +162,7 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
-                .innerJoin(dv.processDefinition, d)
+                .innerJoin(dv.definition, d)
                 .where(d.name.eq(name).and(dv.version.between(from, to)))
                 .orderBy(dv.version.asc())
                 .fetch();
@@ -172,7 +172,7 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
-                .where(dv.processDefinition.id.eq(definitionId).and(dv.version.lt(version)))
+                .where(dv.definition.id.eq(definitionId).and(dv.version.lt(version)))
                 .orderBy(dv.version.desc())
                 .fetchFirst();
     }
@@ -182,7 +182,7 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         return queryFactory.select(dv.id)
                 .from(dv)
-                .innerJoin(dv.processDefinition, d)
+                .innerJoin(dv.definition, d)
                 .where(d.name.eq(name).and(dv.createDate.lt(date))).orderBy(dv.version.desc()).fetchFirst();
     }
 
@@ -197,7 +197,7 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         List<Tuple> tt = queryFactory.select(d, dv)
                 .from(dv)
-                .innerJoin(dv.processDefinition, d)
+                .innerJoin(dv.definition, d)
                 .where(d.name.eq(name))
                 .orderBy(dv.version.desc())
                 .fetch();

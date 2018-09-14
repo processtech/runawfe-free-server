@@ -76,6 +76,10 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         this(dwv.processDefinition, dwv.processDefinitionVersion);
     }
 
+    public WfDefinition(ProcessDefinitionVersion dv) {
+        this(dv.getDefinition(), dv);
+    }
+
     public WfDefinition(ParsedProcessDefinition pd, boolean canBeStarted) {
         this(pd.getProcessDefinition(), pd.getProcessDefinitionVersion());
         hasHtmlDescription = pd.getFileData(IFileDataProvider.INDEX_FILE_NAME) != null;
