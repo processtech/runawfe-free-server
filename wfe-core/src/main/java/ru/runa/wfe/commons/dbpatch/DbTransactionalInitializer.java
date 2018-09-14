@@ -14,7 +14,7 @@ import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.logic.LocalizationParser;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
@@ -29,7 +29,7 @@ public class DbTransactionalInitializer {
     @Autowired
     private ExecutorDao executorDao;
     @Autowired
-    private PermissionDAO permissionDAO;
+    private PermissionDao permissionDAO;
     @Autowired
     private LocalizationDao localizationDAO;
 

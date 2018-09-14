@@ -11,7 +11,7 @@ import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
@@ -22,7 +22,7 @@ public class CreateReportsTables extends DBPatch implements IDbPatchPostProcesso
     @Autowired
     protected ExecutorDao executorDao;
     @Autowired
-    protected PermissionDAO permissionDAO;
+    protected PermissionDao permissionDAO;
 
     @Override
     protected List<String> getDDLQueriesBefore() {

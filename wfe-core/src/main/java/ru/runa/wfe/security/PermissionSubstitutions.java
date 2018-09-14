@@ -57,7 +57,7 @@ import static ru.runa.wfe.security.SecuredObjectType.SYSTEM;
  * Substitution relations are transitive; e.g. if ALL on EXECUTORS assumes UPDATE on EXECUTORS which in turn assumes UPDATE on any ACTOR,
  * then ALL on EXECUTORS assumes UPDATE on any ACTOR.
  * <p>
- * Used by PermissionDAO.isAllowed() methods. Also may be used by permission editor forms: e.g. if admin checks ALL permission on EXECUTORS,
+ * Used by PermissionDao.isAllowed() methods. Also may be used by permission editor forms: e.g. if admin checks ALL permission on EXECUTORS,
  * then UPDATE and UPDATE_STATUS checkboxes should be disabled.
  *
  * @see SecuredObjectType

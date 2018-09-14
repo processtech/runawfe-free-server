@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.NonNull;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
-import ru.runa.wfe.commons.dao.CommonDAO;
+import ru.runa.wfe.commons.dao.CommonDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
@@ -62,7 +63,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
  */
 @Component
 @SuppressWarnings("unchecked")
-public class PermissionDAO extends CommonDAO {
+public class PermissionDao extends CommonDao {
 
     private static final List<List<Long>> nonEmptyListList = Collections.singletonList(Collections.singletonList(1L));
     private static final Set<Long> nonEmptySet = Collections.singleton(1L);
@@ -75,7 +76,7 @@ public class PermissionDAO extends CommonDAO {
     private final Map<SecuredObjectType, Set<Executor>> privelegedExecutors = new HashMap<>();
     private final Set<Long> privelegedExecutorIds = new HashSet<>();
 
-    public PermissionDAO() {
+    public PermissionDao() {
         for (SecuredObjectType type : SecuredObjectType.values()) {
             privelegedExecutors.put(type, new HashSet<>());
         }
@@ -350,9 +351,13 @@ public class PermissionDAO extends CommonDAO {
     /**
      * Deletes all permissions for securedObject.
      */
-    public void deleteAllPermissions(SecuredObject obj) {
+    public void deleteAllPermissions(@NonNull SecuredObject obj) {
+        deleteAllPermissions(obj.getSecuredObjectType(), obj.getIdentifiableId());
+    }
+
+    public void deleteAllPermissions(@NonNull SecuredObjectType type, long id) {
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
-        queryFactory.delete(pm).where(pm.objectType.eq(obj.getSecuredObjectType()).and(pm.objectId.eq(obj.getIdentifiableId()))).execute();
+        queryFactory.delete(pm).where(pm.objectType.eq(type).and(pm.objectId.eq(id))).execute();
     }
 
     /**

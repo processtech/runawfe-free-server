@@ -8,12 +8,12 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.handler.ParamBasedHandlerActionHandler;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Executor;
 
 public class AddReadProcessPermissionsHandler extends ParamBasedHandlerActionHandler {
     @Autowired
-    private PermissionDAO permissionDAO;
+    private PermissionDao permissionDAO;
 
     @Override
     public void execute(ExecutionContext executionContext) throws Exception {

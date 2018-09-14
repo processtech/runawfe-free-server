@@ -39,7 +39,7 @@ import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.IBatchPresentationCompilerFactory;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
@@ -95,7 +95,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
     @Autowired
     private VariableDao variableDao;
     @Autowired
-    private PermissionDAO permissionDAO;
+    private PermissionDao permissionDAO;
 
     public TaskListBuilder(TaskCache taskCache) {
         this.taskCache = taskCache;

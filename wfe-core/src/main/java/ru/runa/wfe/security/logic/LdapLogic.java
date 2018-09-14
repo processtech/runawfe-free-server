@@ -46,7 +46,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
@@ -76,7 +76,7 @@ public class LdapLogic {
     @Autowired
     protected ExecutorDao executorDao;
     @Autowired
-    private PermissionDAO permissionDAO;
+    private PermissionDao permissionDAO;
     private Pattern patternForMissedPeople;
     private Group importGroup = null;
     private Group wasteGroup = null;

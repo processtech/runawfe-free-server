@@ -20,7 +20,7 @@ import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
@@ -30,7 +30,7 @@ public class ProcessFactory {
     @Autowired
     private ProcessDao processDao;
     @Autowired
-    private PermissionDAO permissionDAO;
+    private PermissionDao permissionDAO;
     @Autowired
     private ExecutorDao executorDao;
     @Autowired

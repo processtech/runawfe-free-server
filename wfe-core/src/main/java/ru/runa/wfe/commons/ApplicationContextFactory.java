@@ -30,7 +30,7 @@ import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.report.dao.ReportDao;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.task.logic.ITaskNotifier;
@@ -156,8 +156,8 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(ProcessDefinitionDao.class);
     }
 
-    public static PermissionDAO getPermissionDAO() {
-        return getContext().getBean(PermissionDAO.class);
+    public static PermissionDao getPermissionDAO() {
+        return getContext().getBean(PermissionDao.class);
     }
 
     public static RelationDao getRelationDAO() {

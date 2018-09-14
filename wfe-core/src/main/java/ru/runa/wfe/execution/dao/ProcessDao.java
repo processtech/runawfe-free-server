@@ -7,10 +7,13 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.definition.QProcessDefinition;
+import ru.runa.wfe.definition.QProcessDefinitionVersion;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.QNodeProcess;
 import ru.runa.wfe.execution.QProcess;
 import ru.runa.wfe.execution.QSwimlane;
 import ru.runa.wfe.execution.QToken;
@@ -29,12 +32,39 @@ public class ProcessDao extends GenericDao<Process> {
     }
 
     /**
-     * fetches all processes for the given process definition from the database. The returned list of processs is sorted start date, youngest first.
+     * Checks that no parent processes exists with different definition. If some exists, return its definition name.
+     * <p>
+     * This is optimized query to check if given process definition can be deleted.
+     *
+     * @return Null if not found.
      */
-    public List<Process> findAllProcesses(Long deploymentId) {
+    public String findParentProcessDefinitionName(Long processDefinitionId) {
+        QProcessDefinition d0 = QProcessDefinition.processDefinition;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
+        QProcessDefinitionVersion dv0 = QProcessDefinitionVersion.processDefinitionVersion;
+        QProcess p = QProcess.process;
+        QProcess p0 = QProcess.process;
+        QNodeProcess np = QNodeProcess.nodeProcess;
+        return queryFactory.select(d0.name)
+                .from(dv, p, np, p0, dv0, d0)
+                .where(dv.processDefinition.id.eq(processDefinitionId)
+                        .and(p.processDefinitionVersion.eq(dv))
+                        .and(np.subProcess.eq(p))
+                        .and(p0.eq(np.process))
+                        .and(dv0.eq(p0.processDefinitionVersion))
+                        .and(dv0.processDefinition.id.ne(processDefinitionId))
+                        .and(d0.eq(dv0.processDefinition))
+                )
+                .fetchFirst();
+    }
+
+    /**
+     * Fetches all processes for ALL given process definition versions. The returned list of processs is sorted start date, youngest first.
+     */
+    public List<Process> findAllProcessesForAllDefinitionVersions(Long processDefinitionId) {
         QProcess p = QProcess.process;
         return queryFactory.selectFrom(p)
-                .where(p.processDefinitionVersion.processDefinition.id.eq(deploymentId))
+                .where(p.processDefinitionVersion.processDefinition.id.eq(processDefinitionId))
                 .orderBy(p.startDate.desc())
                 .fetch();
     }

@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
-import ru.runa.wfe.commons.dao.CommonDAO;
+import ru.runa.wfe.commons.dao.CommonDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
@@ -59,7 +59,7 @@ import ru.runa.wfe.user.cache.ExecutorCache;
  */
 @Component
 @SuppressWarnings("unchecked")
-public class ExecutorDao extends CommonDAO implements IExecutorDao {
+public class ExecutorDao extends CommonDao implements IExecutorDao {
     private static final String ID_PROPERTY_NAME = "id";
     private static final String CODE_PROPERTY_NAME = "code";
 

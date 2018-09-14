@@ -4,14 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.commons.dao.CommonDAO;
+import ru.runa.wfe.commons.dao.CommonDao;
 import ru.runa.wfe.commons.dao.ConstantDao;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 
 @Component
-public class AggregatedProcessLogAwareDao extends CommonDAO implements ProcessLogAwareDao {
+public class AggregatedProcessLogAwareDao extends CommonDao implements ProcessLogAwareDao {
 
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;

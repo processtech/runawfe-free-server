@@ -37,7 +37,7 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.security.dao.QPermissionMapping;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
@@ -318,7 +318,7 @@ public class HibernateCompilerHQLBuider {
      * 
      * @return List of string, represents expressions.
      */
-    // TODO Largely duplicates PermissionDAO logic. After (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
+    // TODO Largely duplicates PermissionDao logic. After (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
     private List<String> addSecureCheck() {
         List<String> result = new LinkedList<>();
         RestrictionsToPermissions pp = parameters.getPermissionRestrictions();
@@ -337,7 +337,7 @@ public class HibernateCompilerHQLBuider {
         }
 
         ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
-        PermissionDAO permissionDAO = ApplicationContextFactory.getPermissionDAO();
+        PermissionDao permissionDAO = ApplicationContextFactory.getPermissionDAO();
         HibernateQueryFactory queryFactory = HibernateQueryFactory.getInstance();
 
         // Need to check privileged & list permissions only once.

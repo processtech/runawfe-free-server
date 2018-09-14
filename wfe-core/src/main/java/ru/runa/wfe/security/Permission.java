@@ -162,7 +162,7 @@ public final class Permission implements Serializable, Comparable<Permission> {
 
     /**
      * Formerly no-arg Permission constructor, used only as PropertyTDBuilder constructor argument in FieldDescriptor constructor calls.
-     * PermissionDAO.isAllowed...() checks always return false for it, without accessing database.
+     * PermissionDao.isAllowed...() checks always return false for it, without accessing database.
      *
      * TODO Review all usages. PropertyTDBuilder's 2/3 constructors' behaviour looks contradictionary with its own base class.
      *      Maybe with a little more refactoring, NONE can be removed and null can be passed everywhere instead.

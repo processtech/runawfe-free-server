@@ -34,7 +34,7 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
@@ -48,7 +48,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 public class CommonLogic {
     protected final Log log = LogFactory.getLog(getClass());
     @Autowired
-    protected PermissionDAO permissionDAO;
+    protected PermissionDao permissionDAO;
     @Autowired
     protected ExecutorDao executorDao;
     @Autowired

@@ -14,7 +14,7 @@ import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
  * @since 4.0
  */
 @SuppressWarnings("unchecked")
-public abstract class CommonDAO extends DaoSupport {
+public abstract class CommonDao extends DaoSupport {
 
     @Autowired
     protected SessionFactory sessionFactory;

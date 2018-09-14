@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.script.AdminScript;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
 public class CreateAdminScriptTables extends DBPatch {
@@ -16,7 +16,7 @@ public class CreateAdminScriptTables extends DBPatch {
     @Autowired
     protected ExecutorDao executorDao;
     @Autowired
-    protected PermissionDAO permissionDAO;
+    protected PermissionDao permissionDAO;
 
     @Override
     protected List<String> getDDLQueriesBefore() {

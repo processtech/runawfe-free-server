@@ -53,8 +53,36 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
     }
 
     /**
+     * @throws DefinitionDoesNotExistException If not found.
+     */
+    public ProcessDefinition getByName(@NonNull String definitionName) {
+        QProcessDefinition d = QProcessDefinition.processDefinition;
+        val o = queryFactory.selectFrom(d).from(d).where(d.name.eq(definitionName)).fetchFirst();
+        if (o == null) {
+            throw new DefinitionDoesNotExistException(definitionName);
+        }
+        return o;
+    }
+
+
+    public ProcessDefinitionWithVersion getByNameAndVersion(@NonNull String name, long version) {
+        QProcessDefinition d = QProcessDefinition.processDefinition;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
+        Tuple t = queryFactory.select(d, dv)
+                .from(dv)
+                .innerJoin(dv.processDefinition, d)
+                .where(d.name.eq(name).and(dv.version.eq(version)))
+                .fetchFirst();
+        if (t == null) {
+            throw new DefinitionDoesNotExistException(name + " v" + version);
+        }
+        return new ProcessDefinitionWithVersion(t.get(d), t.get(dv));
+    }
+
+    /**
      * @return Not null.
      * @throws DefinitionDoesNotExistException If not found
+     * @deprecated Use {@link #getByName(String)}.
      */
     public ProcessDefinitionWithVersion findLatestDefinition(@NonNull String definitionName) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
@@ -86,20 +114,6 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
                 .fetchFirst();
         if (t == null) {
             throw new DefinitionDoesNotExistException("definitionId = " + definitionId);
-        }
-        return new ProcessDefinitionWithVersion(t.get(d), t.get(dv));
-    }
-
-    public ProcessDefinitionWithVersion findDefinition(@NonNull String name, long version) {
-        QProcessDefinition d = QProcessDefinition.processDefinition;
-        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
-        Tuple t = queryFactory.select(d, dv)
-                .from(dv)
-                .innerJoin(dv.processDefinition, d)
-                .where(d.name.eq(name).and(dv.version.eq(version)))
-                .fetchFirst();
-        if (t == null) {
-            throw new DefinitionDoesNotExistException(name + " v" + version);
         }
         return new ProcessDefinitionWithVersion(t.get(d), t.get(dv));
     }

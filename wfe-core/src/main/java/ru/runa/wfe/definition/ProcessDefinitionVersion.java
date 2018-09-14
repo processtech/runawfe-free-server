@@ -48,7 +48,7 @@ public class ProcessDefinitionVersion implements Serializable {
         this.id = id;
     }
 
-    @ManyToOne(targetEntity = ProcessDefinition.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = ProcessDefinition.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_VERSION_DEFINITION")
     @Index(name = "IX_VERSION_DEFINITION")

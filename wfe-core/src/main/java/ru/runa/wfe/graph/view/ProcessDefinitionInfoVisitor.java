@@ -7,7 +7,7 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.User;
 
 /**
@@ -75,7 +75,7 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
      * @return true, if current actor can read process definition and false otherwise.
      */
     private boolean hasReadPermission(ParsedProcessDefinition parsedProcessDefinition) {
-        PermissionDAO permissionDAO = ApplicationContextFactory.getPermissionDAO();
+        PermissionDao permissionDAO = ApplicationContextFactory.getPermissionDAO();
         return permissionDAO.isAllowed(user, Permission.LIST, parsedProcessDefinition.getProcessDefinition());
     }
 }

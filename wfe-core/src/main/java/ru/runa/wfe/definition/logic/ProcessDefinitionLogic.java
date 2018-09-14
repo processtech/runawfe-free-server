@@ -197,7 +197,7 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
     }
 
     public WfDefinition getProcessDefinitionVersion(User user, String name, Long version) {
-        ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(name, version);
+        ProcessDefinitionWithVersion dwv = processDefinitionDao.getByNameAndVersion(name, version);
         ParsedProcessDefinition definition = getDefinition(dwv.processDefinitionVersion.getId());
         permissionDAO.checkAllowed(user, Permission.LIST, definition.getProcessDefinition());
         return new WfDefinition(definition, permissionDAO.isAllowed(user, Permission.START, definition.getProcessDefinition()));
@@ -243,45 +243,48 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
         return result;
     }
 
-    public void undeployProcessDefinition(User user, String definitionName, Long version) {
-        Preconditions.checkNotNull(definitionName, "definitionName must be specified.");
-
-        // TODO Can be optimized to single SQL statement.
-        ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(definitionName);
-        filter.setDefinitionVersion(version);
-        List<Process> processes = processDao.getProcesses(filter);
-        for (Process process : processes) {
-            NodeProcess parent = nodeProcessDao.findBySubProcessId(process.getId());
-            if (parent != null) {
-                throw new ParentProcessExistsException(definitionName, parent.getProcess().getProcessDefinitionVersion().getProcessDefinition().getName());
-            }
-        }
-
+    public void undeployProcessDefinition(User user, @NonNull String definitionName, Long version) {
+        ProcessDefinition d;
+        ProcessDefinitionVersion dv;
         if (version == null) {
-            ProcessDefinition latestProcessDefinition = processDefinitionDao.findLatestDefinition(definitionName);
-            permissionDAO.checkAllowed(user, Permission.ALL, latestProcessDefinition);
-            permissionDAO.deleteAllPermissions(latestProcessDefinition);
-            List<ProcessDefinition> processDefinitions = processDefinitionDao.findAllDefinitionVersions(definitionName);
-            for (ProcessDefinition processDefinition : processDefinitions) {
-                removeDeployment(user, processDefinition);
-            }
-            log.info("Process definition " + latestProcessDefinition + " successfully undeployed");
+            d = processDefinitionDao.getByName(definitionName);
+            dv = null;
         } else {
-            ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(definitionName, version);
-            removeDeployment(user, deployment);
-            log.info("Process definition " + deployment + " successfully undeployed");
+            // Load both definition and version by single SQL query.
+            val dwv = processDefinitionDao.getByNameAndVersion(definitionName, version);
+            d = dwv.processDefinition;
+            dv = dwv.processDefinitionVersion;
         }
-    }
 
-    private void removeDeployment(User user, ProcessDefinition processDefinition) {
-        List<Process> processes = processDao.findAllProcesses(processDefinition.getId());
-        for (Process process : processes) {
-            deleteProcess(user, process);
+        // Check if deletion allowed.
+
+        permissionDAO.checkAllowed(user, Permission.ALL, d);
+
+        // TODO Check no archived processes exist for all definition versions.
+
+        // Check that processes to be deleted don't have parent processes of different definition.
+        String parentProcessDefinitionName = processDao.findParentProcessDefinitionName(d.getId());
+        if (parentProcessDefinitionName != null) {
+            throw new ParentProcessExistsException(definitionName, parentProcessDefinitionName);
         }
-        processDefinitionVersionDao.deleteAll(processDefinition);  // TODO Wrong, this is about deleting SINGLE version!!!
-        processDefinitionDao.delete(processDefinition);
-        systemLogDao.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), processDefinition.getName(), processDefinition.getVersion()));
+
+        // Perform deletion.
+
+        val processes = processDao.findAllProcessesForAllDefinitionVersions(d.getId());
+        for (Process p : processes) {
+            deleteProcess(user, p);
+        }
+
+        if (dv == null) {
+            processDefinitionVersionDao.deleteAll(d.getId());
+        } else {
+            processDefinitionVersionDao.delete(dv);
+        }
+
+        permissionDAO.deleteAllPermissions(d);
+        processDefinitionDao.delete(d);
+        systemLogDao.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), d.getName(), dv == null ? null : dv.getVersion()));
+        log.info("Process definition " + d + " successfully undeployed");
     }
 
     public List<ProcessDefinitionChange> getChanges(long processDefinitionVersionId) {
@@ -363,17 +366,17 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
     }
 
     public List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging) {
+        val result = new ArrayList<WfDefinition>();
         List<String> processNameRestriction = getProcessNameRestriction(user);
         if (processNameRestriction.isEmpty()) {
-            return Lists.newArrayList();
+            return result;
         }
         CompilerParameters parameters = CompilerParameters.create(enablePaging).addOwners(new RestrictionsToOwners(processNameRestriction, "name"));
         List<ProcessDefinition> processDefinitions = new PresentationCompiler<ProcessDefinition>(batchPresentation).getBatch(parameters);
-        List<WfDefinition> definitions = Lists.newArrayList();
         for (ProcessDefinition processDefinition : processDefinitions) {
-            definitions.add(new WfDefinition(processDefinition));
+            result.add(new WfDefinition(processDefinition));
         }
-        return definitions;
+        return result;
     }
 
     private ParsedProcessDefinition parseProcessDefinition(byte[] data) {
