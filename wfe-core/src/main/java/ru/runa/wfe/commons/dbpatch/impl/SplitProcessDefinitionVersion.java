@@ -1,9 +1,11 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
+import lombok.val;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 
 public class SplitProcessDefinitionVersion extends DBPatch {
@@ -34,11 +36,26 @@ public class SplitProcessDefinitionVersion extends DBPatch {
         }
 
         return new ArrayList<String>() {{
-            // Create new table because will need to fill it from BPM_PROCESS_DEFINITION using "group by name".
-            add(getDDLCreateSequence("seq_bpm_definition"));
-            add(getDDLCreateTable("bpm_definition",
+            // I want to avoid sequence setval(), since some SQL servers don't have sequences. So I rename table and secuence instead.
+            add(getDDLRenameTable("bpm_process_definition", "bpm_process_definition_ver"));
+            add(getDDLRenameSequence("seq_bpm_process_definition", "seq_bpm_process_definition_ver"));
+
+            add(getDDLDropForeignKey("bpm_process", "fk_process_definition"));
+            add(getDDLDropIndex("bpm_process", "ix_process_definition"));
+            add(getDDLRenameColumn("bpm_process", "definition_id", new BigintColumnDef("definition_version_id", false)));
+            add(getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"));
+            add(getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_definition_version", "id"));
+
+            // Can add columns here, but not drop: first we must fill BPM_DEFINITION_VERSION table.
+            add(getDDLCreateColumn("seq_bpm_process_definition_ver", new BigintColumnDef("definition_id", true)));
+            add(getDDLCreateColumn("seq_bpm_process_definition_ver", new BigintColumnDef("subversion", true)));   // For future, will be 0 for now.
+
+            // This new table will be filled from BPM_PROCESS_DEFINITION_VER using "group by name".
+            add(getDDLCreateSequence("seq_bpm_process_definition"));
+            add(getDDLCreateTable("bpm_process_definition",
                     new ArrayList<ColumnDef>() {{
                         add(new BigintColumnDef("id", false).setPrimaryKey());
+                        add(new BigintColumnDef("latest_version_id", true));
                         add(new VarcharColumnDef("name", 1024, false));
                         add(new VarcharColumnDef("language", 4, false));
                         add(new VarcharColumnDef("description", 1024));
@@ -46,101 +63,78 @@ public class SplitProcessDefinitionVersion extends DBPatch {
                     }},
                     "(name)"
             ));
-
-            // This one will use old SEQ_BPM_PROCESS_DEFINITION sequence,
-            // since H2 cannot rename sequence, and I'm too lazy to add DDL for setting sequence value.
-            add(getDDLCreateTable("bpm_definition_version",
-                    new ArrayList<ColumnDef>() {{
-                        add(new BigintColumnDef("id", false).setPrimaryKey());
-                        add(new BigintColumnDef("definition_id", false));
-                        add(new BigintColumnDef("version", false));
-                        add(new BigintColumnDef("subversion", false));   // Added for future ticket, will be 0 for now.
-                        add(new BlobColumnDef("bytes"));
-                        add(new TimestampColumnDef("create_date", false));
-                        add(new BigintColumnDef("create_user_id"));
-                        add(new TimestampColumnDef("update_date"));
-                        add(new BigintColumnDef("update_user_id"));
-                        add(new TimestampColumnDef("subprocess_binding_date"));
-                    }},
-                    "(definition_id, version, subversion)"
-            ));
         }};
     }
 
     @Override
-    public void executeDML(Session session) {
-        // New BPM_DEFINITION table will be generated with fresh IDs.
-        {
+    public void executeDML(Connection conn) throws Exception {
+        try (val stmt = conn.createStatement()) {
+
+            // Fill new BPM_PROCESS_DEFINITION table (except latest_version_id).
             String idName, idValue;
             switch (dbType) {
                 case ORACLE:
                     idName = "id, ";
-                    idValue = "seq_bpm_definition.nextval, ";
+                    idValue = "seq_bpm_process_definition.nextval, ";
                     break;
                 case POSTGRESQL:
                     idName = "id, ";
-                    idValue = "nextval('seq_bpm_definition'), ";
+                    idValue = "nextval('seq_bpm_process_definition'), ";
                     break;
                 default:
                     idName = "";
                     idValue = "";
             }
-            session.createSQLQuery(
-                    "insert into bpm_definition (" + idName + "name, language, description, category) " +
-                            // Take distinct name and arbitrary values for other fields; max() is as good as anything else.
-                            "select " + idValue + "name, max(language), max(description), max(category) " +
-                            "from bpm_process_definition " +
-                            "group by name"
-            ).executeUpdate();
-        }
+            stmt.executeUpdate("insert into bpm_process_definition (" + idName + "name, language, description, category) " +
+                    // Take distinct name and arbitrary values for other fields; max() is as good as anything else.
+                    "select " + idValue + "name, max(language), max(description), max(category) " +
+                    "from bpm_process_definition " +
+                    "group by name"
+            );
 
-        // New BPM_DEFINITION_VERSION table will inherit old BPM_PROCESS_DEFINITION table's ids.
-        session.createSQLQuery(
-                "insert into bpm_definition_version (id, definition_id, version, bytes, create_date, create_user_id, update_date, update_user_id, subprocess_binding_date) " +
-                        "select pd.id, d.id, pd.version, pd.bytes, pd.create_date, pd.create_user_id, pd.update_date, pd.update_user_id, pd.subprocess_binding_date " +
-                        "from bpm_process_definition pd " +
-                        "inner join bpm_definition d on (d.name = pd.name)"
-        ).executeUpdate();
+            // Fill PROCESS_DEFINITION_VER.DEFINITION_ID (after we filled PROCESS_DEFINITION table).
+            stmt.executeUpdate("update bpm_process_definition_version set " +
+                    "definition_id = (select max(id) from bpm_process_definition where bpm_process_definition.name = bpm_process_definition_ver.name), " +
+                    "subversion = 0"
+            );
 
-        {
-            // Update PERMISSION_MAPPING.OBJECT_ID.
-            // Temporarily replace OBJECT_TYPE with fake one, to avoid mistaking new OBJECT_ID with old name hash.
-            SQLQuery q = session.createSQLQuery("update permission_mapping " +
-                    "set object_type='DEFINITION2', object_id=:oldId " +
-                    "where object_type='DEFINITION' and object_id=:newId");
+            // Fill PROCESS_DEFINITION.LATEST_VERSION_ID (after we filled PROCESS_DEFINITION_VER.DEFINITION_ID).
+            stmt.executeUpdate("update bpm_process_definition set latest_version_id = " +
+                    "(select max(id) from bpm_process_definition where bpm_process_definition.id = bpm_process_definition_ver.definition_id)"
+            );
 
-            @SuppressWarnings("unchecked") List<Object[]> rows = session.createSQLQuery("select id, name from bpm_definition").list();
-            for (Object[] row : rows) {
-                q.setParameter("oldId", row[1].hashCode());
-                q.setParameter("newId", row[0]);
-                q.executeUpdate();
+            // Fix permissions.
+            try (
+                    val update = conn.prepareStatement("update permission_mapping " +
+                            "set object_type='DEFINITION2', object_id=? " +
+                            "where object_type='DEFINITION' and object_id=?");
+                    val select = conn.createStatement()
+            ) {
+                ResultSet rs = select.executeQuery("select name, id from bpm_process_definition");
+                while (rs.next()) {
+                    update.setLong(1, rs.getString(1).hashCode());
+                    update.setLong(2, rs.getLong(2));
+                    update.executeUpdate();
+                }
             }
-
-            session.createSQLQuery("update permission_mapping set object_type='DEFINITION' where object_type='DEFINITION2'").executeUpdate();
+            stmt.executeUpdate("update permission_mapping set object_type='DEFINITION' where object_type='DEFINITION2'");
         }
     }
 
     @Override
     protected List<String> getDDLQueriesAfter() {
         return new ArrayList<String>() {{
-            // Do it before BPM_PROCESS_DEFINITION is dropped.
-            // Now column BPM_PROCESS.DEFINITION_ID will reference definition version, so rename it, and recreate FK and index on it.
-            // I'll try to do without creating another DEFINITION_ID column to avoid connection timeout, since BPM_PROCESS table may be huge.
-            add(getDDLDropForeignKey("bpm_process", "fk_process_definition"));
-            add(getDDLDropIndex("bpm_process", "ix_process_definition"));
-            add(getDDLRenameColumn("bpm_process", "definition_id", new BigintColumnDef("definition_version_id", false)));
-            add(getDDLCreateForeignKey("bpm_process", "fk_process_definition_version", "definition_version_id", "bpm_definition_version", "id"));
-            add(getDDLCreateIndex("bpm_process", "ix_process_definition_version", "definition_version_id"));
+            add(getDDLDropColumn("bpm_process_definition_ver", "name"));
+            add(getDDLDropColumn("bpm_process_definition_ver", "language"));
+            add(getDDLDropColumn("bpm_process_definition_ver", "description"));
+            add(getDDLDropColumn("bpm_process_definition_ver", "category"));
+            add(getDDLModifyColumnNullability("seq_bpm_process_definition_ver", "definition_id", dialect.getTypeName(Types.BIGINT), false));
+            add(getDDLModifyColumnNullability("seq_bpm_process_definition_ver", "subversion", dialect.getTypeName(Types.BIGINT), false));
 
-            // For speed, do it after data is populated.
-            add(getDDLCreateForeignKey("bpm_definition_version", "fk_version_definition", "definition_id", "bpm_definition", "id"));
-            add(getDDLCreateIndex("bpm_definition_version", "ix_version_definition", "definition_id"));
-            add(getDDLCreateForeignKey("bpm_definition_version", "fk_definition_create_user", "create_user_id", "executor", "id"));
-            add(getDDLCreateForeignKey("bpm_definition_version", "fk_definition_update_user", "update_user_id", "executor", "id"));
+            add(getDDLCreateUniqueKey("bpm_process_definition_ver", "fx_version_definition_ver", "definition_id", "version"));
+            add(getDDLCreateForeignKey("bpm_process_definition_ver", "fk_version_definition", "definition_id", "bpm_process_definition", "id"));
 
-            // TODO First, scan all usages of BPM_PROCESS_DEFINITION in TNMS, replace with BPM_DEFINITION and BPM_DEFINITION_VERSION.
-            //      Then drop this old table manually.
-//            add(getDDLDropTable("bpm_process_definition"));
+            add(getDDLCreateIndex("bpm_process_definition", "ix_definition_latest_ver", "latest_version_id"));
         }};
     }
 }

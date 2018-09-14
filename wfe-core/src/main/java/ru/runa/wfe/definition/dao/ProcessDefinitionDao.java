@@ -107,10 +107,9 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
         Tuple t = queryFactory.select(d, dv)
-                .from(dv)
-                .innerJoin(dv.processDefinition, d)
+                .from(d)
+                .innerJoin(d.latestVersion, dv)
                 .where(d.id.eq(definitionId))
-                .orderBy(dv.version.desc())
                 .fetchFirst();
         if (t == null) {
             throw new DefinitionDoesNotExistException("definitionId = " + definitionId);

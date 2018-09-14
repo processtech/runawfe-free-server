@@ -22,13 +22,14 @@ import org.hibernate.annotations.Index;
 import ru.runa.wfe.user.Actor;
 
 @Entity
-@Table(name = "BPM_DEFINITION_VERSION")
+@Table(name = "BPM_PROCESS_DEFINITION_VER")
 public class ProcessDefinitionVersion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
     private ProcessDefinition processDefinition;
     private Long version;
+    private Long subVersion;
     private byte[] content;
     private Date createDate;
     private Actor createActor;
@@ -38,7 +39,7 @@ public class ProcessDefinitionVersion implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_PROCESS_DEFINITION", allocationSize = 1)
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_PROCESS_DEFINITION_VER", allocationSize = 1)
     @Column(name = "ID", nullable = false)
     public Long getId() {
         return id;
@@ -48,7 +49,7 @@ public class ProcessDefinitionVersion implements Serializable {
         this.id = id;
     }
 
-    @ManyToOne(targetEntity = ProcessDefinition.class, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_VERSION_DEFINITION")
     @Index(name = "IX_VERSION_DEFINITION")
@@ -67,6 +68,15 @@ public class ProcessDefinitionVersion implements Serializable {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    @Column(name = "SUBVERSION", nullable = false)
+    public Long getSubVersion() {
+        return subVersion;
+    }
+
+    public void setSubVersion(Long subVersion) {
+        this.subVersion = subVersion;
     }
 
     @Lob

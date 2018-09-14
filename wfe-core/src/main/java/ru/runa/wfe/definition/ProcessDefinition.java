@@ -7,20 +7,24 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 @Entity
-@Table(name = "BPM_DEFINITION")
+@Table(name = "BPM_PROCESS_DEFINITION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ProcessDefinition extends SecuredObject {
     private static final long serialVersionUID = 1L;
@@ -29,6 +33,7 @@ public class ProcessDefinition extends SecuredObject {
     private Language language;
     private String description;
     private String category;
+    private ProcessDefinitionVersion latestVersion;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -83,6 +88,17 @@ public class ProcessDefinition extends SecuredObject {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LATEST_VERSION_ID")
+    @Index(name = "IX_DEFINITION_LATEST_VERSION")
+    public ProcessDefinitionVersion getLatestVersion() {
+        return latestVersion;
+    }
+
+    public void setLatestVersion(ProcessDefinitionVersion latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     @Transient

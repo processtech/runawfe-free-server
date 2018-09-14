@@ -19,10 +19,10 @@ package ru.runa.wfe.definition.logic;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -39,15 +39,14 @@ import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
-import ru.runa.wfe.definition.ProcessDefinition;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
-import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -71,24 +70,26 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
 
     public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
         permissionDAO.checkAllowed(user, Permission.CREATE, SecuredSingleton.DEFINITIONS);
-        ParsedProcessDefinition definition = parseProcessDefinition(processArchiveBytes);
+        ParsedProcessDefinition parsed = parseProcessDefinition(processArchiveBytes);
         try {
-            getLatestDefinition(definition.getName());
-            throw new DefinitionAlreadyExistException(definition.getName());
+            getLatestDefinition(parsed.getName());
+            throw new DefinitionAlreadyExistException(parsed.getName());
         } catch (DefinitionDoesNotExistException e) {
             // Expected.
         }
-        ProcessDefinition d = definition.getProcessDefinition();
-        ProcessDefinitionVersion dv = definition.getProcessDefinitionVersion();
+        ProcessDefinition d = parsed.getProcessDefinition();
+        ProcessDefinitionVersion dv = parsed.getProcessDefinitionVersion();
         d.setCategories(categories);
         dv.setCreateDate(new Date());
         dv.setCreateActor(user.getActor());
         dv.setVersion(1L);
+        dv.setSubVersion(0L);
         processDefinitionDao.create(d);
         processDefinitionVersionDao.create(dv);
+        d.setLatestVersion(dv);
         permissionDAO.setPermissions(user.getActor(), Collections.singletonList(Permission.ALL), d);
-        log.debug("Deployed process definition " + definition);
-        return new WfDefinition(definition, permissionDAO.isAllowed(user, Permission.START, d));
+        log.debug("Deployed process definition " + parsed);
+        return new WfDefinition(parsed, permissionDAO.isAllowed(user, Permission.START, d));
     }
 
     /**
@@ -103,36 +104,41 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
             return getProcessDefinition(user, processDefinitionVersionId);
         }
 
-        ProcessDefinitionWithVersion dwvOldLatest = processDefinitionDao.findLatestDefinition(dwvOld.processDefinition.getId());
-        if (!Objects.equals(dwvOldLatest.processDefinitionVersion.getId(), dwvOld.processDefinitionVersion.getId())) {
-            throw new InternalApplicationException("Last deployed version of process definition '" + dwvOldLatest.processDefinition.getName() + "' is '" +
-                    dwvOldLatest.processDefinitionVersion.getVersion() + "'. You provided process definition id for version '" +
+        if (!Objects.equals(dwvOld.processDefinitionVersion.getId(), dwvOld.processDefinition.getLatestVersion().getId())) {
+            throw new InternalApplicationException("Latest version of process definition '" + dwvOld.processDefinition.getName() + "' is '" +
+                    dwvOld.processDefinition.getLatestVersion().getVersion() + "'. You provided processDefinitionVersionId for version '" +
                     dwvOld.processDefinitionVersion.getVersion() + "'");
         }
 
-        ParsedProcessDefinition definition = parseProcessDefinition(processArchiveBytes);
-        if (!Objects.equals(dwvOld.processDefinition.getName(), definition.getName())) {
-            throw new DefinitionNameMismatchException(dwvOld.processDefinition.getName(), definition.getName());
-        }
-        ProcessDefinition d = definition.getProcessDefinition();
-        ProcessDefinitionVersion dv = definition.getProcessDefinitionVersion();
-        if (categories != null) {
-            d.setCategories(categories);
-        } else {
-            d.setCategory(dwvOld.processDefinition.getCategory());
+        ParsedProcessDefinition parsed = parseProcessDefinition(processArchiveBytes);
+        if (!Objects.equals(dwvOld.processDefinition.getName(), parsed.getName())) {
+            throw new DefinitionNameMismatchException(dwvOld.processDefinition.getName(), parsed.getName());
         }
         try {
-            checkCommentsOnDeploy(parseProcessDefinition(dwvOld.processDefinitionVersion.getContent()), definition);
+            checkCommentsOnDeploy(parseProcessDefinition(dwvOld.processDefinitionVersion.getContent()), parsed);
         } catch (InvalidDefinitionException e) {
             log.warn(dwvOld + ": " + e);
         }
+
+        // We don't create new ProcessDefinition record here, but copy data from parsed to old.
+        ProcessDefinition d = parsed.getProcessDefinition();
+        ProcessDefinitionVersion dv = parsed.getProcessDefinitionVersion();
+        dwvOld.processDefinition.setDescription(d.getDescription());
+        dwvOld.processDefinition.setLanguage(d.getLanguage());
+        if (categories != null) {
+            dwvOld.processDefinition.setCategories(categories);
+        }
+        d = dwvOld.processDefinition;
+        dv.setProcessDefinition(d);
+
         dv.setCreateDate(new Date());
         dv.setCreateActor(user.getActor());
-        dv.setVersion(dwvOldLatest.processDefinitionVersion.getVersion() + 1);
-        processDefinitionDao.create(d);
+        dv.setVersion(dwvOld.processDefinition.getLatestVersion().getVersion() + 1);
+        dv.setSubVersion(0L);
         processDefinitionVersionDao.create(dv);
+        d.setLatestVersion(dv);
         log.debug("Process definition " + dwvOld + " was successfully redeployed");
-        return new WfDefinition(definition, true);
+        return new WfDefinition(parsed, true);
     }
 
     /**
@@ -141,14 +147,15 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
     public WfDefinition updateProcessDefinition(User user, Long processDefinitionVersionId, @NonNull byte[] processArchiveBytes) {
         val dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
         permissionDAO.checkAllowed(user, Permission.UPDATE, dwv.processDefinition);
-        val definition = parseProcessDefinition(processArchiveBytes);
-        if (!Objects.equals(dwv.processDefinition.getName(), definition.getName())) {
-            throw new DefinitionNameMismatchException(dwv.processDefinition.getName(), definition.getName());
+        val parsed = parseProcessDefinition(processArchiveBytes);
+        if (!Objects.equals(dwv.processDefinition.getName(), parsed.getName())) {
+            throw new DefinitionNameMismatchException(dwv.processDefinition.getName(), parsed.getName());
         }
-        checkCommentsOnDeploy(parseProcessDefinition(dwv.processDefinitionVersion.getContent()), definition);
-        dwv.processDefinitionVersion.setContent(definition.getProcessDefinitionVersion().getContent());
+        checkCommentsOnDeploy(parseProcessDefinition(dwv.processDefinitionVersion.getContent()), parsed);
+        dwv.processDefinitionVersion.setContent(parsed.getProcessDefinitionVersion().getContent());
         dwv.processDefinitionVersion.setUpdateDate(new Date());
         dwv.processDefinitionVersion.setUpdateActor(user.getActor());
+        dwv.processDefinitionVersion.setSubVersion(dwv.processDefinitionVersion.getSubVersion() + 1);
         processDefinitionVersionDao.update(dwv.processDefinitionVersion);
         addUpdatedDefinitionInProcessLog(user, dwv);
         log.debug("Process definition " + dwv + " was successfully updated");
@@ -374,7 +381,7 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
         CompilerParameters parameters = CompilerParameters.create(enablePaging).addOwners(new RestrictionsToOwners(processNameRestriction, "name"));
         List<ProcessDefinition> processDefinitions = new PresentationCompiler<ProcessDefinition>(batchPresentation).getBatch(parameters);
         for (ProcessDefinition processDefinition : processDefinitions) {
-            result.add(new WfDefinition(processDefinition));
+//            result.add(new WfDefinition(processDefinition));   // TODO Refactor class presentations!
         }
         return result;
     }
@@ -401,13 +408,13 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
         }
         parameters = parameters.addOwners(new RestrictionsToOwners(processNameRestriction, "name"));
         List<Number> deploymentIds = new PresentationCompiler<Number>(batchPresentation).getBatch(parameters);
-        final Map<ProcessDefinition, ParsedProcessDefinition> processDefinitions = Maps.newHashMapWithExpectedSize(deploymentIds.size());
-        List<ProcessDefinition> deployments = Lists.newArrayListWithExpectedSize(deploymentIds.size());
+        val processDefinitions = new HashMap<ProcessDefinition, ParsedProcessDefinition>(deploymentIds.size());
+        val deployments = new ArrayList<ProcessDefinition>(deploymentIds.size());
         for (Number definitionId : deploymentIds) {
             try {
-                ParsedProcessDefinition definition = getDefinition(definitionId.longValue());
-                processDefinitions.put(definition.getProcessDefinition(), definition);
-                deployments.add(definition.getProcessDefinition());
+                ParsedProcessDefinition parsed = getDefinition(definitionId.longValue());
+                processDefinitions.put(parsed.getProcessDefinition(), parsed);
+                deployments.add(parsed.getProcessDefinition());
             } catch (Exception e) {
                 ProcessDefinition processDefinition = processDefinitionDao.get(definitionId.longValue());
                 if (processDefinition != null) {
@@ -416,9 +423,8 @@ public class ProcessDefinitionLogic extends WFCommonLogic {
                 }
             }
         }
-        final List<WfDefinition> result = Lists.newArrayListWithExpectedSize(deploymentIds.size());
-        isPermissionAllowed(user, deployments, Permission.START,
-                new StartProcessPermissionCheckCallback(result, processDefinitions));
+        val result = new ArrayList<WfDefinition>(deploymentIds.size());
+        isPermissionAllowed(user, deployments, Permission.START, new StartProcessPermissionCheckCallback(result, processDefinitions));
         return result;
     }
 

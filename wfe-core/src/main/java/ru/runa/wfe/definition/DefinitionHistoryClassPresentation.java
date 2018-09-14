@@ -43,7 +43,7 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
     private static final ClassPresentation INSTANCE = new DefinitionHistoryClassPresentation();
 
     private DefinitionHistoryClassPresentation() {
-        super(ProcessDefinition.class, null, true,
+        super(ProcessDefinitionVersion.class, null, true,
                 new FieldDescriptor[] {
                         // display name field type DB source isSort filter mode
                         // get value/show in web getter parameters

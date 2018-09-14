@@ -163,8 +163,8 @@ public class Process extends SecuredObjectBase {
 
     @ManyToOne(targetEntity = ProcessDefinitionVersion.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
-    @ForeignKey(name = "FK_PROCESS_DEFINITION_VERSION")
-    @Index(name = "IX_PROCESS_DEFINITION_VERSION")
+    @ForeignKey(name = "FK_PROCESS_DEFINITION_VER")
+    @Index(name = "IX_PROCESS_DEFINITION_VER")
     public ProcessDefinitionVersion getProcessDefinitionVersion() {
         return processDefinitionVersion;
     }
