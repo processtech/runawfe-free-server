@@ -73,7 +73,9 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     }
 
     @Override
-    public ParsedProcessDefinition getDefinition(ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long processDefinitionVersionId) {
+    public ParsedProcessDefinition getDefinition(
+            ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long processDefinitionVersionId
+    ) {
         ParsedProcessDefinition parsedProcessDefinition;
         // synchronized (this) {
         parsedProcessDefinition = definitionVersionIdToDefinition.get(processDefinitionVersionId);
@@ -122,7 +124,9 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     }
 
     @Override
-    public ParsedProcessDefinition getLatestDefinition(ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long deploymentId) {
+    public ParsedProcessDefinition getLatestDefinition(
+            ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long deploymentId
+    ) {
         Long processDefinitionVersionId;
         // synchronized (this) {
         processDefinitionVersionId = deploymentIdToDeploymentVersionId.get(deploymentId);
