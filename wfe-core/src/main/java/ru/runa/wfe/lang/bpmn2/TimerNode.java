@@ -138,7 +138,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
         } catch (Throwable th) {
             String nodeName;
             try {
-                nodeName = executionContext.getProcessDefinition().getNodeNotNull(getNodeId()).getName();
+                nodeName = executionContext.getParsedProcessDefinition().getNodeNotNull(getNodeId()).getName();
             } catch (Exception e) {
                 nodeName = "Unknown due to " + e;
             }

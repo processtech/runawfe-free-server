@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.NonNull;
 import lombok.val;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -350,9 +351,13 @@ public class PermissionDao extends CommonDao {
     /**
      * Deletes all permissions for securedObject.
      */
-    public void deleteAllPermissions(SecuredObject obj) {
-        val pm = QPermissionMapping.permissionMapping;
-        queryFactory.delete(pm).where(pm.objectType.eq(obj.getSecuredObjectType()).and(pm.objectId.eq(obj.getIdentifiableId()))).execute();
+    public void deleteAllPermissions(@NonNull SecuredObject obj) {
+        deleteAllPermissions(obj.getSecuredObjectType(), obj.getIdentifiableId());
+    }
+
+    public void deleteAllPermissions(@NonNull SecuredObjectType type, long id) {
+        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        queryFactory.delete(pm).where(pm.objectType.eq(type).and(pm.objectId.eq(id))).execute();
     }
 
     /**

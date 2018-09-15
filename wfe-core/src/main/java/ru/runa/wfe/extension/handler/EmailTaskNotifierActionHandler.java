@@ -80,7 +80,7 @@ public class EmailTaskNotifierActionHandler extends ActionHandlerBase {
                     if (!Objects.equal(task, executionContext.getTask())) {
                         EmailConfig config = EmailConfigParser.parse(configBytes);
                         config.getHeaderProperties().put("To", email);
-                        Interaction interaction = executionContext.getProcessDefinition().getInteractionNotNull(task.getNodeId());
+                        Interaction interaction = executionContext.getParsedProcessDefinition().getInteractionNotNull(task.getNodeId());
                         EmailUtils.prepareMessage(UserHolder.get(), config, interaction, executionContext.getVariableProvider());
                         EmailUtils.sendMessageRequest(config);
                     }

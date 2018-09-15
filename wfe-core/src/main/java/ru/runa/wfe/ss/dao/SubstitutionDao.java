@@ -91,5 +91,4 @@ public class SubstitutionDao extends GenericDao<Substitution> {
             delete(substitution);
         }
     }
-
 }

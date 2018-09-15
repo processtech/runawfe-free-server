@@ -51,11 +51,11 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 
 /**
- * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.lang.ProcessDefinition}.
+ * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.definition.ProcessDefinitionVersion}.
  */
 @Entity
 @Table(name = "BPM_TOKEN")
@@ -101,10 +101,10 @@ public class CurrentToken extends Token implements Serializable {
     /**
      * creates a root token.
      */
-    public CurrentToken(ProcessDefinition processDefinition, CurrentProcess process) {
+    public CurrentToken(ParsedProcessDefinition parsedProcessDefinition, CurrentProcess process) {
         setStartDate(new Date());
         setProcess(process);
-        StartNode startNode = processDefinition.getStartStateNotNull();
+        StartNode startNode = parsedProcessDefinition.getStartStateNotNull();
         setNodeId(startNode.getNodeId());
         setNodeType(startNode.getNodeType());
         setAbleToReactivateParent(true);

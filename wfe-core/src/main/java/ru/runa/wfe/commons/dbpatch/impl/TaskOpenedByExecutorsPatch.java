@@ -29,7 +29,7 @@ public class TaskOpenedByExecutorsPatch extends DbPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesAfter();
-        sql.add(getDDLRemoveColumn("BPM_TASK", "FIRST_OPEN"));
+        sql.add(getDDLDropColumn("BPM_TASK", "FIRST_OPEN"));
         return sql;
     }
 

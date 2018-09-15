@@ -31,8 +31,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.dto.WfTask;
 
 /**
- * Created on 09.03.2006
- * 
  * @author Gordienko_m
  * @author Vitaliy S aka Yilativs
  */

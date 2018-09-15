@@ -1,10 +1,12 @@
 package ru.runa.wfe.execution.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
@@ -13,11 +15,6 @@ import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class RelationSwimlaneInitializer extends SwimlaneInitializer {
     private static final char RELATION_INVERSED = '!';
@@ -98,5 +95,4 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
         return Objects.toStringHelper(this).add("relationName", relationName).add("relationParameterVariableName", relationParameterVariableName)
                 .add("inversed", inversed).toString();
     }
-
 }

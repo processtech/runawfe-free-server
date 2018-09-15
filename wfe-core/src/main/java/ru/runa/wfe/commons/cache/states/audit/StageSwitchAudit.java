@@ -3,12 +3,12 @@ package ru.runa.wfe.commons.cache.states.audit;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.states.CacheState;
 
-public interface StageSwitchAudit<CacheImpl extends CacheImplementation, StateContext> {
-    public void stayStage();
+public interface StageSwitchAudit<CacheImpl extends CacheImplementation> {
+    void stayStage();
 
-    public void stageSwitched(CacheState<CacheImpl, StateContext> from, CacheState<CacheImpl, StateContext> to);
+    void stageSwitched(CacheState<CacheImpl> from, CacheState<CacheImpl> to);
 
-    public void stageSwitchFailed(CacheState<CacheImpl, StateContext> from, CacheState<CacheImpl, StateContext> to);
+    void stageSwitchFailed(CacheState<CacheImpl> from, CacheState<CacheImpl> to);
 
-    public void nextStageFatalError();
+    void nextStageFatalError();
 }

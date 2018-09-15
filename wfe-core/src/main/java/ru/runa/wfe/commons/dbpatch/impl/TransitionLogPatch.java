@@ -1,10 +1,10 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
-import com.google.common.collect.Maps;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import lombok.val;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -13,13 +13,13 @@ import ru.runa.wfe.audit.CurrentTransitionLog;
 import ru.runa.wfe.audit.dao.CurrentProcessLogDao;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
-import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.Transition;
 
 public class TransitionLogPatch extends DbPatch {
@@ -47,12 +47,11 @@ public class TransitionLogPatch extends DbPatch {
         ScrollableResults scrollableResults = session.createSQLQuery(q).scroll(ScrollMode.FORWARD_ONLY);
         int failed = 0;
         int success = 0;
-        Map<Deployment, Date> failedDeployments = Maps.newHashMap();
+        val failedDeployments = new HashMap<ProcessDefinitionVersion, Date>();
         while (scrollableResults.next()) {
             CurrentProcess process = currentProcessDao.get(((Number) scrollableResults.get(0)).longValue());
-            Deployment deployment = process.getDeployment();
             try {
-                ProcessDefinition definition = processDefinitionLoader.getDefinition(deployment.getId());
+                ParsedProcessDefinition definition = processDefinitionLoader.getDefinition(process);
                 try {
                     Node node = definition.getNodeNotNull((String) scrollableResults.get(1));
                     Transition transition = node.getLeavingTransitionNotNull((String) scrollableResults.get(2));
@@ -67,20 +66,23 @@ public class TransitionLogPatch extends DbPatch {
                     failed++;
                 }
             } catch (InvalidDefinitionException e) {
-                if (!failedDeployments.containsKey(deployment)) {
-                    failedDeployments.put(deployment, process.getEndDate());
-                    log.error("Unable to restore history for " + deployment + ": " + e);
-                } else {
-                    Date endDate = failedDeployments.get(deployment);
+                ProcessDefinitionVersion dv = process.getDefinitionVersion();
+                if (failedDeployments.containsKey(dv)) {
+                    Date endDate = failedDeployments.get(dv);
                     if (endDate != null && (process.getEndDate() == null || endDate.before(process.getEndDate()))) {
-                        failedDeployments.put(deployment, process.getEndDate());
+                        failedDeployments.put(dv, process.getEndDate());
                     }
+                } else {
+                    failedDeployments.put(dv, process.getEndDate());
+                    log.error("Unable to restore history for " + dv + ": " + e);
                 }
             }
         }
         log.info("-------------------- RESULT OF " + getClass());
-        for (Map.Entry<Deployment, Date> entry : failedDeployments.entrySet()) {
-            log.warn("Unparsed definition " + entry.getKey() + ", last process end date = " + entry.getValue());
+        for (val entry : failedDeployments.entrySet()) {
+            val dv = entry.getKey();
+            val d = dv.getDefinition();
+            log.warn("Unparsed definition " + d + " / " + dv + ", last process end date = " + entry.getValue());
         }
         log.info("Reverted history [for parsed definitions] result: success " + success + ", failed " + failed);
     }
@@ -88,7 +90,7 @@ public class TransitionLogPatch extends DbPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesAfter();
-        sql.add(getDDLRemoveTable("JBPM_PASSTRANS"));
+        sql.add(getDDLDropTable("JBPM_PASSTRANS"));
         return sql;
     }
 }

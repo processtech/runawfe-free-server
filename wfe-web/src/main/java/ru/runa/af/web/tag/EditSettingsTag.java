@@ -23,12 +23,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
@@ -39,9 +36,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.SaveSettingsAction;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.form.SettingsFileForm;
@@ -56,14 +51,14 @@ import ru.runa.wfe.service.delegate.Delegates;
  * @author: petrmikheev Date: 26.08.2012
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "editSettings")
+@CommonsLog
 public class EditSettingsTag extends TitledFormTag {
     private static final long serialVersionUID = -426375016105456L;
-    private static final Log log = LogFactory.getLog(EditSettingsTag.class);
 
     private static class Setting {
         public String title;
         public String pattern = null;
-        public List<String> values = new LinkedList<String>();
+        public List<String> values = new LinkedList<>();
 
         public Setting(String title) {
             this.title = title;
@@ -72,7 +67,7 @@ public class EditSettingsTag extends TitledFormTag {
 
     private static class SettingsFile {
         Setting defaultSetting = new Setting(null);
-        List<Setting> settings = new ArrayList<Setting>();
+        List<Setting> settings = new ArrayList<>();
     }
 
     public static final TreeMap<String, SettingsFile> settingsList;

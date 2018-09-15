@@ -10,17 +10,17 @@ import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ArchivedProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.CurrentProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.dao.GenericDao2;
 import ru.runa.wfe.execution.ArchivedProcess;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.ProcessDao;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 @Component
 @CommonsLog
@@ -78,7 +78,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
         }
     }
 
-    public List<? extends BaseProcessLog> get(@NonNull Process process, ProcessDefinition definition) {
+    public List<? extends BaseProcessLog> get(@NonNull Process process, ParsedProcessDefinition definition) {
         if (process.isArchive()) {
             return dao2.get((ArchivedProcess) process, definition);
         } else {

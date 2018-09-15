@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service.delegate;
 
-import ru.runa.wfe.var.file.FileVariableImpl;
-
 import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -35,6 +33,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
+import ru.runa.wfe.var.file.FileVariable;
 
 /**
  * Created on 28.09.2004
@@ -59,9 +58,9 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public Long startProcessById(User user, Long definitionId, Map<String, Object> variablesMap) {
+    public Long startProcessById(User user, Long processDefinitionVersionId, Map<String, Object> variablesMap) {
         try {
-            return getExecutionService().startProcessById(user, definitionId, variablesMap);
+            return getExecutionService().startProcessById(user, processDefinitionVersionId, variablesMap);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -176,7 +175,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public FileVariableImpl getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
+    public FileVariable getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
         try {
             return getExecutionService().getFileVariableValue(user, processId, variableName);
         } catch (Exception e) {
@@ -239,9 +238,9 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion) {
+    public int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionVersionId, Long newVersion) {
         try {
-            return getExecutionService().upgradeProcessesToDefinitionVersion(user, definitionId, newVersion);
+            return getExecutionService().upgradeProcessesToDefinitionVersion(user, processDefinitionVersionId, newVersion);
         } catch (Exception e) {
             throw handleException(e);
         }

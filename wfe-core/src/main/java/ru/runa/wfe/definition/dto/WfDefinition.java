@@ -22,10 +22,12 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.EntityWithType;
-import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.FileDataProvider;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
@@ -33,7 +35,12 @@ import ru.runa.wfe.user.Actor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfDefinition extends SecuredObject implements Comparable<WfDefinition>, EntityWithType {
     private static final long serialVersionUID = -6032491529439317948L;
+
+    /**
+     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
+     */
     private Long id;
+
     private String name;
     private String description;
     private String[] categories;
@@ -53,27 +60,35 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     public WfDefinition() {
     }
 
-    public WfDefinition(ProcessDefinition definition, boolean canBeStarted) {
-        this(definition.getDeployment());
-        hasHtmlDescription = definition.getFileData(FileDataProvider.INDEX_FILE_NAME) != null;
-        hasStartImage = definition.getFileData(FileDataProvider.START_IMAGE_FILE_NAME) != null;
-        hasDisabledImage = definition.getFileData(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
-        subprocessOnly = definition.getAccessType() == ProcessDefinitionAccessType.OnlySubprocess;
-        this.canBeStarted = canBeStarted && !subprocessOnly;
+    public WfDefinition(ProcessDefinition d, ProcessDefinitionVersion dv) {
+        id = dv.getId();
+        version = dv.getVersion();
+        name = d.getName();
+        description = d.getDescription();
+        categories = d.getCategories();
+        createDate = dv.getCreateDate();
+        createActor = dv.getCreateActor();
+        updateDate = dv.getUpdateDate();
+        updateActor = dv.getUpdateActor();
+        subprocessBindingDate = dv.getSubprocessBindingDate();
+        secondsBeforeArchiving = d.getSecondsBeforeArchiving();
     }
 
-    public WfDefinition(Deployment deployment) {
-        id = deployment.getId();
-        version = deployment.getVersion();
-        name = deployment.getName();
-        description = deployment.getDescription();
-        categories = deployment.getCategories();
-        createDate = deployment.getCreateDate();
-        createActor = deployment.getCreateActor();
-        updateDate = deployment.getUpdateDate();
-        updateActor = deployment.getUpdateActor();
-        subprocessBindingDate = deployment.getSubprocessBindingDate();
-        secondsBeforeArchiving = deployment.getSecondsBeforeArchiving();
+    public WfDefinition(ProcessDefinitionWithVersion dwv) {
+        this(dwv.processDefinition, dwv.processDefinitionVersion);
+    }
+
+    public WfDefinition(ProcessDefinitionVersion dv) {
+        this(dv.getDefinition(), dv);
+    }
+
+    public WfDefinition(ParsedProcessDefinition pd, boolean canBeStarted) {
+        this(pd.getProcessDefinition(), pd.getProcessDefinitionVersion());
+        hasHtmlDescription = pd.getFileData(FileDataProvider.INDEX_FILE_NAME) != null;
+        hasStartImage = pd.getFileData(FileDataProvider.START_IMAGE_FILE_NAME) != null;
+        hasDisabledImage = pd.getFileData(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
+        subprocessOnly = pd.getAccessType() == ProcessDefinitionAccessType.OnlySubprocess;
+        this.canBeStarted = canBeStarted && !subprocessOnly;
     }
 
     @Override
@@ -86,6 +101,9 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         return SecuredObjectType.DEFINITION;
     }
 
+    /**
+     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
+     */
     public Long getId() {
         return id;
     }
@@ -180,5 +198,4 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("name", name).add("version", version).toString();
     }
-
 }

@@ -9,5 +9,4 @@ import ru.runa.wfe.execution.CurrentToken;
 public interface NodeAsyncExecutor {
 
     void execute(CurrentToken token, boolean retry);
-
 }

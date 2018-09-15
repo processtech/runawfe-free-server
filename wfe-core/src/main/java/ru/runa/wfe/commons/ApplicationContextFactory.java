@@ -19,7 +19,7 @@ import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.hibernate.Converters;
-import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
@@ -30,6 +30,7 @@ import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
+import ru.runa.wfe.report.dao.ReportDefinitionDao;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.task.dao.TaskDao;
@@ -126,7 +127,7 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return Dialect.getDialect(getConfiguration().getProperties());
     }
 
-    public static DbType getDBType() {
+    public static DbType getDbType() {
         if (dbType == null) {
             String hibernateDialect = getConfiguration().getProperty("hibernate.dialect");
             if (hibernateDialect.contains("HSQL")) {
@@ -152,8 +153,12 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(ExecutorDao.class);
     }
 
-    public static DeploymentDao getDeploymentDao() {
-        return getContext().getBean(DeploymentDao.class);
+    public static ReportDefinitionDao getReportDefinitionDao() {
+        return getContext().getBean(ReportDefinitionDao.class);
+    }
+
+    public static ProcessDefinitionDao getProcessDefinitionDao() {
+        return getContext().getBean(ProcessDefinitionDao.class);
     }
 
     public static PermissionDao getPermissionDao() {

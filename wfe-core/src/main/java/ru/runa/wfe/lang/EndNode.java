@@ -36,7 +36,7 @@ public class EndNode extends Node {
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         val executionLogic = ApplicationContextFactory.getExecutionLogic();
-        executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getProcessDefinition(), null, null, false);
+        executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getParsedProcessDefinition(), null, null, false);
         executionLogic.endProcess(executionContext.getCurrentProcess(), executionContext, null);
     }
 

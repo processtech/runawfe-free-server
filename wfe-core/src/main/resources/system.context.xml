@@ -230,7 +230,7 @@
 
 	<bean id="processFactory" class="ru.runa.wfe.execution.ProcessFactory" />
 
-	<bean id="taskListBuilder" class="ru.runa.wfe.task.logic.TaskListBuilderImpl">
+	<bean id="taskListBuilder" class="ru.runa.wfe.task.logic.TaskListBuilder">
 		<constructor-arg ref="taskCache"/>
 	</bean>
 
@@ -269,7 +269,7 @@
 	<bean id="substitutionLogic" class="ru.runa.wfe.ss.logic.SubstitutionLogic" />
 	<bean id="auditLogic" class="ru.runa.wfe.audit.logic.AuditLogic" />
 	<bean id="ldapLogic" class="ru.runa.wfe.security.logic.LdapLogic" />
-	<bean id="definitionLogic" class="ru.runa.wfe.definition.logic.DefinitionLogic" />
+	<bean id="definitionLogic" class="ru.runa.wfe.definition.logic.ProcessDefinitionLogic" />
 	<bean id="executionLogic" class="ru.runa.wfe.execution.logic.ExecutionLogic" />
 	<bean id="taskLogic" class="ru.runa.wfe.task.logic.TaskLogic" />
 	<bean id="variableLogic" class="ru.runa.wfe.var.logic.VariableLogic" />

@@ -17,29 +17,24 @@
  */
 package ru.runa.wfe.security.auth;
 
+import com.google.common.base.Preconditions;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Set;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.security.auth.Subject;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthenticationExpiredException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Helps to extract {@link Actor} from Subject principals at logic layer.
  */
+@CommonsLog
 public class SubjectPrincipalsHelper {
-    private static final Log log = LogFactory.getLog(SubjectPrincipalsHelper.class);
 
     private static Key securedKey = null;
     private static String encryptionType = "DES";

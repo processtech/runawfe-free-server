@@ -1,113 +1,148 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * aLong with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * aLong with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.definition.cache;
 
+import com.google.common.base.Preconditions;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
-
+import lombok.NonNull;
+import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
+import lombok.var;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.commons.hibernate.HibernateUtil;
+import ru.runa.wfe.definition.ProcessDefinition;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
 import ru.runa.wfe.definition.par.ProcessArchive;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
+@CommonsLog
 class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefinitionCache {
 
-    public static final String definitionIdToDefinitionName = "ru.runa.wfe.definition.cache.definitionIdToDefinition";
-    public static final String definitionNameToLatestDefinitionName = "ru.runa.wfe.definition.cache.definitionNameToLatestDefinition";
+    public static final String definitionVersionIdToDefinitionCacheName = "ru.runa.wfe.definition.cache.definitionIdToDefinition";
+    public static final String definitionNameToDefinitionVersionIdCacheName = "ru.runa.wfe.definition.cache.definitionNameToLatestDefinition";
+    public static final String definitionIdToDefinitionVersionIdCacheName = "ru.runa.wfe.definition.cache.deploymentIdToDeploymentVersionId";
 
-    private final Cache<Long, ProcessDefinition> definitionIdToDefinition;
-    private final Cache<String, Long> definitionNameToId;
+    /**
+     * Key is ProcessDefinitionVersion.id.
+     */
+    private final Cache<Long, ParsedProcessDefinition> definitionVersionIdToDefinition;
+
+    /**
+     * Key is ProcessDefinition.name, value is ProcessDefinitionVersion.id.
+     */
+    private final Cache<String, Long> deploymentNameToDeploymentVersionId;
+
+    /**
+     * Key is ProcessDefinition.name, value is ProcessDefinitionVersion.id.
+     */
+    private final Cache<Long, Long> deploymentIdToDeploymentVersionId;
 
     private final AtomicBoolean isLocked = new AtomicBoolean(false);
 
     public ProcessDefCacheImpl() {
-        definitionIdToDefinition = createCache(definitionIdToDefinitionName);
-        definitionNameToId = createCache(definitionNameToLatestDefinitionName);
+        definitionVersionIdToDefinition = createCache(definitionVersionIdToDefinitionCacheName);
+        deploymentNameToDeploymentVersionId = createCache(definitionNameToDefinitionVersionIdCacheName);
+        deploymentIdToDeploymentVersionId = createCache(definitionIdToDefinitionVersionIdCacheName);
     }
 
     private ProcessDefCacheImpl(ProcessDefCacheImpl source) {
-        definitionIdToDefinition = source.definitionIdToDefinition;
-        definitionNameToId = source.definitionNameToId;
-    }
-
-    public synchronized void onDeploymentChange(Deployment deployment, Change change) {
-        isLocked.set(true);
-        // TODO different calc depending on change
-        if (deployment.getId() != null) {
-            definitionIdToDefinition.remove(deployment.getId());
-        }
-        definitionNameToId.remove(deployment.getName());
-    }
-
-    /**
-     * This method can be used only in old cache implementation (Synchronization is guaranteed by cache logic). State machine implementation must
-     * return new cache instance and may not unlock current cache.
-     */
-    public void Unlock() {
-        isLocked.set(false);
+        definitionVersionIdToDefinition = source.definitionVersionIdToDefinition;
+        deploymentNameToDeploymentVersionId = source.deploymentNameToDeploymentVersionId;
+        deploymentIdToDeploymentVersionId = source.deploymentIdToDeploymentVersionId;
     }
 
     @Override
-    public ProcessDefinition getDefinition(DeploymentDao deploymentDao, Long definitionId) throws DefinitionDoesNotExistException {
-        ProcessDefinition processDefinition = null;
+    public ParsedProcessDefinition getDefinition(
+            ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long processDefinitionVersionId
+    ) {
+        ParsedProcessDefinition parsedProcessDefinition;
         // synchronized (this) {
-        processDefinition = definitionIdToDefinition.get(definitionId);
-        if (processDefinition != null) {
-            return processDefinition;
+        parsedProcessDefinition = definitionVersionIdToDefinition.get(processDefinitionVersionId);
+        if (parsedProcessDefinition != null) {
+            return parsedProcessDefinition;
         }
         // }
-        Deployment deployment = deploymentDao.getNotNull(definitionId);
-        Hibernate.initialize(deployment);
-        if (deployment instanceof HibernateProxy) {
-            deployment = (Deployment) (((HibernateProxy) deployment).getHibernateLazyInitializer().getImplementation());
-        }
-        ProcessArchive archive = new ProcessArchive(deployment);
-        processDefinition = archive.parseProcessDefinition();
+        var dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
+        var d = dwv.processDefinition;
+        var dv = dwv.processDefinitionVersion;
+
+        // TODO Do we really need to unproxy? Maybe Hibernate.initialize(d), ...(dv) would be enoug? Cannot ParsedProcessDefinition hold detached proxies?
+        dv = HibernateUtil.unproxy(dv);
+        d = HibernateUtil.unproxy(d);
+
+        val archive = new ProcessArchive(d, dv);
+        parsedProcessDefinition = archive.parseProcessDefinition();
         // synchronized (this) {
-        definitionIdToDefinition.put(definitionId, processDefinition);
+        definitionVersionIdToDefinition.put(processDefinitionVersionId, parsedProcessDefinition);
         // }
-        return processDefinition;
+        return parsedProcessDefinition;
     }
 
     @Override
-    public ProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, String definitionName) {
-        Long definitionId = null;
+    public ParsedProcessDefinition getLatestDefinition(
+            ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, @NonNull String definitionName
+    ) {
+        log.warn("getLatestDefinition(..., deploymentName) is deprecated, use getLatestDefinition(..., deploymentId)");
+
+        Long processDefinitionVersionId;
         // synchronized (this) {
-        definitionId = definitionNameToId.get(definitionName);
-        if (definitionId != null) {
-            return getDefinition(deploymentDao, definitionId);
+        processDefinitionVersionId = deploymentNameToDeploymentVersionId.get(definitionName);
+        if (processDefinitionVersionId != null) {
+            return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
         }
         // }
-        definitionId = deploymentDao.findLatestDeployment(definitionName).getId();
+
+        // TODO Suboptimal: can we use whole entities instead of just id?
+        processDefinitionVersionId = processDefinitionDao.findLatestDefinition(definitionName).processDefinitionVersion.getId();
         synchronized (this) {
             if (!isLocked.get()) {
-                definitionNameToId.put(definitionName, definitionId);
+                deploymentNameToDeploymentVersionId.put(definitionName, processDefinitionVersionId);
             }
         }
-        return getDefinition(deploymentDao, definitionId);
+        return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
+    }
+
+    @Override
+    public ParsedProcessDefinition getLatestDefinition(
+            ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long deploymentId
+    ) {
+        Long processDefinitionVersionId;
+        // synchronized (this) {
+        processDefinitionVersionId = deploymentIdToDeploymentVersionId.get(deploymentId);
+        if (processDefinitionVersionId != null) {
+            return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
+        }
+        // }
+
+        // TODO Suboptimal: can we use whole entities instead of just id?
+        processDefinitionVersionId = processDefinitionDao.findLatestDefinition(deploymentId).processDefinitionVersion.getId();
+        synchronized (this) {
+            if (!isLocked.get()) {
+                deploymentIdToDeploymentVersionId.put(deploymentId, processDefinitionVersionId);
+            }
+        }
+        return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
     }
 
     @Override
@@ -117,11 +152,39 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
 
     @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        if (changedObject.object instanceof Deployment) {
-            onDeploymentChange((Deployment) changedObject.object, changedObject.changeType);
+        if (changedObject.changeType == Change.CREATE) {
             return true;
         }
-        log.error("Unexpected object " + changedObject.object);
-        return false;
+
+        if (changedObject.object instanceof ProcessDefinition) {
+
+            val d = (ProcessDefinition) changedObject.object;
+            Preconditions.checkArgument(d.getId() != null);
+            isLocked.set(true);
+            onChangeDeploymentImpl(d);
+            return true;
+
+        } else if (changedObject.object instanceof ProcessDefinitionVersion) {
+
+            var dv = (ProcessDefinitionVersion) changedObject.object;
+            Preconditions.checkArgument(dv.getId() != null);
+            isLocked.set(true);
+            definitionVersionIdToDefinition.remove(dv.getId());
+            dv = HibernateUtil.unproxyWithoutInitialize(dv);
+            if (dv != null && dv.getDefinition() != null) {
+                onChangeDeploymentImpl(dv.getDefinition());
+            }
+            return true;
+
+        } else {
+
+            log.error("Unexpected object " + changedObject.object);
+            return false;
+        }
+    }
+
+    private void onChangeDeploymentImpl(ProcessDefinition d) {
+        definitionVersionIdToDefinition.remove(deploymentIdToDeploymentVersionId.getAndRemove(d.getId()));
+        definitionVersionIdToDefinition.remove(deploymentNameToDeploymentVersionId.getAndRemove(d.getName()));
     }
 }

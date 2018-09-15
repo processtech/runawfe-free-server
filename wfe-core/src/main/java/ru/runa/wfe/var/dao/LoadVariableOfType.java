@@ -5,12 +5,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
@@ -37,11 +36,8 @@ import ru.runa.wfe.var.legacy.ComplexVariable;
 /**
  * Load variable value depends of variable type.
  */
+@CommonsLog
 public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVariableOfTypeContext> {
-    /**
-     * Logging support.
-     */
-    private static Log log = LogFactory.getLog(LoadVariableOfType.class);
 
     @Override
     public Object onDate(DateFormat dateFormat, LoadVariableOfTypeContext context) {

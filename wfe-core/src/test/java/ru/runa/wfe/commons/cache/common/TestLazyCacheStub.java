@@ -3,7 +3,7 @@ package ru.runa.wfe.commons.cache.common;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 
-public final class TestLazyCacheProxy implements TestCacheIface {
+public final class TestLazyCacheStub implements TestCacheIface {
     @Override
     public void commitCache() {
     }

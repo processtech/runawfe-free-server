@@ -49,6 +49,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
  */
 public class CommonLogic {
     protected final Log log = LogFactory.getLog(getClass());
+
     @Autowired
     protected PermissionDao permissionDao;
     @Autowired
@@ -179,5 +180,4 @@ public class CommonLogic {
         settingDao.clear();
         PropertyResources.clearPropertiesCache();
     }
-
 }

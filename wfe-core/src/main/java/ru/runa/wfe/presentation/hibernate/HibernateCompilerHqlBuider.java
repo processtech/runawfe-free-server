@@ -319,7 +319,7 @@ public class HibernateCompilerHqlBuider {
      * 
      * @return List of string, represents expressions.
      */
-    // TODO Largely duplicates PermissionDAO logic. After (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
+    // TODO Largely duplicates PermissionDao logic. After (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
     private List<String> addSecureCheck() {
         List<String> result = new LinkedList<>();
         RestrictionsToPermissions pp = parameters.getPermissionRestrictions();

@@ -11,12 +11,13 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
+import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
-import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.SafeIndefiniteLoop;
 import ru.runa.wfe.lang.NodeType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
+@CommonsLog
 public class ProcessLogs implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -141,32 +142,32 @@ public class ProcessLogs implements Serializable {
         val tmpByTaskId = new HashMap<Long, TaskCreateLog>();
         val result = new HashMap<TaskCreateLog, TaskEndLog>();
         boolean compatibilityMode = false;
-        for (BaseProcessLog log : logs) {
-            if (log instanceof TaskCreateLog) {
-                val taskCreateLog = (TaskCreateLog) log;
-                String key = log.getProcessId() + taskCreateLog.getTaskName();
+        for (BaseProcessLog l : logs) {
+            if (l instanceof TaskCreateLog) {
+                val taskCreateLog = (TaskCreateLog) l;
+                String key = l.getProcessId() + taskCreateLog.getTaskName();
                 tmpByTaskName.put(key, taskCreateLog);
                 tmpByTaskId.put(taskCreateLog.getTaskId(), taskCreateLog);
             }
-            if (log instanceof TaskEndLog) {
-                val taskEndLog = (TaskEndLog) log;
+            if (l instanceof TaskEndLog) {
+                val taskEndLog = (TaskEndLog) l;
                 TaskCreateLog taskCreateLog;
                 if (taskEndLog.getTaskId() != null && tmpByTaskId.containsKey(taskEndLog.getTaskId())) {
                     taskCreateLog = tmpByTaskId.remove(taskEndLog.getTaskId());
-                    tmpByTaskName.remove(log.getProcessId() + taskCreateLog.getTaskName());
+                    tmpByTaskName.remove(l.getProcessId() + taskCreateLog.getTaskName());
                 } else {
-                    String key = log.getProcessId() + taskEndLog.getTaskName();
+                    String key = l.getProcessId() + taskEndLog.getTaskName();
                     taskCreateLog = tmpByTaskName.remove(key);
                     compatibilityMode = true;
                 }
                 if (taskCreateLog == null) {
-                    LogFactory.getLog(getClass()).warn("No TaskCreateLog for " + log);
+                    log.warn("No TaskCreateLog for " + l);
                     continue;
                 }
                 result.put(taskCreateLog, taskEndLog);
             }
-            if (log instanceof NodeLeaveLog) {
-                NodeLeaveLog nodeLeaveLog = (NodeLeaveLog) log;
+            if (l instanceof NodeLeaveLog) {
+                NodeLeaveLog nodeLeaveLog = (NodeLeaveLog) l;
                 if (NodeType.START_EVENT == nodeLeaveLog.getNodeType()) {
                     ProcessStartLog processStartLog = getFirstOrNull(ProcessStartLog.class);
                     if (processStartLog == null) {

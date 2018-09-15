@@ -44,7 +44,12 @@ public class WfProcess extends SecuredObjectBase {
     private Date startDate;
     private Date endDate;
     private int version;
+
+    /**
+     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
+     */
     private Long definitionId;
+
     private String hierarchyIds;
     // map is not usable in web services
     private final List<WfVariable> variables = Lists.newArrayList();
@@ -55,9 +60,9 @@ public class WfProcess extends SecuredObjectBase {
 
     public WfProcess(Process process) {
         id = process.getId();
-        name = process.getDeployment().getName();
-        definitionId = process.getDeployment().getId();
-        version = process.getDeployment().getVersion().intValue();
+        name = process.getDefinitionVersion().getDefinition().getName();
+        definitionId = process.getDefinitionVersion().getId();
+        version = process.getDefinitionVersion().getVersion().intValue();
         startDate = process.getStartDate();
         endDate = process.getEndDate();
         hierarchyIds = process.getHierarchyIds();
@@ -97,6 +102,9 @@ public class WfProcess extends SecuredObjectBase {
         return version;
     }
 
+    /**
+     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
+     */
     public Long getDefinitionId() {
         return definitionId;
     }

@@ -89,7 +89,7 @@ public class ProcessArchiver {
 
         // There is no date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. Must fallback to SQL.
         // And since this arithmetic is different for different SQL servers, have to switch on server type.
-        DbType dbType = ApplicationContextFactory.getDBType();
+        DbType dbType = ApplicationContextFactory.getDbType();
         int defaultSecondsBeforeArchiving = SystemProperties.getProcessDefaultSecondsBeforeArchiving();
 
         // Since we don't have true tree closure with (root_id, root_id, 0) record,

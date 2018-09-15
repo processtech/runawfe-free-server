@@ -41,7 +41,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.QDeployment;
+import ru.runa.wfe.definition.QProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.security.AuthorizationException;
@@ -177,7 +177,7 @@ public class AuthorizationLogic extends CommonLogic {
 
         // Export DEFINITION permissions.
         {
-            val d = QDeployment.deployment;
+            val d = QProcessDefinition.processDefinition;
             exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, d.name)
                     .from(pm, e, d)
                     .where(pm.objectType.eq(DEFINITION).and(pm.objectId.eq(d.id)).and(pm.executor.eq(e)))

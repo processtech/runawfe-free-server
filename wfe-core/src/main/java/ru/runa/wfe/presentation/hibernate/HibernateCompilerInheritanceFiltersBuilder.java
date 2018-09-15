@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.DbSource;
 import ru.runa.wfe.presentation.DbSource.AccessType;
@@ -35,9 +34,8 @@ import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
 /**
  * Builds filter SQL statements for fields with inheritance.
  */
+@CommonsLog
 public class HibernateCompilerInheritanceFiltersBuilder {
-
-    private static Log log = LogFactory.getLog(HibernateCompilerInheritanceFiltersBuilder.class);
 
     /**
      * {@link BatchPresentation}, used to build query.

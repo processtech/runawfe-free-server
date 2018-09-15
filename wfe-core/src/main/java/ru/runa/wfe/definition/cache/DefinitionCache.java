@@ -1,12 +1,13 @@
 package ru.runa.wfe.definition.cache;
 
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public interface DefinitionCache {
 
-    public abstract ProcessDefinition getDefinition(Long definitionId) throws DefinitionDoesNotExistException;
+    ParsedProcessDefinition getDefinition(long definitionVersionId) throws DefinitionDoesNotExistException;
 
-    public abstract ProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException;
+    ParsedProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException;
 
+    ParsedProcessDefinition getLatestDefinition(long definitionId) throws DefinitionDoesNotExistException;
 }

@@ -7,10 +7,10 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.TaskAssignLog;
-import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.CurrentTaskAssignLog;
+import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.dao.CurrentProcessLogDao;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
 

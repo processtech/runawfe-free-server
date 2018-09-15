@@ -1,18 +1,12 @@
 package ru.runa.wfe.definition.cache;
 
-import ru.runa.wfe.commons.SystemProperties;
-
 /**
  * Factory for create cache instance. It used in system.context.xml - do not remove.
  */
 final class CacheFactory {
-    private static final DefinitionCache DEFINITION_CACHE;
+    private static final ProcessDefCacheCtrl DEFINITION_CACHE = new ProcessDefCacheCtrl();
 
-    static {
-        DEFINITION_CACHE = SystemProperties.useCacheStateMachine() ? new ProcessDefCacheStateCtrl() : new ProcessDefCacheCtrl();
-    }
-
-    public static DefinitionCache getInstance() {
+    public static ProcessDefCacheCtrl getInstance() {
         return DEFINITION_CACHE;
     }
 }

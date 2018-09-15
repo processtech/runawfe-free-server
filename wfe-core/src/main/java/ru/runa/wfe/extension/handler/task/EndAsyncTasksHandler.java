@@ -14,7 +14,7 @@ public class EndAsyncTasksHandler extends ParamBasedHandlerActionHandler {
     @Override
     public void execute(ExecutionContext context) throws Exception {
         String nodeId = paramsDef.getInputParamValueNotNull("nodeId", context.getVariableProvider());
-        BaseTaskNode taskNode = (BaseTaskNode) context.getProcessDefinition().getNodeNotNull(nodeId);
+        BaseTaskNode taskNode = (BaseTaskNode) context.getParsedProcessDefinition().getNodeNotNull(nodeId);
         if (!taskNode.isAsync()) {
             throw new IllegalArgumentException("This handler can end only async tasks");
         }

@@ -1,8 +1,9 @@
 package ru.runa.wfe.lang;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.form.Interaction;
@@ -10,32 +11,30 @@ import ru.runa.wfe.lang.bpmn2.EndToken;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 
-import com.google.common.collect.Lists;
-
-public class SubprocessDefinition extends ProcessDefinition {
+public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
     private static final long serialVersionUID = 1L;
-    private ProcessDefinition parentProcessDefinition;
+    private ParsedProcessDefinition parent;
 
-    protected SubprocessDefinition() {
+    protected ParsedSubprocessDefinition() {
     }
 
-    public SubprocessDefinition(ProcessDefinition parentProcessDefinition) {
-        super(parentProcessDefinition.getDeployment().getCopy());
-        this.parentProcessDefinition = parentProcessDefinition;
+    public ParsedSubprocessDefinition(ParsedProcessDefinition parent) {
+        super(parent.getProcessDefinitionVersion().createCopyWithDefinition());
+        this.parent = parent;
     }
 
-    public ProcessDefinition getParentProcessDefinition() {
-        return parentProcessDefinition;
+    public ParsedProcessDefinition getParent() {
+        return parent;
     }
 
     @Override
     public void setName(String name) {
-        deployment.setName(name);
+        processDefinition.setName(name);
     }
 
     @Override
-    public Map<String, SubprocessDefinition> getEmbeddedSubprocesses() {
-        return parentProcessDefinition.getEmbeddedSubprocesses();
+    public Map<String, ParsedSubprocessDefinition> getEmbeddedSubprocesses() {
+        return parent.getEmbeddedSubprocesses();
     }
 
     @Override
@@ -67,7 +66,7 @@ public class SubprocessDefinition extends ProcessDefinition {
     }
 
     public List<EmbeddedSubprocessEndNode> getEndNodes() {
-        List<EmbeddedSubprocessEndNode> list = Lists.newArrayList();
+        val list = new ArrayList<EmbeddedSubprocessEndNode>();
         for (Node node : nodes) {
             if (node instanceof EmbeddedSubprocessEndNode) {
                 list.add((EmbeddedSubprocessEndNode) node);
@@ -78,12 +77,12 @@ public class SubprocessDefinition extends ProcessDefinition {
 
     @Override
     public byte[] getGraphImageBytesNotNull() {
-        byte[] graphBytes = processDefinition.getFileData(getNodeId() + "." + FileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
+        byte[] graphBytes = parsedProcessDefinition.getFileData(getNodeId() + "." + FileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
         if (graphBytes == null) {
-            graphBytes = processDefinition.getFileData(getNodeId() + "." + FileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
+            graphBytes = parsedProcessDefinition.getFileData(getNodeId() + "." + FileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
         }
         if (graphBytes == null) {
-            graphBytes = processDefinition.getFileData(getNodeId() + "." + FileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
+            graphBytes = parsedProcessDefinition.getFileData(getNodeId() + "." + FileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
         }
         if (graphBytes == null) {
             throw new InternalApplicationException("No process graph image file found in embedded process definition");
@@ -93,62 +92,62 @@ public class SubprocessDefinition extends ProcessDefinition {
 
     @Override
     public void addInteraction(String name, Interaction interaction) {
-        parentProcessDefinition.addInteraction(name, interaction);
+        parent.addInteraction(name, interaction);
     }
 
     @Override
     public UserType getUserType(String name) {
-        return parentProcessDefinition.getUserType(name);
+        return parent.getUserType(name);
     }
 
     @Override
     public UserType getUserTypeNotNull(String name) {
-        return parentProcessDefinition.getUserTypeNotNull(name);
+        return parent.getUserTypeNotNull(name);
     }
 
     @Override
     public VariableDefinition getVariable(String name, boolean searchInSwimlanes) {
-        return parentProcessDefinition.getVariable(name, searchInSwimlanes);
+        return parent.getVariable(name, searchInSwimlanes);
     }
 
     @Override
     public VariableDefinition getVariableNotNull(String name, boolean searchInSwimlanes) {
-        return parentProcessDefinition.getVariableNotNull(name, searchInSwimlanes);
+        return parent.getVariableNotNull(name, searchInSwimlanes);
     }
 
     @Override
     public List<VariableDefinition> getVariables() {
-        return parentProcessDefinition.getVariables();
+        return parent.getVariables();
     }
 
     @Override
     public Interaction getInteractionNotNull(String nodeId) {
-        return parentProcessDefinition.getInteractionNotNull(nodeId);
+        return parent.getInteractionNotNull(nodeId);
     }
 
     @Override
     public byte[] getFileData(String fileName) {
-        return parentProcessDefinition.getFileData(fileName);
+        return parent.getFileData(fileName);
     }
 
     @Override
     public byte[] getFileDataNotNull(String fileName) {
-        return parentProcessDefinition.getFileDataNotNull(fileName);
+        return parent.getFileDataNotNull(fileName);
     }
 
     @Override
     public List<SwimlaneDefinition> getSwimlanes() {
-        return parentProcessDefinition.getSwimlanes();
+        return parent.getSwimlanes();
     }
 
     @Override
     public SwimlaneDefinition getSwimlane(String swimlaneName) {
-        return parentProcessDefinition.getSwimlane(swimlaneName);
+        return parent.getSwimlane(swimlaneName);
     }
 
     @Override
     public SwimlaneDefinition getSwimlaneNotNull(String swimlaneName) {
-        return parentProcessDefinition.getSwimlaneNotNull(swimlaneName);
+        return parent.getSwimlaneNotNull(swimlaneName);
     }
 
 }

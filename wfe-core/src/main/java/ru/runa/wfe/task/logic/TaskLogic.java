@@ -32,7 +32,7 @@ import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.MultiTaskNode;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.Synchronizable;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -91,10 +91,10 @@ public class TaskLogic extends WfCommonLogic {
             if (variables == null) {
                 variables = Maps.newHashMap();
             }
-            ProcessDefinition processDefinition = getDefinition(task);
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
+            ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, task);
             TaskCompletionBy completionBy = checkCanParticipate(user.getActor(), task);
-            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNodeNotNull(task.getNodeId());
             if (swimlaneActorId != null) {
                 Actor swimlaneActor = executorDao.getActor(swimlaneActorId);
                 checkCanParticipate(swimlaneActor, task);
@@ -124,7 +124,7 @@ public class TaskLogic extends WfCommonLogic {
                 }
             }
             VariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
-            validateVariables(user, executionContext, validationVariableProvider, processDefinition, task.getNodeId(), variables);
+            validateVariables(user, executionContext, validationVariableProvider, parsedProcessDefinition, task.getNodeId(), variables);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
             Transition transition;
@@ -154,8 +154,8 @@ public class TaskLogic extends WfCommonLogic {
         if (task.getIndex() == null) {
             return;
         }
-        ProcessDefinition processDefinition = getDefinition(task);
-        MultiTaskNode node = (MultiTaskNode) processDefinition.getNodeNotNull(task.getNodeId());
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
+        MultiTaskNode node = (MultiTaskNode) parsedProcessDefinition.getNodeNotNull(task.getNodeId());
         for (VariableMapping mapping : node.getVariableMappings()) {
             Set<Map.Entry<String, Object>> entries = new HashSet<>(variables.entrySet());
             for (Map.Entry<String, Object> entry : entries) {
@@ -263,8 +263,8 @@ public class TaskLogic extends WfCommonLogic {
         if (SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
             checkCanParticipate(user.getActor(), task);
         }
-        ProcessDefinition processDefinition = getDefinition(task);
-        AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
+        AssignmentHelper.reassignTask(new ExecutionContext(parsedProcessDefinition, task), task, newExecutor, false);
     }
 
     public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors) {
@@ -294,8 +294,8 @@ public class TaskLogic extends WfCommonLogic {
             permissionDao.setPermissions(delegationGroup, selfPermissions, delegationGroup);
         }
         executorDao.addExecutorsToGroup(executors, delegationGroup);
-        ProcessDefinition processDefinition = getDefinition(task);
-        final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
+        val executionContext = new ExecutionContext(parsedProcessDefinition, task);
         executionContext.addLog(new CurrentTaskDelegationLog(task, user.getActor(), executors));
         AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
     }

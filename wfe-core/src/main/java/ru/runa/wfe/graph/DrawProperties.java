@@ -17,19 +17,15 @@
  */
 package ru.runa.wfe.graph;
 
+import com.google.common.collect.Lists;
 import java.awt.Color;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Lists;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.audit.Severity;
 import ru.runa.wfe.commons.PropertyResources;
 
+@CommonsLog
 public final class DrawProperties {
-    private static final Log log = LogFactory.getLog(DrawProperties.class);
     private static PropertyResources resources = new PropertyResources("graph.properties");
 
     public static final int TRANSITION_DRAW_WIDTH = 1;

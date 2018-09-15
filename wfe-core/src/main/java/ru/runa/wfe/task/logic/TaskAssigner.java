@@ -1,7 +1,6 @@
 package ru.runa.wfe.task.logic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.error.ProcessError;
@@ -12,25 +11,22 @@ import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentException;
 import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
 import ru.runa.wfe.lang.Delegation;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dao.TaskDao;
 
+@CommonsLog
 public class TaskAssigner {
-    private static final Log log = LogFactory.getLog(TaskAssigner.class);
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
-    private TaskDao taskDao;
 
     public boolean assignTask(Task task) {
         ProcessError processError = new ProcessError(ProcessErrorType.assignment, task.getProcess().getId(), task.getNodeId());
         try {
-            ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(task.getProcess());
+            ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(task.getProcess());
             if (task.getSwimlane() != null) {
-                Delegation delegation = processDefinition.getSwimlaneNotNull(task.getSwimlane().getName()).getDelegation();
+                Delegation delegation = parsedProcessDefinition.getSwimlaneNotNull(task.getSwimlane().getName()).getDelegation();
                 AssignmentHandler handler = delegation.getInstance();
-                handler.assign(new ExecutionContext(processDefinition, task), task);
+                handler.assign(new ExecutionContext(parsedProcessDefinition, task), task);
             }
             if (task.getExecutor() != null) {
                 Errors.removeProcessError(processError);
@@ -50,5 +46,4 @@ public class TaskAssigner {
         }
         return false;
     }
-
 }

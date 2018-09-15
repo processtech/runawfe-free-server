@@ -27,7 +27,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.Transition;
 
@@ -54,7 +54,7 @@ public class WfNode implements Serializable {
     }
 
     public WfNode(Node node) {
-        this.parentId = node.getParentElement() instanceof ProcessDefinition ? null : node.getParentElement().getNodeId();
+        this.parentId = node.getParentElement() instanceof ParsedProcessDefinition ? null : node.getParentElement().getNodeId();
         this.id = node.getNodeId();
         this.type = node.getNodeType();
         this.name = node.getName();

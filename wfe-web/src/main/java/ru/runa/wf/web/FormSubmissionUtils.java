@@ -1,16 +1,17 @@
 package ru.runa.wf.web;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.action.ActionForm;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.RequestWebHelper;
 import ru.runa.wf.web.servlet.UploadedFile;
@@ -21,22 +22,16 @@ import ru.runa.wfe.commons.ftl.FreemarkerProcessor;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-
 @SuppressWarnings("unchecked")
+@CommonsLog
 public class FormSubmissionUtils {
     public static final Object IGNORED_VALUE = new Object();
     public static final String INDEXES_SUFFIX = ".indexes";
-    private static final Log log = LogFactory.getLog(FormSubmissionUtils.class);
     private static final String USER_DEFINED_VARIABLES = "UserInputVariables";
     private static final String USER_INPUT_ERRORS = "UserInputErrors";
     private static final String USER_INPUT_FILES = "UserInputFiles";

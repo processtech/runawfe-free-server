@@ -17,14 +17,14 @@
  */
 package ru.runa.wf.logic.bot;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
@@ -46,17 +46,14 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Execute task handlers for particular bot.
- * 
+ *
  * Configures and executes task handler in same method.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -226,7 +223,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                 new TransactionalExecutor() {
 
                     @Override
-                    protected void doExecuteInTransaction() throws Exception {
+                    protected void doExecuteInTransaction() {
                         Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
                     }
                 }.executeInTransaction(false);

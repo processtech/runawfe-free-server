@@ -43,7 +43,7 @@ import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskDeadlineUtils;
@@ -52,16 +52,16 @@ import ru.runa.wfe.task.TaskDeadlineUtils;
  * Modified on 26.02.2009 by gavrusev_sergei
  */
 public class GraphImageBuilder {
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
     private Token highlightedToken;
     private final Map<String, AbstractFigure> allNodeFigures = Maps.newHashMap();
     private final Map<TransitionFigure, RenderHits> transitionFigures = Maps.newHashMap();
     private final Map<AbstractFigure, RenderHits> nodeFigures = Maps.newLinkedHashMap();
     private final boolean smoothTransitions;
 
-    public GraphImageBuilder(ProcessDefinition processDefinition) {
-        this.processDefinition = processDefinition;
-        this.smoothTransitions = DrawProperties.isSmoothLinesEnabled() && processDefinition.getDeployment().getLanguage() == Language.BPMN2;
+    public GraphImageBuilder(ParsedProcessDefinition parsedProcessDefinition) {
+        this.parsedProcessDefinition = parsedProcessDefinition;
+        this.smoothTransitions = DrawProperties.isSmoothLinesEnabled() && parsedProcessDefinition.getProcessDefinition().getLanguage() == Language.BPMN2;
     }
 
     public void setHighlightedToken(Token highlightedToken) {
@@ -70,16 +70,16 @@ public class GraphImageBuilder {
 
     public byte[] createDiagram(Process process, ProcessLogs logs) throws Exception {
         AbstractFigureFactory factory;
-        if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
+        if (parsedProcessDefinition.getProcessDefinition().getLanguage() == Language.BPMN2) {
             factory = new BpmnFigureFactory();
         } else {
             factory = new UmlFigureFactory();
         }
-        for (Node node : processDefinition.getNodes(false)) {
+        for (Node node : parsedProcessDefinition.getNodes(false)) {
             AbstractFigure nodeFigure = factory.createFigure(node, DrawProperties.useEdgingOnly());
             allNodeFigures.put(node.getNodeId(), nodeFigure);
         }
-        for (Node node : processDefinition.getNodes(false)) {
+        for (Node node : parsedProcessDefinition.getNodes(false)) {
             String nodeId = node.getNodeId();
             AbstractFigure nodeFigure = allNodeFigures.get(node.getNodeId());
             Preconditions.checkNotNull(nodeFigure, "Node figure not found by id " + nodeId);
@@ -94,7 +94,7 @@ public class GraphImageBuilder {
                 AbstractFigure figureTo = allNodeFigures.get(transition.getTo().getTransitionNodeId(true));
                 TransitionFigure transitionFigure = factory.createTransitionFigure();
                 transitionFigure.init(transition, nodeFigure, figureTo, smoothTransitions);
-                if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
+                if (parsedProcessDefinition.getProcessDefinition().getLanguage() == Language.BPMN2) {
                     transitionFigure.setExclusive(node.getNodeType() != NodeType.PARALLEL_GATEWAY && leavingTransitionsCount > 1);
                 }
                 nodeFigure.addTransition(transitionFigure);
@@ -104,7 +104,7 @@ public class GraphImageBuilder {
             }
         }
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
-            Transition transition = transitionLog.getTransitionOrNull(processDefinition);
+            Transition transition = transitionLog.getTransitionOrNull(parsedProcessDefinition);
             if (transition != null) {
                 RenderHits renderHits = new RenderHits(DrawProperties.getHighlightColor(), true);
                 // Mark 'from' block as PASSED
@@ -130,7 +130,7 @@ public class GraphImageBuilder {
         }
         fillActiveSubprocesses(process.getRootToken());
         fillTasks(logs);
-        GraphImage graphImage = new GraphImage(processDefinition, transitionFigures, nodeFigures);
+        GraphImage graphImage = new GraphImage(parsedProcessDefinition, transitionFigures, nodeFigures);
         return graphImage.getImageBytes();
     }
 
@@ -138,8 +138,8 @@ public class GraphImageBuilder {
         for (Token childToken : token.getActiveChildren()) {
             fillActiveSubprocesses(childToken);
         }
-        if (processDefinition.getNode(token.getNodeId()) != null && token.getNodeNotNull(processDefinition) instanceof SubprocessNode) {
-            AbstractFigure node = allNodeFigures.get(token.getNodeNotNull(processDefinition).getNodeId());
+        if (parsedProcessDefinition.getNode(token.getNodeId()) != null && token.getNodeNotNull(parsedProcessDefinition) instanceof SubprocessNode) {
+            AbstractFigure node = allNodeFigures.get(token.getNodeNotNull(parsedProcessDefinition).getNodeId());
             Color color;
             if (highlightedToken != null && Objects.equal(highlightedToken.getId(), token.getId())) {
                 color = DrawProperties.getHighlightColor();

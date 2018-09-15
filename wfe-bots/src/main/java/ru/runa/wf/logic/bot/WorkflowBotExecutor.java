@@ -26,9 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -41,8 +40,8 @@ import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -61,12 +60,12 @@ import ru.runa.wfe.user.User;
  * @author Dofs
  * @since 4.0
  */
+@CommonsLog
 public class WorkflowBotExecutor {
-    private static final Log log = LogFactory.getLog(WorkflowBotExecutor.class);
     private final User user;
     private Bot bot;
     private final Map<String, BotTask> botTasks = Maps.newHashMap();
-    private final Set<WorkflowBotTaskExecutor> botTaskExecutors = new HashSet<WorkflowBotTaskExecutor>();
+    private final Set<WorkflowBotTaskExecutor> botTaskExecutors = new HashSet<>();
 
     public WorkflowBotExecutor(User user, Bot bot, List<BotTask> tasks) {
         this.user = user;
@@ -119,7 +118,7 @@ public class WorkflowBotExecutor {
     }
 
     public Set<WfTask> getNewTasks() {
-        Set<WfTask> result = new HashSet<WfTask>();
+        Set<WfTask> result = new HashSet<>();
         for (Iterator<WorkflowBotTaskExecutor> botIterator = botTaskExecutors.iterator(); botIterator.hasNext();) {
             WorkflowBotTaskExecutor taskExecutor = botIterator.next();
             if (taskExecutor.getExecutionStatus() == WorkflowBotTaskExecutionStatus.COMPLETED) {
@@ -158,13 +157,13 @@ public class WorkflowBotExecutor {
                     }
                 } else {
                     if (StringUtils.startsWith(task.getNodeId(), FileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
-                        ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user,
+                        ParsedProcessDefinition parsedProcessDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user,
                                 task.getDefinitionId());
-                        Node taskNode = processDefinition.getNode(task.getNodeId());
+                        Node taskNode = parsedProcessDefinition.getNode(task.getNodeId());
 
-                        SubprocessDefinition subprocessDefinition = (SubprocessDefinition) taskNode.getProcessDefinition();
-                        String embeddedSubprocessNodeId = processDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
-                        SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNode(embeddedSubprocessNodeId);
+                        ParsedSubprocessDefinition subprocessDefinition = (ParsedSubprocessDefinition) taskNode.getParsedProcessDefinition();
+                        String embeddedSubprocessNodeId = parsedProcessDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
+                        SubprocessNode subprocessNode = (SubprocessNode) parsedProcessDefinition.getNode(embeddedSubprocessNodeId);
 
                         if (subprocessNode.isTransactional()) {
                             bot.bindToEmbeddedSubprocess(task.getProcessId(), subprocessDefinition.getNodeId());
@@ -227,8 +226,8 @@ public class WorkflowBotExecutor {
         if (process.isEnded()) {
             return true;
         }
-        ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
-        SubprocessDefinition subprocessDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
+        ParsedProcessDefinition parsedProcessDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
+        ParsedSubprocessDefinition subprocessDefinition = parsedProcessDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
         List<EmbeddedSubprocessEndNode> endNodes = subprocessDefinition.getEndNodes();
 
         for (EmbeddedSubprocessEndNode endNode : endNodes) {
@@ -247,14 +246,14 @@ public class WorkflowBotExecutor {
         Preconditions.checkArgument(isBotBoundToEmbeddedSubprocess());
 
         WfProcess process = Delegates.getExecutionService().getProcess(user, bot.getBoundProcessId());
-        ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
-        SubprocessDefinition subprocessDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
-        final String embeddedSubprocessNodeId = processDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
+        ParsedProcessDefinition parsedProcessDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
+        ParsedSubprocessDefinition subprocessDefinition = parsedProcessDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
+        final String embeddedSubprocessNodeId = parsedProcessDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
 
         new TransactionalExecutor() {
 
             @Override
-            protected void doExecuteInTransaction() throws Exception {
+            protected void doExecuteInTransaction() {
                 Utils.sendBpmnErrorMessage(bot.getBoundProcessId(), embeddedSubprocessNodeId, new Throwable("Transactional bot " + bot.getUsername()
                         + " timeout expired"));
             }

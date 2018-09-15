@@ -27,10 +27,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wf.logic.bot.BotStationResources;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationDoesNotExistException;
@@ -42,8 +39,8 @@ import ru.runa.wfe.service.delegate.Delegates;
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @WebService(name = "BotInvokerAPI", serviceName = "BotInvokerWebService")
 @SOAPBinding
+@CommonsLog
 public class BotInvokerServiceBean implements BotInvokerService {
-    private static final Log log = LogFactory.getLog(BotInvokerServiceBean.class);
     @Resource
     private TimerService timerService;
     private boolean firstInvocation;

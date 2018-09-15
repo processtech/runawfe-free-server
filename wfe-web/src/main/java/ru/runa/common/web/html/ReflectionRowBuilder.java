@@ -333,11 +333,11 @@ public class ReflectionRowBuilder implements RowBuilder {
         }
 
         @Override
-        public String getConfirmationMessage(Long pid) {
+        public String getConfirmationMessage(Long processDefinitionVersionId) {
             if (ru.runa.common.WebResources.ACTION_MAPPING_START_PROCESS.equals(basePartOfUrlToObject)
                     && ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_PARAMETER)
                     || ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER)) {
-                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getUser(), pid);
+                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getUser(), processDefinitionVersionId);
                 if (!(interaction.hasForm() || interaction.getOutputTransitions().size() > 1)) {
                     String actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
                     return ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(actionParameter, getPageContext());

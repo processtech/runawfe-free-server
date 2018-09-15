@@ -1,23 +1,18 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.testng.annotations.Test;
 import org.testng.collections.Lists;
 
-import com.google.common.collect.Maps;
-
 /**
  * @author Alekseev Vitaly
- * @since Apr 4, 2017
  */
+@CommonsLog
 public class DocxFileChangerLoopsWithGroovyTest extends DocxFileChangerTest {
-
-    private static final Log log = LogFactory.getLog(DocxFileChangerLoopsWithGroovyTest.class);
 
     public static final List<?> getList(Long arg) {
         log.info("getList: " + arg);
@@ -32,9 +27,9 @@ public class DocxFileChangerLoopsWithGroovyTest extends DocxFileChangerTest {
             return result;
         }
         List<Map.Entry<String, String>> result = Lists.newArrayList();
-        result.add(Maps.<String, String> immutableEntry("key0", "value0"));
-        result.add(Maps.<String, String> immutableEntry("key1", "value1"));
-        result.add(Maps.<String, String> immutableEntry("key2", "value2"));
+        result.add(Maps.immutableEntry("key0", "value0"));
+        result.add(Maps.immutableEntry("key1", "value1"));
+        result.add(Maps.immutableEntry("key2", "value2"));
         return result;
     }
 

@@ -11,12 +11,12 @@ import ru.runa.wfe.audit.QCurrentNodeEnterLog;
 import ru.runa.wfe.audit.QCurrentProcessLog;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 
 /**
  * DAO for {@link CurrentProcessLog}.
- * 
+ *
  * @author dofs
  */
 @Component
@@ -35,11 +35,11 @@ public class CurrentProcessLogDao extends GenericDao<CurrentProcessLog> {
         return queryFactory.selectFrom(pl).where(pl.processId.eq(processId)).orderBy(pl.id.asc()).fetch();
     }
 
-    List<CurrentProcessLog> get(CurrentProcess process, ProcessDefinition definition) {
+    List<CurrentProcessLog> get(CurrentProcess process, ParsedProcessDefinition definition) {
         val pl = QCurrentProcessLog.currentProcessLog;
         return queryFactory.selectFrom(pl)
                 .where(pl.processId.eq(process.getId()))
-                .where(definition instanceof SubprocessDefinition ? pl.nodeId.like(definition.getNodeId() + ".%") : pl.nodeId.notLike("sub%"))
+                .where(definition instanceof ParsedSubprocessDefinition ? pl.nodeId.like(definition.getNodeId() + ".%") : pl.nodeId.notLike("sub%"))
                 .orderBy(pl.id.asc())
                 .fetch();
     }

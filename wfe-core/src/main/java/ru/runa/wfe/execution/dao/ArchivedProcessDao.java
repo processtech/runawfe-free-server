@@ -8,7 +8,6 @@ import java.util.Set;
 import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.ReadOnlyGenericDao;
-import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.QArchivedProcess;
@@ -27,9 +26,9 @@ public class ArchivedProcessDao extends ReadOnlyGenericDao<ArchivedProcess> {
         return queryFactory.selectFrom(p).where(p.id.in(ids)).fetch();
     }
 
-    public boolean processesExist(Deployment d) {
+    public boolean processesExist(long processDefinitionId) {
         val p = QArchivedProcess.archivedProcess;
-        return queryFactory.select(p.id).from(p).where(p.deployment.id.eq(d.getId())).limit(1).fetchFirst() != null;
+        return queryFactory.select(p.id).from(p).where(p.definitionVersion.definition.id.eq(processDefinitionId)).limit(1).fetchFirst() != null;
     }
 
     Set<Long> getDependentProcessIds(Executor executor, int limit) {
@@ -52,10 +51,10 @@ public class ArchivedProcessDao extends ReadOnlyGenericDao<ArchivedProcess> {
         val p = QArchivedProcess.archivedProcess;
         val q = queryFactory.selectFrom(p).where();
         if (filter.getDefinitionName() != null) {
-            q.where(p.deployment.name.eq(filter.getDefinitionName()));
+            q.where(p.definitionVersion.definition.name.eq(filter.getDefinitionName()));
         }
         if (filter.getDefinitionVersion() != null) {
-            q.where(p.deployment.version.eq(filter.getDefinitionVersion()));
+            q.where(p.definitionVersion.version.eq(filter.getDefinitionVersion()));
         }
         if (filter.getId() != null) {
             q.where(p.id.eq(filter.getId()));

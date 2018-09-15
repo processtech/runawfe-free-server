@@ -38,7 +38,7 @@ public interface SubstitutionCache {
      *            Flag, equals true if substitution rules may be loaded from database if cache is empty and false to return null in this case.
      * @return {@link Map} from substitution rule to {@link Set} of substitutor id's.
      */
-    public TreeMap<Substitution, Set<Long>> getSubstitutors(Actor actor, boolean loadIfRequired);
+    TreeMap<Substitution, Set<Long>> getSubstitutors(Actor actor, boolean loadIfRequired);
 
     /**
      * Try to get substitutors for actor. If cache is not initialized or substitutors not found this method will not query database - it returns null
@@ -48,7 +48,7 @@ public interface SubstitutionCache {
      *            Actor, to get substitutors.
      * @return Substitutors for actor or null, if substitutors not initialized for actor.
      */
-    public TreeMap<Substitution, Set<Long>> tryToGetSubstitutors(Actor actor);
+    TreeMap<Substitution, Set<Long>> tryToGetSubstitutors(Actor actor);
 
     /**
      * Returns all inactive {@link Actor}'s, which has at least one substitution rule with specified actor as substitutor.
@@ -57,5 +57,5 @@ public interface SubstitutionCache {
      *            {@link Actor}, which substituted actors will be returned.
      * @return All inactive {@link Actor} id's, which has at least one substitution rule with specified actor as substitutor.
      */
-    public Set<Long> getSubstituted(Actor actor);
+    Set<Long> getSubstituted(Actor actor);
 }

@@ -12,7 +12,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 /**
  * No setters here and in ArchivedToken subclass since the latter is read-only; only CurrentToken subclass is mutable and thus has setters.
@@ -80,8 +80,8 @@ public abstract class Token {
         return nodeId;
     }
 
-    public Node getNodeNotNull(ProcessDefinition processDefinition) {
-        return processDefinition.getNodeNotNull(nodeId);
+    public Node getNodeNotNull(ParsedProcessDefinition parsedProcessDefinition) {
+        return parsedProcessDefinition.getNodeNotNull(nodeId);
     }
 
     public String getTransitionId() {

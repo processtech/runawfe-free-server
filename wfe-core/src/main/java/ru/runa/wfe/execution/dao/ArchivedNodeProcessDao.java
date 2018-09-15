@@ -8,9 +8,6 @@ import ru.runa.wfe.commons.dao.ReadOnlyGenericDao;
 import ru.runa.wfe.execution.ArchivedNodeProcess;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.ArchivedToken;
-import ru.runa.wfe.execution.CurrentNodeProcess;
-import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.QArchivedNodeProcess;
 
 @Component

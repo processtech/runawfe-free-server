@@ -39,15 +39,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import ru.runa.wfe.InternalApplicationException;
 
+@CommonsLog
 public class ClassLoaderUtil {
-    private static final Log log = LogFactory.getLog(ClassLoaderUtil.class);
     private static final ClassLoader extensionClassLoader;
     private static final PathMatchingResourcePatternResolver resourcePatternResolver;
     static {
@@ -105,11 +104,11 @@ public class ClassLoaderUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Object> T instantiate(String className) {
+    public static <T> T instantiate(String className) {
         return (T) instantiate(loadClass(className));
     }
 
-    public static <T extends Object> T instantiate(Class<T> clazz) {
+    public static <T> T instantiate(Class<T> clazz) {
         try {
             return clazz.newInstance();
         } catch (Exception e) {

@@ -77,11 +77,11 @@ public class OrgFunctionHelper {
     // if (function.getRelationName() == null) {
     // return executors;
     // }
-    // ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDao();
+    // ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
     // Set<Executor> relationExecutorsSet = new HashSet<Executor>();
     // for (Executor executor : executors) {
     // relationExecutorsSet.add(executor);
-    // relationExecutorsSet.addAll(executorDAO.getExecutorParentsAll(executor));
+    // relationExecutorsSet.addAll(executorDao.getExecutorParentsAll(executor));
     // }
     // Set<Executor> resultSet = Sets.newHashSet();
     // Relation relation =

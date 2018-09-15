@@ -28,8 +28,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.security.logic.AuthenticationLogic;
@@ -48,8 +47,8 @@ import ru.runa.wfe.user.User;
 @Interceptors({ EjbExceptionSupport.class, PerformanceSimpleObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "AuthenticationAPI", serviceName = "AuthenticationWebService")
 @SOAPBinding
+@CommonsLog
 public class AuthenticationServiceBean implements AuthenticationServiceLocal, AuthenticationServiceRemote {
-    private static final Log log = LogFactory.getLog(AuthenticationServiceBean.class);
     @Autowired
     private AuthenticationLogic authenticationLogic;
     @Resource

@@ -1,25 +1,13 @@
 package ru.runa.wfe.commons.cache.sm;
 
 import java.util.concurrent.atomic.AtomicReference;
-
 import javax.transaction.Transaction;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.type.Type;
-
-import ru.runa.wfe.commons.SystemProperties;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
-import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
-import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
-import ru.runa.wfe.commons.cache.states.DefaultCacheStateFactory;
-import ru.runa.wfe.commons.cache.states.DefaultStateContext;
-import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
 import ru.runa.wfe.commons.cache.states.StateCommandResult;
 import ru.runa.wfe.commons.cache.states.StateCommandResultWithCache;
 import ru.runa.wfe.commons.cache.states.StateCommandResultWithData;
@@ -32,46 +20,65 @@ import ru.runa.wfe.commons.cache.states.audit.GetCacheAudit;
 import ru.runa.wfe.commons.cache.states.audit.InitializationErrorAudit;
 import ru.runa.wfe.commons.cache.states.audit.OnChangeAudit;
 import ru.runa.wfe.commons.cache.states.audit.StageSwitchAudit;
-import ru.runa.wfe.commons.cache.states.nonruntime.NonRuntimeCacheContext;
-import ru.runa.wfe.commons.cache.states.nonruntime.NonRuntimeCacheStateFactory;
 
 /**
  * State machine for managing cache lifetime.
  */
-public class CacheStateMachine<CacheImpl extends CacheImplementation, StateContext> implements CacheInitializationCallback<CacheImpl, StateContext> {
+@CommonsLog
+public class CacheStateMachine<CacheImpl extends CacheImplementation> implements CacheInitializationCallback<CacheImpl> {
 
     /**
-     * Logging support.
+     * Factory, used to create cache instances.
      */
-    private static final Log log = LogFactory.getLog(CacheStateMachine.class);
+    private final SMCacheFactory<CacheImpl> cacheFactory;
 
     /**
-     * Cache state machine context with common used data.
+     * Factory to create states.
      */
-    private final CacheStateMachineContext<CacheImpl, StateContext> context;
+    private final CacheStateFactory<CacheImpl> stateFactory;
+
+    /**
+     * Monitor, used for exclusive access.
+     */
+    private final Object monitor;
 
     /**
      * Current cache lifetime state.
      */
-    private final AtomicReference<CacheState<CacheImpl, StateContext>> state;
+    private final AtomicReference<CacheState<CacheImpl>> state;
 
     /**
      * Component for state machine actions audit.
      */
-    private final CacheStateMachineAudit<CacheImpl, StateContext> audit;
+    private final CacheStateMachineAudit<CacheImpl> audit;
 
-    public CacheStateMachine(CacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl, StateContext> stateFactory, Object monitor) {
-        CacheTransactionalExecutor transactionalExecutor = new DefaultCacheTransactionalExecutor();
-        context = new CacheStateMachineContext<CacheImpl, StateContext>(cacheFactory, this, transactionalExecutor, monitor, stateFactory);
-        state = new AtomicReference<CacheState<CacheImpl, StateContext>>(context.getStateFactory().createEmptyState(null, null));
-        audit = new DefaultCacheStateMachineAudit<CacheImpl, StateContext>();
+    /**
+     * @param cacheFactory
+     *            Factory to create cache instances.
+     * @param monitor
+     *            Monitor, used for exclusive access.
+     * @param audit
+     *            Used for unit-tests; other code should use another constructor overload.
+     */
+    public CacheStateMachine(SMCacheFactory<CacheImpl> cacheFactory, Object monitor, CacheStateMachineAudit<CacheImpl> audit) {
+        this.cacheFactory = cacheFactory;
+        this.stateFactory = cacheFactory.stateFactory;
+        stateFactory.setOwner(this);
+        this.monitor = monitor;
+        state = new AtomicReference<>(stateFactory.createEmptyState(null));
+        this.audit = audit;
     }
 
-    public CacheStateMachine(CacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl, StateContext> stateFactory, Object monitor,
-            CacheTransactionalExecutor transactionalExecutor, CacheStateMachineAudit<CacheImpl, StateContext> audit) {
-        context = new CacheStateMachineContext<CacheImpl, StateContext>(cacheFactory, this, transactionalExecutor, monitor, stateFactory);
-        state = new AtomicReference<CacheState<CacheImpl, StateContext>>(context.getStateFactory().createEmptyState(null, null));
-        this.audit = audit;
+    public CacheStateMachine(SMCacheFactory<CacheImpl> cacheFactory, Object monitor) {
+        this(cacheFactory, monitor, new DefaultCacheStateMachineAudit<>());
+    }
+
+    public SMCacheFactory<CacheImpl> getCacheFactory() {
+        return cacheFactory;
+    }
+
+    public CacheStateFactory<CacheImpl> getStateFactory() {
+        return stateFactory;
     }
 
     /**
@@ -98,13 +105,13 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
      * @param transaction
      *            Transaction, requested cache.
      * @param isWriteTransaction
-     *            Flag, equals true, if transaction is changing some cache related objects (not for this cache, but others) and false otherwise.
+     *            True if transaction is changing some cache related objects (not for this cache, but others) and false otherwise.
      * @return Returns cache.
      */
     public CacheImpl getCache(Transaction transaction, boolean isWriteTransaction) {
-        GetCacheAudit<CacheImpl, StateContext> commandAudit = audit.auditGetCache();
+        GetCacheAudit<CacheImpl> commandAudit = audit.auditGetCache();
         while (true) {
-            CacheState<CacheImpl, StateContext> currentState = state.get();
+            CacheState<CacheImpl> currentState = state.get();
             CacheImpl quickResult = currentState.getCacheQuickNoBuild(transaction);
             if (quickResult != null) {
                 commandAudit.quickResult(transaction, quickResult);
@@ -112,16 +119,16 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
             }
             if (isWriteTransaction) {
                 commandAudit.beforeCreation(transaction);
-                StateCommandResultWithCache<CacheImpl, StateContext> result = currentState.getCache(context, transaction);
+                StateCommandResultWithCache<CacheImpl> result = currentState.getCache(transaction);
                 commandAudit.afterCreation(transaction, result.getCache());
                 if (applyCommandResult(currentState, result, commandAudit)) {
                     return result.getCache();
                 }
             } else {
-                synchronized (context.getMonitor()) {
+                synchronized (monitor) {
                     currentState = state.get();
                     commandAudit.beforeCreation(transaction);
-                    StateCommandResultWithCache<CacheImpl, StateContext> result = currentState.getCache(context, transaction);
+                    StateCommandResultWithCache<CacheImpl> result = currentState.getCache(transaction);
                     commandAudit.afterCreation(transaction, result.getCache());
                     if (applyCommandResult(currentState, result, commandAudit)) {
                         return result.getCache();
@@ -141,9 +148,9 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
      * @return Returns cache or null, if cache is locked.
      */
     public CacheImpl getCacheIfNotLocked(Transaction transaction, boolean isWriteTransaction) {
-        GetCacheAudit<CacheImpl, StateContext> commandAudit = audit.auditGetCache();
+        GetCacheAudit<CacheImpl> commandAudit = audit.auditGetCache();
         while (true) {
-            CacheState<CacheImpl, StateContext> currentState = state.get();
+            CacheState<CacheImpl> currentState = state.get();
             CacheImpl quickResult = currentState.getCacheQuickNoBuild(transaction);
             if (quickResult != null) {
                 commandAudit.quickResult(transaction, quickResult);
@@ -154,16 +161,16 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
             }
             if (isWriteTransaction) {
                 commandAudit.beforeCreation(transaction);
-                StateCommandResultWithCache<CacheImpl, StateContext> result = currentState.getCacheIfNotLocked(context, transaction);
+                StateCommandResultWithCache<CacheImpl> result = currentState.getCacheIfNotLocked(transaction);
                 commandAudit.afterCreation(transaction, result.getCache());
                 if (applyCommandResult(currentState, result, commandAudit)) {
                     return result.getCache();
                 }
             } else {
-                synchronized (context.getMonitor()) {
+                synchronized (monitor) {
                     currentState = state.get();
                     commandAudit.beforeCreation(transaction);
-                    StateCommandResultWithCache<CacheImpl, StateContext> result = currentState.getCacheIfNotLocked(context, transaction);
+                    StateCommandResultWithCache<CacheImpl> result = currentState.getCacheIfNotLocked(transaction);
                     commandAudit.afterCreation(transaction, result.getCache());
                     if (applyCommandResult(currentState, result, commandAudit)) {
                         return result.getCache();
@@ -182,11 +189,11 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
      *            Changed object description.
      */
     public void onChange(Transaction transaction, ChangedObjectParameter changedObject) {
-        OnChangeAudit<CacheImpl, StateContext> commandAudit = audit.auditOnChange();
+        OnChangeAudit<CacheImpl> commandAudit = audit.auditOnChange();
         while (true) {
-            CacheState<CacheImpl, StateContext> currentState = state.get();
+            CacheState<CacheImpl> currentState = state.get();
             commandAudit.beforeOnChange(transaction, changedObject);
-            StateCommandResult<CacheImpl, StateContext> result = currentState.onChange(context, transaction, changedObject);
+            StateCommandResult<CacheImpl> result = currentState.onChange(transaction, changedObject);
             commandAudit.afterOnChange(transaction, changedObject);
             if (result.getNextState() == null) {
                 commandAudit.nextStageFatalError();
@@ -204,11 +211,11 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
      * @param transaction
      *            Transaction, which will be completed.
      */
-    public void beforeTransactionComplete(Transaction transaction) {
-        BeforeTransactionCompleteAudit<CacheImpl, StateContext> commandAudit = audit.auditBeforeTransactionComplete();
+    public void onBeforeTransactionComplete(Transaction transaction) {
+        BeforeTransactionCompleteAudit<CacheImpl> commandAudit = audit.auditBeforeTransactionComplete();
         while (true) {
-            CacheState<CacheImpl, StateContext> currentState = state.get();
-            StateCommandResult<CacheImpl, StateContext> result = currentState.beforeTransactionComplete(context, transaction);
+            CacheState<CacheImpl> currentState = state.get();
+            StateCommandResult<CacheImpl> result = currentState.onBeforeTransactionComplete(transaction);
             if (applyCommandResult(currentState, result, commandAudit)) {
                 return;
             }
@@ -221,16 +228,16 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
      * @param transaction
      *            Completed transaction.
      */
-    public void onTransactionCompleted(Transaction transaction) {
-        CompleteTransactionAudit<CacheImpl, StateContext> commandAudit = audit.auditCompleteTransaction();
+    public void onAfterTransactionComplete(Transaction transaction) {
+        CompleteTransactionAudit<CacheImpl> commandAudit = audit.auditCompleteTransaction();
         while (true) {
-            CacheState<CacheImpl, StateContext> currentState = state.get();
+            CacheState<CacheImpl> currentState = state.get();
             commandAudit.beforeCompleteTransaction(transaction);
-            StateCommandResultWithData<CacheImpl, Boolean, StateContext> result = currentState.completeTransaction(context, transaction);
+            StateCommandResultWithData<CacheImpl, Boolean> result = currentState.onAfterTransactionComplete(transaction);
             commandAudit.afterCompleteTransaction(transaction);
             if (result.getNextState() == null) {
                 commandAudit.nextStageFatalError();
-                log.error("completeTransaction must lead to state switch. Incorrect behaviour on state " + currentState.getClass().getName());
+                log.error("onAfterTransactionComplete must lead to state switch. Incorrect behaviour on state " + currentState.getClass().getName());
             }
             if (applyCommandResult(currentState, result, commandAudit)) {
                 if (result.getData()) {
@@ -242,15 +249,15 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
     }
 
     @Override
-    public void commitCache(CacheState<CacheImpl, StateContext> commitedState, CacheImpl cache) {
-        CommitCacheAudit<CacheImpl, StateContext> commandAudit = audit.auditCommitCache();
-        CacheState<CacheImpl, StateContext> currentState = state.get();
+    public void commitCache(CacheState<CacheImpl> commitedState, CacheImpl cache) {
+        CommitCacheAudit<CacheImpl> commandAudit = audit.auditCommitCache();
+        CacheState<CacheImpl> currentState = state.get();
         if (commitedState != currentState) {
             commandAudit.stageIsNotCommitStage(cache);
             return;
         }
         commandAudit.beforeCommit(cache);
-        StateCommandResult<CacheImpl, StateContext> result = currentState.commitCache(context, cache);
+        StateCommandResult<CacheImpl> result = currentState.commitCache(cache);
         commandAudit.afterCommit(cache);
         if (result.getNextState() == null) {
             commandAudit.nextStageFatalError();
@@ -258,26 +265,26 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
         }
         // If state machine can't switch, when cache state is changed. Saving this cache is incorrect, so return without saving cache.
         if (applyCommandResult(currentState, result, commandAudit)) {
-            CachingLogic.onChange(cache, Change.UPDATE, new Object[] {}, new Object[] {}, new String[] {}, new Type[] {});
+            CachingLogic.onChange(cache, Change.UPDATE, new Object[] {}, new Object[] {}, new String[] {});
         }
     }
 
     @Override
-    public void onError(CacheState<CacheImpl, StateContext> commitedState, Throwable e) {
-        InitializationErrorAudit<CacheImpl, StateContext> commandAudit = audit.auditInitializationError();
+    public void onError(CacheState<CacheImpl> commitedState, Throwable e) {
+        InitializationErrorAudit<CacheImpl> commandAudit = audit.auditInitializationError();
         log.error("cache initialization throws exception", e);
         commandAudit.onInitializationError(e);
-        StateCommandResult<CacheImpl, StateContext> result = StateCommandResult.create(context.getStateFactory().createEmptyState(null, null));
+        StateCommandResult<CacheImpl> result = StateCommandResult.create(getStateFactory().createEmptyState(null));
         applyCommandResult(commitedState, result, commandAudit);
     }
 
     /**
-     * Drops cache and moving to empty state.
+     * Drops cache and moves to empty state.
      */
     public void dropCache() {
-        StageSwitchAudit<CacheImpl, StateContext> commandAudit = audit.auditUninitialize();
-        CacheState<CacheImpl, StateContext> currentState = state.get();
-        while (!applyCommandResult(currentState, currentState.dropCache(context), commandAudit)) {
+        StageSwitchAudit<CacheImpl> commandAudit = audit.auditDropCache();
+        CacheState<CacheImpl> currentState = state.get();
+        while (!applyCommandResult(currentState, currentState.dropCache(), commandAudit)) {
             currentState = state.get();
         }
     }
@@ -293,9 +300,9 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
      *            Object for state machine action audit.
      * @return Returns true, if command result successfully applied and false otherwise (no changes was made).
      */
-    private boolean applyCommandResult(CacheState<CacheImpl, StateContext> currentState, StateCommandResult<CacheImpl, StateContext> result,
-            StageSwitchAudit<CacheImpl, StateContext> commandAudit) {
-        CacheState<CacheImpl, StateContext> nextState = result.getNextState();
+    private boolean applyCommandResult(CacheState<CacheImpl> currentState, StateCommandResult<CacheImpl> result,
+            StageSwitchAudit<CacheImpl> commandAudit) {
+        CacheState<CacheImpl> nextState = result.getNextState();
         if (nextState == null) {
             commandAudit.stayStage();
             return true;
@@ -310,265 +317,11 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
         if (state.compareAndSet(currentState, nextState)) {
             commandAudit.stageSwitched(currentState, nextState);
             currentState.discard();
-            nextState.accept(context);
+            nextState.accept();
             return true;
         }
         commandAudit.stageSwitchFailed(currentState, nextState);
         nextState.discard();
         return false;
-    }
-
-    /**
-     * Creates default implementation of cache state machine for cache, initialized via {@link LazyInitializedCacheFactory}.
-     *
-     * @param factory
-     *            Factory to create cache instances.
-     * @param monitor
-     *            Monitor, used for exclusive access.
-     * @return Returns cache state machine for cache control.
-     */
-    public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl, DefaultStateContext> createStateMachine(
-            LazyInitializedCacheFactory<CacheImpl> factory, Object monitor) {
-        DefaultCacheTransactionalExecutor transactionalExecutor = new DefaultCacheTransactionalExecutor();
-        boolean isIsolated = SystemProperties.useIsolatedCacheStateMachine();
-        CacheStateFactory<CacheImpl, DefaultStateContext> stateFactory =
-                isIsolated ? new IsolatedCacheStateFactory<CacheImpl>() : new DefaultCacheStateFactory<CacheImpl>();
-        LazyCacheFactoryImpl<CacheImpl> cacheFactory = new LazyCacheFactoryImpl<CacheImpl>(factory, transactionalExecutor);
-        return new CacheStateMachine<CacheImpl, DefaultStateContext>(cacheFactory, stateFactory, monitor);
-    }
-
-    /**
-     * Creates default implementation of cache state machine for cache, initialized via {@link StaticCacheFactory}.
-     *
-     * @param factory
-     *            Factory to create cache instances.
-     * @param monitor
-     *            Monitor, used for exclusive access.
-     * @return Returns cache state machine for cache control.
-     */
-    public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl, DefaultStateContext> createStateMachine(
-            StaticCacheFactory<CacheImpl> factory, Object monitor) {
-        boolean isIsolated = SystemProperties.useIsolatedCacheStateMachine();
-        CacheStateFactory<CacheImpl, DefaultStateContext> stateFactory =
-                isIsolated ? new IsolatedCacheStateFactory<CacheImpl>() : new DefaultCacheStateFactory<CacheImpl>();
-        StaticCacheFactoryImpl<CacheImpl> cacheFactory = new StaticCacheFactoryImpl<CacheImpl>(factory);
-        return new CacheStateMachine<CacheImpl, DefaultStateContext>(cacheFactory, stateFactory, monitor);
-    }
-
-    /**
-     * Creates default implementation of cache state machine for cache, initialized via {@link NonRuntimeCacheFactory}.
-     *
-     * @param factory
-     *            Factory to create cache instances.
-     * @param monitor
-     *            Monitor, used for exclusive access.
-     * @return Returns cache state machine for cache control.
-     */
-    public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl, NonRuntimeCacheContext> createStateMachine(
-            NonRuntimeCacheFactory<CacheImpl> factory, Object monitor) {
-        DefaultCacheTransactionalExecutor transactionalExecutor = new DefaultCacheTransactionalExecutor();
-        CacheStateFactory<CacheImpl, NonRuntimeCacheContext> stateFactory = new NonRuntimeCacheStateFactory<CacheImpl>();
-        NonRuntimeCacheFactoryImpl<CacheImpl> cacheFactory = new NonRuntimeCacheFactoryImpl<CacheImpl>(factory, transactionalExecutor);
-        return new CacheStateMachine<CacheImpl, NonRuntimeCacheContext>(cacheFactory, stateFactory, monitor);
-    }
-
-    /**
-     * Creates implementation of cache state machine for cache, initialized via {@link LazyInitializedCacheFactory}. Used for tests and receives all
-     * parameters.
-     *
-     * @param factory
-     *            Factory to create cache instances.
-     * @param monitor
-     *            Monitor, used for exclusive access.
-     * @param transactionalExecutor
-     *            Implementation for executing cache initialization in transaction.
-     * @param audit
-     *            Audit interface implementation for audit state machine actions.
-     * @return Returns cache state machine for cache control.
-     */
-    public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl, DefaultStateContext> createStateMachine(
-            LazyInitializedCacheFactory<CacheImpl> factory, CacheStateFactory<CacheImpl, DefaultStateContext> stateFactory, Object monitor,
-            CacheTransactionalExecutor transactionalExecutor, CacheStateMachineAudit<CacheImpl, DefaultStateContext> audit) {
-        LazyCacheFactoryImpl<CacheImpl> cacheFactory = new LazyCacheFactoryImpl<CacheImpl>(factory, transactionalExecutor);
-        return new CacheStateMachine<CacheImpl, DefaultStateContext>(cacheFactory, stateFactory, monitor, transactionalExecutor, audit);
-    }
-
-    /**
-     * Factory for adopt {@link NonRuntimeCacheFactory} implementation for state machine.
-     *
-     * @param <CacheImpl>
-     *            Cache implementation type.
-     */
-    final static class NonRuntimeCacheFactoryImpl<CacheImpl extends CacheImplementation> implements CacheFactory<CacheImpl> {
-        /**
-         * Delegated (adopted) factory.
-         */
-        private final NonRuntimeCacheFactory<CacheImpl> factory;
-
-        /**
-         * Instance of {@link CacheTransactionalExecutor} for executing initialization in transaction.
-         */
-        private final CacheTransactionalExecutor transactionalExecutor;
-
-        public NonRuntimeCacheFactoryImpl(NonRuntimeCacheFactory<CacheImpl> factory, CacheTransactionalExecutor transactionalExecutor) {
-            super();
-            this.factory = factory;
-            this.transactionalExecutor = transactionalExecutor;
-        }
-
-        @Override
-        public boolean hasDelayedInitialization() {
-            return true;
-        }
-
-        @Override
-        public CacheImpl createCache() {
-            return factory.createProxy();
-        }
-
-        @Override
-        public void startDelayedInitialization(final CacheInitializationContext<CacheImpl> context) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        final AtomicReference<CacheImpl> cache = new AtomicReference<CacheImpl>();
-                        if (!context.isInitializationStillRequired()) {
-                            return;
-                        }
-                        transactionalExecutor.executeInTransaction(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                if (!context.isInitializationStillRequired()) {
-                                    return;
-                                }
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Creating cache from " + factory);
-                                }
-                                cache.set(factory.buildCache(context));
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Created cache from " + factory + ": " + cache.get());
-                                }
-                                context.onComplete(cache.get());
-                            }
-                        });
-                    } catch (Throwable e) {
-                        context.onError(e);
-                    }
-                }
-            });
-            thread.setDaemon(true);
-            thread.start();
-        }
-    }
-
-    /**
-     * Factory for adopt {@link LazyInitializedCacheFactory} implementation for state machine.
-     *
-     * @param <CacheImpl>
-     *            Cache implementation type.
-     */
-    final static class LazyCacheFactoryImpl<CacheImpl extends CacheImplementation> implements CacheFactory<CacheImpl> {
-        /**
-         * Delegated (adopted) factory.
-         */
-        private final LazyInitializedCacheFactory<CacheImpl> factory;
-
-        /**
-         * Instance of {@link CacheTransactionalExecutor} for executing initialization in transaction.
-         */
-        private final CacheTransactionalExecutor transactionalExecutor;
-
-        public LazyCacheFactoryImpl(LazyInitializedCacheFactory<CacheImpl> factory, CacheTransactionalExecutor transactionalExecutor) {
-            super();
-            this.factory = factory;
-            this.transactionalExecutor = transactionalExecutor;
-        }
-
-        @Override
-        public boolean hasDelayedInitialization() {
-            return true;
-        }
-
-        @Override
-        public CacheImpl createCache() {
-            return factory.createProxy();
-        }
-
-        @Override
-        public void startDelayedInitialization(final CacheInitializationContext<CacheImpl> context) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        final AtomicReference<CacheImpl> cache = new AtomicReference<CacheImpl>();
-                        if (!context.isInitializationStillRequired()) {
-                            return;
-                        }
-                        transactionalExecutor.executeInTransaction(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                if (!context.isInitializationStillRequired()) {
-                                    return;
-                                }
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Creating cache from " + factory);
-                                }
-                                cache.set(factory.buildCache(context));
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Created cache from " + factory + ": " + cache.get());
-                                }
-                                context.onComplete(cache.get());
-                            }
-                        });
-                    } catch (Throwable e) {
-                        context.onError(e);
-                    }
-                }
-            });
-            thread.setDaemon(true);
-            thread.start();
-        }
-    }
-
-    /**
-     * Factory for adopt {@link StaticCacheFactory} implementation for state machine.
-     *
-     * @param <CacheImpl>
-     *            Cache implementation type.
-     */
-    final static class StaticCacheFactoryImpl<CacheImpl extends CacheImplementation> implements CacheFactory<CacheImpl> {
-        /**
-         * Delegated (adopted) factory.
-         */
-        private final StaticCacheFactory<CacheImpl> factory;
-
-        public StaticCacheFactoryImpl(StaticCacheFactory<CacheImpl> factory) {
-            super();
-            this.factory = factory;
-        }
-
-        @Override
-        public boolean hasDelayedInitialization() {
-            return false;
-        }
-
-        @Override
-        public CacheImpl createCache() {
-            if (log.isDebugEnabled()) {
-                log.debug("Creating cache from " + factory);
-            }
-            CacheImpl cache = factory.buildCache();
-            if (log.isDebugEnabled()) {
-                log.debug("Created cache from " + factory + ": " + cache);
-            }
-            return cache;
-        }
-
-        @Override
-        public void startDelayedInitialization(final CacheInitializationContext<CacheImpl> context) {
-        }
     }
 }

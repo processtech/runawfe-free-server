@@ -13,12 +13,12 @@ public interface VersionedCacheData<TData> {
      * 
      * @return Returns data, stored in cache.
      */
-    public TData getData();
+    TData getData();
 
     /**
      * Cache version, which contains data.
      * 
      * @return Returns cache version.
      */
-    public int getVersion();
+    int getVersion();
 }

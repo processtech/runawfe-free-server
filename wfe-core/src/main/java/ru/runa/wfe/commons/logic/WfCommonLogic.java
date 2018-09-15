@@ -28,11 +28,12 @@ import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.dao.SystemLogDao;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
@@ -44,7 +45,7 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
 import ru.runa.wfe.job.dao.JobDao;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.ss.logic.SubstitutionLogic;
 import ru.runa.wfe.task.Task;
@@ -71,9 +72,10 @@ public class WfCommonLogic extends CommonLogic {
     protected ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     protected SubstitutionLogic substitutionLogic;
-
     @Autowired
-    protected DeploymentDao deploymentDao;
+    protected ProcessDefinitionDao processDefinitionDao;
+    @Autowired
+    protected ProcessDefinitionVersionDao processDefinitionVersionDao;
     @Autowired
     protected CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
@@ -99,25 +101,30 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected SystemLogDao systemLogDao;
 
-    public ProcessDefinition getDefinition(Long processDefinitionId) {
-        return processDefinitionLoader.getDefinition(processDefinitionId);
+    public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) {
+        return processDefinitionLoader.getDefinition(processDefinitionVersionId);
     }
 
-    public ProcessDefinition getDefinition(Process process) {
+    public ParsedProcessDefinition getDefinition(Process process) {
         return processDefinitionLoader.getDefinition(process);
     }
 
-    public ProcessDefinition getDefinition(Task task) {
+    public ParsedProcessDefinition getDefinition(Task task) {
         return getDefinition(task.getProcess());
     }
 
-    protected ProcessDefinition getLatestDefinition(String definitionName) {
+    protected ParsedProcessDefinition getLatestDefinition(String definitionName) {
         return processDefinitionLoader.getLatestDefinition(definitionName);
     }
 
+    protected ParsedProcessDefinition getLatestDefinition(long definitionId) {
+        return processDefinitionLoader.getLatestDefinition(definitionId);
+    }
+
     protected void validateVariables(User user, ExecutionContext executionContext, VariableProvider variableProvider,
-            ProcessDefinition processDefinition, String nodeId, Map<String, Object> variables) throws ValidationException {
-        Interaction interaction = processDefinition.getInteractionNotNull(nodeId);
+            ParsedProcessDefinition parsedProcessDefinition, String nodeId, Map<String, Object> variables
+    ) throws ValidationException {
+        Interaction interaction = parsedProcessDefinition.getInteractionNotNull(nodeId);
         if (interaction.getValidationData() != null) {
             ValidatorContext context = ValidatorManager.getInstance().validate(user, executionContext, variableProvider,
                     interaction.getValidationData(), variables);
@@ -211,19 +218,19 @@ public class WfCommonLogic extends CommonLogic {
         currentProcessDao.delete(process);
         taskDao.deleteAll(process);
         currentSwimlaneDao.deleteAll(process);
-        systemLogDao.create(new ProcessDeleteLog(user.getActor().getId(), process.getDeployment().getName(), process.getId()));
+        systemLogDao.create(new ProcessDeleteLog(
+                user.getActor().getId(), process.getDefinitionVersion().getDefinition().getName(), process.getId()
+        ));
     }
 
     /**
      * Loads graph presentation elements for process definition.
      * 
-     * @param user
-     *            Current user.
      * @param visitor
      *            Operation, which must be applied to loaded graph elements, or null, if nothing to apply.
      * @return List of graph presentation elements.
      */
-    public List<NodeGraphElement> getDefinitionGraphElements(User user, ProcessDefinition definition, NodeGraphElementVisitor visitor) {
+    protected List<NodeGraphElement> getDefinitionGraphElements(ParsedProcessDefinition definition, NodeGraphElementVisitor visitor) {
         List<NodeGraphElement> elements = NodeGraphElementBuilder.createElements(definition);
         if (visitor != null) {
             visitor.visit(elements);

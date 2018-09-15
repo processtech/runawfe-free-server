@@ -1,10 +1,13 @@
 package ru.runa.wfe.commons.dbpatch;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import java.sql.Connection;
 import java.sql.Types;
 import java.util.List;
+import lombok.val;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
@@ -12,7 +15,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.Dialect;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
 
@@ -21,15 +23,17 @@ import ru.runa.wfe.commons.DbType;
  * 
  * @author Dofs
  */
+@SuppressWarnings({"unused", "SameParameterValue"})
 public abstract class DbPatch {
-    protected Log log = LogFactory.getLog(getClass());
+    protected final Log log = LogFactory.getLog(getClass());
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
-    protected final DbType dbType = ApplicationContextFactory.getDBType();
+    protected final DbType dbType = ApplicationContextFactory.getDbType();
+
     @Autowired
     protected SessionFactory sessionFactory;
 
     public void execute() throws Exception {
-        Session session = sessionFactory.getCurrentSession();
+        val session = sessionFactory.getCurrentSession();
         executeDDL(session, "[DDLBefore]", getDDLQueriesBefore());
         session.setCacheMode(CacheMode.IGNORE);
         executeDML(session);
@@ -46,10 +50,14 @@ public abstract class DbPatch {
      * 
      * It's allowed to use only raw SQL because hibernate mappings could not work in old DB version.
      * 
-     * This is preferable way to patch database (@see {@link DbPatchPostProcessor}).
+     * @deprecated Use pure JDBC, by overriding {@link #executeDML(Connection)}.
      */
+    @Deprecated
     public void executeDML(Session session) throws Exception {
+        executeDML(session.connection());
+    }
 
+    public void executeDML(Connection conn) throws Exception {
     }
 
     protected List<String> getDDLQueriesAfter() {
@@ -57,10 +65,12 @@ public abstract class DbPatch {
     }
 
     private void executeDDL(Session session, String category, List<String> queries) throws Exception {
-        for (String query : queries) {
-            if (!Strings.isNullOrEmpty(query)) {
-                log.info(category + ": " + query);
-                session.createSQLQuery(query).executeUpdate();
+        try (val stmt = session.connection().createStatement()) {
+            for (val query : queries) {
+                if (!StringUtils.isBlank(query)) {
+                    log.info(category + ": " + query);
+                    stmt.executeUpdate(query);
+                }
             }
         }
     }
@@ -72,13 +82,34 @@ public abstract class DbPatch {
         return null;
     }
 
+    protected final String getDDLDropSequence(String sequenceName) {
+        switch (dbType) {
+            case ORACLE:
+            case POSTGRESQL:
+                return "drop sequence " + sequenceName;
+            default:
+                return null;
+        }
+    }
+
+    protected final String getDDLRenameSequence(String sequenceName, String newName) {
+        switch (dbType) {
+            case ORACLE:
+                return "rename " + sequenceName + " to " + newName;
+            case POSTGRESQL:
+                return "alter sequence " + sequenceName + " rename to " + newName;
+            default:
+                return null;
+        }
+    }
+
     protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions, String unique) {
-        String query = "CREATE TABLE " + tableName + " (";
+        val query = new StringBuilder("CREATE TABLE " + tableName + " (");
         for (ColumnDef columnDef : columnDefinitions) {
             if (columnDefinitions.indexOf(columnDef) > 0) {
-                query += ", ";
+                query.append(", ");
             }
-            query += columnDef.name + " " + columnDef.getSqlTypeName(dialect);
+            query.append(columnDef.name).append(" ").append(columnDef.getSqlTypeName(dialect));
             if (columnDef.primaryKey) {
                 String primaryKeyModifier;
                 switch (dbType) {
@@ -102,37 +133,32 @@ public abstract class DbPatch {
                     primaryKeyModifier = "PRIMARY KEY";
                     break;
                 }
-                query += " " + primaryKeyModifier;
+                query.append(" ").append(primaryKeyModifier);
                 continue;
             }
             if (!columnDef.allowNulls) {
-                query += " NOT NULL";
+                query.append(" NOT NULL");
             }
         }
         if (unique != null) {
-            query += ", UNIQUE " + unique;
+            query.append(", UNIQUE ").append(unique);
         }
-        query += ")";
-        return query;
+        query.append(")");
+        return query.toString();
     }
 
     protected final String getDDLRenameTable(String oldTableName, String newTableName) {
-        String query;
         switch (dbType) {
-        case MSSQL:
-            query = "sp_rename '" + oldTableName + "', '" + newTableName + "'";
-            break;
-        case MYSQL:
-            query = "RENAME TABLE " + oldTableName + " TO " + newTableName;
-            break;
-        default:
-            query = "ALTER TABLE " + oldTableName + " RENAME TO " + newTableName;
-            break;
+            case MSSQL:
+                return "sp_rename '" + oldTableName + "', '" + newTableName + "'";
+            case MYSQL:
+                return "RENAME TABLE " + oldTableName + " TO " + newTableName;
+            default:
+                return "ALTER TABLE " + oldTableName + " RENAME TO " + newTableName;
         }
-        return query;
     }
 
-    protected final String getDDLRemoveTable(String tableName) {
+    protected final String getDDLDropTable(String tableName) {
         return "DROP TABLE " + tableName;
     }
 
@@ -147,25 +173,26 @@ public abstract class DbPatch {
     }
 
     protected final String getDDLRenameIndex(String tableName, String indexName, String newIndexName) {
-        String query;
         switch (dbType) {
-        case MSSQL:
-            query = "sp_rename '" + tableName + "." + indexName + "', '" + newIndexName + "'";
-            break;
-        default:
-            throw new InternalApplicationException("TODO");
+            case MSSQL:
+                return "sp_rename '" + tableName + "." + indexName + "', '" + newIndexName + "'";
+            case H2:
+            case ORACLE:
+            case POSTGRESQL:
+                return "alter index " + indexName + " rename to " + newIndexName;
+            default:
+                throw new NotImplementedException();  // TODO ...
         }
-        return query;
     }
 
-    protected final String getDDLRemoveIndex(String tableName, String indexName) {
+    protected final String getDDLDropIndex(String tableName, String indexName) {
         switch (dbType) {
-        case H2:
-        case ORACLE:
-        case POSTGRESQL:
-            return "DROP INDEX " + indexName;
-        default:
-            return "DROP INDEX " + indexName + " ON " + tableName;
+            case H2:
+            case ORACLE:
+            case POSTGRESQL:
+                return "DROP INDEX " + indexName;
+            default:
+                return "DROP INDEX " + indexName + " ON " + tableName;
         }
     }
 
@@ -179,26 +206,23 @@ public abstract class DbPatch {
     }
 
     protected final String getDDLRenameForeignKey(String keyName, String newKeyName) {
-        String query;
         switch (dbType) {
-        case MSSQL:
-            query = "sp_rename '" + keyName + "', '" + newKeyName + "'";
-            break;
-        default:
-            throw new InternalApplicationException("TODO");
+            case MSSQL:
+                return "sp_rename '" + keyName + "', '" + newKeyName + "'";
+            default:
+                throw new NotImplementedException();  // TODO ...
         }
-        return query;
     }
 
-    protected final String getDDLRemoveForeignKey(String tableName, String keyName) {
+    protected final String getDDLDropForeignKey(String tableName, String keyName) {
         String constraint;
         switch (dbType) {
-        case MYSQL:
-            constraint = "FOREIGN KEY";
-            break;
-        default:
-            constraint = "CONSTRAINT";
-            break;
+            case MYSQL:
+                constraint = "FOREIGN KEY";
+                break;
+            default:
+                constraint = "CONSTRAINT";
+                break;
         }
         return "ALTER TABLE " + tableName + " DROP " + constraint + " " + keyName;
     }
@@ -223,68 +247,50 @@ public abstract class DbPatch {
     }
 
     protected final String getDDLRenameColumn(String tableName, String oldColumnName, ColumnDef newColumnDef) {
-        String query;
         switch (dbType) {
-        case ORACLE:
-        case POSTGRESQL:
-            query = "ALTER TABLE " + tableName + " RENAME COLUMN " + oldColumnName + " TO " + newColumnDef.name;
-            break;
-        case MSSQL:
-            query = "sp_rename '" + tableName + "." + oldColumnName + "', '" + newColumnDef.name + "', 'COLUMN'";
-            break;
-        case MYSQL:
-            query = "ALTER TABLE " + tableName + " CHANGE " + oldColumnName + " " + newColumnDef.name + " " + newColumnDef.getSqlTypeName(dialect);
-            break;
-        default:
-            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + oldColumnName + " RENAME TO " + newColumnDef.name;
-            break;
+            case ORACLE:
+            case POSTGRESQL:
+                return "ALTER TABLE " + tableName + " RENAME COLUMN " + oldColumnName + " TO " + newColumnDef.name;
+            case MSSQL:
+                return "sp_rename '" + tableName + "." + oldColumnName + "', '" + newColumnDef.name + "', 'COLUMN'";
+            case MYSQL:
+                return "ALTER TABLE " + tableName + " CHANGE " + oldColumnName + " " + newColumnDef.name + " " + newColumnDef.getSqlTypeName(dialect);
+            default:
+                return "ALTER TABLE " + tableName + " ALTER COLUMN " + oldColumnName + " RENAME TO " + newColumnDef.name;
         }
-        return query;
     }
 
     protected final String getDDLModifyColumn(String tableName, String columnName, String sqlTypeName) {
-        String query;
         switch (dbType) {
-        case ORACLE:
-            query = "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + sqlTypeName + ")";
-            break;
-        case POSTGRESQL:
-            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " TYPE " + sqlTypeName;
-            break;
-        case MYSQL:
-            query = "ALTER TABLE " + tableName + " MODIFY COLUMN " + columnName + " " + sqlTypeName;
-            break;
-        default:
-            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + sqlTypeName;
-            break;
+            case ORACLE:
+                return "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + sqlTypeName + ")";
+            case POSTGRESQL:
+                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " TYPE " + sqlTypeName;
+            case MYSQL:
+                return "ALTER TABLE " + tableName + " MODIFY COLUMN " + columnName + " " + sqlTypeName;
+            default:
+                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + sqlTypeName;
         }
-        return query;
     }
 
-    protected final String getDDLModifyColumnNullability(String tableName, String columnName, String currentSqlTypeName, boolean nullable) {
-        String query;
+    protected final String getDDLModifyColumnNullability(String tableName, String columnName, String currentSqlTypeName,
+            @SuppressWarnings("SameParameterValue") boolean nullable) {
         switch (dbType) {
-        case ORACLE:
-            query = "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (nullable ? "NULL" : "NOT NULL") + ")";
-            break;
-        case POSTGRESQL:
-            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (nullable ? "DROP" : "SET") + " NOT NULL";
-            break;
-        case H2:
-        case HSQL:
-            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (nullable ? "NULL" : "NOT NULL");
-            break;
-        case MYSQL:
-            query = "ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL");
-            break;
-        default:
-            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL");
-            break;
+            case H2:
+            case HSQL:
+                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (nullable ? "NULL" : "NOT NULL");
+            case MYSQL:
+                return "ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL");
+            case ORACLE:
+                return "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (nullable ? "NULL" : "NOT NULL") + ")";
+            case POSTGRESQL:
+                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (nullable ? "DROP" : "SET") + " NOT NULL";
+            default:
+                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL");
         }
-        return query;
     }
 
-    protected final String getDDLRemoveColumn(String tableName, String columnName) {
+    protected final String getDDLDropColumn(String tableName, String columnName) {
         return "ALTER TABLE " + tableName + " DROP COLUMN " + columnName;
     }
 
@@ -292,7 +298,7 @@ public abstract class DbPatch {
         return "TRUNCATE TABLE " + tableName;
     }
 
-    protected final String getDDLTruncateTableUsingDelete(String tableName) {
+    protected final String getDDLTruncateTableUsingDelete(@SuppressWarnings("SameParameterValue") String tableName) {
         return "DELETE FROM " + tableName;
     }
 
@@ -309,12 +315,20 @@ public abstract class DbPatch {
         private final boolean allowNulls;
         private String defaultValue;
 
+        /**
+         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, make this constructor protected.
+         */
+        @Deprecated
         public ColumnDef(String name, int sqlType, boolean allowNulls) {
             this.name = name;
             this.sqlType = sqlType;
             this.allowNulls = allowNulls;
         }
 
+        /**
+         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, make this constructor protected.
+         */
+        @Deprecated
         public ColumnDef(String name, String sqlTypeName, boolean allowNulls) {
             this.name = name;
             this.sqlTypeName = sqlTypeName;
@@ -323,14 +337,20 @@ public abstract class DbPatch {
 
         /**
          * Creates column def which allows null values.
+         *
+         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, delete this constructor.
          */
+        @Deprecated
         public ColumnDef(String name, int sqlType) {
             this(name, sqlType, true);
         }
 
         /**
          * Creates column def which allows null values.
+         *
+         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, delete this constructor.
          */
+        @Deprecated
         public ColumnDef(String name, String sqlTypeName) {
             this(name, sqlTypeName, true);
         }
@@ -353,30 +373,66 @@ public abstract class DbPatch {
         }
     }
 
+    @SuppressWarnings({"WeakerAccess", "deprecation"})
     public class BigintColumnDef extends ColumnDef {
         public BigintColumnDef(String name, boolean allowNulls) {
             super(name, Types.BIGINT, allowNulls);
         }
-    }
-
-    public class BooleanColumnDef extends ColumnDef {
-        public BooleanColumnDef(String name, boolean allowNulls) {
-            super(name, Types.TINYINT, allowNulls);
+        public BigintColumnDef(String name) {
+            this(name, true);
         }
     }
 
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    public class BlobColumnDef extends ColumnDef {
+        public BlobColumnDef(String name, boolean allowNulls) {
+            super(name, dialect.getTypeName(Types.BLOB), allowNulls);
+        }
+        public BlobColumnDef(String name) {
+            this(name, true);
+        }
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    public class DateColumnDef extends ColumnDef {
+        public DateColumnDef(String name, boolean allowNulls) {
+            super(name, dialect.getTypeName(Types.DATE), allowNulls);
+        }
+        public DateColumnDef(String name) {
+            this(name, true);
+        }
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class IntColumnDef extends ColumnDef {
         public IntColumnDef(String name, boolean allowNulls) {
             super(name, Types.INTEGER, allowNulls);
         }
+        public IntColumnDef(String name) {
+            this(name, true);
+        }
     }
 
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    public class TimestampColumnDef extends ColumnDef {
+        public TimestampColumnDef(String name, boolean allowNulls) {
+            super(name, Types.TIMESTAMP, allowNulls);
+        }
+        public TimestampColumnDef(String name) {
+            this(name, true);
+        }
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class VarcharColumnDef extends ColumnDef {
         public VarcharColumnDef(String name, int length, boolean allowNulls) {
             // Don't know why length is passed 3 times here (as length, precision and scale),
             // but I didn't like it and thus made this helper class.
             // Other helper classes (BigintColumnDef, IntColumnDef) are just for company.
             super(name, dialect.getTypeName(Types.VARCHAR, length, length, length), allowNulls);
+        }
+        public VarcharColumnDef(String name, int length) {
+            this(name, length, true);
         }
     }
 }

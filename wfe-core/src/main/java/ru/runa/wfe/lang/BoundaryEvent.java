@@ -8,12 +8,11 @@ public interface BoundaryEvent {
     /**
      * @return null if not boundary event, non-null value otherwise
      */
-    public Boolean getBoundaryEventInterrupting();
+    Boolean getBoundaryEventInterrupting();
 
-    public void setBoundaryEventInterrupting(Boolean boundaryEventInterrupting);
+    void setBoundaryEventInterrupting(Boolean boundaryEventInterrupting);
 
-    public void cancelBoundaryEvent(CurrentToken token);
+    void cancelBoundaryEvent(CurrentToken token);
 
-    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting();
-
+    TaskCompletionInfo getTaskCompletionInfoIfInterrupting();
 }

@@ -12,7 +12,7 @@ public class DefaultCacheTransactionalExecutor implements CacheTransactionalExec
         new TransactionalExecutor() {
 
             @Override
-            protected void doExecuteInTransaction() throws Exception {
+            protected void doExecuteInTransaction() {
                 run.run();
             }
         }.executeInTransaction(true);

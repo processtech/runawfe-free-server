@@ -21,8 +21,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -67,6 +66,7 @@ import ru.runa.wfe.commons.dbpatch.impl.PermissionMappingPatch403;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbpatch.impl.RenameProcessesBatchPresentationCategories;
+import ru.runa.wfe.commons.dbpatch.impl.SplitProcessDefinitionVersion;
 import ru.runa.wfe.commons.dbpatch.impl.SupportProcessArchiving;
 import ru.runa.wfe.commons.dbpatch.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskEndDateRemovalPatch;
@@ -78,8 +78,8 @@ import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
  *
  * @author Dofs
  */
+@CommonsLog
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
-    protected static final Log log = LogFactory.getLog(InitializerLogic.class);
     private static final List<Class<? extends DbPatch>> dbPatches;
     @Autowired
     private DbTransactionalInitializer dbTransactionalInitializer;
@@ -157,6 +157,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(AddTransactionalBotSupport.class);
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
+        patches.add(SplitProcessDefinitionVersion.class);
         patches.add(AddSubprocessRootIdColumn.class);
         patches.add(SupportProcessArchiving.class);
         patches.add(RenameProcessesBatchPresentationCategories.class);

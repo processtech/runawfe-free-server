@@ -3,18 +3,17 @@ package ru.runa.wfe.commons.cache.common;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 
 public final class TestLazyCache implements TestCacheIface {
 
-    private final ConcurrentMap<Long, Long> cachedData = new ConcurrentHashMap<Long, Long>();
+    private final ConcurrentMap<Long, Long> cachedData = new ConcurrentHashMap<>();
     private static final AtomicInteger version = new AtomicInteger(0);
     private int cacheVersion;
 
-    public TestLazyCache(CacheInitializationContext<TestCacheIface> context, ConcurrentMap<Long, Long> initialCachedData) {
+    public TestLazyCache(CacheInitializationProcessContext context, ConcurrentMap<Long, Long> initialCachedData) {
         cachedData.putAll(initialCachedData);
         cacheVersion = version.get();
     }

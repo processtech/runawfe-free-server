@@ -18,7 +18,7 @@ public class TaskEndDateRemovalPatch extends DbPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = Lists.newArrayList();
-        sql.add(getDDLRemoveColumn("BPM_TASK", "END_DATE"));
+        sql.add(getDDLDropColumn("BPM_TASK", "END_DATE"));
         return sql;
     }
 }

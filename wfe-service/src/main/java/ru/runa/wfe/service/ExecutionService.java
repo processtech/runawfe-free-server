@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service;
 
-import ru.runa.wfe.var.file.FileVariableImpl;
-
 import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -37,6 +35,7 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
+import ru.runa.wfe.var.file.FileVariable;
 
 /**
  * Process execution service.
@@ -51,8 +50,6 @@ public interface ExecutionService {
      *
      * @param user
      *            authorized user
-     * @param definitionName
-     *            process definition name
      * @param variables
      *            initial variable values
      * @return id of started process
@@ -65,13 +62,11 @@ public interface ExecutionService {
      *
      * @param user
      *            authorized user
-     * @param definitionId
-     *            process definition id
      * @param variables
      *            initial variable values
      * @return id of started process
      */
-    Long startProcessById(User user, Long definitionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
+    Long startProcessById(User user, Long processDefinitionVersionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
             ValidationException;
 
     /**
@@ -245,7 +240,7 @@ public interface ExecutionService {
      *            variable name
      * @return FileVariable or <code>null</code>
      */
-    FileVariableImpl getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
+    FileVariable getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
 
     /**
      * Updates process variables without any signalling.
@@ -320,7 +315,7 @@ public interface ExecutionService {
      * 
      * @return upgraded processes count
      */
-    int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion);
+    int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionVersionId, Long newVersion);
 
     /**
      * Get all active jobs (recursively) by process id.
@@ -363,5 +358,4 @@ public interface ExecutionService {
      *            authorized user
      */
     void suspendProcess(User user, Long processId);
-
 }

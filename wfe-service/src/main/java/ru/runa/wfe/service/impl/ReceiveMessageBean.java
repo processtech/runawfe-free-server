@@ -52,7 +52,7 @@ import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
@@ -104,9 +104,11 @@ public class ReceiveMessageBean implements MessageListener {
             }
             for (CurrentToken token : tokens) {
                 try {
-                    ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
-                    BaseMessageNode receiveMessageNode = (BaseMessageNode) token.getNodeNotNull(processDefinition);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(
+                            token.getProcess().getDefinitionVersion().getId()
+                    );
+                    BaseMessageNode receiveMessageNode = (BaseMessageNode) token.getNodeNotNull(parsedProcessDefinition);
+                    ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
                     if (errorEventData != null) {
                         if (receiveMessageNode.getEventType() == MessageEventType.error && receiveMessageNode.getParentElement() instanceof Node) {
                             Long processId = token.getProcess().getId();
@@ -171,8 +173,10 @@ public class ReceiveMessageBean implements MessageListener {
                     if (!Objects.equal(token.getNodeId(), data.node.getNodeId())) {
                         throw new InternalApplicationException(token + " not in " + data.node.getNodeId());
                     }
-                    ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(
+                            token.getProcess().getDefinitionVersion().getId()
+                    );
+                    ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
                     executionContext.activateTokenIfHasPreviousError();
                     executionContext.addLog(new CurrentReceiveMessageLog(data.node, Utils.toString(message, true)));
                     Map<String, Object> map = (Map<String, Object>) message.getObject();

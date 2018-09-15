@@ -18,18 +18,14 @@
 package ru.runa.wfe.commons.hibernate;
 
 import java.io.Serializable;
-
-import lombok.val;
 import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
-
 import ru.runa.wfe.audit.ArchivedProcessLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.cache.CachingLogic;
 import ru.runa.wfe.commons.cache.Change;
+import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.execution.ArchivedNodeProcess;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.ArchivedSwimlane;
@@ -40,12 +36,10 @@ public class WfeInterceptor extends EmptyInterceptor {
     private static final long serialVersionUID = 1L;
 
     private boolean isOracleDatabase() {
-        return ApplicationContextFactory.getDBType() == DbType.ORACLE;
+        return ApplicationContextFactory.getDbType() == DbType.ORACLE;
     }
 
-    private boolean onChanges(Object entity, Change change, Object[] state, Object[] previousState, String[] propertyNames, Type[] types,
-            boolean fixOracleStrings
-    ) {
+    private boolean onChanges(Object entity, Change change, Object[] state, Object[] previousState, String[] propertyNames, boolean fixOracleStrings) {
         // Archive immutability support:
         // NOTE: This check is mandatory, because some archived entity classes HAVE public setters.
         //       E.g. variables, since VariableLogic.getProcessStateOnTime() creates temporary fake variables which are then proxied.
@@ -71,26 +65,22 @@ public class WfeInterceptor extends EmptyInterceptor {
                 }
             }
         }
-        if (SystemProperties.useCacheStateMachine()) {
-            ru.runa.wfe.commons.cache.sm.CachingLogic.onChange(entity, change, state, previousState, propertyNames, types);
-        } else {
-            CachingLogic.onChange(entity, change, state, previousState, propertyNames, types);
-        }
+        CachingLogic.onChange(entity, change, state, previousState, propertyNames);
         return modified;
     }
 
     @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) throws CallbackException {
-        return onChanges(entity, Change.CREATE, state, null, propertyNames, types, true);
+        return onChanges(entity, Change.CREATE, state, null, propertyNames, true);
     }
 
     @Override
     public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) throws CallbackException {
-        onChanges(entity, Change.DELETE, state, null, propertyNames, types, false);
+        onChanges(entity, Change.DELETE, state, null, propertyNames, false);
     }
 
     @Override
     public boolean onFlushDirty(Object entity, Serializable id, Object[] state, Object[] previousState, String[] propertyNames, Type[] types) {
-        return onChanges(entity, Change.UPDATE, state, previousState, propertyNames, types, true);
+        return onChanges(entity, Change.UPDATE, state, previousState, propertyNames, true);
     }
 }

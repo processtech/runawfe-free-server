@@ -11,7 +11,7 @@ public class PermissionMappingPatch403 extends DbPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = Lists.newArrayList();
-        sql.add(getDDLRemoveIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_IDENTIFIABLE"));
+        sql.add(getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_IDENTIFIABLE"));
         sql.add(getDDLCreateUniqueKey("PERMISSION_MAPPING", "UQ_MAPPINGS", "IDENTIFIABLE_ID", "TYPE_ID", "MASK", "EXECUTOR_ID"));
         return sql;
     }

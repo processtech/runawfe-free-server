@@ -54,5 +54,4 @@ interface ITestCaseDataSet {
     Set<Executor> getExecutorsToGetTasksByMembership();
 
     EscalationGroup getEscalationGroup();
-
 }

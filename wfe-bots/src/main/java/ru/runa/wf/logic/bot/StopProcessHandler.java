@@ -9,7 +9,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
@@ -30,8 +30,8 @@ public class StopProcessHandler extends TaskHandlerBase implements ActionHandler
         if (processId > 0) {
             CurrentProcess process = ApplicationContextFactory.getCurrentProcessDao().get(processId);
             ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
-            ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
-            ExecutionContext targetExecutionContext = new ExecutionContext(processDefinition, process);
+            ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process.getDefinitionVersion().getId());
+            ExecutionContext targetExecutionContext = new ExecutionContext(parsedProcessDefinition, process);
             ApplicationContextFactory.getExecutionLogic().endProcess(process, targetExecutionContext, null);
         } else {
             log.warn("ProcessID = " + processId + ", don't stopping process");

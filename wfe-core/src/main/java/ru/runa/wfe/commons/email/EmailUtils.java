@@ -28,8 +28,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -46,8 +45,8 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.file.FileVariable;
 
+@CommonsLog
 public class EmailUtils {
-    private static final Log log = LogFactory.getLog(EmailConfig.class);
     private static MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 
     /**
@@ -235,7 +234,6 @@ public class EmailUtils {
     /**
      * Validates and creates e-mail filter object
      * 
-     * @param pattern
      * @return filter object
      */
     public static EmailsFilter validateAndCreateEmailsFilter(final List<String> filters) {

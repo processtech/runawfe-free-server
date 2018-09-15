@@ -40,10 +40,10 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 
 /**
- * Is one execution of a {@link ru.runa.wfe.lang.ProcessDefinition}.
+ * Is one execution of a {@link ProcessDefinitionVersion}.
  */
 @Entity
 @Table(name = "BPM_PROCESS")
@@ -58,11 +58,11 @@ public class CurrentProcess extends Process<CurrentToken> {
     @Column(name = "ID")
     private Long id;
 
-    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEFINITION_ID", nullable = false)
-    @ForeignKey(name = "FK_PROCESS_DEFINITION")
-    @Index(name = "IX_PROCESS_DEFINITION")
-    private Deployment deployment;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
+    @ForeignKey(name = "FK_PROCESS_DEFINITION_VER")
+    @Index(name = "IX_PROCESS_DEFINITION_VER")
+    private ProcessDefinitionVersion definitionVersion;
 
     @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
     @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
@@ -77,8 +77,8 @@ public class CurrentProcess extends Process<CurrentToken> {
     public CurrentProcess() {
     }
 
-    public CurrentProcess(Deployment deployment) {
-        setDeployment(deployment);
+    public CurrentProcess(ProcessDefinitionVersion definitionVersion) {
+        setDefinitionVersion(definitionVersion);
         setStartDate(new Date());
     }
 
@@ -113,12 +113,12 @@ public class CurrentProcess extends Process<CurrentToken> {
     }
 
     @Override
-    public Deployment getDeployment() {
-        return deployment;
+    public ProcessDefinitionVersion getDefinitionVersion() {
+        return definitionVersion;
     }
 
-    public void setDeployment(Deployment deployment) {
-        this.deployment = deployment;
+    public void setDefinitionVersion(ProcessDefinitionVersion definitionVersion) {
+        this.definitionVersion = definitionVersion;
     }
 
     @Override

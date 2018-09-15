@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.dto.WfVariable;
 
 /**
  * All variables must be preloaded and passed to this component.
  *
  * @author AL
  */
-public class VariableLoaderFromMap extends AbstractVariableLoader {
+public class VariableLoaderFromMap extends VariableLoader {
 
     /**
      * Preloaded variables. For each process contains map from variable name to variable.
@@ -29,9 +30,7 @@ public class VariableLoaderFromMap extends AbstractVariableLoader {
     @Override
     public Variable get(Process process, String name) {
         Map<String, Variable> loadedProcessVariables = loadedVariables.get(process);
-        return loadedProcessVariables != null && loadedProcessVariables.containsKey(name)
-                ? loadedProcessVariables.get(name)
-                : null;
+        return loadedProcessVariables == null ? null : loadedProcessVariables.get(name);
     }
 
     @Override

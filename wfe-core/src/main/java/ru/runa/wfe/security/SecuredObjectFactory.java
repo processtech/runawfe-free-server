@@ -12,7 +12,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
-import ru.runa.wfe.definition.QDeployment;
+import ru.runa.wfe.definition.QProcessDefinition;
 import ru.runa.wfe.execution.QArchivedProcess;
 import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.report.QReportDefinition;
@@ -192,7 +192,7 @@ public class SecuredObjectFactory {
         add(SecuredObjectType.DEFINITION, new Loader(SecuredObjectType.DEFINITION) {
             @Override
             public SecuredObject findById(Long id) {
-                val d = QDeployment.deployment;
+                QProcessDefinition d = QProcessDefinition.processDefinition;
                 return getQueryFactory().selectFrom(d).where(d.id.eq(id)).fetchFirst();
             }
 //            @Override
@@ -201,7 +201,7 @@ public class SecuredObjectFactory {
 //            }
             @Override
             List<Tuple> getByNames(Set<String> names) {
-                val d = QDeployment.deployment;
+                QProcessDefinition d = QProcessDefinition.processDefinition;
                 return getQueryFactory().select(d.id, d.name).from(d).where(d.name.in(names)).fetch();
             }
         });

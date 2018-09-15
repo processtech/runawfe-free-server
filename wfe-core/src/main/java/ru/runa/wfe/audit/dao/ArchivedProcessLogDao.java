@@ -11,8 +11,8 @@ import ru.runa.wfe.audit.QArchivedNodeEnterLog;
 import ru.runa.wfe.audit.QArchivedProcessLog;
 import ru.runa.wfe.commons.dao.ReadOnlyGenericDao;
 import ru.runa.wfe.execution.ArchivedProcess;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 
 @Component
 public class ArchivedProcessLogDao extends ReadOnlyGenericDao<ArchivedProcessLog> {
@@ -30,11 +30,11 @@ public class ArchivedProcessLogDao extends ReadOnlyGenericDao<ArchivedProcessLog
         return queryFactory.selectFrom(pl).where(pl.processId.eq(processId)).orderBy(pl.id.asc()).fetch();
     }
 
-    List<ArchivedProcessLog> get(ArchivedProcess process, ProcessDefinition definition) {
+    List<ArchivedProcessLog> get(ArchivedProcess process, ParsedProcessDefinition definition) {
         val pl = QArchivedProcessLog.archivedProcessLog;
         return queryFactory.selectFrom(pl)
                 .where(pl.processId.eq(process.getId()))
-                .where(definition instanceof SubprocessDefinition ? pl.nodeId.like(definition.getNodeId() + ".%") : pl.nodeId.notLike("sub%"))
+                .where(definition instanceof ParsedSubprocessDefinition ? pl.nodeId.like(definition.getNodeId() + ".%") : pl.nodeId.notLike("sub%"))
                 .orderBy(pl.id.asc())
                 .fetch();
     }

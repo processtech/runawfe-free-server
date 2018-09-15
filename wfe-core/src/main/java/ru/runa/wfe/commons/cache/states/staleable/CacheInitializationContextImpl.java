@@ -1,8 +1,9 @@
-package ru.runa.wfe.commons.cache.states.nonruntime;
+package ru.runa.wfe.commons.cache.states.staleable;
 
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationCallback;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
+import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
 
 /**
  * Lazy cache initialization context.
@@ -16,10 +17,9 @@ public class CacheInitializationContextImpl<CacheImpl extends CacheImplementatio
     /**
      * Callback object to receive notification on lazy initialization complete.
      */
-    private final CacheInitializationCallback<CacheImpl, NonRuntimeCacheContext> callback;
+    private final CacheInitializationCallback<CacheImpl> callback;
 
-    public CacheInitializationContextImpl(CacheInitializingState<CacheImpl> state,
-            CacheInitializationCallback<CacheImpl, NonRuntimeCacheContext> callback) {
+    public CacheInitializationContextImpl(CacheInitializingState<CacheImpl> state, CacheStateMachine<CacheImpl> callback) {
         this.state = state;
         this.callback = callback;
     }

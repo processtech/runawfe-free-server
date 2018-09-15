@@ -17,24 +17,18 @@
  */
 package ru.runa.wf.web.servlet;
 
-import java.io.IOException;
+import com.google.common.base.Objects;
 import java.util.List;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ftl.AjaxFormComponent;
 
-import com.google.common.base.Objects;
-
+@CommonsLog
 public class AjaxFormComponentServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(AjaxFormComponentServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
@@ -42,7 +36,7 @@ public class AjaxFormComponentServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         processRequest(request, response);
     }
 

@@ -30,7 +30,7 @@ import ru.runa.wfe.history.layout.NodeLayoutData;
 import ru.runa.wfe.history.layout.PushWidthDown;
 import ru.runa.wfe.history.layout.TransitionOrderer;
 import ru.runa.wfe.history.layout.TransitionOrdererContext;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -43,9 +43,9 @@ public class GraphHistoryBuilder {
      */
     private final GraphHistoryBuilderData data;
 
-    public GraphHistoryBuilder(List<Executor> executors, Process process, ProcessDefinition definition,
+    public GraphHistoryBuilder(List<Executor> executors, Process process, ParsedProcessDefinition parsedProcessDefinition,
             List<? extends BaseProcessLog> fullProcessLogs, String subProcessId) {
-        this.data = new GraphHistoryBuilderData(executors, process, definition, fullProcessLogs, subProcessId);
+        this.data = new GraphHistoryBuilderData(executors, process, parsedProcessDefinition, fullProcessLogs, subProcessId);
     }
 
     /**

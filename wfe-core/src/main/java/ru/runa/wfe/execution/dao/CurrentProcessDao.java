@@ -1,18 +1,20 @@
 package ru.runa.wfe.execution.dao;
 
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.definition.QProcessDefinition;
+import ru.runa.wfe.definition.QProcessDefinitionVersion;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.QCurrentNodeProcess;
 import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.execution.QCurrentSwimlane;
 import ru.runa.wfe.execution.QCurrentToken;
@@ -34,11 +36,41 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
     }
 
     /**
-     * fetches all processes for the given process definition from the database. The returned list of processs is sorted start date, youngest first.
+     * Checks that no parent processes exists with different definition. If some exists, return its definition name.
+     * <p>
+     * This is optimized query to check if given process definition can be deleted.
+     *
+     * @return Null if not found.
      */
-    public List<CurrentProcess> findAllProcesses(Long definitionId) {
-        val p = QCurrentProcess.currentProcess;
-        return queryFactory.selectFrom(p).where(p.deployment.id.eq(definitionId)).orderBy(p.startDate.desc()).fetch();
+    public String findParentProcessDefinitionName(Long processDefinitionId) {
+        QProcessDefinition d0 = QProcessDefinition.processDefinition;
+        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
+        QProcessDefinitionVersion dv0 = QProcessDefinitionVersion.processDefinitionVersion;
+        QCurrentProcess p = QCurrentProcess.currentProcess;
+        QCurrentProcess p0 = QCurrentProcess.currentProcess;
+        QCurrentNodeProcess np = QCurrentNodeProcess.currentNodeProcess;
+        return queryFactory.select(d0.name)
+                .from(dv, p, np, p0, dv0, d0)
+                .where(dv.definition.id.eq(processDefinitionId)
+                        .and(p.definitionVersion.eq(dv))
+                        .and(np.subProcess.eq(p))
+                        .and(p0.eq(np.process))
+                        .and(dv0.eq(p0.definitionVersion))
+                        .and(dv0.definition.id.ne(processDefinitionId))
+                        .and(d0.eq(dv0.definition))
+                )
+                .fetchFirst();
+    }
+
+    /**
+     * Fetches all processes for ALL given process definition versions. The returned list of processs is sorted start date, youngest first.
+     */
+    public List<CurrentProcess> findAllProcessesForAllDefinitionVersions(Long processDefinitionId) {
+        QCurrentProcess p = QCurrentProcess.currentProcess;
+        return queryFactory.selectFrom(p)
+                .where(p.definitionVersion.definition.id.eq(processDefinitionId))
+                .orderBy(p.startDate.desc())
+                .fetch();
     }
 
     List<CurrentProcess> findImpl(List<Long> ids) {
@@ -71,10 +103,10 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
         val p = QCurrentProcess.currentProcess;
         val q = queryFactory.selectFrom(p).where();
         if (filter.getDefinitionName() != null) {
-            q.where(p.deployment.name.eq(filter.getDefinitionName()));
+            q.where(p.definitionVersion.definition.name.eq(filter.getDefinitionName()));
         }
         if (filter.getDefinitionVersion() != null) {
-            q.where(p.deployment.version.eq(filter.getDefinitionVersion()));
+            q.where(p.definitionVersion.version.eq(filter.getDefinitionVersion()));
         }
         if (filter.getId() != null) {
             q.where(p.id.eq(filter.getId()));

@@ -39,8 +39,8 @@ public class ActorClassPresentation extends ClassPresentation {
 
     private ActorClassPresentation() {
         super(Actor.class, "", true, new FieldDescriptor[] {
-                new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(Actor.class, "name"), true,1, BatchPresentationConsts.ASC, FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "name" }),
+                new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(Actor.class, "name"), true,1, BatchPresentationConsts.ASC,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "name" }),
                 new FieldDescriptor(FULL_NAME, String.class.getName(), new DefaultDbSource(Actor.class, "fullName"), true, FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "fullName" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(Actor.class, "description"), true,

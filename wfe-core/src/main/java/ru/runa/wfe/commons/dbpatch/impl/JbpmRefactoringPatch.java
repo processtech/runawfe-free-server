@@ -47,20 +47,20 @@ public class JbpmRefactoringPatch extends DbPatch {
         // "MySQL DB update to version RunaWFE4.x is not supported because of mass column (which are foreign keys) renames [Error on rename of (errno: 150)]"
         List<String> sql = super.getDDLQueriesBefore();
         // removed unused tables and columns
-        sql.add(getDDLRemoveTable("PROPERTY_IDS"));
-        sql.add(getDDLRemoveTable("JBPM_TASKACTORPOOL"));
-        sql.add(getDDLRemoveTable("JBPM_POOLEDACTOR"));
+        sql.add(getDDLDropTable("PROPERTY_IDS"));
+        sql.add(getDDLDropTable("JBPM_TASKACTORPOOL"));
+        sql.add(getDDLDropTable("JBPM_POOLEDACTOR"));
 
         // refactored batch presentations;
-        sql.add(getDDLRemoveTable("ACTIVE_BATCH_PRESENTATIONS"));
-        sql.add(getDDLRemoveTable("BP_DYNAMIC_FIELDS"));
-        sql.add(getDDLRemoveTable("CRITERIA_CONDITIONS"));
-        sql.add(getDDLRemoveTable("DISPLAY_FIELDS"));
-        sql.add(getDDLRemoveTable("FILTER_CRITERIAS"));
-        sql.add(getDDLRemoveTable("GROUP_FIELDS"));
-        sql.add(getDDLRemoveTable("GROUP_FIELDS_EXPANDED"));
-        sql.add(getDDLRemoveTable("SORTED_FIELDS"));
-        sql.add(getDDLRemoveTable("SORTING_MODES"));
+        sql.add(getDDLDropTable("ACTIVE_BATCH_PRESENTATIONS"));
+        sql.add(getDDLDropTable("BP_DYNAMIC_FIELDS"));
+        sql.add(getDDLDropTable("CRITERIA_CONDITIONS"));
+        sql.add(getDDLDropTable("DISPLAY_FIELDS"));
+        sql.add(getDDLDropTable("FILTER_CRITERIAS"));
+        sql.add(getDDLDropTable("GROUP_FIELDS"));
+        sql.add(getDDLDropTable("GROUP_FIELDS_EXPANDED"));
+        sql.add(getDDLDropTable("SORTED_FIELDS"));
+        sql.add(getDDLDropTable("SORTING_MODES"));
         sql.add(getDDLTruncateTable("BATCH_PRESENTATIONS"));
         sql.add(getDDLTruncateTableUsingDelete("PROFILES"));
 
@@ -74,19 +74,19 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLCreateColumn("BATCH_PRESENTATION", new ColumnDef("IS_ACTIVE", Types.TINYINT)));
         sql.add(getDDLCreateColumn("BATCH_PRESENTATION", new ColumnDef("FIELDS", Types.VARBINARY)));
         sql.add(getDDLCreateColumn("BATCH_PRESENTATION", new ColumnDef("CLASS_TYPE", dialect.getTypeName(Types.VARCHAR, 255, 255, 255))));
-        sql.add(getDDLRemoveIndex("BATCH_PRESENTATION", "PRESENTATION_NAME_ID_IDX"));
+        sql.add(getDDLDropIndex("BATCH_PRESENTATION", "PRESENTATION_NAME_ID_IDX"));
         sql.add(getDDLCreateIndex("BATCH_PRESENTATION", "IX_BATCH_PRESENTATION_PROFILE", "PROFILE_ID"));
-        sql.add(getDDLRemoveColumn("BATCH_PRESENTATION", "CLASS_PRESENTATION_ID"));
+        sql.add(getDDLDropColumn("BATCH_PRESENTATION", "CLASS_PRESENTATION_ID"));
         // ru.runa.wfe.user.dao.ActorPassword
         sql.add(getDDLRenameTable("PASSWORDS", "ACTOR_PASSWORD"));
         sql.add(getDDLRenameColumn("ACTOR_PASSWORD", "PASSWD", new ColumnDef("PASSWORD", Types.VARBINARY)));
         // ru.runa.wfe.bot.BotStation
         sql.add(getDDLRenameTable("BOT_STATIONS", "BOT_STATION"));
-        sql.add(getDDLRemoveColumn("BOT_STATION", "BS_USER"));
-        sql.add(getDDLRemoveColumn("BOT_STATION", "BS_PASS"));
+        sql.add(getDDLDropColumn("BOT_STATION", "BS_USER"));
+        sql.add(getDDLDropColumn("BOT_STATION", "BS_PASS"));
         // ru.runa.wfe.bot.Bot
         sql.add(getDDLRenameTable("BOTS", "BOT"));
-        sql.add(getDDLRemoveColumn("BOT", "MAX_PERIOD"));
+        sql.add(getDDLDropColumn("BOT", "MAX_PERIOD"));
         sql.add(getDDLRenameColumn("BOT", "LAST_INVOKED", new ColumnDef("START_TIMEOUT", Types.VARCHAR)));
         sql.add(getDDLRenameColumn("BOT", "WFE_USER", new ColumnDef("USERNAME", Types.VARCHAR)));
         sql.add(getDDLRenameColumn("BOT", "WFE_PASS", new ColumnDef("PASSWORD", Types.VARCHAR)));
@@ -94,7 +94,7 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLRenameIndex("BOT", getObjectName("B_BS_IDX"), "IX_BOT_STATION"));
         // ru.runa.wfe.bot.BotTask
         sql.add(getDDLRenameTable("BOT_TASKS", "BOT_TASK"));
-        sql.add(getDDLRemoveColumn("BOT_TASK", "CONFIG"));
+        sql.add(getDDLDropColumn("BOT_TASK", "CONFIG"));
         sql.add(getDDLRenameColumn("BOT_TASK", "CLAZZ", new ColumnDef("TASK_HANDLER", Types.VARCHAR)));
         sql.add(getDDLRenameIndex("BOT_TASK", getObjectName("BT_B_IDX"), "IX_BOT_TASK_BOT"));
         sql.add(getDDLCreateColumn("BOT_TASK", new ColumnDef("VERSION", Types.BIGINT)));
@@ -128,7 +128,7 @@ public class JbpmRefactoringPatch extends DbPatch {
         lColumns.add(new ColumnDef("VALUE", dialect.getTypeName(Types.VARCHAR, 255, 255, 255)));
         sql.add(getDDLCreateTable("LOCALIZATION", lColumns, null));
         // ru.runa.wfe.security.dao.PrivelegedMapping
-        sql.add(getDDLRemoveTable("PRIVELEGE_MAPPINGS"));
+        sql.add(getDDLDropTable("PRIVELEGE_MAPPINGS"));
         List<ColumnDef> privColumns = Lists.newArrayList();
         privColumns.add(new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey());
         privColumns.add(new ColumnDef("TYPE", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
@@ -165,13 +165,13 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLRenameColumn("SYSTEM_LOG", "ACTOR_CODE", new ColumnDef("ACTOR_ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("SYSTEM_LOG", "PROCESS_INSTANCE", new ColumnDef("PROCESS_ID", Types.BIGINT)));
 
-        // ru.runa.wfe.definition.Deployment
+        // ru.runa.wfe.definition.ProcessDefinition
         sql.add(getDDLRenameTable("JBPM_PROCESSDEFINITION", "BPM_PROCESS_DEFINITION"));
-        sql.add(getDDLRemoveColumn("BPM_PROCESS_DEFINITION", "CLASS_"));
-        sql.add(getDDLRemoveForeignKey("BPM_PROCESS_DEFINITION", getObjectName("FK_PROCDEF_STRTSTA")));
-        sql.add(getDDLRemoveIndex("BPM_PROCESS_DEFINITION", getObjectName("IDX_PROCDEF_STRTST")));
-        sql.add(getDDLRemoveColumn("BPM_PROCESS_DEFINITION", "STARTSTATE_"));
-        sql.add(getDDLRemoveColumn("BPM_PROCESS_DEFINITION", "ISTERMINATIONIMPLICIT_"));
+        sql.add(getDDLDropColumn("BPM_PROCESS_DEFINITION", "CLASS_"));
+        sql.add(getDDLDropForeignKey("BPM_PROCESS_DEFINITION", getObjectName("FK_PROCDEF_STRTSTA")));
+        sql.add(getDDLDropIndex("BPM_PROCESS_DEFINITION", getObjectName("IDX_PROCDEF_STRTST")));
+        sql.add(getDDLDropColumn("BPM_PROCESS_DEFINITION", "STARTSTATE_"));
+        sql.add(getDDLDropColumn("BPM_PROCESS_DEFINITION", "ISTERMINATIONIMPLICIT_"));
         sql.add(getDDLRenameColumn("BPM_PROCESS_DEFINITION", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_PROCESS_DEFINITION", "NAME_", new ColumnDef("NAME", Types.VARCHAR)));
         sql.add(getDDLRenameColumn("BPM_PROCESS_DEFINITION", "DESCRIPTION_", new ColumnDef("DESCRIPTION", Types.VARCHAR)));
@@ -183,9 +183,9 @@ public class JbpmRefactoringPatch extends DbPatch {
 
         // ru.runa.wfe.execution.Process
         sql.add(getDDLRenameTable("JBPM_PROCESSINSTANCE", "BPM_PROCESS"));
-        sql.add(getDDLRemoveIndex("BPM_PROCESS", getObjectName("IDX_PROCIN_KEY")));
-        sql.add(getDDLRemoveColumn("BPM_PROCESS", "KEY_"));
-        sql.add(getDDLRemoveColumn("BPM_PROCESS", "ISSUSPENDED_"));
+        sql.add(getDDLDropIndex("BPM_PROCESS", getObjectName("IDX_PROCIN_KEY")));
+        sql.add(getDDLDropColumn("BPM_PROCESS", "KEY_"));
+        sql.add(getDDLDropColumn("BPM_PROCESS", "ISSUSPENDED_"));
         sql.add(getDDLRenameColumn("BPM_PROCESS", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_PROCESS", "VERSION_", new ColumnDef("VERSION", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_PROCESS", "START_", new ColumnDef("START_DATE", Types.DATE)));
@@ -196,22 +196,22 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLRenameColumn("BPM_PROCESS", "ROOTTOKEN_", new ColumnDef("ROOT_TOKEN_ID", Types.BIGINT)));
         sql.add(getDDLRenameIndex("BPM_PROCESS", getObjectName("IDX_PROCIN_ROOTTK"), "IX_PROCESS_ROOT_TOKEN"));
         sql.add(getDDLRenameForeignKey(getObjectName("FK_PROCIN_ROOTTKN"), "FK_PROCESS_ROOT_TOKEN"));
-        sql.add(getDDLRemoveForeignKey("BPM_PROCESS", getObjectName("FK_PROCIN_SPROCTKN")));
-        sql.add(getDDLRemoveIndex("BPM_PROCESS", getObjectName("IDX_PROCIN_SPROCTK")));
+        sql.add(getDDLDropForeignKey("BPM_PROCESS", getObjectName("FK_PROCIN_SPROCTKN")));
+        sql.add(getDDLDropIndex("BPM_PROCESS", getObjectName("IDX_PROCIN_SPROCTK")));
 
         // ru.runa.wfe.execution.Token
         sql.add(getDDLRenameTable("JBPM_TOKEN", "BPM_TOKEN"));
-        sql.add(getDDLRemoveColumn("BPM_TOKEN", "ISTERMINATIONIMPLICIT_"));
-        sql.add(getDDLRemoveColumn("BPM_TOKEN", "ISSUSPENDED_"));
-        sql.add(getDDLRemoveColumn("BPM_TOKEN", "LOCK_"));
-        sql.add(getDDLRemoveIndex("BPM_TOKEN", getObjectName("IDX_TOKEN_NODE")));
-        sql.add(getDDLRemoveForeignKey("BPM_TOKEN", getObjectName("FK_TOKEN_NODE")));
-        sql.add(getDDLRemoveIndex("BPM_TOKEN", getObjectName("IDX_TOKEN_SUBPI")));
-        sql.add(getDDLRemoveIndex("BPM_TOKEN", getObjectName("IDX_TOKEN_PROCIN")));
-        sql.add(getDDLRemoveIndex("BPM_TOKEN", getObjectName("IDX_TOKEN_PARENT")));
-        sql.add(getDDLRemoveForeignKey("BPM_TOKEN", getObjectName("FK_TOKEN_SUBPI")));
-        sql.add(getDDLRemoveColumn("BPM_TOKEN", "NODEENTER_"));
-        sql.add(getDDLRemoveColumn("BPM_TOKEN", "NEXTLOGINDEX_"));
+        sql.add(getDDLDropColumn("BPM_TOKEN", "ISTERMINATIONIMPLICIT_"));
+        sql.add(getDDLDropColumn("BPM_TOKEN", "ISSUSPENDED_"));
+        sql.add(getDDLDropColumn("BPM_TOKEN", "LOCK_"));
+        sql.add(getDDLDropIndex("BPM_TOKEN", getObjectName("IDX_TOKEN_NODE")));
+        sql.add(getDDLDropForeignKey("BPM_TOKEN", getObjectName("FK_TOKEN_NODE")));
+        sql.add(getDDLDropIndex("BPM_TOKEN", getObjectName("IDX_TOKEN_SUBPI")));
+        sql.add(getDDLDropIndex("BPM_TOKEN", getObjectName("IDX_TOKEN_PROCIN")));
+        sql.add(getDDLDropIndex("BPM_TOKEN", getObjectName("IDX_TOKEN_PARENT")));
+        sql.add(getDDLDropForeignKey("BPM_TOKEN", getObjectName("FK_TOKEN_SUBPI")));
+        sql.add(getDDLDropColumn("BPM_TOKEN", "NODEENTER_"));
+        sql.add(getDDLDropColumn("BPM_TOKEN", "NEXTLOGINDEX_"));
         sql.add(getDDLRenameColumn("BPM_TOKEN", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_TOKEN", "VERSION_", new ColumnDef("VERSION", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_TOKEN", "NAME_", new ColumnDef("NAME", Types.VARCHAR)));
@@ -227,10 +227,10 @@ public class JbpmRefactoringPatch extends DbPatch {
 
         // ru.runa.wfe.execution.Swimlane
         sql.add(getDDLRenameTable("JBPM_SWIMLANEINSTANCE", "BPM_SWIMLANE"));
-        sql.add(getDDLRemoveForeignKey("BPM_SWIMLANE", getObjectName("FK_SWIMLANEINST_SL")));
-        sql.add(getDDLRemoveIndex("BPM_SWIMLANE", getObjectName("IDX_SWIMLINST_SL")));
-        sql.add(getDDLRemoveColumn("BPM_SWIMLANE", "SWIMLANE_"));
-        sql.add(getDDLRemoveForeignKey("BPM_SWIMLANE", getObjectName("FK_SWIMLANEINST_TM")));
+        sql.add(getDDLDropForeignKey("BPM_SWIMLANE", getObjectName("FK_SWIMLANEINST_SL")));
+        sql.add(getDDLDropIndex("BPM_SWIMLANE", getObjectName("IDX_SWIMLINST_SL")));
+        sql.add(getDDLDropColumn("BPM_SWIMLANE", "SWIMLANE_"));
+        sql.add(getDDLDropForeignKey("BPM_SWIMLANE", getObjectName("FK_SWIMLANEINST_TM")));
         sql.add(getDDLRenameColumn("BPM_SWIMLANE", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_SWIMLANE", "NAME_", new ColumnDef("NAME", Types.VARCHAR)));
         sql.add(getDDLRenameColumn("BPM_SWIMLANE", "VERSION_", new ColumnDef("VERSION", Types.BIGINT)));
@@ -239,22 +239,22 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLCreateColumn("BPM_SWIMLANE", new ColumnDef("EXECUTOR_ID", Types.BIGINT)));
         sql.add(getDDLCreateForeignKey("BPM_SWIMLANE", "FK_SWIMLANE_EXECUTOR", "EXECUTOR_ID", "EXECUTOR", "ID"));
         if (handleManualIndexes) {
-            sql.add(getDDLRemoveIndex("BPM_SWIMLANE", getObjectName("IDX_SWIMLINST_TASKMGMTINST")));
+            sql.add(getDDLDropIndex("BPM_SWIMLANE", getObjectName("IDX_SWIMLINST_TASKMGMTINST")));
         }
 
         // ru.runa.wfe.task.Task
         sql.add(getDDLRenameTable("JBPM_TASKINSTANCE", "BPM_TASK"));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "ISBLOCKING_"));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "PRIORITY_"));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "ISCANCELLED_"));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "ISSUSPENDED_"));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "CLASS_"));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "START_"));
-        sql.add(getDDLRemoveIndex("BPM_TASK", getObjectName("IDX_TASKINST_TSK")));
-        sql.add(getDDLRemoveForeignKey("BPM_TASK", getObjectName("FK_TASKINST_TASK")));
-        sql.add(getDDLRemoveForeignKey("BPM_TASK", getObjectName("FK_TASKINST_TMINST")));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "ISOPEN_"));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "ISSIGNALLING_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "ISBLOCKING_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "PRIORITY_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "ISCANCELLED_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "ISSUSPENDED_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "CLASS_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "START_"));
+        sql.add(getDDLDropIndex("BPM_TASK", getObjectName("IDX_TASKINST_TSK")));
+        sql.add(getDDLDropForeignKey("BPM_TASK", getObjectName("FK_TASKINST_TASK")));
+        sql.add(getDDLDropForeignKey("BPM_TASK", getObjectName("FK_TASKINST_TMINST")));
+        sql.add(getDDLDropColumn("BPM_TASK", "ISOPEN_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "ISSIGNALLING_"));
         sql.add(getDDLRenameColumn("BPM_TASK", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_TASK", "NAME_", new ColumnDef("NAME", Types.VARCHAR)));
         sql.add(getDDLRenameColumn("BPM_TASK", "DESCRIPTION_", new ColumnDef("DESCRIPTION", Types.VARCHAR)));
@@ -264,11 +264,11 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLRenameColumn("BPM_TASK", "DUEDATE_", new ColumnDef("DEADLINE_DATE", Types.DATE)));
         sql.add(getDDLRenameColumn("BPM_TASK", "TOKEN_", new ColumnDef("TOKEN_ID", Types.BIGINT)));
         sql.add(getDDLRenameForeignKey(getObjectName("FK_TASKINST_TOKEN"), "FK_TASK_TOKEN"));
-        sql.add(getDDLRemoveIndex("BPM_TASK", getObjectName("IDX_TASKINST_TOKN")));
+        sql.add(getDDLDropIndex("BPM_TASK", getObjectName("IDX_TASKINST_TOKN")));
         sql.add(getDDLRenameColumn("BPM_TASK", "SWIMLANINSTANCE_", new ColumnDef("SWIMLANE_ID", Types.BIGINT)));
-        sql.add(getDDLRemoveForeignKey("JBPM_TASK", getObjectName("FK_TASK_SWIMLANE")));
+        sql.add(getDDLDropForeignKey("JBPM_TASK", getObjectName("FK_TASK_SWIMLANE")));
         sql.add(getDDLRenameForeignKey(getObjectName("FK_TASKINST_SLINST"), "FK_TASK_SWIMLANE"));
-        sql.add(getDDLRemoveIndex("BPM_TASK", getObjectName("IDX_TSKINST_SLINST")));
+        sql.add(getDDLDropIndex("BPM_TASK", getObjectName("IDX_TSKINST_SLINST")));
         sql.add(getDDLRenameColumn("BPM_TASK", "PROCINST_", new ColumnDef("PROCESS_ID", Types.BIGINT)));
         sql.add(getDDLRenameForeignKey(getObjectName("FK_TSKINS_PRCINS"), "FK_TASK_PROCESS"));
         sql.add(getDDLCreateColumn("BPM_TASK", new ColumnDef("FIRST_OPEN", Types.TINYINT)));
@@ -276,10 +276,10 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLCreateColumn("BPM_TASK", new ColumnDef("EXECUTOR_ID", Types.BIGINT)));
         sql.add(getDDLCreateForeignKey("BPM_TASK", "FK_TASK_EXECUTOR", "EXECUTOR_ID", "EXECUTOR", "ID"));
         if (handleManualIndexes) {
-            sql.add(getDDLRemoveIndex("BPM_TASK", getObjectName("IDX_TASKINST_ACTOREND")));
+            sql.add(getDDLDropIndex("BPM_TASK", getObjectName("IDX_TASKINST_ACTOREND")));
         }
-        sql.add(getDDLRemoveIndex("BPM_TASK", getObjectName("IDX_TASK_ACTORID")));
-        sql.add(getDDLRemoveIndex("BPM_TASK", getObjectName("IDX_TSKINST_TMINST")));
+        sql.add(getDDLDropIndex("BPM_TASK", getObjectName("IDX_TASK_ACTORID")));
+        sql.add(getDDLDropIndex("BPM_TASK", getObjectName("IDX_TSKINST_TMINST")));
 
         // ru.runa.wfe.audit.ProcessLog
         sql.add(getDDLTruncateTable("JBPM_LOG"));
@@ -287,55 +287,55 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLRenameColumn("BPM_LOG", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_LOG", "CLASS_", new ColumnDef("DISCRIMINATOR", Types.CHAR)));
         if (handleManualIndexes && !Strings.isNullOrEmpty(getObjectName("LOG_TOKEN_IDX"))) {
-            sql.add(getDDLRemoveIndex("BPM_LOG", getObjectName("LOG_TOKEN_IDX")));
+            sql.add(getDDLDropIndex("BPM_LOG", getObjectName("LOG_TOKEN_IDX")));
         }
-        sql.add(getDDLRemoveColumn("BPM_LOG", "INDEX_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "INDEX_"));
         sql.add(getDDLRenameColumn("BPM_LOG", "DATE_", new ColumnDef("LOG_DATE", Types.DATE)));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_TOKEN")));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_TOKEN")));
         sql.add(getDDLRenameColumn("BPM_LOG", "TOKEN_", new ColumnDef("TOKEN_ID", Types.BIGINT)));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_PARENT")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "PARENT_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "MESSAGE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "EXCEPTION_"));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_ACTION")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "ACTION_"));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_NODE")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "NODE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "ENTER_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "LEAVE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "DURATION_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "NEWLONGVALUE_"));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_TRANSITION")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "TRANSITION_"));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_CHILDTOKEN")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "CHILD_"));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_SOURCENODE")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "SOURCENODE_"));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_DESTNODE")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "DESTINATIONNODE_"));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_VARINST")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "VARIABLEINSTANCE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "OLDDATEVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "NEWDATEVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "OLDDOUBLEVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "NEWDOUBLEVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "OLDLONGIDCLASS_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "OLDLONGIDVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "OLDLONGVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "NEWLONGIDCLASS_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "NEWLONGIDVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "OLDSTRINGIDCLASS_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "OLDSTRINGIDVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "NEWSTRINGIDCLASS_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "NEWSTRINGIDVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "OLDSTRINGVALUE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "NEWSTRINGVALUE_"));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_TASKINST")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "TASKINSTANCE_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "TASKACTORID_"));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "TASKOLDACTORID_"));
-        sql.add(getDDLRemoveForeignKey("BPM_LOG", getObjectName("FK_LOG_SWIMINST")));
-        sql.add(getDDLRemoveColumn("BPM_LOG", "SWIMLANEINSTANCE_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_PARENT")));
+        sql.add(getDDLDropColumn("BPM_LOG", "PARENT_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "MESSAGE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "EXCEPTION_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_ACTION")));
+        sql.add(getDDLDropColumn("BPM_LOG", "ACTION_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_NODE")));
+        sql.add(getDDLDropColumn("BPM_LOG", "NODE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "ENTER_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "LEAVE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "DURATION_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "NEWLONGVALUE_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_TRANSITION")));
+        sql.add(getDDLDropColumn("BPM_LOG", "TRANSITION_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_CHILDTOKEN")));
+        sql.add(getDDLDropColumn("BPM_LOG", "CHILD_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_SOURCENODE")));
+        sql.add(getDDLDropColumn("BPM_LOG", "SOURCENODE_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_DESTNODE")));
+        sql.add(getDDLDropColumn("BPM_LOG", "DESTINATIONNODE_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_VARINST")));
+        sql.add(getDDLDropColumn("BPM_LOG", "VARIABLEINSTANCE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "OLDDATEVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "NEWDATEVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "OLDDOUBLEVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "NEWDOUBLEVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "OLDLONGIDCLASS_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "OLDLONGIDVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "OLDLONGVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "NEWLONGIDCLASS_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "NEWLONGIDVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "OLDSTRINGIDCLASS_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "OLDSTRINGIDVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "NEWSTRINGIDCLASS_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "NEWSTRINGIDVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "OLDSTRINGVALUE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "NEWSTRINGVALUE_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_TASKINST")));
+        sql.add(getDDLDropColumn("BPM_LOG", "TASKINSTANCE_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "TASKACTORID_"));
+        sql.add(getDDLDropColumn("BPM_LOG", "TASKOLDACTORID_"));
+        sql.add(getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_SWIMINST")));
+        sql.add(getDDLDropColumn("BPM_LOG", "SWIMLANEINSTANCE_"));
         sql.add(getDDLCreateColumn("BPM_LOG", new ColumnDef("BYTES", Types.VARBINARY)));
         sql.add(getDDLCreateColumn("BPM_LOG", new ColumnDef("CONTENT", dialect.getTypeName(Types.VARCHAR, 4000, 255, 255))));
         sql.add(getDDLCreateColumn("BPM_LOG", new ColumnDef("PROCESS_ID", Types.BIGINT)));
@@ -343,21 +343,21 @@ public class JbpmRefactoringPatch extends DbPatch {
 
         // ru.runa.wfe.job.Job
         sql.add(getDDLRenameTable("JBPM_JOB", "BPM_JOB"));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "ISSUSPENDED_"));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "LOCKTIME_"));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "ISEXCLUSIVE_"));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "EXCEPTION_"));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "RETRIES_"));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "REPEAT_"));
-        sql.add(getDDLRemoveForeignKey("BPM_JOB", getObjectName("FK_JOB_TSKINST")));
-        sql.add(getDDLRemoveIndex("BPM_JOB", getObjectName("IDX_JOB_TSKINST")));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "TASKINSTANCE_"));
-        sql.add(getDDLRemoveForeignKey("BPM_JOB", getObjectName("FK_JOB_NODE")));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "NODE_"));
-        sql.add(getDDLRemoveForeignKey("BPM_JOB", getObjectName("FK_JOB_ACTION")));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "ACTION_"));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "GRAPHELEMENTTYPE_"));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "GRAPHELEMENT_"));
+        sql.add(getDDLDropColumn("BPM_JOB", "ISSUSPENDED_"));
+        sql.add(getDDLDropColumn("BPM_JOB", "LOCKTIME_"));
+        sql.add(getDDLDropColumn("BPM_JOB", "ISEXCLUSIVE_"));
+        sql.add(getDDLDropColumn("BPM_JOB", "EXCEPTION_"));
+        sql.add(getDDLDropColumn("BPM_JOB", "RETRIES_"));
+        sql.add(getDDLDropColumn("BPM_JOB", "REPEAT_"));
+        sql.add(getDDLDropForeignKey("BPM_JOB", getObjectName("FK_JOB_TSKINST")));
+        sql.add(getDDLDropIndex("BPM_JOB", getObjectName("IDX_JOB_TSKINST")));
+        sql.add(getDDLDropColumn("BPM_JOB", "TASKINSTANCE_"));
+        sql.add(getDDLDropForeignKey("BPM_JOB", getObjectName("FK_JOB_NODE")));
+        sql.add(getDDLDropColumn("BPM_JOB", "NODE_"));
+        sql.add(getDDLDropForeignKey("BPM_JOB", getObjectName("FK_JOB_ACTION")));
+        sql.add(getDDLDropColumn("BPM_JOB", "ACTION_"));
+        sql.add(getDDLDropColumn("BPM_JOB", "GRAPHELEMENTTYPE_"));
+        sql.add(getDDLDropColumn("BPM_JOB", "GRAPHELEMENT_"));
         sql.add(getDDLRenameColumn("BPM_JOB", "CLASS_", new ColumnDef("DISCRIMINATOR", Types.CHAR)));
         sql.add(getDDLRenameColumn("BPM_JOB", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_JOB", "NAME_", new ColumnDef("NAME", Types.VARCHAR)));
@@ -365,7 +365,7 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLRenameColumn("BPM_JOB", "DUEDATE_", new ColumnDef("DUE_DATE", Types.DATE)));
         sql.add(getDDLRenameColumn("BPM_JOB", "PROCESSINSTANCE_", new ColumnDef("PROCESS_ID", Types.BIGINT)));
         sql.add(getDDLRenameIndex("BPM_JOB", getObjectName("IDX_JOB_PRINST"), "IX_JOB_PROCESS"));
-        sql.add(getDDLRemoveIndex("BPM_JOB", getObjectName("IDX_JOB_TOKEN")));
+        sql.add(getDDLDropIndex("BPM_JOB", getObjectName("IDX_JOB_TOKEN")));
         sql.add(getDDLRenameColumn("BPM_JOB", "TOKEN_", new ColumnDef("TOKEN_ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_JOB", "TRANSITIONNAME_", new ColumnDef("TRANSITION_NAME", Types.VARCHAR)));
         sql.add(getDDLCreateColumn("BPM_JOB", new ColumnDef("REPEAT_DURATION", dialect.getTypeName(Types.VARCHAR, 255, 255, 255))));
@@ -373,19 +373,19 @@ public class JbpmRefactoringPatch extends DbPatch {
 
         // ru.runa.wfe.var.Variable
         sql.add(getDDLRenameTable("JBPM_VARIABLEINSTANCE", "BPM_VARIABLE"));
-        sql.add(getDDLRemoveIndex("BPM_VARIABLE", getObjectName("IDX_VARINST_TKVARMP")));
-        sql.add(getDDLRemoveForeignKey("BPM_VARIABLE", getObjectName("FK_VARINST_TKVARMP")));
-        sql.add(getDDLRemoveColumn("BPM_VARIABLE", "TOKENVARIABLEMAP_"));
-        sql.add(getDDLRemoveIndex("BPM_VARIABLE", getObjectName("IDX_VARINST_TK")));
-        sql.add(getDDLRemoveForeignKey("BPM_VARIABLE", getObjectName("FK_VARINST_TK")));
-        sql.add(getDDLRemoveColumn("BPM_VARIABLE", "TOKEN_"));
-        sql.add(getDDLRemoveForeignKey("BPM_VARIABLE", getObjectName("FK_VAR_TSKINST")));
+        sql.add(getDDLDropIndex("BPM_VARIABLE", getObjectName("IDX_VARINST_TKVARMP")));
+        sql.add(getDDLDropForeignKey("BPM_VARIABLE", getObjectName("FK_VARINST_TKVARMP")));
+        sql.add(getDDLDropColumn("BPM_VARIABLE", "TOKENVARIABLEMAP_"));
+        sql.add(getDDLDropIndex("BPM_VARIABLE", getObjectName("IDX_VARINST_TK")));
+        sql.add(getDDLDropForeignKey("BPM_VARIABLE", getObjectName("FK_VARINST_TK")));
+        sql.add(getDDLDropColumn("BPM_VARIABLE", "TOKEN_"));
+        sql.add(getDDLDropForeignKey("BPM_VARIABLE", getObjectName("FK_VAR_TSKINST")));
         if (handleManualIndexes) {
-            sql.add(getDDLRemoveIndex("BPM_VARIABLE", getObjectName("IDX_VARINST_TASKINST")));
+            sql.add(getDDLDropIndex("BPM_VARIABLE", getObjectName("IDX_VARINST_TASKINST")));
         }
-        sql.add(getDDLRemoveColumn("BPM_VARIABLE", "TASKINSTANCE_"));
-        sql.add(getDDLRemoveColumn("BPM_VARIABLE", "STRINGIDCLASS_"));
-        sql.add(getDDLRemoveColumn("BPM_VARIABLE", "LONGIDCLASS_"));
+        sql.add(getDDLDropColumn("BPM_VARIABLE", "TASKINSTANCE_"));
+        sql.add(getDDLDropColumn("BPM_VARIABLE", "STRINGIDCLASS_"));
+        sql.add(getDDLDropColumn("BPM_VARIABLE", "LONGIDCLASS_"));
         sql.add(getDDLRenameColumn("BPM_VARIABLE", "CLASS_", new ColumnDef("DISCRIMINATOR", Types.CHAR)));
         sql.add(getDDLRenameColumn("BPM_VARIABLE", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_VARIABLE", "NAME_", new ColumnDef("NAME", Types.VARCHAR)));
@@ -399,11 +399,11 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLRenameColumn("BPM_VARIABLE", "DATEVALUE_", new ColumnDef("DATEVALUE", Types.DATE)));
         sql.add(getDDLRenameColumn("BPM_VARIABLE", "DOUBLEVALUE_", new ColumnDef("DOUBLEVALUE", Types.FLOAT)));
         sql.add(getDDLRenameColumn("BPM_VARIABLE", "BYTES_", new ColumnDef("BYTES", Types.VARBINARY)));
-        sql.add(getDDLRemoveTable("JBPM_TOKENVARIABLEMAP"));
+        sql.add(getDDLDropTable("JBPM_TOKENVARIABLEMAP"));
 
         // ru.runa.wfe.execution.NodeProcess
         sql.add(getDDLRenameTable("JBPM_NODE_SUBPROC", "BPM_SUBPROCESS"));
-        sql.add(getDDLRemoveIndex("BPM_SUBPROCESS", getObjectName("IDX_NODE_SUBPROC_NODE")));
+        sql.add(getDDLDropIndex("BPM_SUBPROCESS", getObjectName("IDX_NODE_SUBPROC_NODE")));
         sql.add(getDDLRenameColumn("BPM_SUBPROCESS", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("BPM_SUBPROCESS", "PROCESSINSTANCE_", new ColumnDef("PARENT_PROCESS_ID", Types.BIGINT)));
         sql.add(getDDLRenameIndex("BPM_SUBPROCESS", getObjectName("IDX_NODE_SUBPROC_PROCINST"), "IX_SUBPROCESS_PARENT_PROCESS"));
@@ -411,22 +411,22 @@ public class JbpmRefactoringPatch extends DbPatch {
         sql.add(getDDLRenameColumn("BPM_SUBPROCESS", "SUBPROCESSINSTANCE_", new ColumnDef("PROCESS_ID", Types.BIGINT)));
         sql.add(getDDLRenameIndex("BPM_SUBPROCESS", getObjectName("IDX_NODE_SUBPROC_SUBPROCINST"), "IX_SUBPROCESS_PROCESS"));
         sql.add(getDDLRenameForeignKey(getObjectName("FK_NODE_SUBPROC_PROCINST"), "FK_SUBPROCESS_PARENT_PROCESS"));
-        sql.add(getDDLRemoveForeignKey("BPM_SUBPROCESS", getObjectName("FK_NODE_SUBPROC_NODE")));
+        sql.add(getDDLDropForeignKey("BPM_SUBPROCESS", getObjectName("FK_NODE_SUBPROC_NODE")));
         sql.add(getDDLCreateColumn("BPM_SUBPROCESS", new ColumnDef("PARENT_TOKEN_ID", Types.BIGINT)));
         sql.add(getDDLCreateForeignKey("BPM_SUBPROCESS", "FK_SUBPROCESS_TOKEN", "PARENT_TOKEN_ID", "BPM_TOKEN", "ID"));
         sql.add(getDDLCreateColumn("BPM_SUBPROCESS", new ColumnDef("PARENT_NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255))));
 
-        sql.add(getDDLRemoveTable("EXECUTOR_OPEN_TASKS"));
+        sql.add(getDDLDropTable("EXECUTOR_OPEN_TASKS"));
         // for next patch
         sql.add(getDDLCreateColumn("JBPM_PASSTRANS", new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255))));
         sql.add(getDDLCreateColumn("JBPM_PASSTRANS", new ColumnDef("TRANSITION_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255))));
         sql.add(getDDLRenameColumn("JBPM_PASSTRANS", "ID_", new ColumnDef("ID", Types.BIGINT)));
         sql.add(getDDLRenameColumn("JBPM_PASSTRANS", "PROCESSINSTANCE_", new ColumnDef("PROCESS_ID", Types.BIGINT)));
-        sql.add(getDDLRemoveForeignKey("JBPM_PASSTRANS", getObjectName("FK_PASSTRANS_PROCINST")));
-        sql.add(getDDLRemoveForeignKey("JBPM_PASSTRANS", getObjectName("FK_PASSTRANS_TRANS")));
+        sql.add(getDDLDropForeignKey("JBPM_PASSTRANS", getObjectName("FK_PASSTRANS_PROCINST")));
+        sql.add(getDDLDropForeignKey("JBPM_PASSTRANS", getObjectName("FK_PASSTRANS_TRANS")));
 
-        sql.add(getDDLRemoveIndex("PERMISSION_MAPPINGS", "PERM_MAPPINGS_SEC_OBJ_ID_IDX"));
-        sql.add(getDDLRemoveIndex("PERMISSION_MAPPINGS", getObjectName("PERM_MAPPINGS_EXEC_ID_IDX")));
+        sql.add(getDDLDropIndex("PERMISSION_MAPPINGS", "PERM_MAPPINGS_SEC_OBJ_ID_IDX"));
+        sql.add(getDDLDropIndex("PERMISSION_MAPPINGS", getObjectName("PERM_MAPPINGS_EXEC_ID_IDX")));
         return sql;
     }
 
@@ -434,70 +434,70 @@ public class JbpmRefactoringPatch extends DbPatch {
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesBefore();
         if (jbpmIdTablesExist) {
-            sql.add(getDDLRemoveTable("JBPM_ID_MEMBERSHIP"));
-            sql.add(getDDLRemoveTable("JBPM_ID_PERMISSIONS"));
-            sql.add(getDDLRemoveTable("JBPM_ID_GROUP"));
-            sql.add(getDDLRemoveTable("JBPM_ID_USER"));
+            sql.add(getDDLDropTable("JBPM_ID_MEMBERSHIP"));
+            sql.add(getDDLDropTable("JBPM_ID_PERMISSIONS"));
+            sql.add(getDDLDropTable("JBPM_ID_GROUP"));
+            sql.add(getDDLDropTable("JBPM_ID_USER"));
         }
         if (jbpmCommentTableExists) {
-            sql.add(getDDLRemoveTable("JBPM_COMMENT"));
+            sql.add(getDDLDropTable("JBPM_COMMENT"));
         }
-        sql.add(getDDLRemoveColumn("BPM_SWIMLANE", "TASKMGMTINSTANCE_"));
-        sql.add(getDDLRemoveColumn("BPM_SWIMLANE", "ACTORID_"));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "ACTORID_"));
-        sql.add(getDDLRemoveColumn("BPM_TASK", "TASKMGMTINSTANCE_"));
+        sql.add(getDDLDropColumn("BPM_SWIMLANE", "TASKMGMTINSTANCE_"));
+        sql.add(getDDLDropColumn("BPM_SWIMLANE", "ACTORID_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "ACTORID_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "TASKMGMTINSTANCE_"));
 
-        sql.add(getDDLRemoveForeignKey("JBPM_NODE", getObjectName("FK_NODE_ACTION")));
-        sql.add(getDDLRemoveForeignKey("JBPM_NODE", getObjectName("FK_NODE_SCRIPT")));
-        sql.add(getDDLRemoveForeignKey("JBPM_VARIABLEACCESS", getObjectName("FK_VARACC_PROCST")));
-        sql.add(getDDLRemoveForeignKey("JBPM_VARIABLEACCESS", getObjectName("FK_VARACC_SCRIPT")));
-        sql.add(getDDLRemoveForeignKey("JBPM_VARIABLEACCESS", getObjectName("FK_VARACC_TSKCTRL")));
-        sql.add(getDDLRemoveForeignKey("JBPM_SWIMLANE", getObjectName("FK_SWL_ASSDEL")));
-        sql.add(getDDLRemoveForeignKey("JBPM_TASK", getObjectName("FK_TASK_STARTST")));
-        sql.add(getDDLRemoveForeignKey("JBPM_TASK", getObjectName("FK_TASK_TASKNODE")));
-        sql.add(getDDLRemoveForeignKey("JBPM_TASK", getObjectName("FK_TASK_ASSDEL")));
-        sql.add(getDDLRemoveForeignKey("JBPM_TASK", getObjectName("FK_TSK_TSKCTRL")));
-        sql.add(getDDLRemoveColumn("JBPM_TASK", "TASKCONTROLLER_"));
-        sql.add(getDDLRemoveForeignKey("JBPM_TRANSITION", getObjectName("FK_TRANSITION_FROM")));
-        sql.add(getDDLRemoveForeignKey("JBPM_TRANSITION", getObjectName("FK_TRANSITION_TO")));
+        sql.add(getDDLDropForeignKey("JBPM_NODE", getObjectName("FK_NODE_ACTION")));
+        sql.add(getDDLDropForeignKey("JBPM_NODE", getObjectName("FK_NODE_SCRIPT")));
+        sql.add(getDDLDropForeignKey("JBPM_VARIABLEACCESS", getObjectName("FK_VARACC_PROCST")));
+        sql.add(getDDLDropForeignKey("JBPM_VARIABLEACCESS", getObjectName("FK_VARACC_SCRIPT")));
+        sql.add(getDDLDropForeignKey("JBPM_VARIABLEACCESS", getObjectName("FK_VARACC_TSKCTRL")));
+        sql.add(getDDLDropForeignKey("JBPM_SWIMLANE", getObjectName("FK_SWL_ASSDEL")));
+        sql.add(getDDLDropForeignKey("JBPM_TASK", getObjectName("FK_TASK_STARTST")));
+        sql.add(getDDLDropForeignKey("JBPM_TASK", getObjectName("FK_TASK_TASKNODE")));
+        sql.add(getDDLDropForeignKey("JBPM_TASK", getObjectName("FK_TASK_ASSDEL")));
+        sql.add(getDDLDropForeignKey("JBPM_TASK", getObjectName("FK_TSK_TSKCTRL")));
+        sql.add(getDDLDropColumn("JBPM_TASK", "TASKCONTROLLER_"));
+        sql.add(getDDLDropForeignKey("JBPM_TRANSITION", getObjectName("FK_TRANSITION_FROM")));
+        sql.add(getDDLDropForeignKey("JBPM_TRANSITION", getObjectName("FK_TRANSITION_TO")));
 
-        sql.add(getDDLRemoveTable("JBPM_DECISIONCONDITIONS"));
-        sql.add(getDDLRemoveTable("JBPM_RUNTIMEACTION"));
-        sql.add(getDDLRemoveTable("JBPM_ACTION"));
-        sql.add(getDDLRemoveTable("JBPM_EVENT"));
-        sql.add(getDDLRemoveTable("JBPM_PROCESSFILES"));
-        sql.add(getDDLRemoveTable("JBPM_VARIABLEACCESS"));
-        sql.add(getDDLRemoveForeignKey("JBPM_NODE", "FK_DECISION_DELEG"));
-        sql.add(getDDLRemoveForeignKey("JBPM_NODE", "FK_NODE_PROCDEF"));
-        sql.add(getDDLRemoveForeignKey("JBPM_NODE", "FK_PROCST_SBPRCDEF"));
-        sql.add(getDDLRemoveForeignKey("JBPM_NODE", "FK_NODE_SUPERSTATE"));
-        sql.add(getDDLRemoveTable("JBPM_NODE"));
-        sql.add(getDDLRemoveTable("JBPM_EXCEPTIONHANDLER"));
-        sql.add(getDDLRemoveTable("JBPM_TASKCONTROLLER"));
-        sql.add(getDDLRemoveTable("JBPM_DELEGATION"));
+        sql.add(getDDLDropTable("JBPM_DECISIONCONDITIONS"));
+        sql.add(getDDLDropTable("JBPM_RUNTIMEACTION"));
+        sql.add(getDDLDropTable("JBPM_ACTION"));
+        sql.add(getDDLDropTable("JBPM_EVENT"));
+        sql.add(getDDLDropTable("JBPM_PROCESSFILES"));
+        sql.add(getDDLDropTable("JBPM_VARIABLEACCESS"));
+        sql.add(getDDLDropForeignKey("JBPM_NODE", "FK_DECISION_DELEG"));
+        sql.add(getDDLDropForeignKey("JBPM_NODE", "FK_NODE_PROCDEF"));
+        sql.add(getDDLDropForeignKey("JBPM_NODE", "FK_PROCST_SBPRCDEF"));
+        sql.add(getDDLDropForeignKey("JBPM_NODE", "FK_NODE_SUPERSTATE"));
+        sql.add(getDDLDropTable("JBPM_NODE"));
+        sql.add(getDDLDropTable("JBPM_EXCEPTIONHANDLER"));
+        sql.add(getDDLDropTable("JBPM_TASKCONTROLLER"));
+        sql.add(getDDLDropTable("JBPM_DELEGATION"));
 
-        sql.add(getDDLRemoveForeignKey("JBPM_MODULEDEFINITION", getObjectName("FK_TSKDEF_START")));
-        sql.add(getDDLRemoveTable("JBPM_TASK"));
-        sql.add(getDDLRemoveTable("JBPM_SWIMLANE"));
+        sql.add(getDDLDropForeignKey("JBPM_MODULEDEFINITION", getObjectName("FK_TSKDEF_START")));
+        sql.add(getDDLDropTable("JBPM_TASK"));
+        sql.add(getDDLDropTable("JBPM_SWIMLANE"));
 
-        sql.add(getDDLRemoveTable("PERMISSION_MAPPINGS"));
-        sql.add(getDDLRemoveTable("SECURED_OBJECT_TYPES"));
-        sql.add(getDDLRemoveTable("SECURED_OBJECTS"));
+        sql.add(getDDLDropTable("PERMISSION_MAPPINGS"));
+        sql.add(getDDLDropTable("SECURED_OBJECT_TYPES"));
+        sql.add(getDDLDropTable("SECURED_OBJECTS"));
 
-        sql.add(getDDLRemoveTable("PROCESS_TYPES"));
-        sql.add(getDDLRemoveTable("PROCESS_DEFINITION_INFO"));
-        sql.add(getDDLRemoveTable("JBPM_TRANSITION"));
+        sql.add(getDDLDropTable("PROCESS_TYPES"));
+        sql.add(getDDLDropTable("PROCESS_DEFINITION_INFO"));
+        sql.add(getDDLDropTable("JBPM_TRANSITION"));
 
-        sql.add(getDDLRemoveTable("JBPM_MODULEINSTANCE"));
-        sql.add(getDDLRemoveTable("JBPM_MODULEDEFINITION"));
+        sql.add(getDDLDropTable("JBPM_MODULEINSTANCE"));
+        sql.add(getDDLDropTable("JBPM_MODULEDEFINITION"));
 
-        sql.add(getDDLRemoveColumn("BPM_TOKEN", "NODE_"));
-        sql.add(getDDLRemoveColumn("BPM_TOKEN", "SUBPROCESSINSTANCE_"));
+        sql.add(getDDLDropColumn("BPM_TOKEN", "NODE_"));
+        sql.add(getDDLDropColumn("BPM_TOKEN", "SUBPROCESSINSTANCE_"));
 
-        sql.add(getDDLRemoveColumn("BPM_TASK", "TASK_"));
-        sql.add(getDDLRemoveColumn("BPM_JOB", "LOCKOWNER_"));
-        sql.add(getDDLRemoveColumn("BPM_SUBPROCESS", "NODE_"));
-        sql.add(getDDLRemoveColumn("BPM_PROCESS", "SUPERPROCESSTOKEN_"));
+        sql.add(getDDLDropColumn("BPM_TASK", "TASK_"));
+        sql.add(getDDLDropColumn("BPM_JOB", "LOCKOWNER_"));
+        sql.add(getDDLDropColumn("BPM_SUBPROCESS", "NODE_"));
+        sql.add(getDDLDropColumn("BPM_PROCESS", "SUPERPROCESSTOKEN_"));
 
         sql.add(getDDLCreateIndex("BPM_TASK", "IX_TASK_PROCESS", "PROCESS_ID"));
         sql.add(getDDLCreateIndex("BPM_TASK", "IX_TASK_EXECUTOR", "EXECUTOR_ID"));

@@ -17,9 +17,6 @@
  */
 package ru.runa.wfe.var.format;
 
-/**
- * Created on 30.11.2004
- */
 public class BooleanFormat extends VariableFormat {
 
     @Override
@@ -46,5 +43,4 @@ public class BooleanFormat extends VariableFormat {
     public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
         return operation.onBoolean(this, context);
     }
-
 }

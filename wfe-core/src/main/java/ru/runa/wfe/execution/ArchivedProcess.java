@@ -10,7 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 
 @Entity
 @Table(name = "ARCHIVED_PROCESS")
@@ -22,12 +22,12 @@ public class ArchivedProcess extends Process<ArchivedToken> {
     @SuppressWarnings("unused")
     private Long id;
 
-    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEFINITION_ID", nullable = false)
-    @ForeignKey(name = "FK_ARCH_PROCESS_DEFINITION")
-    @Index(name = "IX_ARCH_PROCESS_DEFINITION")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
+    @ForeignKey(name = "FK_ARCH_PROCESS_DEF_VER")
+    @Index(name = "IX_ARCH_PROCESS_DEF_VER")
     @SuppressWarnings("unused")
-    private Deployment deployment;
+    private ProcessDefinitionVersion definitionVersion;
 
     @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
     @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
@@ -54,9 +54,10 @@ public class ArchivedProcess extends Process<ArchivedToken> {
     /**
      * Copy-pasted from Process with different FK and index names.
      */
+
     @Override
-    public Deployment getDeployment() {
-        return deployment;
+    public ProcessDefinitionVersion getDefinitionVersion() {
+        return definitionVersion;
     }
 
     @Override

@@ -3,12 +3,9 @@ package ru.runa.wf.web.datafile.builder;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -25,8 +22,8 @@ import ru.runa.wfe.user.User;
  * @author riven
  * 
  */
+@CommonsLog
 public class DefinitionDataFileBuilder implements DataFileBuilder {
-    protected final Log log = LogFactory.getLog(getClass());
     private final User user;
 
     public DefinitionDataFileBuilder(User user) {

@@ -17,20 +17,16 @@
  */
 package ru.runa.wfe.var.format;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
-
 import javax.xml.bind.DatatypeConverter;
-
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 /**
  * This class is marker class for validation.
@@ -53,11 +49,12 @@ public class FileFormat extends VariableFormat implements VariableDisplaySupport
     }
 
     @Override
-    public FileVariable convertFromStringValue(String string) throws Exception {
+    public FileVariable convertFromStringValue(String string) {
         return (FileVariable) convertFromJSONValue(JSONValue.parse(string.replaceAll("&quot;", "\"")));
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected Object convertToJSONValue(Object value) {
         FileVariable fileVariable = (FileVariable) value;
         JSONObject jsonObject = new JSONObject();

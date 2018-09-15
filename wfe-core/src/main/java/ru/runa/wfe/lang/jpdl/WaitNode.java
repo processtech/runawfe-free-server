@@ -75,7 +75,7 @@ public class WaitNode extends Node {
         } catch (Throwable th) {
             String nodeName;
             try {
-                nodeName = executionContext.getProcessDefinition().getNodeNotNull(timerNodeId).getName();
+                nodeName = executionContext.getParsedProcessDefinition().getNodeNotNull(timerNodeId).getName();
             } catch (Exception e) {
                 nodeName = "Unknown due to " + e;
             }

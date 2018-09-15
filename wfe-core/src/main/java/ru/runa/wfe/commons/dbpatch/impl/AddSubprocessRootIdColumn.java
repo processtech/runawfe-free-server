@@ -23,7 +23,7 @@ public class AddSubprocessRootIdColumn extends DbPatch {
 
     @Override
     public void executeDML(Session session) {
-        DbType dbType = ApplicationContextFactory.getDBType();
+        DbType dbType = ApplicationContextFactory.getDbType();
         String sql;
 
         // Set ROOT_PROCESS_ID for all first-level subprocesses.

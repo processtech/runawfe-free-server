@@ -2,9 +2,9 @@ package ru.runa.wfe.extension.handler.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
@@ -32,5 +32,4 @@ public class GetTaskPerformerHandler extends CommonParamBasedHandler {
         Object result = executorDao.getExecutor(taskEndLog.getActorName());
         handlerData.setOutputParam("result", result);
     }
-
 }

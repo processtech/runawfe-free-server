@@ -28,13 +28,16 @@ import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.var.UserType;
@@ -43,10 +46,11 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-public class ProcessDefinition extends GraphElement implements FileDataProvider {
+public class ParsedProcessDefinition extends GraphElement implements FileDataProvider {
     private static final long serialVersionUID = 1L;
     // TODO remove association for efficiency
-    protected Deployment deployment;
+    protected ProcessDefinition processDefinition;
+    protected ProcessDefinitionVersion processDefinitionVersion;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
     protected StartNode startNode;
     protected final List<Node> nodes = Lists.newArrayList();
@@ -57,49 +61,64 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
     protected final List<VariableDefinition> variables = Lists.newArrayList();
     protected final Map<String, VariableDefinition> variablesMap = Maps.newHashMap();
     protected ProcessDefinitionAccessType accessType = ProcessDefinitionAccessType.Process;
-    protected Map<String, SubprocessDefinition> embeddedSubprocesses = Maps.newHashMap();
+    protected Map<String, ParsedSubprocessDefinition> embeddedSubprocesses = Maps.newHashMap();
     private Boolean nodeAsyncExecution;
     private boolean graphActionsEnabled;
     private final List<ProcessDefinitionChange> changes = Lists.newArrayList();
 
-    protected ProcessDefinition() {
+    protected ParsedProcessDefinition() {
     }
 
-    public ProcessDefinition(Deployment deployment) {
-        this.deployment = deployment;
-        processDefinition = this;
+    public ParsedProcessDefinition(@NonNull ProcessDefinition d, @NonNull ProcessDefinitionVersion dv) {
+        this.processDefinition = d;
+        this.processDefinitionVersion = dv;
+        parsedProcessDefinition = this;
     }
 
+    public ParsedProcessDefinition(ProcessDefinitionWithVersion dwv) {
+        this(dwv.processDefinition, dwv.processDefinitionVersion);
+    }
+
+    /**
+     * @return processDefinitionVersion.id
+     */
     public Long getId() {
-        return deployment.getId();
+        return processDefinitionVersion.getId();
     }
 
+    /**
+     * @return processDefinition.name
+     */
     @Override
     public String getName() {
-        return deployment.getName();
+        return processDefinition.getName();
     }
 
     @Override
     public void setName(String name) {
-        if (deployment.getName() != null) {
+        if (processDefinition.getName() != null) {
             // don't override name from database
             return;
         }
-        deployment.setName(name);
+        processDefinition.setName(name);
     }
 
     @Override
     public String getDescription() {
-        return deployment.getDescription();
+        return processDefinition.getDescription();
     }
 
     @Override
     public void setDescription(String description) {
-        deployment.setDescription(description);
+        processDefinition.setDescription(description);
     }
 
-    public Deployment getDeployment() {
-        return deployment;
+    public ProcessDefinition getProcessDefinition() {
+        return processDefinition;
+    }
+
+    public ProcessDefinitionVersion getProcessDefinitionVersion() {
+        return processDefinitionVersion;
     }
 
     public ProcessDefinitionAccessType getAccessType() {
@@ -262,12 +281,12 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
     }
 
     public byte[] getGraphImageBytesNotNull() {
-        byte[] graphBytes = processDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
+        byte[] graphBytes = parsedProcessDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
         if (graphBytes == null) {
-            graphBytes = processDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
+            graphBytes = parsedProcessDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
         }
         if (graphBytes == null) {
-            graphBytes = processDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
+            graphBytes = parsedProcessDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
         }
         if (graphBytes == null) {
             throw new InternalApplicationException("No process graph image file found in process definition");
@@ -276,7 +295,7 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
     }
 
     public Map<String, Object> getDefaultVariableValues() {
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         for (VariableDefinition variableDefinition : variables) {
             if (variableDefinition.getDefaultValue() != null) {
                 result.put(variableDefinition.getName(), variableDefinition.getDefaultValue());
@@ -293,7 +312,7 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
     public List<Node> getNodes(boolean withEmbeddedSubprocesses) {
         List<Node> result = Lists.newArrayList(nodes);
         if (withEmbeddedSubprocesses) {
-            for (SubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
+            for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
                 result.addAll(subprocessDefinition.getNodes(withEmbeddedSubprocesses));
             }
         }
@@ -303,7 +322,7 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
     public Node addNode(Node node) {
         Preconditions.checkArgument(node != null, "can't add a null node to a processdefinition");
         nodes.add(node);
-        node.processDefinition = this;
+        node.parsedProcessDefinition = this;
         if (node instanceof StartNode) {
             if (startNode != null) {
                 throw new InvalidDefinitionException(getName(), "only one start-state allowed in a process");
@@ -324,7 +343,7 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
                 return node;
             }
         }
-        for (SubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
+        for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
             Node node = subprocessDefinition.getNode(id);
             if (node != null) {
                 return node;
@@ -357,7 +376,7 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
                 return swimlaneDefinition;
             }
         }
-        for (SubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
+        for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
             GraphElement graphElement = subprocessDefinition.getGraphElement(id);
             if (graphElement != null) {
                 return graphElement;
@@ -427,7 +446,7 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
         this.graphActionsEnabled = graphActionsEnabled;
     }
 
-    public void addEmbeddedSubprocess(SubprocessDefinition subprocessDefinition) {
+    public void addEmbeddedSubprocess(ParsedSubprocessDefinition subprocessDefinition) {
         embeddedSubprocesses.put(subprocessDefinition.getNodeId(), subprocessDefinition);
     }
 
@@ -450,7 +469,7 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
                 }
             }
         }
-        for (SubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
+        for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
             String nodeId = subprocessDefinition.getEmbeddedSubprocessNodeId(subprocessName);
             if (nodeId != null) {
                 return nodeId;
@@ -467,12 +486,12 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
         return subprocessNodeId;
     }
 
-    public Map<String, SubprocessDefinition> getEmbeddedSubprocesses() {
+    public Map<String, ParsedSubprocessDefinition> getEmbeddedSubprocesses() {
         return embeddedSubprocesses;
     }
 
-    public SubprocessDefinition getEmbeddedSubprocessByIdNotNull(String id) {
-        SubprocessDefinition subprocessDefinition = getEmbeddedSubprocesses().get(id);
+    public ParsedSubprocessDefinition getEmbeddedSubprocessByIdNotNull(String id) {
+        ParsedSubprocessDefinition subprocessDefinition = getEmbeddedSubprocesses().get(id);
         if (subprocessDefinition == null) {
             throw new InternalApplicationException(
                     "Embedded subprocess definition not found by id '" + id + "' in " + this + ", all = " + getEmbeddedSubprocesses().keySet());
@@ -480,8 +499,8 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
         return subprocessDefinition;
     }
 
-    public SubprocessDefinition getEmbeddedSubprocessByNameNotNull(String name) {
-        for (SubprocessDefinition subprocessDefinition : getEmbeddedSubprocesses().values()) {
+    public ParsedSubprocessDefinition getEmbeddedSubprocessByNameNotNull(String name) {
+        for (ParsedSubprocessDefinition subprocessDefinition : getEmbeddedSubprocesses().values()) {
             if (Objects.equal(name, subprocessDefinition.getName())) {
                 return subprocessDefinition;
             }
@@ -495,7 +514,7 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
             if (node instanceof SubprocessNode) {
                 SubprocessNode subprocessNode = (SubprocessNode) node;
                 if (subprocessNode.isEmbedded()) {
-                    SubprocessDefinition subprocessDefinition = getEmbeddedSubprocessByNameNotNull(subprocessNode.getSubProcessName());
+                    ParsedSubprocessDefinition subprocessDefinition = getEmbeddedSubprocessByNameNotNull(subprocessNode.getSubProcessName());
                     EmbeddedSubprocessStartNode startNode = subprocessDefinition.getStartStateNotNull();
                     for (Transition transition : subprocessNode.getArrivingTransitions()) {
                         startNode.addArrivingTransition(transition);
@@ -521,10 +540,9 @@ public class ProcessDefinition extends GraphElement implements FileDataProvider 
 
     @Override
     public String toString() {
-        if (deployment != null) {
-            return deployment.toString();
+        if (processDefinition != null) {
+            return processDefinition.toString();
         }
         return name;
     }
-
 }

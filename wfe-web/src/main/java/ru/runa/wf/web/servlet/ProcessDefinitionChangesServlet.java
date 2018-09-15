@@ -1,17 +1,14 @@
 package ru.runa.wf.web.servlet;
 
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
-
 import ru.runa.common.web.Resources;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
@@ -19,17 +16,15 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.base.Charsets;
-
 public class ProcessDefinitionChangesServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String action = request.getParameter("action");
         Long id = Long.valueOf(request.getParameter("id"));
         if ("loadAllChanges".equals(action)) {

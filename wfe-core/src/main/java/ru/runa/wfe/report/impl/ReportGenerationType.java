@@ -1,5 +1,6 @@
 package ru.runa.wfe.report.impl;
 
+import com.google.common.collect.Maps;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,10 +8,9 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import lombok.extern.apachecommons.CommonsLog;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -29,11 +29,7 @@ import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 import net.sf.jasperreports.web.WebReportContext;
 import net.sf.jasperreports.web.util.WebHtmlResourceHandler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Maps;
-
+@CommonsLog
 public enum ReportGenerationType {
 
     HTML_EMBEDDED {
@@ -84,7 +80,6 @@ public enum ReportGenerationType {
                         throw new IOException("Can't write file " + file);
                     }
                 } catch (IOException e) {
-                    Log log = LogFactory.getLog(ReportGenerationType.class);
                     log.error("Failed to save report resource " + file.getAbsolutePath(), e);
                 } finally {
                     try {
@@ -92,6 +87,7 @@ public enum ReportGenerationType {
                             outStream.close();
                         }
                     } catch (IOException e) {
+                        // Do nothing.
                     }
                 }
             }
@@ -223,7 +219,6 @@ public enum ReportGenerationType {
      * @param report
      *            Report document that should be exported.
      * @return result of report export.
-     * @throws JRException
      */
     public abstract ReportBuildResult exportReport(String reportName, HttpServletRequest request, HttpServletResponse response, JasperPrint report)
             throws JRException;

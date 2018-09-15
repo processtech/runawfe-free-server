@@ -24,7 +24,7 @@ import ru.runa.wfe.history.graph.HistoryGraphParallelNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphTransitionModel;
 import ru.runa.wfe.history.layout.NodeLayoutData;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -100,7 +100,7 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
                     return;
                 }
                 ((SubprocessNodeGraphElement) element).setSubprocessId(subprocessLog.getProcessId());
-                SubprocessDefinition subprocessDefinition = data.getEmbeddedSubprocess(((SubprocessNode) historyNode.getNode()).getSubProcessName());
+                ParsedSubprocessDefinition subprocessDefinition = data.getEmbeddedSubprocess(((SubprocessNode) historyNode.getNode()).getSubProcessName());
                 ((SubprocessNodeGraphElement) element).setEmbeddedSubprocessId(subprocessDefinition.getNodeId());
                 ((SubprocessNodeGraphElement) element).setEmbeddedSubprocessGraphWidth(subprocessDefinition.getGraphConstraints()[2]);
                 ((SubprocessNodeGraphElement) element).setEmbeddedSubprocessGraphHeight(subprocessDefinition.getGraphConstraints()[3]);

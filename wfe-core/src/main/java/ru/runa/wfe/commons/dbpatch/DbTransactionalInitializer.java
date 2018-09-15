@@ -4,8 +4,7 @@ import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -23,8 +22,8 @@ import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
 @Transactional
+@CommonsLog
 public class DbTransactionalInitializer {
-    protected static final Log log = LogFactory.getLog(DbTransactionalInitializer.class);
     @Autowired
     private ConstantDao constantDao;
     @Autowired

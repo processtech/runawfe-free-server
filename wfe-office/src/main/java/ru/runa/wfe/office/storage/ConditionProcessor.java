@@ -1,16 +1,14 @@
 package ru.runa.wfe.office.storage;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.extension.handler.ParamsDef;
@@ -22,9 +20,7 @@ import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Sets;
-
+@CommonsLog
 public class ConditionProcessor {
 
     private static final String LIKE_EXPR_END = ".toLowerCase()) >= 0";
@@ -42,8 +38,6 @@ public class ConditionProcessor {
     private static final String SPACE = " ";
 
     private static final String AND_LITERAL = "AND";
-
-    private static final Log log = LogFactory.getLog(ConditionProcessor.class);
 
     private static Set<String> operators = Sets.newHashSet(">", ">=", "<", "<=", "!=");
 
@@ -143,7 +137,7 @@ public class ConditionProcessor {
 
     private static long getTime(String source) {
         source = source.replaceAll("'", "");
-        Date date = null;
+        Date date;
         try {
             date = CalendarUtil.convertToDate(source, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
         } catch (InternalApplicationException e) {
@@ -158,19 +152,16 @@ public class ConditionProcessor {
     private static StringBuilder appendAttribute(StringBuilder sb, Map<String, Object> variables, String token) {
         String var = token.substring(1, token.length() - 1);
         if (variables.keySet().contains(var)) {
-            String toAppend = "";
             Object obj = variables.get(var);
             previousAttributeValue = obj;
             if (obj instanceof String) {
-                toAppend = "'" + obj + "'";
+                sb.append("'").append(obj).append("'");
             } else if (obj instanceof Date) {
-                toAppend = String.valueOf(((Date) obj).getTime());
+                sb.append(String.valueOf(((Date) obj).getTime()));
             } else {
-                toAppend = obj + "";
+                sb.append(obj);
             }
-            sb.append(toAppend);
         }
         return sb;
     }
-
 }

@@ -2,7 +2,7 @@ package ru.runa.wfe.office.doc;
 
 import java.util.Map;
 
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
@@ -37,7 +37,7 @@ public class TestVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public Long getProcessDefinitionId() {
+    public Long getDeploymentVersionId() {
         throw new UnsupportedOperationException();
     }
 
@@ -47,7 +47,7 @@ public class TestVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
+    public ParsedProcessDefinition getParsedProcessDefinition() {
         return null;
     }
 

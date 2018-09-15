@@ -6,12 +6,14 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.execution.logic.ProcessExecutionListener;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 
+@CommonsLog
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
     private static final PropertyResources RESOURCES = new PropertyResources(CONFIG_FILE_NAME);
@@ -65,13 +67,6 @@ public class SystemProperties {
     }
 
     /**
-     * Using cache state machine or old cache implementation.
-     */
-    public static boolean useCacheStateMachine() {
-        return NO_DATABASE_RESOURCES.getBooleanProperty("use.cache.state.machine", true);
-    }
-
-    /**
      * Using cache state machine with caches isolation between transactions.
      */
     public static boolean useIsolatedCacheStateMachine() {
@@ -79,10 +74,27 @@ public class SystemProperties {
     }
 
     /**
-     * Using non runtime substitution cache instead of static substitution cache.
+     * Using stableable (formerly called "non-runtime") substitution cache instead of static substitution cache.
      */
-    public static boolean useNonRuntimeSubstitutionCache() {
-        return NO_DATABASE_RESOURCES.getBooleanProperty("nonruntime.susbstitution.cache", true);
+    public static boolean useStaleableSubstitutionCache() {
+        // TODO Rename parameter from "nonruntime..." to "staleable..." in configs.
+        return NO_DATABASE_RESOURCES.getBooleanProperty(
+                "staleable.susbstitution.cache",
+                useNonRuntimeSubstitutionCache()  // fallback to old parameter name
+        );
+    }
+
+    /**
+     * @deprecated Queries old parameter name; use useStaleableSubstitutionCache().
+     */
+    @Deprecated
+    private static boolean useNonRuntimeSubstitutionCache() {
+        String s = NO_DATABASE_RESOURCES.getStringProperty("nonruntime.susbstitution.cache", null);
+        if (s == null) {
+            return true;  // default value
+        }
+        log.warn("Please rename obsolete config property \"nonruntime.susbstitution.cache\" to new \"staleable.susbstitution.cache\".");
+        return Boolean.parseBoolean(s);  // as getBooleanProperty() does
     }
 
     /**

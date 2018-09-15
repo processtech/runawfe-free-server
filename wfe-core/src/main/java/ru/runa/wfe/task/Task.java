@@ -38,8 +38,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -48,10 +47,10 @@ import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.CurrentTaskAssignLog;
-import ru.runa.wfe.audit.CurrentTaskEndBySubstitutorLog;
-import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.audit.CurrentTaskCancelledLog;
 import ru.runa.wfe.audit.CurrentTaskEndByAdminLog;
+import ru.runa.wfe.audit.CurrentTaskEndBySubstitutorLog;
+import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.audit.CurrentTaskExpiredLog;
 import ru.runa.wfe.audit.CurrentTaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -75,9 +74,9 @@ import ru.runa.wfe.user.Executor;
 @Entity
 @Table(name = "BPM_TASK")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@CommonsLog
 public class Task implements Assignable {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(Task.class);
 
     private Long id;
     private Long version;
@@ -277,11 +276,11 @@ public class Task implements Assignable {
             // do the actual assignment
             setExecutor(executor);
             setAssignDate(new Date());
-            InteractionNode node = (InteractionNode) executionContext.getProcessDefinition().getNodeNotNull(nodeId);
-            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
+            InteractionNode node = (InteractionNode) executionContext.getParsedProcessDefinition().getNodeNotNull(nodeId);
+            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), this);
             node.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_ASSIGN);
             for (TaskNotifier notifier : ApplicationContextFactory.getTaskNotifiers()) {
-                notifier.onTaskAssigned(executionContext.getProcessDefinition(), executionContext.getVariableProvider(), this, previousExecutor);
+                notifier.onTaskAssigned(executionContext.getParsedProcessDefinition(), executionContext.getVariableProvider(), this, previousExecutor);
             }
         }
         if (cascadeUpdate && swimlane != null) {
@@ -319,7 +318,7 @@ public class Task implements Assignable {
             throw new IllegalArgumentException("Unimplemented for " + completionInfo.getCompletionBy());
         }
         if (completionInfo.getCompletionBy() != TaskCompletionBy.PROCESS_END) {
-            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
+            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), this);
             taskNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
         }
         delete();
@@ -334,5 +333,4 @@ public class Task implements Assignable {
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("name", name).add("assignedTo", executor).toString();
     }
-
 }

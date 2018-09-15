@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.ecs.html.B;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
@@ -22,16 +22,17 @@ import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.dto.WfTask;
-import ru.runa.wfe.task.logic.TaskListBuilderImpl;
+import ru.runa.wfe.task.logic.TaskListBuilder;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listObservableTasksForm")
+@CommonsLog
 public class ListObservableTasksFormTag extends ListTasksFormTag {
     private static final long serialVersionUID = 1L;
     private Long executorId;
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setExecutorId(Long executorId) {
         this.executorId = executorId;
         if (executorId != null) {
@@ -88,8 +89,8 @@ public class ListObservableTasksFormTag extends ListTasksFormTag {
             int fieldIndex = getBatchPresentation().getType().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR);
             FilterCriteria filterCriteria = getBatchPresentation().getFilteredFields().get(fieldIndex);
             String executorName = filterCriteria != null ? filterCriteria.getFilterTemplates()[0] : null;
-            TaskListBuilderImpl taskListBuilderImpl = ApplicationContextFactory.getContext().getBean(TaskListBuilderImpl.class);
-            Set<Executor> executors = taskListBuilderImpl.getObservableExecutors(actor, executorName);
+            TaskListBuilder taskListBuilder = ApplicationContextFactory.getContext().getBean(TaskListBuilder.class);
+            Set<Executor> executors = taskListBuilder.getObservableExecutors(actor, executorName);
             Utils.getTransactionManager().rollback();
             StringBuilder title = new StringBuilder();
             title.append(MessagesProcesses.TITLE_OBSERVABLE_EXECUTORS.message(pageContext)).append(" (").append(executors.size()).append("):<br/>");
@@ -106,7 +107,7 @@ public class ListObservableTasksFormTag extends ListTasksFormTag {
             b.setTitle(title.toString());
             tdFormElement.addElement(b);
         } catch (Exception e) {
-            LogFactory.getLog(getClass()).error("Unable to build header", e);
+            log.error("Unable to build header", e);
         }
         super.fillFormElement(tdFormElement);
     }

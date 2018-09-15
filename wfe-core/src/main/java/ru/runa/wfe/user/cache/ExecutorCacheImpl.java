@@ -24,11 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.lang.SerializationUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
@@ -159,9 +157,9 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         synchronized (this) {
             ConcurrentHashMap<BatchPresentationFieldEquals, List<Executor>> map = batchAllExecutors.get(clazz);
             if (map == null) {
-                map = new ConcurrentHashMap<BatchPresentationFieldEquals, List<Executor>>();
+                map = new ConcurrentHashMap<>();
             }
-            List<Executor> result = new ArrayList<Executor>();
+            List<Executor> result = new ArrayList<>();
             for (Executor executor : executors) {
                 result.add(executor);
             }
@@ -207,7 +205,6 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
     }
 
     public boolean onGroupMembersChange(Group group) {
-        boolean result = true;
         groupToMembersCache.remove(group.getId());
         groupToAllActorMembersCache.remove(group.getId());
         batchAllExecutors.clear();
@@ -218,7 +215,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
                 groupToAllActorMembersCache.remove(upperGroup.getId());
             }
         }
-        return result;
+        return true;
     }
 
     public boolean onExecutorInGroupChange(Executor executor) {
@@ -237,7 +234,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
     private <Key extends Serializable, ValueInSet> Set<ValueInSet> getCollectionFromMap(Cache<Key, HashSet<ValueInSet>> map, Key key) {
         HashSet<ValueInSet> retVal = map.get(key);
         if (retVal == null) {
-            retVal = new HashSet<ValueInSet>();
+            retVal = new HashSet<>();
             map.put(key, retVal);
         }
         return retVal;
@@ -254,10 +251,10 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         }
         for (Executor executor : executors) {
             if (executorToParentGroupsCache.get(executor.getId()) == null) {
-                executorToParentGroupsCache.put(executor.getId(), new HashSet<Group>());
+                executorToParentGroupsCache.put(executor.getId(), new HashSet<>());
             }
             if (executor instanceof Group && groupToMembersCache.get(executor.getId()) == null) {
-                groupToMembersCache.put(executor.getId(), new HashSet<Executor>());
+                groupToMembersCache.put(executor.getId(), new HashSet<>());
             }
             if (!context.isInitializationStillRequired()) {
                 return;
@@ -280,7 +277,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         if (executorGroups != null) {
             return executorGroups;
         }
-        executorGroups = new HashSet<Group>();
+        executorGroups = new HashSet<>();
         cache.put(executor.getId(), executorGroups);
         if (mapExecutorToParents.get(executor.getId()) != null) {
             for (Group group : mapExecutorToParents.get(executor.getId())) {
@@ -296,7 +293,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         if (actorMembers != null) {
             return actorMembers;
         }
-        actorMembers = new HashSet<Actor>();
+        actorMembers = new HashSet<>();
         cache.put(group.getId(), actorMembers);
         if (mapGroupToMembers.get(group.getId()) != null) {
             for (Executor ex : mapGroupToMembers.get(group.getId())) {
@@ -353,7 +350,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
     @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
         if (changedObject.object instanceof Executor) {
-            boolean cleared = false;
+            boolean cleared;
             int idx = changedObject.getPropertyIndex("name");
             boolean createOrDelete = changedObject.changeType == Change.CREATE || changedObject.changeType == Change.DELETE;
             if (changedObject.object instanceof Actor) {
@@ -367,20 +364,14 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
                     cleared = cleared && onExecutorChange((String) changedObject.previousState[idx], Executor.class, createOrDelete);
                 }
             }
-            if (!cleared) {
-                return false;
-            }
-            return true;
+            return cleared;
         }
         if (changedObject.object instanceof ExecutorGroupMembership) {
             boolean cleared = true;
             ExecutorGroupMembership membership = (ExecutorGroupMembership) changedObject.object;
             cleared = cleared && onExecutorInGroupChange(membership.getExecutor());
             cleared = cleared && onGroupMembersChange(membership.getGroup());
-            if (!cleared) {
-                return false;
-            }
-            return true;
+            return cleared;
         }
         return false;
     }

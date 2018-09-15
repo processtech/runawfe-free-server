@@ -3,8 +3,7 @@ package ru.runa.wfe.task.logic;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -32,9 +31,8 @@ import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
+@CommonsLog
 public class ActorInInactiveEscalationGroupBoundConditionsTests extends AbstractTestNGSpringContextTests {
-
-    private static final Log log = LogFactory.getLog(ActorInInactiveEscalationGroupBoundConditionsTests.class);
 
     @Autowired
     ITaskListBuilderTestProvider taskListBuilder;

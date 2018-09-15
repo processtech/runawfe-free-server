@@ -37,7 +37,7 @@ public final class IdentifiebleSetConvertions {
     public static Set<SecuredObject> getProcessDefinitions(ScriptExecutionContext context, Set<String> processDefinitionNames) {
         Set<SecuredObject> processDefinitions = Sets.newHashSet();
         for (String definitionName : processDefinitionNames) {
-            processDefinitions.add(context.getDefinitionLogic().getLatestProcessDefinition(context.getUser(), definitionName));
+            processDefinitions.add(context.getProcessDefinitionLogic().getLatestProcessDefinition(context.getUser(), definitionName));
         }
         return processDefinitions;
     }

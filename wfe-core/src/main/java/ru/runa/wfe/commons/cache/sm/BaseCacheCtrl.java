@@ -17,102 +17,90 @@
  */
 package ru.runa.wfe.commons.cache.sm;
 
-import java.util.List;
-
-import javax.transaction.Transaction;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
+import java.util.List;
+import javax.transaction.Transaction;
+import lombok.AllArgsConstructor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.cache.CacheImplementation;
-import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
-import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
-import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 
 /**
- * Base implementation of cache control objects.
+ * Base class for components receiving events on objects change and transaction complete. Components, receiving events must register self in
+ * {@link CachingLogic}. All methods must be thread safe and may be called in many threads.
  *
- * @author Konstantinov Aleksey
- * @param <CacheImpl>
- *            Controlled cache implementation.
+ * @param <CacheImpl> Controlled cache implementation.
  */
-public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation, StateContext> implements ChangeListener {
-    /**
-     * Logging support.
-     */
+public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
     protected final Log log = LogFactory.getLog(this.getClass());
 
     /**
      * Cache lifetime control state machine.
      */
-    protected final CacheStateMachine<CacheImpl, StateContext> stateMachine;
+    protected final CacheStateMachine<CacheImpl> stateMachine;
 
     /**
      * Definitions for objects, which may invalidate cache.
      */
     private final List<ListenObjectDefinition> listenObjects;
 
-    public BaseCacheCtrl(LazyInitializedCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
-        super();
-        this.stateMachine = (CacheStateMachine<CacheImpl, StateContext>) CacheStateMachine.createStateMachine(factory, CachingLogic.class);
+    protected BaseCacheCtrl(SMCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
+        this.stateMachine = new CacheStateMachine<>(factory, CachingLogic.class);
         this.listenObjects = listenObjects;
+        CachingLogic.registerChangeListener(this);
     }
 
-    public BaseCacheCtrl(StaticCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
-        super();
-        this.stateMachine = (CacheStateMachine<CacheImpl, StateContext>) CacheStateMachine.createStateMachine(factory, CachingLogic.class);
-        this.listenObjects = listenObjects;
-    }
-
-    public BaseCacheCtrl(NonRuntimeCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
-        super();
-        this.stateMachine = (CacheStateMachine<CacheImpl, StateContext>) CacheStateMachine.createStateMachine(factory, CachingLogic.class);
-        this.listenObjects = listenObjects;
-    }
-
-    @Override
-    public void onChange(Transaction transaction, ChangedObjectParameter changedObject) {
-        if (log.isDebugEnabled()) {
-            for (ListenObjectDefinition def : listenObjects) {
-                if (def.listenClass.isAssignableFrom(changedObject.object.getClass())) {
-                    def.logType.logChange(stateMachine, transaction, changedObject, log);
-                    break;
+    public final void onChange(Transaction transaction, ChangedObjectParameter changedObject) {
+        try {
+            if (log.isDebugEnabled()) {
+                for (ListenObjectDefinition def : listenObjects) {
+                    if (def.listenClass.isAssignableFrom(changedObject.object.getClass())) {
+                        def.logType.logChange(stateMachine, transaction, changedObject, log);
+                        break;
+                    }
                 }
             }
+            stateMachine.onChange(transaction, changedObject);
+        } catch (Exception e) {
+            log.error("onChange(transaction, changedObject) call failed on " + getClass().getName(), e);
         }
-        stateMachine.onChange(transaction, changedObject);
     }
 
-    @Override
-    public void beforeTransactionComplete(Transaction transaction) {
-        if (log.isDebugEnabled()) {
-            log.debug(getCacheStateDescription(stateMachine, transaction) + " Preparing transaction " + transaction + " completition.");
+    public final void onBeforeTransactionComplete(Transaction transaction) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug(getCacheStateDescription(stateMachine, transaction) + " Preparing transaction " + transaction + " completition.");
+            }
+            stateMachine.onBeforeTransactionComplete(transaction);
+        } catch (Exception e) {
+            log.error("onBeforeTransactionComplete(transaction) call failed on " + getClass().getName(), e);
         }
-        stateMachine.beforeTransactionComplete(transaction);
     }
 
-    @Override
-    public void onTransactionCompleted(Transaction transaction) {
-        if (log.isDebugEnabled()) {
-            log.debug(getCacheStateDescription(stateMachine, transaction) + " Transaction " + transaction + " is completed.");
+    public final void onAfterTransactionComplete(Transaction transaction) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug(getCacheStateDescription(stateMachine, transaction) + " Transaction " + transaction + " is completed.");
+            }
+            stateMachine.onAfterTransactionComplete(transaction);
+        } catch (Exception e) {
+            log.error("onTransactionCompleted(transaction) call failed on " + getClass().getName(), e);
         }
-        stateMachine.onTransactionCompleted(transaction);
     }
 
-    @Override
-    public void uninitialize(Object object, Change change) {
-        if (log.isDebugEnabled()) {
-            log.debug("Cache is uninitialized due to " + change + " of " + object);
+    public final void dropCache() {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Dropping cache.");
+            }
+            stateMachine.dropCache();
+        } catch (Exception e) {
+            log.error("uninitialize() call failed on " + getClass().getName(), e);
         }
-        stateMachine.dropCache();
     }
 
-    @Override
     public final List<Class<?>> getListenObjectTypes() {
         return Lists.transform(listenObjects, new Function<ListenObjectDefinition, Class<?>>() {
             @Override
@@ -129,11 +117,12 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation, State
      *            Current transaction.
      * @return Return string description for current cache state.
      */
-    public static String getCacheStateDescription(CacheStateMachine<?, ?> stateMachine, Transaction transaction) {
+    private static String getCacheStateDescription(CacheStateMachine<?> stateMachine, Transaction transaction) {
         Object cacheImpl = stateMachine.getCacheQuick(transaction);
         return cacheImpl == null ? "(cache is empty)" : "(cache is " + cacheImpl + ")";
     }
 
+    @AllArgsConstructor
     protected static class ListenObjectDefinition {
         /**
          * Class, which change may lead to cache invalidation.
@@ -144,21 +133,15 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation, State
          * Change event logging strategy.
          */
         private final ListenObjectLogType logType;
-
-        public ListenObjectDefinition(Class<?> listenClass, ListenObjectLogType logType) {
-            super();
-            this.listenClass = listenClass;
-            this.logType = logType;
-        }
     }
 
-    protected static enum ListenObjectLogType {
+    protected enum ListenObjectLogType {
         /**
          * Cache invalidation logging is not required (trace logging).
          */
         NONE {
             @Override
-            public void logChange(CacheStateMachine<?, ?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log) {
+            public void logChange(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log) {
                 if (log.isTraceEnabled()) {
                     log.trace(getLogMessage(stateMachine, transaction, changedObject));
                 }
@@ -170,7 +153,7 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation, State
          */
         ALL {
             @Override
-            public void logChange(CacheStateMachine<?, ?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log) {
+            public void logChange(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log) {
                 log.debug(getLogMessage(stateMachine, transaction, changedObject));
             }
         },
@@ -180,7 +163,7 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation, State
          */
         BECOME_DIRTY {
             @Override
-            public void logChange(CacheStateMachine<?, ?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log) {
+            public void logChange(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log) {
                 if (!stateMachine.isDirtyTransaction(transaction)) {
                     log.debug(getLogMessage(stateMachine, transaction, changedObject));
                 } else {
@@ -203,7 +186,7 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation, State
          * @param log
          *            Object for logging.
          */
-        public abstract void logChange(CacheStateMachine<?, ?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log);
+        public abstract void logChange(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log);
 
         /**
          * Create message to log change. Cache lifetime control state machine.
@@ -214,7 +197,7 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation, State
          *            Changed object.
          * @return Message to log change.
          */
-        String getLogMessage(CacheStateMachine<?, ?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject) {
+        String getLogMessage(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject) {
             String cacheState = BaseCacheCtrl.getCacheStateDescription(stateMachine, transaction);
             return cacheState + " On " + changedObject.changeType + " at transaction " + transaction + ": " + changedObject.object + ".";
         }

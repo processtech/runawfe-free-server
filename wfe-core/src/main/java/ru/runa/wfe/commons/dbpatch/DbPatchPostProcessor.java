@@ -17,5 +17,4 @@ public interface DbPatchPostProcessor {
      * Error in this method may leave database in inconsistent state, use with caution.
      */
     void postExecute() throws Exception;
-
 }

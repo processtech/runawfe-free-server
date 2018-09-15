@@ -51,7 +51,7 @@ import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDao;
@@ -74,7 +74,7 @@ import ru.runa.wfe.var.format.VariableFormat;
 
 @CommonsLog
 public class ExecutionContext {
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
     private final Token token;
     private final Map<String, Object> transientVariables = Maps.newHashMap();
 
@@ -106,12 +106,12 @@ public class ExecutionContext {
     private SwimlaneDao swimlaneDao;
 
     protected ExecutionContext(
-            ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
+            ApplicationContext applicationContext, ParsedProcessDefinition parsedProcessDefinition, Token token,
             Map<Process, Map<String, Variable>> loadedVariables, boolean disableVariableDaoLoading
     ) {
         Preconditions.checkArgument(token != null);
         Preconditions.checkArgument(token.getProcess() != null);
-        this.processDefinition = processDefinition;
+        this.parsedProcessDefinition = parsedProcessDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
@@ -120,28 +120,28 @@ public class ExecutionContext {
         } else {
             this.variableLoader = new VariableLoaderDaoFallback(variableDao, loadedVariables);
         }
-        this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
+        this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getParsedProcessDefinition(), getProcess());
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable>> loadedVariables) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token, Map<Process, Map<String, Variable>> loadedVariables) {
+        this(ApplicationContextFactory.getContext(), parsedProcessDefinition, token, loadedVariables, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Token token) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token) {
+        this(ApplicationContextFactory.getContext(), parsedProcessDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable>> loadedVariables,
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Process process, Map<Process, Map<String, Variable>> loadedVariables,
             boolean disableVariableDaoLoading) {
-        this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
+        this(ApplicationContextFactory.getContext(), parsedProcessDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process) {
-        this(processDefinition, process.getRootToken());
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Process process) {
+        this(parsedProcessDefinition, process.getRootToken());
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Task task) {
-        this(processDefinition, task.getToken());
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Task task) {
+        this(parsedProcessDefinition, task.getToken());
     }
 
     /**
@@ -159,11 +159,11 @@ public class ExecutionContext {
     }
 
     public Node getNode() {
-        return getToken().getNodeNotNull(getProcessDefinition());
+        return getToken().getNodeNotNull(getParsedProcessDefinition());
     }
 
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        return parsedProcessDefinition;
     }
 
     public Process getProcess() {
@@ -217,7 +217,7 @@ public class ExecutionContext {
      */
     public WfVariable getVariable(String name, boolean searchInSwimlanes) {
         if (searchInSwimlanes) {
-            SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
+            SwimlaneDefinition swimlaneDefinition = getParsedProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
                 Swimlane swimlane = swimlaneDao.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
                 if (swimlane == null && !getProcess().isArchive() && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
@@ -242,14 +242,14 @@ public class ExecutionContext {
 
     public void setVariableValue(@NonNull String name, Object value) {
         Preconditions.checkState(!token.isArchive());
-        SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
+        SwimlaneDefinition swimlaneDefinition = getParsedProcessDefinition().getSwimlane(name);
         if (swimlaneDefinition != null) {
             log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
             CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(getCurrentProcess(), swimlaneDefinition);
             swimlane.assignExecutor(this, (Executor) convertValueForVariableType(swimlaneDefinition.toVariableDefinition(), value), true);
             return;
         }
-        VariableDefinition variableDefinition = getProcessDefinition().getVariable(name, false);
+        VariableDefinition variableDefinition = getParsedProcessDefinition().getVariable(name, false);
         if (variableDefinition == null) {
             if (value == null) {
                 return;
@@ -399,7 +399,7 @@ public class ExecutionContext {
                 // order is valuable due to Timestamp.equals implementation
                 return null;
             }
-            if (ApplicationContextFactory.getDBType() == DbType.ORACLE && Utils.isNullOrEmpty(value) && Utils.isNullOrEmpty(variable.getValue())) {
+            if (ApplicationContextFactory.getDbType() == DbType.ORACLE && Utils.isNullOrEmpty(value) && Utils.isNullOrEmpty(variable.getValue())) {
                 // ignore changes "" -> " " for Oracle
                 return null;
             }

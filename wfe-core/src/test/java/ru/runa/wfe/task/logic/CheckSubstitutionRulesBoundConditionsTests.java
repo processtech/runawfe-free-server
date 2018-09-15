@@ -2,8 +2,7 @@ package ru.runa.wfe.task.logic;
 
 import com.google.common.collect.Sets;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -24,16 +23,15 @@ import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
+@CommonsLog
 public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSpringContextTests {
-
-    private static final Log log = LogFactory.getLog(CheckSubstitutionRulesBoundConditionsTests.class);
 
     @Autowired
     ITaskListBuilderTestProvider taskListBuilder;
 
     @DataProvider(name = "testcases")
     public Object[][] getTestcases() {
-        return new Object[][] { { "applies with one of DataAccessException testcase", TaskListBuilderImpl.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
+        return new Object[][] { { "applies with one of DataAccessException testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
             @Override
             public void mockRules(ExecutorDao executorDao) {
                 Actor actor = mock(Actor.class);
@@ -53,10 +51,10 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1), new Long(2), new Long(3), new Long(4));
+                return Sets.newHashSet(1L, 2L, 3L, 4L);
             }
 
-        } }, { "applies with one of ExecutorDoesNotExistException testcase", TaskListBuilderImpl.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
+        } }, { "applies with one of ExecutorDoesNotExistException testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
             @Override
             public void mockRules(ExecutorDao executorDao) {
                 Actor actor = mock(Actor.class);
@@ -76,10 +74,10 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1), new Long(2), new Long(3), new Long(4));
+                return Sets.newHashSet(1L, 2L, 3L, 4L);
             }
 
-        } }, { "applies testcase", TaskListBuilderImpl.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
+        } }, { "applies testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
 
             Actor actor;
 
@@ -99,9 +97,9 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1));
+                return Sets.newHashSet(1L);
             }
-        } }, { "can substitute testcase", TaskListBuilderImpl.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
+        } }, { "can substitute testcase", TaskListBuilder.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
 
             Actor actor;
 
@@ -125,10 +123,10 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1));
+                return Sets.newHashSet(1L);
             }
 
-        } }, { "applies and can substitute testcase", TaskListBuilderImpl.SUBSTITUTION_APPLIES | TaskListBuilderImpl.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
+        } }, { "applies and can substitute testcase", TaskListBuilder.SUBSTITUTION_APPLIES | TaskListBuilder.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
 
             Actor actor;
 
@@ -153,7 +151,7 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1));
+                return Sets.newHashSet(1L);
             }
         } } };
     }

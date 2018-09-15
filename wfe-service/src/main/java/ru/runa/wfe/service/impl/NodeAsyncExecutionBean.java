@@ -26,7 +26,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 
@@ -76,7 +76,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
             new TransactionalExecutor(context.getUserTransaction()) {
 
                 @Override
-                protected void doExecuteInTransaction() throws Exception {
+                protected void doExecuteInTransaction() {
                     CurrentToken token = currentTokenDao.getNotNull(tokenId);
                     if (token.getProcess().hasEnded()) {
                         log.debug("Ignored execution in ended " + token.getProcess());
@@ -85,10 +85,10 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     if (!Objects.equal(nodeId, token.getNodeId())) {
                         throw new InternalApplicationException(token + " expected to be in node " + nodeId);
                     }
-                    ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
-                    Node node = processDefinition.getNodeNotNull(token.getNodeId());
+                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
+                    Node node = parsedProcessDefinition.getNodeNotNull(token.getNodeId());
                     try {
-                        ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+                        ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
                         node.handle(executionContext);
                     } catch (Throwable th) {
                         log.error(processId + ":" + tokenId, th);

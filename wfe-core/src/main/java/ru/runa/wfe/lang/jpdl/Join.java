@@ -21,14 +21,13 @@
  */
 package ru.runa.wfe.lang.jpdl;
 
+import com.google.common.base.Objects;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-
-import com.google.common.base.Objects;
 
 public class Join extends Node {
     private static final long serialVersionUID = 1L;
@@ -42,7 +41,7 @@ public class Join extends Node {
     protected void execute(ExecutionContext executionContext) throws Exception {
         ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
         CurrentToken token = executionContext.getCurrentToken();
-        executionLogic.endToken(token, executionContext.getProcessDefinition(), null, null, false);
+        executionLogic.endToken(token, executionContext.getParsedProcessDefinition(), null, null, false);
         if (token.isAbleToReactivateParent()) {
             token.setAbleToReactivateParent(false);
             CurrentToken parentToken = token.getParent();
@@ -60,7 +59,7 @@ public class Join extends Node {
                 }
             }
             if (reactivateParent) {
-                leave(new ExecutionContext(executionContext.getProcessDefinition(), parentToken));
+                leave(new ExecutionContext(executionContext.getParsedProcessDefinition(), parentToken));
             }
         } else {
             log.debug(token + " unable to activate the parent");

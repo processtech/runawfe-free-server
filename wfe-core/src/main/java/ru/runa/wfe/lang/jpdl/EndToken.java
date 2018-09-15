@@ -26,7 +26,7 @@ public class EndToken extends Node {
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         val executionLogic = ApplicationContextFactory.getExecutionLogic();
-        executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getProcessDefinition(), null, null, false);
+        executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getParsedProcessDefinition(), null, null, false);
         if (!executionContext.getProcess().hasEnded() && executionContext.getCurrentProcess().getRootToken().hasEnded()) {
             executionLogic.endProcess(executionContext.getCurrentProcess(), executionContext, null);
         }
@@ -36,7 +36,7 @@ public class EndToken extends Node {
             Set<Join> joins = Sets.newHashSet();
             for (CurrentToken childToken : parentToken.getChildren()) {
                 if (childToken.getNodeType() == NodeType.JOIN) {
-                    joins.add((Join) childToken.getNodeNotNull(executionContext.getProcessDefinition()));
+                    joins.add((Join) childToken.getNodeNotNull(executionContext.getParsedProcessDefinition()));
                 }
             }
             for (Join join : joins) {

@@ -12,6 +12,7 @@ import java.util.List;
  * @param <T>
  *            entity class
  */
+@SuppressWarnings("unchecked")
 public abstract class GenericDao<T> extends ReadOnlyGenericDao<T> {
 
     /**
@@ -20,6 +21,46 @@ public abstract class GenericDao<T> extends ReadOnlyGenericDao<T> {
      */
     public GenericDao(Class<T> entityClass) {
         super(entityClass);
+    }
+
+    @Override
+    public T get(Long id) {
+        Preconditions.checkArgument(id != null);
+        return get(entityClass, id);
+    }
+
+    /**
+     * Load entity from database by id.
+     * 
+     * @return entity.
+     */
+    public T getNotNull(Long id) {
+        T entity = get(id);
+        checkNotNull(entity, id);
+        return entity;
+    }
+
+    /**
+     * Checks that entity is not null. Throws exception in that case. Used in *NotNull methods. Expected to be overriden in subclasses.
+     * 
+     * @param entity
+     *            test entity
+     * @param identity
+     *            search data
+     */
+    protected void checkNotNull(T entity, Object identity) {
+        if (entity == null) {
+            throw new NullPointerException("No entity found");
+        }
+    }
+
+    /**
+     * Load all entities from database.
+     * 
+     * @return entities list, not <code>null</code>.
+     */
+    public List<T> getAll() {
+        return sessionFactory.getCurrentSession().createQuery("from " + entityClass.getName()).list();
     }
 
     /**
@@ -38,7 +79,6 @@ public abstract class GenericDao<T> extends ReadOnlyGenericDao<T> {
      * @param entity
      *            detached entity
      */
-    @SuppressWarnings("unchecked")
     public T update(T entity) {
         return (T)sessionFactory.getCurrentSession().merge(entity);
     }

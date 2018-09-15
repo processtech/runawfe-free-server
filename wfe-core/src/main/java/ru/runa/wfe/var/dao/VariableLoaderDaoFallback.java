@@ -2,18 +2,19 @@ package ru.runa.wfe.var.dao;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dto.WfVariable;
 
 /**
- * Supports variable loading via {@link VariableDao} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component
- * in case of mass variables loading.
+ * Supports variable loading via {@link VariableDao} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component in
+ * case of mass variables loading.
  *
  * @author AL
  */
 @SuppressWarnings({ "unchecked" })
-public class VariableLoaderDaoFallback extends AbstractVariableLoader {
+public class VariableLoaderDaoFallback extends VariableLoader {
 
     /**
      * {@link VariableDao} for loading variables if no preloaded variable is available.

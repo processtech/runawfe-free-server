@@ -31,7 +31,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     public String name;
 
     @XmlAttribute(name = AdminScriptConstants.DEFINITION_ID_ATTRIBUTE_NAME)
-    public Long definitionId;
+    public Long processDefinitionVersionId;
 
     /**
      * If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
@@ -46,7 +46,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     public void validate(ScriptExecutionContext context) {
         ScriptValidation.requiredAttribute(this, AdminScriptConstants.FILE_ATTRIBUTE_NAME, file);
         if (Strings.isNullOrEmpty(name)) {
-            if (definitionId == null) {
+            if (processDefinitionVersionId == null) {
                 throw new ScriptValidationException(this, "Required definition name or id");
             }
         } else {
@@ -57,7 +57,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         if (!Strings.isNullOrEmpty(name)) {
-            definitionId = ApplicationContextFactory.getDeploymentDao().findLatestDeployment(name).getId();
+            processDefinitionVersionId = ApplicationContextFactory.getProcessDefinitionDao().getByName(name).getLatestVersion().getId();
         }
         List<String> parsedType = null;
         if (Strings.isNullOrEmpty(type)) {
@@ -65,7 +65,8 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
         }
         try {
             byte[] scriptBytes = Files.toByteArray(new File(file));
-            context.getDefinitionLogic().redeployProcessDefinition(context.getUser(), definitionId, scriptBytes, parsedType, secondsBeforeArchiving);
+            context.getProcessDefinitionLogic().redeployProcessDefinition(context.getUser(), processDefinitionVersionId, scriptBytes, parsedType,
+                    secondsBeforeArchiving);
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }

@@ -1,7 +1,7 @@
 package ru.runa.wfe.audit;
 
 import javax.persistence.Transient;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.Transition;
 
 public interface TransitionLog extends ProcessLog {
@@ -16,5 +16,5 @@ public interface TransitionLog extends ProcessLog {
     String getTransitionId();
 
     @Transient
-    Transition getTransitionOrNull(ProcessDefinition processDefinition);
+    Transition getTransitionOrNull(ParsedProcessDefinition processDefinition);
 }

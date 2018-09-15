@@ -10,15 +10,15 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 
 public class ProcessInstanceData {
     /**
      * Process definition.
      */
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
     /**
      * Maps from node id to node model.
      */
@@ -36,10 +36,10 @@ public class ProcessInstanceData {
      */
     private final HashMap<Long, Token> processTokens = Maps.newHashMap();
 
-    public ProcessInstanceData(Process instance, ProcessDefinition processDefinition) {
+    public ProcessInstanceData(Process instance, ParsedProcessDefinition parsedProcessDefinition) {
         addToken(instance.getRootToken());
-        this.processDefinition = processDefinition;
-        for (Node node : processDefinition.getNodes(true)) {
+        this.parsedProcessDefinition = parsedProcessDefinition;
+        for (Node node : parsedProcessDefinition.getNodes(true)) {
             this.processDefinitionNodes.put(node.getNodeId(), node);
             if (node.getNodeType() == NodeType.FORK || node.getNodeType() == NodeType.PARALLEL_GATEWAY) {
                 getCreateTokenNodes().add(node.getNodeId());
@@ -61,8 +61,8 @@ public class ProcessInstanceData {
         }
     }
 
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        return parsedProcessDefinition;
     }
 
     public Node getNode(String nodeId) {
@@ -77,8 +77,8 @@ public class ProcessInstanceData {
         return node;
     }
 
-    public SubprocessDefinition getEmbeddedSubprocess(String subProcessName) {
-        return processDefinition.getEmbeddedSubprocessByNameNotNull(subProcessName);
+    public ParsedSubprocessDefinition getEmbeddedSubprocess(String subProcessName) {
+        return parsedProcessDefinition.getEmbeddedSubprocessByNameNotNull(subProcessName);
     }
 
     public HashSet<String> getCreateTokenNodes() {

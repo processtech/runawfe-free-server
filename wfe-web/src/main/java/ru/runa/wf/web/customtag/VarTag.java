@@ -28,5 +28,5 @@ import ru.runa.wfe.var.VariableProvider;
  */
 @Deprecated
 public interface VarTag {
-    public String getHtml(User user, String varName, Object varValue, PageContext pageContext, VariableProvider variableProvider) throws Exception;
+    String getHtml(User user, String varName, Object varValue, PageContext pageContext, VariableProvider variableProvider) throws Exception;
 }

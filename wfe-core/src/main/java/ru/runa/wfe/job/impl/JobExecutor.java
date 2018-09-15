@@ -8,7 +8,7 @@ import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 @CommonsLog
 public class JobExecutor {
@@ -25,13 +25,12 @@ public class JobExecutor {
         for (Job job : jobs) {
             try {
                 log.debug("executing " + job);
-                ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(job.getProcess().getDeployment().getId());
-                ExecutionContext executionContext = new ExecutionContext(processDefinition, job.getToken());
+                ParsedProcessDefinition parsed = processDefinitionLoader.getDefinition(job.getProcess().getDefinitionVersion().getId());
+                ExecutionContext executionContext = new ExecutionContext(parsed, job.getToken());
                 job.execute(executionContext);
             } catch (Exception e) {
                 log.error("Error executing job " + job, e);
             }
         }
     }
-
 }

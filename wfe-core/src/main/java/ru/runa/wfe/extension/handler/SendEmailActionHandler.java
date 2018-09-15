@@ -48,7 +48,7 @@ public class SendEmailActionHandler extends ActionHandlerBase {
         EmailConfig config = EmailConfigParser.parse(configuration);
         try {
             Task task = executionContext.getTask();
-            Interaction interaction = task != null ? executionContext.getProcessDefinition().getInteractionNotNull(task.getNodeId()) : null;
+            Interaction interaction = task != null ? executionContext.getParsedProcessDefinition().getInteractionNotNull(task.getNodeId()) : null;
             Map<String, Object> map = Maps.newHashMap();
             map.put("task", task);
             map.put("interaction", interaction);

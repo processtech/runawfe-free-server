@@ -24,65 +24,62 @@ import java.util.Map;
  * Proxy class for {@linkplain Cache} implementations to save cache usage statistic.
  * @author Konstantinov Aleksey
  */
-class CacheStatisticProxy<K extends Serializable, V extends Serializable> implements Cache<K, V> {
+class CacheStatisticProxy<K extends Serializable, V extends Serializable> extends Cache<K, V> {
 
     /**
      * {@linkplain Cache} implementation to delegate calls. 
      */
-    private final Cache<K, V> delegatedImpl;
+    private final Cache<K, V> delegate;
 
     /**
      * Statistic counter for cache.
      */
     private final StatisticCounter stats;
 
-    /**
-     * @param delegatedImpl
-     */
-    public CacheStatisticProxy(Cache<K, V> delegatedImpl, String counterName) {
+    public CacheStatisticProxy(Cache<K, V> delegate, String counterName) {
         super();
-        this.delegatedImpl = delegatedImpl;
+        this.delegate = delegate;
         stats = CacheStatistic.registerCacheCounter(counterName);
     }
 
     @Override
     public void clear() {
-        delegatedImpl.clear();
+        delegate.clear();
     }
 
     @Override
     public void commitCache() {
         stats.registerCacheCommit();
-        delegatedImpl.commitCache();
+        delegate.commitCache();
     }
 
     @Override
     public boolean contains(K key) {
-        return stats.registerCacheContains(delegatedImpl.contains(key));
+        return stats.registerCacheContains(delegate.contains(key));
     }
 
     @Override
     public V get(K key) {
-        return stats.registerCacheGet(delegatedImpl.get(key));
+        return stats.registerCacheGet(delegate.get(key));
     }
 
     @Override
     public void put(K key, V value) {
-        delegatedImpl.put(key, value);
+        delegate.put(key, value);
     }
 
     @Override
     public void putAll(Map<K, V> collection) {
-        delegatedImpl.putAll(collection);
+        delegate.putAll(collection);
     }
 
     @Override
     public boolean remove(K key) {
-        return delegatedImpl.remove(key);
+        return delegate.remove(key);
     }
 
     @Override
     public Iterable<K> keySet() {
-        return delegatedImpl.keySet();
+        return delegate.keySet();
     }
 }

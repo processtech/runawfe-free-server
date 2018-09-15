@@ -1,29 +1,24 @@
 package ru.runa.wfe.service.delegate;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.ejb.EJBException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.service.utils.EjbProperties;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-
+@CommonsLog
 public abstract class Ejb3Delegate {
-    private final static Log log = LogFactory.getLog(Ejb3Delegate.class);
     public static final String EJB_REMOTE = "remote";
     private static final String EJB_LOCAL = "";
     private static final String WFE_SERVICE_JAR_NAME = "wfe-service";
@@ -67,8 +62,6 @@ public abstract class Ejb3Delegate {
     /**
      * Creates delegate based on base interface class (implicit assumptions
      * about @Local, @Remote interface and EJB bean naming)
-     *
-     * @param baseInterfaceClass
      */
     public Ejb3Delegate(Class<?> baseInterfaceClass) {
         beanName = baseInterfaceClass.getSimpleName() + "Bean";

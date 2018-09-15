@@ -40,40 +40,40 @@ public class ParallelGateway extends Node {
     protected void execute(ExecutionContext executionContext) throws Exception {
         ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
         CurrentToken token = executionContext.getCurrentToken();
-        executionLogic.endToken(token, executionContext.getProcessDefinition(), null, null, false);
+        executionLogic.endToken(token, executionContext.getParsedProcessDefinition(), null, null, false);
         log.debug("Executing " + this + " with " + token);
         StateInfo stateInfo = findStateInfo(executionContext.getCurrentProcess().getRootToken(), true);
         switch (stateInfo.state) {
-        case LEAVING: {
-            log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
-            for (CurrentToken tokenToPop : stateInfo.tokensToPop) {
-                tokenToPop.setAbleToReactivateParent(false);
+            case LEAVING: {
+                log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
+                for (CurrentToken tokenToPop : stateInfo.tokensToPop) {
+                    tokenToPop.setAbleToReactivateParent(false);
+                }
+                if (getArrivingTransitions().size() > 1 && token.getParent() != null) {
+                    CurrentToken parentToken = token.getParent();
+                    leave(new ExecutionContext(executionContext.getParsedProcessDefinition(), parentToken));
+                } else {
+                    leave(executionContext);
+                }
+                break;
             }
-            if (getArrivingTransitions().size() > 1 && token.getParent() != null) {
-                CurrentToken parentToken = token.getParent();
-                leave(new ExecutionContext(executionContext.getProcessDefinition(), parentToken));
-            } else {
-                leave(executionContext);
+            case WAITING: {
+                if (stateInfo.activeTokenNodeIds.contains(getNodeId())) {
+                    log.debug("scheduling execution due to active concurrent token found in this node");
+                    TransactionListeners.addListener(new ActiveCheck(this, executionContext.getProcess().getId()), false);
+                } else {
+                    log.debug("blocking token " + token.getId() + " execution due to waiting on " + stateInfo.notPassedTransitions);
+                }
+                break;
             }
-            break;
-        }
-        case WAITING: {
-            if (stateInfo.activeTokenNodeIds.contains(getNodeId())) {
-                log.debug("scheduling execution due to active concurrent token found in this node");
-                TransactionListeners.addListener(new ActiveCheck(this, executionContext.getProcess().getId()), false);
-            } else {
-                log.debug("blocking token " + token.getId() + " execution due to waiting on " + stateInfo.notPassedTransitions);
+            case BLOCKING: {
+                log.warn("failing token " + token.getId() + " execution because " + stateInfo.unreachableTransition
+                        + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
+                executionLogic.failToken(token, new ProcessExecutionException(ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION,
+                        stateInfo.unreachableTransition));
+                TransactionListeners.addListener(new FailedCheck(this, executionContext.getProcess().getId()), false);
+                break;
             }
-            break;
-        }
-        case BLOCKING: {
-            log.warn("failing token " + token.getId() + " execution because " + stateInfo.unreachableTransition
-                    + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
-            executionLogic.failToken(token, new ProcessExecutionException(ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION,
-                    stateInfo.unreachableTransition));
-            TransactionListeners.addListener(new FailedCheck(this, executionContext.getProcess().getId()), false);
-            break;
-        }
         }
     }
 
@@ -90,7 +90,7 @@ public class ParallelGateway extends Node {
         ApplicationContextFactory.getCurrentTokenDao().flushPendingChanges();
         log.debug("Child tokens created: " + childTokens.keySet());
         for (Map.Entry<CurrentToken, Transition> entry : childTokens.entrySet()) {
-            ExecutionContext childExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), entry.getKey());
+            ExecutionContext childExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), entry.getKey());
             super.leave(childExecutionContext, entry.getValue());
         }
     }
@@ -207,29 +207,29 @@ public class ParallelGateway extends Node {
                         }
                         StateInfo stateInfo = gateway.findStateInfo(process.getRootToken(), true);
                         switch (stateInfo.state) {
-                        case LEAVING: {
-                            log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
-                            for (CurrentToken tokenToPop : stateInfo.tokensToPop) {
-                                tokenToPop.setAbleToReactivateParent(false);
+                            case LEAVING: {
+                                log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
+                                for (CurrentToken tokenToPop : stateInfo.tokensToPop) {
+                                    tokenToPop.setAbleToReactivateParent(false);
+                                }
+                                CurrentToken parentToken = stateInfo.tokensToPop.get(0).getParent();
+                                gateway.leave(new ExecutionContext(gateway.getParsedProcessDefinition(), parentToken));
+                                break;
                             }
-                            CurrentToken parentToken = stateInfo.tokensToPop.get(0).getParent();
-                            gateway.leave(new ExecutionContext(gateway.getProcessDefinition(), parentToken));
-                            break;
-                        }
-                        case WAITING: {
-                            log.warn("continue waiting on " + stateInfo.notPassedTransitions);
-                            break;
-                        }
-                        case BLOCKING: {
-                            log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
-                                    + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
-                            process.setExecutionStatus(ExecutionStatus.FAILED);
-                            ProcessError processError = new ProcessError(ProcessErrorType.execution, process.getId(), gateway.getNodeId());
-                            processError.setThrowable(new ProcessExecutionException(
-                                    ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION, stateInfo.unreachableTransition));
-                            Errors.sendEmailNotification(processError);
-                            break;
-                        }
+                            case WAITING: {
+                                log.warn("continue waiting on " + stateInfo.notPassedTransitions);
+                                break;
+                            }
+                            case BLOCKING: {
+                                log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
+                                        + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
+                                process.setExecutionStatus(ExecutionStatus.FAILED);
+                                ProcessError processError = new ProcessError(ProcessErrorType.execution, process.getId(), gateway.getNodeId());
+                                processError.setThrowable(new ProcessExecutionException(
+                                        ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION, stateInfo.unreachableTransition));
+                                Errors.sendEmailNotification(processError);
+                                break;
+                            }
                         }
                     }
 
@@ -269,34 +269,34 @@ public class ParallelGateway extends Node {
                         }
                         StateInfo stateInfo = gateway.findStateInfo(process.getRootToken(), false);
                         switch (stateInfo.state) {
-                        case LEAVING: {
-                            log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
-                            for (CurrentToken tokenToPop : stateInfo.tokensToPop) {
-                                tokenToPop.setAbleToReactivateParent(false);
-                                tokenToPop.setExecutionStatus(ExecutionStatus.ENDED);
+                            case LEAVING: {
+                                log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
+                                for (CurrentToken tokenToPop : stateInfo.tokensToPop) {
+                                    tokenToPop.setAbleToReactivateParent(false);
+                                    tokenToPop.setExecutionStatus(ExecutionStatus.ENDED);
+                                }
+                                CurrentToken parentToken = stateInfo.tokensToPop.get(0).getParent();
+                                gateway.leave(new ExecutionContext(gateway.getParsedProcessDefinition(), parentToken));
+                                break;
                             }
-                            CurrentToken parentToken = stateInfo.tokensToPop.get(0).getParent();
-                            gateway.leave(new ExecutionContext(gateway.getProcessDefinition(), parentToken));
-                            break;
-                        }
-                        case WAITING: {
-                            log.warn("leaving failed tokens " + failedTokens + " due to waiting on " + stateInfo.notPassedTransitions);
-                            break;
-                        }
-                        case BLOCKING: {
-                            if (stateInfo.activeTokenNodeIds.contains(gateway.getNodeId())) {
-                                log.warn("leaving failed tokens " + failedTokens + " due to active token in this node");
-                            } else {
-                                log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
-                                        + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
-                                process.setExecutionStatus(ExecutionStatus.FAILED);
-                                ProcessError processError = new ProcessError(ProcessErrorType.execution, process.getId(), gateway.getNodeId());
-                                processError.setThrowable(new ProcessExecutionException(
-                                        ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION, stateInfo.unreachableTransition));
-                                Errors.sendEmailNotification(processError);
+                            case WAITING: {
+                                log.warn("leaving failed tokens " + failedTokens + " due to waiting on " + stateInfo.notPassedTransitions);
+                                break;
                             }
-                            break;
-                        }
+                            case BLOCKING: {
+                                if (stateInfo.activeTokenNodeIds.contains(gateway.getNodeId())) {
+                                    log.warn("leaving failed tokens " + failedTokens + " due to active token in this node");
+                                } else {
+                                    log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
+                                            + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
+                                    process.setExecutionStatus(ExecutionStatus.FAILED);
+                                    ProcessError processError = new ProcessError(ProcessErrorType.execution, process.getId(), gateway.getNodeId());
+                                    processError.setThrowable(new ProcessExecutionException(
+                                            ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION, stateInfo.unreachableTransition));
+                                    Errors.sendEmailNotification(processError);
+                                }
+                                break;
+                            }
                         }
                     }
 

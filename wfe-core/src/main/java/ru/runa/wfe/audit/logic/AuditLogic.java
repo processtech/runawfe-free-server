@@ -29,6 +29,7 @@ import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.security.Permission;
@@ -43,6 +44,8 @@ import ru.runa.wfe.user.User;
  * @since 4.0
  */
 public class AuditLogic extends CommonLogic {
+    @Autowired
+    private ProcessDao processDao;
     @Autowired
     private ProcessLogDao processLogDao;
     @Autowired

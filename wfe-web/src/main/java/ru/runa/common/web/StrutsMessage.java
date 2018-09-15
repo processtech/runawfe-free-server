@@ -1,20 +1,15 @@
 package ru.runa.common.web;
 
-import java.util.Set;
-
-import javax.servlet.jsp.PageContext;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.google.common.collect.Sets;
+import java.util.Set;
+import javax.servlet.jsp.PageContext;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Used to get localized messages.
  */
+@CommonsLog
 public class StrutsMessage {
-
-    private static final Log log = LogFactory.getLog(StrutsMessage.class);
 
     private static final Set<String> declaredProperties = Sets.newConcurrentHashSet();
 
