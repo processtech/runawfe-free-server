@@ -39,10 +39,10 @@ import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.SafeIndefiniteLoop;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.office.OfficeProperties;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -147,13 +147,13 @@ public class DocxUtils {
         }
     }
 
-    private static Object executeGroovy(IVariableProvider variableProvider, String script) {
+    private static Object executeGroovy(VariableProvider variableProvider, String script) {
         script = script.substring(GROOVY.length());
         GroovyScriptExecutor executor = new GroovyScriptExecutor();
         return executor.evaluateScript(variableProvider, script);
     }
 
-    public static Object getValue(DocxConfig config, IVariableProvider variableProvider, Object value, String selector) {
+    public static Object getValue(DocxConfig config, VariableProvider variableProvider, Object value, String selector) {
         if (value == null) {
             if (selector.startsWith(GROOVY)) {
                 return executeGroovy(variableProvider, selector);
@@ -230,7 +230,7 @@ public class DocxUtils {
         return value;
     }
 
-    public static <T extends AbstractIteratorOperation> T parseIterationOperation(DocxConfig config, IVariableProvider variableProvider,
+    public static <T extends AbstractIteratorOperation> T parseIterationOperation(DocxConfig config, VariableProvider variableProvider,
             String string, T operation) {
         if (Strings.isNullOrEmpty(string)) {
             return null;
@@ -353,7 +353,7 @@ public class DocxUtils {
         }
     }
 
-    public static void replaceInParagraph(DocxConfig config, IVariableProvider variableProvider, XWPFParagraph paragraph) {
+    public static void replaceInParagraph(DocxConfig config, VariableProvider variableProvider, XWPFParagraph paragraph) {
         String paragraphText = paragraph.getParagraphText();
         if (!paragraphText.contains(PLACEHOLDER_START)) {
             return;
@@ -434,7 +434,7 @@ public class DocxUtils {
             for (ReplaceOperation replaceOperation : Lists.newArrayList(operations)) {
                 if (replaceOperation instanceof InsertImageOperation) {
                     InsertImageOperation imageOperation = (InsertImageOperation) replaceOperation;
-                    IFileVariable fileVariable = imageOperation.getFileVariable();
+                    FileVariable fileVariable = imageOperation.getFileVariable();
                     try {
                         run.addPicture(new ByteArrayInputStream(fileVariable.getData()), imageOperation.getImageType(), fileVariable.getName(),
                                 imageOperation.getWidth(), imageOperation.getHeight());
@@ -721,7 +721,7 @@ public class DocxUtils {
         }
     }
 
-    private static String replaceText(DocxConfig config, IVariableProvider variableProvider, List<ReplaceOperation> operations, String text) {
+    private static String replaceText(DocxConfig config, VariableProvider variableProvider, List<ReplaceOperation> operations, String text) {
         ReplaceOperation operation;
         if (operations.size() > 0 && !operations.get(operations.size() - 1).isPlaceholderRead()) {
             operation = operations.get(operations.size() - 1);
@@ -752,10 +752,10 @@ public class DocxUtils {
                         config.reportProblem("No template variable defined in process: '" + operation.getPlaceholder() + "'");
                     }
                 }
-                if (value instanceof IFileVariable) {
+                if (value instanceof FileVariable) {
                     try {
                         operations.remove(operation);
-                        IFileVariable fileVariable = (IFileVariable) value;
+                        FileVariable fileVariable = (FileVariable) value;
                         InsertImageOperation imageOperation = new InsertImageOperation(operation.getPlaceholder(), fileVariable);
                         imageOperation.setValue("");
                         int imageType = getPictureType(config, fileVariable.getName().toLowerCase());

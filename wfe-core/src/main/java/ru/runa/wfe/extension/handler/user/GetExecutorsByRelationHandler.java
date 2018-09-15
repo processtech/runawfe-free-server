@@ -1,9 +1,8 @@
 package ru.runa.wfe.extension.handler.user;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
 import ru.runa.wfe.relation.Relation;
@@ -13,15 +12,13 @@ import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
-import com.google.common.collect.Lists;
-
 public class GetExecutorsByRelationHandler extends CommonParamBasedHandler {
     @Autowired
     private ExecutorDao executorDao;
     @Autowired
-    private RelationDao relationDAO;
+    private RelationDao relationDao;
     @Autowired
-    private RelationPairDao relationPairDAO;
+    private RelationPairDao relationPairDao;
 
     @Override
     protected void executeAction(HandlerData handlerData) throws Exception {
@@ -33,12 +30,12 @@ public class GetExecutorsByRelationHandler extends CommonParamBasedHandler {
         if (recursively) {
             parameters.addAll(executorDao.getExecutorParentsAll(parameter, false));
         }
-        Relation relation = relationDAO.getNotNull(relationName);
+        Relation relation = relationDao.getNotNull(relationName);
         List<RelationPair> pairs;
         if (inversed) {
-            pairs = relationPairDAO.getExecutorsRelationPairsLeft(relation, parameters);
+            pairs = relationPairDao.getExecutorsRelationPairsLeft(relation, parameters);
         } else {
-            pairs = relationPairDAO.getExecutorsRelationPairsRight(relation, parameters);
+            pairs = relationPairDao.getExecutorsRelationPairsRight(relation, parameters);
         }
         List<Executor> result = Lists.newArrayList();
         for (RelationPair pair : pairs) {

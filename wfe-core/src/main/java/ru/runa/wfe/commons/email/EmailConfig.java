@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 @CommonsLog
 public class EmailConfig implements Serializable {
@@ -110,12 +110,12 @@ public class EmailConfig implements Serializable {
         }
     }
 
-    public void applySubstitutions(IVariableProvider variableProvider) {
+    public void applySubstitutions(VariableProvider variableProvider) {
         applySubstitutions(variableProvider, connectionProperties);
         applySubstitutions(variableProvider, headerProperties);
     }
 
-    private void applySubstitutions(IVariableProvider variableProvider, Map<String, String> map) {
+    private void applySubstitutions(VariableProvider variableProvider, Map<String, String> map) {
         for (Map.Entry<String, String> entry : new HashMap<String, String>(map).entrySet()) {
             String substitutedValue = ExpressionEvaluator.process(null, entry.getValue(), variableProvider, null);
             if (!Objects.equal(substitutedValue, entry.getValue())) {

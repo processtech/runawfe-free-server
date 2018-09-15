@@ -20,8 +20,8 @@ package ru.runa.wf.web.html;
 import java.util.Map;
 import java.util.WeakHashMap;
 import lombok.extern.apachecommons.CommonsLog;
-import ru.runa.common.web.html.TDBuilder.Env;
-import ru.runa.common.web.html.TDBuilder.Env.SecuredObjectExtractor;
+import ru.runa.common.web.html.TdBuilder.Env;
+import ru.runa.common.web.html.TdBuilder.Env.SecuredObjectExtractor;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
@@ -31,7 +31,7 @@ import ru.runa.wfe.user.Actor;
  * action.
  */
 @CommonsLog
-public class ExecutorExtractor implements SecuredObjectExtractor {
+public class ExecutorExtractor extends SecuredObjectExtractor {
     private static final long serialVersionUID = 1L;
     private final Map<Long, SecuredObject> cache = new WeakHashMap<>();
 

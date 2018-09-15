@@ -13,9 +13,9 @@ import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.HiddenFormat;
@@ -185,7 +185,7 @@ public class ViewUtil {
         }
     }
 
-    public static String generateTableHeader(List<WfVariable> variables, IVariableProvider variableProvider, String operationsColumn) {
+    public static String generateTableHeader(List<WfVariable> variables, VariableProvider variableProvider, String operationsColumn) {
         StringBuilder header = new StringBuilder();
         header.append("<tr class=\"header\">");
         for (WfVariable variable : variables) {
@@ -232,5 +232,4 @@ public class ViewUtil {
         html += "</" + tagToUse + ">";
         return html;
     }
-
 }

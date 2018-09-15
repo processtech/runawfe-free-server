@@ -22,7 +22,7 @@ import ru.runa.wfe.definition.par.ValidationXmlParser;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 @CommonsLog
 public class ValidatorManager {
@@ -67,7 +67,7 @@ public class ValidatorManager {
         return "";
     }
 
-    public List<Validator> createValidators(User user, ExecutionContext executionContext, IVariableProvider variableProvider, byte[] validationXml,
+    public List<Validator> createValidators(User user, ExecutionContext executionContext, VariableProvider variableProvider, byte[] validationXml,
             ValidatorContext validatorContext, Map<String, Object> variables) {
         List<ValidatorConfig> configs = ValidationXmlParser.parseValidatorConfigs(validationXml);
         ArrayList<Validator> validators = new ArrayList<>(configs.size());
@@ -86,7 +86,7 @@ public class ValidatorManager {
         return validators;
     }
 
-    public ValidatorContext validate(User user, ExecutionContext executionContext, IVariableProvider variableProvider, byte[] validationXml,
+    public ValidatorContext validate(User user, ExecutionContext executionContext, VariableProvider variableProvider, byte[] validationXml,
             Map<String, Object> variables) {
         ValidatorContext validatorContext = new ValidatorContext();
         List<Validator> validators = createValidators(user, executionContext, variableProvider, validationXml, validatorContext, variables);

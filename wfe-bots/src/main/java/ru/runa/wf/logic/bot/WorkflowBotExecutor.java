@@ -29,14 +29,14 @@ import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang.StringUtils;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
 import ru.runa.wfe.lang.Node;
@@ -156,7 +156,7 @@ public class WorkflowBotExecutor {
                         continue;
                     }
                 } else {
-                    if (StringUtils.startsWith(task.getNodeId(), IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
+                    if (StringUtils.startsWith(task.getNodeId(), FileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
                         ParsedProcessDefinition parsedProcessDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user,
                                 task.getDefinitionId());
                         Node taskNode = parsedProcessDefinition.getNode(task.getNodeId());
@@ -219,7 +219,7 @@ public class WorkflowBotExecutor {
         }
 
         ProcessLogFilter filter = new ProcessLogFilter();
-        filter.setRootClassName(NodeLeaveLog.class.getName());
+        filter.setType(ProcessLog.Type.NODE_LEAVE);
         filter.setProcessId(bot.getBoundProcessId());
 
         WfProcess process = Delegates.getExecutionService().getProcess(user, bot.getBoundProcessId());

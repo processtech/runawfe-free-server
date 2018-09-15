@@ -6,9 +6,9 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.val;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class SplitProcessDefinitionVersion extends DBPatch {
+public class SplitProcessDefinitionVersion extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

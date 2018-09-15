@@ -21,7 +21,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.TaskServiceLocal;
 import ru.runa.wfe.service.decl.TaskServiceRemote;
-import ru.runa.wfe.service.decl.TaskServiceRemoteWS;
+import ru.runa.wfe.service.decl.TaskWebServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
@@ -38,7 +38,7 @@ import ru.runa.wfe.user.User;
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "TaskAPI", serviceName = "TaskWebService")
 @SOAPBinding
-public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, TaskServiceRemoteWS {
+public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, TaskWebServiceRemote {
     @Autowired
     private TaskLogic taskLogic;
     @Autowired
@@ -137,5 +137,11 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
             WfTask task = taskLogic.getTask(user, taskId);
             taskLogic.delegateTask(user, taskId, task.getOwner(), keepCurrentOwners, newOwners);
         }
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public List<WfTask> getUnassignedTasks(@WebParam(name = "user") @NonNull User user) {
+        return taskLogic.getUnassignedTasks(user);
     }
 }

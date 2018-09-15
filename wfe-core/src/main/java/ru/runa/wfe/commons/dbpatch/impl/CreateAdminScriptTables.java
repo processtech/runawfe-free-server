@@ -3,20 +3,19 @@ package ru.runa.wfe.commons.dbpatch.impl;
 import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
-
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
-public class CreateAdminScriptTables extends DBPatch {
+public class CreateAdminScriptTables extends DbPatch {
 
     @Autowired
     protected ExecutorDao executorDao;
     @Autowired
-    protected PermissionDao permissionDAO;
+    protected PermissionDao permissionDao;
 
     @Override
     protected List<String> getDDLQueriesBefore() {
@@ -31,9 +30,9 @@ public class CreateAdminScriptTables extends DBPatch {
      * @return Returns list of sql commands for table creation.
      */
     private List<String> createAdminScriptTable() {
-        List<String> sql = new LinkedList<String>();
-        List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
-        columns.add(new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey());
+        val sql = new LinkedList<String>();
+        val columns = new LinkedList<DbPatch.ColumnDef>();
+        columns.add(new BigintColumnDef("ID", false).setPrimaryKey());
         columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("CONTENT", dialect.getTypeName(Types.BLOB), false));
         sql.add(getDDLCreateTable("ADMIN_SCRIPT", columns, null));

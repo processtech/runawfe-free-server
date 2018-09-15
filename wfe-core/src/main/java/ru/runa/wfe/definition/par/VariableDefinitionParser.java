@@ -14,7 +14,7 @@ import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
@@ -37,10 +37,10 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String STORE_TYPE = "storeType";
 
     @Autowired
-    private LocalizationDao localizationDAO;
+    private LocalizationDao localizationDao;
 
-    public void setLocalizationDAO(LocalizationDao localizationDAO) {
-        this.localizationDAO = localizationDAO;
+    public void setLocalizationDao(LocalizationDao localizationDao) {
+        this.localizationDao = localizationDao;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
 
     @Override
     public void readFromArchive(ProcessArchive archive, ParsedProcessDefinition parsedProcessDefinition) {
-        byte[] xml = parsedProcessDefinition.getFileDataNotNull(IFileDataProvider.VARIABLES_XML_FILE_NAME);
+        byte[] xml = parsedProcessDefinition.getFileDataNotNull(FileDataProvider.VARIABLES_XML_FILE_NAME);
         Document document = XmlUtils.parseWithoutValidation(xml);
         Element root = document.getRootElement();
         List<Element> typeElements = document.getRootElement().elements(USER_TYPE);
@@ -101,7 +101,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             variableDefinition.setFormat(format);
             String formatLabel;
             if (format.contains(VariableFormatContainer.COMPONENT_PARAMETERS_START)) {
-                formatLabel = localizationDAO.getLocalized(variableDefinition.getFormatClassName());
+                formatLabel = localizationDao.getLocalized(variableDefinition.getFormatClassName());
                 formatLabel += VariableFormatContainer.COMPONENT_PARAMETERS_START;
                 String[] componentClassNames = variableDefinition.getFormatComponentClassNames();
                 formatLabel += Joiner.on(VariableFormatContainer.COMPONENT_PARAMETERS_DELIM)
@@ -109,12 +109,12 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
 
                             @Override
                             public String apply(String input) {
-                                return localizationDAO.getLocalized(input);
+                                return localizationDao.getLocalized(input);
                             }
                         }));
                 formatLabel += VariableFormatContainer.COMPONENT_PARAMETERS_END;
             } else {
-                formatLabel = localizationDAO.getLocalized(format);
+                formatLabel = localizationDao.getLocalized(format);
             }
             variableDefinition.setFormatLabel(formatLabel);
         }

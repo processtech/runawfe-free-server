@@ -9,27 +9,27 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.audit.TransitionLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.CurrentTransitionLog;
+import ru.runa.wfe.audit.dao.CurrentProcessLogDao;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.Transition;
 
-public class TransitionLogPatch extends DBPatch {
+public class TransitionLogPatch extends DbPatch {
 
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ProcessDao processDao;
+    private CurrentProcessDao currentProcessDao;
     @Autowired
-    private ProcessLogDao processLogDao;
+    private CurrentProcessLogDao currentProcessLogDao;
 
     @Override
     public void executeDML(Session session) {
@@ -49,24 +49,24 @@ public class TransitionLogPatch extends DBPatch {
         int success = 0;
         val failedDeployments = new HashMap<ProcessDefinitionVersion, Date>();
         while (scrollableResults.next()) {
-            Process process = processDao.get(((Number) scrollableResults.get(0)).longValue());
+            CurrentProcess process = currentProcessDao.get(((Number) scrollableResults.get(0)).longValue());
             try {
                 ParsedProcessDefinition definition = processDefinitionLoader.getDefinition(process);
                 try {
                     Node node = definition.getNodeNotNull((String) scrollableResults.get(1));
                     Transition transition = node.getLeavingTransitionNotNull((String) scrollableResults.get(2));
-                    TransitionLog transitionLog = new TransitionLog(transition);
+                    CurrentTransitionLog transitionLog = new CurrentTransitionLog(transition);
                     transitionLog.setProcessId(process.getId());
                     transitionLog.setTokenId(process.getRootToken().getId());
                     transitionLog.setCreateDate(new Date());
-                    processLogDao.create(transitionLog);
+                    currentProcessLogDao.create(transitionLog);
                     success++;
                 } catch (Exception e) {
                     log.warn(e);
                     failed++;
                 }
             } catch (InvalidDefinitionException e) {
-                ProcessDefinitionVersion dv = process.getProcessDefinitionVersion();
+                ProcessDefinitionVersion dv = process.getDefinitionVersion();
                 if (failedDeployments.containsKey(dv)) {
                     Date endDate = failedDeployments.get(dv);
                     if (endDate != null && (process.getEndDate() == null || endDate.before(process.getEndDate()))) {

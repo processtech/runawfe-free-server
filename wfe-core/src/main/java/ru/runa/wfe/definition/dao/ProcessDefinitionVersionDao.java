@@ -9,6 +9,10 @@ import ru.runa.wfe.definition.QProcessDefinitionVersion;
 @Component
 public class ProcessDefinitionVersionDao extends GenericDao<ProcessDefinitionVersion> {
 
+    public ProcessDefinitionVersionDao() {
+        super(ProcessDefinitionVersion.class);
+    }
+
     @Override
     protected void checkNotNull(ProcessDefinitionVersion entity, Object identity) {
         if (entity == null) {

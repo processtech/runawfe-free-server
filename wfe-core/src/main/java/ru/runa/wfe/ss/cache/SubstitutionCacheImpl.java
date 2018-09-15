@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
@@ -35,7 +36,6 @@ import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContextStub;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.TerminatorSubstitution;
-import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
@@ -134,7 +134,7 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
         Map<Long, TreeMap<Substitution, HashSet<Long>>> result = Maps.newHashMap();
         final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
         try {
-            final SubstitutionDao substitutionDao = ApplicationContextFactory.getSubstitutionDAO();
+            val substitutionDao = ApplicationContextFactory.getSubstitutionDao();
             for (Substitution substitution : substitutionDao.getAll()) {
                 if (!initializationContext.isInitializationStillRequired()) {
                     return result;

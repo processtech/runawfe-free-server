@@ -21,7 +21,7 @@ import java.util.Map;
 
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Interface for bot task execution.
@@ -58,7 +58,7 @@ public interface TaskHandler {
      * @param task
      *            task to be processed.
      */
-    Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception;
+    Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception;
 
     /**
      * Invoked if task completion fails.
@@ -70,5 +70,5 @@ public interface TaskHandler {
      * @param task
      *            task to be processed.
      */
-    void onRollback(User user, IVariableProvider variableProvider, WfTask task) throws Exception;
+    void onRollback(User user, VariableProvider variableProvider, WfTask task) throws Exception;
 }

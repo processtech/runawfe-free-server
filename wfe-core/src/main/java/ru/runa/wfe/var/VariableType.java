@@ -29,7 +29,8 @@ import org.springframework.beans.factory.annotation.Required;
 public class VariableType {
     private VariableTypeMatcher matcher;
     private Converter converter;
-    private Class<? extends Variable<?>> variableClass;
+    private Class<? extends CurrentVariable<?>> currentVariableClass;
+    private Class<? extends ArchivedVariable<?>> archivedVariableClass;
 
     public VariableTypeMatcher getMatcher() {
         return matcher;
@@ -48,13 +49,17 @@ public class VariableType {
         this.converter = converter;
     }
 
-    public Class<? extends Variable<?>> getVariableClass() {
-        return variableClass;
+    @Required
+    public void setCurrentVariableClass(Class<? extends CurrentVariable<?>> currentVariableClass) {
+        this.currentVariableClass = currentVariableClass;
     }
 
     @Required
-    public void setVariableClass(Class<? extends Variable<?>> variableClass) {
-        this.variableClass = variableClass;
+    public void setArchivedVariableClass(Class<? extends ArchivedVariable<?>> archivedVariableClass) {
+        this.archivedVariableClass = archivedVariableClass;
     }
 
+    public Class<? extends Variable> getVariableClass(boolean isArchive) {
+        return isArchive ? archivedVariableClass : currentVariableClass;
+    }
 }

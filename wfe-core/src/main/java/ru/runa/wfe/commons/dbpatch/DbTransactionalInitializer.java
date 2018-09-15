@@ -25,20 +25,20 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 @CommonsLog
 public class DbTransactionalInitializer {
     @Autowired
-    private ConstantDao constantDAO;
+    private ConstantDao constantDao;
     @Autowired
     private ExecutorDao executorDao;
     @Autowired
-    private PermissionDao permissionDAO;
+    private PermissionDao permissionDao;
     @Autowired
-    private LocalizationDao localizationDAO;
+    private LocalizationDao localizationDao;
 
-    public void execute(DBPatch dbPatch, int databaseVersion) throws Exception {
+    public void execute(DbPatch dbPatch, int databaseVersion) throws Exception {
         dbPatch.execute();
-        constantDAO.setDatabaseVersion(databaseVersion);
+        constantDao.setDatabaseVersion(databaseVersion);
     }
 
-    public void postExecute(IDbPatchPostProcessor dbPatch) throws Exception {
+    public void postExecute(DbPatchPostProcessor dbPatch) throws Exception {
         dbPatch.postExecute();
     }
 
@@ -48,22 +48,22 @@ public class DbTransactionalInitializer {
     public void initialize(int version) {
         try {
             insertInitialData();
-            constantDAO.setDatabaseVersion(version);
+            constantDao.setDatabaseVersion(version);
         } catch (Throwable th) {
             log.info("unable to insert initial data", th);
         }
     }
 
     public Integer getDatabaseVersion() throws Exception {
-        return constantDAO.getDatabaseVersion();
+        return constantDao.getDatabaseVersion();
     }
 
     public void initPermissions() {
-        permissionDAO.init();
+        permissionDao.init();
     }
 
     public void initLocalizations() {
-        localizationDAO.init();
+        localizationDao.init();
         String localizedFileName = "localizations." + Locale.getDefault().getLanguage() + ".xml";
         InputStream stream = ClassLoaderUtil.getAsStream(localizedFileName, getClass());
         if (stream == null) {
@@ -77,7 +77,7 @@ public class DbTransactionalInitializer {
         if (stream != null) {
             localizations.addAll(LocalizationParser.parseLocalizations(stream));
         }
-        localizationDAO.saveLocalizations(localizations, false);
+        localizationDao.saveLocalizations(localizations, false);
     }
 
     /**
@@ -96,7 +96,7 @@ public class DbTransactionalInitializer {
         executorDao.addExecutorToGroup(admin, adminGroup);
         executorDao.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
         for (SecuredObjectType t : SecuredObjectType.values()) {
-            permissionDAO.addType(t, adminWithGroupExecutors);
+            permissionDao.addType(t, adminWithGroupExecutors);
         }
     }
 

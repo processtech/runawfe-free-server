@@ -4,8 +4,8 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.file.IFileVariable;
-import ru.runa.wfe.var.file.IFileVariableStorage;
+import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableStorage;
 import ru.runa.wfe.var.matcher.FileVariableMatcher;
 
 /**
@@ -14,30 +14,30 @@ import ru.runa.wfe.var.matcher.FileVariableMatcher;
  *
  * @author dofs
  * @since 4.0
+ *
+ * TODO Stored as java-serialized, which makes impossible to rename/refactor its structure in any way. Instead should store JSON or something.
  */
 @CommonsLog
 public class FileVariableToByteArrayConverter extends SerializableToByteArrayConverter {
     private static final long serialVersionUID = 1L;
-    private IFileVariableStorage storage;
+    private FileVariableStorage storage;
 
     @Required
-    public void setStorage(IFileVariableStorage storage) {
+    public void setStorage(FileVariableStorage storage) {
         this.storage = storage;
     }
 
     @Override
     public boolean supports(Object value) {
-        if (IFileVariable.class.isAssignableFrom(value.getClass())) {
-            return true;
-        }
-        return FileVariableMatcher.isFileOrListOfFiles(value);
+        // TODO Duplicates non-static method FileVariableMatcher.matches().
+        return FileVariable.class.isAssignableFrom(value.getClass()) || FileVariableMatcher.isFileOrListOfFiles(value);
     }
 
     @Override
-    public Object convert(ExecutionContext executionContext, Variable<?> variable, Object object) {
+    public Object convert(ExecutionContext executionContext, Variable variable, Object object) {
+        // TODO Will this be called for temp variables by VariableLogic.getProcessStateOnTime()? If yes, then who will clean up these temp files?
         object = storage.save(executionContext, variable, object);
         log.debug("Saving " + (object != null ? object.getClass() : "null") + " using " + storage);
         return super.convert(executionContext, variable, object);
     }
-
 }

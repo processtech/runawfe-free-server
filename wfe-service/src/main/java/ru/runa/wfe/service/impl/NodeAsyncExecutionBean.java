@@ -17,14 +17,14 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.ITransactionListener;
+import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
-import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -42,9 +42,11 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 @CommonsLog
 public class NodeAsyncExecutionBean implements MessageListener {
     @Autowired
-    private TokenDao tokenDao;
+    private CurrentTokenDao currentTokenDao;
     @Autowired
-    private IProcessDefinitionLoader processDefinitionLoader;
+    private ExecutionLogic executionLogic;
+    @Autowired
+    private ProcessDefinitionLoader processDefinitionLoader;
     @Resource
     private MessageDrivenContext context;
 
@@ -75,7 +77,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
 
                 @Override
                 protected void doExecuteInTransaction() {
-                    Token token = tokenDao.getNotNull(tokenId);
+                    CurrentToken token = currentTokenDao.getNotNull(tokenId);
                     if (token.getProcess().hasEnded()) {
                         log.debug("Ignored execution in ended " + token.getProcess());
                         return;
@@ -94,7 +96,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     }
                 }
             }.executeInTransaction(true);
-            for (ITransactionListener listener : TransactionListeners.get()) {
+            for (TransactionListener listener : TransactionListeners.get()) {
                 try {
                     listener.onTransactionComplete(context.getUserTransaction());
                 } catch (Throwable th) {
@@ -105,7 +107,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
         } catch (final Throwable th) {
             // TODO does not work in case of timeout in handling transaction
             // ARJUNA016051: thread is already associated with a transaction!
-            Utils.failProcessExecution(context.getUserTransaction(), tokenId, th);
+            executionLogic.failProcessExecution(context.getUserTransaction(), tokenId, th);
             throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
         }
     }

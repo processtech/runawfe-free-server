@@ -18,7 +18,7 @@ public class ExecutorToLongConverter implements Converter {
     }
 
     @Override
-    public Object convert(ExecutionContext executionContext, Variable<?> variable, Object o) {
+    public Object convert(ExecutionContext executionContext, Variable variable, Object o) {
         return ((Executor) o).getId();
     }
 

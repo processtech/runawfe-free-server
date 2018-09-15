@@ -19,7 +19,7 @@ package ru.runa.wfe.definition;
 
 import java.util.Date;
 import ru.runa.wfe.presentation.ClassPresentation;
-import ru.runa.wfe.presentation.DefaultDBSource;
+import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
@@ -43,29 +43,31 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
     private static final ClassPresentation INSTANCE = new DefinitionHistoryClassPresentation();
 
     private DefinitionHistoryClassPresentation() {
-        super(ProcessDefinitionVersion.class, null, true,
-                new FieldDescriptor[] {
-                        // display name field type DB source isSort filter mode
-                        // get value/show in web getter parameters
-                        new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(ProcessDefinitionVersion.class, "definition.name"),
-                                true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder",
-                                new Object[] { Permission.START, "name" }),
-                        new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDBSource(ProcessDefinition.class, "version"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.LIST, "version" }),
-                        new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(ProcessDefinition.class, "definition.description"),
-                                true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
-                        new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ProcessDefinition.class,
-                                "definition.category"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}),
-                        new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDBSource(ProcessDefinition.class, "createDate"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTDBuilder", new Object[] {}),
-                        new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDBSource(ProcessDefinition.class, "createActor"), false,
-                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionCreateActorTDBuilder", new Object[] {}),
-                        new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDBSource(ProcessDefinition.class, "updateDate"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTDBuilder", new Object[] {}),
-                        new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(ProcessDefinition.class, "updateActor"), false,
-                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}),
-                        new FieldDescriptor(PROCESSES_COUNT, String.class.getName(), new DefaultDBSource(ProcessDefinition.class, "definition.name"),
-                                false, FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionProcessesCountTDBuilder", new Object[] {}) });
+        super(ProcessDefinitionVersion.class, null, true, new FieldDescriptor[] {
+                // display name field type DB source isSort filter mode
+                // get value/show in web getter parameters
+                new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class, "definition.name"),
+                        true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder",
+                        new Object[] { Permission.START, "name" }),
+                new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class, "version"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.LIST, "version" }),
+                new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class,
+                        "definition.description"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTdBuilder",
+                        new Object[] {}),
+                new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class,
+                        "definition.category"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTdBuilder", new Object[] {}),
+                new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class, "createDate"),
+                        true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTdBuilder", new Object[] {}),
+                new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class, "createActor"),
+                        false, FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionCreateActorTdBuilder", new Object[] {}),
+                new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class, "updateDate"),
+                        true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTdBuilder", new Object[] {}),
+                new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class, "updateActor"),
+                        false, FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTdBuilder", new Object[] {}),
+                new FieldDescriptor(PROCESSES_COUNT, String.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class,
+                        "definition.name"), false, FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionProcessesCountTdBuilder",
+                        new Object[] {})
+        });
     }
 
     public static ClassPresentation getInstance() {

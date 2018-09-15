@@ -5,9 +5,9 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public interface DefinitionCache {
 
-    ParsedProcessDefinition getDefinition(long processDefinitionVersionId) throws DefinitionDoesNotExistException;
+    ParsedProcessDefinition getDefinition(long definitionVersionId) throws DefinitionDoesNotExistException;
 
     ParsedProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException;
 
-    ParsedProcessDefinition getLatestDefinition(long deploymentId) throws DefinitionDoesNotExistException;
+    ParsedProcessDefinition getLatestDefinition(long definitionId) throws DefinitionDoesNotExistException;
 }

@@ -16,8 +16,8 @@ import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 @CommonsLog
 public class Errors {
@@ -102,28 +102,29 @@ public class Errors {
     }
 
     public static void sendEmailNotification(final SystemError error) {
+        if (emailNotificationConfigBytes == null) {
+            return;
+        }
+
         // non-blocking usage for surrounding transaction
         new Thread() {
             @Override
             public void run() {
                 try {
-                    if (emailNotificationConfigBytes != null) {
-                        EmailConfig config = EmailConfigParser.parse(emailNotificationConfigBytes);
-                        Map<String, Object> map = Maps.newHashMap();
-                        map.put("error", error);
-                        IVariableProvider variableProvider = new MapVariableProvider(map);
-                        config.applySubstitutions(variableProvider);
-                        String formMessage = ExpressionEvaluator.process(null, config.getMessage(), variableProvider, null);
-                        config.setMessage(formMessage);
-                        config.setMessageId("Error: " + error.getMessage());
-                        // does not work EmailUtils.sendMessageRequest(config);
-                        EmailUtils.sendMessage(config);
-                    }
+                    EmailConfig config = EmailConfigParser.parse(emailNotificationConfigBytes);
+                    Map<String, Object> map = Maps.newHashMap();
+                    map.put("error", error);
+                    VariableProvider variableProvider = new MapVariableProvider(map);
+                    config.applySubstitutions(variableProvider);
+                    String formMessage = ExpressionEvaluator.process(null, config.getMessage(), variableProvider, null);
+                    config.setMessage(formMessage);
+                    config.setMessageId("Error: " + error.getMessage());
+                    // does not work EmailUtils.sendMessageRequest(config);
+                    EmailUtils.sendMessage(config);
                 } catch (Exception e) {
                     log.error("Unable to send email notification about error", e);
                 }
             }
         }.start();
     }
-
 }

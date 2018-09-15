@@ -24,7 +24,7 @@ import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.service.SystemService;
 import ru.runa.wfe.user.User;
 
-public class SystemServiceDelegate extends EJB3Delegate implements SystemService {
+public class SystemServiceDelegate extends Ejb3Delegate implements SystemService {
 
     public SystemServiceDelegate() {
         super(SystemService.class);

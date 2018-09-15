@@ -1,11 +1,6 @@
 package ru.runa.wfe.task.logic;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.Set;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.SubstitutionCriteria;
@@ -14,6 +9,10 @@ import ru.runa.wfe.task.cache.TaskCache;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TaskListBuilderTestProvider extends TaskListBuilder implements ITaskListBuilderTestProvider {
 

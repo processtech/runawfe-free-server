@@ -19,7 +19,7 @@ package ru.runa.wf.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 
 /**
  * Powered by Dofs
@@ -31,6 +31,6 @@ public class StartImageProcessAction extends LoadProcessDefinitionGifAction {
 
     @Override
     protected String getFileName(HttpServletRequest request) {
-        return IFileDataProvider.START_IMAGE_FILE_NAME;
+        return FileDataProvider.START_IMAGE_FILE_NAME;
     }
 }

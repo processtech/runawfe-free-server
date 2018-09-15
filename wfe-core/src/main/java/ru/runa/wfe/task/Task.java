@@ -46,25 +46,25 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.audit.TaskAssignLog;
-import ru.runa.wfe.audit.TaskCancelledLog;
-import ru.runa.wfe.audit.TaskEndByAdminLog;
-import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
-import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.TaskExpiredLog;
-import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
+import ru.runa.wfe.audit.CurrentTaskAssignLog;
+import ru.runa.wfe.audit.CurrentTaskCancelledLog;
+import ru.runa.wfe.audit.CurrentTaskEndByAdminLog;
+import ru.runa.wfe.audit.CurrentTaskEndBySubstitutorLog;
+import ru.runa.wfe.audit.CurrentTaskEndLog;
+import ru.runa.wfe.audit.CurrentTaskExpiredLog;
+import ru.runa.wfe.audit.CurrentTaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentSwimlane;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Swimlane;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.TaskDefinition;
-import ru.runa.wfe.task.logic.ITaskNotifier;
+import ru.runa.wfe.task.logic.TaskNotifier;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -88,16 +88,16 @@ public class Task implements Assignable {
     private Date deadlineDate;
     private Date assignDate;
     private String deadlineDateExpression;
-    private Token token;
-    private Swimlane swimlane;
-    private Process process;
+    private CurrentToken token;
+    private CurrentSwimlane swimlane;
+    private CurrentProcess process;
     private Set<Long> openedByExecutorIds;
     private Integer index;
 
     public Task() {
     }
 
-    public Task(Token token, TaskDefinition taskDefinition) {
+    public Task(CurrentToken token, TaskDefinition taskDefinition) {
         setToken(token);
         setProcess(token.getProcess());
         setNodeId(taskDefinition.getNodeId());
@@ -204,37 +204,37 @@ public class Task implements Assignable {
         this.openedByExecutorIds = openedByExecutorIds;
     }
 
-    @ManyToOne(targetEntity = Token.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "TOKEN_ID")
     @ForeignKey(name = "FK_TASK_TOKEN")
-    public Token getToken() {
+    public CurrentToken getToken() {
         return token;
     }
 
-    public void setToken(Token token) {
+    public void setToken(CurrentToken token) {
         this.token = token;
     }
 
-    @ManyToOne(targetEntity = Swimlane.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = CurrentSwimlane.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "SWIMLANE_ID")
     @ForeignKey(name = "FK_TASK_SWIMLANE")
-    public Swimlane getSwimlane() {
+    public CurrentSwimlane getSwimlane() {
         return swimlane;
     }
 
-    public void setSwimlane(Swimlane swimlane) {
+    public void setSwimlane(CurrentSwimlane swimlane) {
         this.swimlane = swimlane;
     }
 
-    @ManyToOne(targetEntity = Process.class, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "PROCESS_ID")
     @ForeignKey(name = "FK_TASK_PROCESS")
     @Index(name = "IX_TASK_PROCESS")
-    public Process getProcess() {
+    public CurrentProcess getProcess() {
         return process;
     }
 
-    public void setProcess(Process process) {
+    public void setProcess(CurrentProcess process) {
         this.process = process;
     }
 
@@ -272,14 +272,14 @@ public class Task implements Assignable {
             log.debug("assigning " + this + " to " + executor);
             Executor previousExecutor = getExecutor();
             // log this assignment
-            executionContext.addLog(new TaskAssignLog(this, executor));
+            executionContext.addLog(new CurrentTaskAssignLog(this, executor));
             // do the actual assignment
             setExecutor(executor);
             setAssignDate(new Date());
             InteractionNode node = (InteractionNode) executionContext.getParsedProcessDefinition().getNodeNotNull(nodeId);
             ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), this);
             node.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_ASSIGN);
-            for (ITaskNotifier notifier : ApplicationContextFactory.getTaskNotifiers()) {
+            for (TaskNotifier notifier : ApplicationContextFactory.getTaskNotifiers()) {
                 notifier.onTaskAssigned(executionContext.getParsedProcessDefinition(), executionContext.getVariableProvider(), this, previousExecutor);
             }
         }
@@ -297,22 +297,22 @@ public class Task implements Assignable {
         log.debug("Ending " + this + " with " + completionInfo);
         switch (completionInfo.getCompletionBy()) {
         case TIMER:
-            executionContext.addLog(new TaskExpiredLog(this, completionInfo));
+            executionContext.addLog(new CurrentTaskExpiredLog(this, completionInfo));
             break;
         case ASSIGNED_EXECUTOR:
-            executionContext.addLog(new TaskEndLog(this, completionInfo));
+            executionContext.addLog(new CurrentTaskEndLog(this, completionInfo));
             break;
         case SUBSTITUTOR:
-            executionContext.addLog(new TaskEndBySubstitutorLog(this, completionInfo));
+            executionContext.addLog(new CurrentTaskEndBySubstitutorLog(this, completionInfo));
             break;
         case ADMIN:
-            executionContext.addLog(new TaskEndByAdminLog(this, completionInfo));
+            executionContext.addLog(new CurrentTaskEndByAdminLog(this, completionInfo));
             break;
         case HANDLER:
-            executionContext.addLog(new TaskCancelledLog(this, completionInfo));
+            executionContext.addLog(new CurrentTaskCancelledLog(this, completionInfo));
             break;
         case PROCESS_END:
-            executionContext.addLog(new TaskRemovedOnProcessEndLog(this, completionInfo));
+            executionContext.addLog(new CurrentTaskRemovedOnProcessEndLog(this, completionInfo));
             break;
         default:
             throw new IllegalArgumentException("Unimplemented for " + completionInfo.getCompletionBy());
@@ -325,7 +325,7 @@ public class Task implements Assignable {
     }
 
     public void delete() {
-        ApplicationContextFactory.getTaskDAO().delete(this);
+        ApplicationContextFactory.getTaskDao().delete(this);
         AssignmentHelper.removeTemporaryGroupOnTaskEnd(getExecutor());
     }
 
@@ -333,5 +333,4 @@ public class Task implements Assignable {
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("name", name).add("assignedTo", executor).toString();
     }
-
 }

@@ -33,8 +33,14 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     @XmlAttribute(name = AdminScriptConstants.DEFINITION_ID_ATTRIBUTE_NAME)
     public Long processDefinitionVersionId;
 
+    /**
+     * If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
+     */
     @XmlAttribute(name = AdminScriptConstants.FILE_ATTRIBUTE_NAME, required = true)
     public String file;
+
+    @XmlAttribute(name = AdminScriptConstants.SECONDS_BEFORE_ARCHIVING)
+    public Integer secondsBeforeArchiving;
 
     @Override
     public void validate(ScriptExecutionContext context) {
@@ -51,7 +57,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         if (!Strings.isNullOrEmpty(name)) {
-            processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findLatestDefinition(name).processDefinitionVersion.getId();
+            processDefinitionVersionId = ApplicationContextFactory.getProcessDefinitionDao().getByName(name).getLatestVersion().getId();
         }
         List<String> parsedType = null;
         if (Strings.isNullOrEmpty(type)) {
@@ -59,7 +65,8 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
         }
         try {
             byte[] scriptBytes = Files.toByteArray(new File(file));
-            context.getProcessDefinitionLogic().redeployProcessDefinition(context.getUser(), processDefinitionVersionId, scriptBytes, parsedType);
+            context.getProcessDefinitionLogic().redeployProcessDefinition(context.getUser(), processDefinitionVersionId, scriptBytes, parsedType,
+                    secondsBeforeArchiving);
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }

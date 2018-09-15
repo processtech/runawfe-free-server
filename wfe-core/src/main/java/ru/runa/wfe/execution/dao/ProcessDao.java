@@ -1,140 +1,61 @@
 package ru.runa.wfe.execution.dao;
 
-import com.querydsl.jpa.JPQLQuery;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDao;
-import ru.runa.wfe.definition.QProcessDefinition;
-import ru.runa.wfe.definition.QProcessDefinitionVersion;
-import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.commons.dao.GenericDao2;
+import ru.runa.wfe.execution.ArchivedProcess;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
-import ru.runa.wfe.execution.QNodeProcess;
-import ru.runa.wfe.execution.QProcess;
-import ru.runa.wfe.execution.QSwimlane;
-import ru.runa.wfe.execution.QToken;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.task.QTask;
 import ru.runa.wfe.user.Executor;
 
 @Component
-public class ProcessDao extends GenericDao<Process> {
+public class ProcessDao extends GenericDao2<Process, CurrentProcess, CurrentProcessDao, ArchivedProcess, ArchivedProcessDao> {
+
+    @Autowired
+    ProcessDao(CurrentProcessDao dao1, ArchivedProcessDao dao2) {
+        super(dao1, dao2);
+    }
 
     @Override
-    protected void checkNotNull(Process entity, Object identity) {
+    protected void checkNotNull(Process entity, Long id) {
         if (entity == null) {
-            throw new ProcessDoesNotExistException(identity);
+            throw new ProcessDoesNotExistException(id);
         }
     }
 
     /**
-     * Checks that no parent processes exists with different definition. If some exists, return its definition name.
-     * <p>
-     * This is optimized query to check if given process definition can be deleted.
-     *
-     * @return Null if not found.
+     * Returns UNORDERED and POSSIBLY INCOMPLETE list: processes are in NOT the same order as ids;
+     * and if some requested process ids don't exist, returned list size will be smaller than ids list size.
      */
-    public String findParentProcessDefinitionName(Long processDefinitionId) {
-        QProcessDefinition d0 = QProcessDefinition.processDefinition;
-        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
-        QProcessDefinitionVersion dv0 = QProcessDefinitionVersion.processDefinitionVersion;
-        QProcess p = QProcess.process;
-        QProcess p0 = QProcess.process;
-        QNodeProcess np = QNodeProcess.nodeProcess;
-        return queryFactory.select(d0.name)
-                .from(dv, p, np, p0, dv0, d0)
-                .where(dv.definition.id.eq(processDefinitionId)
-                        .and(p.processDefinitionVersion.eq(dv))
-                        .and(np.subProcess.eq(p))
-                        .and(p0.eq(np.process))
-                        .and(dv0.eq(p0.processDefinitionVersion))
-                        .and(dv0.definition.id.ne(processDefinitionId))
-                        .and(d0.eq(dv0.definition))
-                )
-                .fetchFirst();
-    }
-
-    /**
-     * Fetches all processes for ALL given process definition versions. The returned list of processs is sorted start date, youngest first.
-     */
-    public List<Process> findAllProcessesForAllDefinitionVersions(Long processDefinitionId) {
-        QProcess p = QProcess.process;
-        return queryFactory.selectFrom(p)
-                .where(p.processDefinitionVersion.definition.id.eq(processDefinitionId))
-                .orderBy(p.startDate.desc())
-                .fetch();
-    }
-
     public List<Process> find(List<Long> ids) {
+        val result = new ArrayList<Process>(ids.size());
         if (ids.isEmpty()) {
-            return new ArrayList<>();
+            return result;
         }
-        QProcess p = QProcess.process;
-        return queryFactory.selectFrom(p).where(p.id.in(ids)).fetch();
+        result.addAll(dao1.findImpl(ids));
+        result.addAll(dao2.findImpl(ids));
+        return result;
     }
 
-    public Set<Long> getDependentProcessIds(Executor executor) {
-        Set<Long> processes = new HashSet<>();
-        QSwimlane s = QSwimlane.swimlane;
-        processes.addAll(queryFactory.selectDistinct(s.process.id).from(s).where(s.executor.eq(executor)).fetch());
-        QTask t = QTask.task;
-        processes.addAll(queryFactory.selectDistinct(t.process.id).from(t).where(t.executor.eq(executor)).fetch());
-        return processes;
+    public Set<Long> getDependentProcessIds(Executor executor, int limit) {
+        val result = dao1.getDependentProcessIds(executor, limit);
+        if (result.size() < limit) {
+            result.addAll(dao2.getDependentProcessIds(executor, limit - result.size()));
+        }
+        return result;
     }
 
+    // TODO Unused.
     public List<Process> getProcesses(final ProcessFilter filter) {
-        QProcess p = QProcess.process;
-        JPQLQuery<Process> q = queryFactory.selectFrom(p).where();
-        if (filter.getDefinitionName() != null) {
-            q.where(p.processDefinitionVersion.definition.name.eq(filter.getDefinitionName()));
-        }
-        if (filter.getDefinitionVersion() != null) {
-            q.where(p.processDefinitionVersion.version.eq(filter.getDefinitionVersion()));
-        }
-        if (filter.getId() != null) {
-            q.where(p.id.eq(filter.getId()));
-        }
-        if (filter.getIdFrom() != null) {
-            q.where(p.id.goe(filter.getIdFrom()));
-        }
-        if (filter.getIdTo() != null) {
-            q.where(p.id.loe(filter.getIdTo()));
-        }
-        if (filter.getStartDateFrom() != null) {
-            q.where(p.startDate.goe(filter.getStartDateFrom()));
-        }
-        if (filter.getStartDateTo() != null) {
-            q.where(p.startDate.loe(filter.getStartDateTo()));
-        }
-        if (filter.getFinished() != null) {
-            q.where(filter.getFinished() ? p.endDate.isNotNull() : p.endDate.isNull());
-        }
-        if (filter.getEndDateFrom() != null) {
-            q.where(p.endDate.goe(filter.getEndDateFrom()));
-        }
-        if (filter.getEndDateTo() != null) {
-            q.where(p.endDate.loe(filter.getEndDateTo()));
-        }
-        if (filter.getFailedOnly()) {
-            q.where(p.executionStatus.eq(ExecutionStatus.FAILED));
-        }
-        return q.fetch();
-    }
-
-    @Override
-    public void delete(Process process) {
-        log.debug("deleting tokens for " + process);
-        QToken t = QToken.token;
-        // TODO Try delete.where (order matters due to foreign keys)
-        List<Token> tokens = queryFactory.selectFrom(t).where(t.process.eq(process).and(t.parent.isNotNull())).orderBy(t.id.desc()).fetch();
-        for (Token token : tokens) {
-            log.debug("deleting " + token);
-            sessionFactory.getCurrentSession().delete(token);
-        }
-        super.delete(process);
+        val result = new ArrayList<Process>();
+        result.addAll(dao1.getProcesses(filter));
+        result.addAll(dao2.getProcesses(filter));
+        return result;
     }
 }

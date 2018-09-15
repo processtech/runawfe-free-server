@@ -7,7 +7,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wf.web.TaskFormBuilder;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 @CommonsLog
 public class HtmlFormBuilder extends TaskFormBuilder {
@@ -16,7 +16,7 @@ public class HtmlFormBuilder extends TaskFormBuilder {
             "<customtag\\s+var\\s*=\\s*\"([^\"]+)\"\\s+delegation\\s*=\\s*\"([^\"]+)\"\\s*/>", Pattern.MULTILINE);
 
     @Override
-    protected String buildForm(IVariableProvider variableProvider) {
+    protected String buildForm(VariableProvider variableProvider) {
         StringBuilder builder = new StringBuilder(new String(interaction.getFormData(), Charsets.UTF_8));
         Matcher matcher = CUSTOM_TAG_PATTERN.matcher(builder);
         for (int position = 0; matcher.find(position);) {

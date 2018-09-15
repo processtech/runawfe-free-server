@@ -11,13 +11,13 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 @CommonsLog
 public class BotTaskConfigurationUtils {
@@ -51,8 +51,8 @@ public class BotTaskConfigurationUtils {
     }
 
     private static Element getBotTaskElement(User user, WfTask task) {
-        String fileName = IFileDataProvider.BOTS_XML_FILE;
-        if (task.getNodeId().startsWith(IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
+        String fileName = FileDataProvider.BOTS_XML_FILE;
+        if (task.getNodeId().startsWith(FileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
             int index = task.getNodeId().indexOf(".");
             if (index > 0) {
                 fileName = task.getNodeId().substring(0, index) + "." + fileName;
@@ -146,7 +146,7 @@ public class BotTaskConfigurationUtils {
         return false;
     }
 
-    public static byte[] substituteParameterizedConfiguration(User user, WfTask task, byte[] configuration, IVariableProvider variableProvider) {
+    public static byte[] substituteParameterizedConfiguration(User user, WfTask task, byte[] configuration, VariableProvider variableProvider) {
         Element taskElement = getBotTaskElement(user, task);
         if (taskElement == null) {
             return configuration;

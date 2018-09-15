@@ -50,7 +50,7 @@
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="hibernateProperties" ref="hibernateProperties" />
 		<property name="entityInterceptor">
-			<bean class="ru.runa.wfe.commons.hibernate.CacheInterceptor" />
+			<bean class="ru.runa.wfe.commons.hibernate.WfeInterceptor" />
 		</property>
 		<property name="packagesToScan">
 			<list>
@@ -93,7 +93,8 @@
 				<property name="large" value="false" />
 			</bean>
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.StringVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentStringVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedStringVariable" />
 	</bean>
 	<!-- java.lang.String (> 1024 symbols) -->
 	<bean id="largeStringVariableType" class="ru.runa.wfe.var.VariableType">
@@ -102,7 +103,8 @@
 				<property name="large" value="true" />
 			</bean>
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.ByteArrayVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentByteArrayVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedByteArrayVariable" />
 		<property name="converter" ref="stringToByteArrayConverter" />
 	</bean>
 	<!-- java.lang.Boolean -->
@@ -112,7 +114,8 @@
 				<property name="className" value="java.lang.Boolean" />
 			</bean>
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.StringVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentStringVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedStringVariable" />
 		<property name="converter" ref="booleanToStringConverter" />
 	</bean>
 	<!-- java.lang.Long -->
@@ -122,7 +125,8 @@
 				<property name="className" value="java.lang.Long" />
 			</bean>
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.LongVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentLongVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedLongVariable" />
 	</bean>
 	<!-- java.lang.Integer -->
 	<bean id="integerVariableType" class="ru.runa.wfe.var.VariableType">
@@ -131,7 +135,8 @@
 				<property name="className" value="java.lang.Integer" />
 			</bean>
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.LongVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentLongVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedLongVariable" />
 		<property name="converter" ref="intToLongConverter" />
 	</bean>
 	<!-- java.lang.Double -->
@@ -141,7 +146,8 @@
 				<property name="className" value="java.lang.Double" />
 			</bean>
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.DoubleVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentDoubleVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedDoubleVariable" />
 	</bean>
 	<!-- java.util.Date -->
 	<bean id="dateVariableType" class="ru.runa.wfe.var.VariableType">
@@ -150,7 +156,8 @@
 				<property name="className" value="java.util.Date" />
 			</bean>
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.DateVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentDateVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedDateVariable" />
 	</bean>
 	<!-- byte[] -->
 	<bean id="bytesVariableType" class="ru.runa.wfe.var.VariableType">
@@ -159,7 +166,8 @@
 				<property name="className" value="[B" />
 			</bean>
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.ByteArrayVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentByteArrayVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedByteArrayVariable" />
 	</bean>
 	<!-- ru.runa.wfe.user.Executor -->
 	<bean id="executorVariableType" class="ru.runa.wfe.var.VariableType">
@@ -168,7 +176,8 @@
 				<property name="className" value="ru.runa.wfe.user.Executor" />
 			</bean>
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.LongVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentLongVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedLongVariable" />
 		<property name="converter" ref="executorToLongConverter" />
 	</bean>
 	<!-- ru.runa.wfe.var.FileVariable -->
@@ -176,7 +185,8 @@
 		<property name="matcher">
 			<bean class="ru.runa.wfe.var.matcher.FileVariableMatcher" />
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.ByteArrayVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentByteArrayVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedByteArrayVariable" />
 		<property name="converter" ref="fileToByteArrayConverter" />
 	</bean>
 	<!-- java.io.Serializable -->
@@ -184,7 +194,8 @@
 		<property name="matcher">
 			<bean class="ru.runa.wfe.var.matcher.SerializableMatcher" />
 		</property>
-		<property name="variableClass" value="ru.runa.wfe.var.impl.ByteArrayVariable" />
+		<property name="currentVariableClass" value="ru.runa.wfe.var.impl.CurrentByteArrayVariable" />
+		<property name="archivedVariableClass" value="ru.runa.wfe.var.impl.ArchivedByteArrayVariable" />
 		<property name="converter" ref="serializableToByteArrayConverter" />
 	</bean>
 
@@ -228,7 +239,7 @@
 	<bean id="loginModuleConfiguration" class="ru.runa.wfe.security.auth.LoginModuleConfiguration">
 		<property name="loginModuleClassNames">
 			<list>
-				<value>ru.runa.wfe.security.auth.InternalDBPasswordLoginModule</value>
+				<value>ru.runa.wfe.security.auth.InternalDbPasswordLoginModule</value>
 				<!-- value>ru.runa.wfe.security.auth.LdapLoginModule</value -->
 				<value>ru.runa.wfe.security.auth.KerberosLoginModule</value>
 				<!-- value>ru.runa.wfe.security.auth.PrincipalLoginModule</value -->
@@ -276,20 +287,22 @@
 	<bean id="jobExecutor" class="ru.runa.wfe.job.impl.JobExecutor" />
 	<bean id="unassignedTaskAssigner" class="ru.runa.wfe.job.impl.UnassignedTaskAssigner" />
 	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
+	<bean id="processArchiver" class="ru.runa.wfe.job.impl.ProcessArchiver" />
 
 	<task:scheduled-tasks scheduler="baseScheduler">
 		<task:scheduled ref="jobExecutor" method="execute" fixed-delay="${timertask.period.millis.job.execution}" />
 		<task:scheduled ref="unassignedTaskAssigner" method="execute" fixed-delay="${timertask.period.millis.unassigned.tasks.execution}" />
 		<task:scheduled ref="unusedTemporaryGroupsCleaner" method="execute" fixed-delay="${timertask.period.millis.remove.temp.groups}" />
+		<task:scheduled ref="processArchiver" method="execute" fixed-delay="${timertask.period.millis.archive.processes}" />
 	</task:scheduled-tasks>
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
 	
-	<bean id="executionContextFactory" class="ru.runa.wfe.execution.DefaultExecutionContextFactory" />
+	<bean id="executionContextFactory" class="ru.runa.wfe.execution.ExecutionContextFactory" />
 	
 	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
 	
-	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JMSNodeAsyncExecutor" />
+	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JmsNodeAsyncExecutor" />
 	
 	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
 	

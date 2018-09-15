@@ -1,10 +1,12 @@
 package ru.runa.wfe.execution.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
@@ -12,12 +14,7 @@ import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.dao.ExecutorDao;
-import ru.runa.wfe.var.IVariableProvider;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import ru.runa.wfe.var.VariableProvider;
 
 public class RelationSwimlaneInitializer extends SwimlaneInitializer {
     private static final char RELATION_INVERSED = '!';
@@ -30,9 +27,9 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
     @Autowired
     private ExecutorDao executorDao;
     @Autowired
-    private RelationDao relationDAO;
+    private RelationDao relationDao;
     @Autowired
-    private RelationPairDao relationPairDAO;
+    private RelationPairDao relationPairDao;
 
     public static boolean isValid(String initializer) {
         return initializer != null && initializer.startsWith(RELATION_BEGIN);
@@ -66,7 +63,7 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
     }
 
     @Override
-    public List<? extends Executor> evaluate(IVariableProvider variableProvider) {
+    public List<? extends Executor> evaluate(VariableProvider variableProvider) {
         Executor parameter;
         if (relationParameterVariableName.startsWith(RELATION_PARAM_VALUE)) {
             String executorValue = relationParameterVariableName.substring(RELATION_PARAM_VALUE.length());
@@ -78,14 +75,14 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
         parameters.add(parameter);
         parameters.addAll(executorDao.getExecutorParentsAll(parameter, false));
         Set<Executor> result = Sets.newHashSet();
-        Relation relation = relationDAO.getNotNull(relationName);
+        Relation relation = relationDao.getNotNull(relationName);
         if (inversed) {
-            List<RelationPair> pairs = relationPairDAO.getExecutorsRelationPairsLeft(relation, parameters);
+            List<RelationPair> pairs = relationPairDao.getExecutorsRelationPairsLeft(relation, parameters);
             for (RelationPair pair : pairs) {
                 result.add(pair.getRight());
             }
         } else {
-            List<RelationPair> pairs = relationPairDAO.getExecutorsRelationPairsRight(relation, parameters);
+            List<RelationPair> pairs = relationPairDao.getExecutorsRelationPairsRight(relation, parameters);
             for (RelationPair pair : pairs) {
                 result.add(pair.getLeft());
             }
@@ -98,5 +95,4 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
         return Objects.toStringHelper(this).add("relationName", relationName).add("relationParameterVariableName", relationParameterVariableName)
                 .add("inversed", inversed).toString();
     }
-
 }

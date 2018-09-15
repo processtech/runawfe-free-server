@@ -1,7 +1,6 @@
 package ru.runa.wfe.var.matcher;
 
 import org.springframework.beans.factory.annotation.Required;
-
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableTypeMatcher;
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 /**
  * Adds BPM_DEPLOYMENT (CREATE_USER_ID, UPDATE_DATE, UPDATE_USER_ID) columns.
@@ -13,7 +13,7 @@ import ru.runa.wfe.commons.dbpatch.DBPatch;
  * @since 4.3.0
  * @author Dofs
  */
-public class AddDeploymentAuditPatch extends DBPatch {
+public class AddDeploymentAuditPatch extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

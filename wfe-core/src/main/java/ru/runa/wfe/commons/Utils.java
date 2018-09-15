@@ -31,18 +31,15 @@ import javax.transaction.UserTransaction;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.Variables;
 
 @CommonsLog
@@ -130,7 +127,7 @@ public class Utils {
     }
 
     // TODO It is an anti-pattern to create new connections, sessions, producers and consumers for each message you produce or consume
-    public static ObjectMessage sendBpmnMessage(List<VariableMapping> data, IVariableProvider variableProvider, long ttl) {
+    public static ObjectMessage sendBpmnMessage(List<VariableMapping> data, VariableProvider variableProvider, long ttl) {
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -183,7 +180,7 @@ public class Utils {
         Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
     }
 
-    public static String getMessageSelectorValue(IVariableProvider variableProvider, BaseMessageNode messageNode, VariableMapping mapping) {
+    public static String getMessageSelectorValue(VariableProvider variableProvider, BaseMessageNode messageNode, VariableMapping mapping) {
         String testValue = mapping.getMappedName();
         if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
             return String.valueOf(variableProvider.getProcessId());
@@ -199,7 +196,7 @@ public class Utils {
         }
     }
 
-    public static String getReceiveMessageNodeSelector(IVariableProvider variableProvider, BaseMessageNode messageNode) {
+    public static String getReceiveMessageNodeSelector(VariableProvider variableProvider, BaseMessageNode messageNode) {
         List<String> selectors = Lists.newArrayList();
         if (messageNode.getEventType() == MessageEventType.error && messageNode.getParentElement() instanceof Node) {
             selectors.add(BaseMessageNode.EVENT_TYPE + MESSAGE_SELECTOR_VALUE_DELIMITER + MessageEventType.error.name());
@@ -247,7 +244,7 @@ public class Utils {
         return selectors;
     }
 
-    public static void sendNodeAsyncExecutionMessage(Token token, boolean retry) {
+    public static void sendNodeAsyncExecutionMessage(CurrentToken token, boolean retry) {
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -378,23 +375,6 @@ public class Utils {
             return string1.trim().length() == 0;
         }
         return string1.trim().equals(string2.trim());
-    }
-
-    public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
-        new TransactionalExecutor(transaction) {
-
-            @Override
-            protected void doExecuteInTransaction() {
-                Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
-                boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
-                if (stateChanged) {
-                    token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
-                    ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
-                    processError.setThrowable(throwable);
-                    Errors.sendEmailNotification(processError);
-                }
-            }
-        }.executeInTransaction(true);
     }
 
     public static String getCuttedString(String string, int limit) {

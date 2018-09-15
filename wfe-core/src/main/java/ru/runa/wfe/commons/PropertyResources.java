@@ -23,7 +23,7 @@ public class PropertyResources {
 
     private static final Map<String, String> propertiesCache = Maps.newHashMap();
 
-    private SettingDao settingDAO = null;
+    private SettingDao settingDao = null;
 
     public static void setDatabaseAvailable(boolean available) {
         databaseAvailable = available;
@@ -70,14 +70,14 @@ public class PropertyResources {
 
     public String getStringProperty(String name) {
         if (databaseAvailable && useDatabase) {
-            if (settingDAO == null) {
+            if (settingDao == null) {
                 try {
-                    settingDAO = ApplicationContextFactory.getSettingDAO();
+                    settingDao = ApplicationContextFactory.getSettingDao();
                 } catch (Exception e) {
                     log.error("No SettingDao available", e);
                 }
             }
-            if (settingDAO != null) {
+            if (settingDao != null) {
                 // TODO ineffective implementation
                 synchronized (propertiesCache) {
                     String fullName = fileName + '#' + name;
@@ -85,7 +85,7 @@ public class PropertyResources {
                         return propertiesCache.get(fullName);
                     }
                     try {
-                        String value = settingDAO.getValue(fileName, name);
+                        String value = settingDao.getValue(fileName, name);
                         if (value == null) {
                             value = properties.getProperty(name);
                         }

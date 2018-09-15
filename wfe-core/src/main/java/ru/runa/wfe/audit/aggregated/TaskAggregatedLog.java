@@ -1,11 +1,12 @@
 package ru.runa.wfe.audit.aggregated;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -18,25 +19,20 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.IndexColumn;
-
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskCreateLog;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.TaskDefinition;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 @Entity
 @Table(name = "BPM_AGGLOG_TASKS")
@@ -99,13 +95,13 @@ public class TaskAggregatedLog {
     /**
      * Assignment history for task instance. Initial assignment and completed actor is also here.
      */
-    private List<TaskAssignmentHistory> assignmentHistory = new LinkedList<TaskAssignmentHistory>();
+    private List<TaskAssignmentHistory> assignmentHistory = new LinkedList<>();
 
     public TaskAggregatedLog() {
         super();
     }
 
-    public TaskAggregatedLog(TaskCreateLog taskCreateLog, IProcessDefinitionLoader processDefinitionLoader, Process process, Token token) {
+    public TaskAggregatedLog(TaskCreateLog taskCreateLog, ProcessDefinitionLoader processDefinitionLoader, CurrentProcess process, CurrentToken token) {
         taskId = taskCreateLog.getTaskId();
         processId = taskCreateLog.getProcessId();
         createDate = taskCreateLog.getCreateDate();
@@ -375,7 +371,7 @@ public class TaskAggregatedLog {
             }
         }
 
-        private EndReason(int dbValue) {
+        EndReason(int dbValue) {
             this.dbValue = dbValue;
         }
 

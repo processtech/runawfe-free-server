@@ -57,6 +57,5 @@ public class LoadVariableOfTypeContext {
      */
     public LoadVariableOfTypeContext createFor(VariableDefinition variableDefinition) {
         return new LoadVariableOfTypeContext(parsedProcessDefinition, process, variableLoader, variableDefinition);
-
     }
 }

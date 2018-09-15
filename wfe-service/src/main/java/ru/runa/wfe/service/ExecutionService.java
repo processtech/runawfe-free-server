@@ -19,7 +19,6 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
@@ -224,8 +223,6 @@ public interface ExecutionService {
      *            authorized user
      * @param processId
      *            process id
-     * @param processId
-     *            task id. Task may have some additional variables (such as descriminator value for multiTask)
      * @param variableName
      *            variable name
      * @return variable or <code>null</code>
@@ -241,7 +238,7 @@ public interface ExecutionService {
      *            process id
      * @param variableName
      *            variable name
-     * @return IFileVariable or <code>null</code>
+     * @return FileVariable or <code>null</code>
      */
     FileVariable getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
 

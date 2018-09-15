@@ -21,7 +21,7 @@
  */
 package ru.runa.wfe.lang;
 
-import ru.runa.wfe.audit.ActionLog;
+import ru.runa.wfe.audit.CurrentActionLog;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
 
@@ -47,7 +47,7 @@ public class Action extends GraphElement {
             ActionHandler actionHandler = delegation.getInstance();
             log.debug("Executing " + this);
             actionHandler.execute(executionContext);
-            executionContext.addLog(new ActionLog(this));
+            executionContext.addLog(new CurrentActionLog(this));
         } catch (Exception e) {
             log.error("Failed " + this);
             throw Throwables.propagate(e);

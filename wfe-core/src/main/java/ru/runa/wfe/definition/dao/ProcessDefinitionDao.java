@@ -45,6 +45,10 @@ import ru.runa.wfe.definition.QProcessDefinitionVersion;
 @Component
 public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
 
+    public ProcessDefinitionDao() {
+        super(ProcessDefinition.class);
+    }
+
     @Override
     protected void checkNotNull(ProcessDefinition entity, Object identity) {
         if (entity == null) {

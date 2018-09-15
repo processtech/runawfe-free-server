@@ -1,17 +1,16 @@
 package ru.runa.wfe.var.file;
 
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.Variable;
 
-import com.google.common.io.Files;
-
-public class LocalFileSystemStorage implements IFileVariableStorage {
+public class LocalFileSystemStorage implements FileVariableStorage {
 
     static File storageDir;
 
@@ -43,14 +42,15 @@ public class LocalFileSystemStorage implements IFileVariableStorage {
     }
 
     @Override
-    public Object save(ExecutionContext executionContext, Variable<?> variable, Object object) {
-        if (object instanceof IFileVariable) {
-            IFileVariable fileVariable = (IFileVariable) object;
+    public Object save(ExecutionContext executionContext, Variable variable, Object object) {
+        if (object instanceof FileVariable) {
+            FileVariable fileVariable = (FileVariable) object;
             object = save(variable, fileVariable, null);
         } else {
-            List<IFileVariable> list = (List<IFileVariable>) object;
+            @SuppressWarnings("unchecked")
+            List<FileVariable> list = (List<FileVariable>) object;
             for (int i = 0; i < list.size(); i++) {
-                IFileVariable fileVariable = list.get(i);
+                FileVariable fileVariable = list.get(i);
                 fileVariable = save(variable, fileVariable, i);
                 list.set(i, fileVariable);
             }
@@ -58,12 +58,12 @@ public class LocalFileSystemStorage implements IFileVariableStorage {
         return object;
     }
 
-    private IFileVariable save(Variable<?> variable, IFileVariable fileVariable, Integer index) {
+    private FileVariable save(Variable variable, FileVariable fileVariable, Integer index) {
         if (SystemProperties.isLocalFileStorageEnabled() && fileVariable != null
                 && fileVariable.getData().length > SystemProperties.getLocalFileStorageFileLimit()) {
             try {
-                String variableName = index != null ? variable.getName() + index : variable.getName();
-                LocalFileSystemVariable fileSystemVariable = new LocalFileSystemVariable(variable, variableName, fileVariable);
+                val variableName = index != null ? variable.getName() + index : variable.getName();
+                val fileSystemVariable = new LocalFileSystemVariable(variable, variableName, fileVariable);
                 Files.write(fileVariable.getData(), getContentFile(fileSystemVariable.getVariablePath(), true));
                 return fileSystemVariable;
             } catch (IOException e) {

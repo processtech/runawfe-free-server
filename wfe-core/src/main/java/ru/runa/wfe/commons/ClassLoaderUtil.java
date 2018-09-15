@@ -50,12 +50,12 @@ public class ClassLoaderUtil {
     private static final ClassLoader extensionClassLoader;
     private static final PathMatchingResourcePatternResolver resourcePatternResolver;
     static {
-        File extensionDirectory = new File(IOCommons.getExtensionDirPath());
+        File extensionDirectory = new File(IoCommons.getExtensionDirPath());
         if (extensionDirectory.exists() && extensionDirectory.isDirectory()) {
             List<URL> urls = Lists.newArrayList();
             try {
                 urls.add(extensionDirectory.toURI().toURL());
-                for (File file : IOCommons.getJarFiles(extensionDirectory)) {
+                for (File file : IoCommons.getJarFiles(extensionDirectory)) {
                     urls.add(file.toURI().toURL());
                 }
             } catch (MalformedURLException e) {

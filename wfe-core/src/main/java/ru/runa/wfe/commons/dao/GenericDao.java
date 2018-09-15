@@ -1,11 +1,7 @@
 package ru.runa.wfe.commons.dao;
 
 import com.google.common.base.Preconditions;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * General DAO implementation (type-safe generic DAO pattern).
@@ -17,23 +13,14 @@ import org.apache.commons.logging.LogFactory;
  *            entity class
  */
 @SuppressWarnings("unchecked")
-public abstract class GenericDao<T> extends CommonDao implements IGenericDAO<T> {
-    protected final Log log = LogFactory.getLog(getClass());
-    private final Class<T> entityClass;
+public abstract class GenericDao<T> extends ReadOnlyGenericDao<T> {
 
     /**
-     * Constructor
+     * Default constructor fails to determine entityClass if subclass is generic:
+     * in this case, getActualTypeArguments() returns TypeVariableImpl instead of Class.
      */
-    public GenericDao() {
-        // Spring can create proxy between GenericDao and its subclass; so search deeper for GenericDao superclass.
-        Class c = getClass();
-        while (c.getSuperclass() != GenericDao.class) {
-            c = c.getSuperclass();
-        }
-
-        Type t = c.getGenericSuperclass();
-        ParameterizedType pt = (ParameterizedType) t;
-        entityClass = (Class<T>) pt.getActualTypeArguments()[0];
+    public GenericDao(Class<T> entityClass) {
+        super(entityClass);
     }
 
     @Override

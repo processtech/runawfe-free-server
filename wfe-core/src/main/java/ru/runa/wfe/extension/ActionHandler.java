@@ -25,6 +25,5 @@ import ru.runa.wfe.execution.ExecutionContext;
 
 public interface ActionHandler extends Configurable {
 
-    public void execute(ExecutionContext executionContext) throws Exception;
-
+    void execute(ExecutionContext executionContext) throws Exception;
 }

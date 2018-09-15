@@ -35,17 +35,17 @@ import java.util.zip.ZipInputStream;
 import lombok.NonNull;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 
 public class ProcessArchive {
     public static final List<String> UNSECURED_FILE_NAMES = new ArrayList<String>() {{
-        add(IFileDataProvider.START_IMAGE_FILE_NAME);
-        add(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
-        add(IFileDataProvider.BOTS_XML_FILE);
+        add(FileDataProvider.START_IMAGE_FILE_NAME);
+        add(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
+        add(FileDataProvider.BOTS_XML_FILE);
     }};
 
     private static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<ProcessArchiveParser>() {{
@@ -59,7 +59,7 @@ public class ProcessArchive {
     }};
 
     private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern.compile(
-            IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)." + IFileDataProvider.PROCESSDEFINITION_XML_FILE_NAME
+            FileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)." + FileDataProvider.PROCESSDEFINITION_XML_FILE_NAME
     );
 
     private final ProcessDefinition processDefinition;
@@ -98,7 +98,7 @@ public class ProcessArchive {
             if (matcher.matches()) {
                 int subprocessIndex = Integer.parseInt(matcher.group(1));
                 ParsedSubprocessDefinition subprocessDefinition = new ParsedSubprocessDefinition(parsedProcessDefinition);
-                subprocessDefinition.setNodeId(IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + subprocessIndex);
+                subprocessDefinition.setNodeId(FileDataProvider.SUBPROCESS_DEFINITION_PREFIX + subprocessIndex);
                 for (ProcessArchiveParser processArchiveParser : processArchiveParsers) {
                     if (processArchiveParser.isApplicableToEmbeddedSubprocess()) {
                         processArchiveParser.readFromArchive(this, subprocessDefinition);

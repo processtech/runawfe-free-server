@@ -10,7 +10,7 @@ import com.google.common.base.Strings;
 public class ParamBasedVariableProvider extends DelegableVariableProvider {
     private final ParamsDef paramsDef;
 
-    public ParamBasedVariableProvider(IVariableProvider delegate, ParamsDef paramsDef) {
+    public ParamBasedVariableProvider(VariableProvider delegate, ParamsDef paramsDef) {
         super(delegate);
         this.paramsDef = paramsDef;
     }

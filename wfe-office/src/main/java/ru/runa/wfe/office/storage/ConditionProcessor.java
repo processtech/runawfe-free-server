@@ -12,7 +12,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.extension.handler.ParamsDef;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.DateFormat;
@@ -50,7 +50,7 @@ public class ConditionProcessor {
         engine = engineManager.getEngineByName("JavaScript");
     }
 
-    public static synchronized boolean filter(String condition, Map<String, Object> attributes, IVariableProvider variableProvider) {
+    public static synchronized boolean filter(String condition, Map<String, Object> attributes, VariableProvider variableProvider) {
         try {
             clear();
             String query = parse(condition, attributes, variableProvider);
@@ -66,7 +66,7 @@ public class ConditionProcessor {
         previousOperator = "";
     }
 
-    private static String parse(String condition, Map<String, Object> attributes, IVariableProvider variableProvider) {
+    private static String parse(String condition, Map<String, Object> attributes, VariableProvider variableProvider) {
         StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(condition);
         while (st.hasMoreTokens()) {

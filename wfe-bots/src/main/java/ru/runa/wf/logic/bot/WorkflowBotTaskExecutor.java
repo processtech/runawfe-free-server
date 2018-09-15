@@ -23,7 +23,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
@@ -45,19 +46,19 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Execute task handlers for particular bot.
- * 
+ *
  * Configures and executes task handler in same method.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
-@CommonsLog
 public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
+    private static final Log log = LogFactory.getLog(WorkflowBotTaskExecutor.class);
 
     private final WorkflowBotExecutor botExecutor;
     private final WfTask task;
@@ -67,7 +68,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
      * Next wait is 2*wait, but no more FAILED_EXECUTION_MAX_DELAY_SECONDS
      */
     private int failedDelaySeconds = BotStationResources.getFailedExecutionInitialDelay();
-    private final AtomicReference<Thread> executionThread = new AtomicReference<>(null);
+    private final AtomicReference<Thread> executionThread = new AtomicReference<Thread>(null);
     private boolean threadInterrupting = false;
 
     public WorkflowBotTaskExecutor(WorkflowBotExecutor botExecutor, WfTask task) {
@@ -123,14 +124,15 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
         return getExecutionStatus() == WorkflowBotTaskExecutionStatus.FAILED && started.before(Calendar.getInstance());
     }
 
-    private void doHandle() {
+    private void doHandle() throws Exception {
         User user = botExecutor.getUser();
         Bot bot = botExecutor.getBot();
-        IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
+        BotTask botTask = null;
+        VariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
         TaskHandler taskHandler = null;
         try {
             String botTaskName = BotTaskConfigurationUtils.getBotTaskName(user, task);
-            BotTask botTask = botExecutor.getBotTasks().get(botTaskName);
+            botTask = botExecutor.getBotTasks().get(botTaskName);
             if (botTask == null) {
                 log.error("No handler for bot task " + botTaskName + " in " + bot);
                 throw new ConfigurationException(CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_MISSED, botTaskName, bot.getUsername()));
@@ -157,7 +159,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             log.info("Starting bot task " + task + " with config \n" + taskHandler.getConfiguration());
             Map<String, Object> variables = taskHandler.handle(user, variableProvider, task);
             if (variables == null) {
-                variables = new HashMap<>();
+                variables = new HashMap<String, Object>();
             }
             Object skipTaskCompletion = variables.remove(TaskHandler.SKIP_TASK_COMPLETION_VARIABLE_NAME);
             if (Objects.equal(Boolean.TRUE, skipTaskCompletion)) {
@@ -167,7 +169,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                     ParamsDef paramsDef = ((ParamBasedVariableProvider) variableProvider).getParamsDef();
                     for (Map.Entry<String, ParamDef> entry : paramsDef.getOutputParams().entrySet()) {
                         String paramName = entry.getKey();
-                        Object object;
+                        Object object = null;
                         // back compatibility before v4.1.0
                         if (variables.containsKey(paramName)) {
                             object = variables.remove(paramName);

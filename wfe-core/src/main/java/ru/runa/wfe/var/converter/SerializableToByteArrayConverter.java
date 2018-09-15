@@ -29,13 +29,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.var.Converter;
 import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.Converter;
 
 public class SerializableToByteArrayConverter implements Converter {
     private static final long serialVersionUID = 1L;
@@ -46,7 +45,7 @@ public class SerializableToByteArrayConverter implements Converter {
     }
 
     @Override
-    public Object convert(ExecutionContext executionContext, Variable<?> variable, Object o) {
+    public Object convert(ExecutionContext executionContext, Variable variable, Object o) {
         try {
             ByteArrayOutputStream memoryStream = new ByteArrayOutputStream();
             ObjectOutputStream objectStream = new ObjectOutputStream(memoryStream);
@@ -71,14 +70,14 @@ public class SerializableToByteArrayConverter implements Converter {
         }
     }
 
-    public static class BackCompatibleObjectInputStream extends ObjectInputStream {
+    private static class BackCompatibleObjectInputStream extends ObjectInputStream {
 
-        public BackCompatibleObjectInputStream(InputStream in) throws IOException {
+        BackCompatibleObjectInputStream(InputStream in) throws IOException {
             super(in);
         }
 
         @Override
-        protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+        protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException {
             try {
                 return super.resolveClass(desc);
             } catch (ClassNotFoundException ex) {

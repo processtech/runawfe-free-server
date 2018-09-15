@@ -22,8 +22,8 @@
 package ru.runa.wfe.var.converter;
 
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.var.Converter;
 import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.Converter;
 
 public class IntegerToLongConverter implements Converter {
     private static final long serialVersionUID = 1L;
@@ -34,12 +34,12 @@ public class IntegerToLongConverter implements Converter {
     }
 
     @Override
-    public Object convert(ExecutionContext executionContext, Variable<?> variable, Object o) {
-        return Long.valueOf(((Number) o).longValue());
+    public Object convert(ExecutionContext executionContext, Variable variable, Object o) {
+        return ((Integer) o).longValue();
     }
 
     @Override
     public Object revert(Object o) {
-        return Integer.valueOf(((Long) o).intValue());
+        return ((Long) o).intValue();
     }
 }

@@ -21,6 +21,8 @@
  */
 package ru.runa.wfe.lang;
 
+import lombok.val;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionContext;
 
 public class EndNode extends Node {
@@ -33,7 +35,9 @@ public class EndNode extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getProcess().end(executionContext, null);
+        val executionLogic = ApplicationContextFactory.getExecutionLogic();
+        executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getParsedProcessDefinition(), null, null, false);
+        executionLogic.endProcess(executionContext.getCurrentProcess(), executionContext, null);
     }
 
     @Override

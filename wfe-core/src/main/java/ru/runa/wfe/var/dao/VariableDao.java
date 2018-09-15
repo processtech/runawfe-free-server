@@ -3,56 +3,60 @@ package ru.runa.wfe.var.dao;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.SQLCommons;
-import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.commons.dao.GenericDao2;
+import ru.runa.wfe.execution.ArchivedProcess;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.var.QVariable;
+import ru.runa.wfe.var.ArchivedVariable;
 import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 @Component
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public class VariableDao extends GenericDao<Variable> {
+@CommonsLog
+public class VariableDao extends GenericDao2<Variable, CurrentVariable, CurrentVariableDao, ArchivedVariable, ArchivedVariableDao> {
 
-    public Variable<?> get(Process process, String name) {
-        QVariable v = QVariable.variable;
-        return queryFactory.selectFrom(v).where(v.process.id.eq(process.getId()).and(v.name.eq(name))).fetchFirst();
+    @Autowired
+    protected SessionFactory sessionFactory;
+
+    @Autowired
+    VariableDao(CurrentVariableDao dao1, ArchivedVariableDao dao2) {
+        super(dao1, dao2);
+    }
+
+    public Variable get(Process process, String name) {
+        if (process.isArchive()) {
+            return dao2.get((ArchivedProcess) process, name);
+        } else {
+            return dao1.get((CurrentProcess) process, name);
+        }
     }
 
     /**
-     * Used by TNMS.
-     */
-    @SuppressWarnings("unused")
-    public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
-        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(variableNamePattern);
-        return sessionFactory.getCurrentSession().createQuery("from Variable where name " + expression.getComparisonOperator() + " :name and stringValue = :value")
-                .setParameter("name", expression.getValue())
-                .setParameter("value", stringValue)
-                .list();
-    }
-
-    /**
-     * @return all variable values.
+     * @return All variable values.
      */
     public Map<String, Object> getAll(Process process) {
-        Map<String, Object> variables = Maps.newHashMap();
-        QVariable v = QVariable.variable;
-        List<Variable<?>> list = queryFactory.selectFrom(v).where(v.process.eq(process)).fetch();
-        for (Variable<?> variable : list) {
+        Map<String, Object> result = Maps.newHashMap();
+        List<? extends Variable> vars = process.isArchive()
+                ? dao2.getAllImpl((ArchivedProcess) process)
+                : dao1.getAllImpl((CurrentProcess) process);
+        for (Variable v : vars) {
             try {
-                variables.put(variable.getName(), variable.getValue());
-            } catch (Throwable e) {
-                log.error("Unable to revert " + variable + " in " + process, e);
+                result.put(v.getName(), v.getValue());
+            } catch (Exception e) {
+                log.error("Unable to revert " + v + " in " + process, e);
             }
         }
-        return variables;
+        return result;
     }
 
     /**
@@ -62,20 +66,10 @@ public class VariableDao extends GenericDao<Variable> {
      *            Processes, which variables must be loaded.
      * @return for each given process: map from variable name to loaded variable.
      */
-    public Map<Process, Map<String, Variable<?>>> getVariables(Collection<Process> processes) {
-        Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
-        if (Utils.isNullOrEmpty(processes)) {
-            return result;
-        }
-        for (Process process : processes) {
-            result.put(process, Maps.newHashMap());
-        }
-        QVariable v = QVariable.variable;
-        List<Variable<?>> list = queryFactory.selectFrom(v).where(v.process.in(processes)).fetch();
-        for (Variable<?> variable : list) {
-            result.get(variable.getProcess()).put(variable.getName(), variable);
-        }
-        return result;
+    public Map<Process, Map<String, Variable>> getVariables(List<? extends Process> processes) {
+        return Utils.isNullOrEmpty(processes)
+                ? new HashMap<>()
+                : getVariablesImpl(processes, null);
     }
 
     /**
@@ -88,32 +82,47 @@ public class VariableDao extends GenericDao<Variable> {
      * @return for each given process: map from variable name to loaded variable. If no variable loaded for some variable name+process, when map is
      *         still contains variable name as key, but it value is null (Result is filled completely for all processes and variable names).
      */
-    public Map<Process, Map<String, Variable<?>>> getVariables(Set<Process> processes, List<String> variableNames) {
-        if (Utils.isNullOrEmpty(processes) || Utils.isNullOrEmpty(variableNames)) {
-            return null;
-        }
-        Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
-        for (Process process : processes) {
-            Map<String, Variable<?>> processVariables = Maps.newHashMap();
-            result.put(process, processVariables);
-            for (String variable : variableNames) {
-                processVariables.put(variable, null);
-            }
-        }
-        List<Variable<?>> list = new ArrayList<>();
-        for (List<Process> processesPart : Lists.partition(Lists.newArrayList(processes), SystemProperties.getDatabaseParametersCount())) {
-            QVariable v = QVariable.variable;
-            list.addAll(queryFactory.selectFrom(v).where(v.process.in(processesPart).and(v.name.in(variableNames))).fetch());
-        }
-        for (Variable<?> variable : list) {
-            result.get(variable.getProcess()).put(variable.getName(), variable);
-        }
-        return result;
+    public Map<Process, Map<String, Variable>> getVariables(List<? extends Process> processes, List<String> variableNames) {
+        return Utils.isNullOrEmpty(processes) || Utils.isNullOrEmpty(variableNames)
+                ? null
+                : getVariablesImpl(processes, variableNames);
     }
 
-    public void deleteAll(Process process) {
-        log.debug("deleting variables for process " + process.getId());
-        QVariable v = QVariable.variable;
-        queryFactory.delete(v).where(v.process.id.eq(process.getId())).execute();
+    private Map<Process, Map<String, Variable>> getVariablesImpl(List<? extends Process> processes, List<String> variableNamesOrNull) {
+        val result = new HashMap<Process, Map<String, Variable>>();
+        val currentProcesses = new ArrayList<CurrentProcess>(processes.size());
+        val archivedProcesses = new ArrayList<ArchivedProcess>(processes.size());
+        for (Process p : processes) {
+            if (p.isArchive()) {
+                archivedProcesses.add((ArchivedProcess) p);
+            } else {
+                currentProcesses.add((CurrentProcess) p);
+            }
+            val vars = new HashMap<String, Variable>();
+            result.put(p, vars);
+            if (variableNamesOrNull != null) {
+                for (String name : variableNamesOrNull) {
+                    vars.put(name, null);
+                }
+            }
+        }
+
+        int databaseParametersCount = SystemProperties.getDatabaseParametersCount();
+        if (!currentProcesses.isEmpty()) {
+            for (val pp : Lists.partition(currentProcesses, databaseParametersCount)) {
+                for (val v : dao1.getVariablesImpl(pp, variableNamesOrNull)) {
+                    result.get(v.getProcess()).put(v.getName(), v);
+                }
+            }
+        }
+        if (!archivedProcesses.isEmpty()) {
+            for (val pp : Lists.partition(archivedProcesses, databaseParametersCount)) {
+                for (val v : dao2.getVariablesImpl(pp, variableNamesOrNull)) {
+                    result.get(v.getProcess()).put(v.getName(), v);
+                }
+            }
+        }
+
+        return result;
     }
 }

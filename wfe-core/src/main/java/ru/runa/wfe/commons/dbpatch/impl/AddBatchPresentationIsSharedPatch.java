@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.DBType;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.DbType;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class AddBatchPresentationIsSharedPatch extends DBPatch {
+public class AddBatchPresentationIsSharedPatch extends DbPatch {
     @Override
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = super.getDDLQueriesBefore();
@@ -18,7 +18,7 @@ public class AddBatchPresentationIsSharedPatch extends DBPatch {
 
     @Override
     public void executeDML(Session session) throws Exception {
-        String initialValue = dbType == DBType.ORACLE ? "0" : "FALSE";
+        String initialValue = dbType == DbType.ORACLE ? "0" : "FALSE";
         session.createSQLQuery("UPDATE BATCH_PRESENTATION SET SHARED = " + initialValue).executeUpdate();
     }
 

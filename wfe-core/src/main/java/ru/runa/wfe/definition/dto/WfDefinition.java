@@ -22,11 +22,11 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.EntityWithType;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinition;
+import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
-import ru.runa.wfe.definition.IFileDataProvider;
-import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -55,6 +55,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     private Date updateDate;
     private Actor updateActor;
     private Date subprocessBindingDate;
+    private Integer secondsBeforeArchiving;
 
     public WfDefinition() {
     }
@@ -70,6 +71,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         updateDate = dv.getUpdateDate();
         updateActor = dv.getUpdateActor();
         subprocessBindingDate = dv.getSubprocessBindingDate();
+        secondsBeforeArchiving = d.getSecondsBeforeArchiving();
     }
 
     public WfDefinition(ProcessDefinitionWithVersion dwv) {
@@ -82,9 +84,9 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
 
     public WfDefinition(ParsedProcessDefinition pd, boolean canBeStarted) {
         this(pd.getProcessDefinition(), pd.getProcessDefinitionVersion());
-        hasHtmlDescription = pd.getFileData(IFileDataProvider.INDEX_FILE_NAME) != null;
-        hasStartImage = pd.getFileData(IFileDataProvider.START_IMAGE_FILE_NAME) != null;
-        hasDisabledImage = pd.getFileData(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
+        hasHtmlDescription = pd.getFileData(FileDataProvider.INDEX_FILE_NAME) != null;
+        hasStartImage = pd.getFileData(FileDataProvider.START_IMAGE_FILE_NAME) != null;
+        hasDisabledImage = pd.getFileData(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
         subprocessOnly = pd.getAccessType() == ProcessDefinitionAccessType.OnlySubprocess;
         this.canBeStarted = canBeStarted && !subprocessOnly;
     }
@@ -167,6 +169,10 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         return subprocessBindingDate;
     }
 
+    public Integer getSecondsBeforeArchiving() {
+        return secondsBeforeArchiving;
+    }
+
     @Override
     public int compareTo(WfDefinition o) {
         if (name == null) {
@@ -192,5 +198,4 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("name", name).add("version", version).toString();
     }
-
 }

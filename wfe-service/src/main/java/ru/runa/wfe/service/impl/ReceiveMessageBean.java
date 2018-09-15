@@ -39,15 +39,16 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.ReceiveMessageLog;
+import ru.runa.wfe.audit.CurrentReceiveMessageLog;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -55,8 +56,8 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/bpmMessages"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
@@ -67,9 +68,11 @@ import ru.runa.wfe.var.VariableMapping;
 @CommonsLog
 public class ReceiveMessageBean implements MessageListener {
     @Autowired
-    private TokenDao tokenDao;
+    private ExecutionLogic executionLogic;
     @Autowired
-    private IProcessDefinitionLoader processDefinitionLoader;
+    private CurrentTokenDao currentTokenDao;
+    @Autowired
+    private ProcessDefinitionLoader processDefinitionLoader;
     @Resource
     private MessageDrivenContext context;
 
@@ -84,25 +87,25 @@ public class ReceiveMessageBean implements MessageListener {
             log.debug("Received " + messageString);
             errorEventData = ErrorEventData.match(message);
             transaction.begin();
-            List<Token> tokens;
+            List<CurrentToken> tokens;
             if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
                 if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
                     String messageSelector = Utils.getObjectMessageStrictSelector(message);
-                    tokens = tokenDao.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
+                    tokens = currentTokenDao.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
                     log.debug("Checking " + tokens.size() + " tokens by messageSelector = " + messageSelector);
                 } else {
                     Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(message);
-                    tokens = tokenDao.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
+                    tokens = currentTokenDao.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
                     log.debug("Checking " + tokens.size() + " tokens by messageSelectors = " + messageSelectors);
                 }
             } else {
-                tokens = tokenDao.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
+                tokens = currentTokenDao.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
                 log.debug("Checking " + tokens.size() + " tokens");
             }
-            for (Token token : tokens) {
+            for (CurrentToken token : tokens) {
                 try {
                     ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(
-                            token.getProcess().getProcessDefinitionVersion().getId()
+                            token.getProcess().getDefinitionVersion().getId()
                     );
                     BaseMessageNode receiveMessageNode = (BaseMessageNode) token.getNodeNotNull(parsedProcessDefinition);
                     ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
@@ -117,7 +120,7 @@ public class ReceiveMessageBean implements MessageListener {
                         }
                     } else {
                         boolean suitable = true;
-                        IVariableProvider variableProvider = executionContext.getVariableProvider();
+                        VariableProvider variableProvider = executionContext.getVariableProvider();
                         for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
                             if (mapping.isPropertySelector()) {
                                 String selectorValue = message.getStringProperty(mapping.getName());
@@ -166,16 +169,16 @@ public class ReceiveMessageBean implements MessageListener {
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
                     log.info("Handling " + message + " for " + data);
-                    Token token = tokenDao.getNotNull(data.tokenId);
+                    CurrentToken token = currentTokenDao.getNotNull(data.tokenId);
                     if (!Objects.equal(token.getNodeId(), data.node.getNodeId())) {
                         throw new InternalApplicationException(token + " not in " + data.node.getNodeId());
                     }
                     ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(
-                            token.getProcess().getProcessDefinitionVersion().getId()
+                            token.getProcess().getDefinitionVersion().getId()
                     );
                     ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
                     executionContext.activateTokenIfHasPreviousError();
-                    executionContext.addLog(new ReceiveMessageLog(data.node, Utils.toString(message, true)));
+                    executionContext.addLog(new CurrentReceiveMessageLog(data.node, Utils.toString(message, true)));
                     Map<String, Object> map = (Map<String, Object>) message.getObject();
                     for (VariableMapping variableMapping : data.node.getVariableMappings()) {
                         if (!variableMapping.isPropertySelector()) {
@@ -191,7 +194,7 @@ public class ReceiveMessageBean implements MessageListener {
                 }
             }.executeInTransaction(true);
         } catch (final Throwable th) {
-            Utils.failProcessExecution(context.getUserTransaction(), data.tokenId, th);
+            executionLogic.failProcessExecution(context.getUserTransaction(), data.tokenId, th);
             Throwables.propagate(th);
         }
     }

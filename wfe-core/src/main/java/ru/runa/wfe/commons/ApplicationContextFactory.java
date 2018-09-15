@@ -20,20 +20,21 @@ import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.hibernate.Converters;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.async.INodeAsyncExecutor;
-import ru.runa.wfe.execution.dao.NodeProcessDao;
-import ru.runa.wfe.execution.dao.ProcessDao;
-import ru.runa.wfe.execution.dao.SwimlaneDao;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.async.NodeAsyncExecutor;
+import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
+import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
-import ru.runa.wfe.report.dao.ReportDao;
+import ru.runa.wfe.report.dao.ReportDefinitionDao;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.task.dao.TaskDao;
-import ru.runa.wfe.task.logic.ITaskNotifier;
+import ru.runa.wfe.task.logic.TaskNotifier;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.logic.VariableLogic;
@@ -41,7 +42,7 @@ import ru.runa.wfe.var.logic.VariableLogic;
 @Component
 public class ApplicationContextFactory implements ApplicationContextAware {
     private static ApplicationContext context;
-    private static DBType dbType;
+    private static DbType dbType;
 
     /**
      * Taken from: https://stackoverflow.com/a/28408260/4247442
@@ -55,35 +56,35 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return context;
     }
 
-    public static JobDao getJobDAO() {
+    public static JobDao getJobDao() {
         return getContext().getBean(JobDao.class);
     }
 
-    public static TaskDao getTaskDAO() {
+    public static TaskDao getTaskDao() {
         return getContext().getBean(TaskDao.class);
     }
 
-    public static SwimlaneDao getSwimlaneDAO() {
-        return getContext().getBean(SwimlaneDao.class);
+    public static CurrentSwimlaneDao getCurrentSwimlaneDao() {
+        return getContext().getBean(CurrentSwimlaneDao.class);
     }
 
-    public static TokenDao getTokenDAO() {
-        return getContext().getBean(TokenDao.class);
+    public static CurrentTokenDao getCurrentTokenDao() {
+        return getContext().getBean(CurrentTokenDao.class);
     }
 
-    public static SettingDao getSettingDAO() {
+    public static SettingDao getSettingDao() {
         return getContext().getBean(SettingDao.class);
     }
 
-    public static ProcessDao getProcessDAO() {
-        return getContext().getBean(ProcessDao.class);
+    public static CurrentProcessDao getCurrentProcessDao() {
+        return getContext().getBean(CurrentProcessDao.class);
     }
 
-    public static NodeProcessDao getNodeProcessDAO() {
-        return getContext().getBean(NodeProcessDao.class);
+    public static CurrentNodeProcessDao getCurrentNodeProcessDao() {
+        return getContext().getBean(CurrentNodeProcessDao.class);
     }
 
-    public static ProcessLogDao getProcessLogDAO() {
+    public static ProcessLogDao getProcessLogDao() {
         return getContext().getBean(ProcessLogDao.class);
     }
 
@@ -95,12 +96,12 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(BusinessCalendar.class);
     }
 
-    public static IProcessDefinitionLoader getProcessDefinitionLoader() {
-        return getContext().getBean(IProcessDefinitionLoader.class);
+    public static ProcessDefinitionLoader getProcessDefinitionLoader() {
+        return getContext().getBean(ProcessDefinitionLoader.class);
     }
 
-    public static INodeAsyncExecutor getNodeAsyncExecutor() {
-        return getContext().getBean(INodeAsyncExecutor.class);
+    public static NodeAsyncExecutor getNodeAsyncExecutor() {
+        return getContext().getBean(NodeAsyncExecutor.class);
     }
 
     // TODO avoid static methods, inject
@@ -126,23 +127,23 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return Dialect.getDialect(getConfiguration().getProperties());
     }
 
-    public static DBType getDBType() {
+    public static DbType getDbType() {
         if (dbType == null) {
             String hibernateDialect = getConfiguration().getProperty("hibernate.dialect");
             if (hibernateDialect.contains("HSQL")) {
-                dbType = DBType.HSQL;
+                dbType = DbType.HSQL;
             } else if (hibernateDialect.contains("Oracle")) {
-                dbType = DBType.ORACLE;
+                dbType = DbType.ORACLE;
             } else if (hibernateDialect.contains("Postgre")) {
-                dbType = DBType.POSTGRESQL;
+                dbType = DbType.POSTGRESQL;
             } else if (hibernateDialect.contains("MySQL")) {
-                dbType = DBType.MYSQL;
+                dbType = DbType.MYSQL;
             } else if (hibernateDialect.contains("SQLServer")) {
-                dbType = DBType.MSSQL;
+                dbType = DbType.MSSQL;
             } else if (hibernateDialect.contains("H2")) {
-                dbType = DBType.H2;
+                dbType = DbType.H2;
             } else {
-                dbType = DBType.GENERIC;
+                dbType = DbType.GENERIC;
             }
         }
         return dbType;
@@ -152,42 +153,47 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(ExecutorDao.class);
     }
 
-    public static ProcessDefinitionDao getDeploymentDAO() {
+    public static ReportDefinitionDao getReportDefinitionDao() {
+        return getContext().getBean(ReportDefinitionDao.class);
+    }
+
+    public static ProcessDefinitionDao getProcessDefinitionDao() {
         return getContext().getBean(ProcessDefinitionDao.class);
     }
 
-    public static PermissionDao getPermissionDAO() {
+    public static PermissionDao getPermissionDao() {
         return getContext().getBean(PermissionDao.class);
     }
 
-    public static RelationDao getRelationDAO() {
+    public static RelationDao getRelationDao() {
         return getContext().getBean(RelationDao.class);
     }
 
-    public static RelationPairDao getRelationPairDAO() {
+    public static RelationPairDao getRelationPairDao() {
         return getContext().getBean(RelationPairDao.class);
     }
 
-    public static SubstitutionDao getSubstitutionDAO() {
+    public static SubstitutionDao getSubstitutionDao() {
         return getContext().getBean(SubstitutionDao.class);
     }
 
-    public static ReportDao getReportDAO() {
-        return getContext().getBean(ReportDao.class);
-    }
-
-    public static List<ITaskNotifier> getTaskNotifiers() {
-        return Lists.newArrayList(getContext().getBeansOfType(ITaskNotifier.class).values());
+    public static List<TaskNotifier> getTaskNotifiers() {
+        return Lists.newArrayList(getContext().getBeansOfType(TaskNotifier.class).values());
     }
 
     public static ExecutorLogic getExecutorLogic() {
         return getContext().getBean(ExecutorLogic.class);
     }
 
+    public static ExecutionLogic getExecutionLogic() {
+        return getContext().getBean(ExecutionLogic.class);
+    }
+
     public static VariableLogic getVariableLogic() {
         return getContext().getBean(VariableLogic.class);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T createAutowiredBean(String className) {
         return (T) createAutowiredBean(ClassLoaderUtil.loadClass(className));
     }

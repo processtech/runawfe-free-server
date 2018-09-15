@@ -19,7 +19,6 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.Date;
 import java.util.List;
-
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -37,7 +36,7 @@ import ru.runa.wfe.var.VariableDefinition;
 /**
  * Provides simplified access to local ParsedProcessDefinition. Created on 28.09.2004
  */
-public class DefinitionServiceDelegate extends EJB3Delegate implements DefinitionService {
+public class DefinitionServiceDelegate extends Ejb3Delegate implements DefinitionService {
 
     public DefinitionServiceDelegate() {
         super(DefinitionService.class);
@@ -48,18 +47,20 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) {
+    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories, Integer secondsBeforeArchiving) {
         try {
-            return getDefinitionService().deployProcessDefinition(user, archive, categories);
+            return getDefinitionService().deployProcessDefinition(user, archive, categories, secondsBeforeArchiving);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfDefinition redeployProcessDefinition(User user, Long processDefinitionVersionId, byte[] processArchive, List<String> categories) {
+    public WfDefinition redeployProcessDefinition(User user, Long processDefinitionVersionId, byte[] processArchive, List<String> categories,
+            Integer secondsBeforeArchiving) {
         try {
-            return getDefinitionService().redeployProcessDefinition(user, processDefinitionVersionId, processArchive, categories);
+            return getDefinitionService().redeployProcessDefinition(user, processDefinitionVersionId, processArchive, categories,
+                    secondsBeforeArchiving);
         } catch (Exception e) {
             throw handleException(e);
         }

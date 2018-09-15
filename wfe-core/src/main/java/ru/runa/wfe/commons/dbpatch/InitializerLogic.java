@@ -48,6 +48,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubprocessBindingDatePatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddSubprocessRootIdColumn;
 import ru.runa.wfe.commons.dbpatch.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenMessageSelectorPatch;
@@ -65,6 +66,7 @@ import ru.runa.wfe.commons.dbpatch.impl.PermissionMappingPatch403;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbpatch.impl.SplitProcessDefinitionVersion;
+import ru.runa.wfe.commons.dbpatch.impl.SupportProcessArchiving;
 import ru.runa.wfe.commons.dbpatch.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskOpenedByExecutorsPatch;
@@ -77,12 +79,12 @@ import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
  */
 @CommonsLog
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
-    private static final List<Class<? extends DBPatch>> dbPatches;
+    private static final List<Class<? extends DbPatch>> dbPatches;
     @Autowired
     private DbTransactionalInitializer dbTransactionalInitializer;
 
     static {
-        List<Class<? extends DBPatch>> patches = Lists.newArrayList();
+        List<Class<? extends DbPatch>> patches = Lists.newArrayList();
         patches.add(UnsupportedPatch.class);
         patches.add(UnsupportedPatch.class);
         patches.add(UnsupportedPatch.class);
@@ -155,6 +157,8 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
         patches.add(SplitProcessDefinitionVersion.class);
+        patches.add(AddSubprocessRootIdColumn.class);
+        patches.add(SupportProcessArchiving.class);  // Must go AFTER AddSubprocessRootIdColumn.
         dbPatches = Collections.unmodifiableList(patches);
     }
 
@@ -190,7 +194,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     private void applyPatches(int databaseVersion) {
         log.info("Database version: " + databaseVersion + ", code version: " + dbPatches.size());
         while (databaseVersion < dbPatches.size()) {
-            DBPatch patch = null;
+            DbPatch patch = null;
             try {
                 patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
                 databaseVersion++;
@@ -205,12 +209,12 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
 
     private void postProcessPatches(Integer databaseVersion) {
         while (databaseVersion < dbPatches.size()) {
-            DBPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
+            DbPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
             databaseVersion++;
-            if (patch instanceof IDbPatchPostProcessor) {
+            if (patch instanceof DbPatchPostProcessor) {
                 log.info("Post-processing patch " + patch + " (" + databaseVersion + ")");
                 try {
-                    dbTransactionalInitializer.postExecute((IDbPatchPostProcessor) patch);
+                    dbTransactionalInitializer.postExecute((DbPatchPostProcessor) patch);
                     log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is post-processed successfully.");
                 } catch (Throwable th) {
                     log.error("Can't post-process patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);

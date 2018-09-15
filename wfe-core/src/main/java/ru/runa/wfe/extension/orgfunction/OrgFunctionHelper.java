@@ -61,7 +61,7 @@ public class OrgFunctionHelper {
     // * @throws OrgFunctionException
     // */
     // public static List<? extends Executor> evaluateOrgFunction(OrgFunction
-    // function, IVariableProvider variableProvider) throws OrgFunctionException
+    // function, VariableProvider variableProvider) throws OrgFunctionException
     // {
     // Object[] parameters = getOrgFunctionParameters(function,
     // variableProvider);
@@ -85,9 +85,9 @@ public class OrgFunctionHelper {
     // }
     // Set<Executor> resultSet = Sets.newHashSet();
     // Relation relation =
-    // ApplicationContextFactory.getRelationDAO().getNotNull(function.getRelationName());
+    // ApplicationContextFactory.getRelationDao().getNotNull(function.getRelationName());
     // List<RelationPair> pairs =
-    // ApplicationContextFactory.getRelationPairDAO().getExecutorsRelationPairsRight(relation,
+    // ApplicationContextFactory.getRelationPairDao().getExecutorsRelationPairsRight(relation,
     // relationExecutorsSet);
     // for (RelationPair pair : pairs) {
     // resultSet.add(pair.getLeft());
@@ -96,7 +96,7 @@ public class OrgFunctionHelper {
     // }
     //
     // private static Object[] getOrgFunctionParameters(OrgFunction orgFunction,
-    // IVariableProvider variableProvider) {
+    // VariableProvider variableProvider) {
     // List<Object> params = new ArrayList<Object>();
     // if (orgFunction.getParameterNames() != null) {
     // for (String name : orgFunction.getParameterNames()) {

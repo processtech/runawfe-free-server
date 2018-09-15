@@ -43,8 +43,8 @@ import org.apache.commons.codec.binary.Base64;
 import ru.runa.wf.logic.bot.webservice.ErrorResponseProcessingResult;
 import ru.runa.wf.logic.bot.webservice.Interaction;
 import ru.runa.wf.logic.bot.webservice.WebServiceTaskHandlerSettings;
-import ru.runa.wf.logic.bot.webservice.WebServiceTaskHandlerXMLParser;
-import ru.runa.wf.logic.bot.webservice.WebServiceTaskHandlerXSLTHelper;
+import ru.runa.wf.logic.bot.webservice.WebServiceTaskHandlerXmlParser;
+import ru.runa.wf.logic.bot.webservice.WebServiceTaskHandlerXsltHelper;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
@@ -52,7 +52,7 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 
 import com.google.common.collect.Maps;
@@ -67,10 +67,10 @@ import com.google.common.io.ByteStreams;
 public class WebServiceTaskHandler extends TaskHandlerBase {
     /**
      * XSLT transformation applied in bot thread, so
-     * {@link WebServiceTaskHandlerXSLTHelper} to process tag is stored in
+     * {@link WebServiceTaskHandlerXsltHelper} to process tag is stored in
      * {@link ThreadLocal}.
      */
-    private static ThreadLocal<WebServiceTaskHandlerXSLTHelper> xsltHelper = new ThreadLocal<WebServiceTaskHandlerXSLTHelper>();
+    private static ThreadLocal<WebServiceTaskHandlerXsltHelper> xsltHelper = new ThreadLocal<WebServiceTaskHandlerXsltHelper>();
 
     /**
      * Web service bot settings.
@@ -79,13 +79,13 @@ public class WebServiceTaskHandler extends TaskHandlerBase {
 
     @Override
     public void setConfiguration(String configuration) throws Exception {
-        settings = WebServiceTaskHandlerXMLParser.read(configuration);
+        settings = WebServiceTaskHandlerXmlParser.read(configuration);
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         Map<String, Object> variables = Maps.newHashMap();
-        xsltHelper.set(new WebServiceTaskHandlerXSLTHelper(task, user));
+        xsltHelper.set(new WebServiceTaskHandlerXsltHelper(task, user));
         URL url = getWebServiceUrl(user, task);
         for (int index = getStartInteraction(user, task); index < settings.interactions.size(); ++index) {
             Interaction interaction = settings.interactions.get(index);

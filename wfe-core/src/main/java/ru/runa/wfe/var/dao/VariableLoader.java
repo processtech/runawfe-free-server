@@ -24,7 +24,7 @@ public abstract class VariableLoader {
      *            Variable name.
      * @return Variable or null, if no variable found.
      */
-    public abstract Variable<?> get(Process process, String name);
+    public abstract Variable get(Process process, String name);
 
     /**
      * Load all variables for given process.
@@ -69,7 +69,7 @@ public abstract class VariableLoader {
             return new WfVariable(variableDefinition, variableValue);
         }
         if (SystemProperties.isV3CompatibilityMode()) {
-            Variable<?> variable = get(process, variableName);
+            Variable variable = get(process, variableName);
             return new WfVariable(variableName, variable != null ? variable.getValue() : null);
         }
         log.debug("No variable defined by name '" + variableName + "' in " + process + ", returning null");
@@ -87,13 +87,13 @@ public abstract class VariableLoader {
      *            Loading variable name.
      * @return Loaded variable value or null.
      */
-    private Object getVariableValue(ParsedProcessDefinition parsedProcessDefinition, Process process, VariableDefinition variableDefinition) {
+    public Object getVariableValue(ParsedProcessDefinition parsedProcessDefinition, Process process, VariableDefinition variableDefinition) {
         LoadVariableOfTypeContext context = new LoadVariableOfTypeContext(parsedProcessDefinition, process, this, variableDefinition);
         switch (variableDefinition.getStoreType()) {
-        case BLOB:
-            return new LoadVariableOfType().onOther(variableDefinition.getFormatNotNull(), context);
-        default:
-            return variableDefinition.getFormatNotNull().processBy(new LoadVariableOfType(), context);
+            case BLOB:
+                return new LoadVariableOfType().onOther(variableDefinition.getFormatNotNull(), context);
+            default:
+                return variableDefinition.getFormatNotNull().processBy(new LoadVariableOfType(), context);
         }
     }
 }

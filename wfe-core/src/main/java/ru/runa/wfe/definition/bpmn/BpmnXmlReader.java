@@ -125,7 +125,7 @@ public class BpmnXmlReader {
     private static final String GLOBAL = "global";
 
     @Autowired
-    private LocalizationDao localizationDAO;
+    private LocalizationDao localizationDao;
 
     private final Document document;
 
@@ -203,7 +203,7 @@ public class BpmnXmlReader {
                 swimlaneDefinition.setNodeId(swimlaneElement.attributeValue(ID));
                 swimlaneDefinition.setName(swimlaneName);
                 swimlaneDefinition.setDelegation(readDelegation(swimlaneElement, parseExtensionProperties(swimlaneElement), true));
-                SwimlaneUtils.setOrgFunctionLabel(swimlaneDefinition, localizationDAO);
+                SwimlaneUtils.setOrgFunctionLabel(swimlaneDefinition, localizationDao);
                 List<Element> flowNodeRefElements = swimlaneElement.elements(FLOW_NODE_REF);
                 List<String> flowNodeIds = Lists.newArrayList();
                 for (Element flowNodeRefElement : flowNodeRefElements) {

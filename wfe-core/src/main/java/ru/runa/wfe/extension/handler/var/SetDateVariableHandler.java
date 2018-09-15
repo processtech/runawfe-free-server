@@ -21,7 +21,7 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.extension.handler.CommonHandler;
 import ru.runa.wfe.extension.handler.var.SetDateVariableHandler.CalendarConfig.CalendarOperation;
 import ru.runa.wfe.var.DelegableVariableProvider;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 public class SetDateVariableHandler extends CommonHandler {
     protected CalendarConfig config;
@@ -33,7 +33,7 @@ public class SetDateVariableHandler extends CommonHandler {
         config = new CalendarConfig(configuration);
     }
 
-    protected Map<String, Object> executeAction(IVariableProvider variableProvider, boolean pre430CompatibilityMode) throws Exception {
+    protected Map<String, Object> executeAction(VariableProvider variableProvider, boolean pre430CompatibilityMode) throws Exception {
         config.applySubstitutions(variableProvider);
         Calendar calendar;
         if (config.getBaseVariableName() != null) {
@@ -64,7 +64,7 @@ public class SetDateVariableHandler extends CommonHandler {
     }
 
     @Override
-    protected Map<String, Object> executeAction(IVariableProvider variableProvider) throws Exception {
+    protected Map<String, Object> executeAction(VariableProvider variableProvider) throws Exception {
         return executeAction(variableProvider, false);
     }
 
@@ -102,7 +102,7 @@ public class SetDateVariableHandler extends CommonHandler {
             return outVariableName;
         }
 
-        public void applySubstitutions(IVariableProvider variableProvider) {
+        public void applySubstitutions(VariableProvider variableProvider) {
             for (CalendarOperation operation : operations) {
                 String substitutedValue = substitute(operation, variableProvider);
                 if (!Objects.equal(substitutedValue, operation.expression)) {
@@ -112,7 +112,7 @@ public class SetDateVariableHandler extends CommonHandler {
             }
         }
 
-        private String substitute(final CalendarOperation operation, IVariableProvider variableProvider) {
+        private String substitute(final CalendarOperation operation, VariableProvider variableProvider) {
             DelegableVariableProvider delegableVariableProvider = new DelegableVariableProvider(variableProvider) {
 
                 @Override

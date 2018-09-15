@@ -20,19 +20,16 @@ package ru.runa.wf.web.html;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.wf.web.tag.ListTasksFormTag;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskDeadlineUtils;
@@ -69,7 +66,7 @@ public class ProcessSwimlaneAssignmentRowBuilder implements RowBuilder {
         tr.addElement(new TD(HTMLUtils.createExecutorElement(user, pageContext, task.getOwner())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         tr.addElement(new TD(CalendarUtil.formatDateTime(task.getCreationDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
-        tr.addElement(new TaskDeadlineTDBuilder().build(task, null).setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TaskDeadlineTdBuilder().build(task, null).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         Date currentDate = new Date();
         String duration = TaskDeadlineUtils.calculateTimeDuration(task.getCreationDate(), currentDate);

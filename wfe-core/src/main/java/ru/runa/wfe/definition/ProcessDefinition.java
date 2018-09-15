@@ -35,6 +35,12 @@ public class ProcessDefinition extends SecuredObject {
     private String category;
     private ProcessDefinitionVersion latestVersion;
 
+    /**
+     * Seconds, not days -- for easier debugging.
+     * If null, use SystemProperties.getProcessDefaultSecondsBeforeArchiving().
+     */
+    private Integer secondsBeforeArchiving;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_DEFINITION", allocationSize = 1)
@@ -99,6 +105,15 @@ public class ProcessDefinition extends SecuredObject {
 
     public void setLatestVersion(ProcessDefinitionVersion latestVersion) {
         this.latestVersion = latestVersion;
+    }
+
+    @Column(name = "SECONDS_BEFORE_ARCHIVING")
+    public Integer getSecondsBeforeArchiving() {
+        return secondsBeforeArchiving;
+    }
+
+    public void setSecondsBeforeArchiving(Integer endedDaysBeforeArchiving) {
+        this.secondsBeforeArchiving = endedDaysBeforeArchiving;
     }
 
     @Transient

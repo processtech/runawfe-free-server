@@ -19,7 +19,7 @@ package ru.runa.wfe.user;
 
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
-import ru.runa.wfe.presentation.DefaultDBSource;
+import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.security.Permission;
@@ -39,12 +39,12 @@ public class ActorClassPresentation extends ClassPresentation {
 
     private ActorClassPresentation() {
         super(Actor.class, "", true, new FieldDescriptor[] {
-                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Actor.class, "name"), true,1, BatchPresentationConsts.ASC, FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "name" }),
-                new FieldDescriptor(FULL_NAME, String.class.getName(), new DefaultDBSource(Actor.class, "fullName"), true, FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "fullName" }),
-                new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Actor.class, "description"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "description" }) });
+                new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(Actor.class, "name"), true,1, BatchPresentationConsts.ASC,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "name" }),
+                new FieldDescriptor(FULL_NAME, String.class.getName(), new DefaultDbSource(Actor.class, "fullName"), true, FieldFilterMode.DATABASE,
+                        "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "fullName" }),
+                new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(Actor.class, "description"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "description" }) });
     }
 
     public static ClassPresentation getInstance() {

@@ -2,12 +2,12 @@ package ru.runa.wfe.task;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.CurrentTaskCreateLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.Language;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.BoundaryEventContainer;
@@ -24,8 +24,8 @@ public class TaskFactory {
     /**
      * creates a new task on the given task, in the given execution context.
      */
-    public Task create(ExecutionContext executionContext, TaskDefinition taskDefinition, Swimlane swimlane, Executor executor, Integer index) {
-        Task task = new Task(executionContext.getToken(), taskDefinition);
+    public Task create(ExecutionContext executionContext, TaskDefinition taskDefinition, CurrentSwimlane swimlane, Executor executor, Integer index) {
+        Task task = new Task(executionContext.getCurrentToken(), taskDefinition);
         task.setName(ExpressionEvaluator.substitute(taskDefinition.getName(), executionContext.getVariableProvider()));
         task.setDescription(ExpressionEvaluator.substitute(taskDefinition.getDescription(), executionContext.getVariableProvider()));
         task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), getDeadlineDuration(taskDefinition)));
@@ -33,7 +33,7 @@ public class TaskFactory {
         task.setIndex(index);
         taskDao.create(task);
         taskDao.flushPendingChanges();
-        executionContext.addLog(new TaskCreateLog(task));
+        executionContext.addLog(new CurrentTaskCreateLog(task));
         taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
         task.setSwimlane(swimlane);
         task.assignExecutor(executionContext, executor != null ? executor : swimlane.getExecutor(), false);

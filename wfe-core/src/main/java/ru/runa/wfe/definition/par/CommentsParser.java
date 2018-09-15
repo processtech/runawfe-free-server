@@ -3,13 +3,11 @@ package ru.runa.wfe.definition.par;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
@@ -26,7 +24,7 @@ public class CommentsParser implements ProcessArchiveParser {
 
     @Override
     public void readFromArchive(ProcessArchive processArchive, ParsedProcessDefinition parsedProcessDefinition) {
-        byte[] definitionXml = parsedProcessDefinition.getFileData(IFileDataProvider.COMMENTS_XML_FILE_NAME);
+        byte[] definitionXml = parsedProcessDefinition.getFileData(FileDataProvider.COMMENTS_XML_FILE_NAME);
         if (definitionXml != null) {
             parsedProcessDefinition.setChanges(parse(definitionXml));
         }

@@ -34,7 +34,7 @@ import ru.runa.wfe.user.User;
  * 
  * Created 14.10.2005
  */
-public class AuthorizationServiceDelegate extends EJB3Delegate implements AuthorizationService {
+public class AuthorizationServiceDelegate extends Ejb3Delegate implements AuthorizationService {
 
     public AuthorizationServiceDelegate() {
         super(AuthorizationService.class);
@@ -84,6 +84,15 @@ public class AuthorizationServiceDelegate extends EJB3Delegate implements Author
     public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects) {
         try {
             return getAuthorizationService().isAllowed(user, permission, securedObjects);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public boolean[] isAllowed(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
+        try {
+            return getAuthorizationService().isAllowed(user, permission, type, ids);
         } catch (Exception e) {
             throw handleException(e);
         }

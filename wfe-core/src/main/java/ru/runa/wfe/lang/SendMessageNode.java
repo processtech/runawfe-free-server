@@ -21,7 +21,7 @@ import java.util.Map;
 
 import javax.jms.ObjectMessage;
 
-import ru.runa.wfe.audit.SendMessageLog;
+import ru.runa.wfe.audit.CurrentSendMessageLog;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -61,7 +61,7 @@ public class SendMessageNode extends BaseMessageNode {
         long ttl = ExpressionEvaluator.evaluateDuration(executionContext.getVariableProvider(), ttlDuration);
         ObjectMessage message = Utils.sendBpmnMessage(variableMappings, variableProvider, ttl);
         String log = Utils.toString(message, true);
-        executionContext.addLog(new SendMessageLog(this, log));
+        executionContext.addLog(new CurrentSendMessageLog(this, log));
         leave(executionContext);
     }
 

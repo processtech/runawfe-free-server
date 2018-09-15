@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -12,17 +13,18 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
-import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.TaskEscalationLog;
-import ru.runa.wfe.audit.dao.IProcessLogDAO;
+import ru.runa.wfe.audit.BaseProcessLog;
+import ru.runa.wfe.audit.CurrentProcessLog;
+import ru.runa.wfe.audit.CurrentTaskEscalationLog;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.IExecutorDao;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -89,7 +91,7 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         protected EscalationGroup group = mock(EscalationGroup.class);
         protected Executor originalExecutor = mock(Executor.class);
         protected Set<Actor> groupActors = Sets.newHashSet();
-        protected List<ProcessLog> pLogs = Lists.newArrayList();
+        protected List<BaseProcessLog> pLogs = Lists.newArrayList();
         protected Throwable getAllLogsException = null;
 
         public ActorInInactiveEscalationGroupTestCaseDataSet() {
@@ -103,7 +105,7 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         }
 
         @Override
-        public void mockRules(IExecutorDao executorDao) {
+        public void mockRules(ExecutorDao executorDao) {
             when(executorDao.getGroupActors(any(EscalationGroup.class))).thenReturn(groupActors);
             for (Actor a : groupActors) {
                 when(executorDao.getActor(a.getId())).thenReturn(a);
@@ -111,11 +113,11 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         }
 
         @Override
-        public void mockRules(IProcessLogDAO<ProcessLog> logDAO) {
+        public void mockRules(ProcessLogDao processLogDao) {
             if (getAllLogsException != null) {
-                when(logDAO.getAll(group.getProcessId())).thenThrow(getAllLogsException);
+                when(processLogDao.getAll(group.getProcessId())).thenThrow(getAllLogsException);
             } else {
-                when(logDAO.getAll(group.getProcessId())).thenReturn(pLogs);
+                Mockito.<List<? extends BaseProcessLog>>when(processLogDao.getAll(group.getProcessId())).thenReturn(pLogs);
             }
         }
 
@@ -162,11 +164,11 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         }
 
         public void addProcessLog() {
-            pLogs.add(mock(ProcessLog.class));
+            pLogs.add(mock(CurrentProcessLog.class));
         }
 
         public void addTaskEscalationLog(String taskName, String nid, Throwable exc, Long... ids) {
-            TaskEscalationLog mockLog = mock(TaskEscalationLog.class);
+            CurrentTaskEscalationLog mockLog = mock(CurrentTaskEscalationLog.class);
             when(mockLog.getNodeId()).thenReturn(nid);
             if (exc != null) {
                 when(mockLog.getPatternArguments()).thenThrow(exc);

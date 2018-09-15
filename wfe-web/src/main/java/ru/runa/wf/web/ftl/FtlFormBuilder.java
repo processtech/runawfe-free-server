@@ -9,7 +9,7 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
@@ -20,12 +20,12 @@ import freemarker.ext.beans.BeansWrapper;
 public class FtlFormBuilder extends TaskFormBuilder {
 
     @Override
-    protected String buildForm(IVariableProvider variableProvider) {
+    protected String buildForm(VariableProvider variableProvider) {
         String template = new String(interaction.getFormData(), Charsets.UTF_8);
         return processFreemarkerTemplate(template, variableProvider);
     }
 
-    protected String processFreemarkerTemplate(String template, IVariableProvider variableProvider) {
+    protected String processFreemarkerTemplate(String template, VariableProvider variableProvider) {
         FormHashModel model = new FormHashModel(user, variableProvider, new StrutsWebHelper(pageContext));
         model.clearSession();
         // #173

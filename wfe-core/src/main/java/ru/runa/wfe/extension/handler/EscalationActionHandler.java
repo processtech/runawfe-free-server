@@ -17,17 +17,16 @@
  */
 package ru.runa.wfe.extension.handler;
 
+import com.google.common.base.Strings;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.runa.wfe.audit.TaskEscalationLog;
+import ru.runa.wfe.audit.CurrentTaskEscalationLog;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.logic.RelationSwimlaneInitializer;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.ActionHandlerBase;
@@ -40,8 +39,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-
-import com.google.common.base.Strings;
 
 public class EscalationActionHandler extends ActionHandlerBase {
     @Autowired
@@ -131,10 +128,10 @@ public class EscalationActionHandler extends ActionHandlerBase {
                 return;
             }
             int escalationLevel = previousEscalationLevel + 1;
-            Process process = executionContext.getProcess();
+            CurrentProcess process = executionContext.getCurrentProcess();
             Group escalationGroup = EscalationGroup.create(process, task, originalExecutor, escalationLevel);
             escalationGroup = executorLogic.saveTemporaryGroup(escalationGroup, assignedExecutors);
-            executionContext.addLog(new TaskEscalationLog(task, assignedExecutors));
+            executionContext.addLog(new CurrentTaskEscalationLog(task, assignedExecutors));
             task.assignExecutor(executionContext, escalationGroup, false);
         } else {
             log.error("Incorrect NodeType for escalation: " + executionContext.getNode());

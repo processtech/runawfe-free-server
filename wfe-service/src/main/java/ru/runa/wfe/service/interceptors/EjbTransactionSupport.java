@@ -9,7 +9,7 @@ import javax.transaction.UserTransaction;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import ru.runa.wfe.commons.ITransactionListener;
+import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.auth.SubjectPrincipalsHelper;
@@ -41,7 +41,7 @@ public class EjbTransactionSupport {
             return invokeWithRetry(ic, transaction, ApiProperties.getRetriesCount());
         } finally {
             UserHolder.reset();
-            for (ITransactionListener listener : TransactionListeners.get()) {
+            for (TransactionListener listener : TransactionListeners.get()) {
                 try {
                     listener.onTransactionComplete(transaction);
                 } catch (Throwable th) {

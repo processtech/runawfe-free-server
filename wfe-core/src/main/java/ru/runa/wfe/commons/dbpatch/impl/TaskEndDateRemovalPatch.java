@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 import com.google.common.collect.Lists;
 
-public class TaskEndDateRemovalPatch extends DBPatch {
+public class TaskEndDateRemovalPatch extends DbPatch {
 
     @Override
     public void executeDML(Session session) throws Exception {

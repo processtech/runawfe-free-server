@@ -44,7 +44,7 @@ import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.security.logic.AuthorizationLogic;
 import ru.runa.wfe.service.decl.AuthorizationServiceLocal;
 import ru.runa.wfe.service.decl.AuthorizationServiceRemote;
-import ru.runa.wfe.service.decl.AuthorizationServiceRemoteWS;
+import ru.runa.wfe.service.decl.AuthorizationWebServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
@@ -59,29 +59,29 @@ import ru.runa.wfe.user.User;
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "AuthorizationAPI", serviceName = "AuthorizationWebService")
 @SOAPBinding
-public class AuthorizationServiceBean implements AuthorizationServiceLocal, AuthorizationServiceRemote, AuthorizationServiceRemoteWS {
+public class AuthorizationServiceBean implements AuthorizationServiceLocal, AuthorizationServiceRemote, AuthorizationWebServiceRemote {
     @Autowired
     private AuthorizationLogic authorizationLogic;
     @Autowired
-    private PermissionDao permissionDAO;
+    private PermissionDao permissionDao;
 
     @Override
     @WebMethod(exclude = true)
     public void checkAllowed(@NonNull User user, @NonNull Permission permission, @NonNull SecuredObject securedObject) {
-        permissionDAO.checkAllowed(user, permission, securedObject);
+        permissionDao.checkAllowed(user, permission, securedObject);
     }
 
     @Override
     @WebMethod(exclude = true)
     public void checkAllowed(@NonNull User user, @NonNull Permission permission, @NonNull SecuredObjectType type, @NonNull Long id) {
-        permissionDAO.checkAllowed(user, permission, type, id);
+        permissionDao.checkAllowed(user, permission, type, id);
     }
 
     @Override
     @WebResult(name = "result")
     public boolean isAllowed(@WebParam(name = "user") @NonNull User user, @WebParam(name = "permission") @NonNull Permission permission,
             @WebParam(name = "identifiable") @NonNull SecuredObject securedObject) {
-        return permissionDAO.isAllowed(user, permission, securedObject);
+        return permissionDao.isAllowed(user, permission, securedObject);
     }
 
     @WebMethod(exclude = true)
@@ -95,8 +95,20 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebMethod(exclude = true)
     @Override
     public <T extends SecuredObject> boolean[] isAllowed(@NonNull User user, @NonNull Permission permission, @NonNull List<T> securedObjects) {
-        Preconditions.checkArgument(!securedObjects.contains(null), "identifiables element");
+        Preconditions.checkArgument(!securedObjects.contains(null), "securedObjects element");
         return authorizationLogic.isAllowed(user, permission, securedObjects);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public boolean[] isAllowed(
+            @NonNull User user,
+            @NonNull Permission permission,
+            @NonNull SecuredObjectType type,
+            @NonNull List<Long> ids
+    ) {
+        Preconditions.checkArgument(!ids.contains(null), "ids element");
+        return authorizationLogic.isAllowed(user, permission, type, ids);
     }
 
     @WebMethod(exclude = true)

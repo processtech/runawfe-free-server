@@ -16,13 +16,13 @@ import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.auth.UserHolder;
-import ru.runa.wfe.task.logic.ITaskNotifier;
+import ru.runa.wfe.task.logic.TaskNotifier;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 @CommonsLog
-public class EmailTaskNotifier implements ITaskNotifier {
+public class EmailTaskNotifier implements TaskNotifier {
     private boolean enabled = true;
     private boolean onlyIfTaskActorEmailDefined = false;
     private String configPath;
@@ -75,13 +75,13 @@ public class EmailTaskNotifier implements ITaskNotifier {
     }
 
     @Override
-    public void onTaskAssigned(ParsedProcessDefinition parsedProcessDefinition, IVariableProvider variableProvider, Task task, Executor previousExecutor) {
+    public void onTaskAssigned(ParsedProcessDefinition parsedProcessDefinition, VariableProvider variableProvider, Task task, Executor previousExecutor) {
         if (!enabled || configBytes == null) {
             return;
         }
         try {
             log.debug("About " + task + " assigned to " + task.getExecutor() + ", previous: " + previousExecutor);
-            final String processName = task.getProcess().getProcessDefinitionVersion().getDefinition().getName();
+            final String processName = task.getProcess().getDefinitionVersion().getDefinition().getName();
             if (!EmailUtils.isProcessNameMatching(processName, includeProcessNameFilter, excludeProcessNameFilter)) {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;
@@ -105,7 +105,7 @@ public class EmailTaskNotifier implements ITaskNotifier {
             map.put("interaction", interaction);
             map.put("task", task);
             map.put("emails", emails);
-            IVariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, variableProvider);
+            VariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, variableProvider);
             EmailUtils.prepareMessage(UserHolder.get(), config, interaction, emailVariableProvider);
             EmailUtils.sendMessageRequest(config);
         } catch (Exception e) {

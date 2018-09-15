@@ -19,7 +19,6 @@ package ru.runa.wfe.service;
 
 import java.util.Date;
 import java.util.List;
-
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -54,13 +53,15 @@ public interface DefinitionService {
      *            process definition archive (ZIP format)
      * @param categories
      *            process categories
+     * @param secondsBeforeArchiving
+     *            If null or negative, will be nulled in database (default will be used).
      * @return deployed definition
      */
-    WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) throws DefinitionAlreadyExistException,
-            DefinitionArchiveFormatException;
+    WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories, Integer secondsBeforeArchiving)
+            throws DefinitionAlreadyExistException, DefinitionArchiveFormatException;
 
     /**
-     * Redeploys process definition by name.
+     * Redeploys process definition by name, by creating new definition version.
      * 
      * @param user
      *            authorized user
@@ -68,13 +69,15 @@ public interface DefinitionService {
      *            process definition archive (ZIP format)
      * @param categories
      *            process categories
+     * @param secondsBeforeArchiving
+     *            If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
      * @return redeployed definition
      */
-    WfDefinition redeployProcessDefinition(User user, Long processDefinitionVersionId, byte[] archive, List<String> categories)
-            throws DefinitionDoesNotExistException, DefinitionArchiveFormatException, DefinitionNameMismatchException;
+    WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] archive, List<String> categories,
+            Integer secondsBeforeArchiving) throws DefinitionDoesNotExistException, DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
-     * Updates process definition.
+     * Updates current process definition, without incrementing version number.
      * 
      * @param user
      *            authorized user

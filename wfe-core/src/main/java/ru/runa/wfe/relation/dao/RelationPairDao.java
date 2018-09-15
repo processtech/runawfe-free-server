@@ -22,6 +22,7 @@ import com.querydsl.jpa.JPQLQuery;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -43,6 +44,10 @@ import ru.runa.wfe.user.Executor;
  */
 @Component
 public class RelationPairDao extends GenericDao<RelationPair> {
+
+    public RelationPairDao() {
+        super(RelationPair.class);
+    }
 
     @Override
     protected void checkNotNull(RelationPair entity, Object identity) {
@@ -107,12 +112,12 @@ public class RelationPairDao extends GenericDao<RelationPair> {
      * Deleted all relation pairs for executor.
      */
     public void removeAllRelationPairs(Executor executor) {
-        QRelationPair rp = QRelationPair.relationPair;
+        val rp = QRelationPair.relationPair;
         queryFactory.delete(rp).where(rp.left.eq(executor).or(rp.right.eq(executor))).execute();
     }
 
     private List<RelationPair> getRelationPairs(Relation relation, Collection<? extends Executor> left, Collection<? extends Executor> right) {
-        QRelationPair rp = QRelationPair.relationPair;
+        val rp = QRelationPair.relationPair;
         JPQLQuery<RelationPair> q = queryFactory.selectFrom(rp);
         if (relation != null) {
             q.where(rp.relation.eq(relation));

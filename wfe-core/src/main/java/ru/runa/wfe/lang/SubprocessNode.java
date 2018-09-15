@@ -8,17 +8,17 @@ import java.util.List;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.SubprocessEndLog;
+import ru.runa.wfe.audit.CurrentSubprocessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentNodeProcess;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.NodeProcess;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
@@ -34,7 +34,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
 
     @Autowired
-    private transient IProcessDefinitionLoader processDefinitionLoader;
+    private transient ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private transient ProcessFactory processFactory;
 
@@ -106,12 +106,12 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     protected ParsedProcessDefinition getSubProcessDefinition() {
         long version = getParsedProcessDefinition().getProcessDefinitionVersion().getVersion();
         if (version < 0) {
-            ProcessDefinitionWithVersion dwv = ApplicationContextFactory.getDeploymentDAO().getByNameAndVersion(subProcessName, version);
+            ProcessDefinitionWithVersion dwv = ApplicationContextFactory.getProcessDefinitionDao().getByNameAndVersion(subProcessName, version);
             return processDefinitionLoader.getDefinition(dwv.processDefinitionVersion.getId());
         }
         Date beforeDate = getParsedProcessDefinition().getProcessDefinitionVersion().getSubprocessBindingDate();
         if (beforeDate != null) {
-            Long processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findDefinitionVersionIdLatestBeforeDate(subProcessName, beforeDate);
+            Long processDefinitionVersionId = ApplicationContextFactory.getProcessDefinitionDao().findDefinitionVersionIdLatestBeforeDate(subProcessName, beforeDate);
             if (processDefinitionVersionId == null) {
                 throw new InternalApplicationException("No definition \"" + subProcessName + "\" found before " + CalendarUtil.formatDateTime(beforeDate));
             }
@@ -157,7 +157,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                 }
             }
         }
-        Process subProcess = processFactory.createSubprocess(executionContext, parsedSubProcessDefinition, variables, 0);
+        CurrentProcess subProcess = processFactory.createSubprocess(executionContext, parsedSubProcessDefinition, variables, 0);
         processFactory.startSubprocess(executionContext, new ExecutionContext(parsedSubProcessDefinition, subProcess));
         if (async) {
             log.debug("continue execution in async " + this);
@@ -172,7 +172,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             return;
         }
         if (getClass() == SubprocessNode.class) {
-            Process subProcess = subExecutionContext.getProcess();
+            CurrentProcess subProcess = subExecutionContext.getCurrentProcess();
             ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);
             for (VariableMapping variableMapping : variableMappings) {
                 // if this variable access is writable
@@ -188,7 +188,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                     }
                 }
             }
-            executionContext.addLog(new SubprocessEndLog(this, executionContext.getToken(), subProcess));
+            executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getCurrentToken(), subProcess));
             super.leave(executionContext, transition);
         } else {
             super.leave(subExecutionContext, transition);
@@ -196,7 +196,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     protected ExecutionContext getParentExecutionContext(ExecutionContext subExecutionContext) {
-        NodeProcess parentNodeProcess = subExecutionContext.getParentNodeProcess();
+        CurrentNodeProcess parentNodeProcess = subExecutionContext.getCurrentParentNodeProcess();
         ParsedProcessDefinition superDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
         return new ExecutionContext(superDefinition, parentNodeProcess.getParentToken());
     }
@@ -207,17 +207,16 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     @Override
-    protected void onBoundaryEvent(ParsedProcessDefinition parsedProcessDefinition, Token token, BoundaryEvent boundaryEvent) {
+    protected void onBoundaryEvent(ParsedProcessDefinition parsedProcessDefinition, CurrentToken token, BoundaryEvent boundaryEvent) {
         super.onBoundaryEvent(parsedProcessDefinition, token, boundaryEvent);
         if (async) {
-            List<Process> processes = new ExecutionContext(parsedProcessDefinition, token).getTokenSubprocesses();
-            for (Process process : processes) {
+            List<CurrentProcess> processes = new ExecutionContext(parsedProcessDefinition, token).getCurrentTokenSubprocesses();
+            for (CurrentProcess process : processes) {
                 if (process.hasEnded()) {
                     continue;
                 }
-                process.end(new ExecutionContext(getSubProcessDefinition(), process), null);
+                ApplicationContextFactory.getExecutionLogic().endProcess(process, new ExecutionContext(getSubProcessDefinition(), process), null);
             }
         }
     }
-
 }

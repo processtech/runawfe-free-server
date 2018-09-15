@@ -3,7 +3,7 @@ package ru.runa.wfe.graph.view;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.security.Permission;
@@ -24,13 +24,13 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
     /**
      * Process definition cache.
      */
-    private final IProcessDefinitionLoader loader;
+    private final ProcessDefinitionLoader loader;
     private final ParsedProcessDefinition definition;
 
     /**
      * Create instance of operation to set subprocess definition readable flag.
      */
-    public ProcessDefinitionInfoVisitor(User user, ParsedProcessDefinition definition, IProcessDefinitionLoader loader) {
+    public ProcessDefinitionInfoVisitor(User user, ParsedProcessDefinition definition, ProcessDefinitionLoader loader) {
         this.user = user;
         this.definition = definition;
         this.loader = loader;
@@ -75,7 +75,7 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
      * @return true, if current actor can read process definition and false otherwise.
      */
     private boolean hasReadPermission(ParsedProcessDefinition parsedProcessDefinition) {
-        PermissionDao permissionDAO = ApplicationContextFactory.getPermissionDAO();
-        return permissionDAO.isAllowed(user, Permission.LIST, parsedProcessDefinition.getProcessDefinition());
+        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDao();
+        return permissionDao.isAllowed(user, Permission.LIST, parsedProcessDefinition.getProcessDefinition());
     }
 }

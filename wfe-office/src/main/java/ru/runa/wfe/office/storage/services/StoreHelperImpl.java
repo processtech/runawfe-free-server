@@ -16,7 +16,7 @@ import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.DataBindings;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
 import ru.runa.wfe.office.storage.binding.QueryType;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
 
@@ -31,11 +31,11 @@ public class StoreHelperImpl implements StoreHelper {
 
     VariableFormat format;
 
-    IVariableProvider variableProvider;
+    VariableProvider variableProvider;
 
     Map<String, ParamDef> inputParams;
 
-    public StoreHelperImpl(DataBindings config, IVariableProvider variableProvider) {
+    public StoreHelperImpl(DataBindings config, VariableProvider variableProvider) {
         setConfig(config);
         registerHandlers();
         this.variableProvider = variableProvider;

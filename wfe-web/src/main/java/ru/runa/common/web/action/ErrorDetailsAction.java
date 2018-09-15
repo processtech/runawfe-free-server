@@ -1,5 +1,12 @@
 package ru.runa.common.web.action;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.html.HtmlEscapers;
+import com.google.common.io.Files;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -12,10 +19,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.struts.action.ActionForm;
@@ -23,36 +28,27 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdNameForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TRRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.common.web.html.TrRowBuilder;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.Errors;
-import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.error.SystemError;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.html.HtmlEscapers;
-import com.google.common.io.Files;
 
 @SuppressWarnings("unchecked")
 public class ErrorDetailsAction extends ActionBase {
@@ -147,7 +143,7 @@ public class ErrorDetailsAction extends ActionBase {
                                 processFiles.put(
                                         processDefinitionFileName,
                                         Delegates.getDefinitionService().getProcessDefinitionFile(user, process.getDefinitionId(),
-                                                IFileDataProvider.PAR_FILE));
+                                                FileDataProvider.PAR_FILE));
                                 fileIncluded = true;
                             } catch (Exception e) {
                                 fileIncluded = false;
@@ -223,7 +219,7 @@ public class ErrorDetailsAction extends ActionBase {
     }
 
     private void addLogFile(JSONArray files, Map<String, byte[]> supportFiles, String fileName) throws IOException {
-        File file = new File(IOCommons.getLogDirPath(), fileName);
+        File file = new File(IoCommons.getLogDirPath(), fileName);
         if (!file.exists()) {
             log.error("No log file found at " + file.getAbsolutePath());
             return;
@@ -299,7 +295,7 @@ public class ErrorDetailsAction extends ActionBase {
         TD mergedEventDateTD = null;
         String mergedEventDateString = null;
         int mergedRowsCount = 0;
-        for (ProcessLog log : logs.getLogs()) {
+        for (BaseProcessLog log : logs.getLogs()) {
             String description;
             try {
                 Object[] arguments = log.getPatternArguments();
@@ -337,7 +333,7 @@ public class ErrorDetailsAction extends ActionBase {
         }
         HeaderBuilder tasksHistoryHeaderBuilder = new ru.runa.wf.web.html.HistoryHeaderBuilder(maxLevel, getResources(request).getMessage(
                 MessagesOther.LABEL_HISTORY_DATE.getKey()), getResources(request).getMessage(MessagesOther.LABEL_HISTORY_EVENT.getKey()));
-        RowBuilder rowBuilder = new TRRowBuilder(rows);
+        RowBuilder rowBuilder = new TrRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         return tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder).toString();
     }

@@ -7,7 +7,6 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.SettingsFileForm;
@@ -28,8 +27,9 @@ public class SaveSettingsAction extends ActionBase {
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-    	if (!Delegates.getExecutorService().isAdministrator(Commons.getUser(request.getSession())))
-    		throw new AuthorizationException("No permission on this page");
+    	if (!Delegates.getExecutorService().isAdministrator(getLoggedUser(request))) {
+            throw new AuthorizationException("No permission on this page");
+        }
         try {
             SettingsFileForm pform = (SettingsFileForm) form;
             String resource = pform.getResource();

@@ -4,12 +4,13 @@ import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.val;
 import ru.runa.wfe.audit.aggregated.AssignmentHistory;
 import ru.runa.wfe.audit.aggregated.ProcessInstanceAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class CreateAggregatedLogsTables extends DBPatch {
+public class CreateAggregatedLogsTables extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {
@@ -27,8 +28,8 @@ public class CreateAggregatedLogsTables extends DBPatch {
      * @return Returns list of sql commands for history table creation.
      */
     private List<String> createAssignmentHistoryTable() {
-        List<String> sql = new LinkedList<String>();
-        List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
+        val sql = new LinkedList<String>();
+        val columns = new LinkedList<ColumnDef>();
         ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
         id.setPrimaryKey();
         columns.add(id);
@@ -53,8 +54,8 @@ public class CreateAggregatedLogsTables extends DBPatch {
      * @return Returns list of sql commands for history table creation.
      */
     private List<String> createTaskHistoryTable() {
-        List<String> sql = new LinkedList<String>();
-        List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
+        val sql = new LinkedList<String>();
+        val columns = new LinkedList<ColumnDef>();
         ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
         id.setPrimaryKey();
         columns.add(id);
@@ -85,9 +86,9 @@ public class CreateAggregatedLogsTables extends DBPatch {
      * @return Returns list of sql commands for history table creation.
      */
     private List<String> createProcessHistoryTable() {
-        List<String> sql = new LinkedList<String>();
-        List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
-        ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
+        val sql = new LinkedList<String>();
+        val columns = new LinkedList<ColumnDef>();
+        val id = new ColumnDef("ID", Types.BIGINT, false);
         id.setPrimaryKey();
         columns.add(id);
         columns.add(new ColumnDef("PROCESS_ID", dialect.getTypeName(Types.BIGINT), false));
@@ -105,5 +106,4 @@ public class CreateAggregatedLogsTables extends DBPatch {
         sql.add(getDDLCreateIndex("BPM_AGGLOG_PROCESS", "IX_AGGLOG_PROCESS_END_DATE", "END_DATE"));
         return sql;
     }
-
 }

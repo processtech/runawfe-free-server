@@ -21,7 +21,7 @@ import java.util.List;
 
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.BoundaryEventContainer;
@@ -57,7 +57,7 @@ public class CatchEventNode extends BaseMessageNode implements BoundaryEventCont
     }
 
     @Override
-    public void cancelBoundaryEvent(Token token) {
+    public void cancelBoundaryEvent(CurrentToken token) {
     }
 
     @Override
@@ -67,13 +67,12 @@ public class CatchEventNode extends BaseMessageNode implements BoundaryEventCont
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getToken().setMessageSelector(Utils.getReceiveMessageNodeSelector(executionContext.getVariableProvider(), this));
+        executionContext.getCurrentToken().setMessageSelector(Utils.getReceiveMessageNodeSelector(executionContext.getVariableProvider(), this));
     }
 
     @Override
     public void leave(ExecutionContext executionContext, Transition transition) {
         super.leave(executionContext, transition);
-        executionContext.getToken().setMessageSelector(null);
+        executionContext.getCurrentToken().setMessageSelector(null);
     }
-
 }

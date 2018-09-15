@@ -27,13 +27,13 @@ import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
-import ru.runa.common.web.html.CheckboxTDBuilder;
+import ru.runa.common.web.html.CheckboxTdBuilder;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ItemUrlStrategy;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -51,7 +51,7 @@ public class ListRelationsFormTag extends BatchReturningTitledFormTag {
         Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
         List<Relation> relations = Delegates.getRelationService().getRelations(getUser(), getBatchPresentation());
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder checkboxBuilder = new CheckboxTDBuilder(null, null) {
+        TdBuilder checkboxBuilder = new CheckboxTdBuilder(null, null) {
 
             @Override
             protected String getIdValue(Object object) {
@@ -63,7 +63,7 @@ public class ListRelationsFormTag extends BatchReturningTitledFormTag {
                 return true;
             }
         };
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { checkboxBuilder }, getBatchPresentation(), null);
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(new TdBuilder[] { checkboxBuilder }, getBatchPresentation(), null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(relations, getBatchPresentation(), pageContext, WebResources.ACTION_MAPPING_MANAGE_RELATION,
                 getReturnAction(), new RelationURLStrategy(), builders);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(getBatchPresentation(), 1, 0, getReturnAction(), pageContext);

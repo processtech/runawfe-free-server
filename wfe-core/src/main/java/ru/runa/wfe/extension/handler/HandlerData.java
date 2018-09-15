@@ -12,7 +12,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ProcessHierarchyUtils;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Parameters holder for handler.
@@ -24,7 +24,7 @@ import ru.runa.wfe.var.IVariableProvider;
 public class HandlerData {
     private final ParamsDef paramsDef;
     private final Map<String, Object> outputVariables = new HashMap<>();
-    private final IVariableProvider variableProvider;
+    private final VariableProvider variableProvider;
     // case of action handler
     private final ExecutionContext executionContext;
     // case of task handler
@@ -39,7 +39,7 @@ public class HandlerData {
         this.task = null;
     }
 
-    public HandlerData(ParamsDef paramsDef, User user, IVariableProvider variableProvider, WfTask task) {
+    public HandlerData(ParamsDef paramsDef, User user, VariableProvider variableProvider, WfTask task) {
         this.paramsDef = paramsDef;
         this.variableProvider = variableProvider;
         this.executionContext = null;
@@ -171,7 +171,7 @@ public class HandlerData {
         return getInputParamValue(clazz, name, null);
     }
 
-    public IVariableProvider getVariableProvider() {
+    public VariableProvider getVariableProvider() {
         return variableProvider;
     }
 

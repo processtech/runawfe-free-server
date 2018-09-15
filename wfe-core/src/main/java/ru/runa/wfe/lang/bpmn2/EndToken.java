@@ -21,6 +21,7 @@
  */
 package ru.runa.wfe.lang.bpmn2;
 
+import lombok.val;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.lang.Node;
@@ -37,11 +38,13 @@ public class EndToken extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getToken().end(executionContext.getParsedProcessDefinition(), null, null, false);
+        val executionLogic = ApplicationContextFactory.getExecutionLogic();
+        executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getParsedProcessDefinition(), null, null, false);
         if (!executionContext.getProcess().hasEnded()) {
-            int count = ApplicationContextFactory.getTokenDAO().findByProcessAndExecutionStatusIsNotEnded(executionContext.getProcess()).size();
+            val tokenDao = ApplicationContextFactory.getCurrentTokenDao();
+            int count = tokenDao.findByProcessAndExecutionStatusIsNotEnded(executionContext.getCurrentProcess()).size();
             if (count == 0) {
-                executionContext.getProcess().end(executionContext, null);
+                executionLogic.endProcess(executionContext.getCurrentProcess(), executionContext, null);
             }
         }
     }

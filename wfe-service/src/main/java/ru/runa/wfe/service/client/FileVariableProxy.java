@@ -2,18 +2,18 @@ package ru.runa.wfe.service.client;
 
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 
 import com.google.common.base.Objects;
 
 /**
- * This class eliminates byte[] data transferring without usage. Case 2 added since v4.3.0: used for uploading custom IFileVariable implementation
+ * This class eliminates byte[] data transferring without usage. Case 2 added since v4.3.0: used for uploading custom FileVariable implementation
  * classes.
  * 
  * @author dofs
  * @since 4.0
  */
-public class FileVariableProxy implements IFileVariable {
+public class FileVariableProxy implements FileVariable {
     private static final long serialVersionUID = 1L;
     private User user;
     private Long processId;
@@ -27,7 +27,7 @@ public class FileVariableProxy implements IFileVariable {
     public FileVariableProxy() {
     }
 
-    public FileVariableProxy(User user, Long processId, String variableName, IFileVariable fileVariable) {
+    public FileVariableProxy(User user, Long processId, String variableName, FileVariable fileVariable) {
         this.name = fileVariable.getName();
         this.contentType = fileVariable.getContentType();
         this.user = user;
@@ -36,6 +36,10 @@ public class FileVariableProxy implements IFileVariable {
         this.stringValue = fileVariable.getStringValue();
     }
 
+    /**
+     * Used by TNMS.
+     */
+    @SuppressWarnings("unused")
     public FileVariableProxy(String unproxiedClassName, String stringValue) {
         this.unproxiedClassName = unproxiedClassName;
         this.stringValue = stringValue;
@@ -58,7 +62,7 @@ public class FileVariableProxy implements IFileVariable {
     @Override
     public byte[] getData() {
         if (data == null) {
-            IFileVariable fileVariable = Delegates.getExecutionService().getFileVariableValue(user, processId, variableName);
+            FileVariable fileVariable = Delegates.getExecutionService().getFileVariableValue(user, processId, variableName);
             data = fileVariable != null ? fileVariable.getData() : new byte[0];
         }
         return data;

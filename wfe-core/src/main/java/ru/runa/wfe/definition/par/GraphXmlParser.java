@@ -6,7 +6,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.lang.Bendpoint;
 import ru.runa.wfe.lang.GraphElement;
@@ -31,7 +31,7 @@ public class GraphXmlParser implements ProcessArchiveParser {
     @Override
     public void readFromArchive(ProcessArchive archive, ParsedProcessDefinition parsedProcessDefinition) {
         try {
-            String fileName = IFileDataProvider.GPD_XML_FILE_NAME;
+            String fileName = FileDataProvider.GPD_XML_FILE_NAME;
             if (parsedProcessDefinition instanceof ParsedSubprocessDefinition) {
                 fileName = parsedProcessDefinition.getNodeId() + "." + fileName;
             }

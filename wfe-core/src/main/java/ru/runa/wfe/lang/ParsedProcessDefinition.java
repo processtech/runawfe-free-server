@@ -31,13 +31,13 @@ import java.util.Map;
 import lombok.NonNull;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
-import ru.runa.wfe.definition.ProcessDefinition;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.var.UserType;
@@ -46,7 +46,7 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-public class ParsedProcessDefinition extends GraphElement implements IFileDataProvider {
+public class ParsedProcessDefinition extends GraphElement implements FileDataProvider {
     private static final long serialVersionUID = 1L;
     // TODO remove association for efficiency
     protected ProcessDefinition processDefinition;
@@ -281,12 +281,12 @@ public class ParsedProcessDefinition extends GraphElement implements IFileDataPr
     }
 
     public byte[] getGraphImageBytesNotNull() {
-        byte[] graphBytes = parsedProcessDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
+        byte[] graphBytes = parsedProcessDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
         if (graphBytes == null) {
-            graphBytes = parsedProcessDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
+            graphBytes = parsedProcessDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
         }
         if (graphBytes == null) {
-            graphBytes = parsedProcessDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
+            graphBytes = parsedProcessDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
         }
         if (graphBytes == null) {
             throw new InternalApplicationException("No process graph image file found in process definition");
@@ -545,5 +545,4 @@ public class ParsedProcessDefinition extends GraphElement implements IFileDataPr
         }
         return name;
     }
-
 }

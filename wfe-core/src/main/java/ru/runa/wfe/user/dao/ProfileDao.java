@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.user.dao;
 
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
@@ -31,6 +32,10 @@ import ru.runa.wfe.user.QProfile;
 @Component
 public class ProfileDao extends GenericDao<Profile> {
 
+    public ProfileDao() {
+        super(Profile.class);
+    }
+
     /**
      * Load profile for user. Return null, if no profile for user can be found.
      * 
@@ -39,7 +44,7 @@ public class ProfileDao extends GenericDao<Profile> {
      * @return Actor profile or null.
      */
     public Profile get(Actor actor) {
-        QProfile p = QProfile.profile;
+        val p = QProfile.profile;
         return queryFactory.selectFrom(p).where(p.actor.eq(actor)).fetchFirst();
     }
 

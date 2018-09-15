@@ -55,9 +55,9 @@ public class ExecutorLogic extends CommonLogic {
     private List<SetStatusHandler> setStatusHandlers;
 
     @Autowired
-    private ProfileDao profileDAO;
+    private ProfileDao profileDao;
     @Autowired
-    private RelationPairDao relationPairDAO;
+    private RelationPairDao relationPairDao;
     @Autowired
     private SubstitutionDao substitutionDao;
     @Autowired
@@ -73,7 +73,7 @@ public class ExecutorLogic extends CommonLogic {
             return false;
         }
         Executor executor = executorDao.getExecutor(executorName);
-        permissionDAO.checkAllowed(user, Permission.LIST, executor);
+        permissionDao.checkAllowed(user, Permission.LIST, executor);
         return true;
     }
 
@@ -121,29 +121,29 @@ public class ExecutorLogic extends CommonLogic {
 
     public void remove(Executor executor) {
         log.info("Removing " + executor);
-        if (permissionDAO.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
+        if (permissionDao.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
             throw new AuthorizationException(executor.getName() + " can not be removed");
         }
-        Set<Long> processIds = processDao.getDependentProcessIds(executor);
-        if (processIds.size() > 0) {
+        Set<Long> processIds = processDao.getDependentProcessIds(executor, ExecutorParticipatesInProcessesException.LIMIT + 1);
+        if (!processIds.isEmpty()) {
             throw new ExecutorParticipatesInProcessesException(executor.getName(), processIds);
         }
         if (executor instanceof Actor) {
-            profileDAO.delete((Actor) executor);
+            profileDao.delete((Actor) executor);
         }
-        permissionDAO.deleteOwnPermissions(executor);
-        permissionDAO.deleteAllPermissions(executor);
-        relationPairDAO.removeAllRelationPairs(executor);
+        permissionDao.deleteOwnPermissions(executor);
+        permissionDao.deleteAllPermissions(executor);
+        relationPairDao.removeAllRelationPairs(executor);
         substitutionDao.deleteAllActorSubstitutions(executor.getId());
         executorDao.remove(executor);
     }
 
     public <T extends Executor> T create(User user, T executor) {
-        permissionDAO.checkAllowed(user, Permission.CREATE, SecuredSingleton.EXECUTORS);
+        permissionDao.checkAllowed(user, Permission.CREATE, SecuredSingleton.EXECUTORS);
         executorDao.create(executor);
         Collection<Permission> selfPermissions = SystemProperties.getDefaultPermissions(executor.getSecuredObjectType());
-        permissionDAO.setPermissions(user.getActor(), ApplicablePermissions.listVisible(executor), executor);
-        permissionDAO.setPermissions(executor, selfPermissions, executor);
+        permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(executor), executor);
+        permissionDao.setPermissions(executor, selfPermissions, executor);
         return executor;
     }
 
@@ -319,10 +319,10 @@ public class ExecutorLogic extends CommonLogic {
             Set<Executor> grantedExecutors = Sets.newHashSet();
             grantedExecutors.addAll(newGroupExecutors);
             for (Executor executor : newGroupExecutors) {
-                grantedExecutors.addAll(permissionDAO.getExecutorsWithPermission(executor));
+                grantedExecutors.addAll(permissionDao.getExecutorsWithPermission(executor));
             }
             for (Executor executor : grantedExecutors) {
-                permissionDAO.setPermissions(executor, Lists.newArrayList(Permission.READ), temporaryGroup);
+                permissionDao.setPermissions(executor, Lists.newArrayList(Permission.READ), temporaryGroup);
             }
         }
     }

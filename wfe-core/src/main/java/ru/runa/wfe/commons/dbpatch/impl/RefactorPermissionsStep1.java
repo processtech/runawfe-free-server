@@ -21,14 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 /**
  * This refactors permission_mapping table structure, to store object_type and permission as strings.
  * Since there is unique index with random constraint name, have to rename old table, create and fill new one,
  * then drop renamed old table.
  */
-public class RefactorPermissionsStep1 extends DBPatch {
+public class RefactorPermissionsStep1 extends DbPatch {
 
     // Since SecuredObjectType and Permission will evolve during refactoring, I cannot use them here.
     // So I have to go low-level to ordinal, name and maskPower.

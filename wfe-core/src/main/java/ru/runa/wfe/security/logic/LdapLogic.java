@@ -76,7 +76,7 @@ public class LdapLogic {
     @Autowired
     protected ExecutorDao executorDao;
     @Autowired
-    private PermissionDao permissionDAO;
+    private PermissionDao permissionDao;
     private Pattern patternForMissedPeople;
     private Group importGroup = null;
     private Group wasteGroup = null;
@@ -161,7 +161,7 @@ public class LdapLogic {
                     log.info("Creating " + actor);
                     executorDao.create(actor);
                     executorDao.addExecutorsToGroup(Lists.newArrayList(actor), importGroup);
-                    permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), actor);
+                    permissionDao.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), actor);
                     changesCount++;
                 } else {
                     ldapActorsToDelete.remove(actor);
@@ -276,7 +276,7 @@ public class LdapLogic {
                 log.info("Creating " + group);
                 executorDao.create(group);
                 executorDao.addExecutorsToGroup(Lists.newArrayList(group), importGroup);
-                permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), group);
+                permissionDao.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), group);
                 changesCount++;
             } else {
                 ldapGroupsToDelete.remove(group);
@@ -354,7 +354,7 @@ public class LdapLogic {
             group = executorDao.getGroup(group.getName());
         } else {
             group = executorDao.create(group);
-            permissionDAO.setPermissions(group, Lists.newArrayList(Permission.LOGIN), SecuredSingleton.EXECUTORS);
+            permissionDao.setPermissions(group, Lists.newArrayList(Permission.LOGIN), SecuredSingleton.EXECUTORS);
         }
         return group;
     }

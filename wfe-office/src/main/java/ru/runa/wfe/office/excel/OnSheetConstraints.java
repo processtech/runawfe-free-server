@@ -3,9 +3,9 @@ package ru.runa.wfe.office.excel;
 import org.dom4j.Element;
 
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
-public class OnSheetConstraints implements IExcelConstraints {
+public class OnSheetConstraints implements ExcelConstraints {
     private int sheetIndex;
     private String sheetName;
 
@@ -18,7 +18,7 @@ public class OnSheetConstraints implements IExcelConstraints {
     }
 
     @Override
-    public void applyPlaceholders(IVariableProvider variableProvider) {
+    public void applyPlaceholders(VariableProvider variableProvider) {
         if (sheetName != null) {
             sheetName = ExpressionEvaluator.substitute(sheetName, variableProvider);
         }

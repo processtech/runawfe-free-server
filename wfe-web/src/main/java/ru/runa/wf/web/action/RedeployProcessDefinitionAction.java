@@ -17,12 +17,11 @@
  */
 package ru.runa.wf.web.action;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.List;
-
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
@@ -30,8 +29,6 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Strings;
 
 /**
  * Created on 06.10.2004
@@ -52,12 +49,13 @@ public class RedeployProcessDefinitionAction extends BaseDeployProcessDefinition
     private Long definitionId;
 
     @Override
-    protected void doAction(User user, FileForm fileForm, List<String> categories, boolean isUpdateCurrentVersion) throws IOException {
+    protected void doAction(User user, FileForm fileForm, boolean isUpdateCurrentVersion, List<String> categories, Integer secondsBeforeArchiving)
+            throws IOException {
         byte[] data = Strings.isNullOrEmpty(fileForm.getFile().getFileName()) ? null : fileForm.getFile().getFileData();
         Long definitionId = fileForm.getId();
         WfDefinition definition = isUpdateCurrentVersion
                 ? Delegates.getDefinitionService().updateProcessDefinition(user, definitionId, data)
-                : Delegates.getDefinitionService().redeployProcessDefinition(user, definitionId, data, categories);
+                : Delegates.getDefinitionService().redeployProcessDefinition(user, definitionId, data, categories, secondsBeforeArchiving);
         this.definitionId = definition.getId();
     }
 

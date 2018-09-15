@@ -2,8 +2,8 @@ package ru.runa.wfe.audit;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import ru.runa.wfe.commons.SafeIndefiniteLoop;
 import ru.runa.wfe.lang.NodeType;
 
@@ -20,9 +21,9 @@ import ru.runa.wfe.lang.NodeType;
 public class ProcessLogs implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final List<ProcessLog> logs = Lists.newArrayList();
+    private final List<BaseProcessLog> logs = new ArrayList<>();
     @XmlTransient
-    private final HashMap<Long, Long> subprocessToProcessIds = Maps.newHashMap();
+    private final HashMap<Long, Long> subprocessToProcessIds = new HashMap<>();
 
     public ProcessLogs() {
     }
@@ -31,10 +32,10 @@ public class ProcessLogs implements Serializable {
         subprocessToProcessIds.put(processId, null);
     }
 
-    public void addLogs(List<ProcessLog> processLogs, boolean withSubprocesses) {
+    public void addLogs(List<? extends BaseProcessLog> processLogs, boolean withSubprocesses) {
         logs.addAll(processLogs);
         if (withSubprocesses) {
-            for (ProcessLog log : processLogs) {
+            for (BaseProcessLog log : processLogs) {
                 if (log instanceof SubprocessStartLog) {
                     Long subprocessId = ((SubprocessStartLog) log).getSubprocessId();
                     subprocessToProcessIds.put(subprocessId, log.getProcessId());
@@ -45,8 +46,8 @@ public class ProcessLogs implements Serializable {
     }
 
     public int getMaxSubprocessLevel() {
-        final Map<Long, Long> tmpIds = Maps.newHashMap(subprocessToProcessIds);
-        final Map<Long, Integer> levels = Maps.newHashMap();
+        val tmpIds = new HashMap<Long, Long>(subprocessToProcessIds);
+        val levels = new HashMap<Long, Integer>();
         new SafeIndefiniteLoop(100) {
 
             @Override
@@ -83,8 +84,8 @@ public class ProcessLogs implements Serializable {
         return level;
     }
 
-    public List<Long> getSubprocessIds(ProcessLog processLog) {
-        List<Long> result = Lists.newArrayList();
+    public List<Long> getSubprocessIds(BaseProcessLog processLog) {
+        val result = new ArrayList<Long>();
         Long processId = processLog.getProcessId();
         while (subprocessToProcessIds.get(processId) != null) {
             result.add(processId);
@@ -94,7 +95,7 @@ public class ProcessLogs implements Serializable {
         return result;
     }
 
-    public List<ProcessLog> getLogs() {
+    public List<BaseProcessLog> getLogs() {
         return logs;
     }
 
@@ -117,7 +118,7 @@ public class ProcessLogs implements Serializable {
     }
 
     public <T extends ProcessLog> List<T> getLogs(Class<T> logClass) {
-        List<T> list = Lists.newArrayList();
+        val list = new ArrayList<T>();
         for (ProcessLog log : logs) {
             if (logClass.isAssignableFrom(log.getClass())) {
                 list.add((T) log);
@@ -126,9 +127,9 @@ public class ProcessLogs implements Serializable {
         return list;
     }
 
-    public List<ProcessLog> getLogs(String nodeId) {
-        List<ProcessLog> list = Lists.newArrayList();
-        for (ProcessLog log : logs) {
+    public List<BaseProcessLog> getLogs(String nodeId) {
+        val list = new ArrayList<BaseProcessLog>();
+        for (BaseProcessLog log : logs) {
             if (Objects.equal(log.getNodeId(), nodeId)) {
                 list.add(log);
             }
@@ -137,19 +138,19 @@ public class ProcessLogs implements Serializable {
     }
 
     public Map<TaskCreateLog, TaskEndLog> getTaskLogs() {
-        Map<String, TaskCreateLog> tmpByTaskName = Maps.newHashMap();
-        Map<Long, TaskCreateLog> tmpByTaskId = Maps.newHashMap();
-        Map<TaskCreateLog, TaskEndLog> result = Maps.newHashMap();
+        val tmpByTaskName = new HashMap<String, TaskCreateLog>();
+        val tmpByTaskId = new HashMap<Long, TaskCreateLog>();
+        val result = new HashMap<TaskCreateLog, TaskEndLog>();
         boolean compatibilityMode = false;
-        for (ProcessLog l : logs) {
+        for (BaseProcessLog l : logs) {
             if (l instanceof TaskCreateLog) {
-                TaskCreateLog taskCreateLog = (TaskCreateLog) l;
+                val taskCreateLog = (TaskCreateLog) l;
                 String key = l.getProcessId() + taskCreateLog.getTaskName();
                 tmpByTaskName.put(key, taskCreateLog);
                 tmpByTaskId.put(taskCreateLog.getTaskId(), taskCreateLog);
             }
             if (l instanceof TaskEndLog) {
-                TaskEndLog taskEndLog = (TaskEndLog) l;
+                val taskEndLog = (TaskEndLog) l;
                 TaskCreateLog taskCreateLog;
                 if (taskEndLog.getTaskId() != null && tmpByTaskId.containsKey(taskEndLog.getTaskId())) {
                     taskCreateLog = tmpByTaskId.remove(taskEndLog.getTaskId());
@@ -172,21 +173,22 @@ public class ProcessLogs implements Serializable {
                     if (processStartLog == null) {
                         continue;
                     }
-                    TaskCreateLog taskCreateLog = new TaskCreateLog();
+                    // These fake temporary entities are never stored. TODO Can we get rid of them and then make CurrentProcessLog.setId() private?
+                    CurrentTaskCreateLog taskCreateLog = new CurrentTaskCreateLog();
                     taskCreateLog.setId(processStartLog.getId());
                     taskCreateLog.setCreateDate(nodeLeaveLog.getCreateDate());
                     taskCreateLog.setProcessId(nodeLeaveLog.getProcessId());
                     taskCreateLog.setSeverity(nodeLeaveLog.getSeverity());
                     taskCreateLog.setTokenId(nodeLeaveLog.getTokenId());
-                    taskCreateLog.addAttribute(IAttributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
-                    TaskEndLog taskEndLog = new TaskEndLog();
+                    taskCreateLog.addAttribute(Attributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
+                    CurrentTaskEndLog taskEndLog = new CurrentTaskEndLog();
                     taskEndLog.setId(processStartLog.getId());
                     taskEndLog.setCreateDate(nodeLeaveLog.getCreateDate());
                     taskEndLog.setProcessId(nodeLeaveLog.getProcessId());
                     taskEndLog.setSeverity(nodeLeaveLog.getSeverity());
                     taskEndLog.setTokenId(nodeLeaveLog.getTokenId());
-                    taskEndLog.addAttribute(IAttributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
-                    taskEndLog.addAttribute(IAttributes.ATTR_ACTOR_NAME, processStartLog.getActorName());
+                    taskEndLog.addAttribute(Attributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
+                    taskEndLog.addAttribute(Attributes.ATTR_ACTOR_NAME, processStartLog.getActorName());
                     result.put(taskCreateLog, taskEndLog);
                 }
             }

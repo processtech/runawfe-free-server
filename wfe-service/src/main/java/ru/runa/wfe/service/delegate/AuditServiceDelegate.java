@@ -30,7 +30,7 @@ import ru.runa.wfe.user.User;
 /**
  * Created on 28.09.2004
  */
-public class AuditServiceDelegate extends EJB3Delegate implements AuditService {
+public class AuditServiceDelegate extends Ejb3Delegate implements AuditService {
 
     public AuditServiceDelegate() {
         super(AuditService.class);

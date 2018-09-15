@@ -24,14 +24,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.office.excel.AttributeConstraints;
-import ru.runa.wfe.office.excel.IExcelConstraints;
+import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.excel.utils.ExcelHelper;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.ListFormat;
@@ -44,12 +44,12 @@ public class StoreServiceImpl implements StoreService {
 
     private static final int START_ROW_INDEX = 0;
 
-    private IExcelConstraints constraints;
+    private ExcelConstraints constraints;
     private VariableFormat format;
     private String fullPath;
-    private IVariableProvider variableProvider;
+    private VariableProvider variableProvider;
 
-    public StoreServiceImpl(IVariableProvider variableProvider) {
+    public StoreServiceImpl(VariableProvider variableProvider) {
         this.variableProvider = variableProvider;
     }
 
@@ -120,7 +120,7 @@ public class StoreServiceImpl implements StoreService {
 
     private void initParams(Properties properties) {
         Preconditions.checkNotNull(properties);
-        constraints = (IExcelConstraints) properties.get(PROP_CONSTRAINTS);
+        constraints = (ExcelConstraints) properties.get(PROP_CONSTRAINTS);
         format = (VariableFormat) properties.get(PROP_FORMAT);
         fullPath = properties.getProperty(PROP_PATH);
         File f = new File(fullPath);
@@ -128,7 +128,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @SuppressWarnings("unchecked")
-    private void update(Workbook workbook, IExcelConstraints constraints, Object variable, VariableFormat variableFormat, String condition,
+    private void update(Workbook workbook, ExcelConstraints constraints, Object variable, VariableFormat variableFormat, String condition,
             boolean clear) {
         List list = findAll(workbook, constraints, variableFormat);
         boolean changed = false;
@@ -157,7 +157,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @SuppressWarnings("unchecked")
-    private void changeVariable(IExcelConstraints constraints, Object variable, boolean clear, List list, int i, Object object) {
+    private void changeVariable(ExcelConstraints constraints, Object variable, boolean clear, List list, int i, Object object) {
         if (clear) {
             list.set(i, null);
             return;
@@ -195,7 +195,7 @@ public class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void save(Workbook workbook, IExcelConstraints constraints, VariableFormat variableFormat, WfVariable variable, boolean appendTo) {
+    private void save(Workbook workbook, ExcelConstraints constraints, VariableFormat variableFormat, WfVariable variable, boolean appendTo) {
         VariableFormat format = getVariableFormat(variableFormat);
         if (constraints instanceof AttributeConstraints) {
             fillResultToCell(workbook, constraints, format, variable.getValue(), appendTo);
@@ -203,7 +203,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @SuppressWarnings("rawtypes")
-    private void save(Workbook workbook, IExcelConstraints constraints, VariableFormat variableFormat, List records, boolean append) {
+    private void save(Workbook workbook, ExcelConstraints constraints, VariableFormat variableFormat, List records, boolean append) {
         VariableFormat format = getVariableFormat(variableFormat);
         if (constraints instanceof AttributeConstraints) {
             fillResultToCell(workbook, constraints, format, records, append);
@@ -226,7 +226,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @SuppressWarnings("rawtypes")
-    private List find(Workbook workbook, IExcelConstraints constraints, VariableFormat variableFormat, String condition) {
+    private List find(Workbook workbook, ExcelConstraints constraints, VariableFormat variableFormat, String condition) {
         boolean all = Strings.isNullOrEmpty(condition);
         List result = findAll(workbook, constraints, variableFormat);
         if (!all) {
@@ -254,7 +254,7 @@ public class StoreServiceImpl implements StoreService {
         return filtered;
     }
 
-    private List<?> findAll(Workbook workbook, IExcelConstraints constraints, VariableFormat variableFormat) {
+    private List<?> findAll(Workbook workbook, ExcelConstraints constraints, VariableFormat variableFormat) {
         List<?> result = Lists.newArrayList();
         VariableFormat format = getVariableFormat(variableFormat);
         if (constraints instanceof AttributeConstraints) {
@@ -308,7 +308,7 @@ public class StoreServiceImpl implements StoreService {
         return startRowIndex;
     }
 
-    private void fillResultFromCell(Workbook workbook, IExcelConstraints constraints, VariableFormat variableFormat, List result) {
+    private void fillResultFromCell(Workbook workbook, ExcelConstraints constraints, VariableFormat variableFormat, List result) {
         AttributeConstraints attributeConstraints = (AttributeConstraints) constraints;
         int columnIndex = 0;// attributeConstraints.getColumnIndex();
         Sheet sheet = ExcelHelper.getSheet(workbook, attributeConstraints.getSheetName(), attributeConstraints.getSheetIndex());
@@ -340,7 +340,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @SuppressWarnings("rawtypes")
-    private void fillResultToCell(Workbook workbook, IExcelConstraints constraints, VariableFormat variableFormat, Object result, boolean append) {
+    private void fillResultToCell(Workbook workbook, ExcelConstraints constraints, VariableFormat variableFormat, Object result, boolean append) {
         AttributeConstraints attributeConstraints = (AttributeConstraints) constraints;
         int columnIndex = attributeConstraints.getColumnIndex();
         int rowIndex = START_ROW_INDEX;

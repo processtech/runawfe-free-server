@@ -18,7 +18,7 @@ import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.commons.web.WebUtils;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.AbstractVariableProvider;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 
 public abstract class FormComponent implements TemplateMethodModelEx, Serializable {
@@ -27,12 +27,12 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
     private static final String RICH_COMBO_VALUE_PREFIX = "value@";
     protected final Log log = LogFactory.getLog(getClass());
     protected User user;
-    protected IVariableProvider variableProvider;
+    protected VariableProvider variableProvider;
     protected WebHelper webHelper;
     private List<TemplateModel> arguments;
     private boolean targetProcess;
 
-    public void init(User user, WebHelper webHelper, IVariableProvider variableProvider, boolean targetProcess) {
+    public void init(User user, WebHelper webHelper, VariableProvider variableProvider, boolean targetProcess) {
         this.user = user;
         this.webHelper = webHelper;
         this.variableProvider = variableProvider;

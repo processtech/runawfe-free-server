@@ -22,8 +22,8 @@ import ru.runa.wfe.commons.ftl.FreemarkerProcessor;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 
@@ -77,8 +77,7 @@ public class FormSubmissionUtils {
         getUserInputFiles(request).clear();
     }
 
-    public static Map<String, Object> getPreviousUserInputVariables(HttpServletRequest request, Interaction interaction,
-            IVariableProvider variableProvider) {
+    public static Map<String, Object> getPreviousUserInputVariables(HttpServletRequest request) {
         return (Map<String, Object>) request.getAttribute(USER_DEFINED_VARIABLES);
     }
 
@@ -87,7 +86,7 @@ public class FormSubmissionUtils {
     }
 
     public static Map<String, Object> extractVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction,
-            IVariableProvider variableProvider) {
+            VariableProvider variableProvider) {
         Map<String, String> errors = Maps.newHashMap();
         Map<String, Object> userInput = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
         userInput.putAll(getUserInputFiles(request, request.getParameter("id")));
@@ -100,7 +99,7 @@ public class FormSubmissionUtils {
         return variables;
     }
 
-    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, VariableDefinition variableDefinition) throws Exception {
+    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, VariableDefinition variableDefinition) {
         Map<String, String> formatErrorsForFields = Maps.newHashMap();
         Map<String, Object> inputs = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
         inputs.putAll(getUserInputFiles(request, request.getParameter("id")));
@@ -114,7 +113,7 @@ public class FormSubmissionUtils {
         return variableValue;
     }
 
-    private static Map<String, Object> extractVariables(HttpServletRequest request, Interaction interaction, IVariableProvider variableProvider,
+    private static Map<String, Object> extractVariables(HttpServletRequest request, Interaction interaction, VariableProvider variableProvider,
             Map<String, ?> userInput, Map<String, String> errors) {
         try {
             User user = Commons.getUser(request.getSession());
@@ -151,7 +150,7 @@ public class FormSubmissionUtils {
         }
     }
 
-    private static Object extractVariable(HttpServletRequest request, Map<String, ? extends Object> userInput, VariableDefinition variableDefinition,
+    private static Object extractVariable(HttpServletRequest request, Map<String, ?> userInput, VariableDefinition variableDefinition,
             Map<String, String> errors) {
         VariableFormat format = FormatCommons.create(variableDefinition);
         HttpFormToVariableValue httpFormToVariableValue = new HttpFormToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request

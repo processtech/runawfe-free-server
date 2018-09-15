@@ -14,14 +14,14 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class TransactionListeners {
 
-    private static ThreadLocal<List<ITransactionListener>> listeners = new ThreadLocal<List<ITransactionListener>>() {
+    private static ThreadLocal<List<TransactionListener>> listeners = new ThreadLocal<List<TransactionListener>>() {
         @Override
-        protected List<ITransactionListener> initialValue() {
+        protected List<TransactionListener> initialValue() {
             return Lists.newArrayList();
         }
     };
 
-    public static void addListener(ITransactionListener listener, boolean unique) {
+    public static void addListener(TransactionListener listener, boolean unique) {
         if (unique && listeners.get().contains(listener)) {
             return;
         }
@@ -29,7 +29,7 @@ public class TransactionListeners {
         listeners.get().add(listener);
     }
 
-    public static List<ITransactionListener> get() {
+    public static List<TransactionListener> get() {
         return listeners.get();
     }
 

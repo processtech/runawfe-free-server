@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import java.awt.Color;
 import java.util.Date;
 import java.util.Map;
+import lombok.val;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
@@ -152,21 +153,23 @@ public class GraphImageBuilder {
     }
 
     private void fillTasks(ProcessLogs logs) {
-        for (Map.Entry<TaskCreateLog, TaskEndLog> entry : logs.getTaskLogs().entrySet()) {
-            boolean activeTask = entry.getValue() == null;
-            Date deadlineDate = entry.getKey().getDeadlineDate();
-            Date endDate = activeTask ? new Date() : entry.getValue().getCreateDate();
-            AbstractFigure figure = allNodeFigures.get(entry.getKey().getNodeId());
+        for (val entry : logs.getTaskLogs().entrySet()) {
+            TaskCreateLog taskCreateLog = entry.getKey();
+            TaskEndLog taskEndLog = entry.getValue();
+
+            boolean isActiveTask = taskEndLog == null;
+            Date deadlineDate = taskCreateLog.getDeadlineDate();
+            Date endDate = isActiveTask ? new Date() : taskEndLog.getCreateDate();
+            AbstractFigure figure = allNodeFigures.get(taskCreateLog.getNodeId());
             if (figure == null) {
-                // ru.runa.wfe.audit.TaskCreateLog.getNodeId() = null for old
-                // tasks
+                // ru.runa.wfe.audit.CurrentTaskCreateLog.getNodeId() = null for old tasks
                 continue;
             }
-            Date deadlineWarningDate = TaskDeadlineUtils.getDeadlineWarningDate(entry.getKey().getCreateDate(), deadlineDate);
+            Date deadlineWarningDate = TaskDeadlineUtils.getDeadlineWarningDate(taskCreateLog.getCreateDate(), deadlineDate);
             Color color = null;
-            if (activeTask) {
+            if (isActiveTask) {
                 color = DrawProperties.getBaseColor();
-                if (highlightedToken != null && Objects.equal(entry.getKey().getTokenId(), highlightedToken.getId())) {
+                if (highlightedToken != null && Objects.equal(taskCreateLog.getTokenId(), highlightedToken.getId())) {
                     color = DrawProperties.getHighlightColor();
                 }
             }

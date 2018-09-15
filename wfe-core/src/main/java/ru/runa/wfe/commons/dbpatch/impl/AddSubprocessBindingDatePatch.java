@@ -2,15 +2,9 @@ package ru.runa.wfe.commons.dbpatch.impl;
 
 import java.sql.Types;
 import java.util.List;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.runa.wfe.audit.dao.ProcessLogDao;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
-
-public class AddSubprocessBindingDatePatch extends DBPatch {
-    @Autowired
-    private ProcessLogDao processLogDao;
+public class AddSubprocessBindingDatePatch extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

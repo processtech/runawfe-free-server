@@ -23,5 +23,5 @@ public interface HistoryGraphNodeFactory {
      *            Factory to create history graph nodes.
      * @return Returns created (or existing) history graph node.
      */
-    public HistoryGraphNode createNodeModel(TransitionLog log, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory);
+    HistoryGraphNode createNodeModel(TransitionLog log, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory);
 }

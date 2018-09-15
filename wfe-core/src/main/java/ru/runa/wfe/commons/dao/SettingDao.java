@@ -18,6 +18,7 @@
 package ru.runa.wfe.commons.dao;
 
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SettingDao extends GenericDao<Setting> {
 
+    public SettingDao() {
+        super(Setting.class);
+    }
+
     private Setting get(String fileName, String name) {
-        QSetting s = QSetting.setting;
+        val s = QSetting.setting;
         return queryFactory.selectFrom(s).where(s.fileName.eq(fileName).and(s.name.eq(name))).fetchFirst();
     }
 

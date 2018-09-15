@@ -64,5 +64,4 @@ public class DefinitionVariableProvider extends AbstractVariableProvider {
         }
         return null;
     }
-
 }

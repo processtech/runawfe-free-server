@@ -1,9 +1,9 @@
 package ru.runa.wfe.audit.aggregated;
 
+import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Map;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,18 +13,14 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessStartLog;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
-
-import com.google.common.collect.Maps;
+import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.CurrentProcess;
 
 /**
  * Log information about process instance.
@@ -72,7 +68,7 @@ public class ProcessInstanceAggregatedLog {
         super();
     }
 
-    public ProcessInstanceAggregatedLog(ProcessStartLog processStartLog, Process process, Token token) {
+    public ProcessInstanceAggregatedLog(ProcessStartLog processStartLog, CurrentProcess process, CurrentToken token) {
         processInstanceId = processStartLog.getProcessId();
         actorName = processStartLog.getActorName();
         createDate = processStartLog.getCreateDate();

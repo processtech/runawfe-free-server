@@ -3,6 +3,8 @@ package ru.runa.wfe.service.utils;
 import java.util.List;
 import java.util.Map;
 
+import lombok.val;
+import lombok.var;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -12,7 +14,7 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.logic.VariableLogic;
 
@@ -26,38 +28,39 @@ public class FileVariablesUtil {
         variable.setValue(proxyFileVariableValues(user, processId, variable.getDefinition().getName(), variable.getValue()));
     }
 
-    public static Object proxyFileVariableValues(User user, Long processId, String variableName, Object variableValue) {
-        if (variableValue instanceof IFileVariable) {
-            IFileVariable fileVariable = (IFileVariable) variableValue;
+    private static Object proxyFileVariableValues(User user, Long processId, String variableName, Object variableValue) {
+        if (variableValue instanceof FileVariable) {
+            FileVariable fileVariable = (FileVariable) variableValue;
             return new FileVariableProxy(user, processId, variableName, fileVariable);
         }
         if (variableValue instanceof List) {
-            for (int i = 0; i < TypeConversionUtil.getListSize(variableValue); i++) {
-                Object object = TypeConversionUtil.getListValue(variableValue, i);
-                if (object instanceof IFileVariable || object instanceof List || object instanceof Map) {
-                    String proxyName = variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
-                            + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+            @SuppressWarnings("unchecked")
+            val list = (List<Object>) variableValue;
+            var i = 0;
+            for (val object : list) {
+                if (object instanceof FileVariable || object instanceof List || object instanceof Map) {
+                    String proxyName = variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + i +
+                            VariableFormatContainer.COMPONENT_QUALIFIER_END;
                     Object proxy = proxyFileVariableValues(user, processId, proxyName, object);
-                    if (object instanceof IFileVariable) {
+                    if (object instanceof FileVariable) {
                         TypeConversionUtil.setListValue(variableValue, i, proxy);
                     }
                 }
+                i++;
             }
         }
         if (variableValue instanceof Map) {
-            Map<?, Object> map = (Map<?, Object>) variableValue;
-            for (Map.Entry<?, Object> entry : map.entrySet()) {
-                Object object = entry.getValue();
-                if (object instanceof IFileVariable || object instanceof List || object instanceof Map) {
-                    String proxyName;
-                    if (map instanceof UserTypeMap) {
-                        proxyName = variableName + UserType.DELIM + entry.getKey();
-                    } else {
-                        proxyName = variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + entry.getKey()
-                                + VariableFormatContainer.COMPONENT_QUALIFIER_END;
-                    }
+            @SuppressWarnings("unchecked")
+            val map = (Map<?, Object>) variableValue;
+            for (val entry : map.entrySet()) {
+                val object = entry.getValue();
+                if (object instanceof FileVariable || object instanceof List || object instanceof Map) {
+                    String proxyName = map instanceof UserTypeMap
+                            ? variableName + UserType.DELIM + entry.getKey()
+                            : variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + entry.getKey() +
+                              VariableFormatContainer.COMPONENT_QUALIFIER_END;
                     Object proxy = proxyFileVariableValues(user, processId, proxyName, object);
-                    if (object instanceof IFileVariable) {
+                    if (object instanceof FileVariable) {
                         entry.setValue(proxy);
                     }
                 }
@@ -85,30 +88,34 @@ public class FileVariablesUtil {
                 if (variable == null || variable.getValue() == null) {
                     throw new InternalApplicationException("FileVariableProxy provided for null variable " + proxy.getVariableName());
                 }
-                if (variable.getValue() instanceof IFileVariable) {
+                if (variable.getValue() instanceof FileVariable) {
                     return variable.getValue();
                 }
                 throw new InternalApplicationException("FileVariableProxy provided for non-file " + variable);
             }
         }
         if (variableValue instanceof List) {
-            for (int i = 0; i < TypeConversionUtil.getListSize(variableValue); i++) {
-                Object object = TypeConversionUtil.getListValue(variableValue, i);
+            @SuppressWarnings("unchecked")
+            val list = (List<Object>) variableValue;
+            var i = 0;
+            for (val object : list) {
                 if (object instanceof FileVariableProxy || object instanceof List || object instanceof Map) {
                     Object unproxied = unproxyFileVariableValues(user, processId, taskId, object);
-                    if (object instanceof IFileVariable) {
+                    if (object instanceof FileVariable) {
                         TypeConversionUtil.setListValue(variableValue, i, unproxied);
                     }
                 }
+                i++;
             }
         }
         if (variableValue instanceof Map) {
-            Map<?, Object> map = (Map<?, Object>) variableValue;
-            for (Map.Entry<?, Object> entry : map.entrySet()) {
-                Object object = entry.getValue();
+            @SuppressWarnings("unchecked")
+            val map = (Map<?, Object>) variableValue;
+            for (val entry : map.entrySet()) {
+                val object = entry.getValue();
                 if (object instanceof FileVariableProxy || object instanceof List || object instanceof Map) {
                     Object unproxied = unproxyFileVariableValues(user, processId, taskId, object);
-                    if (object instanceof IFileVariable) {
+                    if (object instanceof FileVariable) {
                         entry.setValue(unproxied);
                     }
                 }
@@ -116,5 +123,4 @@ public class FileVariablesUtil {
         }
         return variableValue;
     }
-
 }

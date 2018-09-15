@@ -11,16 +11,17 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dto.IWfTaskFactory;
 import ru.runa.wfe.task.dto.WfTask;
+import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -64,7 +65,7 @@ public class GetAcceptableTaskBoundConditionsTests extends AbstractTestNGSpringC
     public static class GetAcceptableTaskTestCaseDataSet extends TestCaseDataSet {
         protected Task task = mock(Task.class);
         protected Executor taskExecutor = mock(Executor.class);
-        protected ru.runa.wfe.execution.Process process = mock(ru.runa.wfe.execution.Process.class);
+        protected CurrentProcess process = mock(CurrentProcess.class);
         protected ParsedProcessDefinition definition = mock(ParsedProcessDefinition.class);
         protected Actor actor = mock(Actor.class);
         protected BatchPresentation batchPresentation = mock(BatchPresentation.class);
@@ -83,13 +84,13 @@ public class GetAcceptableTaskBoundConditionsTests extends AbstractTestNGSpringC
 
         @SuppressWarnings("unchecked")
         @Override
-        public void mockRules(IWfTaskFactory tastFactory) {
+        public void mockRules(WfTaskFactory tastFactory) {
             when(tastFactory.create(any(Task.class), any(Actor.class), any(boolean.class), any(List.class))).thenReturn(result);
             when(tastFactory.create(any(Task.class), any(Actor.class), any(boolean.class), any(List.class), any(boolean.class))).thenReturn(result);
         }
 
         @Override
-        public void mockRules(IProcessDefinitionLoader processDefinitionLoader) {
+        public void mockRules(ProcessDefinitionLoader processDefinitionLoader) {
             if (getDefExeption != null) {
                 when(processDefinitionLoader.getDefinition(process)).thenThrow(getDefExeption);
             } else {

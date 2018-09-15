@@ -1,5 +1,6 @@
 package ru.runa.wfe.audit.dao;
 
+import lombok.val;
 import org.hibernate.SessionFactory;
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -37,20 +38,21 @@ import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog.EndReason;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 
 public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
     private final SessionFactory sessionFactory;
     private final HibernateQueryFactory queryFactory;
-    private final Process process;
-    private final Token token;
-    private final IProcessDefinitionLoader processDefinitionLoader;
+    private final CurrentProcess process;
+    private final CurrentToken token;
+    private final ProcessDefinitionLoader processDefinitionLoader;
 
-    public UpdateAggregatedLogOperation(SessionFactory sessionFactory, HibernateQueryFactory queryFactory, IProcessDefinitionLoader processDefinitionLoader,
-            Process process, Token token) {
+    public UpdateAggregatedLogOperation(SessionFactory sessionFactory, HibernateQueryFactory queryFactory,
+            ProcessDefinitionLoader processDefinitionLoader,
+            CurrentProcess process, CurrentToken token) {
         this.sessionFactory = sessionFactory;
         this.queryFactory = queryFactory;
         this.processDefinitionLoader = processDefinitionLoader;
@@ -207,12 +209,12 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     private ProcessInstanceAggregatedLog getProcessInstanceLog(long processId) {
-        QProcessInstanceAggregatedLog l = QProcessInstanceAggregatedLog.processInstanceAggregatedLog;
+        val l = QProcessInstanceAggregatedLog.processInstanceAggregatedLog;
         return queryFactory.selectFrom(l).where(l.processInstanceId.eq(processId)).fetchFirst();
     }
 
     private TaskAggregatedLog getTaskLog(long taskId) {
-        QTaskAggregatedLog l = QTaskAggregatedLog.taskAggregatedLog;
+        val l = QTaskAggregatedLog.taskAggregatedLog;
         return queryFactory.selectFrom(l).where(l.taskId.eq(taskId)).fetchFirst();
     }
 

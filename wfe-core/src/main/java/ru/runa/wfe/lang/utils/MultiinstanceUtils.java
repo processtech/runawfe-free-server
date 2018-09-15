@@ -203,12 +203,12 @@ public class MultiinstanceUtils {
 
     private static List<Actor> getActorsByRelation(String relationName, Executor paramExecutor, boolean inversed) {
         List<Executor> executors = Lists.newArrayList(paramExecutor);
-        Relation relation = ApplicationContextFactory.getRelationDAO().getNotNull(relationName);
+        Relation relation = ApplicationContextFactory.getRelationDao().getNotNull(relationName);
         List<RelationPair> relationPairs;
         if (inversed) {
-            relationPairs = ApplicationContextFactory.getRelationPairDAO().getExecutorsRelationPairsLeft(relation, executors);
+            relationPairs = ApplicationContextFactory.getRelationPairDao().getExecutorsRelationPairsLeft(relation, executors);
         } else {
-            relationPairs = ApplicationContextFactory.getRelationPairDAO().getExecutorsRelationPairsRight(relation, executors);
+            relationPairs = ApplicationContextFactory.getRelationPairDao().getExecutorsRelationPairsRight(relation, executors);
         }
         Set<Actor> actors = new HashSet<>();
         for (RelationPair pair : relationPairs) {

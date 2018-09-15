@@ -3,13 +3,14 @@ package ru.runa.wfe.var.dao;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
@@ -33,12 +34,13 @@ public class BaseProcessVariableLoader {
     private final Process process;
     private final ParsedProcessDefinition parsedProcessDefinition;
     private final SubprocessSyncCache subprocessSyncCache;
+
     @Autowired
     private NodeProcessDao nodeProcessDao;
     @Autowired
-    private IProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
     private ProcessDao processDao;
+    @Autowired
+    private ProcessDefinitionLoader processDefinitionLoader;
 
     public BaseProcessVariableLoader(VariableLoader variableLoader, ParsedProcessDefinition parsedProcessDefinition, Process process) {
         this.variableLoader = variableLoader;
@@ -58,7 +60,7 @@ public class BaseProcessVariableLoader {
             return variable;
         }
         if (SystemProperties.isV3CompatibilityMode()) {
-            Variable<?> dbVariable = variableLoader.get(process, name);
+            Variable dbVariable = variableLoader.get(process, name);
             return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
         }
         log.debug("No variable defined by '" + name + "' in " + process + ", returning null");
@@ -76,8 +78,8 @@ public class BaseProcessVariableLoader {
             if (name != null) {
                 log.debug("Loading variable '" + name + "' from process '" + baseProcessId + "'");
                 Process baseProcess = processDao.getNotNull(baseProcessId);
-                ParsedProcessDefinition parsedBaseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
-                WfVariable baseVariable = variableLoader.getVariable(parsedBaseProcessDefinition, baseProcess, name);
+                ParsedProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
+                WfVariable baseVariable = variableLoader.getVariable(baseProcessDefinition, baseProcess, name);
                 if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null
                         && baseVariable.getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
@@ -90,7 +92,7 @@ public class BaseProcessVariableLoader {
                         return variable;
                     }
                 }
-                return getVariableUsingBaseProcess(parsedBaseProcessDefinition, baseProcess, name, variable);
+                return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, variable);
             }
         }
         return variable;
@@ -105,7 +107,7 @@ public class BaseProcessVariableLoader {
         private Map<Process, NodeProcess> subprocessesInfoMap = Maps.newHashMap();
         private final BaseProcessVariableLoader baseProcessVariableLoader;
 
-        public SubprocessSyncCache(BaseProcessVariableLoader baseProcessVariableLoader) {
+        SubprocessSyncCache(BaseProcessVariableLoader baseProcessVariableLoader) {
             this.baseProcessVariableLoader = baseProcessVariableLoader;
         }
 
@@ -128,13 +130,13 @@ public class BaseProcessVariableLoader {
 
         private NodeProcess getSubprocessNodeInfo(Process process) {
             if (!subprocessesInfoMap.containsKey(process)) {
-                NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDao.findBySubProcessId(process.getId());
+                NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDao.findBySubProcess(process);
                 if (nodeProcess != null) {
                     Map<String, String> readVariableNames = Maps.newHashMap();
                     Map<String, String> syncVariableNames = Maps.newHashMap();
-                    ParsedProcessDefinition parsedParentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(nodeProcess
+                    ParsedProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(nodeProcess
                             .getProcess());
-                    Node node = parsedParentProcessDefinition.getNodeNotNull(nodeProcess.getParentToken().getNodeId());
+                    Node node = parentProcessDefinition.getNodeNotNull(nodeProcess.getParentToken().getNodeId());
                     multiSubprocessFlagsMap.put(process, node instanceof MultiSubprocessNode);
                     if (node instanceof SubprocessNode) {
                         SubprocessNode subprocessNode = (SubprocessNode) node;
@@ -198,8 +200,7 @@ public class BaseProcessVariableLoader {
             return false;
         }
 
-        public VariableDefinition getParentProcessSyncVariableDefinition(ParsedProcessDefinition parsedProcessDefinition, Process process,
-                VariableDefinition variableDefinition) {
+        public VariableDefinition getParentProcessSyncVariableDefinition(Process process, VariableDefinition variableDefinition) {
             NodeProcess nodeProcess = getSubprocessNodeInfo(process);
             if (nodeProcess != null) {
                 Map<String, String> syncVariableNames = syncVariableNamesMap.get(process);
@@ -213,33 +214,30 @@ public class BaseProcessVariableLoader {
                             parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_END;
                         }
                         parentProcessVariableName += syncVariableInfo.getVariableNameRemainder();
-                        ParsedProcessDefinition parsedParentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(nodeProcess
-                                .getProcess());
-                        return parsedParentProcessDefinition.getVariable(parentProcessVariableName, false);
+                        ParsedProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(
+                                nodeProcess.getProcess()
+                        );
+                        return parentProcessDefinition.getVariable(parentProcessVariableName, false);
                     }
                 }
             }
             return null;
         }
 
+        @RequiredArgsConstructor
         private static class VariableNameInfo {
             private final String variableName;
             private final String variableNameRemainder;
 
-            private VariableNameInfo(String variableName, String variableNameRemainder) {
-                this.variableName = variableName;
-                this.variableNameRemainder = variableNameRemainder;
-            }
-
-            public String getVariableName() {
+            String getVariableName() {
                 return variableName;
             }
 
-            public String getVariableNameRemainder() {
+            String getVariableNameRemainder() {
                 return variableNameRemainder;
             }
 
-            public static VariableNameInfo createFrom(String name, Map<String, String> variableNames) {
+            static VariableNameInfo createFrom(String name, Map<String, String> variableNames) {
                 String variableName = name;
                 String variableNameRemainder = "";
                 while (!variableNames.containsKey(variableName)) {

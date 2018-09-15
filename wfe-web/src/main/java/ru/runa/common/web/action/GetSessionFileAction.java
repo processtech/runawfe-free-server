@@ -10,7 +10,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 
 @CommonsLog
 public class GetSessionFileAction extends Action {
@@ -21,8 +21,8 @@ public class GetSessionFileAction extends Action {
         try {
             Object object = request.getSession().getAttribute(fileName);
             byte[] data;
-            if (object instanceof IFileVariable) {
-                IFileVariable fileVariable = (IFileVariable) object;
+            if (object instanceof FileVariable) {
+                FileVariable fileVariable = (FileVariable) object;
                 response.setContentType(fileVariable.getContentType());
                 data = fileVariable.getData();
             } else if (object instanceof byte[]) {

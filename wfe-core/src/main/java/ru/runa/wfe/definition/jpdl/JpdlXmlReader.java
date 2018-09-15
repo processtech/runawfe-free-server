@@ -60,7 +60,7 @@ public class JpdlXmlReader {
     private final List<Object[]> unresolvedTransitionDestinations = Lists.newArrayList();
 
     @Autowired
-    private LocalizationDao localizationDAO;
+    private LocalizationDao localizationDao;
 
     private final Document document;
     private static final boolean waitStateCompatibility = true;
@@ -181,7 +181,7 @@ public class JpdlXmlReader {
             if (assignmentElement != null) {
                 swimlaneDefinition.setDelegation(readDelegation(parsedProcessDefinition, assignmentElement));
             }
-            SwimlaneUtils.setOrgFunctionLabel(swimlaneDefinition, localizationDAO);
+            SwimlaneUtils.setOrgFunctionLabel(swimlaneDefinition, localizationDao);
             parsedProcessDefinition.addSwimlane(swimlaneDefinition);
         }
     }

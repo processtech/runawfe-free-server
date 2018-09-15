@@ -42,8 +42,8 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
-import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.file.FileVariable;
 
 @CommonsLog
 public class EmailUtils {
@@ -147,7 +147,7 @@ public class EmailUtils {
         }
     }
 
-    public static void prepareMessage(User user, EmailConfig config, Interaction interaction, IVariableProvider variableProvider) {
+    public static void prepareMessage(User user, EmailConfig config, Interaction interaction, VariableProvider variableProvider) {
         config.setMessageId(variableProvider.getProcessId() + ": " + (interaction != null ? interaction.getName() : "no interaction"));
         config.applySubstitutions(variableProvider);
         String formTemplate;
@@ -172,7 +172,7 @@ public class EmailUtils {
         config.setMessage(formMessage);
         log.debug(formMessage);
         for (String variableName : config.getAttachmentVariableNames()) {
-            IFileVariable fileVariable = variableProvider.getValue(IFileVariable.class, variableName);
+            FileVariable fileVariable = variableProvider.getValue(FileVariable.class, variableName);
             if (fileVariable != null) {
                 Attachment attachment = new Attachment();
                 attachment.fileName = fileVariable.getName();

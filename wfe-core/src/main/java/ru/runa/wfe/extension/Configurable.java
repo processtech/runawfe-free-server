@@ -11,6 +11,5 @@ public interface Configurable {
     /**
      * Configures bean.
      */
-    public void setConfiguration(String configuration) throws Exception;
-
+    void setConfiguration(String configuration) throws Exception;
 }

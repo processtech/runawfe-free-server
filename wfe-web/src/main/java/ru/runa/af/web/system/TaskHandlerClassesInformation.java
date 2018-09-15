@@ -33,7 +33,7 @@ import org.apache.commons.io.FilenameUtils;
 import ru.runa.wf.logic.bot.BotStationResources;
 import ru.runa.wfe.commons.AppServer;
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.extension.TaskHandler;
 
@@ -51,7 +51,7 @@ public class TaskHandlerClassesInformation {
     }
 
     private static void init() {
-        String deploymentDirPath = IOCommons.getDeploymentDirPath();
+        String deploymentDirPath = IoCommons.getDeploymentDirPath();
         String earFilePath = deploymentDirPath + "/" + SystemProperties.getEARFileName();
         Closer closer = Closer.create();
         try {
@@ -62,18 +62,18 @@ public class TaskHandlerClassesInformation {
                     searchInJar(entry.getName(), new JarInputStream(earInputStream));
                 }
             }
-            if (IOCommons.getAppServer() == AppServer.JBOSS4) {
+            if (IoCommons.getAppServer() == AppServer.JBOSS4) {
                 File deploymentDirectory = new File(deploymentDirPath);
                 log.debug("Searching in deployment directory: " + deploymentDirectory);
-                for (File file : IOCommons.getJarFiles(deploymentDirectory)) {
+                for (File file : IoCommons.getJarFiles(deploymentDirectory)) {
                     JarInputStream jarInputStream = closer.register(new JarInputStream(new FileInputStream(file)));
                     searchInJar(file.getName(), jarInputStream);
                 }
             }
-            File extensionDirectory = new File(IOCommons.getExtensionDirPath());
+            File extensionDirectory = new File(IoCommons.getExtensionDirPath());
             if (extensionDirectory.exists() && extensionDirectory.isDirectory()) {
                 log.debug("Searching in extension directory: " + extensionDirectory);
-                for (File file : IOCommons.getJarFiles(extensionDirectory)) {
+                for (File file : IoCommons.getJarFiles(extensionDirectory)) {
                     JarInputStream jarInputStream = closer.register(new JarInputStream(new FileInputStream(file)));
                     searchInJar(file.getName(), jarInputStream);
                 }

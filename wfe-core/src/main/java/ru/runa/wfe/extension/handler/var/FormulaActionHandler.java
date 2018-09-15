@@ -35,8 +35,8 @@ import ru.runa.wfe.extension.function.Function;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.file.IFileVariable;
 
 //TODO introduce strict mode and throw exceptions there
 public class FormulaActionHandler extends ActionHandlerBase {
@@ -207,9 +207,9 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 value = TypeConversionUtil.convertTo(definedClass, value);
             }
         }
-        if (IFileVariable.class.isInstance(value)) {
-            IFileVariable fileVariable = (IFileVariable) value;
-            value = new FileVariable(fileVariable);
+        if (FileVariable.class.isInstance(value)) {
+            FileVariable fileVariable = (FileVariable) value;
+            value = new FileVariableImpl(fileVariable);
         }
         context.setVariableValue(variableName, value);
     }

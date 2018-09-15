@@ -17,13 +17,14 @@
  */
 package ru.runa.wfe.definition.par;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import java.util.List;
-
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.MultiTaskNode;
@@ -33,10 +34,6 @@ import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 
 /**
  * Created on 17.11.2004
@@ -60,7 +57,7 @@ public class InteractionsParser implements ProcessArchiveParser {
     @Override
     public void readFromArchive(ProcessArchive archive, ParsedProcessDefinition parsedProcessDefinition) {
         try {
-            String formsFileName = IFileDataProvider.FORMS_XML_FILE_NAME;
+            String formsFileName = FileDataProvider.FORMS_XML_FILE_NAME;
             if (parsedProcessDefinition instanceof ParsedSubprocessDefinition) {
                 formsFileName = parsedProcessDefinition.getNodeId() + "." + formsFileName;
             }
@@ -68,7 +65,7 @@ public class InteractionsParser implements ProcessArchiveParser {
             if (formsXml == null) {
                 return;
             }
-            byte[] processScriptData = parsedProcessDefinition.getFileData(IFileDataProvider.FORM_JS_FILE_NAME);
+            byte[] processScriptData = parsedProcessDefinition.getFileData(FileDataProvider.FORM_JS_FILE_NAME);
             Document document = XmlUtils.parseWithoutValidation(formsXml);
             List<Element> formElements = document.getRootElement().elements(FORM_ELEMENT_NAME);
             for (Element formElement : formElements) {
@@ -96,7 +93,7 @@ public class InteractionsParser implements ProcessArchiveParser {
                 if (!Strings.isNullOrEmpty(scriptFileName)) {
                     formScriptData = parsedProcessDefinition.getFileDataNotNull(scriptFileName);
                 }
-                byte[] css = parsedProcessDefinition.getFileData(IFileDataProvider.FORM_CSS_FILE_NAME);
+                byte[] css = parsedProcessDefinition.getFileData(FileDataProvider.FORM_CSS_FILE_NAME);
                 byte[] template = null;
                 if (!Strings.isNullOrEmpty(templateFileName)) {
                     template = parsedProcessDefinition.getFileDataNotNull(templateFileName);

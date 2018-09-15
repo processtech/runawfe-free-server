@@ -41,8 +41,9 @@ public class DeployProcessDefinitionAction extends BaseDeployProcessDefinitionAc
     public static final String ACTION_PATH = "/deployProcessDefinition";
 
     @Override
-    protected void doAction(User user, FileForm fileForm, List<String> categories, boolean isUpdateCurrentVersion) throws Exception {
-        Delegates.getDefinitionService().deployProcessDefinition(user, fileForm.getFile().getFileData(), categories);
+    protected void doAction(User user, FileForm fileForm, boolean isUpdateCurrentVersion, List<String> categories, Integer secondsBeforeArchiving)
+            throws Exception {
+        Delegates.getDefinitionService().deployProcessDefinition(user, fileForm.getFile().getFileData(), categories, secondsBeforeArchiving);
     }
 
     @Override

@@ -6,27 +6,23 @@ import ru.runa.wfe.definition.cache.DefinitionCache;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
-public class ProcessDefinitionLoader implements IProcessDefinitionLoader {
+public class ProcessDefinitionLoader {
     @Autowired
     private DefinitionCache processDefCacheCtrl;
 
-    @Override
     public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) {
         return processDefCacheCtrl.getDefinition(processDefinitionVersionId);
     }
 
-    @Override
     public ParsedProcessDefinition getDefinition(@NonNull Process process) {
-        return getDefinition(process.getProcessDefinitionVersion().getId());
+        return getDefinition(process.getDefinitionVersion().getId());
     }
 
-    @Override
     public ParsedProcessDefinition getLatestDefinition(@NonNull String definitionName) {
         return processDefCacheCtrl.getLatestDefinition(definitionName);
     }
 
-    @Override
-    public ParsedProcessDefinition getLatestDefinition(long deploymentId) {
-        return processDefCacheCtrl.getLatestDefinition(deploymentId);
+    public ParsedProcessDefinition getLatestDefinition(long definitionId) {
+        return processDefCacheCtrl.getLatestDefinition(definitionId);
     }
 }

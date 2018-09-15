@@ -23,6 +23,7 @@ import java.util.List;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
@@ -36,28 +37,18 @@ import ru.runa.wfe.user.dao.ExecutorDao;
  * @author Dofs
  * @since 4.0
  */
-public class WfTaskFactory implements IWfTaskFactory {
+public class WfTaskFactory {
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private ExecutorDao executorDao;
 
-    /**
-     * @param variableNamesToInclude
-     *            can be <code>null</code>
-     */
-    @Override
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude) {
         return create(task, targetActor, acquiredBySubstitution, variableNamesToInclude, !task.getOpenedByExecutorIds().contains(targetActor.getId()));
     }
 
-    /**
-     * @param variableNamesToInclude
-     *            can be <code>null</code>
-     */
-    @Override
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude, boolean firstOpen) {
-        val process = task.getProcess();
+        CurrentProcess process = task.getProcess();
         boolean escalated = false;
         if (task.getExecutor() instanceof EscalationGroup) {
             val escalationGroup = (EscalationGroup) task.getExecutor();

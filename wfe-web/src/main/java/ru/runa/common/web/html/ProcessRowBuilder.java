@@ -35,12 +35,12 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
     private List<WfProcess> allProcesses;
 
     public ProcessRowBuilder(List<? extends Object> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
-            String returnAction, ItemUrlStrategy itemUrlStrategy, TDBuilder[] builders) {
+            String returnAction, ItemUrlStrategy itemUrlStrategy, TdBuilder[] builders) {
         super(items, batchPresentation, pageContext, actionUrl, returnAction, itemUrlStrategy, builders);
     }
 
     public ProcessRowBuilder(List<? extends Object> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
-            String returnAction, String idPropertyName, TDBuilder[] builders) {
+            String returnAction, String idPropertyName, TdBuilder[] builders) {
         super(items, batchPresentation, pageContext, actionUrl, returnAction, builders);
         itemUrlStrategy = new DefaultItemUrlStrategy(idPropertyName, pageContext);
     }
@@ -126,16 +126,16 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
             td.setClass(Resources.CLASS_GROUP_NAME);
         }
 
-        List<Object> listGroupTDBuilders = new ArrayList<Object>();
+        List<Object> listGroupTdBuilders = new ArrayList<Object>();
         for (FieldDescriptor fieldDescriptor : Arrays.asList(batchPresentation.getGrouppedFields())) {
-            listGroupTDBuilders.add(fieldDescriptor.getTDBuilder());
+            listGroupTdBuilders.add(fieldDescriptor.getTdBuilder());
         }
 
         for (int i = 0; i < builders.length; i++) {
             td = builders[i].build(item, env);
             td.setClass(Resources.CLASS_GROUP_NAME);
 
-            if (listGroupTDBuilders.contains(builders[i])) {
+            if (listGroupTdBuilders.contains(builders[i])) {
                 if (td.elements().hasMoreElements()) {
                     ConcreteElement concreteElement = (ConcreteElement) td.elements().nextElement();
                     if (concreteElement instanceof A) {
@@ -144,7 +144,7 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
                             String href = a.getAttribute("href");
                             FieldDescriptor fieldDescriptorForBuilder = null;
                             for (FieldDescriptor fieldDescriptor : Arrays.asList(batchPresentation.getGrouppedFields())) {
-                                if (builders[i].equals(fieldDescriptor.getTDBuilder())) {
+                                if (builders[i].equals(fieldDescriptor.getTdBuilder())) {
                                     fieldDescriptorForBuilder = fieldDescriptor;
                                 }
                             }
@@ -170,9 +170,9 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
     }
 
     @Override
-    protected List<? extends Object> getItems() {
+    protected List<?> getItems() {
         if (allProcesses == null) {
-            allProcesses = new ArrayList<WfProcess>();
+            allProcesses = new ArrayList<>();
             for (Object item : items) {
                 List<WfProcess> listSubProcessInstance = Delegates.getExecutionService().getSubprocesses(Commons.getUser(pageContext.getSession()),
                         ((WfProcess) item).getId(), true);

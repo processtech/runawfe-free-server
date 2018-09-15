@@ -1,6 +1,6 @@
 package ru.runa.wfe.lang;
 
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
 public interface BoundaryEvent {
@@ -12,7 +12,7 @@ public interface BoundaryEvent {
 
     void setBoundaryEventInterrupting(Boolean boundaryEventInterrupting);
 
-    void cancelBoundaryEvent(Token token);
+    void cancelBoundaryEvent(CurrentToken token);
 
     TaskCompletionInfo getTaskCompletionInfoIfInterrupting();
 }

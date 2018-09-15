@@ -1,36 +1,34 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.SubprocessEndLog;
+import ru.runa.wfe.audit.CurrentSubprocessEndLog;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.execution.CurrentNodeProcess;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.NodeProcess;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
-import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils.Parameters;
-import ru.runa.wfe.var.ISelectable;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.SelectableOption;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.Variables;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class MultiSubprocessNode extends SubprocessNode {
     private static final long serialVersionUID = 1L;
@@ -38,7 +36,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     @Autowired
     private transient ProcessFactory processFactory;
     @Autowired
-    private transient NodeProcessDao nodeProcessDao;
+    private transient CurrentNodeProcessDao currentNodeProcessDao;
 
     private String discriminatorCondition;
 
@@ -52,7 +50,7 @@ public class MultiSubprocessNode extends SubprocessNode {
         log.debug("Executing " + this + " with " + executionContext);
         Parameters parameters = MultiinstanceUtils.parse(executionContext, this);
         List<Object> data = TypeConversionUtil.convertTo(List.class, parameters.getDiscriminatorValue());
-        List<Process> subProcesses = Lists.newArrayList();
+        val subProcesses = new ArrayList<CurrentProcess>();
         ParsedProcessDefinition parsedSubProcessDefinition = getSubProcessDefinition();
         List<Integer> ignoredIndexes = Lists.newArrayList();
         if (!Utils.isNullOrEmpty(discriminatorCondition)) {
@@ -73,15 +71,15 @@ public class MultiSubprocessNode extends SubprocessNode {
         map.put(Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED, executionContext.getParsedProcessDefinition().getName());
         map.put(Variables.CURRENT_NODE_NAME_WRAPPED, executionContext.getNode().getName());
         map.put(Variables.CURRENT_NODE_ID_WRAPPED, executionContext.getNode().getNodeId());
-        IVariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
+        VariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
             Map<String, Object> variables = Maps.newHashMap();
             Object discriminatorValue = TypeConversionUtil.getListValue(parameters.getDiscriminatorValue(), index);
-            if (discriminatorValue instanceof ISelectable) {
-                discriminatorValue = ((ISelectable) discriminatorValue).getValue();
+            if (discriminatorValue instanceof SelectableOption) {
+                discriminatorValue = ((SelectableOption) discriminatorValue).getValue();
             }
             log.debug("setting discriminator var '" + parameters.getDiscriminatorVariableName() + "' to sub process var '"
                     + parameters.getIteratorVariableName() + "': " + discriminatorValue);
@@ -115,10 +113,10 @@ public class MultiSubprocessNode extends SubprocessNode {
                     }
                 }
             }
-            Process subProcess = processFactory.createSubprocess(executionContext, parsedSubProcessDefinition, variables, index);
+            CurrentProcess subProcess = processFactory.createSubprocess(executionContext, parsedSubProcessDefinition, variables, index);
             subProcesses.add(subProcess);
         }
-        for (Process subprocess : subProcesses) {
+        for (CurrentProcess subprocess : subProcesses) {
             ExecutionContext subExecutionContext = new ExecutionContext(parsedSubProcessDefinition, subprocess);
             processFactory.startSubprocess(executionContext, subExecutionContext);
         }
@@ -140,7 +138,7 @@ public class MultiSubprocessNode extends SubprocessNode {
             return;
         }
         ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);
-        NodeProcess nodeProcess = subExecutionContext.getParentNodeProcess();
+        CurrentNodeProcess nodeProcess = subExecutionContext.getCurrentParentNodeProcess();
         if (nodeProcess.getIndex() == null) {
             // pre AddSubProcessIndexColumn mode
             leaveBackCompatiblePre410(executionContext, transition);
@@ -172,8 +170,8 @@ public class MultiSubprocessNode extends SubprocessNode {
                     executionContext.setVariableValue(processVariableName, value);
                 }
             }
-            executionContext.addLog(new SubprocessEndLog(this, executionContext.getToken(), nodeProcess.getSubProcess()));
-            if (executionContext.getNotEndedSubprocesses().size() == 0) {
+            executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getCurrentToken(), nodeProcess.getSubProcess()));
+            if (executionContext.getCurrentNotEndedSubprocesses().size() == 0) {
                 log.debug("Leaving multisubprocess state");
                 super.leave(executionContext, transition);
             }
@@ -181,10 +179,10 @@ public class MultiSubprocessNode extends SubprocessNode {
     }
 
     private void leaveBackCompatiblePre410(ExecutionContext executionContext, Transition transition) {
-        if (executionContext.getNotEndedSubprocesses().size() == 0) {
+        if (executionContext.getCurrentNotEndedSubprocesses().size() == 0) {
             log.debug("Leaving multisubprocess state [in backcompatibility mode] due to 0 active subprocesses");
-            List<Process> subprocesses = nodeProcessDao.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
-                    executionContext.getToken(), null);
+            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocesses(executionContext.getCurrentProcess(),
+                    executionContext.getToken().getNodeId(), executionContext.getCurrentToken(), null);
             if (!subprocesses.isEmpty()) {
                 ParsedProcessDefinition parsedSubProcessDefinition = getSubProcessDefinition();
                 for (VariableMapping variableMapping : variableMappings) {
@@ -195,8 +193,8 @@ public class MultiSubprocessNode extends SubprocessNode {
                         WfVariable variable = executionContext.getVariableProvider().getVariable(processVariableName);
                         Object value;
                         if (variable == null || variable.getDefinition().getFormatNotNull() instanceof ListFormat) {
-                            value = new ArrayList<Object>();
-                            for (Process subprocess : subprocesses) {
+                            value = new ArrayList<>();
+                            for (CurrentProcess subprocess : subprocesses) {
                                 ExecutionContext subExecutionContext = new ExecutionContext(parsedSubProcessDefinition, subprocess);
                                 ((List<Object>) value).add(subExecutionContext.getVariableValue(subprocessVariableName));
                             }
@@ -213,8 +211,8 @@ public class MultiSubprocessNode extends SubprocessNode {
                     }
                 }
             }
-            for (Process subProcess : subprocesses) {
-                executionContext.addLog(new SubprocessEndLog(this, executionContext.getToken(), subProcess));
+            for (CurrentProcess subProcess : subprocesses) {
+                executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getCurrentToken(), subProcess));
             }
             super.leave(executionContext, transition);
         }

@@ -27,7 +27,7 @@ import ru.runa.wfe.extension.ActionHandlerBase;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 
 import com.google.common.collect.Maps;
@@ -53,7 +53,7 @@ public class SendEmailActionHandler extends ActionHandlerBase {
             map.put("task", task);
             map.put("interaction", interaction);
             map.put("process", executionContext.getProcess());
-            IVariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
+            VariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
             EmailUtils.prepareMessage(UserHolder.get(), config, interaction, emailVariableProvider);
             EmailUtils.sendMessageRequest(config);
         } catch (Exception e) {

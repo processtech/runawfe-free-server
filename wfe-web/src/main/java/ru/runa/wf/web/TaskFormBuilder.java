@@ -28,7 +28,7 @@ import ru.runa.wfe.service.client.DelegateDefinitionVariableProvider;
 import ru.runa.wfe.service.client.DelegateTaskVariableProvider;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 
 /**
@@ -56,9 +56,9 @@ public abstract class TaskFormBuilder {
     public final String build(Long definitionId) {
         this.definitionId = definitionId;
         if (interaction.hasForm()) {
-            IVariableProvider variableProvider = new DelegateDefinitionVariableProvider(user, definitionId);
+            VariableProvider variableProvider = new DelegateDefinitionVariableProvider(user, definitionId);
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request, interaction, variableProvider);
+            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
@@ -72,9 +72,9 @@ public abstract class TaskFormBuilder {
         this.definitionId = task.getDefinitionId();
         this.task = task;
         if (interaction.hasForm()) {
-            IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
+            VariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request, interaction, variableProvider);
+            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
@@ -84,12 +84,12 @@ public abstract class TaskFormBuilder {
         }
     }
 
-    private String buildForm(IVariableProvider variableProvider, Long definitionId) {
+    private String buildForm(VariableProvider variableProvider, Long definitionId) {
         String form = buildForm(variableProvider);
         return FormPresentationUtils.adjustForm(pageContext, definitionId, form, variableProvider, interaction.getRequiredVariableNames());
     }
 
-    protected abstract String buildForm(IVariableProvider variableProvider);
+    protected abstract String buildForm(VariableProvider variableProvider);
 
     private String buildEmptyForm() {
         String message = "Task form is not defined";

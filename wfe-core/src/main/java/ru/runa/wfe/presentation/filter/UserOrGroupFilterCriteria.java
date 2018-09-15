@@ -1,7 +1,7 @@
 package ru.runa.wfe.presentation.filter;
 
-import ru.runa.wfe.commons.SQLCommons;
-import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
+import ru.runa.wfe.commons.SqlCommons;
+import ru.runa.wfe.commons.SqlCommons.StringEqualsExpression;
 import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 public class UserOrGroupFilterCriteria extends FilterCriteria {
@@ -17,7 +17,7 @@ public class UserOrGroupFilterCriteria extends FilterCriteria {
         if (!getFilterTemplate(1).isEmpty()) {
             includeGroup = 1 == Integer.parseInt(getFilterTemplate(1));
         }
-        final StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
+        final StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(getFilterTemplate(0));
         final String alias = makePlaceHolderName(aliasedFieldName);
         final StringBuilder paramStringBuilder = new StringBuilder();
         paramStringBuilder.append(expression.getComparisonOperator());

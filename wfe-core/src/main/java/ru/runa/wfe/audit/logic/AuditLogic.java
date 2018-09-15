@@ -20,13 +20,14 @@ package ru.runa.wfe.audit.logic;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -51,18 +52,18 @@ public class AuditLogic extends CommonLogic {
     private NodeProcessDao nodeProcessDao;
 
     public void login(User user) {
-        permissionDAO.checkAllowed(user, Permission.LOGIN, SecuredSingleton.EXECUTORS);
+        permissionDao.checkAllowed(user, Permission.LOGIN, SecuredSingleton.EXECUTORS);
     }
 
     public ProcessLogs getProcessLogs(User user, ProcessLogFilter filter) {
         Preconditions.checkNotNull(filter.getProcessId(), "filter.processId");
-        ru.runa.wfe.execution.Process process = processDao.getNotNull(filter.getProcessId());
-        permissionDAO.checkAllowed(user, Permission.LIST, process);
+        Process process = processDao.getNotNull(filter.getProcessId());
+        permissionDao.checkAllowed(user, Permission.LIST, process);
         ProcessLogs result = new ProcessLogs(filter.getProcessId());
-        List<ProcessLog> logs = processLogDao.getAll(filter);
+        List<BaseProcessLog> logs = processLogDao.getAll(filter);
         result.addLogs(logs, filter.isIncludeSubprocessLogs());
         if (filter.isIncludeSubprocessLogs()) {
-            for (ru.runa.wfe.execution.Process subprocess : nodeProcessDao.getSubprocessesRecursive(process)) {
+            for (Process subprocess : nodeProcessDao.getSubprocessesRecursive(process)) {
                 ProcessLogFilter subprocessFilter = new ProcessLogFilter(subprocess.getId());
                 subprocessFilter.setSeverities(filter.getSeverities());
                 logs = processLogDao.getAll(subprocessFilter);
@@ -74,9 +75,9 @@ public class AuditLogic extends CommonLogic {
 
     public Object getProcessLogValue(User user, Long logId) {
         Preconditions.checkNotNull(logId, "logId");
-        ProcessLog processLog = processLogDao.getNotNull(logId);
-        permissionDAO.checkAllowed(user, Permission.LIST, SecuredObjectType.PROCESS, processLog.getProcessId());
-        return processLog.getBytesObject();
+        BaseProcessLog processLog = processLogDao.getNotNull(logId);
+        permissionDao.checkAllowed(user, Permission.LIST, SecuredObjectType.PROCESS, processLog.getProcessId());
+        return processLog.getBytes();
     }
 
     /**
@@ -89,7 +90,7 @@ public class AuditLogic extends CommonLogic {
      * @return Loaded system logs.
      */
     public List<SystemLog> getSystemLogs(User user, BatchPresentation batchPresentation) {
-        permissionDAO.checkAllowed(user, Permission.LIST, SecuredSingleton.LOGS);
+        permissionDao.checkAllowed(user, Permission.LIST, SecuredSingleton.LOGS);
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getBatch();
     }
@@ -104,7 +105,7 @@ public class AuditLogic extends CommonLogic {
      * @return System logs count.
      */
     public int getSystemLogsCount(User user, BatchPresentation batchPresentation) {
-        permissionDAO.checkAllowed(user, Permission.LIST, SecuredSingleton.LOGS);
+        permissionDao.checkAllowed(user, Permission.LIST, SecuredSingleton.LOGS);
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getCount();
     }

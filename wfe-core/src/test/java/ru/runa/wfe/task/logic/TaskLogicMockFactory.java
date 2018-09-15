@@ -1,32 +1,31 @@
 package ru.runa.wfe.task.logic;
 
+import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.ExecutionContextFactory;
+import ru.runa.wfe.presentation.hibernate.BatchPresentationCompilerFactory;
+import ru.runa.wfe.ss.logic.SubstitutionLogic;
+import ru.runa.wfe.task.dao.TaskDao;
+import ru.runa.wfe.task.dto.WfTaskFactory;
+import ru.runa.wfe.user.dao.ExecutorDao;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
-import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.dao.IProcessLogDAO;
-import ru.runa.wfe.commons.dao.IGenericDAO;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.IExecutionContextFactory;
-import ru.runa.wfe.presentation.hibernate.IBatchPresentationCompilerFactory;
-import ru.runa.wfe.ss.logic.ISubstitutionLogic;
-import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dto.IWfTaskFactory;
-import ru.runa.wfe.user.dao.IExecutorDao;
 
 public class TaskLogicMockFactory {
 
     private static TaskLogicMockFactory singleton;
 
-    private final IWfTaskFactory taskFactory = mock(IWfTaskFactory.class);
-    private final IExecutorDao executorDao = mock(IExecutorDao.class);
-    private final ISubstitutionLogic substitutionLogic = mock(ISubstitutionLogic.class);
-    private final IProcessDefinitionLoader processDefinitionLoader = mock(IProcessDefinitionLoader.class);
+    private final WfTaskFactory taskFactory = mock(WfTaskFactory.class);
+    private final ExecutorDao executorDao = mock(ExecutorDao.class);
+    private final SubstitutionLogic substitutionLogic = mock(SubstitutionLogic.class);
+    private final ProcessDefinitionLoader processDefinitionLoader = mock(ProcessDefinitionLoader.class);
     @SuppressWarnings("unchecked")
-    private final IGenericDAO<Task> taskDao = mock(IGenericDAO.class);
-    private final IExecutionContextFactory exeContextFactory = mock(IExecutionContextFactory.class);
-    private final IBatchPresentationCompilerFactory<?> batchCompilerFactory = mock(IBatchPresentationCompilerFactory.class);
+    private final TaskDao taskDao = mock(TaskDao.class);
+    private final ExecutionContextFactory exeContextFactory = mock(ExecutionContextFactory.class);
+    private final BatchPresentationCompilerFactory<?> batchCompilerFactory = mock(BatchPresentationCompilerFactory.class);
     @SuppressWarnings("unchecked")
-    private final IProcessLogDAO<ProcessLog> logDAO = mock(IProcessLogDAO.class);
+    private final ProcessLogDao logDAO = mock(ProcessLogDao.class);
 
     public static final TaskLogicMockFactory getFactory() {
         return singleton;
@@ -61,35 +60,35 @@ public class TaskLogicMockFactory {
         dataset.mockRules(executorDao);
     }
 
-    public IWfTaskFactory createMockWfTaskFactory() {
+    public WfTaskFactory createMockWfTaskFactory() {
         return taskFactory;
     }
 
-    public IExecutorDao createMockExecutorDao() {
+    public ExecutorDao createMockExecutorDAO() {
         return executorDao;
     }
 
-    public ISubstitutionLogic createMockSubstitutionLogic() {
+    public SubstitutionLogic createMockSubstitutionLogic() {
         return substitutionLogic;
     }
 
-    public IProcessDefinitionLoader createMockProcessDefinitionLoader() {
+    public ProcessDefinitionLoader createMockProcessDefinitionLoader() {
         return processDefinitionLoader;
     }
 
-    public IGenericDAO<Task> createMockGenericDAO() {
+    public TaskDao createMockTaskDAO() {
         return taskDao;
     }
 
-    public IExecutionContextFactory createMockExecutionContextFactory() {
+    public ExecutionContextFactory createMockExecutionContextFactory() {
         return exeContextFactory;
     }
 
-    public IBatchPresentationCompilerFactory<?> createMockBatchPresentationCompilerFactory() {
+    public BatchPresentationCompilerFactory<?> createMockBatchPresentationCompilerFactory() {
         return batchCompilerFactory;
     }
 
-    public IProcessLogDAO<ProcessLog> createMockProcessLogDAO() {
+    public ProcessLogDao createMockProcessLogDAO() {
         return logDAO;
     }
 }

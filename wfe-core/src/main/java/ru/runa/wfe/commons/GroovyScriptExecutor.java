@@ -1,30 +1,26 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.GroovyExceptionInterface;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.validation.ValidatorException;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-
-public class GroovyScriptExecutor implements IScriptExecutor {
+public class GroovyScriptExecutor implements ScriptExecutor {
     protected static final Log log = LogFactory.getLog(GroovyScriptExecutor.class);
 
     @Override
-    public Map<String, Object> executeScript(IVariableProvider variableProvider, String script) {
+    public Map<String, Object> executeScript(VariableProvider variableProvider, String script) {
         try {
             GroovyScriptBinding binding = createBinding(variableProvider);
             binding.setVariable(GroovyScriptBinding.VARIABLE_PROVIDER_VARIABLE_NAME, variableProvider);
@@ -41,7 +37,7 @@ public class GroovyScriptExecutor implements IScriptExecutor {
     }
 
     @Override
-    public Object evaluateScript(IVariableProvider variableProvider, String script) {
+    public Object evaluateScript(VariableProvider variableProvider, String script) {
         try {
             GroovyScriptBinding binding = createBinding(variableProvider);
             binding.setVariable(GroovyScriptBinding.VARIABLE_PROVIDER_VARIABLE_NAME, variableProvider);
@@ -58,17 +54,17 @@ public class GroovyScriptExecutor implements IScriptExecutor {
         }
     }
 
-    protected GroovyScriptBinding createBinding(IVariableProvider variableProvider) {
+    protected GroovyScriptBinding createBinding(VariableProvider variableProvider) {
         return new GroovyScriptBinding(variableProvider);
     }
 
     public static class GroovyScriptBinding extends Binding {
         private final static String EXECUTION_CONTEXT_VARIABLE_NAME = "executionContext";
         private final static String VARIABLE_PROVIDER_VARIABLE_NAME = "variableProvider";
-        private final IVariableProvider variableProvider;
+        private final VariableProvider variableProvider;
         private final Map<String, String> variableScriptingNameToNameMap = Maps.newHashMap();
 
-        public GroovyScriptBinding(IVariableProvider variableProvider) {
+        public GroovyScriptBinding(VariableProvider variableProvider) {
             this.variableProvider = variableProvider;
             if (variableProvider.getParsedProcessDefinition() != null) {
                 for (VariableDefinition variableDefinition : variableProvider.getParsedProcessDefinition().getVariables()) {

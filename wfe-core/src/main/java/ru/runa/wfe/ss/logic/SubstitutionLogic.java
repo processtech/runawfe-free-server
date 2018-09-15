@@ -41,7 +41,7 @@ import ru.runa.wfe.user.User;
  * @author Semochkin_v
  * @author Gordienko_m
  */
-public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic {
+public class SubstitutionLogic extends CommonLogic {
     @Autowired
     private SubstitutionCache substitutionCacheCtrl;
     @Autowired
@@ -82,14 +82,14 @@ public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic
         substitutionDao.flushPendingChanges();
     }
 
-    @Override
+
     public List<Substitution> getSubstitutions(User user, Long actorId) {
         Actor actor = executorDao.getActor(actorId);
         checkPermissionsOnExecutor(user, actor, Permission.LIST);
         return substitutionDao.getByActorId(actorId, true);
     }
 
-    @Override
+
     public Substitution getSubstitution(User user, Long id) {
         return substitutionDao.getNotNull(id);
     }
@@ -200,12 +200,12 @@ public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic
         fixPositionsForDeletedSubstitution(substitution.getActorId());
     }
 
-    @Override
+
     public TreeMap<Substitution, Set<Long>> getSubstitutors(Actor actor) {
         return substitutionCacheCtrl.getSubstitutors(actor, true);
     }
 
-    @Override
+
     public Set<Long> getSubstituted(Actor actor) {
         return substitutionCacheCtrl.getSubstituted(actor);
     }
@@ -214,17 +214,17 @@ public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic
         substitutionCriteriaDao.create(criteria);
     }
 
-    @Override
+
     public SubstitutionCriteria getCriteria(User user, Long id) {
         return substitutionCriteriaDao.getNotNull(id);
     }
 
-    @Override
+
     public SubstitutionCriteria getCriteria(User user, String name) {
         return substitutionCriteriaDao.getByName(name);
     }
 
-    @Override
+
     public List<SubstitutionCriteria> getAllCriterias(User user) {
         return substitutionCriteriaDao.getAll();
     }
@@ -243,7 +243,7 @@ public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic
         substitutionCriteriaDao.delete(criteria);
     }
 
-    @Override
+
     public List<Substitution> getSubstitutionsByCriteria(User user, SubstitutionCriteria criteria) {
         return substitutionCriteriaDao.getSubstitutionsByCriteria(criteria);
     }
