@@ -71,9 +71,11 @@ public class BatchPresentationConsts {
 
     public static final String ID_REPORTS = "listReportsForm";
 
-    public static final String ID_PROCESSES = "listProcessesForm";
+    public static final String ID_ARCHIVED_PROCESSES = "listArchivedProcessesForm";
 
-    public static final String ID_PROCESSES_WITH_TASKS = "listProcessesWithTasksForm";
+    public static final String ID_CURRENT_PROCESSES = "listCurrentProcessesForm";
+
+    public static final String ID_CURRENT_PROCESSES_WITH_TASKS = "listCurrentProcessesWithTasksForm";
 
     public static final String ID_DEFINITIONS = "listProcessesDefinitionsForm";
 
@@ -93,5 +95,4 @@ public class BatchPresentationConsts {
     public static int[] getAllowedViewSizes() {
         return ALLOWED_VIEW_SIZES.clone();
     }
-
 }

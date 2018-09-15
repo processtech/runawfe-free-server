@@ -35,7 +35,7 @@ public class ActorClassPresentation extends ClassPresentation {
     public static final String FULL_NAME = "batch_presentation.actor.full_name";
     public static final String DESCRIPTION = "batch_presentation.actor.description";
 
-    private static final ClassPresentation INSTANCE = new ActorClassPresentation();
+    public static final ClassPresentation INSTANCE = new ActorClassPresentation();
 
     private ActorClassPresentation() {
         super(Actor.class, "", true, new FieldDescriptor[] {
@@ -45,9 +45,5 @@ public class ActorClassPresentation extends ClassPresentation {
                         "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "fullName" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(Actor.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "description" }) });
-    }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 }

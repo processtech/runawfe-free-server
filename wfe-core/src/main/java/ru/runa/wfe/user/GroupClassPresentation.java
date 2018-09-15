@@ -25,16 +25,13 @@ import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.security.Permission;
 
 /**
- * Class presentation for Groups.
- * 
  * @author dofs
- * @since 4.0
  */
 public class GroupClassPresentation extends ClassPresentation {
     public static final String NAME = "batch_presentation.group.name";
     public static final String DESCRIPTION = "batch_presentation.group.description";
 
-    private static final ClassPresentation INSTANCE = new GroupClassPresentation();
+    public static final ClassPresentation INSTANCE = new GroupClassPresentation();
 
     private GroupClassPresentation() {
         super(Group.class, "", true, new FieldDescriptor[] {
@@ -42,9 +39,5 @@ public class GroupClassPresentation extends ClassPresentation {
                 		FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(Group.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "description" }) });
-    }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 }

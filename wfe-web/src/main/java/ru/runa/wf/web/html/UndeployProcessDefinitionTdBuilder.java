@@ -31,7 +31,7 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UndeployProcessDefinitionAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.execution.ProcessClassPresentation;
+import ru.runa.wfe.execution.CurrentProcessClassPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.LongFilterCriteria;
@@ -51,9 +51,9 @@ public class UndeployProcessDefinitionTdBuilder extends BaseTdBuilder {
     @Override
     public TD build(Object object, Env env) {
         WfDefinition definition = (WfDefinition) object;
-        BatchPresentation presentation = BatchPresentationFactory.PROCESSES.createDefault();
-        int definitionNameFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_NAME);
-        int definitionVersionFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_VERSION);
+        BatchPresentation presentation = BatchPresentationFactory.CURRENT_PROCESSES.createDefault();
+        int definitionNameFieldIndex = presentation.getType().getFieldIndex(CurrentProcessClassPresentation.DEFINITION_NAME);
+        int definitionVersionFieldIndex = presentation.getType().getFieldIndex(CurrentProcessClassPresentation.DEFINITION_VERSION);
         presentation.getFilteredFields().put(definitionNameFieldIndex, new StringFilterCriteria(definition.getName()));
         presentation.getFilteredFields().put(definitionVersionFieldIndex, new LongFilterCriteria(definition.getVersion()));
         int allCount = Delegates.getExecutionService().getProcessesCount(env.getUser(), presentation);

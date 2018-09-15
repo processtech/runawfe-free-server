@@ -40,7 +40,7 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
     public static final String UPDATE_ACTOR = "batch_presentation.process_definition.update_actor";
     public static final String PROCESSES_COUNT = "batch_presentation.process_definition.processes_count";
 
-    private static final ClassPresentation INSTANCE = new DefinitionHistoryClassPresentation();
+    public static final ClassPresentation INSTANCE = new DefinitionHistoryClassPresentation();
 
     private DefinitionHistoryClassPresentation() {
         super(Deployment.class, null, true,
@@ -67,9 +67,5 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                                 FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTdBuilder", new Object[] {}),
                         new FieldDescriptor(PROCESSES_COUNT, String.class.getName(), new DefaultDbSource(Deployment.class, "name"), false,
                                 FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionProcessesCountTdBuilder", new Object[] {}) });
-    }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 }

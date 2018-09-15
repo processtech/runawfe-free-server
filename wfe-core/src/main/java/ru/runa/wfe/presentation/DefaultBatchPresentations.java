@@ -22,7 +22,7 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 public class DefaultBatchPresentations {
-    private static Map<String, BatchPresentation> MAP = Maps.newHashMap();
+    private static Map<String, BatchPresentation> map = Maps.newHashMap();
     static {
         create(BatchPresentationConsts.ID_ALL_EXECUTORS, BatchPresentationFactory.EXECUTORS);
         create(BatchPresentationConsts.ID_EXECUTORS_GROUPS, BatchPresentationFactory.GROUPS);
@@ -33,8 +33,8 @@ public class DefaultBatchPresentations {
         create(BatchPresentationConsts.ID_RELATIONS, BatchPresentationFactory.RELATIONS);
         create(BatchPresentationConsts.ID_RELATION_PAIRS, BatchPresentationFactory.RELATION_PAIRS);
         create(BatchPresentationConsts.ID_REPORTS, BatchPresentationFactory.REPORTS);
-        create(BatchPresentationConsts.ID_PROCESSES, BatchPresentationFactory.PROCESSES);
-        create(BatchPresentationConsts.ID_PROCESSES_WITH_TASKS, BatchPresentationFactory.PROCESSES_WITH_TASKS);
+        create(BatchPresentationConsts.ID_CURRENT_PROCESSES, BatchPresentationFactory.CURRENT_PROCESSES);
+        create(BatchPresentationConsts.ID_CURRENT_PROCESSES_WITH_TASKS, BatchPresentationFactory.CURRENT_PROCESSES_WITH_TASKS);
         create(BatchPresentationConsts.ID_DEFINITIONS, BatchPresentationFactory.DEFINITIONS);
         create(BatchPresentationConsts.ID_DEFINITIONS_HISTORY, BatchPresentationFactory.DEFINITIONS_HISTORY);
         create(BatchPresentationConsts.ID_TASKS, BatchPresentationFactory.TASKS);
@@ -43,11 +43,11 @@ public class DefaultBatchPresentations {
     }
 
     private static void create(String category, BatchPresentationFactory factory) {
-        MAP.put(category, factory.createDefault(category));
+        map.put(category, factory.createDefault(category));
     }
 
     public static BatchPresentation get(String category, boolean clone) {
-        BatchPresentation presentation = MAP.get(category);
+        BatchPresentation presentation = map.get(category);
         if (clone) {
             presentation = presentation.clone();
         }

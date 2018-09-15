@@ -5,8 +5,9 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SystemLogClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
-import ru.runa.wfe.execution.ProcessClassPresentation;
-import ru.runa.wfe.execution.ProcessWithTasksClassPresentation;
+import ru.runa.wfe.execution.ArchivedProcessClassPresentation;
+import ru.runa.wfe.execution.CurrentProcessClassPresentation;
+import ru.runa.wfe.execution.CurrentProcessWithTasksClassPresentation;
 import ru.runa.wfe.relation.RelationClassPresentation;
 import ru.runa.wfe.relation.RelationPairClassPresentation;
 import ru.runa.wfe.report.ReportClassPresentation;
@@ -18,19 +19,20 @@ import ru.runa.wfe.user.GroupClassPresentation;
 
 public enum ClassPresentationType {
     NONE(null),
-    SYSTEM_LOG(SystemLogClassPresentation.getInstance()),
-    EXECUTOR(ExecutorClassPresentation.getInstance()),
-    ACTOR(ActorClassPresentation.getInstance()),
-    GROUP(GroupClassPresentation.getInstance()),
-    RELATION(RelationClassPresentation.getInstance()),
-    RELATIONPAIR(RelationPairClassPresentation.getInstance()),
-    DEFINITION(DefinitionClassPresentation.getInstance()),
-    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.getInstance()),
-    PROCESS(ProcessClassPresentation.getInstance()),
-    TASK(TaskClassPresentation.getInstance()),
-    TASK_OBSERVABLE(TaskObservableClassPresentation.getInstance()),
-    REPORTS(ReportClassPresentation.getInstance()),
-    PROCESS_WITH_TASKS(ProcessWithTasksClassPresentation.getInstance());
+    SYSTEM_LOG(SystemLogClassPresentation.INSTANCE),
+    EXECUTOR(ExecutorClassPresentation.INSTANCE),
+    ACTOR(ActorClassPresentation.INSTANCE),
+    GROUP(GroupClassPresentation.INSTANCE),
+    RELATION(RelationClassPresentation.INSTANCE),
+    RELATIONPAIR(RelationPairClassPresentation.INSTANCE),
+    DEFINITION(DefinitionClassPresentation.INSTANCE),
+    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.INSTANCE),
+    ARCHIVED_PROCESS(ArchivedProcessClassPresentation.INSTANCE),
+    CURRENT_PROCESS(CurrentProcessClassPresentation.INSTANCE),
+    CURRENT_PROCESS_WITH_TASKS(CurrentProcessWithTasksClassPresentation.INSTANCE),
+    TASK(TaskClassPresentation.INSTANCE),
+    TASK_OBSERVABLE(TaskObservableClassPresentation.INSTANCE),
+    REPORTS(ReportClassPresentation.INSTANCE);
 
     private final Class<?> presentationClass;
     private final String restrictions;
@@ -38,7 +40,7 @@ public enum ClassPresentationType {
     private final FieldDescriptor[] fields;
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
 
-    // dimgel want transform ClassPresentation class hierarchy to enum
+    // TODO dimgel wants to transform ClassPresentation class hierarchy to enum
 //    ClassPresentationType(Class<?> presentationClass, String restrictions, boolean withPaging, FieldDescriptor[] fields) {
 //        this.presentationClass = presentationClass;
 //        this.restrictions = restrictions;

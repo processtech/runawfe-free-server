@@ -44,7 +44,7 @@ public class DefinitionClassPresentation extends ClassPresentation {
     public static final String UPDATE_ACTOR = "batch_presentation.process_definition.update_actor";
     public static final String SUBPROCESS_BINDING_DATE = "batch_presentation.process_definition.subprocess_binding_date";
 
-    private static final ClassPresentation INSTANCE = new DefinitionClassPresentation();
+    public static final ClassPresentation INSTANCE = new DefinitionClassPresentation();
 
     private DefinitionClassPresentation() {
         super(Deployment.class, classNameSQL + ".version=(select max(temp.version) from " + Deployment.class.getName() + " as temp where "
@@ -69,9 +69,5 @@ public class DefinitionClassPresentation extends ClassPresentation {
                 new FieldDescriptor(SUBPROCESS_BINDING_DATE, Date.class.getName(), new DefaultDbSource(Deployment.class, "subprocessBindingDate"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionSubprocessBindingDateTdBuilder", new Object[] {})
                         .setVisible(false) });
-    }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 }

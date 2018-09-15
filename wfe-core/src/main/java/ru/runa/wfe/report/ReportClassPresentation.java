@@ -35,7 +35,7 @@ public class ReportClassPresentation extends ClassPresentation {
     public static final String DESCRIPTION = "reports.batch_presentation.description";
     public static final String TYPE = "reports.batch_presentation.type";
 
-    private static final ClassPresentation INSTANCE = new ReportClassPresentation();
+    public static final ClassPresentation INSTANCE = new ReportClassPresentation();
 
     private ReportClassPresentation() {
         super(ReportDefinition.class, null, false, new FieldDescriptor[] {
@@ -45,9 +45,5 @@ public class ReportClassPresentation extends ClassPresentation {
                         "description"), true, FieldFilterMode.DATABASE, PropertyTdBuilder, new Object[] { Permission.LIST, "description" }),
                 new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDbSource(ReportDefinition.class, "category"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTdBuilder", new Object[] {}) });
-    }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 }

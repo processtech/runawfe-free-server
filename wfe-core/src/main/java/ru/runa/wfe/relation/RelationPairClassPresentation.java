@@ -29,7 +29,7 @@ public class RelationPairClassPresentation extends ClassPresentation {
     public static final String EXECUTOR_FROM = "batch_presentation.relation.executor_from";
     public static final String EXECUTOR_TO = "batch_presentation.relation.executor_to";
 
-    private static final ClassPresentation INSTANCE = new RelationPairClassPresentation();
+    public static final ClassPresentation INSTANCE = new RelationPairClassPresentation();
 
     private RelationPairClassPresentation() {
         super(RelationPair.class, "", false, new FieldDescriptor[] {
@@ -39,9 +39,5 @@ public class RelationPairClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.af.web.html.RelationFromTdBuilder", null),
                 new FieldDescriptor(EXECUTOR_TO, String.class.getName(), new DefaultDbSource(RelationPair.class, "right.name"), true, 2, BatchPresentationConsts.ASC,
                         FieldFilterMode.DATABASE, "ru.runa.af.web.html.RelationToTdBuilder", null) });
-    }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 }

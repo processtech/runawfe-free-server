@@ -30,8 +30,9 @@ public class BatchPresentationFactory {
     public static final BatchPresentationFactory RELATIONS = new BatchPresentationFactory(ClassPresentationType.RELATION);
     public static final BatchPresentationFactory RELATION_PAIRS = new BatchPresentationFactory(ClassPresentationType.RELATIONPAIR);
     public static final BatchPresentationFactory SYSTEM_LOGS = new BatchPresentationFactory(ClassPresentationType.SYSTEM_LOG);
-    public static final BatchPresentationFactory PROCESSES = new BatchPresentationFactory(ClassPresentationType.PROCESS);
-    public static final BatchPresentationFactory PROCESSES_WITH_TASKS = new BatchPresentationFactory(ClassPresentationType.PROCESS_WITH_TASKS);
+    public static final BatchPresentationFactory ARCHIVED_PROCESSES = new BatchPresentationFactory(ClassPresentationType.ARCHIVED_PROCESS);
+    public static final BatchPresentationFactory CURRENT_PROCESSES = new BatchPresentationFactory(ClassPresentationType.CURRENT_PROCESS);
+    public static final BatchPresentationFactory CURRENT_PROCESSES_WITH_TASKS = new BatchPresentationFactory(ClassPresentationType.CURRENT_PROCESS_WITH_TASKS);
     public static final BatchPresentationFactory DEFINITIONS = new BatchPresentationFactory(ClassPresentationType.DEFINITION, 100);
     public static final BatchPresentationFactory DEFINITIONS_HISTORY = new BatchPresentationFactory(ClassPresentationType.DEFINITION_HISTORY);
     public static final BatchPresentationFactory TASKS = new BatchPresentationFactory(ClassPresentationType.TASK);

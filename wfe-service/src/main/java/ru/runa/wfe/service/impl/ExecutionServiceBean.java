@@ -106,7 +106,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation
     ) {
         if (batchPresentation == null) {
-            batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
+            batchPresentation = BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged();
         }
         return executionLogic.getProcessesCount(user, batchPresentation);
     }
@@ -116,7 +116,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public List<WfProcess> getProcesses(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         if (batchPresentation == null) {
-            batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
+            batchPresentation = BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged();
         }
         return executionLogic.getProcesses(user, batchPresentation);
     }

@@ -2,7 +2,7 @@ package ru.runa.wfe.script.common;
 
 import com.google.common.collect.Sets;
 import java.util.Set;
-import ru.runa.wfe.execution.ProcessClassPresentation;
+import ru.runa.wfe.execution.CurrentProcessClassPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
@@ -45,8 +45,8 @@ public final class IdentifiebleSetConvertions {
     public static Set<SecuredObject> getProcesses(ScriptExecutionContext context, Set<String> processDefinitionNames) {
         Set<SecuredObject> processInstances = Sets.newHashSet();
         for (String definitionName : processDefinitionNames) {
-            BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
-            int definitionNameIndex = batchPresentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_NAME);
+            BatchPresentation batchPresentation = BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged();
+            int definitionNameIndex = batchPresentation.getType().getFieldIndex(CurrentProcessClassPresentation.DEFINITION_NAME);
             batchPresentation.getFilteredFields().put(definitionNameIndex, new StringFilterCriteria(definitionName));
             processInstances.addAll(context.getExecutionLogic().getProcesses(context.getUser(), batchPresentation));
         }

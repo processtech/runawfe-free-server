@@ -33,7 +33,7 @@ public class ExecutorClassPresentation extends ClassPresentation {
     public static final String DESCRIPTION = "batch_presentation.executor.description";
     public static final String TYPE = "batch_presentation.executor.type";
 
-    private static final ClassPresentation INSTANCE = new ExecutorClassPresentation();
+    public static final ClassPresentation INSTANCE = new ExecutorClassPresentation();
 
     private ExecutorClassPresentation() {
         super(Executor.class, "", true, new FieldDescriptor[] {
@@ -47,9 +47,5 @@ public class ExecutorClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "description" }),
                 new FieldDescriptor(TYPE, String.class.getName(), new DefaultDbSource(Executor.class, "class"), false, FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "class" }).setShowable(false) });
-    }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 }

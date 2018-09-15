@@ -46,7 +46,7 @@ public class TaskClassPresentation extends ClassPresentation {
     public static final String TASK_ASSIGN_DATE = "batch_presentation.task.assign_date";
     public static final String TASK_DURATION = "batch_presentation.task.duration";
 
-    private static final ClassPresentation INSTANCE = new TaskClassPresentation();
+    public static final ClassPresentation INSTANCE = new TaskClassPresentation();
 
     private TaskClassPresentation() {
         super(Task.class, "", false, new FieldDescriptor[] {
@@ -75,9 +75,5 @@ public class TaskClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_DURATION, String.class.getName(), new DefaultDbSource(Task.class, null), false, FieldFilterMode.NONE,
                         "ru.runa.wf.web.html.TaskDurationTdBuilder", new Object[] {}).setVisible(false) });
 
-    }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 }

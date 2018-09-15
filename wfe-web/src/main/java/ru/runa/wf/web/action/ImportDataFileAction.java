@@ -101,7 +101,7 @@ public class ImportDataFileAction extends ActionBase {
 
             User user = getLoggedUser(request);
             if (clearBeforeUpload) {
-                List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, BatchPresentationFactory.PROCESSES.createNonPaged());
+                List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged());
                 ProcessFilter processFilter = new ProcessFilter();
                 for (WfProcess process : processes) {
                 	if (!Strings.isNullOrEmpty(process.getHierarchyIds()))

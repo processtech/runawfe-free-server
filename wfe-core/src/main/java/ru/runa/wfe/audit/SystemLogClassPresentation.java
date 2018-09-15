@@ -56,7 +56,7 @@ public class SystemLogClassPresentation extends ClassPresentation {
      */
     public static final String MESSAGE = "batch_presentation.system_log.message";
 
-    private static final ClassPresentation INSTANCE = new SystemLogClassPresentation();
+    public static final ClassPresentation INSTANCE = new SystemLogClassPresentation();
 
     /**
      * Data source to sort and filter by executor name.
@@ -88,14 +88,5 @@ public class SystemLogClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.SystemLogTypeTdBuilder", new Object[] {}),
                 new FieldDescriptor(MESSAGE, String.class.getName(), new DefaultDbSource(SystemLog.class, "id"), false, FieldFilterMode.NONE,
                         "ru.runa.wf.web.html.SystemLogTdBuilder", new Object[] {}) });
-    }
-
-    /**
-     * Returns instance of {@link SystemLogClassPresentation}.
-     *
-     * @return Instance of {@link SystemLogClassPresentation}.
-     */
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
     }
 }

@@ -77,8 +77,4 @@ public class TaskObservableClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_OBSERVABLE_EXECUTOR, String.class.getName(), new DefaultDbSource(Task.class, null), false,
                         FieldFilterMode.APPLICATION, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] {}).setShowable(false) });
     }
-
-    public static ClassPresentation getInstance() {
-        return INSTANCE;
-    }
 }

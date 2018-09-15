@@ -66,6 +66,7 @@ import ru.runa.wfe.commons.dbpatch.impl.PerformancePatch401;
 import ru.runa.wfe.commons.dbpatch.impl.PermissionMappingPatch403;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep3;
+import ru.runa.wfe.commons.dbpatch.impl.RenameProcessesBatchPresentationCategories;
 import ru.runa.wfe.commons.dbpatch.impl.SupportProcessArchiving;
 import ru.runa.wfe.commons.dbpatch.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskEndDateRemovalPatch;
@@ -157,7 +158,8 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
         patches.add(AddSubprocessRootIdColumn.class);
-        patches.add(SupportProcessArchiving.class);  // Must go AFTER AddSubprocessRootIdColumn.
+        patches.add(SupportProcessArchiving.class);
+        patches.add(RenameProcessesBatchPresentationCategories.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 
