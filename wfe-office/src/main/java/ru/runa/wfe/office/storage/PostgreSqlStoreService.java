@@ -2,7 +2,6 @@ package ru.runa.wfe.office.storage;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
@@ -56,11 +55,6 @@ public class PostgreSqlStoreService extends JdbcStoreService {
     @Override
     protected Map<Class<? extends VariableFormat>, String> typeMap() {
         return typeMap;
-    }
-
-    @Override
-    protected String driverClassName() {
-        return "org.postgresql.Driver";
     }
 
 }

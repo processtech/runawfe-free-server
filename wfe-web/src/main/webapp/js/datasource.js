@@ -57,3 +57,39 @@ function setStatusMessage(html) {
 		$("#ajaxErrorsDiv").html(html);
 	}, 700);
 }
+
+var serverVersionDialogContent = "<div id=\"serverVersionDiv\"></div>";
+
+function getServerVersion(dataSourceId, titleText) {
+	jQuery.ajax( {
+		type: "GET",
+		url: "/wfe/data_source_server_version.do",
+		data: {
+			ajax: "true",
+			dataSourceId: dataSourceId
+		},
+		dataType: "html",
+		success: function(msg) {
+			$.editor = $(serverVersionDialogContent).dialog( {
+				modal: true,
+				autoOpen: false,
+				title: titleText,
+				height: 180,
+				width: 300,
+				overlay: {
+					backgroundColor: "#000", opacity: 0.5
+				},
+				close: function(event, ui) {
+					destroyPasswordEditor();
+				}
+			});
+			$("#serverVersionDiv").html(msg);
+			var buttons = {};
+			buttons["Ok"] = function() {
+				destroyPasswordEditor();
+			};
+			$.editor.dialog("option", "buttons", buttons);
+			$.editor.dialog("open");
+		}
+	});
+}

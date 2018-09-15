@@ -1,11 +1,9 @@
 package ru.runa.wfe.office.storage;
 
+import com.google.common.base.Charsets;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.base.Charsets;
-
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
@@ -51,6 +49,7 @@ public class OracleStoreService extends JdbcStoreService {
 
     public OracleStoreService(VariableProvider variableProvider) {
         super(variableProvider);
+        System.getProperties().setProperty("oracle.jdbc.J2EE13Compliant", "true");
     }
 
     @Override
@@ -94,12 +93,6 @@ public class OracleStoreService extends JdbcStoreService {
                 return identifier;
             }
         }
-    }
-
-    @Override
-    protected String driverClassName() {
-        System.getProperties().setProperty("oracle.jdbc.J2EE13Compliant", "true");
-        return "oracle.jdbc.driver.OracleDriver";
     }
 
 }

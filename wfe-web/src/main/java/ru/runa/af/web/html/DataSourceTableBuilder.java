@@ -18,7 +18,6 @@
 package ru.runa.af.web.html;
 
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
@@ -26,7 +25,6 @@ import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.apache.ecs.wml.A;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesCommon;
@@ -65,6 +63,7 @@ public class DataSourceTableBuilder {
         tr.setClass(Resources.CLASS_LIST_TABLE_TH);
         tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setWidth("20").setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TH(MessagesDataSource.LABEL_DATA_SOURCE_NAME.message(pageContext)).setWidth("25%").setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TH("").setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TH(MessagesDataSource.LABEL_DATA_SOURCE_ATTRIBUTES.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TH("").setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
@@ -77,6 +76,7 @@ public class DataSourceTableBuilder {
         input.setChecked(false);
         tr.addElement(new TD(input).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(icon(ds.getType()) + "&nbsp" + ds.getName()).setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TD(info(ds)).setAlign("center").setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(attributes(ds)).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(password(ds)).setWidth(10).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
@@ -95,6 +95,20 @@ public class DataSourceTableBuilder {
             icon = Resources.ICON_DATA_SOURCE_JDBC;
         }
         return new IMG(Commons.getUrl(icon, pageContext, PortletUrlType.Action)).setTitle(dst.name()).toString();
+    }
+
+    private String info(DataSource ds) {
+        if (ds.getType().equals(DataSourceType.JDBC)) {
+            A a = new A();
+            a.addElement(new IMG(Commons.getUrl(Resources.ICON_DATA_SOURCE_SERVER_VERSION, pageContext, PortletUrlType.Action)).toString());
+            a.setTitle(MessagesDataSource.LABEL_DATA_SOURCE_SERVER_VERSION.message(pageContext));
+            a.setHref("javascript:void(0)");
+            a.addAttribute("onClick", "javascript:getServerVersion(\"" + ds.getName() + "\", \""
+                    + MessagesDataSource.LABEL_DATA_SOURCE_SERVER_VERSION.message(pageContext) + "\");");
+            return a.toString();
+        } else {
+            return "";
+        }
     }
 
     private String password(DataSource ds) {

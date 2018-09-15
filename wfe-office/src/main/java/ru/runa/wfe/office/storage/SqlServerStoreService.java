@@ -3,9 +3,7 @@ package ru.runa.wfe.office.storage;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.springframework.util.StringUtils;
-
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
@@ -59,11 +57,6 @@ public class SqlServerStoreService extends JdbcStoreService {
     @Override
     protected Map<Class<? extends VariableFormat>, String> typeMap() {
         return typeMap;
-    }
-
-    @Override
-    protected String driverClassName() {
-        return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
     }
 
     @Override

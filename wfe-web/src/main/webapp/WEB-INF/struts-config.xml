@@ -751,6 +751,9 @@
 		<action path="/change_data_source_password" type="ru.runa.af.web.action.ChangeDataSourcePasswordAction"
 			name="changeDataSourcePasswordForm" scope="request" input="/WEB-INF/wf/manage_data_sources.jsp" validate="false">
 		</action>
+		<action path="/data_source_server_version" type="ru.runa.af.web.action.DataSourceServerVersionAction"
+			scope="request" input="/WEB-INF/wf/manage_data_sources.jsp" validate="false" >
+		</action>
 		
 		<action path="/edit_settings" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/edit_settings.jsp" />

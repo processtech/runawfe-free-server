@@ -1,7 +1,9 @@
 package ru.runa.wfe.office.storage;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.MessageFormat;
@@ -11,18 +13,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceStuff;
 import ru.runa.wfe.datasource.JdbcDataSource;
-import ru.runa.wfe.datasource.JdbcDataSourceType;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.office.excel.ExcelConstraints;
@@ -125,26 +120,13 @@ public abstract class JdbcStoreService implements StoreService {
 
     protected boolean executeSql(String sql) throws Exception {
         log.info(sql);
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = ds.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             return ps.execute() && ps.getResultSet().next() || ps.getUpdateCount() > 0;
         } catch (Exception e) {
             log.error(e);
             throw new JdbcStoreException(e);
         }
     }
-
-    protected Connection getConnection() throws Exception {
-        String url = ds.getUrl();
-        if (ds.getUrl().contains(DataSourceStuff.DATABASE_NAME_MARKER)) {
-            url = url.replace(DataSourceStuff.DATABASE_NAME_MARKER, ds.getDbName());
-        } else {
-            url = url + (ds.getDbType() == JdbcDataSourceType.Oracle ? ':' : '/') + ds.getDbName();
-        }
-        Class.forName(driverClassName()).newInstance();
-        return DriverManager.getConnection(url, ds.getUserName(), ds.getPassword());
-    }
-
-    abstract protected String driverClassName();
 
     protected String sqlValue(Object value, VariableFormat format) {
         if (value == null) {
@@ -233,7 +215,7 @@ public abstract class JdbcStoreService implements StoreService {
             String variableName = adjustIdentifier(vd.getName());
             columns += (columns.length() > 0 ? SQL_LIST_SEPARATOR : "") + MessageFormat.format(SQL_COLUMN, variableName);
         }
-        try (Connection conn = getConnection()) {
+        try (Connection conn = ds.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(MessageFormat.format(SQL_SELECT, columns, tableName(), condition(condition)))) {
                 try (ResultSet rs = ps.executeQuery()) {
                     List<UserTypeMap> utmList = Lists.newArrayList();
