@@ -230,7 +230,7 @@
 
 	<bean id="processFactory" class="ru.runa.wfe.execution.ProcessFactory" />
 
-	<bean id="taskListBuilder" class="ru.runa.wfe.task.logic.TaskListBuilder">
+	<bean id="taskListBuilder" class="ru.runa.wfe.task.logic.TaskListBuilderImpl">
 		<constructor-arg ref="taskCache"/>
 	</bean>
 

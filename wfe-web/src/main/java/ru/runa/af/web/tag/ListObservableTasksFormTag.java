@@ -22,7 +22,7 @@ import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.dto.WfTask;
-import ru.runa.wfe.task.logic.TaskListBuilder;
+import ru.runa.wfe.task.logic.TaskListBuilderImpl;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
@@ -89,7 +89,7 @@ public class ListObservableTasksFormTag extends ListTasksFormTag {
             int fieldIndex = getBatchPresentation().getType().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR);
             FilterCriteria filterCriteria = getBatchPresentation().getFilteredFields().get(fieldIndex);
             String executorName = filterCriteria != null ? filterCriteria.getFilterTemplates()[0] : null;
-            TaskListBuilder taskListBuilder = ApplicationContextFactory.getContext().getBean(TaskListBuilder.class);
+            TaskListBuilderImpl taskListBuilder = ApplicationContextFactory.getContext().getBean(TaskListBuilderImpl.class);
             Set<Executor> executors = taskListBuilder.getObservableExecutors(actor, executorName);
             Utils.getTransactionManager().rollback();
             StringBuilder title = new StringBuilder();

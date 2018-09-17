@@ -14,7 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TaskListBuilderTestProvider extends TaskListBuilder implements ITaskListBuilderTestProvider {
+public class TaskListBuilderTestProvider extends TaskListBuilderImpl implements ITaskListBuilderTestProvider {
 
     private static TaskCache taskCache = mock(TaskCache.class);
 
