@@ -26,7 +26,7 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import ru.runa.wfe.InternalApplicationException;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DatabaseProperties;
 import ru.runa.wfe.commons.PropertyResources;
@@ -78,11 +78,15 @@ import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
  *
  * @author Dofs
  */
+@Component
 @CommonsLog
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
     private static final List<Class<? extends DbPatch>> dbPatches;
+
     @Autowired
     private DbTransactionalInitializer dbTransactionalInitializer;
+    @Autowired
+    private DbMigrationManager dbMigrationManager;
 
     static {
         List<Class<? extends DbPatch>> patches = Lists.newArrayList();
@@ -169,7 +173,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         try {
             Integer databaseVersion = dbTransactionalInitializer.getDatabaseVersion();
             if (databaseVersion != null) {
-                applyPatches(databaseVersion);
+                dbMigrationManager.runAll(dbPatches);
             } else {
                 log.info("initializing database");
                 SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
@@ -187,25 +191,6 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             log.info("initialization completed");
         } catch (Exception e) {
             Throwables.propagate(e);
-        }
-    }
-
-    /**
-     * Apply patches to initialized database.
-     */
-    private void applyPatches(int databaseVersion) {
-        log.info("Database version: " + databaseVersion + ", code version: " + dbPatches.size());
-        while (databaseVersion < dbPatches.size()) {
-            DbPatch patch = null;
-            try {
-                patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
-                databaseVersion++;
-                log.info("Applying patch " + patch + " (" + databaseVersion + ")");
-                dbTransactionalInitializer.execute(patch, databaseVersion);
-                log.info("Patch " + patch + "(" + databaseVersion + ") is applied to database successfully.");
-            } catch (Throwable th) {
-                throw new InternalApplicationException("Can't apply patch " + patch + "(" + databaseVersion + ").", th);
-            }
         }
     }
 
