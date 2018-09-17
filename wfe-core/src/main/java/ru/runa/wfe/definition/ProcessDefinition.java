@@ -100,6 +100,10 @@ public class ProcessDefinition extends SecuredObject {
         this.category = category;
     }
 
+    /**
+     * For manually written queries this field is redundant, since there's unique index on bpm_process_definition_ver (definition_id, version).
+     * But it's also used in DefinitionClassPresentation.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LATEST_VERSION_ID")
     @ForeignKey(name = "none")

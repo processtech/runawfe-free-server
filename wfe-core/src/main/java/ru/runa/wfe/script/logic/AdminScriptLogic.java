@@ -20,6 +20,7 @@ package ru.runa.wfe.script.logic;
 import java.util.List;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
@@ -27,7 +28,9 @@ import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.script.QAdminScript;
 import ru.runa.wfe.script.dao.AdminScriptDao;
 
+@Component
 public class AdminScriptLogic extends CommonLogic {
+
     @Autowired
     private AdminScriptDao scriptDAO;
     @Autowired

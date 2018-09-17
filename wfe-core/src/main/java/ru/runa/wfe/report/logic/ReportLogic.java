@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.report.ReportDefinition;
@@ -24,6 +25,7 @@ import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.User;
 
+@Component
 public class ReportLogic extends WfCommonLogic {
 
     @Autowired

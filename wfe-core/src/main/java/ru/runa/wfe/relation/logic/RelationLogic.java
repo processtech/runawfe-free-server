@@ -20,6 +20,7 @@ package ru.runa.wfe.relation.logic;
 import java.util.List;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
@@ -42,6 +43,7 @@ import ru.runa.wfe.user.User;
  * 
  * @author Konstantinov Aleksey 12.02.2012
  */
+@Component
 public class RelationLogic extends CommonLogic {
     @Autowired
     private RelationDao relationDao;

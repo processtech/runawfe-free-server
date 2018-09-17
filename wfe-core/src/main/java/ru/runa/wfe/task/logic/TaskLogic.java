@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.CurrentTaskDelegationLog;
 import ru.runa.wfe.commons.Errors;
@@ -69,6 +70,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
  * @author Dofs
  * @since 4.0
  */
+@Component
 public class TaskLogic extends WfCommonLogic {
     @Autowired
     private WfTaskFactory taskObjectFactory;

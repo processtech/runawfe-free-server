@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -41,6 +42,7 @@ import ru.runa.wfe.user.dao.ProfileDao;
  * @author Dofs
  * @since 1.0
  */
+@Component
 public class ProfileLogic extends CommonLogic {
 
     @Autowired

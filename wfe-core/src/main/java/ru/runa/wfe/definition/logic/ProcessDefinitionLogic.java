@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.NonNull;
 import lombok.val;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.CurrentAdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -66,6 +67,7 @@ import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 
+@Component
 public class ProcessDefinitionLogic extends WfCommonLogic {
 
     /**

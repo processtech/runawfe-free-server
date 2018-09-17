@@ -80,7 +80,6 @@ public class DbMigrationManager {
                             throw new RuntimeException("No rows");
                         }
                         dbVersion = Integer.parseInt(rs.getString(1));
-
                     } catch (Throwable e) {
                         throw new RuntimeException("Could not get database version from WFE_CONSTANTS", e);
                     }
@@ -129,7 +128,7 @@ public class DbMigrationManager {
                 @Override
                 public void run(Connection conn) throws Exception {
                     // No reason to split single insert into insert + update(when_finished) both performed in single transaction for PostgreSQL,
-                    // but Oracle does not have transactional DDL.
+                    // but Oracle does not have transactional DDL. TODO Or maybe perform this first insert in separate transaction?
                     try (val stmt = conn.prepareStatement("insert into db_migration (name, when_started) values (?, ?)")) {
                         stmt.setString(1, name);
                         stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));

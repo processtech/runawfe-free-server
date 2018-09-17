@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.transaction.UserTransaction;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.BaseProcessLog;
@@ -118,6 +119,7 @@ import ru.runa.wfe.var.VariableProvider;
  * @author Dofs
  * @since 2.0
  */
+@Component
 public class ExecutionLogic extends WfCommonLogic {
     private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = { SecuredObjectType.PROCESS };
     @Autowired

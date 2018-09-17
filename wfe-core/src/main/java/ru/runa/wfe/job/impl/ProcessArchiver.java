@@ -167,15 +167,6 @@ public class ProcessArchiver {
         // With Hibernate 4+, use session.doReturningWork():
         val conn = ApplicationContextFactory.getSessionFactory().getCurrentSession().connection();
 
-//        DbType dbType = ApplicationContextFactory.getDbType();
-//        try (val stmt = conn.createStatement()) {
-//            switch (dbType) {
-//                case POSTGRESQL:
-//                    stmt.executeUpdate("alter table archived_token drop constraint if exists FK_ARCH_TOKEN_PARENT");
-//                    break;
-//            }
-//        }
-
         val processIds = new ArrayList<Number>();
 
         try (val q = conn.prepareStatement(sqlSelectRootProcessIds)) {

@@ -20,6 +20,7 @@ package ru.runa.wfe.audit.logic;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
@@ -43,6 +44,7 @@ import ru.runa.wfe.user.User;
  * @author dofs
  * @since 4.0
  */
+@Component
 public class AuditLogic extends CommonLogic {
     @Autowired
     private ProcessDao processDao;

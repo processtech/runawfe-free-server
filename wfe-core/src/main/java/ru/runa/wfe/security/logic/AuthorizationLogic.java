@@ -37,6 +37,7 @@ import lombok.val;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
@@ -63,9 +64,12 @@ import static ru.runa.wfe.security.SecuredObjectType.GROUP;
 /**
  * Created on 14.03.2005
  */
+@Component
 public class AuthorizationLogic extends CommonLogic {
+
     @Autowired
     private SecuredObjectFactory securedObjectFactory;
+
     /**
      * Used by addPermissions() and setPermissions(), to avoid duplicated rows in table "permission_mapping".
      */

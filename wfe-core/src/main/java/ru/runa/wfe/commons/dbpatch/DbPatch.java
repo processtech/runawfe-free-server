@@ -394,11 +394,42 @@ public abstract class DbPatch {
     }
 
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    public class BooleanColumnDef extends ColumnDef {
+        public BooleanColumnDef(String name, boolean allowNulls) {
+            super(name, dialect.getTypeName(Types.BOOLEAN), allowNulls);
+        }
+        public BooleanColumnDef(String name) {
+            this(name, true);
+        }
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    public class CharColumnDef extends ColumnDef {
+        public CharColumnDef(String name, int length, boolean allowNulls) {
+            super(name, dialect.getTypeName(Types.CHAR, length, length, length), allowNulls);
+        }
+        public CharColumnDef(String name, int length) {
+            this(name, length, true);
+        }
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class DateColumnDef extends ColumnDef {
         public DateColumnDef(String name, boolean allowNulls) {
             super(name, dialect.getTypeName(Types.DATE), allowNulls);
         }
         public DateColumnDef(String name) {
+            this(name, true);
+        }
+    }
+
+
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    public class DoubleColumnDef extends ColumnDef {
+        public DoubleColumnDef(String name, boolean allowNulls) {
+            super(name, dialect.getTypeName(Types.DOUBLE), allowNulls);
+        }
+        public DoubleColumnDef(String name) {
             this(name, true);
         }
     }
@@ -426,9 +457,6 @@ public abstract class DbPatch {
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class VarcharColumnDef extends ColumnDef {
         public VarcharColumnDef(String name, int length, boolean allowNulls) {
-            // Don't know why length is passed 3 times here (as length, precision and scale),
-            // but I didn't like it and thus made this helper class.
-            // Other helper classes (BigintColumnDef, IntColumnDef) are just for company.
             super(name, dialect.getTypeName(Types.VARCHAR, length, length, length), allowNulls);
         }
         public VarcharColumnDef(String name, int length) {

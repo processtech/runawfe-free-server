@@ -41,6 +41,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
@@ -58,8 +59,9 @@ import ru.runa.wfe.user.dao.ExecutorDao;
  * 
  * @since 4.0.4
  */
-@SuppressWarnings("unchecked")
+@Component
 @CommonsLog
+@SuppressWarnings("unchecked")
 public class LdapLogic {
     private static final String OBJECT_CLASS_USER_FILTER = MessageFormat.format(LdapProperties.getSynchronizationObjectClassFilter(),
             LdapProperties.getSynchronizationUserObjectClass());

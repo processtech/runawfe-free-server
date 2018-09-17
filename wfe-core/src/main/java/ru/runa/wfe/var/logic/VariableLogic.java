@@ -33,6 +33,7 @@ import java.util.Set;
 import lombok.val;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.CurrentAdminActionLog;
@@ -83,6 +84,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
  * @author Dofs
  * @since 2.0
  */
+@Component
 public class VariableLogic extends WfCommonLogic {
     @Autowired
     private AuditLogic auditLogic;

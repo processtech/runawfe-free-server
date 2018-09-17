@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.ss.Substitution;
@@ -41,6 +42,7 @@ import ru.runa.wfe.user.User;
  * @author Semochkin_v
  * @author Gordienko_m
  */
+@Component
 public class SubstitutionLogic extends CommonLogic {
     @Autowired
     private SubstitutionCache substitutionCacheCtrl;
