@@ -43,7 +43,8 @@ public class Main {
             for (val t : st.tables) {
                 System.out.println("        " + t.name);
                 for (val c : t.columns) {
-                    System.out.println("            " + c.name + " " + c.type + (c.typeLength != null ? "(" + c.typeLength + ")" : "") +
+                    System.out.println("            " + c.name + " " + c.type +
+                            (c.typeLength != null ? "(" + c.typeLength + ")" : "") +
                             (c.isNotNull ? " not null" : ""));
                 }
             }

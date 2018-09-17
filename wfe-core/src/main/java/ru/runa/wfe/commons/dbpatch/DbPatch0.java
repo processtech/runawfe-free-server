@@ -15,12 +15,12 @@ public class DbPatch0 extends DbPatch {
                 getDDLCreateTable("actor_password", ImmutableList.of(
                         new BigintColumnDef("actor_id", false),
                         new BlobColumnDef("password", false)
-                ), ""),
+                )),
                 getDDLCreateTable("admin_script", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("name", 1024, true),
                         new BlobColumnDef("content", true)
-                ), ""),
+                )),
                 getDDLCreateTable("archived_log", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false),
@@ -31,7 +31,7 @@ public class DbPatch0 extends DbPatch {
                         new BlobColumnDef("bytes", true),
                         new VarcharColumnDef("content", 4000, true),
                         new BigintColumnDef("process_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("archived_process", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BigintColumnDef("parent_id", true),
@@ -41,7 +41,7 @@ public class DbPatch0 extends DbPatch {
                         new TimestampColumnDef("end_date", true),
                         new BigintColumnDef("root_token_id", false),
                         new BigintColumnDef("definition_version_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("archived_subprocess", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("parent_node_id", 1024, true),
@@ -51,7 +51,7 @@ public class DbPatch0 extends DbPatch {
                         new BigintColumnDef("parent_token_id", true),
                         new BigintColumnDef("root_process_id", false),
                         new BigintColumnDef("parent_process_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("archived_swimlane", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BigintColumnDef("version", true),
@@ -59,7 +59,7 @@ public class DbPatch0 extends DbPatch {
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("process_id", true),
                         new BigintColumnDef("executor_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("archived_token", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BigintColumnDef("version", true),
@@ -75,7 +75,7 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("message_selector", 1024, true),
                         new BigintColumnDef("parent_id", true),
                         new BigintColumnDef("process_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("archived_variable", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false),
@@ -89,7 +89,7 @@ public class DbPatch0 extends DbPatch {
                         new DoubleColumnDef("doublevalue", true),
                         new TimestampColumnDef("datevalue", true),
                         new BigintColumnDef("process_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("batch_presentation", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("category", 1024, false),
@@ -102,7 +102,7 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("name", 1024, false),
                         new VarcharColumnDef("class_type", 1024, true),
                         new BigintColumnDef("profile_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("bot", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BooleanColumnDef("is_transactional", true),
@@ -116,14 +116,14 @@ public class DbPatch0 extends DbPatch {
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", true),
                         new BigintColumnDef("bot_station_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("bot_station", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BigintColumnDef("version", true),
                         new VarcharColumnDef("name", 1024, false),
                         new VarcharColumnDef("address", 1024, true),
                         new TimestampColumnDef("create_date", false)
-                ), ""),
+                )),
                 getDDLCreateTable("bot_task", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BlobColumnDef("embedded_file", true),
@@ -135,7 +135,7 @@ public class DbPatch0 extends DbPatch {
                         new BlobColumnDef("configuration", true),
                         new VarcharColumnDef("name", 1024, true),
                         new BigintColumnDef("bot_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_agglog_assignments", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false),
@@ -144,7 +144,7 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("old_executor_name", 1024, true),
                         new BigintColumnDef("assignment_object_id", true),
                         new IntColumnDef("idx", true)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_agglog_process", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("cancel_actor_name", 1024, true),
@@ -154,7 +154,7 @@ public class DbPatch0 extends DbPatch {
                         new TimestampColumnDef("end_date", true),
                         new IntColumnDef("end_reason", false),
                         new TimestampColumnDef("create_date", false)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_agglog_tasks", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("task_name", 1024, false),
@@ -170,7 +170,7 @@ public class DbPatch0 extends DbPatch {
                         new IntColumnDef("task_index", true),
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("process_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_job", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false),
@@ -183,7 +183,7 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("transition_name", 1024, true),
                         new BigintColumnDef("process_id", false),
                         new BigintColumnDef("token_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_log", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false),
@@ -194,7 +194,7 @@ public class DbPatch0 extends DbPatch {
                         new BlobColumnDef("bytes", true),
                         new VarcharColumnDef("content", 4000, true),
                         new BigintColumnDef("process_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_process", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BigintColumnDef("parent_id", true),
@@ -205,7 +205,7 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("execution_status", 255, false),
                         new BigintColumnDef("definition_version_id", false),
                         new BigintColumnDef("root_token_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_process_definition", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new IntColumnDef("seconds_before_archiving", true),
@@ -214,7 +214,7 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("name", 1024, false),
                         new VarcharColumnDef("language", 4, false),
                         new BigintColumnDef("latest_version_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_process_definition_ver", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BigintColumnDef("subversion", false),
@@ -226,13 +226,13 @@ public class DbPatch0 extends DbPatch {
                         new BigintColumnDef("create_user_id", true),
                         new BigintColumnDef("update_user_id", true),
                         new BigintColumnDef("definition_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_setting", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("name", 1024, false),
                         new VarcharColumnDef("value", 1024, true),
                         new VarcharColumnDef("file_name", 1024, false)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_subprocess", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("parent_node_id", 1024, true),
@@ -242,7 +242,7 @@ public class DbPatch0 extends DbPatch {
                         new BigintColumnDef("process_id", false),
                         new BigintColumnDef("parent_process_id", false),
                         new BigintColumnDef("root_process_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_swimlane", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BigintColumnDef("version", true),
@@ -250,7 +250,7 @@ public class DbPatch0 extends DbPatch {
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("executor_id", true),
                         new BigintColumnDef("process_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_task", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new TimestampColumnDef("deadline_date", true),
@@ -266,11 +266,11 @@ public class DbPatch0 extends DbPatch {
                         new BigintColumnDef("executor_id", true),
                         new BigintColumnDef("token_id", true),
                         new BigintColumnDef("swimlane_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_task_opened", ImmutableList.of(
                         new BigintColumnDef("task_id", false),
                         new BigintColumnDef("executor_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_token", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new BigintColumnDef("version", true),
@@ -287,7 +287,7 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("message_selector", 1024, true),
                         new BigintColumnDef("process_id", true),
                         new BigintColumnDef("parent_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("bpm_variable", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false),
@@ -301,12 +301,12 @@ public class DbPatch0 extends DbPatch {
                         new BlobColumnDef("bytes", true),
                         new DoubleColumnDef("doublevalue", true),
                         new BigintColumnDef("process_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("db_migration", ImmutableList.of(
                         new VarcharColumnDef("name", 255, false),
                         new TimestampColumnDef("when_started", false),
                         new TimestampColumnDef("when_finished", true)
-                ), ""),
+                )),
                 getDDLCreateTable("executor", ImmutableList.of(
                         new VarcharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false),
@@ -325,51 +325,51 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("node_id", 1024, true),
                         new IntColumnDef("escalation_level", true),
                         new BigintColumnDef("escalation_executor_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("executor_group_member", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", true),
                         new BigintColumnDef("group_id", false),
                         new BigintColumnDef("executor_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("executor_relation", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new TimestampColumnDef("create_date", false),
                         new VarcharColumnDef("description", 1024, true),
                         new VarcharColumnDef("name", 1024, true)
-                ), ""),
+                )),
                 getDDLCreateTable("executor_relation_pair", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("executor_from", false),
                         new BigintColumnDef("relation_id", false),
                         new BigintColumnDef("executor_to", false)
-                ), ""),
+                )),
                 getDDLCreateTable("localization", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new TimestampColumnDef("create_date", false),
                         new VarcharColumnDef("name", 1024, true),
                         new VarcharColumnDef("value", 1024, true)
-                ), ""),
+                )),
                 getDDLCreateTable("permission_mapping", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("object_type", 255, false),
                         new BigintColumnDef("object_id", false),
                         new VarcharColumnDef("permission", 255, false),
                         new BigintColumnDef("executor_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("priveleged_mapping", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("type", 1024, false),
                         new BigintColumnDef("executor_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("profile", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", true),
                         new BigintColumnDef("actor_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("report", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("category", 1024, true),
@@ -378,7 +378,7 @@ public class DbPatch0 extends DbPatch {
                         new BigintColumnDef("version", false),
                         new VarcharColumnDef("description", 2048, true),
                         new VarcharColumnDef("name", 1024, false)
-                ), ""),
+                )),
                 getDDLCreateTable("report_parameter", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("inner_name", 1024, false),
@@ -386,7 +386,7 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("name", 1024, false),
                         new VarcharColumnDef("type", 1024, false),
                         new BigintColumnDef("report_id", false)
-                ), ""),
+                )),
                 getDDLCreateTable("substitution", ImmutableList.of(
                         new VarcharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false),
@@ -398,14 +398,14 @@ public class DbPatch0 extends DbPatch {
                         new IntColumnDef("position_index", false),
                         new BooleanColumnDef("enabled_flag", false),
                         new BigintColumnDef("criteria_id", true)
-                ), ""),
+                )),
                 getDDLCreateTable("substitution_criteria", ImmutableList.of(
                         new VarcharColumnDef("discriminator", 31, false),
                         new BigintColumnDef("id", false),
                         new TimestampColumnDef("create_date", false),
                         new VarcharColumnDef("conf", 1024, true),
                         new VarcharColumnDef("name", 1024, false)
-                ), ""),
+                )),
                 getDDLCreateTable("system_log", ImmutableList.of(
                         new VarcharColumnDef("discriminator", 31, false),
                         new BigintColumnDef("id", false),
@@ -414,12 +414,12 @@ public class DbPatch0 extends DbPatch {
                         new BigintColumnDef("process_id", true),
                         new VarcharColumnDef("process_definition_name", 1024, true),
                         new BigintColumnDef("process_definition_version", true)
-                ), ""),
+                )),
                 getDDLCreateTable("wfe_constants", ImmutableList.of(
                         new BigintColumnDef("id", false),
                         new VarcharColumnDef("name", 1024, true),
                         new VarcharColumnDef("value", 1024, true)
-                ), ""),
+                )),
                 null
         );
     }

@@ -69,7 +69,7 @@ class DbPatch0Generator {
                 }
             }
             w.write("\n" +
-                    "                ), \"\"),\n");
+                    "                )),\n");
         }
 
         w.write("                null\n" +

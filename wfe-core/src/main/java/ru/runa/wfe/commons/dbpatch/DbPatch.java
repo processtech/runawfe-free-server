@@ -147,6 +147,12 @@ public abstract class DbPatch {
         return query.toString();
     }
 
+
+    protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions) {
+        return getDDLCreateTable(tableName, columnDefinitions, "");
+    }
+
+
     protected final String getDDLRenameTable(String oldTableName, String newTableName) {
         switch (dbType) {
             case MSSQL:
@@ -413,7 +419,11 @@ public abstract class DbPatch {
         }
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    /**
+     * @deprecated Use TimestampColumnDef: I believe it's effectively the same but more clear.
+     */
+    @Deprecated
+    @SuppressWarnings({"unused", "WeakerAccess"})
     public class DateColumnDef extends ColumnDef {
         public DateColumnDef(String name, boolean allowNulls) {
             super(name, dialect.getTypeName(Types.DATE), allowNulls);
