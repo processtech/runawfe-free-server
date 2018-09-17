@@ -11,9 +11,9 @@ public class DelegableVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public Long getDeploymentVersionId() {
+    public Long getProcessDefinitionVersionId() {
         if (delegate != null) {
-            return delegate.getDeploymentVersionId();
+            return delegate.getProcessDefinitionVersionId();
         }
         return null;
     }

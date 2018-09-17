@@ -44,11 +44,11 @@ public class SplitProcessDefinitionVersion extends DbPatch {
             add(getDDLDropIndex("bpm_process", "ix_process_definition"));
             add(getDDLRenameColumn("bpm_process", "definition_id", new BigintColumnDef("definition_version_id", false)));
             add(getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"));
-            add(getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_definition_version", "id"));
+            add(getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_process_definition_ver", "id"));
 
             // Can add columns here, but not drop: first we must fill BPM_DEFINITION_VERSION table.
-            add(getDDLCreateColumn("seq_bpm_process_definition_ver", new BigintColumnDef("definition_id", true)));
-            add(getDDLCreateColumn("seq_bpm_process_definition_ver", new BigintColumnDef("subversion", true)));   // For future, will be 0 for now.
+            add(getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("definition_id", true)));
+            add(getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("subversion", true)));   // For future, will be 0 for now.
 
             // This new table will be filled from BPM_PROCESS_DEFINITION_VER using "group by name".
             add(getDDLCreateSequence("seq_bpm_process_definition"));
@@ -93,14 +93,14 @@ public class SplitProcessDefinitionVersion extends DbPatch {
             );
 
             // Fill PROCESS_DEFINITION_VER.DEFINITION_ID (after we filled PROCESS_DEFINITION table).
-            stmt.executeUpdate("update bpm_process_definition_version set " +
+            stmt.executeUpdate("update bpm_process_definition_ver set " +
                     "definition_id = (select max(id) from bpm_process_definition where bpm_process_definition.name = bpm_process_definition_ver.name), " +
                     "subversion = 0"
             );
 
             // Fill PROCESS_DEFINITION.LATEST_VERSION_ID (after we filled PROCESS_DEFINITION_VER.DEFINITION_ID).
             stmt.executeUpdate("update bpm_process_definition set latest_version_id = " +
-                    "(select max(id) from bpm_process_definition where bpm_process_definition.id = bpm_process_definition_ver.definition_id)"
+                    "(select max(id) from bpm_process_definition_ver where bpm_process_definition.id = bpm_process_definition_ver.definition_id)"
             );
 
             // Fix permissions.
@@ -128,13 +128,14 @@ public class SplitProcessDefinitionVersion extends DbPatch {
             add(getDDLDropColumn("bpm_process_definition_ver", "language"));
             add(getDDLDropColumn("bpm_process_definition_ver", "description"));
             add(getDDLDropColumn("bpm_process_definition_ver", "category"));
-            add(getDDLModifyColumnNullability("seq_bpm_process_definition_ver", "definition_id", dialect.getTypeName(Types.BIGINT), false));
-            add(getDDLModifyColumnNullability("seq_bpm_process_definition_ver", "subversion", dialect.getTypeName(Types.BIGINT), false));
+            add(getDDLModifyColumnNullability("bpm_process_definition_ver", "definition_id", dialect.getTypeName(Types.BIGINT), false));
+            add(getDDLModifyColumnNullability("bpm_process_definition_ver", "subversion", dialect.getTypeName(Types.BIGINT), false));
 
-            add(getDDLCreateUniqueKey("bpm_process_definition_ver", "fx_version_definition_ver", "definition_id", "version"));
+            add(getDDLCreateUniqueKey("bpm_process_definition_ver", "ix_version_definition_ver", "definition_id", "version"));
             add(getDDLCreateForeignKey("bpm_process_definition_ver", "fk_version_definition", "definition_id", "bpm_process_definition", "id"));
 
             add(getDDLCreateIndex("bpm_process_definition", "ix_definition_latest_ver", "latest_version_id"));
+            add(getDDLCreateUniqueKey("bpm_process_definition", "ix_definition_name", "name"));
         }};
     }
 }

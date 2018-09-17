@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
@@ -18,13 +19,16 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Index;
+import org.hibernate.annotations.ForeignKey;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 @Entity
-@Table(name = "BPM_PROCESS_DEFINITION")
+@Table(name = "BPM_PROCESS_DEFINITION", indexes = {
+        @Index(name = "IX_DEFINITION_LATEST_VERSION", columnList = "LATEST_VERSION_ID"),
+        @Index(name = "IX_DEFINITION_NAME", columnList = "NAME", unique = true)
+})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ProcessDefinition extends SecuredObject {
     private static final long serialVersionUID = 1L;
@@ -98,7 +102,9 @@ public class ProcessDefinition extends SecuredObject {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LATEST_VERSION_ID")
-    @Index(name = "IX_DEFINITION_LATEST_VERSION")
+    @ForeignKey(name = "none")
+    // @ForeignKey(name = "FK_DEFINITION_LATEST_VERSION") is not created: reverse reference.
+    // TODO They say Hibernate 5 does not support name="none", so careful when upgrading it.
     public ProcessDefinitionVersion getLatestVersion() {
         return latestVersion;
     }

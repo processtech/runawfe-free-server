@@ -33,6 +33,7 @@ public class DefaultBatchPresentations {
         create(BatchPresentationConsts.ID_RELATIONS, BatchPresentationFactory.RELATIONS);
         create(BatchPresentationConsts.ID_RELATION_PAIRS, BatchPresentationFactory.RELATION_PAIRS);
         create(BatchPresentationConsts.ID_REPORTS, BatchPresentationFactory.REPORTS);
+        create(BatchPresentationConsts.ID_ARCHIVED_PROCESSES, BatchPresentationFactory.ARCHIVED_PROCESSES);
         create(BatchPresentationConsts.ID_CURRENT_PROCESSES, BatchPresentationFactory.CURRENT_PROCESSES);
         create(BatchPresentationConsts.ID_CURRENT_PROCESSES_WITH_TASKS, BatchPresentationFactory.CURRENT_PROCESSES_WITH_TASKS);
         create(BatchPresentationConsts.ID_DEFINITIONS, BatchPresentationFactory.DEFINITIONS);

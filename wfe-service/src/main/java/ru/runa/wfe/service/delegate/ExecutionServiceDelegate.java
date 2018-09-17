@@ -33,7 +33,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
-import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 /**
  * Created on 28.09.2004
@@ -175,7 +175,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public FileVariable getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
+    public FileVariableImpl getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
         try {
             return getExecutionService().getFileVariableValue(user, processId, variableName);
         } catch (Exception e) {

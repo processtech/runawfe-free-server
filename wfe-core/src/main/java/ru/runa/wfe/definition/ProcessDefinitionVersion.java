@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -18,11 +19,12 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import lombok.val;
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.user.Actor;
 
 @Entity
-@Table(name = "BPM_PROCESS_DEFINITION_VER")
+@Table(name = "BPM_PROCESS_DEFINITION_VER", indexes = {
+        @Index(name = "ix_version_definition_ver", columnList = "definition_id, version")
+})
 public class ProcessDefinitionVersion implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -52,7 +54,6 @@ public class ProcessDefinitionVersion implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_VERSION_DEFINITION")
-    @Index(name = "IX_VERSION_DEFINITION")
     public ProcessDefinition getDefinition() {
         return definition;
     }

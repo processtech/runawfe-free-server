@@ -37,7 +37,7 @@ public class TestVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public Long getDeploymentVersionId() {
+    public Long getProcessDefinitionVersionId() {
         throw new UnsupportedOperationException();
     }
 

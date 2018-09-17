@@ -219,7 +219,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public FileVariable getFileVariableValue(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+    public FileVariableImpl getFileVariableValue(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "variableName") @NonNull String variableName) {
         WfVariable variable = variableLogic.getVariable(user, processId, variableName);
         if (variable != null) {

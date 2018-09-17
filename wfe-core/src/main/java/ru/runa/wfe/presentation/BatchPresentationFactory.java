@@ -66,5 +66,4 @@ public class BatchPresentationFactory {
         batchPresentation.setRangeSize(BatchPresentationConsts.RANGE_SIZE_UNLIMITED);
         return batchPresentation;
     }
-
 }

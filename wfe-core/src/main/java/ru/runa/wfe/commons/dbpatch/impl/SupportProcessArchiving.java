@@ -24,12 +24,12 @@ public class SupportProcessArchiving extends DbPatch {
 
                 // Process: all fields except EXECUTION_STATUS.
                 "create table archived_process as " +
-                        "select id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id " +
+                        "select id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id " +
                         "from bpm_process " +
                         "where 0=1",
                 getDDLCreatePrimaryKey("archived_process", "pk_archived_process", "id"),
-                getDDLCreateIndex     ("archived_process", "ix_arch_process_definition", "definition_id"),
-                getDDLCreateForeignKey("archived_process", "fk_arch_process_definition", "definition_id", "bpm_process_definition", "id"),
+                getDDLCreateIndex     ("archived_process", "ix_arch_process_def_ver", "definition_version_id"),
+                getDDLCreateForeignKey("archived_process", "fk_arch_process_def_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
                 getDDLCreateIndex     ("archived_process", "ix_arch_process_root_token", "root_token_id"),
                 // Not created: would be violated during batch insert-select in ProcessArchiver.
                 //getDDLCreateForeignKey("archived_process", "fk_arch_process_root_token", "root_token_id", "archived_token", "id")
@@ -97,7 +97,7 @@ public class SupportProcessArchiving extends DbPatch {
         if (dbType != DbType.ORACLE) {
             sqls.addAll(Arrays.asList(
                     getDDLModifyColumnNullability("archived_process", "id", dialect.getTypeName(Types.BIGINT), false),
-                    getDDLModifyColumnNullability("archived_process", "definition_id", dialect.getTypeName(Types.BIGINT), false),
+                    getDDLModifyColumnNullability("archived_process", "definition_version_id", dialect.getTypeName(Types.BIGINT), false),
                     getDDLModifyColumnNullability("archived_process", "root_token_id", dialect.getTypeName(Types.BIGINT), false),
 
                     getDDLModifyColumnNullability("archived_token", "id", dialect.getTypeName(Types.BIGINT), false),

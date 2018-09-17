@@ -1,5 +1,6 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
+import com.google.common.collect.ImmutableList;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.List;
@@ -64,9 +65,10 @@ public class AddSubprocessRootIdColumn extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesAfter() {
-        return Collections.singletonList(
+        return ImmutableList.of(
                 // Last, alter column to be not-null.
-                getDDLModifyColumnNullability("bpm_subprocess", "root_process_id", dialect.getTypeName(Types.BIGINT), false)
+                getDDLModifyColumnNullability("bpm_subprocess", "root_process_id", dialect.getTypeName(Types.BIGINT), false),
+                getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_root", "root_process_id", "bpm_process", "id")
         );
     }
 }

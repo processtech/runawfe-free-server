@@ -34,9 +34,12 @@ public class ArchivedToken extends Token {
 
     @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
-    @ForeignKey(name = "none")
-    // @ForeignKey(name = "FK_ARCH_TOKEN_PARENT") is not created: it would be violated during batch insert-select in ProcessArchiver.
     // TODO They say Hibernate 5 does not support name="none", so careful when upgrading it.
+    // TODO Here "none" is ignored even by Hibernate 3, I don't know why.
+    //      So I specify explicit FK name and "drop if exists" it in ProcessArchiver; at will be violated by batch inserts.
+    //      This is very dirty hack, and the reason why Hibernate schema generator should not be used at all.
+//    @ForeignKey(name = "none")
+    @ForeignKey(name = "FK_ARCH_TOKEN_PARENT")
     @Index(name = "IX_ARCH_TOKEN_PARENT")
     @SuppressWarnings("unused")
     private ArchivedToken parent;

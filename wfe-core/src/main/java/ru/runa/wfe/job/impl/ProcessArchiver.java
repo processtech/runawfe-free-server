@@ -97,7 +97,8 @@ public class ProcessArchiver {
         // "Order by" is for determinism and to simplify updating lastHandledProcessId.
         sqlSelectRootProcessIds = dialect.getLimitString("select p.id " +
                 "from bpm_process p " +
-                "inner join bpm_process_definition d on (d.id = p.definition_id) " +
+                "inner join bpm_process_definition_ver dv on (dv.id = p.definition_version_id) " +
+                "inner join bpm_process_definition d on (d.id = dv.definition_id) " +
                 // Continue since last step:
                 "where p.id > ? and " +
                 // Get only root process IDs:
@@ -112,7 +113,8 @@ public class ProcessArchiver {
                 "          select p2.id " +
                 "          from bpm_subprocess s2 " +
                 "          inner join bpm_process p2 on (p2.id = s2.process_id) " +
-                "          inner join bpm_process_definition d2 on (d2.id = p2.definition_id) " +
+                "          inner join bpm_process_definition_ver dv2 on (dv2.id = p2.definition_version_id) " +
+                "          inner join bpm_process_definition d2 on (d2.id = dv2.definition_id) " +
                 "          where s2.root_process_id = p.id and (" +
                 "                p2.execution_status <> 'ENDED' or " +
                 "                not(" + generateEndDateCheckExpression("d2", "p2.end_date", dbType, defaultSecondsBeforeArchiving) + ") or " +
@@ -165,6 +167,15 @@ public class ProcessArchiver {
         // With Hibernate 4+, use session.doReturningWork():
         val conn = ApplicationContextFactory.getSessionFactory().getCurrentSession().connection();
 
+//        DbType dbType = ApplicationContextFactory.getDbType();
+//        try (val stmt = conn.createStatement()) {
+//            switch (dbType) {
+//                case POSTGRESQL:
+//                    stmt.executeUpdate("alter table archived_token drop constraint if exists FK_ARCH_TOKEN_PARENT");
+//                    break;
+//            }
+//        }
+
         val processIds = new ArrayList<Number>();
 
         try (val q = conn.prepareStatement(sqlSelectRootProcessIds)) {
@@ -204,8 +215,8 @@ public class ProcessArchiver {
 
                 // Refernces self, plus has root_token_id field.
                 stmt.executeUpdate("insert into archived_process " +
-                        "      (id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id) " +
-                        "select id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id " +
+                        "      (id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id) " +
+                        "select id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id " +
                         "from bpm_process " +
                         "where id in " + pidsCSV
                 );
