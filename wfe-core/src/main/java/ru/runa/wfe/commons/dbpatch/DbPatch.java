@@ -173,9 +173,9 @@ public abstract class DbPatch {
         return "CREATE INDEX " + indexName + " ON " + tableName + " (" + conjunctedColumnNames + ")";
     }
 
-    protected final String getDDLCreateUniqueKey(String tableName, String indexName, String... columnNames) {
+    protected final String getDDLCreateUniqueKey(String tableName, String constraintName, String... columnNames) {
         String conjunctedColumnNames = Joiner.on(", ").join(columnNames);
-        return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + indexName + " UNIQUE (" + conjunctedColumnNames + ")";
+        return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + conjunctedColumnNames + ")";
     }
 
     protected final String getDDLRenameIndex(String tableName, String indexName, String newIndexName) {

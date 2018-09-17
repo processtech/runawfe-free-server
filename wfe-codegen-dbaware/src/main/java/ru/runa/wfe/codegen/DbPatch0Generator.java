@@ -67,10 +67,26 @@ class DbPatch0Generator {
                     default:
                         throw new Exception("Internal error: unhandled column type " + c.type);
                 }
+                if (c.isPrimaryKey) {
+                    w.write(".setPrimaryKey()");
+                }
             }
             w.write("\n" +
                     "                )),\n");
+        }  // tables
+
+        for (val uk : st.uniqueKeys) {
+            w.write("                getDDLCreateUniqueKey(\"" + uk.table.name + "\", \"" + uk.name + "\"");
+            for (val c : uk.columns) {
+                w.write(", \"" + c.name + "\"");
+            }
+            w.write("),\n");
+        }  // uniqueKeys
+
+        for (val fk : st.foreignKeys) {
+            // TODO ...
         }
+
 
         w.write("                null\n" +
                 "        );\n" +
