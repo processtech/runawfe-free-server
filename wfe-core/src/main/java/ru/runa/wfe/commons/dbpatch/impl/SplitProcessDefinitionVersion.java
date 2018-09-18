@@ -1,5 +1,6 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
+import com.google.common.collect.ImmutableList;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Types;
@@ -11,6 +12,7 @@ import ru.runa.wfe.commons.dbpatch.DbPatch;
 public class SplitProcessDefinitionVersion extends DbPatch {
 
     @Override
+    @SuppressWarnings("ConstantConditions")
     protected List<String> getDDLQueriesBefore() {
 
         // Table BPM_PROCESS_DEFINITION does not have UK(name, version), so perform sanity check first.
@@ -35,35 +37,35 @@ public class SplitProcessDefinitionVersion extends DbPatch {
             throw new RuntimeException(sb.toString());
         }
 
-        return new ArrayList<String>() {{
+        return ImmutableList.of(
             // I want to avoid sequence setval(), since some SQL servers don't have sequences. So I rename table and secuence instead.
-            add(getDDLRenameTable("bpm_process_definition", "bpm_process_definition_ver"));
-            add(getDDLRenameSequence("seq_bpm_process_definition", "seq_bpm_process_definition_ver"));
+            getDDLRenameTable("bpm_process_definition", "bpm_process_definition_ver"),
+            getDDLRenameSequence("seq_bpm_process_definition", "seq_bpm_process_definition_ver"),
 
-            add(getDDLDropForeignKey("bpm_process", "fk_process_definition"));
-            add(getDDLDropIndex("bpm_process", "ix_process_definition"));
-            add(getDDLRenameColumn("bpm_process", "definition_id", new BigintColumnDef("definition_version_id", false)));
-            add(getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"));
-            add(getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_process_definition_ver", "id"));
+            getDDLDropForeignKey("bpm_process", "fk_process_definition"),
+            getDDLDropIndex("bpm_process", "ix_process_definition"),
+            getDDLRenameColumn("bpm_process", "definition_id", new BigintColumnDef("definition_version_id", false)),
+            getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"),
+            getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
 
             // Can add columns here, but not drop: first we must fill BPM_DEFINITION_VERSION table.
-            add(getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("definition_id", true)));
-            add(getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("subversion", true)));   // For future, will be 0 for now.
+            getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("definition_id", true)),
+            getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("subversion", true)),   // For future, will be 0 for now.
 
             // This new table will be filled from BPM_PROCESS_DEFINITION_VER using "group by name".
-            add(getDDLCreateSequence("seq_bpm_process_definition"));
-            add(getDDLCreateTable("bpm_process_definition",
+            getDDLCreateSequence("seq_bpm_process_definition"),
+            getDDLCreateTable("bpm_process_definition",
                     new ArrayList<ColumnDef>() {{
                         add(new BigintColumnDef("id", false).setPrimaryKey());
                         add(new BigintColumnDef("latest_version_id", true));
                         add(new VarcharColumnDef("name", 1024, false));
-                        add(new VarcharColumnDef("language", 4, false));
+                        add(new VarcharColumnDef("language", 10, false));
                         add(new VarcharColumnDef("description", 1024));
                         add(new VarcharColumnDef("category", 1024, false));
-                    }},
-                    "(name)"
-            ));
-        }};
+                    }}
+            ),
+            getDDLCreateUniqueKey("bpm_process_definition", "uk_bpm_process_def_name", "name")
+        );
     }
 
     @Override

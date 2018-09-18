@@ -103,8 +103,6 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     public ParsedProcessDefinition getLatestDefinition(
             ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, @NonNull String definitionName
     ) {
-        log.warn("getLatestDefinition(..., deploymentName) is deprecated, use getLatestDefinition(..., deploymentId)");
-
         Long processDefinitionVersionId;
         // synchronized (this) {
         processDefinitionVersionId = deploymentNameToDeploymentVersionId.get(definitionName);
