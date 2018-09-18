@@ -59,7 +59,6 @@ class DbStructureAnalyzer {
         ArrayList<Column> columns = new ArrayList<>();
     }
 
-    // Not a structure exactly, part of the data, but let's read DB in one place.
     static class Migration {
         String name;
         Timestamp whenStarted;
@@ -67,12 +66,17 @@ class DbStructureAnalyzer {
     }
 
     static class Structure {
+        ArrayList<String> sequenceNames = new ArrayList<>();
         ArrayList<Table> tables = new ArrayList<>();
         HashMap<String, Table> tablesByName = new HashMap<>();
         ArrayList<UniqueKey> uniqueKeys = new ArrayList<>();
         ArrayList<ForeignKey> foreignKeys = new ArrayList<>();
         ArrayList<Index> indexes = new ArrayList<>();
+
+        // Not a structure, but data controlling DbMigrationManager, so let's read DB in one place.
         ArrayList<Migration> migrations = new ArrayList<>();
+        // TODO Remove in WFE 5:
+        Integer version = null;
     }
 
 
@@ -81,6 +85,18 @@ class DbStructureAnalyzer {
 
         Class.forName("org.postgresql.Driver");
         val conn = DriverManager.getConnection(jdbcUrl);
+
+        // Read sequences.
+        try (val stmt = conn.createStatement()) {
+            val rs = stmt.executeQuery("select c.relname as name " +
+                    "from pg_class c " +
+                    "inner join pg_namespace n on (n.oid = c.relnamespace) " +
+                    "where n.nspname = 'public' and c.relkind = 'S' " +
+                    "order by c.relname");
+            while (rs.next()) {
+                st.sequenceNames.add(rs.getString(1));
+            }
+        }
 
         // Read tables.
         try (val stmt = conn.createStatement()) {
@@ -269,6 +285,16 @@ class DbStructureAnalyzer {
                     m.name = rs.getString(1);
                     m.whenStarted = rs.getTimestamp(2);
                     m.whenFinished = rs.getTimestamp(3);
+                }
+            }
+        }
+
+        // Read DB version.
+        if (st.tablesByName.containsKey("wfe_constants")) {
+            try (val stmt = conn.createStatement()) {
+                val rs = stmt.executeQuery("select value from wfe_constants where name = 'ru.runa.database_version'");
+                if (rs.next()) {
+                    st.version = Integer.parseInt(rs.getString(1));
                 }
             }
         }

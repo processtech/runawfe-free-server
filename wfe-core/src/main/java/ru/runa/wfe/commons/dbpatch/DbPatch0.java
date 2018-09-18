@@ -5,15 +5,48 @@ package ru.runa.wfe.commons.dbpatch;
 
 import com.google.common.collect.ImmutableList;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
+import java.sql.Statement;
 import java.util.List;
 
 public class DbPatch0 extends DbPatch {
 
     @Override
+    @SuppressWarnings("ConstantConditions")
     protected List<String> getDDLQueriesBefore() {
         return ImmutableList.of(
+                getDDLCreateSequence("seq_admin_script"),
+                getDDLCreateSequence("seq_batch_presentation"),
+                getDDLCreateSequence("seq_bot"),
+                getDDLCreateSequence("seq_bot_station"),
+                getDDLCreateSequence("seq_bot_task"),
+                getDDLCreateSequence("seq_bpm_agglog_assignments"),
+                getDDLCreateSequence("seq_bpm_agglog_process"),
+                getDDLCreateSequence("seq_bpm_agglog_tasks"),
+                getDDLCreateSequence("seq_bpm_job"),
+                getDDLCreateSequence("seq_bpm_log"),
+                getDDLCreateSequence("seq_bpm_process"),
+                getDDLCreateSequence("seq_bpm_process_definition"),
+                getDDLCreateSequence("seq_bpm_setting"),
+                getDDLCreateSequence("seq_bpm_subprocess"),
+                getDDLCreateSequence("seq_bpm_swimlane"),
+                getDDLCreateSequence("seq_bpm_task"),
+                getDDLCreateSequence("seq_bpm_token"),
+                getDDLCreateSequence("seq_bpm_variable"),
+                getDDLCreateSequence("seq_executor"),
+                getDDLCreateSequence("seq_executor_group_member"),
+                getDDLCreateSequence("seq_executor_relation"),
+                getDDLCreateSequence("seq_localization"),
+                getDDLCreateSequence("seq_permission_mapping"),
+                getDDLCreateSequence("seq_priveleged_mapping"),
+                getDDLCreateSequence("seq_profile"),
+                getDDLCreateSequence("seq_relation_group"),
+                getDDLCreateSequence("seq_report"),
+                getDDLCreateSequence("seq_report_parameter"),
+                getDDLCreateSequence("seq_substitution"),
+                getDDLCreateSequence("seq_substitution_criteria"),
+                getDDLCreateSequence("seq_system_log"),
+                getDDLCreateSequence("seq_wfe_constants", 2),
+
                 getDDLCreateTable("actor_password", ImmutableList.of(
                         new BigintColumnDef("actor_id", false).setPrimaryKey(),
                         new BlobColumnDef("password", false)
@@ -23,83 +56,14 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("name", 1024, true),
                         new BlobColumnDef("content", true)
                 )),
-                getDDLCreateTable("archived_log", ImmutableList.of(
-                        new CharColumnDef("discriminator", 1, false),
-                        new BigintColumnDef("id", false).setPrimaryKey(),
-                        new VarcharColumnDef("severity", 1024, false),
-                        new BigintColumnDef("token_id", true),
-                        new VarcharColumnDef("node_id", 1024, true),
-                        new TimestampColumnDef("create_date", false),
-                        new BlobColumnDef("bytes", true),
-                        new VarcharColumnDef("content", 4000, true),
-                        new BigintColumnDef("process_id", false)
-                )),
-                getDDLCreateTable("archived_process", ImmutableList.of(
-                        new BigintColumnDef("id", false).setPrimaryKey(),
-                        new BigintColumnDef("parent_id", true),
-                        new BigintColumnDef("version", true),
-                        new VarcharColumnDef("tree_path", 1024, true),
-                        new TimestampColumnDef("start_date", true),
-                        new TimestampColumnDef("end_date", true),
-                        new BigintColumnDef("root_token_id", false),
-                        new BigintColumnDef("definition_version_id", false)
-                )),
-                getDDLCreateTable("archived_subprocess", ImmutableList.of(
-                        new BigintColumnDef("id", false).setPrimaryKey(),
-                        new VarcharColumnDef("parent_node_id", 1024, true),
-                        new IntColumnDef("subprocess_index", true),
-                        new TimestampColumnDef("create_date", false),
-                        new BigintColumnDef("process_id", false),
-                        new BigintColumnDef("parent_token_id", true),
-                        new BigintColumnDef("root_process_id", false),
-                        new BigintColumnDef("parent_process_id", false)
-                )),
-                getDDLCreateTable("archived_swimlane", ImmutableList.of(
-                        new BigintColumnDef("id", false).setPrimaryKey(),
-                        new BigintColumnDef("version", true),
-                        new VarcharColumnDef("name", 1024, true),
-                        new TimestampColumnDef("create_date", false),
-                        new BigintColumnDef("process_id", true),
-                        new BigintColumnDef("executor_id", true)
-                )),
-                getDDLCreateTable("archived_token", ImmutableList.of(
-                        new BigintColumnDef("id", false).setPrimaryKey(),
-                        new BigintColumnDef("version", true),
-                        new VarcharColumnDef("name", 1024, true),
-                        new VarcharColumnDef("node_type", 1024, true),
-                        new VarcharColumnDef("node_id", 1024, true),
-                        new VarcharColumnDef("transition_id", 1024, true),
-                        new TimestampColumnDef("start_date", true),
-                        new TimestampColumnDef("end_date", true),
-                        new BooleanColumnDef("reactivate_parent", true),
-                        new TimestampColumnDef("error_date", true),
-                        new VarcharColumnDef("error_message", 1024, true),
-                        new VarcharColumnDef("message_selector", 1024, true),
-                        new BigintColumnDef("parent_id", true),
-                        new BigintColumnDef("process_id", true)
-                )),
-                getDDLCreateTable("archived_variable", ImmutableList.of(
-                        new CharColumnDef("discriminator", 1, false),
-                        new BigintColumnDef("id", false).setPrimaryKey(),
-                        new VarcharColumnDef("stringvalue", 1024, true),
-                        new TimestampColumnDef("create_date", false),
-                        new CharColumnDef("converter", 1, true),
-                        new BigintColumnDef("version", true),
-                        new VarcharColumnDef("name", 1024, true),
-                        new BlobColumnDef("bytes", true),
-                        new BigintColumnDef("longvalue", true),
-                        new DoubleColumnDef("doublevalue", true),
-                        new TimestampColumnDef("datevalue", true),
-                        new BigintColumnDef("process_id", false)
-                )),
                 getDDLCreateTable("batch_presentation", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
                         new VarcharColumnDef("category", 1024, false),
                         new BlobColumnDef("fields", true),
                         new IntColumnDef("range_size", true),
                         new TimestampColumnDef("create_date", false),
-                        new BigintColumnDef("version", true),
                         new BooleanColumnDef("shared", false),
+                        new BigintColumnDef("version", true),
                         new BooleanColumnDef("is_active", true),
                         new VarcharColumnDef("name", 1024, false),
                         new VarcharColumnDef("class_type", 1024, true),
@@ -109,30 +73,30 @@ public class DbPatch0 extends DbPatch {
                         new BigintColumnDef("id", false).setPrimaryKey(),
                         new BooleanColumnDef("is_transactional", true),
                         new VarcharColumnDef("password", 1024, true),
+                        new TimestampColumnDef("create_date", false),
                         new BooleanColumnDef("is_sequential", true),
                         new BigintColumnDef("transactional_timeout", true),
                         new TimestampColumnDef("bound_due_date", true),
                         new BigintColumnDef("bound_process_id", true),
                         new VarcharColumnDef("bound_subprocess_id", 255, true),
                         new VarcharColumnDef("username", 1024, true),
-                        new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", true),
                         new BigintColumnDef("bot_station_id", false)
                 )),
                 getDDLCreateTable("bot_station", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
+                        new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", true),
-                        new VarcharColumnDef("name", 1024, false),
                         new VarcharColumnDef("address", 1024, true),
-                        new TimestampColumnDef("create_date", false)
+                        new VarcharColumnDef("name", 1024, false)
                 )),
                 getDDLCreateTable("bot_task", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
+                        new TimestampColumnDef("create_date", false),
                         new BlobColumnDef("embedded_file", true),
                         new VarcharColumnDef("embedded_file_name", 1024, true),
                         new BooleanColumnDef("is_sequential", true),
                         new VarcharColumnDef("task_handler", 1024, true),
-                        new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", true),
                         new BlobColumnDef("configuration", true),
                         new VarcharColumnDef("name", 1024, true),
@@ -141,93 +105,86 @@ public class DbPatch0 extends DbPatch {
                 getDDLCreateTable("bpm_agglog_assignments", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false).setPrimaryKey(),
-                        new TimestampColumnDef("assignment_date", false),
                         new VarcharColumnDef("new_executor_name", 1024, true),
                         new VarcharColumnDef("old_executor_name", 1024, true),
+                        new TimestampColumnDef("assignment_date", false),
                         new BigintColumnDef("assignment_object_id", true),
                         new IntColumnDef("idx", true)
                 )),
                 getDDLCreateTable("bpm_agglog_process", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
-                        new VarcharColumnDef("cancel_actor_name", 1024, true),
                         new BigintColumnDef("process_id", false),
                         new BigintColumnDef("parent_process_id", true),
-                        new VarcharColumnDef("start_actor_name", 1024, true),
-                        new TimestampColumnDef("end_date", true),
+                        new VarcharColumnDef("cancel_actor_name", 1024, true),
                         new IntColumnDef("end_reason", false),
-                        new TimestampColumnDef("create_date", false)
+                        new VarcharColumnDef("start_actor_name", 1024, true),
+                        new TimestampColumnDef("create_date", false),
+                        new TimestampColumnDef("end_date", true)
                 )),
                 getDDLCreateTable("bpm_agglog_tasks", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
-                        new VarcharColumnDef("task_name", 1024, false),
-                        new BigintColumnDef("task_id", false),
-                        new BigintColumnDef("token_id", false),
-                        new VarcharColumnDef("swimlane_name", 1024, true),
-                        new TimestampColumnDef("deadline_date", true),
-                        new TimestampColumnDef("end_date", true),
                         new VarcharColumnDef("initial_actor_name", 1024, true),
                         new VarcharColumnDef("complete_actor_name", 1024, true),
                         new IntColumnDef("end_reason", false),
+                        new VarcharColumnDef("swimlane_name", 1024, true),
+                        new BigintColumnDef("token_id", false),
+                        new VarcharColumnDef("task_name", 1024, false),
+                        new BigintColumnDef("task_id", false),
+                        new TimestampColumnDef("create_date", false),
+                        new TimestampColumnDef("end_date", true),
+                        new TimestampColumnDef("deadline_date", true),
                         new VarcharColumnDef("node_id", 1024, false),
                         new IntColumnDef("task_index", true),
-                        new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("process_id", false)
                 )),
                 getDDLCreateTable("bpm_job", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false).setPrimaryKey(),
                         new TimestampColumnDef("due_date", true),
-                        new VarcharColumnDef("due_date_expression", 255, true),
                         new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("due_date_expression", 255, true),
                         new BigintColumnDef("version", true),
                         new VarcharColumnDef("name", 1024, true),
                         new VarcharColumnDef("repeat_duration", 1024, true),
                         new VarcharColumnDef("transition_name", 1024, true),
-                        new BigintColumnDef("process_id", false),
-                        new BigintColumnDef("token_id", true)
+                        new BigintColumnDef("token_id", true),
+                        new BigintColumnDef("process_id", false)
                 )),
                 getDDLCreateTable("bpm_log", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false).setPrimaryKey(),
                         new VarcharColumnDef("severity", 1024, false),
                         new BigintColumnDef("token_id", true),
-                        new VarcharColumnDef("node_id", 1024, true),
                         new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("node_id", 1024, true),
+                        new BigintColumnDef("process_id", false),
                         new BlobColumnDef("bytes", true),
-                        new VarcharColumnDef("content", 4000, true),
-                        new BigintColumnDef("process_id", false)
+                        new VarcharColumnDef("content", 4000, true)
                 )),
                 getDDLCreateTable("bpm_process", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
-                        new BigintColumnDef("parent_id", true),
-                        new BigintColumnDef("version", true),
-                        new VarcharColumnDef("tree_path", 1024, true),
-                        new TimestampColumnDef("start_date", true),
-                        new TimestampColumnDef("end_date", true),
                         new VarcharColumnDef("execution_status", 255, false),
-                        new BigintColumnDef("definition_version_id", false),
+                        new BigintColumnDef("parent_id", true),
+                        new TimestampColumnDef("end_date", true),
+                        new TimestampColumnDef("start_date", true),
+                        new VarcharColumnDef("tree_path", 1024, true),
+                        new BigintColumnDef("version", true),
+                        new BigintColumnDef("definition_id", false),
                         new BigintColumnDef("root_token_id", false)
                 )),
                 getDDLCreateTable("bpm_process_definition", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
-                        new IntColumnDef("seconds_before_archiving", true),
-                        new VarcharColumnDef("category", 1024, false),
-                        new VarcharColumnDef("description", 1024, true),
-                        new VarcharColumnDef("name", 1024, false),
-                        new VarcharColumnDef("language", 4, false),
-                        new BigintColumnDef("latest_version_id", true)
-                )),
-                getDDLCreateTable("bpm_process_definition_ver", ImmutableList.of(
-                        new BigintColumnDef("id", false).setPrimaryKey(),
-                        new BigintColumnDef("subversion", false),
                         new TimestampColumnDef("subprocess_binding_date", true),
                         new TimestampColumnDef("update_date", true),
+                        new VarcharColumnDef("category", 1024, false),
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", false),
+                        new VarcharColumnDef("description", 1024, true),
+                        new VarcharColumnDef("name", 1024, false),
+                        new VarcharColumnDef("language", 1024, false),
                         new BlobColumnDef("bytes", true),
-                        new BigintColumnDef("create_user_id", true),
                         new BigintColumnDef("update_user_id", true),
-                        new BigintColumnDef("definition_id", false)
+                        new BigintColumnDef("create_user_id", true)
                 )),
                 getDDLCreateTable("bpm_setting", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
@@ -237,36 +194,35 @@ public class DbPatch0 extends DbPatch {
                 )),
                 getDDLCreateTable("bpm_subprocess", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
+                        new TimestampColumnDef("create_date", false),
                         new VarcharColumnDef("parent_node_id", 1024, true),
                         new IntColumnDef("subprocess_index", true),
-                        new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("parent_token_id", true),
-                        new BigintColumnDef("process_id", false),
                         new BigintColumnDef("parent_process_id", false),
-                        new BigintColumnDef("root_process_id", false)
+                        new BigintColumnDef("process_id", false)
                 )),
                 getDDLCreateTable("bpm_swimlane", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
+                        new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", true),
                         new VarcharColumnDef("name", 1024, true),
-                        new TimestampColumnDef("create_date", false),
-                        new BigintColumnDef("executor_id", true),
-                        new BigintColumnDef("process_id", true)
+                        new BigintColumnDef("process_id", true),
+                        new BigintColumnDef("executor_id", true)
                 )),
                 getDDLCreateTable("bpm_task", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
+                        new TimestampColumnDef("create_date", false),
                         new TimestampColumnDef("deadline_date", true),
                         new TimestampColumnDef("assign_date", true),
-                        new VarcharColumnDef("deadline_date_expression", 255, true),
                         new VarcharColumnDef("node_id", 1024, true),
-                        new TimestampColumnDef("create_date", false),
-                        new BigintColumnDef("version", true),
+                        new VarcharColumnDef("deadline_date_expression", 255, true),
                         new IntColumnDef("task_index", true),
+                        new BigintColumnDef("version", true),
                         new VarcharColumnDef("description", 1024, true),
                         new VarcharColumnDef("name", 1024, true),
                         new BigintColumnDef("process_id", true),
-                        new BigintColumnDef("executor_id", true),
                         new BigintColumnDef("token_id", true),
+                        new BigintColumnDef("executor_id", true),
                         new BigintColumnDef("swimlane_id", true)
                 )),
                 getDDLCreateTable("bpm_task_opened", ImmutableList.of(
@@ -275,47 +231,42 @@ public class DbPatch0 extends DbPatch {
                 )),
                 getDDLCreateTable("bpm_token", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
-                        new BigintColumnDef("version", true),
-                        new VarcharColumnDef("name", 1024, true),
-                        new VarcharColumnDef("node_type", 1024, true),
-                        new VarcharColumnDef("node_id", 1024, true),
-                        new VarcharColumnDef("transition_id", 1024, true),
-                        new TimestampColumnDef("start_date", true),
-                        new TimestampColumnDef("end_date", true),
-                        new BooleanColumnDef("reactivate_parent", true),
-                        new TimestampColumnDef("error_date", true),
                         new VarcharColumnDef("error_message", 1024, true),
+                        new VarcharColumnDef("transition_id", 1024, true),
                         new VarcharColumnDef("execution_status", 255, false),
                         new VarcharColumnDef("message_selector", 1024, true),
+                        new TimestampColumnDef("error_date", true),
+                        new TimestampColumnDef("end_date", true),
+                        new TimestampColumnDef("start_date", true),
+                        new VarcharColumnDef("node_id", 1024, true),
+                        new BooleanColumnDef("reactivate_parent", true),
+                        new VarcharColumnDef("node_type", 1024, true),
+                        new BigintColumnDef("version", true),
+                        new VarcharColumnDef("name", 1024, true),
                         new BigintColumnDef("process_id", true),
                         new BigintColumnDef("parent_id", true)
                 )),
                 getDDLCreateTable("bpm_variable", ImmutableList.of(
                         new CharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false).setPrimaryKey(),
-                        new VarcharColumnDef("stringvalue", 1024, true),
                         new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("stringvalue", 1024, true),
                         new CharColumnDef("converter", 1, true),
                         new BigintColumnDef("version", true),
                         new VarcharColumnDef("name", 1024, true),
                         new TimestampColumnDef("datevalue", true),
-                        new BigintColumnDef("longvalue", true),
                         new BlobColumnDef("bytes", true),
+                        new BigintColumnDef("longvalue", true),
                         new DoubleColumnDef("doublevalue", true),
                         new BigintColumnDef("process_id", false)
-                )),
-                getDDLCreateTable("db_migration", ImmutableList.of(
-                        new VarcharColumnDef("name", 255, false).setPrimaryKey(),
-                        new TimestampColumnDef("when_started", false),
-                        new TimestampColumnDef("when_finished", true)
                 )),
                 getDDLCreateTable("executor", ImmutableList.of(
                         new VarcharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false).setPrimaryKey(),
                         new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("full_name", 1024, true),
                         new BigintColumnDef("version", true),
                         new VarcharColumnDef("description", 1024, true),
-                        new VarcharColumnDef("full_name", 1024, true),
                         new VarcharColumnDef("name", 1024, false),
                         new VarcharColumnDef("e_mail", 255, true),
                         new BigintColumnDef("process_id", true),
@@ -344,9 +295,9 @@ public class DbPatch0 extends DbPatch {
                 getDDLCreateTable("executor_relation_pair", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
                         new TimestampColumnDef("create_date", false),
+                        new BigintColumnDef("executor_to", false),
                         new BigintColumnDef("executor_from", false),
-                        new BigintColumnDef("relation_id", false),
-                        new BigintColumnDef("executor_to", false)
+                        new BigintColumnDef("relation_id", false)
                 )),
                 getDDLCreateTable("localization", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
@@ -356,8 +307,8 @@ public class DbPatch0 extends DbPatch {
                 )),
                 getDDLCreateTable("permission_mapping", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
-                        new VarcharColumnDef("object_type", 255, false),
                         new BigintColumnDef("object_id", false),
+                        new VarcharColumnDef("object_type", 255, false),
                         new VarcharColumnDef("permission", 255, false),
                         new BigintColumnDef("executor_id", false)
                 )),
@@ -392,12 +343,12 @@ public class DbPatch0 extends DbPatch {
                 getDDLCreateTable("substitution", ImmutableList.of(
                         new VarcharColumnDef("discriminator", 1, false),
                         new BigintColumnDef("id", false).setPrimaryKey(),
+                        new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("actor_id", false),
                         new VarcharColumnDef("org_function", 1024, false),
-                        new TimestampColumnDef("create_date", false),
                         new BooleanColumnDef("is_external", false),
-                        new BigintColumnDef("version", true),
                         new IntColumnDef("position_index", false),
+                        new BigintColumnDef("version", true),
                         new BooleanColumnDef("enabled_flag", false),
                         new BigintColumnDef("criteria_id", true)
                 )),
@@ -411,29 +362,18 @@ public class DbPatch0 extends DbPatch {
                 getDDLCreateTable("system_log", ImmutableList.of(
                         new VarcharColumnDef("discriminator", 31, false),
                         new BigintColumnDef("id", false).setPrimaryKey(),
-                        new BigintColumnDef("actor_id", false),
                         new TimestampColumnDef("create_date", false),
-                        new BigintColumnDef("process_id", true),
+                        new BigintColumnDef("actor_id", false),
+                        new BigintColumnDef("process_definition_version", true),
                         new VarcharColumnDef("process_definition_name", 1024, true),
-                        new BigintColumnDef("process_definition_version", true)
+                        new BigintColumnDef("process_id", true)
                 )),
                 getDDLCreateTable("wfe_constants", ImmutableList.of(
                         new BigintColumnDef("id", false).setPrimaryKey(),
                         new VarcharColumnDef("name", 1024, true),
                         new VarcharColumnDef("value", 1024, true)
                 )),
-                getDDLCreateIndex("archived_log", "ix_arch_log_process", "process_id"),
-                getDDLCreateIndex("archived_process", "ix_arch_process_def_ver", "definition_version_id"),
-                getDDLCreateIndex("archived_process", "ix_arch_process_root_token", "root_token_id"),
-                getDDLCreateIndex("archived_subprocess", "ix_arch_subprocess_parent", "parent_process_id"),
-                getDDLCreateIndex("archived_subprocess", "ix_arch_subprocess_process", "process_id"),
-                getDDLCreateIndex("archived_subprocess", "ix_arch_subprocess_root", "root_process_id"),
-                getDDLCreateIndex("archived_swimlane", "ix_arch_swimlane_process", "process_id"),
-                getDDLCreateIndex("archived_token", "ix_arch_message_selector", "message_selector"),
-                getDDLCreateIndex("archived_token", "ix_arch_token_parent", "parent_id"),
-                getDDLCreateIndex("archived_token", "ix_arch_token_process", "process_id"),
-                getDDLCreateIndex("archived_variable", "ix_arch_variable_name", "name"),
-                getDDLCreateIndex("archived_variable", "ix_arch_variable_process", "process_id"),
+
                 getDDLCreateIndex("batch_presentation", "ix_batch_presentation_profile", "profile_id"),
                 getDDLCreateIndex("bot", "ix_bot_station", "bot_station_id"),
                 getDDLCreateIndex("bot_task", "ix_bot_task_bot", "bot_id"),
@@ -447,11 +387,10 @@ public class DbPatch0 extends DbPatch {
                 getDDLCreateIndex("bpm_agglog_tasks", "ix_agglog_tasks_process", "process_id"),
                 getDDLCreateIndex("bpm_job", "ix_job_process", "process_id"),
                 getDDLCreateIndex("bpm_log", "ix_log_process", "process_id"),
-                getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"),
+                getDDLCreateIndex("bpm_process", "ix_process_definition", "definition_id"),
                 getDDLCreateIndex("bpm_process", "ix_process_root_token", "root_token_id"),
                 getDDLCreateIndex("bpm_subprocess", "ix_subprocess_parent_process", "parent_process_id"),
                 getDDLCreateIndex("bpm_subprocess", "ix_subprocess_process", "process_id"),
-                getDDLCreateIndex("bpm_subprocess", "ix_subprocess_root_process", "root_process_id"),
                 getDDLCreateIndex("bpm_swimlane", "ix_swimlane_process", "process_id"),
                 getDDLCreateIndex("bpm_task", "ix_task_executor", "executor_id"),
                 getDDLCreateIndex("bpm_task", "ix_task_process", "process_id"),
@@ -470,7 +409,7 @@ public class DbPatch0 extends DbPatch {
                 getDDLCreateIndex("priveleged_mapping", "ix_privelege_type", "type"),
                 getDDLCreateIndex("substitution", "ix_substitution_actor", "actor_id"),
                 getDDLCreateIndex("substitution", "ix_substitution_criteria", "criteria_id"),
-                getDDLCreateUniqueKey("archived_variable", "archived_variable_process_id_name_key", "process_id", "name"),
+
                 getDDLCreateUniqueKey("bot_station", "bot_station_name_key", "name"),
                 getDDLCreateUniqueKey("bpm_variable", "bpm_variable_process_id_name_key", "process_id", "name"),
                 getDDLCreateUniqueKey("executor", "executor_name_key", "name"),
@@ -482,29 +421,19 @@ public class DbPatch0 extends DbPatch {
                 getDDLCreateUniqueKey("report", "report_name_key", "name"),
                 getDDLCreateUniqueKey("substitution", "substitution_position_index_actor_id_key", "position_index", "actor_id"),
                 getDDLCreateUniqueKey("wfe_constants", "wfe_constants_name_key", "name"),
-                getDDLCreateForeignKey("archived_process", "fk_arch_process_def_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
-                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_parent", "parent_process_id", "archived_process", "id"),
-                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_process", "process_id", "archived_process", "id"),
-                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_root", "root_process_id", "archived_process", "id"),
-                getDDLCreateForeignKey("archived_swimlane", "fk_arch_swimlane_executor", "executor_id", "executor", "id"),
-                getDDLCreateForeignKey("archived_swimlane", "fk_arch_swimlane_process", "process_id", "archived_process", "id"),
-                getDDLCreateForeignKey("archived_token", "fk_arch_token_process", "process_id", "archived_process", "id"),
-                getDDLCreateForeignKey("archived_token", "fkcec15b3c25be6cac", "parent_id", "archived_token", "id"),
-                getDDLCreateForeignKey("archived_variable", "fk_arch_variable_process", "process_id", "archived_process", "id"),
+
                 getDDLCreateForeignKey("batch_presentation", "fk_batch_presentation_profile", "profile_id", "profile", "id"),
                 getDDLCreateForeignKey("bot", "fk_bot_station", "bot_station_id", "bot_station", "id"),
                 getDDLCreateForeignKey("bot_task", "fk_bot_task_bot", "bot_id", "bot", "id"),
                 getDDLCreateForeignKey("bpm_agglog_assignments", "fkbe3af20a436bb212", "assignment_object_id", "bpm_agglog_tasks", "id"),
                 getDDLCreateForeignKey("bpm_job", "fk_job_process", "process_id", "bpm_process", "id"),
                 getDDLCreateForeignKey("bpm_job", "fk_job_token", "token_id", "bpm_token", "id"),
-                getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
+                getDDLCreateForeignKey("bpm_process", "fk_process_definition", "definition_id", "bpm_process_definition", "id"),
                 getDDLCreateForeignKey("bpm_process", "fk_process_root_token", "root_token_id", "bpm_token", "id"),
-                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_definition_create_user", "create_user_id", "executor", "id"),
-                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_definition_update_user", "update_user_id", "executor", "id"),
-                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_version_definition", "definition_id", "bpm_process_definition", "id"),
+                getDDLCreateForeignKey("bpm_process_definition", "fk_definition_create_user", "create_user_id", "executor", "id"),
+                getDDLCreateForeignKey("bpm_process_definition", "fk_definition_update_user", "update_user_id", "executor", "id"),
                 getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_parent_process", "parent_process_id", "bpm_process", "id"),
                 getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_process", "process_id", "bpm_process", "id"),
-                getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_root_process", "root_process_id", "bpm_process", "id"),
                 getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_token", "parent_token_id", "bpm_token", "id"),
                 getDDLCreateForeignKey("bpm_swimlane", "fk_swimlane_executor", "executor_id", "executor", "id"),
                 getDDLCreateForeignKey("bpm_swimlane", "fk_swimlane_process", "process_id", "bpm_process", "id"),
@@ -532,56 +461,8 @@ public class DbPatch0 extends DbPatch {
 
     @Override
     public void executeDML(Connection conn) throws Exception {
-        try (PreparedStatement stmt = conn.prepareStatement("insert into db_migration(name, when_started_when_finished) values(?, ?, ?)")) {
-            insertMigration(stmt, "AddAggregatedTaskIndexPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddAssignDateColumnPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddBatchPresentationIsSharedPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddColumnForEmbeddedBotTaskFileName", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddColumnsToSubstituteEscalatedTasksPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddCreateDateColumns", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddDeploymentAuditPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddDueDateExpressionToJobAndTask", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddEmbeddedFileForBotTask", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddHierarchyProcess", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddMultiTaskIndexToTaskPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddNodeIdToProcessLogPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddParentProcessIdPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddProcessAndTokenExecutionStatusPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddSequentialFlagToBot", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddSettingsTable", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddSubprocessBindingDatePatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddSubProcessIndexColumn", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddSubprocessRootIdColumn", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddTitleAndDepartmentColumnsToActorPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddTokenErrorDataPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddTokenMessageSelectorPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddTransactionalBotSupport", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "AddVariableUniqueKeyPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "CreateAdminScriptTables", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "CreateAggregatedLogsTables", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "CreateReportsTables", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "ExpandDescriptionsPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "ExpandVarcharPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "JbpmRefactoringPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "NodeTypeChangePatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "PerformancePatch401", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "PermissionMappingPatch403", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "RefactorPermissionsStep1", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "RefactorPermissionsStep3", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "RenameProcessesBatchPresentationCategories", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "SplitProcessDefinitionVersion", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "SupportProcessArchiving", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "TaskCreateLogSeverityChangedPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "TaskEndDateRemovalPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "TaskOpenedByExecutorsPatch", 1537198105884L, 1537198105884L);
-            insertMigration(stmt, "TransitionLogPatch", 1537198105884L, 1537198105884L);
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("insert into wfe_constants (id, name, value) values (1, 'ru.runa.database_version', 59)");
         }
-    }
-
-    private void insertMigration(PreparedStatement stmt, String name, long whenStarted, Long whenFinished) throws Exception {
-        stmt.setString(1, name);
-        stmt.setTimestamp(2, new Timestamp(whenStarted));
-        stmt.setTimestamp(3, whenFinished == null ? null : new Timestamp(whenFinished));
-        stmt.executeUpdate();
     }
 }

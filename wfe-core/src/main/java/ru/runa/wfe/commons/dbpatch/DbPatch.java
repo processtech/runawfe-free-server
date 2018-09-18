@@ -76,10 +76,23 @@ public abstract class DbPatch {
     }
 
     protected final String getDDLCreateSequence(String sequenceName) {
-        if (dbType == DbType.ORACLE || dbType == DbType.POSTGRESQL) {
-            return "CREATE SEQUENCE " + sequenceName;
+        switch (dbType) {
+            case ORACLE:
+            case POSTGRESQL:
+                return "create sequence " + sequenceName;
+            default:
+                return null;
         }
-        return null;
+    }
+
+    protected final String getDDLCreateSequence(String sequenceName, long nextValue) {
+        switch (dbType) {
+            case ORACLE:
+            case POSTGRESQL:
+                return "create sequence " + sequenceName + " start with " + nextValue;
+            default:
+                return null;
+        }
     }
 
     protected final String getDDLDropSequence(String sequenceName) {
@@ -103,6 +116,13 @@ public abstract class DbPatch {
         }
     }
 
+    /**
+     * @deprecated Don't pass "unique" parameter, create named unique constraint instead.
+     *
+     * @see #getDDLCreateTable(String, List)
+     * @see #getDDLCreateUniqueKey(String, String, String...)
+     */
+    @Deprecated
     protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions, String unique) {
         val query = new StringBuilder("CREATE TABLE " + tableName + " (");
         for (ColumnDef columnDef : columnDefinitions) {
@@ -149,7 +169,7 @@ public abstract class DbPatch {
 
 
     protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions) {
-        return getDDLCreateTable(tableName, columnDefinitions, "");
+        return getDDLCreateTable(tableName, columnDefinitions, null);
     }
 
 
@@ -322,7 +342,7 @@ public abstract class DbPatch {
         private String defaultValue;
 
         /**
-         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, make this constructor protected.
+         * @deprecated Use shortcut subclasses (BigintColumnDef, etc.); create missing subclasses. Finally, make this constructor protected.
          */
         @Deprecated
         public ColumnDef(String name, int sqlType, boolean allowNulls) {
@@ -402,7 +422,7 @@ public abstract class DbPatch {
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class BooleanColumnDef extends ColumnDef {
         public BooleanColumnDef(String name, boolean allowNulls) {
-            super(name, dialect.getTypeName(Types.BOOLEAN), allowNulls);
+            super(name, dialect.getTypeName(Types.BIT), allowNulls);
         }
         public BooleanColumnDef(String name) {
             this(name, true);

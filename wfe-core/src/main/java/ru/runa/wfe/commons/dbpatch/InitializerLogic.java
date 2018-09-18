@@ -22,12 +22,11 @@ import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DatabaseProperties;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
@@ -171,43 +170,39 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
-            Integer databaseVersion = dbTransactionalInitializer.getDatabaseVersion();
-            if (databaseVersion != null) {
-                dbMigrationManager.runAll(dbPatches);
-            } else {
-                log.info("initializing database");
-                SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
-                schemaExport.execute(true, true, false, true);
-                dbTransactionalInitializer.initialize(dbPatches.size());
+            val mmContext = dbMigrationManager.checkDbInitialized();
+            if (!mmContext.isDbInitialized()) {
+                dbMigrationManager.runDbPatch0();
+                dbTransactionalInitializer.insertInitialData();
             }
+            val appliedMigrations = dbMigrationManager.runAll(mmContext, dbPatches);
             dbTransactionalInitializer.initPermissions();
-            if (databaseVersion != null) {
-                postProcessPatches(databaseVersion);
-            }
+            postProcessPatches(appliedMigrations);
             dbTransactionalInitializer.initLocalizations();
             if (DatabaseProperties.isDynamicSettingsEnabled()) {
                 PropertyResources.setDatabaseAvailable(true);
             }
-            log.info("initialization completed");
+            log.info("Initialization completed.");
         } catch (Exception e) {
             Throwables.propagate(e);
         }
     }
 
-    private void postProcessPatches(Integer databaseVersion) {
-        while (databaseVersion < dbPatches.size()) {
-            DbPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
-            databaseVersion++;
-            if (patch instanceof DbPatchPostProcessor) {
-                log.info("Post-processing patch " + patch + " (" + databaseVersion + ")");
+    private void postProcessPatches(List<DbPatch> appliedMigrations) {
+        int done = 0;
+        long whenStarted = System.currentTimeMillis();
+        for (val m : appliedMigrations) {
+            if (m instanceof DbPatchPostProcessor) {
+                log.info("Post-processing migration " + m + "...");
                 try {
-                    dbTransactionalInitializer.postExecute((DbPatchPostProcessor) patch);
-                    log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is post-processed successfully.");
-                } catch (Throwable th) {
-                    log.error("Can't post-process patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);
+                    dbTransactionalInitializer.postExecute((DbPatchPostProcessor) m);
+                    done++;
+                } catch (Throwable e) {
+                    log.error("Post-processing migration " + m.getClass().getName() + " failed", e);
                     break;
                 }
             }
         }
+        log.info("Post-processed " + done + " migration(s) in " + ((System.currentTimeMillis() - whenStarted) / 1000) + " second(s).");
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.dao.ConstantDao;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.logic.LocalizationParser;
@@ -27,8 +26,6 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 @CommonsLog
 public class DbTransactionalInitializer {
     @Autowired
-    private ConstantDao constantDao;
-    @Autowired
     private ExecutorDao executorDao;
     @Autowired
     private PermissionDao permissionDao;
@@ -42,7 +39,7 @@ public class DbTransactionalInitializer {
     /**
      * Inserts initial data into empty database.
      */
-    public void initialize(int version) {
+    public void insertInitialData() {
         try {
             // Create privileged Executors.
             String administratorName = SystemProperties.getAdministratorName();
@@ -58,19 +55,13 @@ public class DbTransactionalInitializer {
             for (SecuredObjectType t : SecuredObjectType.values()) {
                 permissionDao.addType(t, adminWithGroupExecutors);
             }
-
-            constantDao.setDatabaseVersion(version);
         } catch (Throwable e) {
             log.error("unable to insert initial data", e);
         }
     }
 
-    public Integer getDatabaseVersion() throws Exception {
-        return constantDao.getDatabaseVersion();
-    }
-
     public void initPermissions() {
-        permissionDao.init();
+        permissionDao.preloadPrivilegedMapping();
     }
 
     public void initLocalizations() {

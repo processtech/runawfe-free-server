@@ -2,6 +2,7 @@ package ru.runa.wfe.codegen;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Objects;
 import lombok.val;
 import lombok.var;
 import ru.runa.wfe.codegen.DbStructureAnalyzer.Structure;
@@ -15,26 +16,51 @@ class DbPatch0Generator {
                 "//\n" +
                 "package ru.runa.wfe.commons.dbpatch;\n" +
                 "\n" +
-                "import com.google.common.collect.ImmutableList;\n" +
-                "import java.sql.Connection;\n");
+                "import com.google.common.collect.ImmutableList;\n");
+        if (!st.migrations.isEmpty() || st.version != null) {
+            w.write("import java.sql.Connection;\n");
+        }
         if (!st.migrations.isEmpty()) {
             w.write("import java.sql.PreparedStatement;\n");
         }
-        w.write("import java.sql.Timestamp;\n" +
-                "import java.util.List;\n" +
+        if (st.version != null) {
+            w.write("import java.sql.Statement;\n");
+        }
+        if (!st.migrations.isEmpty()) {
+            w.write("import java.sql.Timestamp;\n");
+        }
+        w.write("import java.util.List;\n" +
                 "\n" +
                 "public class DbPatch0 extends DbPatch {\n" +
                 "\n" +
                 "    @Override\n" +
+                "    @SuppressWarnings(\"ConstantConditions\")\n" +
                 "    protected List<String> getDDLQueriesBefore() {\n" +
                 "        return ImmutableList.of(");
+
+
+        var firstSequence = true;
+        for (val s : st.sequenceNames) {
+            if (firstSequence) {
+                firstSequence = false;
+                w.write("\n");
+            } else {
+                w.write(",\n");
+            }
+            w.write("                getDDLCreateSequence(\"" + s + "\"");
+            if (Objects.equals(s, "seq_wfe_constants") && st.version != null) {
+                // We're going to insert version below with ID = 1, so start sequence with 2 instead of 1.
+                w.write(", 2");
+            }
+            w.write(")");
+        }
 
 
         var firstTable = true;
         for (val t : st.tables) {
             if (firstTable) {
                 firstTable = false;
-                w.write("\n");
+                w.write(st.sequenceNames.isEmpty() ? "\n" : ",\n\n");
             } else {
                 w.write(",\n");
             }
@@ -89,9 +115,15 @@ class DbPatch0Generator {
 
 
         // Creating indexes before UK and FK, to avoid automatic index creation by SQL server.
+        var firstIndex = true;
         for (val i : st.indexes) {
-            w.write(",\n" +
-                    "                getDDLCreateIndex(\"" + i.table.name + "\", \"" + i.name + "\"");
+            if (firstIndex) {
+                firstIndex = false;
+                w.write(",\n\n");
+            } else {
+                w.write(",\n");
+            }
+            w.write("                getDDLCreateIndex(\"" + i.table.name + "\", \"" + i.name + "\"");
             for (val c : i.columns) {
                 w.write(", \"" + c.name + "\"");
             }
@@ -99,9 +131,15 @@ class DbPatch0Generator {
         }
 
 
+        var firstUk = true;
         for (val uk : st.uniqueKeys) {
-            w.write(",\n" +
-                    "                getDDLCreateUniqueKey(\"" + uk.table.name + "\", \"" + uk.constraintName + "\"");
+            if (firstUk) {
+                firstUk = false;
+                w.write(",\n\n");
+            } else {
+                w.write(",\n");
+            }
+            w.write("                getDDLCreateUniqueKey(\"" + uk.table.name + "\", \"" + uk.constraintName + "\"");
             for (val c : uk.columns) {
                 w.write(", \"" + c.name + "\"");
             }
@@ -109,34 +147,51 @@ class DbPatch0Generator {
         }
 
 
+        var firstFk = true;
         for (val fk : st.foreignKeys) {
-            w.write(",\n" +
-                    "                getDDLCreateForeignKey(\"" + fk.table.name + "\", \"" + fk.constraintName + "\", \"" + fk.column.name +
+            if (firstFk) {
+                firstFk = false;
+                w.write(",\n\n");
+            } else {
+                w.write(",\n");
+            }
+            w.write("                getDDLCreateForeignKey(\"" + fk.table.name + "\", \"" + fk.constraintName + "\", \"" + fk.column.name +
                     "\", \"" + fk.refTable.name + "\", \"" + fk.refColumn.name + "\")");
         }
 
 
         w.write("\n        );\n" +
                 "    }\n");
-        if (!st.migrations.isEmpty()) {
+
+
+        if (!st.migrations.isEmpty() || st.version != null) {
             w.write("\n" +
                     "    @Override\n" +
-                    "    public void executeDML(Connection conn) throws Exception {\n" +
-                    "        try (PreparedStatement stmt = conn.prepareStatement(\"insert into db_migration(name, when_started_when_finished) values(?, ?, ?)\")) {\n");
-            for (val m : st.migrations) {
-                // TODO I wonder if timezone will interfere so each run we'll get more and more shifted time.
-                w.write("            insertMigration(stmt, \"" + m.name + "\", " + m.whenStarted.getTime() + "L, " +
-                        (m.whenFinished == null ? "null" : m.whenFinished.getTime() + "L") + ");\n");
+                    "    public void executeDML(Connection conn) throws Exception {\n");
+            if (!st.migrations.isEmpty()) {
+                w.write("        try (PreparedStatement stmt = conn.prepareStatement(\"insert into db_migration(name, when_started_when_finished) values(?, ?, ?)\")) {\n");
+                for (val m : st.migrations) {
+                    // TODO I wonder if timezone will interfere so each run we'll get more and more shifted time.
+                    w.write("            insertMigration(stmt, \"" + m.name + "\", " + m.whenStarted.getTime() + "L, " +
+                            (m.whenFinished == null ? "null" : m.whenFinished.getTime() + "L") + ");\n");
+                }
+                w.write("        }\n");
             }
-            w.write("        }\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    private void insertMigration(PreparedStatement stmt, String name, long whenStarted, Long whenFinished) throws Exception {\n" +
-                    "        stmt.setString(1, name);\n" +
-                    "        stmt.setTimestamp(2, new Timestamp(whenStarted));\n" +
-                    "        stmt.setTimestamp(3, whenFinished == null ? null : new Timestamp(whenFinished));\n" +
-                    "        stmt.executeUpdate();\n" +
-                    "    }\n");
+            if (st.version != null) {
+                w.write("        try (Statement stmt = conn.createStatement()) {\n" +
+                        "            stmt.executeUpdate(\"insert into wfe_constants (id, name, value) values (1, 'ru.runa.database_version', " + st.version + ")\");\n" +
+                        "        }\n");
+            }
+            w.write("    }\n");
+            if (!st.migrations.isEmpty()) {
+                w.write("\n" +
+                        "    private void insertMigration(PreparedStatement stmt, String name, long whenStarted, Long whenFinished) throws Exception {\n" +
+                        "        stmt.setString(1, name);\n" +
+                        "        stmt.setTimestamp(2, new Timestamp(whenStarted));\n" +
+                        "        stmt.setTimestamp(3, whenFinished == null ? null : new Timestamp(whenFinished));\n" +
+                        "        stmt.executeUpdate();\n" +
+                        "    }\n");
+            }
         }
         w.write("}\n");
         w.close();

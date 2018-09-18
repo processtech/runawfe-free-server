@@ -17,12 +17,8 @@
  */
 package ru.runa.wfe.commons.dao;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import lombok.val;
-import org.hibernate.SQLQuery;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.TypeConversionUtil;
 
 /**
  * DAO for database initialization and variables managing. Creates appropriate
@@ -30,30 +26,9 @@ import ru.runa.wfe.commons.TypeConversionUtil;
  */
 @Component
 public class ConstantDao extends GenericDao<Constant> {
-    private static final String DATABASE_VERSION_VARIABLE_NAME = "ru.runa.database_version";
 
     public ConstantDao() {
         super(Constant.class);
-    }
-
-    public Integer getDatabaseVersion() throws Exception {
-        // we won't handle connection error
-        org.hibernate.classic.Session session = sessionFactory.getCurrentSession();
-        Connection connection = session.connection();
-        DatabaseMetaData metaData = connection.getMetaData();
-        log.info("Running with " + metaData.getDatabaseProductName() + " " + metaData.getDatabaseProductVersion());
-        try {
-            SQLQuery query = session.createSQLQuery("SELECT VALUE FROM WFE_CONSTANTS WHERE NAME=:name");
-            query.setString("name", DATABASE_VERSION_VARIABLE_NAME);
-            return TypeConversionUtil.convertTo(Integer.class, query.uniqueResult());
-        } catch (Exception e) {
-            log.warn("Unable to get database version", e);
-            return null;
-        }
-    }
-
-    public void setDatabaseVersion(int version) {
-        setValue(DATABASE_VERSION_VARIABLE_NAME, String.valueOf(version));
     }
 
     public Constant get(String name) {

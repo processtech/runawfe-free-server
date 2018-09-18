@@ -24,6 +24,9 @@ public class Main {
         }
 
         DbStructureAnalyzer.Structure st = DbStructureAnalyzer.analyze(jdbcUrl);
+        if (st.tables.isEmpty()) {
+            throw new Exception("Database is empty.");
+        }
 
         DbPatch0Generator.generate(st, patch0File);
 

@@ -87,7 +87,7 @@ public class PermissionDao extends CommonDao {
     /**
      * Called once after patches are successfully applied.
      */
-    public void init() {
+    public void preloadPrivilegedMapping() {
         val pm = QPrivelegedMapping.privelegedMapping;
         CloseableIterator<PrivelegedMapping> i = queryFactory.selectFrom(pm).iterate();
         while (i.hasNext()) {
