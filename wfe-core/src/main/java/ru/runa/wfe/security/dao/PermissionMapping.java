@@ -30,13 +30,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
@@ -44,13 +41,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 
 @Entity
-@Table(
-        name = "PERMISSION_MAPPING",
-        uniqueConstraints = @UniqueConstraint(name = "UQ_MAPPINGS", columnNames = { "OBJECT_ID", "OBJECT_TYPE", "PERMISSION", "EXECUTOR_ID" })
-)
-@org.hibernate.annotations.Table(appliesTo = "PERMISSION_MAPPING", indexes = {
-        @Index(name = "IX_PERMISSION_MAPPING_DATA", columnNames = { "EXECUTOR_ID", "OBJECT_TYPE", "PERMISSION", "OBJECT_ID" })
-})
+@Table(name = "PERMISSION_MAPPING")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
@@ -64,7 +55,6 @@ public class PermissionMapping {
 
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "EXECUTOR_ID", nullable = false)
-    @ForeignKey(name = "FK_PERMISSION_EXECUTOR")
     private Executor executor;
 
     @Column(name = "OBJECT_TYPE", nullable = false)

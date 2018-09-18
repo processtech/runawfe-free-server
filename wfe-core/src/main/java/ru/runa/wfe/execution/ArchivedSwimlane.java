@@ -7,8 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.user.Executor;
 
 @Entity
@@ -22,15 +20,12 @@ public class ArchivedSwimlane extends Swimlane<ArchivedProcess> {
 
     @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID")
-    @ForeignKey(name = "FK_ARCH_SWIMLANE_PROCESS")
-    @Index(name = "IX_ARCH_SWIMLANE_PROCESS")
     @SuppressWarnings("unused")
     private ArchivedProcess process;
 
     @SuppressWarnings("unused")
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "EXECUTOR_ID")
-    @ForeignKey(name = "FK_ARCH_SWIMLANE_EXECUTOR")
     private Executor executor;
 
     @Override

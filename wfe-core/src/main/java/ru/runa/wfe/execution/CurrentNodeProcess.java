@@ -14,8 +14,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.lang.Node;
 
 @Entity
@@ -31,25 +29,18 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
 
     @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_PARENT_PROCESS")
-    @Index(name = "IX_SUBPROCESS_PARENT_PROCESS")
     private CurrentProcess process;
 
     @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_PROCESS")
-    @Index(name = "IX_SUBPROCESS_PROCESS")
     private CurrentProcess subProcess;
 
     @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "ROOT_PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_ROOT_PROCESS")
-    @Index(name = "IX_SUBPROCESS_ROOT_PROCESS")
     private CurrentProcess rootProcess;
 
     @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_TOKEN_ID")
-    @ForeignKey(name = "FK_SUBPROCESS_TOKEN")
     private CurrentToken parentToken;
 
     protected CurrentNodeProcess() {

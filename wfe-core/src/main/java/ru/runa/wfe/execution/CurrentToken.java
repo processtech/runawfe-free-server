@@ -48,8 +48,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
@@ -72,14 +70,10 @@ public class CurrentToken extends Token implements Serializable {
 
     @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID")
-    @ForeignKey(name = "FK_TOKEN_PROCESS")
-    @Index(name = "IX_TOKEN_PROCESS")
     private CurrentProcess process;
 
     @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
-    @ForeignKey(name = "FK_TOKEN_PARENT")
-    @Index(name = "IX_TOKEN_PARENT")
     private CurrentToken parent;
 
     @OneToMany(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
@@ -92,7 +86,6 @@ public class CurrentToken extends Token implements Serializable {
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     @Column(name = "MESSAGE_SELECTOR", length = 1024)
-    @Index(name = "IX_MESSAGE_SELECTOR")
     private String messageSelector;
 
     public CurrentToken() {

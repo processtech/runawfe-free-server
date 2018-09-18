@@ -27,11 +27,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
@@ -69,7 +66,6 @@ public class PrivelegedMapping {
 
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "EXECUTOR_ID", nullable = false)
-    @ForeignKey(name = "FK_PM_EXECUTOR")
     public Executor getExecutor() {
         return executor;
     }
@@ -79,7 +75,6 @@ public class PrivelegedMapping {
     }
 
     @Column(name = "TYPE", nullable = false, length = 1024)
-    @Index(name = "IX_PRIVELEGE_TYPE")
     @Type(type = "ru.runa.wfe.commons.hibernate.SecuredObjectTypeType")
     public SecuredObjectType getType() {
         return type;

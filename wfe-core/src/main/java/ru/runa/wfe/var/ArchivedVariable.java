@@ -15,8 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.CurrentVariableLog;
 import ru.runa.wfe.execution.ArchivedProcess;
 
@@ -76,7 +74,6 @@ public abstract class ArchivedVariable<V> extends Variable<ArchivedProcess, V> {
      */
     @Override
     @Column(name = "NAME", length = 1024)
-    @Index(name = "IX_ARCH_VARIABLE_NAME")
     public String getName() {
         return name;
     }
@@ -91,8 +88,6 @@ public abstract class ArchivedVariable<V> extends Variable<ArchivedProcess, V> {
     @Override
     @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_ARCH_VARIABLE_PROCESS")
-    @Index(name = "IX_ARCH_VARIABLE_PROCESS")
     public ArchivedProcess getProcess() {
         return process;
     }

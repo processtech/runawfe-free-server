@@ -17,9 +17,9 @@
  */
 package ru.runa.wfe.bot;
 
+import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -32,13 +32,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
-import com.google.common.base.Objects;
 
 @Entity
 @Table(name = "BOT_TASK")
@@ -94,8 +89,6 @@ public class BotTask implements Serializable {
 
     @ManyToOne(targetEntity = Bot.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "BOT_ID", nullable = false, updatable = true, insertable = true)
-    @ForeignKey(name = "FK_BOT_TASK_BOT")
-    @Index(name = "IX_BOT_TASK_BOT")
     public Bot getBot() {
         return bot;
     }

@@ -23,8 +23,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.Index;
-import org.hibernate.annotations.IndexColumn;
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
@@ -199,7 +197,6 @@ public class TaskAggregatedLog {
     }
 
     @Column(name = "PROCESS_ID", nullable = false)
-    @Index(name = "IX_AGGLOG_TASKS_PROCESS")
     public Long getProcessId() {
         return processId;
     }
@@ -227,7 +224,6 @@ public class TaskAggregatedLog {
     }
 
     @Column(name = "CREATE_DATE", nullable = false)
-    @Index(name = "IX_AGGLOG_TASKS_CREATE_DATE")
     public Date getCreateDate() {
         return createDate;
     }
@@ -246,7 +242,6 @@ public class TaskAggregatedLog {
     }
 
     @Column(name = "END_DATE")
-    @Index(name = "IX_AGGLOG_TASKS_END_DATE")
     public Date getEndDate() {
         return endDate;
     }
@@ -311,7 +306,6 @@ public class TaskAggregatedLog {
 
     @OneToMany(targetEntity = TaskAssignmentHistory.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "ASSIGNMENT_OBJECT_ID", nullable = false)
-    @IndexColumn(name = "IDX")
     @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
     public List<TaskAssignmentHistory> getAssignmentHistory() {
         return assignmentHistory;

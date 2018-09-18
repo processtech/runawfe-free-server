@@ -38,8 +38,6 @@ import javax.persistence.Table;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 
 /**
@@ -60,14 +58,10 @@ public class CurrentProcess extends Process<CurrentToken> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
-    @ForeignKey(name = "FK_PROCESS_DEFINITION_VER")
-    @Index(name = "IX_PROCESS_DEFINITION_VER")
     private ProcessDefinitionVersion definitionVersion;
 
     @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
     @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
-    @ForeignKey(name = "FK_PROCESS_ROOT_TOKEN")
-    @Index(name = "IX_PROCESS_ROOT_TOKEN")
     private CurrentToken rootToken;
 
     @Column(name = "EXECUTION_STATUS", nullable = false)

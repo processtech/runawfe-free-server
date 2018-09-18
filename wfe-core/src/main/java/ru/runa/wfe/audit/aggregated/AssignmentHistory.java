@@ -1,7 +1,6 @@
 package ru.runa.wfe.audit.aggregated;
 
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -14,10 +13,8 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Index;
 
 /**
  * Stores information about assignment for some object (swimlane, task e.t.c)
@@ -67,7 +64,6 @@ public class AssignmentHistory {
     }
 
     @Column(name = "ASSIGNMENT_DATE", nullable = false)
-    @Index(name = "IX_AGGLOG_ASSIGN_DATE")
     public Date getAssignDate() {
         return assignDate;
     }
@@ -86,7 +82,6 @@ public class AssignmentHistory {
     }
 
     @Column(name = "NEW_EXECUTOR_NAME", length = 1024)
-    @Index(name = "IX_AGGLOG_ASSIGN_EXECUTOR")
     public String getNewExecutorName() {
         return newExecutorName;
     }

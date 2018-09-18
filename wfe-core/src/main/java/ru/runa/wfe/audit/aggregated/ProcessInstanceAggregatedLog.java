@@ -15,12 +15,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessStartLog;
-import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 
 /**
  * Log information about process instance.
@@ -99,7 +98,6 @@ public class ProcessInstanceAggregatedLog {
     }
 
     @Column(name = "PROCESS_ID", nullable = false)
-    @Index(name = "IX_AGGLOG_PROCESS_INSTANCE")
     public long getProcessInstanceId() {
         return processInstanceId;
     }
@@ -136,7 +134,6 @@ public class ProcessInstanceAggregatedLog {
     }
 
     @Column(name = "CREATE_DATE", nullable = false)
-    @Index(name = "IX_AGGLOG_PROCESS_CREATE_DATE")
     public Date getCreateDate() {
         return createDate;
     }
@@ -146,7 +143,6 @@ public class ProcessInstanceAggregatedLog {
     }
 
     @Column(name = "END_DATE")
-    @Index(name = "IX_AGGLOG_PROCESS_END_DATE")
     public Date getEndDate() {
         return endDate;
     }

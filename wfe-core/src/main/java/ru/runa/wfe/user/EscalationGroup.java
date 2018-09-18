@@ -1,20 +1,15 @@
 package ru.runa.wfe.user;
 
+import com.google.common.base.Objects;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-
-import org.hibernate.annotations.ForeignKey;
-
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.task.Task;
-
-import com.google.common.base.Objects;
 
 /**
  * Used for assigning escalated tasks.
@@ -37,7 +32,6 @@ public class EscalationGroup extends TemporaryGroup {
 
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "ESCALATION_EXECUTOR_ID")
-    @ForeignKey(name = "FK_GROUP_ESCALATION_EXECUTOR")
     public Executor getOriginalExecutor() {
         return originalExecutor;
     }

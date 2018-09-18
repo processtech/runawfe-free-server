@@ -11,7 +11,6 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.commons.xml.XmlUtils;
 
 @Entity
@@ -76,7 +75,6 @@ public abstract class ArchivedProcessLog extends BaseProcessLog {
 
     @Override
     @Column(name = "PROCESS_ID", nullable = false)
-    @Index(name = "IX_ARCH_LOG_PROCESS")
     public Long getProcessId() {
         return processId;
     }

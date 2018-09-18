@@ -21,28 +21,24 @@
  */
 package ru.runa.wfe.script;
 
+import com.google.common.base.Objects;
 import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import com.google.common.base.Objects;
 
 /**
  * Admin script.
  */
 @Entity
-@Table(name = "ADMIN_SCRIPT", indexes = { @Index(name = "IX_ADMIN_SCRIPT_NAME", unique = true, columnList = "NAME") })
+@Table(name = "ADMIN_SCRIPT")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class AdminScript implements Serializable {
     private static final long serialVersionUID = 1L;

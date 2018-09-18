@@ -37,8 +37,6 @@ import javax.persistence.Table;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.CurrentSwimlaneAssignLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.extension.Assignable;
@@ -63,13 +61,10 @@ public class CurrentSwimlane extends Swimlane<CurrentProcess> implements Seriali
 
     @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID")
-    @ForeignKey(name = "FK_SWIMLANE_PROCESS")
-    @Index(name = "IX_SWIMLANE_PROCESS")
     private CurrentProcess process;
 
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "EXECUTOR_ID")
-    @ForeignKey(name = "FK_SWIMLANE_EXECUTOR")
     private Executor executor;
 
     public CurrentSwimlane() {

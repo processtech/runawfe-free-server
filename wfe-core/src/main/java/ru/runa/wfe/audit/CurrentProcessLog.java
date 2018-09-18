@@ -41,7 +41,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.xml.XmlUtils;
 
@@ -126,7 +125,6 @@ public abstract class CurrentProcessLog extends BaseProcessLog implements Serial
 
     @Override
     @Column(name = "PROCESS_ID", nullable = false)
-    @Index(name = "IX_LOG_PROCESS")
     public Long getProcessId() {
         return processId;
     }

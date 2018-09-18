@@ -34,8 +34,6 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "BOT")
@@ -110,8 +108,6 @@ public class Bot implements Serializable {
 
     @ManyToOne(targetEntity = BotStation.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "BOT_STATION_ID", nullable = false, updatable = true, insertable = true)
-    @ForeignKey(name = "FK_BOT_STATION")
-    @Index(name = "IX_BOT_STATION")
     public BotStation getBotStation() {
         return botStation;
     }

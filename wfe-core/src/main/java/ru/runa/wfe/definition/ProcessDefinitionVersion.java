@@ -10,7 +10,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -18,13 +17,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import lombok.val;
-import org.hibernate.annotations.ForeignKey;
 import ru.runa.wfe.user.Actor;
 
 @Entity
-@Table(name = "BPM_PROCESS_DEFINITION_VER", indexes = {
-        @Index(name = "ix_version_definition_ver", columnList = "definition_id, version")
-})
+@Table(name = "BPM_PROCESS_DEFINITION_VER")
 public class ProcessDefinitionVersion implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -53,7 +49,6 @@ public class ProcessDefinitionVersion implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
-    @ForeignKey(name = "FK_VERSION_DEFINITION")
     public ProcessDefinition getDefinition() {
         return definition;
     }
@@ -102,7 +97,6 @@ public class ProcessDefinitionVersion implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "CREATE_USER_ID")
-    @ForeignKey(name = "FK_DEFINITION_CREATE_USER")
     public Actor getCreateActor() {
         return createActor;
     }
@@ -122,7 +116,6 @@ public class ProcessDefinitionVersion implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "UPDATE_USER_ID")
-    @ForeignKey(name = "FK_DEFINITION_UPDATE_USER")
     public Actor getUpdateActor() {
         return updateActor;
     }

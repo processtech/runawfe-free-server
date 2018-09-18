@@ -20,12 +20,10 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.CurrentProcess;
 
 @Entity
 @Table(name = "BPM_JOB")
@@ -103,8 +101,6 @@ public abstract class Job {
 
     @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_JOB_PROCESS")
-    @Index(name = "IX_JOB_PROCESS")
     public CurrentProcess getProcess() {
         return process;
     }
@@ -115,7 +111,6 @@ public abstract class Job {
 
     @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "TOKEN_ID")
-    @ForeignKey(name = "FK_JOB_TOKEN")
     public CurrentToken getToken() {
         return token;
     }

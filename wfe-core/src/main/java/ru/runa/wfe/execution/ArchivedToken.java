@@ -13,8 +13,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "ARCHIVED_TOKEN")
@@ -27,17 +25,11 @@ public class ArchivedToken extends Token {
 
     @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID")
-    @ForeignKey(name = "FK_ARCH_TOKEN_PROCESS")
-    @Index(name = "IX_ARCH_TOKEN_PROCESS")
     @SuppressWarnings("unused")
     private ArchivedProcess process;
 
     @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
-    @ForeignKey(name = "none")
-    // @ForeignKey(name = "FK_ARCH_TOKEN_PARENT") is not created: it would be violated during batch insert-select in ProcessArchiver.
-    // TODO They say Hibernate 5 does not support name="none", so careful when upgrading it.
-    @Index(name = "IX_ARCH_TOKEN_PARENT")
     @SuppressWarnings("unused")
     private ArchivedToken parent;
 
@@ -48,7 +40,6 @@ public class ArchivedToken extends Token {
     private Set<ArchivedToken> children;
 
     @Column(name = "MESSAGE_SELECTOR", length = 1024)
-    @Index(name = "IX_ARCH_MESSAGE_SELECTOR")
     @SuppressWarnings("unused")
     private String messageSelector;
 

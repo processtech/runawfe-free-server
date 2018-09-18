@@ -41,8 +41,6 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.CurrentVariableCreateLog;
 import ru.runa.wfe.audit.CurrentVariableDeleteLog;
 import ru.runa.wfe.audit.CurrentVariableLog;
@@ -108,7 +106,6 @@ public abstract class CurrentVariable<V> extends Variable<CurrentProcess, V> {
 
     @Override
     @Column(name = "NAME", length = 1024)
-    @Index(name = "IX_VARIABLE_NAME")
     public String getName() {
         return name;
     }
@@ -119,8 +116,6 @@ public abstract class CurrentVariable<V> extends Variable<CurrentProcess, V> {
 
     @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_VARIABLE_PROCESS")
-    @Index(name = "IX_VARIABLE_PROCESS")
     public CurrentProcess getProcess() {
         return process;
     }
