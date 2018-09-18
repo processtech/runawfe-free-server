@@ -16,16 +16,28 @@ class DbPatch0Generator {
                 "package ru.runa.wfe.commons.dbpatch;\n" +
                 "\n" +
                 "import com.google.common.collect.ImmutableList;\n" +
-                "import java.sql.Connection;\n" +
+                "import java.sql.Connection;\n");
+        if (!st.migrations.isEmpty()) {
+            w.write("import java.sql.PreparedStatement;\n");
+        }
+        w.write("import java.sql.Timestamp;\n" +
                 "import java.util.List;\n" +
                 "\n" +
                 "public class DbPatch0 extends DbPatch {\n" +
                 "\n" +
                 "    @Override\n" +
                 "    protected List<String> getDDLQueriesBefore() {\n" +
-                "        return ImmutableList.of(\n");
+                "        return ImmutableList.of(");
 
+
+        var firstTable = true;
         for (val t : st.tables) {
+            if (firstTable) {
+                firstTable = false;
+                w.write("\n");
+            } else {
+                w.write(",\n");
+            }
             w.write("                getDDLCreateTable(\"" + t.name + "\", ImmutableList.of(");
             var firstColumn = true;
             for (val c : t.columns) {
@@ -72,30 +84,61 @@ class DbPatch0Generator {
                 }
             }
             w.write("\n" +
-                    "                )),\n");
-        }  // tables
-
-        for (val uk : st.uniqueKeys) {
-            w.write("                getDDLCreateUniqueKey(\"" + uk.table.name + "\", \"" + uk.name + "\"");
-            for (val c : uk.columns) {
-                w.write(", \"" + c.name + "\"");
-            }
-            w.write("),\n");
-        }  // uniqueKeys
-
-        for (val fk : st.foreignKeys) {
-            // TODO ...
+                    "                ))");
         }
 
 
-        w.write("                null\n" +
-                "        );\n" +
-                "    }\n" +
-                "\n" +
-                "    @Override\n" +
-                "    public void executeDML(Connection conn) throws Exception {\n" +
-                "    }\n" +
-                "}\n");
+        // Creating indexes before UK and FK, to avoid automatic index creation by SQL server.
+        for (val i : st.indexes) {
+            w.write(",\n" +
+                    "                getDDLCreateIndex(\"" + i.table.name + "\", \"" + i.name + "\"");
+            for (val c : i.columns) {
+                w.write(", \"" + c.name + "\"");
+            }
+            w.write(")");
+        }
+
+
+        for (val uk : st.uniqueKeys) {
+            w.write(",\n" +
+                    "                getDDLCreateUniqueKey(\"" + uk.table.name + "\", \"" + uk.constraintName + "\"");
+            for (val c : uk.columns) {
+                w.write(", \"" + c.name + "\"");
+            }
+            w.write(")");
+        }
+
+
+        for (val fk : st.foreignKeys) {
+            w.write(",\n" +
+                    "                getDDLCreateForeignKey(\"" + fk.table.name + "\", \"" + fk.constraintName + "\", \"" + fk.column.name +
+                    "\", \"" + fk.refTable.name + "\", \"" + fk.refColumn.name + "\")");
+        }
+
+
+        w.write("\n        );\n" +
+                "    }\n");
+        if (!st.migrations.isEmpty()) {
+            w.write("\n" +
+                    "    @Override\n" +
+                    "    public void executeDML(Connection conn) throws Exception {\n" +
+                    "        try (PreparedStatement stmt = conn.prepareStatement(\"insert into db_migration(name, when_started_when_finished) values(?, ?, ?)\")) {\n");
+            for (val m : st.migrations) {
+                // TODO I wonder if timezone will interfere so each run we'll get more and more shifted time.
+                w.write("            insertMigration(stmt, \"" + m.name + "\", " + m.whenStarted.getTime() + "L, " +
+                        (m.whenFinished == null ? "null" : m.whenFinished.getTime() + "L") + ");\n");
+            }
+            w.write("        }\n" +
+                    "    }\n" +
+                    "\n" +
+                    "    private void insertMigration(PreparedStatement stmt, String name, long whenStarted, Long whenFinished) throws Exception {\n" +
+                    "        stmt.setString(1, name);\n" +
+                    "        stmt.setTimestamp(2, new Timestamp(whenStarted));\n" +
+                    "        stmt.setTimestamp(3, whenFinished == null ? null : new Timestamp(whenFinished));\n" +
+                    "        stmt.executeUpdate();\n" +
+                    "    }\n");
+        }
+        w.write("}\n");
         w.close();
     }
 }

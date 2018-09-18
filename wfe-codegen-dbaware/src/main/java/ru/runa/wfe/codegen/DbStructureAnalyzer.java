@@ -1,9 +1,11 @@
 package ru.runa.wfe.codegen;
 
 import java.sql.DriverManager;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
@@ -38,7 +40,7 @@ class DbStructureAnalyzer {
     }
 
     static class UniqueKey {
-        String name;
+        String constraintName;
         Table table;
         ArrayList<Column> columns = new ArrayList<>();
     }
@@ -51,11 +53,26 @@ class DbStructureAnalyzer {
         Column refColumn;
     }
 
+    static class Index {
+        String name;
+        Table table;
+        ArrayList<Column> columns = new ArrayList<>();
+    }
+
+    // Not a structure exactly, part of the data, but let's read DB in one place.
+    static class Migration {
+        String name;
+        Timestamp whenStarted;
+        Timestamp whenFinished;
+    }
+
     static class Structure {
         ArrayList<Table> tables = new ArrayList<>();
         HashMap<String, Table> tablesByName = new HashMap<>();
         ArrayList<UniqueKey> uniqueKeys = new ArrayList<>();
         ArrayList<ForeignKey> foreignKeys = new ArrayList<>();
+        ArrayList<Index> indexes = new ArrayList<>();
+        ArrayList<Migration> migrations = new ArrayList<>();
     }
 
 
@@ -144,14 +161,16 @@ class DbStructureAnalyzer {
 
         // Read primary & unique keys.
         try (val stmt = conn.createStatement()) {
-            val rs = stmt.executeQuery("select co.contype as constraint_type, co.conname as constraint_name, c.relname as table_name, a.attname as column_name, cok.column_idx " +
+            val rs = stmt.executeQuery("select " +
+                    "    co.contype as constraint_type, co.conname as constraint_name, c.relname as table_name, a.attname as column_name, " +
+                    "    cok.column_idx " +
                     "from pg_namespace n " +
                     "inner join pg_constraint co on co.connamespace = n.oid and co.contype in ('p', 'u') " +
                     "inner join pg_class c on (c.oid = co.conrelid) " +
                     "left join /*lateral*/ unnest(co.conkey) with ordinality as cok(attnum, column_idx) on true " +
                     "left join pg_attribute a on (a.attrelid = c.oid and a.attnum = cok.attnum) " +
                     "where n.nspname = 'public' " +
-                    "order by co.conname, c.relname, cok.column_idx"
+                    "order by c.relname, co.conname, cok.column_idx"
             );
             UniqueKey uk = null;
             while (rs.next()) {
@@ -165,10 +184,10 @@ class DbStructureAnalyzer {
                     st.tablesByName.get(tableName).columnsByName.get(columnName).isPrimaryKey = true;
                 } else {
                     String constraintName = rs.getString("constraint_name");
-                    if (uk == null || !Objects.equals(uk.name, constraintName) || !Objects.equals(uk.table.name, tableName)) {
+                    if (uk == null || !Objects.equals(uk.constraintName, constraintName) || !Objects.equals(uk.table.name, tableName)) {
                         uk = new UniqueKey();
                         st.uniqueKeys.add(uk);
-                        uk.name = constraintName;
+                        uk.constraintName = constraintName;
                         uk.table = st.tablesByName.get(tableName);
                     }
                     uk.columns.add(uk.table.columnsByName.get(columnName));
@@ -178,12 +197,81 @@ class DbStructureAnalyzer {
 
         // Read foreign keys.
         try (val stmt = conn.createStatement()) {
-            ForeignKey fk = null;
-            // TODO ...
+            val rs = stmt.executeQuery("select " +
+                    "    co.conname as constraint_name, c.relname as table_name, a.attname as column_name, cf.relname as ref_table_name, " +
+                    "    af.attname as ref_column_name, cok.column_idx " +
+                    "from pg_namespace n " +
+                    "inner join pg_constraint co on (co.connamespace = n.oid and co.contype='f') " +
+                    "inner join pg_class c on (c.oid = co.conrelid) " +
+                    "inner join pg_class cf on (cf.oid = co.confrelid) " +
+                    "inner join pg_namespace nf on (nf.oid = cf.relnamespace) " +
+                    "left join unnest(co.conkey, co.confkey) with ordinality as cok(attnum, refattnum, column_idx) on true " +
+                    "left join pg_attribute a on (a.attrelid = c.oid and a.attnum = cok.attnum) " +
+                    "left join pg_attribute af on (af.attrelid = cf.oid and af.attnum = cok.refattnum) " +
+                    "where n.nspname = 'public' and nf.nspname = 'public' " +
+                    "order by c.relname, co.conname, column_idx\n"
+            );
+            while (rs.next()) {
+                String tableName = rs.getString("table_name");
+                if (rs.getInt("column_idx") != 1) {
+                    throw new Exception("Unsupported multi-column FK for table \"" + tableName + "\"");
+                }
+                val fk = new ForeignKey();
+                st.foreignKeys.add(fk);
+                fk.constraintName = rs.getString("constraint_name");
+                fk.table = st.tablesByName.get(tableName);
+                fk.column = fk.table.columnsByName.get(rs.getString("column_name"));
+                fk.refTable = st.tablesByName.get(rs.getString("ref_table_name"));
+                fk.refColumn = fk.refTable.columnsByName.get(rs.getString("ref_column_name"));
+            }
         }
 
         // Read indexes.
-        // TODO ...
+        try (val stmt = conn.createStatement()) {
+            val rs = stmt.executeQuery("select " +
+                    "    ci.relname as index_name, ct.relname as table_name, pg_get_indexdef(i.indexrelid, column_idx + 1, true) as column_name " +
+                    "from pg_index i " +
+                    "inner join pg_class ci on (ci.oid = i.indexrelid) " +
+                    "inner join pg_class ct on (ct.oid = i.indrelid) " +
+                    "inner join pg_namespace n on (n.oid = ci.relnamespace) " +
+                    "inner join pg_am am on (ci.relam = am.oid) " +
+                    "left join generate_subscripts(i.indkey, 1) as column_idx on true " +
+                    "where not i.indisprimary and not i.indisunique and n.nspname = 'public' " +
+                    "order by ct.relname, ci.relname, column_idx;"
+            );
+            val regexColumnName = Pattern.compile("^[a-z][a-z0-9_]*$");
+            Index i = null;
+            while (rs.next()) {
+                String indexName = rs.getString("index_name");
+                String tableName = rs.getString("table_name");
+                if (i == null || !Objects.equals(i.name, indexName) || !Objects.equals(i.table.name, tableName)) {
+                    i = new Index();
+                    st.indexes.add(i);
+                    i.name = indexName;
+                    i.table = st.tablesByName.get(tableName);
+                }
+                String columnName = rs.getString("column_name");
+                if (!regexColumnName.matcher(columnName).matches()) {
+                    throw new Exception("Unsupported column expression \"" + columnName + "\" in index \"" + indexName + "\" on table \"" +
+                            tableName + "\"");
+                }
+                i.columns.add(i.table.columnsByName.get(columnName));
+            }
+        }
+
+        // Read migrations.
+        if (st.tablesByName.containsKey("db_migration")) {
+            try (val stmt = conn.createStatement()) {
+                val rs = stmt.executeQuery("select name, when_started, when_finished from db_migration order by when_started, name");
+                while (rs.next()) {
+                    val m = new Migration();
+                    st.migrations.add(m);
+                    m.name = rs.getString(1);
+                    m.whenStarted = rs.getTimestamp(2);
+                    m.whenFinished = rs.getTimestamp(3);
+                }
+            }
+        }
 
         return st;
     }

@@ -5,6 +5,8 @@ package ru.runa.wfe.commons.dbpatch;
 
 import com.google.common.collect.ImmutableList;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class DbPatch0 extends DbPatch {
@@ -420,11 +422,59 @@ public class DbPatch0 extends DbPatch {
                         new VarcharColumnDef("name", 1024, true),
                         new VarcharColumnDef("value", 1024, true)
                 )),
+                getDDLCreateIndex("archived_log", "ix_arch_log_process", "process_id"),
+                getDDLCreateIndex("archived_process", "ix_arch_process_def_ver", "definition_version_id"),
+                getDDLCreateIndex("archived_process", "ix_arch_process_root_token", "root_token_id"),
+                getDDLCreateIndex("archived_subprocess", "ix_arch_subprocess_parent", "parent_process_id"),
+                getDDLCreateIndex("archived_subprocess", "ix_arch_subprocess_process", "process_id"),
+                getDDLCreateIndex("archived_subprocess", "ix_arch_subprocess_root", "root_process_id"),
+                getDDLCreateIndex("archived_swimlane", "ix_arch_swimlane_process", "process_id"),
+                getDDLCreateIndex("archived_token", "ix_arch_message_selector", "message_selector"),
+                getDDLCreateIndex("archived_token", "ix_arch_token_parent", "parent_id"),
+                getDDLCreateIndex("archived_token", "ix_arch_token_process", "process_id"),
+                getDDLCreateIndex("archived_variable", "ix_arch_variable_name", "name"),
+                getDDLCreateIndex("archived_variable", "ix_arch_variable_process", "process_id"),
+                getDDLCreateIndex("batch_presentation", "ix_batch_presentation_profile", "profile_id"),
+                getDDLCreateIndex("bot", "ix_bot_station", "bot_station_id"),
+                getDDLCreateIndex("bot_task", "ix_bot_task_bot", "bot_id"),
+                getDDLCreateIndex("bpm_agglog_assignments", "ix_agglog_assign_date", "assignment_date"),
+                getDDLCreateIndex("bpm_agglog_assignments", "ix_agglog_assign_executor", "new_executor_name"),
+                getDDLCreateIndex("bpm_agglog_process", "ix_agglog_process_create_date", "create_date"),
+                getDDLCreateIndex("bpm_agglog_process", "ix_agglog_process_end_date", "end_date"),
+                getDDLCreateIndex("bpm_agglog_process", "ix_agglog_process_instance", "process_id"),
+                getDDLCreateIndex("bpm_agglog_tasks", "ix_agglog_tasks_create_date", "create_date"),
+                getDDLCreateIndex("bpm_agglog_tasks", "ix_agglog_tasks_end_date", "end_date"),
+                getDDLCreateIndex("bpm_agglog_tasks", "ix_agglog_tasks_process", "process_id"),
+                getDDLCreateIndex("bpm_job", "ix_job_process", "process_id"),
+                getDDLCreateIndex("bpm_log", "ix_log_process", "process_id"),
+                getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"),
+                getDDLCreateIndex("bpm_process", "ix_process_root_token", "root_token_id"),
+                getDDLCreateIndex("bpm_subprocess", "ix_subprocess_parent_process", "parent_process_id"),
+                getDDLCreateIndex("bpm_subprocess", "ix_subprocess_process", "process_id"),
+                getDDLCreateIndex("bpm_subprocess", "ix_subprocess_root_process", "root_process_id"),
+                getDDLCreateIndex("bpm_swimlane", "ix_swimlane_process", "process_id"),
+                getDDLCreateIndex("bpm_task", "ix_task_executor", "executor_id"),
+                getDDLCreateIndex("bpm_task", "ix_task_process", "process_id"),
+                getDDLCreateIndex("bpm_token", "ix_message_selector", "message_selector"),
+                getDDLCreateIndex("bpm_token", "ix_token_parent", "parent_id"),
+                getDDLCreateIndex("bpm_token", "ix_token_process", "process_id"),
+                getDDLCreateIndex("bpm_variable", "ix_variable_name", "name"),
+                getDDLCreateIndex("bpm_variable", "ix_variable_process", "process_id"),
+                getDDLCreateIndex("executor", "ix_executor_code", "code"),
+                getDDLCreateIndex("executor_group_member", "ix_member_executor", "executor_id"),
+                getDDLCreateIndex("executor_group_member", "ix_member_group", "group_id"),
+                getDDLCreateIndex("executor_relation_pair", "ix_erp_executor_from", "executor_from"),
+                getDDLCreateIndex("executor_relation_pair", "ix_erp_executor_to", "executor_to"),
+                getDDLCreateIndex("executor_relation_pair", "ix_erp_relation", "relation_id"),
+                getDDLCreateIndex("permission_mapping", "ix_permission_mapping_data", "executor_id", "object_type", "permission", "object_id"),
+                getDDLCreateIndex("priveleged_mapping", "ix_privelege_type", "type"),
+                getDDLCreateIndex("substitution", "ix_substitution_actor", "actor_id"),
+                getDDLCreateIndex("substitution", "ix_substitution_criteria", "criteria_id"),
                 getDDLCreateUniqueKey("archived_variable", "archived_variable_process_id_name_key", "process_id", "name"),
                 getDDLCreateUniqueKey("bot_station", "bot_station_name_key", "name"),
                 getDDLCreateUniqueKey("bpm_variable", "bpm_variable_process_id_name_key", "process_id", "name"),
-                getDDLCreateUniqueKey("executor_group_member", "executor_group_member_executor_id_group_id_key", "executor_id", "group_id"),
                 getDDLCreateUniqueKey("executor", "executor_name_key", "name"),
+                getDDLCreateUniqueKey("executor_group_member", "executor_group_member_executor_id_group_id_key", "executor_id", "group_id"),
                 getDDLCreateUniqueKey("executor_relation", "executor_relation_name_key", "name"),
                 getDDLCreateUniqueKey("localization", "localization_name_key", "name"),
                 getDDLCreateUniqueKey("permission_mapping", "permission_mapping_object_id_object_type_permission_executo_key", "object_id", "object_type", "permission", "executor_id"),
@@ -432,11 +482,106 @@ public class DbPatch0 extends DbPatch {
                 getDDLCreateUniqueKey("report", "report_name_key", "name"),
                 getDDLCreateUniqueKey("substitution", "substitution_position_index_actor_id_key", "position_index", "actor_id"),
                 getDDLCreateUniqueKey("wfe_constants", "wfe_constants_name_key", "name"),
-                null
+                getDDLCreateForeignKey("archived_process", "fk_arch_process_def_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
+                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_parent", "parent_process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_process", "process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_root", "root_process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_swimlane", "fk_arch_swimlane_executor", "executor_id", "executor", "id"),
+                getDDLCreateForeignKey("archived_swimlane", "fk_arch_swimlane_process", "process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_token", "fk_arch_token_process", "process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_token", "fkcec15b3c25be6cac", "parent_id", "archived_token", "id"),
+                getDDLCreateForeignKey("archived_variable", "fk_arch_variable_process", "process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("batch_presentation", "fk_batch_presentation_profile", "profile_id", "profile", "id"),
+                getDDLCreateForeignKey("bot", "fk_bot_station", "bot_station_id", "bot_station", "id"),
+                getDDLCreateForeignKey("bot_task", "fk_bot_task_bot", "bot_id", "bot", "id"),
+                getDDLCreateForeignKey("bpm_agglog_assignments", "fkbe3af20a436bb212", "assignment_object_id", "bpm_agglog_tasks", "id"),
+                getDDLCreateForeignKey("bpm_job", "fk_job_process", "process_id", "bpm_process", "id"),
+                getDDLCreateForeignKey("bpm_job", "fk_job_token", "token_id", "bpm_token", "id"),
+                getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
+                getDDLCreateForeignKey("bpm_process", "fk_process_root_token", "root_token_id", "bpm_token", "id"),
+                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_definition_create_user", "create_user_id", "executor", "id"),
+                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_definition_update_user", "update_user_id", "executor", "id"),
+                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_version_definition", "definition_id", "bpm_process_definition", "id"),
+                getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_parent_process", "parent_process_id", "bpm_process", "id"),
+                getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_process", "process_id", "bpm_process", "id"),
+                getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_root_process", "root_process_id", "bpm_process", "id"),
+                getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_token", "parent_token_id", "bpm_token", "id"),
+                getDDLCreateForeignKey("bpm_swimlane", "fk_swimlane_executor", "executor_id", "executor", "id"),
+                getDDLCreateForeignKey("bpm_swimlane", "fk_swimlane_process", "process_id", "bpm_process", "id"),
+                getDDLCreateForeignKey("bpm_task", "fk_task_executor", "executor_id", "executor", "id"),
+                getDDLCreateForeignKey("bpm_task", "fk_task_process", "process_id", "bpm_process", "id"),
+                getDDLCreateForeignKey("bpm_task", "fk_task_swimlane", "swimlane_id", "bpm_swimlane", "id"),
+                getDDLCreateForeignKey("bpm_task", "fk_task_token", "token_id", "bpm_token", "id"),
+                getDDLCreateForeignKey("bpm_task_opened", "fk_task_opened_task", "task_id", "bpm_task", "id"),
+                getDDLCreateForeignKey("bpm_token", "fk_token_parent", "parent_id", "bpm_token", "id"),
+                getDDLCreateForeignKey("bpm_token", "fk_token_process", "process_id", "bpm_process", "id"),
+                getDDLCreateForeignKey("bpm_variable", "fk_variable_process", "process_id", "bpm_process", "id"),
+                getDDLCreateForeignKey("executor", "fk_group_escalation_executor", "escalation_executor_id", "executor", "id"),
+                getDDLCreateForeignKey("executor_group_member", "fk_member_executor", "executor_id", "executor", "id"),
+                getDDLCreateForeignKey("executor_group_member", "fk_member_group", "group_id", "executor", "id"),
+                getDDLCreateForeignKey("executor_relation_pair", "fk_erp_executor_from", "executor_from", "executor", "id"),
+                getDDLCreateForeignKey("executor_relation_pair", "fk_erp_executor_to", "executor_to", "executor", "id"),
+                getDDLCreateForeignKey("executor_relation_pair", "fk_erp_relation", "relation_id", "executor_relation", "id"),
+                getDDLCreateForeignKey("permission_mapping", "fk_permission_executor", "executor_id", "executor", "id"),
+                getDDLCreateForeignKey("priveleged_mapping", "fk_pm_executor", "executor_id", "executor", "id"),
+                getDDLCreateForeignKey("profile", "fk_profile_actor", "actor_id", "executor", "id"),
+                getDDLCreateForeignKey("report_parameter", "fkbc64163ec3ead862", "report_id", "report", "id"),
+                getDDLCreateForeignKey("substitution", "fk_substitution_criteria", "criteria_id", "substitution_criteria", "id")
         );
     }
 
     @Override
     public void executeDML(Connection conn) throws Exception {
+        try (PreparedStatement stmt = conn.prepareStatement("insert into db_migration(name, when_started_when_finished) values(?, ?, ?)")) {
+            insertMigration(stmt, "AddAggregatedTaskIndexPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddAssignDateColumnPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddBatchPresentationIsSharedPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddColumnForEmbeddedBotTaskFileName", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddColumnsToSubstituteEscalatedTasksPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddCreateDateColumns", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddDeploymentAuditPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddDueDateExpressionToJobAndTask", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddEmbeddedFileForBotTask", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddHierarchyProcess", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddMultiTaskIndexToTaskPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddNodeIdToProcessLogPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddParentProcessIdPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddProcessAndTokenExecutionStatusPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddSequentialFlagToBot", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddSettingsTable", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddSubprocessBindingDatePatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddSubProcessIndexColumn", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddSubprocessRootIdColumn", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddTitleAndDepartmentColumnsToActorPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddTokenErrorDataPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddTokenMessageSelectorPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddTransactionalBotSupport", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "AddVariableUniqueKeyPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "CreateAdminScriptTables", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "CreateAggregatedLogsTables", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "CreateReportsTables", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "ExpandDescriptionsPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "ExpandVarcharPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "JbpmRefactoringPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "NodeTypeChangePatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "PerformancePatch401", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "PermissionMappingPatch403", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "RefactorPermissionsStep1", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "RefactorPermissionsStep3", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "RenameProcessesBatchPresentationCategories", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "SplitProcessDefinitionVersion", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "SupportProcessArchiving", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "TaskCreateLogSeverityChangedPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "TaskEndDateRemovalPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "TaskOpenedByExecutorsPatch", 1537198105884L, 1537198105884L);
+            insertMigration(stmt, "TransitionLogPatch", 1537198105884L, 1537198105884L);
+        }
+    }
+
+    private void insertMigration(PreparedStatement stmt, String name, long whenStarted, Long whenFinished) throws Exception {
+        stmt.setString(1, name);
+        stmt.setTimestamp(2, new Timestamp(whenStarted));
+        stmt.setTimestamp(3, whenFinished == null ? null : new Timestamp(whenFinished));
+        stmt.executeUpdate();
     }
 }

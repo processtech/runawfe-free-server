@@ -7,6 +7,10 @@
 	<packaging>jar</packaging>
 	<name>RunaWFE DB-aware code generator</name>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -28,7 +32,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<encoding>UTF-8</encoding>
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
