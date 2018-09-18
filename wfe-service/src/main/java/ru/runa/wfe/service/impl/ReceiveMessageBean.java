@@ -41,17 +41,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ReceiveMessageLog;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Signal;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.SignalDao;
-import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -59,8 +59,8 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/bpmMessages"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
@@ -71,11 +71,11 @@ import ru.runa.wfe.var.VariableMapping;
 public class ReceiveMessageBean implements MessageListener {
     private static Log log = LogFactory.getLog(ReceiveMessageBean.class);
     @Autowired
-    private TokenDAO tokenDAO;
+    private TokenDao tokenDao;
     @Autowired
-    private IProcessDefinitionLoader processDefinitionLoader;
+    private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ProcessLogDAO processLogDAO;
+    private ProcessLogDao processLogDao;
     @Resource
     private MessageDrivenContext context;
     @Autowired
@@ -96,15 +96,15 @@ public class ReceiveMessageBean implements MessageListener {
             if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
                 if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
                     String messageSelector = Utils.getObjectMessageStrictSelector(message);
-                    tokens = tokenDAO.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
+                    tokens = tokenDao.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
                     log.debug("Checking " + tokens.size() + " tokens by messageSelector = " + messageSelector);
                 } else {
                     Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(message);
-                    tokens = tokenDAO.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
+                    tokens = tokenDao.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
                     log.debug("Checking " + tokens.size() + " tokens by messageSelectors = " + messageSelectors);
                 }
             } else {
-                tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
+                tokens = tokenDao.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
                 log.debug("Checking " + tokens.size() + " tokens");
             }
             for (Token token : tokens) {
@@ -123,7 +123,7 @@ public class ReceiveMessageBean implements MessageListener {
                         }
                     } else {
                         boolean suitable = true;
-                        IVariableProvider variableProvider = executionContext.getVariableProvider();
+                        VariableProvider variableProvider = executionContext.getVariableProvider();
                         for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
                             if (mapping.isPropertySelector()) {
                                 String selectorValue = message.getStringProperty(mapping.getName());
@@ -178,7 +178,7 @@ public class ReceiveMessageBean implements MessageListener {
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
                     log.info("Handling " + message + " for " + data);
-                    Token token = tokenDAO.getNotNull(data.tokenId);
+                    Token token = tokenDao.getNotNull(data.tokenId);
                     if (!Objects.equal(token.getNodeId(), data.node.getNodeId())) {
                         throw new InternalApplicationException(token + " not in " + data.node.getNodeId());
                     }

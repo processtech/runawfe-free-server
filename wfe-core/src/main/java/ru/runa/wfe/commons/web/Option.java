@@ -23,13 +23,13 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
 
-import ru.runa.wfe.var.ISelectable;
+import ru.runa.wfe.var.SelectableOption;
 
 /**
  * Specified package for this class is essential due to back compatibility.
  * @author dofs
  */
-public class Option implements ISelectable, Serializable {
+public class Option implements SelectableOption, Serializable {
     private static final long serialVersionUID = 1L;
     private final String value;
     private final String label;

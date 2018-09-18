@@ -27,12 +27,11 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
+import lombok.NonNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.security.logic.AuthenticationLogic;
 import ru.runa.wfe.service.decl.AuthenticationServiceLocal;
 import ru.runa.wfe.service.decl.AuthenticationServiceRemote;
@@ -40,8 +39,6 @@ import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceSimpleObserver;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Implements AuthenticationService as bean. Created on 20.07.2004
@@ -69,8 +66,7 @@ public class AuthenticationServiceBean implements AuthenticationServiceLocal, Au
 
     @Override
     @WebResult(name = "result")
-    public User authenticateByKerberos(@WebParam(name = "token") byte[] token) {
-        Preconditions.checkArgument(token != null, "Kerberos authentication information is null");
+    public User authenticateByKerberos(@WebParam(name = "token") @NonNull byte[] token) {
         log.debug("Authenticating (kerberos)");
         User user = authenticationLogic.authenticate(token);
         log.debug("Authenticated (kerberos): " + user);
@@ -79,9 +75,7 @@ public class AuthenticationServiceBean implements AuthenticationServiceLocal, Au
 
     @Override
     @WebResult(name = "result")
-    public User authenticateByLoginPassword(@WebParam(name = "name") String name, @WebParam(name = "password") String password) {
-        Preconditions.checkArgument(name != null, "name");
-        Preconditions.checkArgument(password != null, "password");
+    public User authenticateByLoginPassword(@WebParam(name = "name") @NonNull String name, @WebParam(name = "password") @NonNull String password) {
         log.debug("Authenticating (login) " + name);
         User user = authenticationLogic.authenticate(name, password);
         log.debug("Authenticated (login): " + user);
@@ -90,9 +84,8 @@ public class AuthenticationServiceBean implements AuthenticationServiceLocal, Au
 
     @Override
     @WebResult(name = "result")
-    public User authenticateByTrustedPrincipal(@WebParam(name = "serviceUser") User serviceUser, @WebParam(name = "login") String login) {
-        Preconditions.checkArgument(serviceUser != null, "serviceUser");
-        Preconditions.checkArgument(login != null, "login");
+    public User authenticateByTrustedPrincipal(@WebParam(name = "serviceUser") @NonNull User serviceUser,
+            @WebParam(name = "login") @NonNull String login) {
         log.debug("Authenticating (trusted) " + login);
         User user = authenticationLogic.authenticate(serviceUser, login);
         log.debug("Authenticated (trusted): " + user);

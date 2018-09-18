@@ -28,7 +28,7 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 
 import com.google.common.collect.Maps;
@@ -49,13 +49,13 @@ public class EmailTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(final User user, IVariableProvider variableProvider, final WfTask task) throws Exception {
+    public Map<String, Object> handle(final User user, VariableProvider variableProvider, final WfTask task) throws Exception {
         try {
             Interaction interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionId(), task.getNodeId());
             Map<String, Object> map = Maps.newHashMap();
             map.put("interaction", interaction);
             map.put("task", task);
-            IVariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, variableProvider);
+            VariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, variableProvider);
             EmailUtils.prepareMessage(user, config, interaction, emailVariableProvider);
             EmailUtils.sendMessage(config);
         } catch (Exception e) {

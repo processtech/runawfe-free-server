@@ -6,12 +6,12 @@ import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.office.excel.ExcelDataStore;
 import ru.runa.wfe.office.excel.ExcelStorable;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
 import ru.runa.wfe.office.shared.OfficeFilesSupplierHandler;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 
 public class ExcelSaveHandler extends OfficeFilesSupplierHandler<ExcelBindings> {
@@ -23,7 +23,7 @@ public class ExcelSaveHandler extends OfficeFilesSupplierHandler<ExcelBindings> 
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    protected Map<String, Object> executeAction(IVariableProvider variableProvider, IFileDataProvider fileDataProvider) throws Exception {
+    protected Map<String, Object> executeAction(VariableProvider variableProvider, FileDataProvider fileDataProvider) throws Exception {
         Map<String, Object> result = new HashMap<String, Object>();
         ExcelDataStore dataStore = new ExcelDataStore();
         InputStream templateInputStream = config.getFileInputStream(variableProvider, fileDataProvider, true);

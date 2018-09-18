@@ -30,7 +30,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Preconditions;
 
@@ -51,7 +51,7 @@ public class SetActorStatusTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) {
         Object value = variableProvider.getValueNotNull(config.actorVariableName);
         Actor actor = TypeConversionUtil.convertToExecutor(value, new DelegateExecutorLoader(user));
         boolean isActive = variableProvider.getValueNotNull(Boolean.class, config.statusVariableName);

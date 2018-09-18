@@ -25,7 +25,7 @@ import com.google.common.base.Strings;
 /**
  * Created on 04.03.2005
  */
-public class BotInvokerServiceDelegate extends EJB3Delegate implements BotInvokerService {
+public class BotInvokerServiceDelegate extends Ejb3Delegate implements BotInvokerService {
 
     public BotInvokerServiceDelegate() {
         super("BotInvokerServiceBean", BotInvokerService.class, "wfe-bots");

@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.service.impl;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +30,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import lombok.NonNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +74,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public void login(@WebParam(name = "user") User user) {
-        Preconditions.checkArgument(user != null, "user");
+    public void login(@WebParam(name = "user") @NonNull User user) {
         auditLogic.login(user);
     }
 
@@ -87,32 +86,27 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public String getLocalized(@WebParam(name = "name") String name) {
-        Preconditions.checkArgument(name != null, "name");
+    public String getLocalized(@WebParam(name = "name") @NonNull String name) {
         return auditLogic.getLocalized(name);
     }
 
     @Override
     @WebResult(name = "result")
-    public void saveLocalizations(@WebParam(name = "user") User user, @WebParam(name = "localizations") List<Localization> localizations) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(localizations != null, "localizations");
+    public void saveLocalizations(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "localizations") @NonNull List<Localization> localizations) {
         auditLogic.saveLocalizations(user, localizations);
     }
 
     @Override
     @WebResult(name = "result")
-    public String getSetting(@WebParam(name = "fileName") String fileName, @WebParam(name = "name") String name) {
-        Preconditions.checkArgument(fileName != null, "fileName");
-        Preconditions.checkArgument(name != null, "name");
+    public String getSetting(@WebParam(name = "fileName") @NonNull String fileName, @WebParam(name = "name") @NonNull String name) {
         return auditLogic.getSetting(fileName, name);
     }
 
     @Override
     @WebResult(name = "result")
-    public void setSetting(@WebParam(name = "fileName") String fileName, @WebParam(name = "name") String name, @WebParam(name = "value") String value) {
-        Preconditions.checkArgument(fileName != null, "fileName");
-        Preconditions.checkArgument(name != null, "name");
+    public void setSetting(@WebParam(name = "fileName") @NonNull String fileName, @WebParam(name = "name") @NonNull String name,
+            @WebParam(name = "value") String value) {
         auditLogic.setSetting(fileName, name, value);
     }
 
@@ -124,8 +118,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
 
     @Override
     @WebMethod(exclude = true)
-    public List<ProcessError> getAllProcessErrors(User user) {
-        Preconditions.checkArgument(user != null, "user");
+    public List<ProcessError> getAllProcessErrors(@NonNull User user) {
         List<ProcessError> result = Lists.newArrayList();
         for (List<ProcessError> list : Errors.getProcessErrors().values()) {
             result.addAll(list);
@@ -140,9 +133,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public List<ProcessError> getProcessErrors(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public List<ProcessError> getProcessErrors(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         List<ProcessError> list = new ArrayList<>();
         List<ProcessError> cached = Errors.getProcessErrors(processId);
         if (cached != null) {
@@ -155,8 +146,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public List<SystemError> getSystemErrors(@WebParam(name = "user") User user) {
-        Preconditions.checkArgument(user != null, "user");
+    public List<SystemError> getSystemErrors(@WebParam(name = "user") @NonNull User user) {
         List<SystemError> list = Lists.newArrayList(Errors.getSystemErrors());
         Collections.sort(list);
         return list;

@@ -3,12 +3,12 @@ package ru.runa.wfe.execution.dao;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.QSignal;
 import ru.runa.wfe.execution.Signal;
 
 @Component
-public class SignalDao extends GenericDAO<Signal> {
+public class SignalDao extends GenericDao<Signal> {
 
     public List<Signal> findByMessageSelectorsContainsOrEmpty(String messageSelector) {
         QSignal s = QSignal.signal;

@@ -32,7 +32,7 @@ import ru.runa.wfe.user.User;
  * 
  * @author Konstantinov Aleksey 12.02.2012
  */
-public class RelationServiceDelegate extends EJB3Delegate implements RelationService {
+public class RelationServiceDelegate extends Ejb3Delegate implements RelationService {
 
     public RelationServiceDelegate() {
         super(RelationService.class);

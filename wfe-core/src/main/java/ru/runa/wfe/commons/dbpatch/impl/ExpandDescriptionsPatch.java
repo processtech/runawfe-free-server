@@ -3,9 +3,9 @@ package ru.runa.wfe.commons.dbpatch.impl;
 import java.sql.Types;
 import java.util.List;
 
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class ExpandDescriptionsPatch extends DBPatch {
+public class ExpandDescriptionsPatch extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

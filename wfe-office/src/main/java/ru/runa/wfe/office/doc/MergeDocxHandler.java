@@ -12,11 +12,11 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.office.doc.MergeDocxConfig.DocxInfo;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
 import ru.runa.wfe.office.shared.OfficeFilesSupplierHandler;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.collect.Maps;
 
@@ -28,7 +28,7 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
     }
 
     @Override
-    protected Map<String, Object> executeAction(IVariableProvider variableProvider, IFileDataProvider fileDataProvider) throws Exception {
+    protected Map<String, Object> executeAction(VariableProvider variableProvider, FileDataProvider fileDataProvider) throws Exception {
         Map<String, Object> result = Maps.newHashMap();
         List<DocxInfo> infos = config.getInputFileInfos();
         if (infos.isEmpty()) {

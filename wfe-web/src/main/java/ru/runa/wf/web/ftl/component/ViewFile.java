@@ -22,7 +22,7 @@ import java.util.Map;
 
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.commons.web.WebHelper;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -39,7 +39,7 @@ public class ViewFile extends FormComponent {
     protected Object renderRequest() throws Exception {
         String variableName = getParameterAsString(0);
         String view = getParameterAsString(1);
-        IFileVariable fileVariable = variableProvider.getValueNotNull(IFileVariable.class, variableName);
+        FileVariable fileVariable = variableProvider.getValueNotNull(FileVariable.class, variableName);
         if ("content".equals(view)) {
             String content = new String(fileVariable.getData(), Charsets.UTF_8);
             if (textFileExtensions.contains(Files.getFileExtension(fileVariable.getName()))) {

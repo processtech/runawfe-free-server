@@ -52,9 +52,9 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.extension.ProcessEndHandler;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.Node;
@@ -67,7 +67,7 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Is one execution of a {@link ru.runa.wfe.lang.ProcessDefinition}.
@@ -219,7 +219,7 @@ public class Process extends SecuredObjectBase {
         // process
         NodeProcess parentNodeProcess = executionContext.getParentNodeProcess();
         if (parentNodeProcess != null && !parentNodeProcess.getParentToken().hasEnded()) {
-            IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
             Node node = parentProcessDefinition.getNodeNotNull(parentNodeProcess.getNodeId());
             Synchronizable synchronizable = (Synchronizable) node;
@@ -231,8 +231,8 @@ public class Process extends SecuredObjectBase {
 
         // make sure all the timers for this process are canceled
         // after the process end updates are posted to the database
-        JobDAO jobDAO = ApplicationContextFactory.getJobDAO();
-        jobDAO.deleteByProcess(this);
+        JobDao jobDao = ApplicationContextFactory.getJobDAO();
+        jobDao.deleteByProcess(this);
         if (canceller != null) {
             executionContext.addLog(new ProcessCancelLog(canceller));
         } else {
@@ -281,12 +281,12 @@ public class Process extends SecuredObjectBase {
             }
         }
         if (SystemProperties.deleteTemporaryGroupsOnProcessEnd()) {
-            ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-            List<TemporaryGroup> groups = executorDAO.getTemporaryGroups(id);
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+            List<TemporaryGroup> groups = executorDao.getTemporaryGroups(id);
             for (TemporaryGroup temporaryGroup : groups) {
                 if (ApplicationContextFactory.getProcessDAO().getDependentProcessIds(temporaryGroup).isEmpty()) {
                     log.debug("Cleaning " + temporaryGroup);
-                    executorDAO.remove(temporaryGroup);
+                    executorDao.remove(temporaryGroup);
                 } else {
                     log.debug("Group " + temporaryGroup + " deletion postponed");
                 }
@@ -297,7 +297,7 @@ public class Process extends SecuredObjectBase {
     private void endSubprocessAndTasksOnMainProcessEndRecursively(ExecutionContext executionContext, Actor canceller) {
         List<Process> subprocesses = executionContext.getSubprocesses();
         if (subprocesses.size() > 0) {
-            IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             for (Process subProcess : subprocesses) {
                 ProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
                 ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);

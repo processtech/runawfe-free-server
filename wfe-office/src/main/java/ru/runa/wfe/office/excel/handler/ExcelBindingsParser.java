@@ -5,7 +5,7 @@ import java.util.List;
 import org.dom4j.Element;
 
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.office.excel.IExcelConstraints;
+import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
 
 import com.google.common.base.Preconditions;
@@ -26,7 +26,7 @@ public class ExcelBindingsParser extends FilesSupplierConfigParser<ExcelBindings
             Preconditions.checkNotNull(className, "Missed 'class' attribute in binding element");
             String variableName = bindingElement.attributeValue("variable");
             Preconditions.checkNotNull(variableName, "Missed 'variable' attribute in binding element");
-            IExcelConstraints constraints = ClassLoaderUtil.instantiate(className);
+            ExcelConstraints constraints = ClassLoaderUtil.instantiate(className);
             Element configElement = bindingElement.element("config");
             Preconditions.checkNotNull(configElement, "Missed 'config' element in binding element");
             constraints.configure(configElement);

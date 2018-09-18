@@ -219,7 +219,7 @@
 
 	<bean id="processFactory" class="ru.runa.wfe.execution.ProcessFactory" />
 
-	<bean id="taskListBuilder" class="ru.runa.wfe.task.logic.TaskListBuilder">
+	<bean id="taskListBuilder" class="ru.runa.wfe.task.logic.TaskListBuilderImpl">
 		<constructor-arg ref="taskCache"/>
 	</bean>
 
@@ -228,7 +228,7 @@
 	<bean id="loginModuleConfiguration" class="ru.runa.wfe.security.auth.LoginModuleConfiguration">
 		<property name="loginModuleClassNames">
 			<list>
-				<value>ru.runa.wfe.security.auth.InternalDBPasswordLoginModule</value>
+				<value>ru.runa.wfe.security.auth.InternalDbPasswordLoginModule</value>
 				<!-- value>ru.runa.wfe.security.auth.LdapLoginModule</value -->
 				<value>ru.runa.wfe.security.auth.KerberosLoginModule</value>
 				<!-- value>ru.runa.wfe.security.auth.PrincipalLoginModule</value -->
@@ -287,11 +287,11 @@
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
 	
-	<bean id="executionContextFactory" class="ru.runa.wfe.execution.DefaultExecutionContextFactory" />
+	<bean id="executionContextFactory" class="ru.runa.wfe.execution.ExecutionContextFactory" />
 	
 	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
 	
-	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JMSNodeAsyncExecutor" />
+	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JmsNodeAsyncExecutor" />
 	
 	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
 	

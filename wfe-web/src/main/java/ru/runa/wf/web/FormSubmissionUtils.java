@@ -21,7 +21,7 @@ import ru.runa.wfe.commons.ftl.FreemarkerProcessor;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
@@ -83,7 +83,7 @@ public class FormSubmissionUtils {
     }
 
     public static Map<String, Object> getPreviousUserInputVariables(HttpServletRequest request, Interaction interaction,
-            IVariableProvider variableProvider) {
+            VariableProvider variableProvider) {
         return (Map<String, Object>) request.getAttribute(USER_DEFINED_VARIABLES);
     }
 
@@ -92,7 +92,7 @@ public class FormSubmissionUtils {
     }
 
     public static Map<String, Object> extractVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction,
-            IVariableProvider variableProvider) {
+            VariableProvider variableProvider) {
         Map<String, String> errors = Maps.newHashMap();
         Map<String, Object> userInput = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
         userInput.putAll(getUserInputFiles(request, request.getParameter("id")));
@@ -119,7 +119,7 @@ public class FormSubmissionUtils {
         return variableValue;
     }
 
-    private static Map<String, Object> extractVariables(HttpServletRequest request, Interaction interaction, IVariableProvider variableProvider,
+    private static Map<String, Object> extractVariables(HttpServletRequest request, Interaction interaction, VariableProvider variableProvider,
             Map<String, ? extends Object> userInput, Map<String, String> errors) {
         try {
             User user = Commons.getUser(request.getSession());

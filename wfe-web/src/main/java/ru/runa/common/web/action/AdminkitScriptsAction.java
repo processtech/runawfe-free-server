@@ -19,7 +19,7 @@ import org.apache.struts.action.ActionMessages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.AdminScriptForm;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.client.AdminScriptClient;
 import ru.runa.wfe.service.client.AdminScriptClient.Handler;
@@ -49,7 +49,7 @@ public class AdminkitScriptsAction extends ActionBase {
             } else if ("execute".equals(action)) {
                 executeRun(request, response, getScript(form), ajaxRequest, errors);
             } else if ("executeUploadedScript".equals(action)) {
-                File file = new File(IOCommons.getAdminkitScriptsDirPath() + fileName);
+                File file = new File(IoCommons.getAdminkitScriptsDirPath() + fileName);
                 byte[] script = FileUtils.readFileToByteArray(file);
                 executeRun(request, response, script, ajaxRequest, errors);
             } else if ("save".equals(action)) {

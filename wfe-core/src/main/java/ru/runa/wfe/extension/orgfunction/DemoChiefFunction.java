@@ -35,7 +35,7 @@ public class DemoChiefFunction extends ActorOrgFunctionBase {
 
     @Override
     protected List<Long> getActorCodes(Long actorCode) {
-        Actor actor = executorDAO.getActorByCode(actorCode);
+        Actor actor = executorDao.getActorByCode(actorCode);
         Set<String> patterns = DemoChiefResources.getPatterns();
         String chiefName = null;
         for (String pattern : patterns) {
@@ -43,9 +43,9 @@ public class DemoChiefFunction extends ActorOrgFunctionBase {
                 chiefName = DemoChiefResources.getChiefName(pattern);
                 break;
             }
-            if (executorDAO.isExecutorExist(pattern)) {
-                Group group = executorDAO.getGroup(pattern);
-                if (executorDAO.isExecutorInGroup(actor, group)) {
+            if (executorDao.isExecutorExist(pattern)) {
+                Group group = executorDao.getGroup(pattern);
+                if (executorDao.isExecutorInGroup(actor, group)) {
                     chiefName = DemoChiefResources.getChiefName(pattern);
                     break;
                 }
@@ -54,7 +54,7 @@ public class DemoChiefFunction extends ActorOrgFunctionBase {
         if (chiefName == null) {
             throw new OrgFunctionException("Wrong parameter: '" + actorCode + "' (Chief cannot be determined)");
         }
-        return Lists.newArrayList(executorDAO.getActor(chiefName).getCode());
+        return Lists.newArrayList(executorDao.getActor(chiefName).getCode());
     }
 
 }

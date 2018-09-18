@@ -6,7 +6,7 @@ import java.util.Map;
 
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.user.IExecutorLoader;
+import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.BigDecimalFormat;
@@ -55,7 +55,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
      */
     private final HttpComponentToVariableValue componentToVariableValue;
 
-    public HttpFormToVariableValue(Map<String, ? extends Object> userInput, IExecutorLoader executorLoader) {
+    public HttpFormToVariableValue(Map<String, ? extends Object> userInput, ExecutorLoader executorLoader) {
         this.userInput = userInput;
         componentToVariableValue = new HttpComponentToVariableValue(executorLoader, errors);
     }

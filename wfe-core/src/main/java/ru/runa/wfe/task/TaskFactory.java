@@ -14,12 +14,12 @@ import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.lang.jpdl.CreateTimerAction;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
 
 public class TaskFactory {
     @Autowired
-    private TaskDAO taskDAO;
+    private TaskDao taskDao;
 
     /**
      * creates a new task on the given task, in the given execution context.
@@ -31,8 +31,8 @@ public class TaskFactory {
         task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), getDeadlineDuration(taskDefinition)));
         task.setDeadlineDateExpression(taskDefinition.getDeadlineDuration());
         task.setIndex(index);
-        taskDAO.create(task);
-        taskDAO.flushPendingChanges();
+        taskDao.create(task);
+        taskDao.flushPendingChanges();
         executionContext.addLog(new TaskCreateLog(task));
         taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
         task.setSwimlane(swimlane);

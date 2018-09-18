@@ -13,7 +13,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.dao.SettingDAO;
+import ru.runa.wfe.commons.dao.SettingDao;
 
 public class PropertyResources {
     private static final Log log = LogFactory.getLog(PropertyResources.class);
@@ -24,7 +24,7 @@ public class PropertyResources {
 
     private static Map<String, String> propertiesCache = Maps.newHashMap();
 
-    private SettingDAO settingDAO = null;
+    private SettingDao settingDao = null;
 
     public static void setDatabaseAvailable(boolean available) {
         databaseAvailable = available;
@@ -71,14 +71,14 @@ public class PropertyResources {
 
     public String getStringProperty(String name) {
         if (databaseAvailable && useDatabase) {
-            if (settingDAO == null) {
+            if (settingDao == null) {
                 try {
-                    settingDAO = ApplicationContextFactory.getSettingDAO();
+                    settingDao = ApplicationContextFactory.getSettingDAO();
                 } catch (Exception e) {
                     log.error("No SettingDAO available", e);
                 }
             }
-            if (settingDAO != null) {
+            if (settingDao != null) {
                 // TODO ineffective implementation
                 synchronized (propertiesCache) {
                     String fullName = fileName + '#' + name;
@@ -86,7 +86,7 @@ public class PropertyResources {
                         return propertiesCache.get(fullName);
                     }
                     try {
-                        String value = settingDAO.getValue(fileName, name);
+                        String value = settingDao.getValue(fileName, name);
                         if (value == null) {
                             value = properties.getProperty(name);
                         }

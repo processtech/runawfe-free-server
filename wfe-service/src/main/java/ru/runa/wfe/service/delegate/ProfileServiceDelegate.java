@@ -22,7 +22,7 @@ import ru.runa.wfe.service.ProfileService;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 
-public class ProfileServiceDelegate extends EJB3Delegate implements ProfileService {
+public class ProfileServiceDelegate extends Ejb3Delegate implements ProfileService {
 
     public ProfileServiceDelegate() {
         super(ProfileService.class);

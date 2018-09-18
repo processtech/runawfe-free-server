@@ -1,34 +1,33 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-
-import ru.runa.wfe.var.IVariableProvider;
-
-import com.google.common.collect.Lists;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import ru.runa.wfe.var.VariableProvider;
 
 public class TableExpansionOperation extends Operation {
-    private final List<XWPFTableCell> cells;
+    private final XWPFTableRow templateRow;
     private int rows = 0;
     private final List<ColumnExpansionOperation> operations;
     private List<Comparable> sortedMapKeys = null;
 
-    public TableExpansionOperation(List<XWPFTableCell> cells) {
-        this.cells = cells;
-        this.operations = Lists.newArrayListWithExpectedSize(cells.size());
+    public TableExpansionOperation(XWPFTableRow templateRow) {
+        this.templateRow = templateRow;
+        this.operations = Lists.newArrayListWithExpectedSize(templateRow.getTableCells().size());
     }
 
-    public XWPFTableCell getCell(int columnIndex) {
-        if (columnIndex < cells.size()) {
-            return cells.get(columnIndex);
-        }
-        return null;
+    public XWPFTableRow getTemplateRow() {
+        return templateRow;
     }
-    
+
+    public XWPFTableCell getTemplateCell(int columnIndex) {
+        return templateRow.getCell(columnIndex);
+    }
+
     public int getRows() {
         return rows;
     }
@@ -59,7 +58,7 @@ public class TableExpansionOperation extends Operation {
         }
     }
 
-    public String getStringValue(DocxConfig config, IVariableProvider variableProvider, int columnIndex, int rowIndex) {
+    public String getStringValue(DocxConfig config, VariableProvider variableProvider, int columnIndex, int rowIndex) {
         ColumnExpansionOperation operation = operations.get(columnIndex);
         if (operation != null) {
             Object key;

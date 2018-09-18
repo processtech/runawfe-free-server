@@ -5,7 +5,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.IExecutorLoader;
+import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
@@ -40,7 +40,7 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    protected IExecutorLoader getExecutorLoader() {
+    protected ExecutorLoader getExecutorLoader() {
         return new DelegateExecutorLoader(user);
     }
 

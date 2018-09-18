@@ -126,6 +126,12 @@
 				<artifactId>javamelody-core</artifactId>
 				<version>1.44.0</version>
 			</dependency>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>1.18.0</version>
+				<scope>provided</scope>  <!-- we don't need it in runtime -->
+			</dependency>
 
 			<!-- persistence -->
 			<dependency>
@@ -299,6 +305,13 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<resources>

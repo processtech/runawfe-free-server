@@ -7,7 +7,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Throwables;
 
@@ -41,7 +41,7 @@ public abstract class CommonParamBasedHandler extends TaskHandlerBase implements
     }
 
     @Override
-    public Map<String, Object> handle(final User user, final IVariableProvider variableProvider, final WfTask task) throws Exception {
+    public Map<String, Object> handle(final User user, final VariableProvider variableProvider, final WfTask task) throws Exception {
         HandlerData handlerData = new HandlerData(paramsDef, user, variableProvider, task);
         TimeMeasurer timeMeasurer = new TimeMeasurer(log);
         try {

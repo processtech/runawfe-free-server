@@ -6,7 +6,7 @@ import java.util.Map;
 
 import ru.runa.wfe.extension.handler.CommonHandler;
 import ru.runa.wfe.extension.handler.var.ConvertMapsToListsConfig.Sorting;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -20,7 +20,7 @@ public class ConvertMapsToListsHandler extends CommonHandler {
     }
 
     @Override
-    protected Map<String, Object> executeAction(IVariableProvider variableProvider) throws Exception {
+    protected Map<String, Object> executeAction(VariableProvider variableProvider) throws Exception {
         Map<String, Object> output = Maps.newHashMap();
         String sortBy = config.getSorting().getSortBy();
         List<SortingKey> sortingKeys = Lists.newArrayList();

@@ -25,10 +25,9 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.decl.ProfileServiceLocal;
 import ru.runa.wfe.service.decl.ProfileServiceRemote;
@@ -38,8 +37,6 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ProfileLogic;
-
-import com.google.common.base.Preconditions;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -52,45 +49,36 @@ public class ProfileServiceBean implements ProfileServiceLocal, ProfileServiceRe
 
     @Override
     @WebResult(name = "result")
-    public Profile getProfile(@WebParam(name = "user") User user) {
-        Preconditions.checkArgument(user != null, "user");
+    public Profile getProfile(@WebParam(name = "user") @NonNull User user) {
         return profileLogic.getProfile(user.getActor());
     }
 
     @Override
     @WebResult(name = "result")
-    public Profile setActiveBatchPresentation(@WebParam(name = "user") User user, @WebParam(name = "batchPresentationId") String batchPresentationId,
-            @WebParam(name = "newActiveBatchName") String newActiveBatchName) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(batchPresentationId != null, "batchPresentationId");
-        Preconditions.checkArgument(newActiveBatchName != null, "newActiveBatchName");
+    public Profile setActiveBatchPresentation(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentationId") @NonNull String batchPresentationId,
+            @WebParam(name = "newActiveBatchName") @NonNull String newActiveBatchName) {
         return profileLogic.changeActiveBatchPresentation(user, batchPresentationId, newActiveBatchName);
     }
 
     @Override
     @WebResult(name = "result")
-    public Profile deleteBatchPresentation(@WebParam(name = "user") User user,
-            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(batchPresentation != null, "batchPresentation");
+    public Profile deleteBatchPresentation(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") @NonNull BatchPresentation batchPresentation) {
         return profileLogic.deleteBatchPresentation(user, batchPresentation);
     }
 
     @Override
     @WebResult(name = "result")
-    public Profile createBatchPresentation(@WebParam(name = "user") User user,
-            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(batchPresentation != null, "batchPresentation");
+    public Profile createBatchPresentation(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") @NonNull BatchPresentation batchPresentation) {
         return profileLogic.createBatchPresentation(user, batchPresentation);
     }
 
     @Override
     @WebResult(name = "result")
-    public Profile saveBatchPresentation(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(batchPresentation != null, "batchPresentation");
+    public Profile saveBatchPresentation(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") @NonNull BatchPresentation batchPresentation) {
         return profileLogic.saveBatchPresentation(user, batchPresentation);
     }
-
 }

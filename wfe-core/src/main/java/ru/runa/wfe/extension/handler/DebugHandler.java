@@ -3,7 +3,7 @@ package ru.runa.wfe.extension.handler;
 import java.util.Map;
 
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Empty handler. Can be used as a stub for old action handlers with mapping
@@ -14,7 +14,7 @@ import ru.runa.wfe.var.IVariableProvider;
 public class DebugHandler extends CommonHandler {
 
     @Override
-    protected Map<String, Object> executeAction(IVariableProvider variableProvider) throws Exception {
+    protected Map<String, Object> executeAction(VariableProvider variableProvider) throws Exception {
         log.debug("Executing in process " + variableProvider.getProcessId());
         log.debug("data: " + configuration);
         return null;

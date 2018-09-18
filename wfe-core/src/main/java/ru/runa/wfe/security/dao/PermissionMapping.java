@@ -31,6 +31,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
@@ -47,15 +49,35 @@ import ru.runa.wfe.user.Executor;
         uniqueConstraints = @UniqueConstraint(name = "UQ_MAPPINGS", columnNames = { "OBJECT_ID", "OBJECT_TYPE", "PERMISSION", "EXECUTOR_ID" })
 )
 @org.hibernate.annotations.Table(appliesTo = "PERMISSION_MAPPING", indexes = {
-        //@Index(name = "IX_PERMISSION_BY_OBJECT_ID", columnNames = { "OBJECT_ID", "OBJECT_TYPE", "PERMISSION", "EXECUTOR_ID" })
         @Index(name = "IX_PERMISSION_MAPPING_DATA", columnNames = { "EXECUTOR_ID", "OBJECT_TYPE", "PERMISSION", "OBJECT_ID" })
 })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Getter
+@Setter
 public class PermissionMapping {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_PERMISSION_MAPPING", allocationSize = 1)
+    @Column(name = "ID", nullable = false)
     private Long id;
+
+    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "EXECUTOR_ID", nullable = false)
+    @ForeignKey(name = "FK_PERMISSION_EXECUTOR")
     private Executor executor;
+
+    @Column(name = "OBJECT_TYPE", nullable = false)
+    @Type(type = "ru.runa.wfe.commons.hibernate.SecuredObjectTypeType")
+    @QueryType(PropertyType.COMPARABLE)
     private SecuredObjectType objectType;
+
+    @Column(name = "OBJECT_ID", nullable = false)
     private Long objectId;
+
+    @Column(name = "PERMISSION", nullable = false)
+    @Type(type = "ru.runa.wfe.commons.hibernate.PermissionType")
+    @QueryType(PropertyType.COMPARABLE)
     private Permission permission;
 
     protected PermissionMapping() {
@@ -73,60 +95,6 @@ public class PermissionMapping {
         setObjectType(objectType);
         setObjectId(objectId);
         setPermission(permission);
-    }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_PERMISSION_MAPPING", allocationSize = 1)
-    @Column(name = "ID", nullable = false)
-    public Long getId() {
-        return id;
-    }
-
-    protected void setId(Long id) {
-        this.id = id;
-    }
-
-    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "EXECUTOR_ID", nullable = false)
-    @ForeignKey(name = "FK_PERMISSION_EXECUTOR")
-    public Executor getExecutor() {
-        return executor;
-    }
-
-    private void setExecutor(Executor executor) {
-        this.executor = executor;
-    }
-
-    @Column(name = "OBJECT_TYPE", nullable = false)
-    @Type(type = "ru.runa.wfe.commons.hibernate.SecuredObjectTypeType")
-    @QueryType(PropertyType.COMPARABLE)
-    public SecuredObjectType getObjectType() {
-        return objectType;
-    }
-
-    public void setObjectType(SecuredObjectType objectType) {
-        this.objectType = objectType;
-    }
-
-    @Column(name = "OBJECT_ID", nullable = false)
-    public Long getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(Long objectId) {
-        this.objectId = objectId;
-    }
-
-    @Column(name = "PERMISSION", nullable = false)
-    @Type(type = "ru.runa.wfe.commons.hibernate.PermissionType")
-    @QueryType(PropertyType.COMPARABLE)
-    public Permission getPermission() {
-        return permission;
-    }
-
-    public void setPermission(Permission permission) {
-        this.permission = permission;
     }
 
     @Override

@@ -5,12 +5,12 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.DBType;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.DbType;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 import com.google.common.collect.Lists;
 
-public class PerformancePatch401 extends DBPatch {
+public class PerformancePatch401 extends DbPatch {
 
     // Cannot rely on model in migrations, even on enums:
     // SecuredObjectType evolved to extensible pseudo-enum without ordinal() method.
@@ -56,7 +56,7 @@ public class PerformancePatch401 extends DBPatch {
         sql.add(getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_EXECUTOR", "EXECUTOR_ID", "TYPE_ID", "MASK", "IDENTIFIABLE_ID"));
         sql.add(getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_IDENTIFIABLE", "IDENTIFIABLE_ID", "TYPE_ID", "MASK", "EXECUTOR_ID"));
         //
-        if (dbType == DBType.MSSQL) {
+        if (dbType == DbType.MSSQL) {
             sql.add("CREATE NONCLUSTERED INDEX IX_VARIABLE_NAME ON BPM_VARIABLE (NAME) INCLUDE (PROCESS_ID, STRINGVALUE)");
         } else {
             sql.add(getDDLCreateIndex("BPM_VARIABLE", "IX_VARIABLE_NAME", "NAME"));

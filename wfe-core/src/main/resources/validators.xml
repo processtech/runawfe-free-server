@@ -6,10 +6,9 @@
     <validator name="range" class="ru.runa.wfe.validation.impl.RangeFieldValidator"/>
     <validator name="number" class="ru.runa.wfe.validation.impl.RangeFieldValidator"/>
     <validator name="date" class="ru.runa.wfe.validation.impl.RangeFieldValidator"/>
-    <!-- validator name="expression" class="ru.runa.wfe.validation.impl.BSHExpressionValidator"/ -->
     <validator name="expression" class="ru.runa.wfe.validation.impl.GroovyExpressionValidator"/>
     <validator name="email" class="ru.runa.wfe.validation.impl.EmailValidator"/>
-    <validator name="url" class="ru.runa.wfe.validation.impl.URLValidator"/>
+    <validator name="url" class="ru.runa.wfe.validation.impl.UrlValidator"/>
     <validator name="stringlength" class="ru.runa.wfe.validation.impl.StringLengthFieldValidator"/>
     <validator name="regex" class="ru.runa.wfe.validation.impl.RegexFieldValidator"/>
     <validator name="fileSize" class="ru.runa.wfe.validation.impl.FileSizeValidator"/>

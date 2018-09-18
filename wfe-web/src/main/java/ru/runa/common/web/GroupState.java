@@ -20,7 +20,7 @@ package ru.runa.common.web;
 import java.util.Arrays;
 import java.util.List;
 
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 
@@ -56,8 +56,8 @@ public class GroupState {
 
     private int[] separatedValueNum = null;
 
-    private final TDBuilder.Env env;
-    private TDBuilder[] builders;
+    private final TdBuilder.Env env;
+    private TdBuilder[] builders;
 
     public int getAdditionalColumn() {
         int retVal = 0;
@@ -71,8 +71,8 @@ public class GroupState {
         separatedValueNum = val.clone();
     }
 
-    public static GroupState createStartState(List<? extends Object> items, BatchPresentation batchPresentation, TDBuilder[] builders,
-            TDBuilder.Env env) {
+    public static GroupState createStartState(List<? extends Object> items, BatchPresentation batchPresentation, TdBuilder[] builders,
+            TdBuilder.Env env) {
         GroupState startState;
         if (items.size() > 0) {
             startState = new GroupState(items, batchPresentation, builders, env);
@@ -97,7 +97,7 @@ public class GroupState {
         env = null;
     }
 
-    private GroupState(List<? extends Object> items, BatchPresentation batchPresentation, TDBuilder[] builders, TDBuilder.Env env) {
+    private GroupState(List<? extends Object> items, BatchPresentation batchPresentation, TdBuilder[] builders, TdBuilder.Env env) {
         this.items = items;
         this.batchPresentation = batchPresentation;
         stateType = GroupState.StateType.TYPE_NORMAL_STATE;
@@ -121,7 +121,7 @@ public class GroupState {
         StringBuilder buf = new StringBuilder();
         for (int i = 0; i <= groupIndex; i++) {
             buf.append(batchPresentation.getGrouppedFields()[i].dbSources[0].getValueDBPath(null, null));
-            buf.append(((TDBuilder) batchPresentation.getGrouppedFields()[i].getTDBuilder()).getSeparatedValues(items.get(itemIndex), env)[separatedValueNum[i]]);
+            buf.append(((TdBuilder) batchPresentation.getGrouppedFields()[i].getTdBuilder()).getSeparatedValues(items.get(itemIndex), env)[separatedValueNum[i]]);
         }
         return buf.toString();
     }
@@ -131,7 +131,7 @@ public class GroupState {
     }
 
     public String getCurrentGrouppedColumnValue(int propertyIndex) {
-        return ((TDBuilder) batchPresentation.getGrouppedFields()[propertyIndex].getTDBuilder()).getSeparatedValues(items.get(itemIndex), env)[separatedValueNum[propertyIndex]];
+        return ((TdBuilder) batchPresentation.getGrouppedFields()[propertyIndex].getTdBuilder()).getSeparatedValues(items.get(itemIndex), env)[separatedValueNum[propertyIndex]];
     }
 
     public int getItemIndex() {
@@ -161,7 +161,7 @@ public class GroupState {
      * Increments group index in group state
      */
     private void incrementGroupIndex() {
-        int sepCount = ((TDBuilder) batchPresentation.getGrouppedFields()[groupIndex].getTDBuilder()).getSeparatedValuesCount(items.get(itemIndex),
+        int sepCount = ((TdBuilder) batchPresentation.getGrouppedFields()[groupIndex].getTdBuilder()).getSeparatedValuesCount(items.get(itemIndex),
                 env);
         separatedValueNum[groupIndex]++;
         if (separatedValueNum[groupIndex] != sepCount) {
@@ -336,15 +336,15 @@ public class GroupState {
         nextState.setSeparatedValueNum(state.separatedValueNum);
         nextState.setGroupIndex(state.getGroupIndex());
         for (int i = 0; i < state.getGroupIndex(); ++i) {
-            TDBuilder tdBuilder = (TDBuilder) batchPresentation.getGrouppedFields()[i].getTDBuilder();
+            TdBuilder tdBuilder = (TdBuilder) batchPresentation.getGrouppedFields()[i].getTdBuilder();
             if (!Arrays.deepEquals(tdBuilder.getSeparatedValues(items.get(state.itemIndex), env),
                     tdBuilder.getSeparatedValues(items.get(nextState.itemIndex), env))) {
                 return false;
             }
         }
-        String[] stateSeparatedValues = ((TDBuilder) batchPresentation.getGrouppedFields()[state.getGroupIndex()].getTDBuilder()).getSeparatedValues(
+        String[] stateSeparatedValues = ((TdBuilder) batchPresentation.getGrouppedFields()[state.getGroupIndex()].getTdBuilder()).getSeparatedValues(
                 items.get(state.itemIndex), env);
-        String[] nextSeparatedValues = ((TDBuilder) batchPresentation.getGrouppedFields()[nextState.getGroupIndex()].getTDBuilder())
+        String[] nextSeparatedValues = ((TdBuilder) batchPresentation.getGrouppedFields()[nextState.getGroupIndex()].getTdBuilder())
                 .getSeparatedValues(items.get(nextState.itemIndex), env);
         int subCount = state.separatedValueNum[state.getGroupIndex()];
         if (subCount >= stateSeparatedValues.length || subCount >= nextSeparatedValues.length) {
@@ -360,7 +360,7 @@ public class GroupState {
         return true;
     }
 
-    static public int getMaxAdditionalCellsNum(BatchPresentation batchPresentation, List<?> items, TDBuilder.Env env) {
+    static public int getMaxAdditionalCellsNum(BatchPresentation batchPresentation, List<?> items, TdBuilder.Env env) {
         FieldDescriptor[] grouppedFields = batchPresentation.getGrouppedFields();
         if (grouppedFields == null || grouppedFields.length == 0) {
             return 0;
@@ -369,7 +369,7 @@ public class GroupState {
         int[] maxAddCells = new int[grouppedFields.length];
         for (int i = 0; i < grouppedFields.length; ++i) {
             maxAddCells[i] = 1;
-            TDBuilder tdBuilder = (TDBuilder) grouppedFields[i].getTDBuilder();
+            TdBuilder tdBuilder = (TdBuilder) grouppedFields[i].getTdBuilder();
             for (Object obj : items) {
                 int num = tdBuilder.getSeparatedValuesCount(obj, env);
                 if (num > maxAddCells[i]) {

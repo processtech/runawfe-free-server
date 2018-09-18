@@ -14,7 +14,7 @@ import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 
 import com.google.common.base.Objects;
@@ -115,7 +115,7 @@ public class Errors {
                         EmailConfig config = EmailConfigParser.parse(emailNotificationConfigBytes);
                         Map<String, Object> map = Maps.newHashMap();
                         map.put("error", error);
-                        IVariableProvider variableProvider = new MapVariableProvider(map);
+                        VariableProvider variableProvider = new MapVariableProvider(map);
                         config.applySubstitutions(variableProvider);
                         String formMessage = ExpressionEvaluator.process(null, config.getMessage(), variableProvider, null);
                         config.setMessage(formMessage);

@@ -31,7 +31,7 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
@@ -146,7 +146,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
     public GenerateHtmlForVariableResult onFile(FileFormat fileFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
-        return new GenerateHtmlForVariableResult(context, getFileComponent(webHelper, variableName, (IFileVariable) value, !context.readonly));
+        return new GenerateHtmlForVariableResult(context, getFileComponent(webHelper, variableName, (FileVariable) value, !context.readonly));
     }
 
     @Override
@@ -392,7 +392,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         return html.toString();
     }
 
-    public static String getFileComponent(WebHelper webHelper, String variableName, IFileVariable value, boolean enabled) {
+    public static String getFileComponent(WebHelper webHelper, String variableName, FileVariable value, boolean enabled) {
         if (!WebResources.isAjaxFileInputEnabled()) {
             return "<input type=\"file\" name=\"" + variableName + "\" class=\"inputFile\" />";
         }

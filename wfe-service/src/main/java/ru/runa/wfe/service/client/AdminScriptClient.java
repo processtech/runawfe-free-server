@@ -36,7 +36,7 @@ import javax.xml.bind.Unmarshaller;
 import org.w3c.dom.Element;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.TransactionScopeDto;
 import ru.runa.wfe.script.common.TransactionScopeType;
@@ -166,7 +166,7 @@ public class AdminScriptClient {
             } else if (processFile.isFile()) {
                 result.put(resource, Files.toByteArray(new File(resource)));
             } else {
-                result.put(resource, IOCommons.jarToBytesArray(processFile));
+                result.put(resource, IoCommons.jarToBytesArray(processFile));
             }
         }
         return result;

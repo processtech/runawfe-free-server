@@ -34,8 +34,8 @@ import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskCompletionInfo;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 
 public class CatchEventNode extends BaseMessageNode implements BoundaryEventContainer, BoundaryEvent {
     private static final long serialVersionUID = 1L;
@@ -79,7 +79,7 @@ public class CatchEventNode extends BaseMessageNode implements BoundaryEventCont
         for (Signal signal : signals) {
             Map<String, String> messageSelectorsMap = signal.getMessageSelectorsMap();
             boolean suitable = true;
-            IVariableProvider variableProvider = executionContext.getVariableProvider();
+            VariableProvider variableProvider = executionContext.getVariableProvider();
             for (VariableMapping mapping : getVariableMappings()) {
                 if (mapping.isPropertySelector()) {
                     String selectorValue = messageSelectorsMap.get(mapping.getName());

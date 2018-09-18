@@ -8,7 +8,7 @@ import java.util.Map;
 
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 
 /**
@@ -20,11 +20,11 @@ public abstract class FieldValidator extends Validator {
     private Object fieldValue;
 
     @Override
-    public void init(User user, ExecutionContext executionContext, IVariableProvider variableProvider, ValidatorConfig config,
+    public void init(User user, ExecutionContext executionContext, VariableProvider variableProvider, ValidatorConfig config,
             ValidatorContext validatorContext, Map<String, Object> variables) {
         super.init(user, executionContext, variableProvider, config, validatorContext, variables);
         fieldName = config.getParams().get(FIELD_NAME_PARAMETER_NAME);
-        IVariableProvider newVariableProvider = new MapDelegableVariableProvider(variables, variableProvider);
+        VariableProvider newVariableProvider = new MapDelegableVariableProvider(variables, variableProvider);
         fieldValue = newVariableProvider.getValue(fieldName);
     }
 
