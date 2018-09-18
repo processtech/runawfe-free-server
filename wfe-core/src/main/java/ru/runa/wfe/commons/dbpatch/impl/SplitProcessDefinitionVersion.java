@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
-import com.google.common.collect.ImmutableList;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Types;
@@ -37,7 +36,7 @@ public class SplitProcessDefinitionVersion extends DbPatch {
             throw new RuntimeException(sb.toString());
         }
 
-        return ImmutableList.of(
+        return list(
             // I want to avoid sequence setval(), since some SQL servers don't have sequences. So I rename table and secuence instead.
             getDDLRenameTable("bpm_process_definition", "bpm_process_definition_ver"),
             getDDLRenameSequence("seq_bpm_process_definition", "seq_bpm_process_definition_ver"),
@@ -64,7 +63,7 @@ public class SplitProcessDefinitionVersion extends DbPatch {
                         add(new VarcharColumnDef("category", 1024, false));
                     }}
             ),
-            getDDLCreateUniqueKey("bpm_process_definition", "uk_bpm_process_def_name", "name")
+            getDDLCreateUniqueKey("bpm_process_definition", "uk_process_definition_name", "name")
         );
     }
 
@@ -88,10 +87,14 @@ public class SplitProcessDefinitionVersion extends DbPatch {
                     idValue = "";
             }
             stmt.executeUpdate("insert into bpm_process_definition (" + idName + "name, language, description, category) " +
-                    // Take distinct name and arbitrary values for other fields; max() is as good as anything else.
-                    "select " + idValue + "name, max(language), max(description), max(category) " +
-                    "from bpm_process_definition " +
-                    "group by name"
+                    // Take distinct name and arbitrary values for other fields (they all should be the same in all rows with same name);
+                    // max() is as good as anything else.
+                    "select " + idValue + "d.name, d.language, d.description, d.category " +
+                    "from (" +
+                    "    select name, max(language) as language, max(description) as description, max(category) as category " +
+                    "    from bpm_process_definition_ver " +
+                    "    group by name" +
+                    ") d"
             );
 
             // Fill PROCESS_DEFINITION_VER.DEFINITION_ID (after we filled PROCESS_DEFINITION table).
@@ -133,11 +136,10 @@ public class SplitProcessDefinitionVersion extends DbPatch {
             add(getDDLModifyColumnNullability("bpm_process_definition_ver", "definition_id", dialect.getTypeName(Types.BIGINT), false));
             add(getDDLModifyColumnNullability("bpm_process_definition_ver", "subversion", dialect.getTypeName(Types.BIGINT), false));
 
-            add(getDDLCreateUniqueKey("bpm_process_definition_ver", "ix_version_definition_ver", "definition_id", "version"));
+            add(getDDLCreateUniqueKey("bpm_process_definition_ver", "uk_version_definition_ver", "definition_id", "version"));
             add(getDDLCreateForeignKey("bpm_process_definition_ver", "fk_version_definition", "definition_id", "bpm_process_definition", "id"));
 
             add(getDDLCreateIndex("bpm_process_definition", "ix_definition_latest_ver", "latest_version_id"));
-            add(getDDLCreateUniqueKey("bpm_process_definition", "ix_definition_name", "name"));
         }};
     }
 }

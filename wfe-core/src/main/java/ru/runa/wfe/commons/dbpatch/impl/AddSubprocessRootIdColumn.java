@@ -1,10 +1,9 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
-import com.google.common.collect.ImmutableList;
+import java.sql.Connection;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.List;
-import org.hibernate.Session;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
@@ -23,7 +22,7 @@ public class AddSubprocessRootIdColumn extends DbPatch {
     }
 
     @Override
-    public void executeDML(Session session) {
+    public void executeDML(Connection conn) throws Exception {
         DbType dbType = ApplicationContextFactory.getDbType();
         String sql;
 
@@ -44,7 +43,7 @@ public class AddSubprocessRootIdColumn extends DbPatch {
                         ")";
                 break;
         }
-        session.createSQLQuery(sql).executeUpdate();
+        executeUpdates(conn, sql);
 
         // Set ROOT_PROCESS_ID in loop (each step -- next deepness level in all trees), until nothing more to do.
         do {
@@ -60,12 +59,12 @@ public class AddSubprocessRootIdColumn extends DbPatch {
                             "where root_process_id is null and exists (" + subquery + ")";
                     break;
             }
-        } while (session.createSQLQuery(sql).executeUpdate() != 0);
+        } while (executeUpdates(conn, sql) != 0);
     }
 
     @Override
     protected List<String> getDDLQueriesAfter() {
-        return ImmutableList.of(
+        return list(
                 // Last, alter column to be not-null.
                 getDDLModifyColumnNullability("bpm_subprocess", "root_process_id", dialect.getTypeName(Types.BIGINT), false),
                 getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_root", "root_process_id", "bpm_process", "id")

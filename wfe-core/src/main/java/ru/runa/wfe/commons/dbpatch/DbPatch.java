@@ -4,6 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import java.sql.Connection;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
@@ -64,6 +66,37 @@ public abstract class DbPatch {
         return Lists.newArrayList();
     }
 
+    /**
+     * Helper for subclasses.
+     * <p>
+     * ImmutableList.of() requires all list items to be non-null, but getDDLCreateSequence() may return null.
+     * Arrays.asList() does not support add() and addAll() operations.
+     */
+    protected final <T> ArrayList<T> list(T... oo) {
+        val result = new ArrayList<T>(oo.length);
+        for (T o : oo) {
+            result.add(o);
+        }
+        return result;
+    }
+
+    /**
+     * Helper for subclasses.
+     *
+     * @return Result of last update.
+     */
+    protected final int executeUpdates(Connection conn, String... queries) throws Exception {
+        try (val stmt = conn.createStatement()) {
+            int result = 0;
+            for (val q : queries) {
+                if (!StringUtils.isBlank(q)) {
+                    result = stmt.executeUpdate(q);
+                }
+            }
+            return result;
+        }
+    }
+
     private void executeDDL(Session session, String category, List<String> queries) throws Exception {
         try (val stmt = session.connection().createStatement()) {
             for (val query : queries) {
@@ -75,7 +108,14 @@ public abstract class DbPatch {
         }
     }
 
+    private static void checkIndentifierLength(String id) {
+        if (id != null && id.length() > 30) {
+            throw new RuntimeException("Identifier \"" + id + "\".length " + id.length() + " > 30 (Oracle restriction)");
+        }
+    }
+
     protected final String getDDLCreateSequence(String sequenceName) {
+        checkIndentifierLength(sequenceName);
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
@@ -86,6 +126,7 @@ public abstract class DbPatch {
     }
 
     protected final String getDDLCreateSequence(String sequenceName, long nextValue) {
+        checkIndentifierLength(sequenceName);
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
@@ -106,6 +147,7 @@ public abstract class DbPatch {
     }
 
     protected final String getDDLRenameSequence(String sequenceName, String newName) {
+        checkIndentifierLength(newName);
         switch (dbType) {
             case ORACLE:
                 return "rename " + sequenceName + " to " + newName;
@@ -124,6 +166,7 @@ public abstract class DbPatch {
      */
     @Deprecated
     protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions, String unique) {
+        checkIndentifierLength(tableName);
         val query = new StringBuilder("CREATE TABLE " + tableName + " (");
         for (ColumnDef columnDef : columnDefinitions) {
             if (columnDefinitions.indexOf(columnDef) > 0) {
@@ -174,6 +217,7 @@ public abstract class DbPatch {
 
 
     protected final String getDDLRenameTable(String oldTableName, String newTableName) {
+        checkIndentifierLength(newTableName);
         switch (dbType) {
             case MSSQL:
                 return "sp_rename '" + oldTableName + "', '" + newTableName + "'";
@@ -189,16 +233,25 @@ public abstract class DbPatch {
     }
 
     protected final String getDDLCreateIndex(String tableName, String indexName, String... columnNames) {
+        checkIndentifierLength(indexName);
+        for (val cn : columnNames) {
+            checkIndentifierLength(cn);
+        }
         String conjunctedColumnNames = Joiner.on(", ").join(columnNames);
         return "CREATE INDEX " + indexName + " ON " + tableName + " (" + conjunctedColumnNames + ")";
     }
 
     protected final String getDDLCreateUniqueKey(String tableName, String constraintName, String... columnNames) {
+        checkIndentifierLength(constraintName);
+        for (val cn : columnNames) {
+            checkIndentifierLength(cn);
+        }
         String conjunctedColumnNames = Joiner.on(", ").join(columnNames);
         return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + conjunctedColumnNames + ")";
     }
 
     protected final String getDDLRenameIndex(String tableName, String indexName, String newIndexName) {
+        checkIndentifierLength(newIndexName);
         switch (dbType) {
             case MSSQL:
                 return "sp_rename '" + tableName + "." + indexName + "', '" + newIndexName + "'";
@@ -223,15 +276,18 @@ public abstract class DbPatch {
     }
 
     protected final String getDDLCreateForeignKey(String tableName, String keyName, String columnName, String refTableName, String refColumnName) {
+        checkIndentifierLength(keyName);
         return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " FOREIGN KEY (" + columnName + ") REFERENCES " + refTableName + " ("
                 + refColumnName + ")";
     }
 
     protected final String getDDLCreatePrimaryKey(String tableName, String keyName, String columnName) {
+        checkIndentifierLength(keyName);
         return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " PRIMARY KEY (" + columnName + ")";
     }
 
     protected final String getDDLRenameForeignKey(String keyName, String newKeyName) {
+        checkIndentifierLength(newKeyName);
         switch (dbType) {
             case MSSQL:
                 return "sp_rename '" + keyName + "', '" + newKeyName + "'";
@@ -346,6 +402,7 @@ public abstract class DbPatch {
          */
         @Deprecated
         public ColumnDef(String name, int sqlType, boolean allowNulls) {
+            checkIndentifierLength(name);
             this.name = name;
             this.sqlType = sqlType;
             this.allowNulls = allowNulls;
@@ -356,6 +413,7 @@ public abstract class DbPatch {
          */
         @Deprecated
         public ColumnDef(String name, String sqlTypeName, boolean allowNulls) {
+            checkIndentifierLength(name);
             this.name = name;
             this.sqlTypeName = sqlTypeName;
             this.allowNulls = allowNulls;
