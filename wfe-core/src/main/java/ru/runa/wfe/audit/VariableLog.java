@@ -24,7 +24,6 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.Variable;
@@ -36,7 +35,7 @@ import ru.runa.wfe.var.file.FileVariable;
 
 /**
  * Variables base logging class.
- * 
+ *
  * @author Dofs
  */
 @Entity
@@ -66,14 +65,13 @@ public abstract class VariableLog extends ProcessLog {
     }
 
     protected void setVariableNewValue(Variable<?> variable, Object newValue, VariableDefinition variableDefinition) {
-        addAttributeWithTruncation(ATTR_NEW_VALUE, variable.toString(newValue, variableDefinition));
+        String newValueString = newValue instanceof Executor ? ((Executor) newValue).getName() : variable.toString(newValue, variableDefinition);
+        addAttributeWithTruncation(ATTR_NEW_VALUE, newValueString);
         boolean file = newValue instanceof FileVariable;
         // TODO FileVariableMatcher
         addAttribute(ATTR_IS_FILE_VALUE, String.valueOf(file));
         if (variable.getStorableValue() instanceof byte[]) {
             setBytes((byte[]) variable.getStorableValue());
-        } else if (newValue instanceof Executor) {
-            setBytes((byte[]) new SerializableToByteArrayConverter().convert(null, variable, newValue));
         }
     }
 
