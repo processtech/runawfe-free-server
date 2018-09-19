@@ -28,7 +28,7 @@
 <tiles:put name="body" type="string">
 <%
 	String returnAction = "/manage_processes.do";
-	String batchPresentationId = ru.runa.common.WebResources.isProcessTaskFiltersEnabled() ? "listProcessesWithTasksForm" : "listProcessesForm";
+	String batchPresentationId = ru.runa.common.WebResources.isProcessTaskFiltersEnabled() ? "listCurrentProcessesWithTasksForm" : "listCurrentProcessesForm";
 %>
 <wf:listProcessesForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>">
     <div style="position: relative;">

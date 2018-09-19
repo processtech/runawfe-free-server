@@ -272,7 +272,7 @@ public class PermissionDao extends CommonDao {
      *            Secured object IDs to check.
      * @return Array of: true if executor has requested permission on securedObject; false otherwise.
      */
-    public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
+    public boolean[] isAllowed(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
         boolean[] result = new boolean[ids.size()];
         if (result.length == 0) {
             return result;

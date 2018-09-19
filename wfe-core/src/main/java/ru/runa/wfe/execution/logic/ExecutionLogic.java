@@ -141,8 +141,8 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation) {
-        List<CurrentProcess> data = getPersistentObjects(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES, true);
-        return toWfProcesses(data, batchPresentation.getDynamicFieldsToDisplay(true));
+        List<? extends Process> pp = getPersistentObjects(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES, true);
+        return toWfProcesses(pp, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
     public void deleteProcesses(User user, final ProcessFilter filter) {

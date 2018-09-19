@@ -139,9 +139,9 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
     /**
      * queries the database for definition names.
      */
-    public List<String> findDefinitionNames() {
+    public List<Long> findAllDefinitionIds() {
         QProcessDefinition d = QProcessDefinition.processDefinition;
-        return queryFactory.selectDistinct(d.name).from(d).orderBy(d.name.desc()).fetch();
+        return queryFactory.selectDistinct(d.id).from(d).orderBy(d.id.asc()).fetch();
     }
 
     /**

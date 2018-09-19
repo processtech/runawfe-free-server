@@ -75,6 +75,8 @@ public interface ExecutionService {
      *
      * @param user
      *            authorized user
+     * @param batchPresentation
+     *            of type CURRENT_PROCESSES | CURRENT_PROCESSES_WITH_TASKS | ARCHIVED_PROCESSES, or null
      * @return not <code>null</code>
      */
     int getProcessesCount(User user, BatchPresentation batchPresentation);
@@ -84,6 +86,8 @@ public interface ExecutionService {
      *
      * @param user
      *            authorized user
+     * @param batchPresentation
+     *            of type CURRENT_PROCESSES | CURRENT_PROCESSES_WITH_TASKS | ARCHIVED_PROCESSES, or null
      * @return not <code>null</code>
      */
     List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation);

@@ -90,13 +90,25 @@ public class CommonLogic {
     }
 
     public <T extends SecuredObject> void isPermissionAllowed(User user, List<T> securedObjects, Permission permission,
-            CheckMassPermissionCallback callback) {
+            CheckMassPermissionCallback<SecuredObject> callback) {
         boolean[] allowedArray = permissionDao.isAllowed(user, permission, securedObjects);
         for (int i = 0; i < allowedArray.length; i++) {
             if (allowedArray[i]) {
                 callback.onPermissionGranted(securedObjects.get(i));
             } else {
                 callback.onPermissionDenied(securedObjects.get(i));
+            }
+        }
+    }
+
+    public void isPermissionAllowed(User user, SecuredObjectType type, List<Long> ids, Permission permission,
+            CheckMassPermissionCallback<Long> callback) {
+        boolean[] allowedArray = permissionDao.isAllowed(user, permission, type, ids);
+        for (int i = 0; i < allowedArray.length; i++) {
+            if (allowedArray[i]) {
+                callback.onPermissionGranted(ids.get(i));
+            } else {
+                callback.onPermissionDenied(ids.get(i));
             }
         }
     }

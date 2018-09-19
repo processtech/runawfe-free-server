@@ -18,8 +18,7 @@
 package ru.runa.wfe.commons.dbpatch;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
@@ -80,92 +79,89 @@ import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
 @Component
 @CommonsLog
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
-    private static final List<Class<? extends DbPatch>> dbPatches;
+
+    private static final List<Class<? extends DbPatch>> dbPatches = Arrays.asList(
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            UnsupportedPatch.class,
+            // version 20
+            // 4.0.0
+            AddHierarchyProcess.class,
+            JbpmRefactoringPatch.class,
+            TransitionLogPatch.class,
+            // 4.0.1
+            PerformancePatch401.class,
+            TaskEndDateRemovalPatch.class,
+            // 4.0.1
+            PermissionMappingPatch403.class,
+            // 4.0.5
+            NodeTypeChangePatch.class,
+            ExpandDescriptionsPatch.class,
+            // 4.0.6
+            TaskOpenedByExecutorsPatch.class,
+            // 4.1.0
+            AddNodeIdToProcessLogPatch.class,
+            AddSubProcessIndexColumn.class,
+            // 4.1.1
+            AddCreateDateColumns.class,
+            // 4.2.0
+            AddEmbeddedFileForBotTask.class,
+            AddColumnForEmbeddedBotTaskFileName.class,
+            AddSettingsTable.class,
+            AddSequentialFlagToBot.class,
+            CreateAggregatedLogsTables.class,
+            TaskCreateLogSeverityChangedPatch.class,
+            AddColumnsToSubstituteEscalatedTasksPatch.class,
+            // 4.2.1
+            AddMultiTaskIndexToTaskPatch.class,
+            // 4.2.2
+            AddDeploymentAuditPatch.class,
+            // 4.3.0
+            AddAggregatedTaskIndexPatch.class,
+            AddParentProcessIdPatch.class,
+            CreateReportsTables.class,
+            AddDueDateExpressionToJobAndTask.class,
+            AddBatchPresentationIsSharedPatch.class,
+            ExpandVarcharPatch.class,
+            AddProcessAndTokenExecutionStatusPatch.class,
+            CreateAdminScriptTables.class,
+            AddVariableUniqueKeyPatch.class,
+            AddTokenErrorDataPatch.class,
+            AddTitleAndDepartmentColumnsToActorPatch.class,
+            AddAssignDateColumnPatch.class,
+            EmptyPatch.class,
+            AddTokenMessageSelectorPatch.class,
+            AddSubprocessBindingDatePatch.class,
+            AddTransactionalBotSupport.class,
+            RefactorPermissionsStep1.class,
+            RefactorPermissionsStep3.class,
+            SplitProcessDefinitionVersion.class,
+            AddSubprocessRootIdColumn.class,
+            SupportProcessArchiving.class,
+            RenameProcessesBatchPresentationCategories.class
+    );
 
     @Autowired
     private DbTransactionalInitializer dbTransactionalInitializer;
     @Autowired
     private DbMigrationManager dbMigrationManager;
-
-    static {
-        List<Class<? extends DbPatch>> patches = Lists.newArrayList();
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        patches.add(UnsupportedPatch.class);
-        // version 20
-        // 4.0.0
-        patches.add(AddHierarchyProcess.class);
-        patches.add(JbpmRefactoringPatch.class);
-        patches.add(TransitionLogPatch.class);
-        // 4.0.1
-        patches.add(PerformancePatch401.class);
-        patches.add(TaskEndDateRemovalPatch.class);
-        // 4.0.1
-        patches.add(PermissionMappingPatch403.class);
-        // 4.0.5
-        patches.add(NodeTypeChangePatch.class);
-        patches.add(ExpandDescriptionsPatch.class);
-        // 4.0.6
-        patches.add(TaskOpenedByExecutorsPatch.class);
-        // 4.1.0
-        patches.add(AddNodeIdToProcessLogPatch.class);
-        patches.add(AddSubProcessIndexColumn.class);
-        // 4.1.1
-        patches.add(AddCreateDateColumns.class);
-        // 4.2.0
-        patches.add(AddEmbeddedFileForBotTask.class);
-        patches.add(AddColumnForEmbeddedBotTaskFileName.class);
-        patches.add(AddSettingsTable.class);
-        patches.add(AddSequentialFlagToBot.class);
-        patches.add(CreateAggregatedLogsTables.class);
-        patches.add(TaskCreateLogSeverityChangedPatch.class);
-        patches.add(AddColumnsToSubstituteEscalatedTasksPatch.class);
-        // 4.2.1
-        patches.add(AddMultiTaskIndexToTaskPatch.class);
-        // 4.2.2
-        patches.add(AddDeploymentAuditPatch.class);
-        // 4.3.0
-        patches.add(AddAggregatedTaskIndexPatch.class);
-        patches.add(AddParentProcessIdPatch.class);
-        patches.add(CreateReportsTables.class);
-        patches.add(AddDueDateExpressionToJobAndTask.class);
-        patches.add(AddBatchPresentationIsSharedPatch.class);
-        patches.add(ExpandVarcharPatch.class);
-        patches.add(AddProcessAndTokenExecutionStatusPatch.class);
-        patches.add(CreateAdminScriptTables.class);
-        patches.add(AddVariableUniqueKeyPatch.class);
-        patches.add(AddTokenErrorDataPatch.class);
-        patches.add(AddTitleAndDepartmentColumnsToActorPatch.class);
-        patches.add(AddAssignDateColumnPatch.class);
-        patches.add(EmptyPatch.class);
-        patches.add(AddTokenMessageSelectorPatch.class);
-        patches.add(AddSubprocessBindingDatePatch.class);
-        patches.add(AddTransactionalBotSupport.class);
-        patches.add(RefactorPermissionsStep1.class);
-        patches.add(RefactorPermissionsStep3.class);
-        patches.add(SplitProcessDefinitionVersion.class);
-        patches.add(AddSubprocessRootIdColumn.class);
-        patches.add(SupportProcessArchiving.class);
-        patches.add(RenameProcessesBatchPresentationCategories.class);
-        dbPatches = Collections.unmodifiableList(patches);
-    }
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {

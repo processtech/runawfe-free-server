@@ -408,11 +408,11 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
      */
     public List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         val result = new ArrayList<WfDefinition>();
-        List<String> processNameRestriction = getProcessNameRestriction(user);
-        if (processNameRestriction.isEmpty()) {
+        List<Long> processIdRestriction = getIdRestriction(user);
+        if (processIdRestriction.isEmpty()) {
             return result;
         }
-        CompilerParameters parameters = CompilerParameters.create(enablePaging).addOwners(new RestrictionsToOwners(processNameRestriction, "name"));
+        CompilerParameters parameters = CompilerParameters.create(enablePaging).addOwners(new RestrictionsToOwners(processIdRestriction, "id"));
         List<ProcessDefinitionVersion> versions = new PresentationCompiler<ProcessDefinitionVersion>(batchPresentation).getBatch(parameters);
         for (ProcessDefinitionVersion dv : versions) {
             result.add(new WfDefinition(dv));
@@ -436,11 +436,11 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
     }
 
     private List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, CompilerParameters parameters) {
-        List<String> processNameRestriction = getProcessNameRestriction(user);
-        if (processNameRestriction.isEmpty()) {
+        List<Long> processIdRestriction = getIdRestriction(user);
+        if (processIdRestriction.isEmpty()) {
             return Lists.newArrayList();
         }
-        parameters = parameters.addOwners(new RestrictionsToOwners(processNameRestriction, "name"));
+        parameters = parameters.addOwners(new RestrictionsToOwners(processIdRestriction, "id"));
         List<Number> deploymentIds = new PresentationCompiler<Number>(batchPresentation).getBatch(parameters);
         val processDefinitions = new HashMap<ProcessDefinition, ParsedProcessDefinition>(deploymentIds.size());
         val deployments = new ArrayList<ProcessDefinition>(deploymentIds.size());
@@ -462,19 +462,16 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         return result;
     }
 
-    private List<String> getProcessNameRestriction(User user) {
-        List<ProcessDefinitionLogic.DefinitionSecuredObject> definitionSecuredObjects = new ArrayList<>();
-        for (String deploymentName : processDefinitionDao.findDefinitionNames()) {
-            definitionSecuredObjects.add(new ProcessDefinitionLogic.DefinitionSecuredObject(deploymentName));
-        }
-        final List<String> definitionsWithPermission = new ArrayList<>();
-        isPermissionAllowed(user, definitionSecuredObjects, Permission.LIST, new CheckMassPermissionCallback() {
+    private List<Long> getIdRestriction(User user) {
+        val allIds = processDefinitionDao.findAllDefinitionIds();
+        val idsWithPermission = new ArrayList<Long>();
+        isPermissionAllowed(user, SecuredObjectType.DEFINITION, allIds, Permission.LIST, new CheckMassPermissionCallback<Long>() {
             @Override
-            public void onPermissionGranted(SecuredObject securedObject) {
-                definitionsWithPermission.add(((ProcessDefinitionLogic.DefinitionSecuredObject) securedObject).getDeploymentName());
+            public void onPermissionGranted(Long id) {
+                idsWithPermission.add(id);
             }
         });
-        return definitionsWithPermission;
+        return idsWithPermission;
     }
 
     private List<ProcessDefinitionChange> getChanges(List<Long> processDefinitionVersionIds) {
@@ -503,32 +500,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         return result;
     }
 
-    private static final class DefinitionSecuredObject extends SecuredObject {
-
-        private static final long serialVersionUID = 1L;
-        private final String deploymentName;
-
-        public DefinitionSecuredObject(String deploymentName) {
-            super();
-            this.deploymentName = deploymentName;
-        }
-
-        @Override
-        public Long getIdentifiableId() {
-            return (long) deploymentName.hashCode();
-        }
-
-        @Override
-        public SecuredObjectType getSecuredObjectType() {
-            return SecuredObjectType.DEFINITION;
-        }
-
-        public String getDeploymentName() {
-            return deploymentName;
-        }
-    }
-
-    private static final class StartProcessPermissionCheckCallback extends CheckMassPermissionCallback {
+    private static final class StartProcessPermissionCheckCallback extends CheckMassPermissionCallback<SecuredObject> {
         private final List<WfDefinition> result;
         private final Map<ProcessDefinition, ParsedProcessDefinition> parsedDefinitions;
 
