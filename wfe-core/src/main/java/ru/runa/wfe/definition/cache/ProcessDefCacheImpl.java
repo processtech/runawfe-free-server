@@ -37,7 +37,7 @@ import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 @CommonsLog
-class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefinitionCache {
+class ProcessDefCacheImpl extends BaseCacheImpl {
 
     public static final String versionIdToParsedCacheName = "ru.runa.wfe.definition.cache.definitionIdToDefinition";
     public static final String definitionNameToVersionIdCacheName = "ru.runa.wfe.definition.cache.definitionNameToLatestDefinition";
@@ -72,7 +72,6 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         definitionIdToVersionId = source.definitionIdToVersionId;
     }
 
-    @Override
     public ParsedProcessDefinition getDefinition(
             ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long processDefinitionVersionId
     ) {
@@ -99,7 +98,6 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         return parsed;
     }
 
-    @Override
     public ParsedProcessDefinition getLatestDefinition(
             ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, @NonNull String definitionName
     ) {
@@ -121,7 +119,6 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         return getDefinition(processDefinitionDao, processDefinitionVersionDao, definitionVersionId);
     }
 
-    @Override
     public ParsedProcessDefinition getLatestDefinition(
             ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long definitionId
     ) {

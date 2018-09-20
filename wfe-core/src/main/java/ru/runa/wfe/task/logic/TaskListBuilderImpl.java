@@ -48,7 +48,7 @@ import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.ss.logic.SubstitutionLogic;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskObservableClassPresentation;
-import ru.runa.wfe.task.cache.TaskCache;
+import ru.runa.wfe.task.cache.TaskCacheCtrl;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.dto.WfTaskFactory;
@@ -73,7 +73,8 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     protected static final int CAN_I_SUBSTITUTE = 1;
     protected static final int SUBSTITUTION_APPLIES = 0x10;
 
-    private final TaskCache taskCache;
+    private final TaskCacheCtrl taskCache;
+
     @Autowired
     private WfTaskFactory wfTaskFactory;
     @Autowired
@@ -99,7 +100,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     @Autowired
     private PermissionDao permissionDao;
 
-    public TaskListBuilderImpl(TaskCache taskCache) {
+    public TaskListBuilderImpl(TaskCacheCtrl taskCache) {
         this.taskCache = taskCache;
     }
 

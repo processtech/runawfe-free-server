@@ -15,7 +15,7 @@ import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 @Component
-class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache> implements DefinitionCache {
+public class ProcessDefCacheCtrl extends BaseCacheCtrl<ProcessDefCacheImpl> {
 
     @Autowired
     private ProcessDefinitionDao processDefinitionDao;
@@ -32,29 +32,26 @@ class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache
         );
     }
 
-    @Override
     public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) throws DefinitionDoesNotExistException {
         return CachingLogic.getCacheImpl(stateMachine).getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
     }
 
-    @Override
     public ParsedProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException {
         return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionDao, processDefinitionVersionDao, definitionName);
     }
 
-    @Override
     public ParsedProcessDefinition getLatestDefinition(long deploymentId) throws DefinitionDoesNotExistException {
         return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionDao, processDefinitionVersionDao, deploymentId);
     }
 
-    private static class ProcessDefinitionCacheFactory extends SMCacheFactory<ManageableProcessDefinitionCache> {
+    private static class ProcessDefinitionCacheFactory extends SMCacheFactory<ProcessDefCacheImpl> {
 
         ProcessDefinitionCacheFactory() {
             super(Type.EAGER, null);
         }
 
         @Override
-        protected ManageableProcessDefinitionCache createCacheImpl(CacheInitializationProcessContext context) {
+        protected ProcessDefCacheImpl createCacheImpl(CacheInitializationProcessContext context) {
             return new ProcessDefCacheImpl();
         }
     }

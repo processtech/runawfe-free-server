@@ -30,7 +30,7 @@ import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.task.dto.WfTask;
 
-class TaskCacheImpl extends BaseCacheImpl implements ManageableTaskCache {
+class TaskCacheImpl extends BaseCacheImpl {
     public static final String taskCacheName = "ru.runa.wfe.task.cache.taskLists";
     private final Cache<Long, ConcurrentHashMap<TaskCacheImpl.BatchPresentationFieldEquals, List<WfTask>>> actorToTasksCache;
 
@@ -38,7 +38,6 @@ class TaskCacheImpl extends BaseCacheImpl implements ManageableTaskCache {
         actorToTasksCache = createCache(taskCacheName);
     }
 
-    @Override
     public VersionedCacheData<List<WfTask>> getTasks(Long actorId, BatchPresentation batchPresentation) {
         Map<TaskCacheImpl.BatchPresentationFieldEquals, List<WfTask>> lists = actorToTasksCache.get(actorId);
         if (lists == null) {
@@ -47,7 +46,6 @@ class TaskCacheImpl extends BaseCacheImpl implements ManageableTaskCache {
         return getVersionnedData(lists.get(new BatchPresentationFieldEquals(batchPresentation)));
     }
 
-    @Override
     public void setTasks(VersionedCacheData<List<WfTask>> oldCachedData, Long actorId, BatchPresentation batchPresentation, List<WfTask> tasks) {
         if (!mayUpdateVersionnedData(oldCachedData)) {
             return;

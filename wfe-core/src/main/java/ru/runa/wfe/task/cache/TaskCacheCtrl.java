@@ -15,14 +15,15 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.cache.SubstitutionCacheImpl;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dto.WfTask;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.var.Variable;
 
 @Component("taskCache")
-class TaskCacheCtrl extends BaseCacheCtrl<ManageableTaskCache> implements TaskCache {
+public class TaskCacheCtrl extends BaseCacheCtrl<TaskCacheImpl> {
 
-    TaskCacheCtrl() {
+    public TaskCacheCtrl() {
         super(
                 new TaskCacheFactory(),
                 new ArrayList<ListenObjectDefinition>() {{
@@ -39,31 +40,52 @@ class TaskCacheCtrl extends BaseCacheCtrl<ManageableTaskCache> implements TaskCa
         );
     }
 
-    @Override
+    /**
+     * Returns tasks for {@link Actor} with specified id, according to {@link BatchPresentation}. May return null, if tasks wasn't set by
+     * {@link #setTasks(long, BatchPresentation, WfTask[])} call.
+     *
+     * @param actorId
+     *            {@link Actor} identity, which tasks will be returned.
+     * @param batchPresentation
+     *            {@link BatchPresentation} to filter/sort tasks.
+     * @return Tasks for {@link Actor} with specified id, according to {@link BatchPresentation}.
+     */
     public VersionedCacheData<List<WfTask>> getTasks(Long actorId, BatchPresentation batchPresentation) {
-        ManageableTaskCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
+        TaskCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache != null) {
             return cache.getTasks(actorId, batchPresentation);
         }
         return null;
     }
 
-    @Override
+    /**
+     * Set tasks for {@link Actor} with specified id, and specified {@link BatchPresentation}. Next call to {@link #getTasks(Long, BatchPresentation)}
+     * with same parameters will return this tasks.
+     *
+     * @param oldCacheData
+     *            Old cached state for data.
+     * @param actorId
+     *            {@link Actor} identity, which owns tasks list.
+     * @param batchPresentation
+     *            {@link BatchPresentation} to filter/sort tasks.
+     * @param tasks
+     *            {@link Actor} tasks.
+     */
     public void setTasks(VersionedCacheData<List<WfTask>> oldCacheData, Long actorId, BatchPresentation batchPresentation, List<WfTask> tasks) {
-        ManageableTaskCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
+        TaskCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache != null) {
             cache.setTasks(oldCacheData, actorId, batchPresentation, tasks);
         }
     }
 
-    private static class TaskCacheFactory extends SMCacheFactory<ManageableTaskCache> {
+    private static class TaskCacheFactory extends SMCacheFactory<TaskCacheImpl> {
 
         TaskCacheFactory() {
             super(Type.EAGER, null);
         }
 
         @Override
-        protected ManageableTaskCache createCacheImpl(CacheInitializationProcessContext context) {
+        protected TaskCacheImpl createCacheImpl(CacheInitializationProcessContext context) {
             return new TaskCacheImpl();
         }
     }

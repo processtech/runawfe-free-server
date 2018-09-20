@@ -46,7 +46,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
  * Cache implementation for substitutions.
  */
 @CommonsLog
-public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
+public class SubstitutionCacheImpl extends BaseCacheImpl {
 
     /**
      * EHCache name.
@@ -103,7 +103,6 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
         actorToSubstitutedCache.putAll(actorToSubstituted);
     }
 
-    @Override
     public TreeMap<Substitution, Set<Long>> getSubstitutors(Actor actor, boolean loadIfRequired) {
         if (actor.isActive()) {
             return new TreeMap<>();
@@ -115,12 +114,10 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
         return new TreeMap<>();
     }
 
-    @Override
     public TreeMap<Substitution, Set<Long>> tryToGetSubstitutors(Actor actor) {
         return null;
     }
 
-    @Override
     public HashSet<Long> getSubstituted(Actor actor) {
         HashSet<Long> result = actorToSubstitutedCache.get(actor.getId());
         if (result != null) {

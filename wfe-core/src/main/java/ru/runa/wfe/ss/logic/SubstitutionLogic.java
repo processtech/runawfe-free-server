@@ -30,7 +30,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.SubstitutionDoesNotExistException;
-import ru.runa.wfe.ss.cache.SubstitutionCache;
+import ru.runa.wfe.ss.cache.SubstitutionCacheCtrl;
 import ru.runa.wfe.ss.dao.SubstitutionCriteriaDao;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
@@ -45,7 +45,7 @@ import ru.runa.wfe.user.User;
 @Component
 public class SubstitutionLogic extends CommonLogic {
     @Autowired
-    private SubstitutionCache substitutionCacheCtrl;
+    private SubstitutionCacheCtrl substitutionCacheCtrl;
     @Autowired
     private SubstitutionDao substitutionDao;
     @Autowired

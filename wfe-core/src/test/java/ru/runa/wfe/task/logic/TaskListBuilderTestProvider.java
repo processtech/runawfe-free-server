@@ -5,7 +5,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.cache.TaskCache;
+import ru.runa.wfe.task.cache.TaskCacheCtrl;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 
 public class TaskListBuilderTestProvider extends TaskListBuilderImpl implements ITaskListBuilderTestProvider {
 
-    private static TaskCache taskCache = mock(TaskCache.class);
+    private static TaskCacheCtrl taskCache = mock(TaskCacheCtrl.class);
 
     static {
         when(taskCache.getTasks(any(Long.class), any(BatchPresentation.class))).thenReturn(null);

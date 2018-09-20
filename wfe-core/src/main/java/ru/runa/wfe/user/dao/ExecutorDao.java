@@ -53,7 +53,7 @@ import ru.runa.wfe.user.QExecutor;
 import ru.runa.wfe.user.QExecutorGroupMembership;
 import ru.runa.wfe.user.QTemporaryGroup;
 import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.user.cache.ExecutorCache;
+import ru.runa.wfe.user.cache.ExecutorCacheCtrl;
 
 /**
  * DAO for managing executors.
@@ -67,7 +67,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     private static final String CODE_PROPERTY_NAME = "code";
 
     @Autowired
-    private ExecutorCache executorCacheCtrl;
+    private ExecutorCacheCtrl executorCacheCtrl;
 
     /**
      * Check if executor with given name exists.

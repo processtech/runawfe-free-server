@@ -17,7 +17,7 @@ import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.user.Group;
 
 @Component
-class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implements ExecutorCache {
+public class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> {
 
     ExecutorCacheCtrl() {
         super(
@@ -29,7 +29,13 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         );
     }
 
-    @Override
+    /**
+     * Return {@link Actor} with specified code, or null, if such actor not exists or cache is not valid.
+     *
+     * @param code
+     *            Actor code.
+     * @return {@link Actor} with specified code.
+     */
     public Actor getActor(Long code) {
         ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
@@ -38,7 +44,13 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         return cache.getActor(code);
     }
 
-    @Override
+    /**
+     * Return {@link Executor} with specified name, or null, if such executor not exists or cache is not valid.
+     *
+     * @param name
+     *            Executor name.
+     * @return {@link Executor} with specified name.
+     */
     public Executor getExecutor(String name) {
         ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
@@ -47,7 +59,13 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         return cache.getExecutor(name);
     }
 
-    @Override
+    /**
+     * Return {@link Executor} with specified id, or null, if such executor not exists or cache is not valid.
+     *
+     * @param id
+     *            Executor identity.
+     * @return {@link Executor} with specified identity.
+     */
     public Executor getExecutor(Long id) {
         ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
@@ -56,7 +74,14 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         return cache.getExecutor(id);
     }
 
-    @Override
+    /**
+     * Return first level {@link Group} members. Only {@link Executor}, which directly contains in {@link Group} is returning. No recursive group
+     * search performs. May return null, if cache is not valid.
+     *
+     * @param group
+     *            {@link Group}, which members will be returned.
+     * @return First level {@link Group} members.
+     */
     public Set<Executor> getGroupMembers(Group group) {
         ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
@@ -65,7 +90,14 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         return cache.getGroupMembers(group);
     }
 
-    @Override
+    /**
+     * Return all {@link Actor} members of specified {@link Group} and all her subgroups. {@link Actor} members searching recursive and all actors
+     * from subgroups is also contains in result set. May return null, if cache is not valid.
+     *
+     * @param group
+     *            {@link Group}, which actor members will be returned.
+     * @return All {@link Actor} members of specified {@link Group} and all her subgroups.
+     */
     public Set<Actor> getGroupActorsAll(Group group) {
         ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
@@ -74,7 +106,13 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         return cache.getGroupActorsAll(group);
     }
 
-    @Override
+    /**
+     * Return all {@link Group}, which contains specified {@link Executor} as first level member. May return null, if cache is not valid.
+     *
+     * @param executor
+     *            {@link Executor}, which parents will be returned.
+     * @return All {@link Group}, which contains specified {@link Executor} as first level member.
+     */
     public Set<Group> getExecutorParents(Executor executor) {
         ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
@@ -83,7 +121,14 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         return cache.getExecutorParents(executor);
     }
 
-    @Override
+    /**
+     * Return all {@link Group}, which contains specified {@link Executor} as member (direct or recursive by subgroups). May return null, if cache is
+     * not valid.
+     *
+     * @param executor
+     *            {@link Executor}, which parents will be returned.
+     * @return All {@link Group}, which contains specified {@link Executor} as member.
+     */
     public Set<Group> getExecutorParentsAll(Executor executor) {
         ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
@@ -92,7 +137,18 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         return cache.getExecutorParentsAll(executor);
     }
 
-    @Override
+    /**
+     * Return all {@link Executor} of specified class according to {@link BatchPresentation}. May return null, if executor list for specified class
+     * and presentation wasn't set yet (with addAllExecutor()). May return null, if cache is not valid.
+     *
+     * @param <T>
+     *            Type of returned objects. Must be {@link Executor} or it subclass.
+     * @param clazz
+     *            Type of returned objects. Must be {@link Executor} or it subclass.
+     * @param batch
+     *            {@link BatchPresentation} to sort/filter result.
+     * @return All {@link Executor} of specified class according to {@link BatchPresentation}.
+     */
     public <T extends Executor> VersionedCacheData<List<T>> getAllExecutor(Class<T> clazz, BatchPresentation batch) {
         ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
@@ -101,7 +157,19 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         return cache.getAllExecutor(clazz, batch);
     }
 
-    @Override
+    /**
+     * Set {@link Executor} list for specified class and {@link BatchPresentation}.
+     *
+     * @param oldCachedData
+     *            Old state for caching data.
+     * @param clazz
+     *            Type of executors. Must be {@link Executor} or it subclass.
+     * @param batch
+     *            Presentation for executors.
+     * @param executors
+     *            Executor list for specified class and presentation. Will be returned on next {@link #getAllExecutor(Class, BatchPresentation)} call
+     *            with specified class and presentation.
+     */
     public <T extends Executor> void addAllExecutor(VersionedCacheData<List<T>> oldCachedData, Class<?> clazz, BatchPresentation batch,
             List<T> executors) {
         ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
