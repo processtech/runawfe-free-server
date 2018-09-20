@@ -1,31 +1,79 @@
 package ru.runa.wfe.datasource;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
+import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.springframework.util.FileCopyUtils;
-
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.commons.xml.XmlUtils;
 
 public class DataSourceStorage implements DataSourceStuff {
 
+    private static final Log log = LogFactory.getLog(DataSourceStorage.class);
+
     private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(".yyyyMMddHHmmss");
 
     private static File storageDir;
     private static File storageHistoryDir;
+
+    private static Set<String> driverJarNames = Sets.newHashSet();
+    private static Set<JdbcDataSourceType> registeredDsTypes = Sets.newHashSet();
+
+    private static synchronized void registerDrivers() {
+        try {
+            File driversDir = new File(IoCommons.getAppServerDirPath() + "/wfe.data-sources/drivers");
+            if (driversDir.exists()) {
+                File[] drivers = driversDir.listFiles();
+                if (drivers.length > driverJarNames.size()) {
+                    List<URL> urls = Lists.newArrayList();
+                    for (File driver : drivers) {
+                        String driverJarName = driver.getAbsolutePath();
+                        if (!driverJarNames.contains(driverJarName)) {
+                            urls.add(new URL(MessageFormat.format("jar:file:{0}!/", driverJarName)));
+                            driverJarNames.add(driverJarName);
+                        }
+                    }
+                    URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[] {}));
+                    JdbcDataSourceType[] dsTypes = JdbcDataSourceType.values();
+                    for (JdbcDataSourceType dsType : dsTypes) {
+                        if (!registeredDsTypes.contains(dsType)) {
+                            String driverClassName = dsType.driverClassName();
+                            try {
+                                Driver driver = (Driver) Class.forName(driverClassName, true, urlClassLoader).newInstance();
+                                DriverManager.registerDriver(new DriverWrapper(driver));
+                                registeredDsTypes.add(dsType);
+                                log.info("JDBC-driver " + driverClassName + " registered successfully");
+                            } catch (ClassNotFoundException | SQLException e) {
+                                log.info("JDBC-driver " + driverClassName + " not available");
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error(e);
+        }
+    }
 
     private static synchronized File getStorageDir() {
         if (storageDir == null) {
@@ -77,6 +125,7 @@ public class DataSourceStorage implements DataSourceStuff {
     }
 
     public static DataSource getDataSource(String dsName) {
+        registerDrivers();
         Document document = XmlUtils.parseWithoutValidation(restore(dsName));
         DataSource dataSource = DataSourceCreator.create(DataSourceType.valueOf(document.getRootElement().attributeValue(ATTR_TYPE)));
         dataSource.init(document);

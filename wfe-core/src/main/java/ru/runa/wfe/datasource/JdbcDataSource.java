@@ -51,7 +51,6 @@ public class JdbcDataSource extends DataSource {
     }
 
     public Connection getConnection() throws Exception {
-        Class.forName(getDbType().driverClassName()).newInstance();
         return DriverManager.getConnection(DataSourceStuff.adjustUrl(this), getUserName(), getPassword());
     }
 
