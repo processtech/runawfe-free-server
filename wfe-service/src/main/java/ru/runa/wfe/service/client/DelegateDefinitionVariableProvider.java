@@ -17,29 +17,29 @@ import com.google.common.base.Objects;
 public class DelegateDefinitionVariableProvider extends AbstractVariableProvider {
     private final DefinitionService definitionService;
     private final User user;
-    private final Long definitionId;
+    private final Long definitionVersionId;
     private String definitionName;
     private ParsedProcessDefinition definition;
 
-    public DelegateDefinitionVariableProvider(DefinitionService definitionService, User user, Long definitionId) {
+    public DelegateDefinitionVariableProvider(DefinitionService definitionService, User user, Long definitionVersionId) {
         this.definitionService = definitionService;
         this.user = user;
-        this.definitionId = definitionId;
+        this.definitionVersionId = definitionVersionId;
     }
 
-    public DelegateDefinitionVariableProvider(User user, Long definitionId) {
-        this(Delegates.getDefinitionService(), user, definitionId);
+    public DelegateDefinitionVariableProvider(User user, Long definitionVersionId) {
+        this(Delegates.getDefinitionService(), user, definitionVersionId);
     }
 
     @Override
     public Long getProcessDefinitionVersionId() {
-        return definitionId;
+        return definitionVersionId;
     }
 
     @Override
     public String getProcessDefinitionName() {
         if (definitionName == null) {
-            definitionName = definitionService.getProcessDefinition(user, definitionId).getName();
+            definitionName = definitionService.getProcessDefinition(user, definitionVersionId).getName();
         }
         return definitionName;
     }
@@ -47,7 +47,7 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
     @Override
     public ParsedProcessDefinition getParsedProcessDefinition() {
         if (definition == null) {
-            definition = definitionService.getParsedProcessDefinition(user, definitionId);
+            definition = definitionService.getParsedProcessDefinition(user, definitionVersionId);
         }
         return definition;
     }
@@ -59,7 +59,7 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
 
     @Override
     public UserType getUserType(String name) {
-        return definitionService.getUserType(user, definitionId, name);
+        return definitionService.getUserType(user, definitionVersionId, name);
     }
 
     @Override
@@ -73,11 +73,11 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
 
     @Override
     public WfVariable getVariable(String variableName) {
-        VariableDefinition variableDefinition = definitionService.getVariableDefinition(user, definitionId, variableName);
+        VariableDefinition variableDefinition = definitionService.getVariableDefinition(user, definitionVersionId, variableName);
         if (variableDefinition != null) {
             return new WfVariable(variableDefinition, null);
         }
-        List<SwimlaneDefinition> swimlaneDefinitions = definitionService.getSwimlaneDefinitions(user, definitionId);
+        List<SwimlaneDefinition> swimlaneDefinitions = definitionService.getSwimlaneDefinitions(user, definitionVersionId);
         for (SwimlaneDefinition swimlaneDefinition : swimlaneDefinitions) {
             if (Objects.equal(variableName, swimlaneDefinition.getName())) {
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), null);
@@ -88,6 +88,6 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("definitionId", definitionId).toString();
+        return Objects.toStringHelper(this).add("definitionVersionId", definitionVersionId).toString();
     }
 }

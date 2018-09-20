@@ -53,12 +53,12 @@ public final class HibernateCompilerHelper {
                 break;
             }
         }
-        return batchPresentation.isFieldFiltered(idx)
-                && field.filterMode == FieldFilterMode.DATABASE
-                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx))
-                && field.sortable
-                && (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || field.displayName
-                        .startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
+        return (batchPresentation.isFieldFiltered(idx) && field.filterMode == FieldFilterMode.DATABASE) ||
+                (
+                        (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx)) &&
+                        field.sortable &&
+                        (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || batchPresentation.isFieldGroupped(idx))
+                );
     }
 
     /**

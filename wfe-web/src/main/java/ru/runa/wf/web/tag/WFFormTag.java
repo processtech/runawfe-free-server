@@ -152,7 +152,7 @@ public abstract class WFFormTag extends TitledFormTag {
         return data;
     }
 
-    protected abstract Long getDefinitionId();
+    protected abstract Long getDefinitionVersionId();
 
     protected abstract Interaction getInteraction();
 

@@ -33,33 +33,33 @@ import ru.runa.wfe.service.delegate.Delegates;
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "startForm")
 public class StartFormTag extends WFFormTag {
     private static final long serialVersionUID = -1162637745236395968L;
-    private Long definitionId;
+    private Long definitionVersionId;
 
     @Override
-    protected Long getDefinitionId() {
-        return definitionId;
+    protected Long getDefinitionVersionId() {
+        return definitionVersionId;
     }
 
     @Attribute(required = true)
-    public void setDefinitionId(Long definitionId) {
-        this.definitionId = definitionId;
+    public void setDefinitionVersionId(Long definitionVersionId) {
+        this.definitionVersionId = definitionVersionId;
     }
 
     @Override
     protected String buildForm(Interaction interaction) {
         TaskFormBuilder startFormBuilder = TaskFormBuilderFactory.createTaskFormBuilder(getUser(), pageContext, interaction);
-        return startFormBuilder.build(getDefinitionId());
+        return startFormBuilder.build(getDefinitionVersionId());
     }
 
     @Override
     protected Interaction getInteraction() {
-        return Delegates.getDefinitionService().getStartInteraction(getUser(), definitionId);
+        return Delegates.getDefinitionService().getStartInteraction(getUser(), definitionVersionId);
     }
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
         super.fillFormElement(tdFormElement);
-        tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(definitionId)));
+        tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(definitionVersionId)));
     }
 
     @Override

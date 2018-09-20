@@ -73,14 +73,14 @@ public class FormPresentationUtils {
         return HTMLUtils.writeHtml(document);
     }
 
-    private static void adjustUrls(PageContext pageContext, Document document, Long definitionId, String htmlHref) {
+    private static void adjustUrls(PageContext pageContext, Document document, Long definitionVersionId, String htmlHref) {
         if (pageContext != null) {
             for (Map.Entry<String, String> tagNameTagAttributeEntry : TAG_NAME_ATTRIBUTE_MAP.entrySet()) {
                 String tagName = tagNameTagAttributeEntry.getKey();
                 NodeList htmlTagElements = document.getElementsByTagName(tagName);
                 if (htmlTagElements.getLength() > 0) {
                     String attributeName = tagNameTagAttributeEntry.getValue();
-                    handleElements(htmlTagElements, attributeName, htmlHref, pageContext, definitionId);
+                    handleElements(htmlTagElements, attributeName, htmlHref, pageContext, definitionVersionId);
                 }
             }
             if (WebResources.getBooleanProperty("form.tr.title.clean", true)) {
@@ -165,12 +165,12 @@ public class FormPresentationUtils {
         return !href.contains(PROTOCOL_SEPARATOR) && !href.startsWith("/");
     }
 
-    public static String adjustForm(PageContext pageContext, Long definitionId, String formHtml, VariableProvider variableProvider,
+    public static String adjustForm(PageContext pageContext, Long definitionVersionId, String formHtml, VariableProvider variableProvider,
             List<String> requiredVarNames) {
         try {
             Map<String, String> userErrors = FormSubmissionUtils.getUserInputErrors(pageContext.getRequest());
             Document document = HTMLUtils.readHtml(formHtml.getBytes(Charsets.UTF_8));
-            adjustUrls(pageContext, document, definitionId, "form.ftl");
+            adjustUrls(pageContext, document, definitionVersionId, "form.ftl");
             NodeList htmlTagElements = document.getElementsByTagName("input");
             for (int i = 0; i < htmlTagElements.getLength(); i++) {
                 Element node = (Element) htmlTagElements.item(i);

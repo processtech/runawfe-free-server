@@ -59,7 +59,7 @@ public class TaskFormTag extends WFFormTag {
     }
 
     @Override
-    protected Long getDefinitionId() {
+    protected Long getDefinitionVersionId() {
         return Delegates.getTaskService().getTask(getUser(), taskId).getDefinitionId();
     }
 

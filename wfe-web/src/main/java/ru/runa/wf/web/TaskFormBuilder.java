@@ -38,7 +38,7 @@ public abstract class TaskFormBuilder {
     protected User user;
     protected PageContext pageContext;
     protected Interaction interaction;
-    protected Long definitionId;
+    protected Long definitionVersionId;
     protected WfTask task;
 
     public void setUser(User user) {
@@ -53,23 +53,23 @@ public abstract class TaskFormBuilder {
         this.pageContext = pageContext;
     }
 
-    public final String build(Long definitionId) {
-        this.definitionId = definitionId;
+    public final String build(Long definitionVersionId) {
+        this.definitionVersionId = definitionVersionId;
         if (interaction.hasForm()) {
-            VariableProvider variableProvider = new DelegateDefinitionVariableProvider(user, definitionId);
+            VariableProvider variableProvider = new DelegateDefinitionVariableProvider(user, definitionVersionId);
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
-            return buildForm(variableProvider, definitionId);
+            return buildForm(variableProvider, definitionVersionId);
         } else {
             return buildEmptyForm();
         }
     }
 
     public final String build(WfTask task) {
-        this.definitionId = task.getDefinitionId();
+        this.definitionVersionId = task.getDefinitionId();
         this.task = task;
         if (interaction.hasForm()) {
             VariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
@@ -84,9 +84,9 @@ public abstract class TaskFormBuilder {
         }
     }
 
-    private String buildForm(VariableProvider variableProvider, Long definitionId) {
+    private String buildForm(VariableProvider variableProvider, Long definitionVersionId) {
         String form = buildForm(variableProvider);
-        return FormPresentationUtils.adjustForm(pageContext, definitionId, form, variableProvider, interaction.getRequiredVariableNames());
+        return FormPresentationUtils.adjustForm(pageContext, definitionVersionId, form, variableProvider, interaction.getRequiredVariableNames());
     }
 
     protected abstract String buildForm(VariableProvider variableProvider);

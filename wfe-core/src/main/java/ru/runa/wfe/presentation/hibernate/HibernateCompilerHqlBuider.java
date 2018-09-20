@@ -159,9 +159,17 @@ public class HibernateCompilerHqlBuider {
         if (parameters.isCountQuery()) {
             query.append("select count (").append(ClassPresentation.classNameSQL).append(")");
         } else {
-            query.append("select ").append(ClassPresentation.classNameSQL);
-            if (parameters.isOnlyIdentityLoad()) {
-                query.append(".id");
+            query.append("select ");
+            val onlyFields = parameters.getOnlySpecificHqlFields();
+            if (onlyFields != null) {
+                for (int i = 0;  i < onlyFields.length;  i++) {
+                    if (i > 0) {
+                        query.append(", ");
+                    }
+                    query.append(ClassPresentation.classNameSQL).append(".").append(onlyFields[i]);
+                }
+            } else {
+                query.append(ClassPresentation.classNameSQL);
             }
         }
         query.append(" from ");

@@ -17,11 +17,10 @@
  */
 package ru.runa.wfe.presentation.hibernate;
 
+import com.google.common.base.Preconditions;
 import java.util.Collection;
-import java.util.List;
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredObjectType;
+import lombok.NonNull;
+import lombok.val;
 import ru.runa.wfe.task.Task;
 
 /**
@@ -32,60 +31,38 @@ public class CompilerParameters {
     /**
      * Restrictions for loaded objects owner's. For example we want to load only our tasks or only tasks by other user.
      */
-    private final RestrictionsToOwners ownersRestrictions;
+    private RestrictionsToOwners ownersRestrictions;
 
     /**
      * Restrictions to load only objects with specified permission granted for user.
      */
-    private final RestrictionsToPermissions permissionRestrictions;
+    private RestrictionsToPermissions permissionRestrictions;
 
     /**
      * Flag, equals true, if paging must be used in query; false otherwise.
      */
-    private final boolean enablePaging;
+    private boolean enablePaging;
 
     /**
      * Flag, equals true, if only objects count must be queried.
      */
-    private final boolean isCountQuery;
+    private boolean isCountQuery;
 
     /**
      * Subclass of root persisted object, to be queried. May be null, if root persistent object and all it's subclasses must be queried.
      */
-    private final Class<?> requestedClass;
+    private Class<?> requestedClass;
 
     /**
      * Restrictions, applied to object identity. Must be HQL query string or null. If set, added to query in form 'object id in (idRestriction)'.
      */
-    private final String[] idRestriction;
+    private String[] idRestriction;
 
     /**
      * Flag, equals true, if only identity of objects must be loaded; false to load entire object. <br/>
      * <b>Loaded object must have id property.</b>
      */
-    private final boolean onlyIdentityLoad;
-
-    /**
-     * Creates parameter object for building HQL query using other {@linkplain CompilerParameters} as source. Copy all parameters from source
-     * {@linkplain CompilerParameters}, except isCountQuery flag.
-     * 
-     * @param src
-     *            {@linkplain CompilerParameters} to copy parameters from.
-     * @param isCountQuery
-     *            Flag, equals true, if only objects count must be queried.
-     */
-    CompilerParameters(CompilerParameters src, boolean isCountQuery) {
-        if (src == null) {
-            throw new InternalApplicationException("Parameter for hibernate compiler must be set.");
-        }
-        this.ownersRestrictions = src.ownersRestrictions;
-        this.enablePaging = isCountQuery ? false : src.enablePaging;
-        this.isCountQuery = isCountQuery;
-        this.permissionRestrictions = src.permissionRestrictions;
-        this.requestedClass = src.requestedClass;
-        this.idRestriction = src.idRestriction;
-        this.onlyIdentityLoad = src.onlyIdentityLoad;
-    }
+    private String[] onlySpecificHqlFields;
 
     /**
      * Creates parameter object for building HQL query without any additional check.
@@ -100,101 +77,37 @@ public class CompilerParameters {
         this.permissionRestrictions = null;
         this.requestedClass = null;
         this.idRestriction = null;
-        this.onlyIdentityLoad = false;
+        this.onlySpecificHqlFields = null;
+    }
+
+    /**
+     * Copy constructor.
+     */
+    private CompilerParameters(@NonNull CompilerParameters src) {
+        ownersRestrictions = src.ownersRestrictions;
+        enablePaging = src.enablePaging;
+        isCountQuery = src.isCountQuery;
+        permissionRestrictions = src.permissionRestrictions;
+        requestedClass = src.requestedClass;
+        idRestriction = src.idRestriction;
+        onlySpecificHqlFields = src.onlySpecificHqlFields;
     }
 
     /**
      * Creates parameter object for building HQL query using other {@linkplain CompilerParameters} as source. Copy all parameters from source
-     * {@linkplain CompilerParameters}, and set owners restrictions.
-     * 
+     * {@linkplain CompilerParameters}, except isCountQuery flag.
+     *
      * @param src
      *            {@linkplain CompilerParameters} to copy parameters from.
-     * @param owners
-     *            Restrictions for loaded objects owner's. For example we want to load only our tasks or only tasks by other user.
+     * @param isCountQuery
+     *            Flag, equals true, if only objects count must be queried.
      */
-    private CompilerParameters(CompilerParameters src, RestrictionsToOwners owners) {
-        this.ownersRestrictions = owners;
-        this.enablePaging = src.enablePaging;
-        this.isCountQuery = src.isCountQuery;
-        this.permissionRestrictions = src.permissionRestrictions;
-        this.requestedClass = src.requestedClass;
-        this.idRestriction = src.idRestriction;
-        this.onlyIdentityLoad = src.onlyIdentityLoad;
+    CompilerParameters(CompilerParameters src, boolean isCountQuery) {
+        this(src);
+        this.enablePaging = !isCountQuery && src.enablePaging;
+        this.isCountQuery = isCountQuery;
     }
 
-    /**
-     * Creates parameter object for building HQL query using other {@linkplain CompilerParameters} as source. Copy all parameters from source
-     * {@linkplain CompilerParameters}, and set permissions restrictions.
-     * 
-     * @param src
-     *            {@linkplain CompilerParameters} to copy parameters from.
-     * @param permissions
-     *            Restrictions to load only objects with specified permission granted for user.
-     */
-    private CompilerParameters(CompilerParameters src, RestrictionsToPermissions permissions) {
-        this.ownersRestrictions = src.ownersRestrictions;
-        this.enablePaging = src.enablePaging;
-        this.isCountQuery = src.isCountQuery;
-        this.permissionRestrictions = permissions;
-        this.requestedClass = src.requestedClass;
-        this.idRestriction = src.idRestriction;
-        this.onlyIdentityLoad = src.onlyIdentityLoad;
-    }
-
-    /**
-     * Creates parameter object for building HQL query using other {@linkplain CompilerParameters} as source. Copy all parameters from source
-     * {@linkplain CompilerParameters}, and set permissions restrictions.
-     * 
-     * @param src
-     *            {@linkplain CompilerParameters} to copy parameters from.
-     * @param requestedClass
-     *            Subclass of root persisted object, to be queried.
-     */
-    private CompilerParameters(CompilerParameters src, Class<?> requestedClass) {
-        this.ownersRestrictions = src.ownersRestrictions;
-        this.enablePaging = src.enablePaging;
-        this.isCountQuery = src.isCountQuery;
-        this.permissionRestrictions = src.permissionRestrictions;
-        this.requestedClass = requestedClass;
-        this.idRestriction = src.idRestriction;
-        this.onlyIdentityLoad = src.onlyIdentityLoad;
-    }
-
-    /**
-     * Creates parameter object for building HQL query using other {@linkplain CompilerParameters} as source. Copy all parameters from source
-     * {@linkplain CompilerParameters}, and set only identity flag.
-     * 
-     * @param src
-     *            {@linkplain CompilerParameters} to copy parameters from.
-     */
-    private CompilerParameters(CompilerParameters src, OnlyIdentity dummy) {
-        this.ownersRestrictions = src.ownersRestrictions;
-        this.enablePaging = src.enablePaging;
-        this.isCountQuery = src.isCountQuery;
-        this.permissionRestrictions = src.permissionRestrictions;
-        this.requestedClass = src.requestedClass;
-        this.idRestriction = src.idRestriction;
-        this.onlyIdentityLoad = true;
-    }
-
-    /**
-     * Creates parameter object for building HQL query using other {@linkplain CompilerParameters} as source. Copy all parameters from source
-     * {@linkplain CompilerParameters}, and set only identity flag.
-     * 
-     * @param src
-     *            {@linkplain CompilerParameters} to copy parameters from.
-     * @param idRestriction
-     *            Restrictions, applied to object identity. Must be HQL query string or null.
-     */
-    private CompilerParameters(CompilerParameters src, IdRestriction idRestriction) {
-        this.ownersRestrictions = src.ownersRestrictions;
-        this.enablePaging = src.enablePaging;
-        this.isCountQuery = src.isCountQuery;
-        this.permissionRestrictions = src.permissionRestrictions;
-        this.requestedClass = src.requestedClass;
-        this.idRestriction = idRestriction.idRestriction;
-        this.onlyIdentityLoad = src.onlyIdentityLoad;
-    }
 
     /**
      * Check, if HQL/SQL query must return only objects count.
@@ -264,13 +177,10 @@ public class CompilerParameters {
     }
 
     /**
-     * Flag, equals true, if only identity of objects must be loaded; false to load entire object. <br/>
-     * <b>Loaded object must have id property.</b>
-     * 
-     * @return true, if only identity must be loaded.
+     * If not-null, must be non-empty list of SQL fields to load (e.g. "id", "latest_version_id").
      */
-    public boolean isOnlyIdentityLoad() {
-        return onlyIdentityLoad;
+    public String[] getOnlySpecificHqlFields() {
+        return onlySpecificHqlFields;
     }
 
     /**
@@ -311,14 +221,18 @@ public class CompilerParameters {
      * @return Returns batch presentation compiler parameters.
      */
     public CompilerParameters addOwners(RestrictionsToOwners owners) {
-        return new CompilerParameters(this, owners);
+        val o = new CompilerParameters(this);
+        o.ownersRestrictions = owners;
+        return o;
     }
 
     /**
      * @return Returns batch presentation compiler parameters.
      */
     public CompilerParameters addPermissions(RestrictionsToPermissions permissions) {
-        return new CompilerParameters(this, permissions);
+        val o = new CompilerParameters(this);
+        o.permissionRestrictions = permissions;
+        return o;
     }
 
     /**
@@ -329,17 +243,20 @@ public class CompilerParameters {
      * @return Returns batch presentation compiler parameters.
      */
     public CompilerParameters addRequestedClass(Class<?> requestedClass) {
-        return new CompilerParameters(this, requestedClass);
+        val o = new CompilerParameters(this);
+        o.requestedClass = requestedClass;
+        return o;
     }
 
     /**
      * Creates compiler parameters some as current and add .
      * 
-     * @param idRestrictions
      * @return Returns batch presentation compiler parameters.
      */
     public CompilerParameters addIdRestrictions(String[] idRestrictions) {
-        return new CompilerParameters(this, new IdRestriction(idRestrictions));
+        val o = new CompilerParameters(this);
+        o.idRestriction = idRestrictions;
+        return o;
     }
 
     /**
@@ -350,30 +267,27 @@ public class CompilerParameters {
      * @return Returns batch presentation compiler parameters.
      */
     public CompilerParameters addIdRestrictions(String idRestriction) {
-        return new CompilerParameters(this, new IdRestriction(new String[] { idRestriction }));
+        return addIdRestrictions(new String[] { idRestriction });
+    }
+
+    /**
+     * Selects only specific fields of root entity. If only one field is specified, batch presentation result row type
+     * will be this field's type; otherwise it will be Object[].
+     */
+    public CompilerParameters loadOnlySpecificHqlFields(String... hqlFieldNames) {
+        Preconditions.checkArgument(hqlFieldNames.length > 0);
+        val o = new CompilerParameters(this);
+        o.onlySpecificHqlFields = hqlFieldNames;
+        return o;
     }
 
     /**
      * Creates compiler parameters some as current and add condition to load only identity of objects.
-     * 
-     * @return Returns batch presentation compiler parameters.
+     *
+     * @return Returns batch presentation compiler parameters. Batch presentation result row type will be id's field type
+     * (normally BigInteger, or generally Number).
      */
     public CompilerParameters loadOnlyIdentity() {
-        return new CompilerParameters(this, new OnlyIdentity());
-    }
-
-    /**
-     * Dummy class for only identity parameter fluent interface.
-     */
-    private static class OnlyIdentity {
-
-    }
-
-    private static class IdRestriction {
-        final String[] idRestriction;
-
-        IdRestriction(String[] idRestrictions) {
-            this.idRestriction = idRestrictions;
-        }
+        return loadOnlySpecificHqlFields("id");
     }
 }

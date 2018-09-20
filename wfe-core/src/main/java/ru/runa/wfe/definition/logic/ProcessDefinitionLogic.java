@@ -390,14 +390,6 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         return definition.getVariable(variableName, true);
     }
 
-    /**
-     * @param batchPresentation of type DEFINITIONS.
-     */
-    public List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
-        CompilerParameters parameters = CompilerParameters.create(enablePaging).loadOnlyIdentity();
-        return getProcessDefinitions(user, batchPresentation, parameters);
-    }
-
     public int getProcessDefinitionsCount(User user, BatchPresentation batchPresentation) {
         CompilerParameters parameters = CompilerParameters.createNonPaged();
         return new PresentationCompiler<ProcessDefinition>(batchPresentation).getCount(parameters);
@@ -435,12 +427,18 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         }
     }
 
-    private List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, CompilerParameters parameters) {
+    /**
+     * @param batchPresentation of type DEFINITIONS.
+     */
+    public List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         List<Long> processIdRestriction = getIdRestriction(user);
         if (processIdRestriction.isEmpty()) {
             return Lists.newArrayList();
         }
-        parameters = parameters.addOwners(new RestrictionsToOwners(processIdRestriction, "id"));
+
+        CompilerParameters parameters = CompilerParameters.create(enablePaging)
+                .loadOnlySpecificHqlFields("latestVersion.id")
+                .addOwners(new RestrictionsToOwners(processIdRestriction, "id"));
         List<Number> definitionVersionIds = new PresentationCompiler<Number>(batchPresentation).getBatch(parameters);
         val processDefinitions = new HashMap<ProcessDefinition, ParsedProcessDefinition>(definitionVersionIds.size());
         val definitions = new ArrayList<ProcessDefinition>(definitionVersionIds.size());
