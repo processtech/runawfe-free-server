@@ -8,7 +8,7 @@ import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
-import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
@@ -18,7 +18,7 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 @Component("taskCache")
 public class TaskCacheCtrl extends BaseCacheCtrl<TaskCacheImpl> {
@@ -28,8 +28,8 @@ public class TaskCacheCtrl extends BaseCacheCtrl<TaskCacheImpl> {
                 new TaskCacheFactory(),
                 new ArrayList<ListenObjectDefinition>() {{
                     add(new ListenObjectDefinition(Task.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(Swimlane.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(Variable.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(CurrentSwimlane.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(CurrentVariable.class, ListenObjectLogType.BECOME_DIRTY));
                     add(new ListenObjectDefinition(Substitution.class, ListenObjectLogType.BECOME_DIRTY));
                     add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
                     add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
