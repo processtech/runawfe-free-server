@@ -29,12 +29,12 @@ public class ReportDefinitionDao extends GenericDao<ReportDefinition> {
     public List<WfReport> getReportDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.LIST, SECURED_OBJECTS);
         CompilerParameters parameters = CompilerParameters.create(enablePaging).addPermissions(permissions);
-        List<ReportDefinition> deployments = new PresentationCompiler<ReportDefinition>(batchPresentation).getBatch(parameters);
-        List<WfReport> definitions = Lists.newArrayList();
-        for (ReportDefinition deployment : deployments) {
-            definitions.add(new WfReport(deployment));
+        List<ReportDefinition> reportDefs = new PresentationCompiler<ReportDefinition>(batchPresentation).getBatch(parameters);
+        List<WfReport> result = Lists.newArrayList();
+        for (ReportDefinition rd : reportDefs) {
+            result.add(new WfReport(rd));
         }
-        return definitions;
+        return result;
     }
 
     public WfReport getReportDefinition(Long id) {

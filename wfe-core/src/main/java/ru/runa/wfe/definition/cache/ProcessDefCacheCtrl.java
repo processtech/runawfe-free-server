@@ -32,16 +32,16 @@ public class ProcessDefCacheCtrl extends BaseCacheCtrl<ProcessDefCacheImpl> {
         );
     }
 
-    public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(stateMachine).getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
+    public ParsedProcessDefinition getDefinition(long definitionVersionId) throws DefinitionDoesNotExistException {
+        return CachingLogic.getCacheImpl(stateMachine).getDefinition(processDefinitionDao, processDefinitionVersionDao, definitionVersionId);
     }
 
     public ParsedProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException {
         return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionDao, processDefinitionVersionDao, definitionName);
     }
 
-    public ParsedProcessDefinition getLatestDefinition(long deploymentId) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionDao, processDefinitionVersionDao, deploymentId);
+    public ParsedProcessDefinition getLatestDefinition(long definitionId) throws DefinitionDoesNotExistException {
+        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionDao, processDefinitionVersionDao, definitionId);
     }
 
     private static class ProcessDefinitionCacheFactory extends SMCacheFactory<ProcessDefCacheImpl> {

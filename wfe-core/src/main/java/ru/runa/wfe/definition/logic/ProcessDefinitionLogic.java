@@ -441,24 +441,24 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
             return Lists.newArrayList();
         }
         parameters = parameters.addOwners(new RestrictionsToOwners(processIdRestriction, "id"));
-        List<Number> deploymentIds = new PresentationCompiler<Number>(batchPresentation).getBatch(parameters);
-        val processDefinitions = new HashMap<ProcessDefinition, ParsedProcessDefinition>(deploymentIds.size());
-        val deployments = new ArrayList<ProcessDefinition>(deploymentIds.size());
-        for (Number definitionId : deploymentIds) {
+        List<Number> definitionVersionIds = new PresentationCompiler<Number>(batchPresentation).getBatch(parameters);
+        val processDefinitions = new HashMap<ProcessDefinition, ParsedProcessDefinition>(definitionVersionIds.size());
+        val definitions = new ArrayList<ProcessDefinition>(definitionVersionIds.size());
+        for (Number definitionVersionId : definitionVersionIds) {
             try {
-                ParsedProcessDefinition parsed = getDefinition(definitionId.longValue());
+                ParsedProcessDefinition parsed = getDefinition(definitionVersionId.longValue());
                 processDefinitions.put(parsed.getProcessDefinition(), parsed);
-                deployments.add(parsed.getProcessDefinition());
+                definitions.add(parsed.getProcessDefinition());
             } catch (Exception e) {
-                ProcessDefinition processDefinition = processDefinitionDao.get(definitionId.longValue());
+                ProcessDefinition processDefinition = processDefinitionDao.get(definitionVersionId.longValue());
                 if (processDefinition != null) {
                     processDefinitions.put(processDefinition, null);
-                    deployments.add(processDefinition);
+                    definitions.add(processDefinition);
                 }
             }
         }
-        val result = new ArrayList<WfDefinition>(deploymentIds.size());
-        isPermissionAllowed(user, deployments, Permission.START, new StartProcessPermissionCheckCallback(result, processDefinitions));
+        val result = new ArrayList<WfDefinition>(definitionVersionIds.size());
+        isPermissionAllowed(user, definitions, Permission.START, new StartProcessPermissionCheckCallback(result, processDefinitions));
         return result;
     }
 
@@ -477,14 +477,14 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
     private List<ProcessDefinitionChange> getChanges(List<Long> processDefinitionVersionIds) {
         List<ProcessDefinitionChange> ignoredChanges = null;
         if (!processDefinitionVersionIds.isEmpty()) {
-            ParsedProcessDefinition firstDefinition = getDefinition(processDefinitionVersionIds.get(0));
-            long firstDeploymentVersion = firstDefinition.getProcessDefinitionVersion().getVersion();
-            Long previousDeploymentVersionId = processDefinitionDao.findDefinitionVersionIdLatestVersionLessThan(
-                    firstDefinition.getProcessDefinition().getId(),
-                    firstDeploymentVersion
+            ParsedProcessDefinition firstParsed = getDefinition(processDefinitionVersionIds.get(0));
+            long firstVersion = firstParsed.getProcessDefinitionVersion().getVersion();
+            Long previousVersionId = processDefinitionDao.findDefinitionVersionIdLatestVersionLessThan(
+                    firstParsed.getProcessDefinition().getId(),
+                    firstVersion
             );
-            if (previousDeploymentVersionId != null) {
-                ignoredChanges = getDefinition(previousDeploymentVersionId).getChanges();
+            if (previousVersionId != null) {
+                ignoredChanges = getDefinition(previousVersionId).getChanges();
             }
         }
         val result = new ArrayList<ProcessDefinitionChange>();

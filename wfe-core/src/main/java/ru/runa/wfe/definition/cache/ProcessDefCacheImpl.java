@@ -156,7 +156,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl {
             val d = (ProcessDefinition) changedObject.object;
             Preconditions.checkArgument(d.getId() != null);
             isLocked.set(true);
-            onChangeDeploymentImpl(d);
+            onChangeImpl(d);
             return true;
 
         } else if (changedObject.object instanceof ProcessDefinitionVersion) {
@@ -167,7 +167,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl {
             versionIdToParsed.remove(dv.getId());
             dv = HibernateUtil.unproxyWithoutInitialize(dv);
             if (dv != null && dv.getDefinition() != null) {
-                onChangeDeploymentImpl(dv.getDefinition());
+                onChangeImpl(dv.getDefinition());
             }
             return true;
 
@@ -178,7 +178,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl {
         }
     }
 
-    private void onChangeDeploymentImpl(ProcessDefinition d) {
+    private void onChangeImpl(ProcessDefinition d) {
         versionIdToParsed.remove(definitionIdToVersionId.getAndRemove(d.getId()));
         versionIdToParsed.remove(definitionNameToVersionId.getAndRemove(d.getName()));
     }

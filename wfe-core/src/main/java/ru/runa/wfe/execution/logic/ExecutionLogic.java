@@ -613,15 +613,15 @@ public class ExecutionLogic extends WfCommonLogic {
         CurrentProcess process = currentProcessDao.getNotNull(processId);
         // TODO checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
         ProcessDefinitionVersion dv = process.getDefinitionVersion();
-        long newDeploymentVersion = version != null ? version : dv.getVersion() + 1;
-        if (newDeploymentVersion == dv.getVersion()) {
+        long newVersion = version != null ? version : dv.getVersion() + 1;
+        if (newVersion == dv.getVersion()) {
             return false;
         }
-        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.getByNameAndVersion(dv.getDefinition().getName(), newDeploymentVersion);
+        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.getByNameAndVersion(dv.getDefinition().getName(), newVersion);
         process.setDefinitionVersion(nextDWV.processDefinitionVersion);
         currentProcessDao.update(process);
         processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),
-                newDeploymentVersion), process, null);
+                newVersion), process, null);
         return true;
     }
 
