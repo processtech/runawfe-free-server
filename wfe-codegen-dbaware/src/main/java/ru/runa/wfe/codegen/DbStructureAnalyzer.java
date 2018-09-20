@@ -290,9 +290,12 @@ class DbStructureAnalyzer {
         }
 
         // Read DB version.
-        if (st.tablesByName.containsKey("wfe_constants")) {
+        boolean haveConstants = st.tablesByName.containsKey("wfe_constants");
+        boolean haveConstant = st.tablesByName.containsKey("wfe_constant");
+        if (haveConstants || haveConstant) {
             try (val stmt = conn.createStatement()) {
-                val rs = stmt.executeQuery("select value from wfe_constants where name = 'ru.runa.database_version'");
+                String constantTableName = haveConstants ? "wfe_constants" : "wfe_constant";
+                val rs = stmt.executeQuery("select value from " + constantTableName + " where name = 'ru.runa.database_version'");
                 if (rs.next()) {
                     st.version = Integer.parseInt(rs.getString(1));
                 }

@@ -85,7 +85,7 @@ public class PermissionDao extends CommonDao {
     }
 
     /**
-     * Called once after patches are successfully applied.
+     * Called once after migrations are successfully applied.
      */
     public void preloadPrivilegedMapping() {
         val pm = QPrivelegedMapping.privelegedMapping;
@@ -246,11 +246,16 @@ public class PermissionDao extends CommonDao {
             return haveIds ? new HashSet<>(idsOrNull) : nonEmptySet;
         }
 
-        Set<Long> result = new HashSet<>();
+        val result = new HashSet<Long>();
+        val typesToCheck = new HashSet<SecuredObjectType>();
+        typesToCheck.add(type);
+        if (type == SecuredObjectType.ACTOR || type == SecuredObjectType.GROUP) {
+            typesToCheck.add(SecuredObjectType.EXECUTOR);
+        }
         for (List<Long> idsPart : haveIds ? Lists.partition(idsOrNull, SystemProperties.getDatabaseParametersCount()) : nonEmptyListList) {
             JPQLQuery<Long> q = queryFactory.select(pm.id).from(pm)
                     .where(pm.executor.in(executorWithGroups)
-                            .and(pm.objectType.eq(type))
+                            .and(pm.objectType.in(typesToCheck))
                             .and(pm.permission.in(subst.selfPermissions)));
             if (haveIds) {
                 result.addAll(q.where(pm.objectId.in(idsPart)).fetch());
@@ -263,6 +268,8 @@ public class PermissionDao extends CommonDao {
 
     /**
      * Checks whether executor has permission on securedObject's. Create result array in same order, as securedObject's.
+     *
+     * TODO Merge with filterAllowedIds() method above, by returning BOTH results. (But what about "ids" here vs "idsOrNull" there?)
      *
      * @param user
      *            Executor, which permission must be check.
@@ -303,7 +310,12 @@ public class PermissionDao extends CommonDao {
             return result;
         }
 
-        Set<Long> allowedIdentifiableIds = new HashSet<>(result.length);
+        val typesToCheck = new HashSet<SecuredObjectType>();
+        typesToCheck.add(type);
+        if (type == SecuredObjectType.ACTOR || type == SecuredObjectType.GROUP) {
+            typesToCheck.add(SecuredObjectType.EXECUTOR);
+        }
+        val allowedIdentifiableIds = new HashSet<Long>(result.length);
         int window = SystemProperties.getDatabaseParametersCount() - executorWithGroups.size() - 2;
         Preconditions.checkArgument(window > 100);
         for (int i = 0; i <= (result.length - 1) / window; ++i) {
@@ -318,7 +330,7 @@ public class PermissionDao extends CommonDao {
             }
             allowedIdentifiableIds.addAll(queryFactory.selectDistinct(pm.objectId).from(pm)
                     .where(pm.executor.in(executorWithGroups)
-                            .and(pm.objectType.eq(type))
+                            .and(pm.objectType.in(typesToCheck))
                             .and(pm.objectId.in(identifiableIds))
                             .and(pm.permission.in(subst.selfPermissions)))
                     .fetch());

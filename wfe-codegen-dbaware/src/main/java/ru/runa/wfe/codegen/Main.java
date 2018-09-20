@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 /**
- * Analyzes PostgreSQL database structure and generates wfe-core/src/main/java/ru/runa/wfe/commons/dbpatch/DbPatch0.java.
+ * Analyzes PostgreSQL database structure and generates wfe-core/src/main/java/ru/runa/wfe/commons/dbmigration/DbMigration0.java.
  *
  * @author Dmitry Grigoriev aka dimgel; based on my private Scala project "lib.ql" source code.
  */
@@ -18,7 +18,7 @@ public class Main {
         }
         String jdbcUrl = args[0];
 
-        File patch0File = new File("../wfe-core/src/main/java/ru/runa/wfe/commons/dbpatch/DbPatch0.java");
+        File patch0File = new File("../wfe-core/src/main/java/ru/runa/wfe/commons/dbmigration/DbMigration0.java");
         if (!patch0File.isFile()) {
             throw new Exception("File \"" + patch0File + "\" does not exist");
         }
@@ -28,7 +28,7 @@ public class Main {
             throw new Exception("Database is empty.");
         }
 
-        DbPatch0Generator.generate(st, patch0File);
+        DbMigration0Generator.generate(st, patch0File);
 
         System.out.println("Done.");
         return 0;
