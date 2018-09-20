@@ -2,6 +2,7 @@ package ru.runa.wfe.task.cache;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
@@ -18,6 +19,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.var.Variable;
 
+@Component("taskCache")
 class TaskCacheCtrl extends BaseCacheCtrl<ManageableTaskCache> implements TaskCache {
 
     TaskCacheCtrl() {

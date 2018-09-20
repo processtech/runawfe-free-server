@@ -217,19 +217,6 @@
 		</property>
 	</bean>
 
-	<bean id="executorCache" class="ru.runa.wfe.user.cache.CacheFactory" factory-method="getInstance"/>
-	<bean id="substitutionCache" class="ru.runa.wfe.ss.cache.CacheFactory" factory-method="getInstance"/>
-	<bean id="taskCache" class="ru.runa.wfe.task.cache.CacheFactory" factory-method="getInstance"/>
-	<bean id="processDefCache" class="ru.runa.wfe.definition.cache.CacheFactory" factory-method="getInstance"/>
-
-	<bean id="processDefinitionLoader" class="ru.runa.wfe.definition.dao.ProcessDefinitionLoader" />
-
-	<bean id="taskFactory" class="ru.runa.wfe.task.TaskFactory" />
-
-	<bean id="wfTaskFactory" class="ru.runa.wfe.task.dto.WfTaskFactory" />
-
-	<bean id="processFactory" class="ru.runa.wfe.execution.ProcessFactory" />
-
 	<bean id="taskListBuilder" class="ru.runa.wfe.task.logic.TaskListBuilderImpl">
 		<constructor-arg ref="taskCache"/>
 	</bean>

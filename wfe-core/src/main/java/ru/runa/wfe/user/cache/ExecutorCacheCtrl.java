@@ -3,6 +3,7 @@ package ru.runa.wfe.user.cache;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
@@ -15,6 +16,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.user.Group;
 
+@Component
 class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implements ExecutorCache {
 
     ExecutorCacheCtrl() {

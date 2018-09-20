@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.CurrentProcessStartLog;
 import ru.runa.wfe.audit.CurrentSubprocessStartLog;
 import ru.runa.wfe.commons.CollectionUtil;
@@ -26,6 +27,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
+@Component
 public class ProcessFactory {
     @Autowired
     private CurrentProcessDao currentProcessDao;

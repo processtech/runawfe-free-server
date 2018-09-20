@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import org.springframework.stereotype.Component;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
@@ -18,10 +20,12 @@ import ru.runa.wfe.user.ExecutorGroupMembership;
 /**
  * Cache control object for substitutions.
  */
+@Component
 class SubstitutionCacheCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> implements SubstitutionCache {
 
-    public SubstitutionCacheCtrl(boolean staleable) {
-        super(staleable ? new StaleableSubstitutionCacheFactory() : new SubstitutionCacheFactory(), createListenObjectTypes());
+    public SubstitutionCacheCtrl() {
+        super(SystemProperties.useStaleableSubstitutionCache() ? new StaleableSubstitutionCacheFactory() : new SubstitutionCacheFactory(),
+                createListenObjectTypes());
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import java.util.List;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -37,6 +38,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
  * @author Dofs
  * @since 4.0
  */
+@Component
 public class WfTaskFactory {
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;

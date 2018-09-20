@@ -2,10 +2,12 @@ package ru.runa.wfe.definition.dao;
 
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.definition.cache.DefinitionCache;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
+@Component
 public class ProcessDefinitionLoader {
     @Autowired
     private DefinitionCache processDefCacheCtrl;

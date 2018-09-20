@@ -2,6 +2,7 @@ package ru.runa.wfe.task;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.CurrentTaskCreateLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
@@ -17,6 +18,7 @@ import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
 
+@Component
 public class TaskFactory {
     @Autowired
     private TaskDao taskDao;
