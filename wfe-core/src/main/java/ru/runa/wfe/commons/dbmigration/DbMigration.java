@@ -166,7 +166,9 @@ public abstract class DbMigration {
      */
     @Deprecated
     protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions, String unique) {
-        checkIndentifierLength(tableName);
+        // See TODO below.
+        checkIndentifierLength("pk_" + tableName);
+
         val query = new StringBuilder("CREATE TABLE " + tableName + " (");
         for (ColumnDef columnDef : columnDefinitions) {
             if (columnDefinitions.indexOf(columnDef) > 0) {
