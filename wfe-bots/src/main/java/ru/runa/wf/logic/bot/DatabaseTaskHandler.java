@@ -17,6 +17,10 @@
  */
 package ru.runa.wf.logic.bot;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.io.Closeables;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -33,18 +37,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-
 import org.apache.commons.beanutils.PropertyUtils;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.io.Closeables;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SqlCommons;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -60,7 +56,6 @@ import ru.runa.wfe.commons.sqltask.SwimlaneResult;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceStuff;
 import ru.runa.wfe.datasource.JdbcDataSource;
-import ru.runa.wfe.datasource.JdbcDataSourceType;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.service.client.FileVariableProxy;
@@ -93,6 +88,7 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
         return outputVariables;
     }
 
+    @SuppressWarnings("unchecked")
     private void executeDatabaseTasks(User user, VariableProvider variableProvider, WfTask task, Map<String, Object> outputVariables,
             DatabaseTask[] databaseTasks) throws Exception {
         Context context = new InitialContext();
@@ -109,13 +105,7 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
                         dsName = (String) variableProvider.getValue(dsName.substring(colonIndex + 1));
                     }
                     JdbcDataSource jds = (JdbcDataSource) DataSourceStorage.getDataSource(dsName);
-                    String url = jds.getUrl();
-                    if (jds.getUrl().contains(DataSourceStuff.DATABASE_NAME_MARKER)) {
-                        url = url.replace(DataSourceStuff.DATABASE_NAME_MARKER, jds.getDbName());
-                    } else {
-                        url = url + (jds.getDbType() == JdbcDataSourceType.Oracle ? ':' : '/') + jds.getDbName();
-                    }
-                    conn = DriverManager.getConnection(url, jds.getUserName(), jds.getPassword());
+                    conn = DriverManager.getConnection(DataSourceStuff.adjustUrl(jds), jds.getUserName(), jds.getPassword());
                 } else { // jndi
                     if (colonIndex > 0) {
                         if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_JNDI_NAME)) {

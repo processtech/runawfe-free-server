@@ -51,14 +51,8 @@ public class JdbcDataSource extends DataSource {
     }
 
     public Connection getConnection() throws Exception {
-        String url = getUrl();
-        if (url.contains(DataSourceStuff.DATABASE_NAME_MARKER)) {
-            url = url.replace(DataSourceStuff.DATABASE_NAME_MARKER, getDbName());
-        } else {
-            url = url + (getDbType() == JdbcDataSourceType.Oracle ? ':' : '/') + getDbName();
-        }
         Class.forName(getDbType().driverClassName()).newInstance();
-        return DriverManager.getConnection(url, getUserName(), getPassword());
+        return DriverManager.getConnection(DataSourceStuff.adjustUrl(this), getUserName(), getPassword());
     }
 
     public String serverVersion() {
