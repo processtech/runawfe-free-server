@@ -23,6 +23,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
@@ -35,8 +37,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-
 public class SingleThreadBotInvoker implements BotInvoker {
     private final Log log = LogFactory.getLog(SingleThreadBotInvoker.class);
     private List<WorkflowBotExecutor> botExecutors;
@@ -45,7 +45,7 @@ public class SingleThreadBotInvoker implements BotInvoker {
 
     @Override
     public synchronized void invokeBots(BotStation botStation, boolean resetFailedDelay) {
-        this.botStation = botStation;
+        this.botStation = Delegates.getBotService().getBotStation(botStation.getId());
         logBotsActivites();
         configure();
         for (WorkflowBotExecutor botExecutor : botExecutors) {

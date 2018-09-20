@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.QSwimlane;
 import ru.runa.wfe.execution.Swimlane;
@@ -28,6 +29,11 @@ public class SwimlaneDao extends GenericDao<Swimlane> {
     public Swimlane findByProcessAndName(Process process, String name) {
         QSwimlane s = QSwimlane.swimlane;
         return queryFactory.selectFrom(s).where(s.process.eq(process).and(s.name.eq(name))).fetchFirst();
+    }
+    
+    public List<Swimlane> findByNamePatternInActiveProcesses(String name) {
+        QSwimlane s = QSwimlane.swimlane;
+        return queryFactory.selectFrom(s).where(s.name.like(name).and(s.process.executionStatus.notIn(ExecutionStatus.ENDED))).fetch();
     }
 
     public Swimlane findOrCreate(Process process, SwimlaneDefinition swimlaneDefinition) {
