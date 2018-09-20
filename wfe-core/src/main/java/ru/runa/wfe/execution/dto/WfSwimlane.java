@@ -17,21 +17,20 @@
  */
 package ru.runa.wfe.execution.dto;
 
-import java.io.Serializable;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
-import ru.runa.wfe.lang.SwimlaneDefinition;
-import ru.runa.wfe.user.Executor;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.user.Executor;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfSwimlane implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private Long id;
     private SwimlaneDefinition definition;
     private Executor executor;
 
@@ -41,12 +40,14 @@ public class WfSwimlane implements Serializable {
     public WfSwimlane() {
     }
 
-    public WfSwimlane(SwimlaneDefinition definition, Executor assignedExecutor) {
+    public WfSwimlane(SwimlaneDefinition definition, Swimlane swimlane, Executor assignedExecutor) {
+        Preconditions.checkNotNull(swimlane);
         Preconditions.checkNotNull(definition);
+        this.id = swimlane.getId();
         this.definition = definition;
-        executor = assignedExecutor;
+        this.executor = assignedExecutor;
     }
-
+    
     public SwimlaneDefinition getDefinition() {
         return definition;
     }
@@ -55,6 +56,10 @@ public class WfSwimlane implements Serializable {
         return executor;
     }
 
+    public Long getId() {
+        return id;
+    }
+    
     @Override
     public int hashCode() {
         return Objects.hashCode(definition.getName());

@@ -1,9 +1,11 @@
 package ru.runa.wfe.execution.dao;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.extension.AssignmentHandler;
@@ -25,6 +27,11 @@ public class SwimlaneDAO extends GenericDAO<Swimlane> {
     public Swimlane findByProcessAndName(Process process, String name) {
         return findFirstOrNull("from Swimlane where process=? and name=?", process, name);
     }
+    
+    public List<Swimlane> findByNamePatternInActiveProcesses (String name){
+        return getHibernateTemplate().find("from Swimlane s join Process p on s.process = p where s.name like ? and p.executionStatus not like ?", "%" + name + "%", ExecutionStatus.ENDED);
+    }
+
 
     public Swimlane findOrCreate(Process process, SwimlaneDefinition swimlaneDefinition) {
         Swimlane swimlane = findByProcessAndName(process, swimlaneDefinition.getName());
