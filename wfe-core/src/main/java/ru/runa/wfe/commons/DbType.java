@@ -8,5 +8,5 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
  * @author Dofs
  */
 public enum DbType {
-    GENERIC, HSQL, ORACLE, POSTGRESQL, MSSQL, MYSQL, H2
+    HSQL, ORACLE, POSTGRESQL, MSSQL, MYSQL, H2
 }

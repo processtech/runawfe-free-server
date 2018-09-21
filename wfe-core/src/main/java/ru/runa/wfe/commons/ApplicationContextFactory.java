@@ -142,13 +142,13 @@ public class ApplicationContextFactory implements ApplicationContextAware {
             } else if (hibernateDialect.contains("Postgre")) {
                 dbType = DbType.POSTGRESQL;
             } else if (hibernateDialect.contains("MySQL")) {
-                dbType = DbType.MYSQL;
-            } else if (hibernateDialect.contains("SQLServer")) {
+                dbType = DbType.MYSQL;  // TODO Delete this enum item in WFE 5.
+            } else if (hibernateDialect.contains("SQLServer") || hibernateDialect.contains("SqlServer")) {
                 dbType = DbType.MSSQL;
             } else if (hibernateDialect.contains("H2")) {
                 dbType = DbType.H2;
             } else {
-                dbType = DbType.GENERIC;
+                throw new RuntimeException("Unsupported DB dialect: " + hibernateDialect);
             }
         }
         return dbType;

@@ -57,23 +57,6 @@ public class ReportTimeFormatterImpl implements ReportTimeFormatter {
 
     @Override
     public String dbSpecificInterval(Number interval) {
-        switch (ApplicationContextFactory.getDbType()) {
-            case H2:
-                break;
-            case HSQL:
-                break;
-            case MSSQL:
-                break;
-            case MYSQL:
-                break;
-            case ORACLE:
-                break;
-            case POSTGRESQL:
-                break;
-            case GENERIC:
-            default:
-                break;
-        }
         return null;
     }
 }

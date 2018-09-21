@@ -530,7 +530,7 @@ public abstract class DbMigration {
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class IntColumnDef extends ColumnDef {
         public IntColumnDef(String name, boolean allowNulls) {
-            super(name, Types.INTEGER, allowNulls);
+            super(name, dialect.getTypeName(Types.INTEGER), allowNulls);
         }
         public IntColumnDef(String name) {
             this(name, true);
@@ -540,7 +540,7 @@ public abstract class DbMigration {
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class TimestampColumnDef extends ColumnDef {
         public TimestampColumnDef(String name, boolean allowNulls) {
-            super(name, Types.TIMESTAMP, allowNulls);
+            super(name, dialect.getTypeName(Types.TIMESTAMP), allowNulls);
         }
         public TimestampColumnDef(String name) {
             this(name, true);
