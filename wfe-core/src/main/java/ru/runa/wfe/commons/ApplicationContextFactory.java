@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDao;
+import ru.runa.wfe.commons.dbmigration.InitializerLogic;
 import ru.runa.wfe.commons.hibernate.Converters;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
@@ -54,6 +55,10 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static ApplicationContext getContext() {
         return context;
+    }
+
+    public static InitializerLogic getInitializerLogic() {
+        return getContext().getBean(InitializerLogic.class);
     }
 
     public static JobDao getJobDao() {

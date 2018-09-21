@@ -57,6 +57,11 @@ public class ProcessArchiver {
     private long totalProcessIdsHandled;
 
     public void execute() throws Exception {
+        if (!ApplicationContextFactory.getInitializerLogic().isInitialized()) {
+            // Do not interfere with migrations.
+            return;
+        }
+
         if (!SystemProperties.isProcessArchivingEnabled() || permanentFailure || !busy.compareAndSet(false, true)) {
             return;
         }

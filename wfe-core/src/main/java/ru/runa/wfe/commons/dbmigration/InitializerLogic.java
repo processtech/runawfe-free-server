@@ -20,6 +20,7 @@ package ru.runa.wfe.commons.dbmigration;
 import com.google.common.base.Throwables;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,6 +166,8 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     @Autowired
     private DbMigrationManager dbMigrationManager;
 
+    private AtomicBoolean initialized = new AtomicBoolean(false);
+
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
@@ -181,9 +184,14 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
                 PropertyResources.setDatabaseAvailable(true);
             }
             log.info("Initialization completed.");
+            initialized.set(true);
         } catch (Exception e) {
             Throwables.propagate(e);
         }
+    }
+
+    public boolean isInitialized() {
+        return initialized.get();
     }
 
     private void postProcessPatches(List<DbMigration> appliedMigrations) {

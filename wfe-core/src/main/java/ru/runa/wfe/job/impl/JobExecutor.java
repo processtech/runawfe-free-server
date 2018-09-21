@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.job.Job;
@@ -20,6 +21,11 @@ public class JobExecutor {
 
     @Transactional
     public void execute() {
+        if (!ApplicationContextFactory.getInitializerLogic().isInitialized()) {
+            // Do not interfere with migrations.
+            return;
+        }
+
         List<Job> jobs = jobDao.getExpiredJobs();
         log.debug("Expired jobs: " + jobs.size());
         for (Job job : jobs) {
