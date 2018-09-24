@@ -9,7 +9,9 @@
 package ru.runa.wfe.commons.dbmigration;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 public class DbMigration0 extends DbMigration {
 
@@ -29,6 +31,7 @@ public class DbMigration0 extends DbMigration {
                 getDDLCreateSequence("seq_bpm_log"),
                 getDDLCreateSequence("seq_bpm_process"),
                 getDDLCreateSequence("seq_bpm_process_definition"),
+                getDDLCreateSequence("seq_bpm_process_definition_ver"),
                 getDDLCreateSequence("seq_bpm_setting"),
                 getDDLCreateSequence("seq_bpm_subprocess"),
                 getDDLCreateSequence("seq_bpm_swimlane"),
@@ -38,11 +41,11 @@ public class DbMigration0 extends DbMigration {
                 getDDLCreateSequence("seq_executor"),
                 getDDLCreateSequence("seq_executor_group_member"),
                 getDDLCreateSequence("seq_executor_relation"),
+                getDDLCreateSequence("seq_executor_relation_pair"),
                 getDDLCreateSequence("seq_localization"),
                 getDDLCreateSequence("seq_permission_mapping"),
                 getDDLCreateSequence("seq_priveleged_mapping"),
                 getDDLCreateSequence("seq_profile"),
-                getDDLCreateSequence("seq_relation_group"),
                 getDDLCreateSequence("seq_report"),
                 getDDLCreateSequence("seq_report_parameter"),
                 getDDLCreateSequence("seq_substitution"),
@@ -58,6 +61,75 @@ public class DbMigration0 extends DbMigration {
                         new BigintColumnDef("id", false).setPrimaryKey(),
                         new VarcharColumnDef("name", 1024, true),
                         new BlobColumnDef("content", true)
+                )),
+                getDDLCreateTable("archived_log", list(
+                        new CharColumnDef("discriminator", 1, false),
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
+                        new VarcharColumnDef("severity", 1024, false),
+                        new BigintColumnDef("token_id", true),
+                        new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("node_id", 1024, true),
+                        new BigintColumnDef("process_id", false),
+                        new BlobColumnDef("bytes", true),
+                        new VarcharColumnDef("content", 4000, true)
+                )),
+                getDDLCreateTable("archived_process", list(
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
+                        new BigintColumnDef("parent_id", true),
+                        new TimestampColumnDef("end_date", true),
+                        new TimestampColumnDef("start_date", true),
+                        new VarcharColumnDef("tree_path", 1024, true),
+                        new BigintColumnDef("version", true),
+                        new BigintColumnDef("definition_version_id", false),
+                        new BigintColumnDef("root_token_id", false)
+                )),
+                getDDLCreateTable("archived_subprocess", list(
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
+                        new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("parent_node_id", 1024, true),
+                        new IntColumnDef("subprocess_index", true),
+                        new BigintColumnDef("parent_token_id", true),
+                        new BigintColumnDef("parent_process_id", false),
+                        new BigintColumnDef("process_id", false),
+                        new BigintColumnDef("root_process_id", false)
+                )),
+                getDDLCreateTable("archived_swimlane", list(
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
+                        new TimestampColumnDef("create_date", false),
+                        new BigintColumnDef("version", true),
+                        new VarcharColumnDef("name", 1024, true),
+                        new BigintColumnDef("process_id", true),
+                        new BigintColumnDef("executor_id", true)
+                )),
+                getDDLCreateTable("archived_token", list(
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
+                        new VarcharColumnDef("error_message", 1024, true),
+                        new VarcharColumnDef("transition_id", 1024, true),
+                        new VarcharColumnDef("message_selector", 1024, true),
+                        new TimestampColumnDef("error_date", true),
+                        new TimestampColumnDef("end_date", true),
+                        new TimestampColumnDef("start_date", true),
+                        new VarcharColumnDef("node_id", 1024, true),
+                        new BooleanColumnDef("reactivate_parent", true),
+                        new VarcharColumnDef("node_type", 1024, true),
+                        new BigintColumnDef("version", true),
+                        new VarcharColumnDef("name", 1024, true),
+                        new BigintColumnDef("process_id", true),
+                        new BigintColumnDef("parent_id", true)
+                )),
+                getDDLCreateTable("archived_variable", list(
+                        new CharColumnDef("discriminator", 1, false),
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
+                        new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("stringvalue", 1024, true),
+                        new CharColumnDef("converter", 1, true),
+                        new BigintColumnDef("version", true),
+                        new VarcharColumnDef("name", 1024, true),
+                        new TimestampColumnDef("datevalue", true),
+                        new BlobColumnDef("bytes", true),
+                        new BigintColumnDef("longvalue", true),
+                        new DoubleColumnDef("doublevalue", true),
+                        new BigintColumnDef("process_id", false)
                 )),
                 getDDLCreateTable("batch_presentation", list(
                         new BigintColumnDef("id", false).setPrimaryKey(),
@@ -172,22 +244,29 @@ public class DbMigration0 extends DbMigration {
                         new TimestampColumnDef("start_date", true),
                         new VarcharColumnDef("tree_path", 1024, true),
                         new BigintColumnDef("version", true),
-                        new BigintColumnDef("definition_id", false),
+                        new BigintColumnDef("definition_version_id", false),
                         new BigintColumnDef("root_token_id", false)
                 )),
                 getDDLCreateTable("bpm_process_definition", list(
                         new BigintColumnDef("id", false).setPrimaryKey(),
+                        new BigintColumnDef("latest_version_id", true),
+                        new VarcharColumnDef("name", 1024, false),
+                        new VarcharColumnDef("language", 10, false),
+                        new VarcharColumnDef("description", 1024, true),
+                        new VarcharColumnDef("category", 1024, false),
+                        new IntColumnDef("seconds_before_archiving", true)
+                )),
+                getDDLCreateTable("bpm_process_definition_ver", list(
+                        new BigintColumnDef("id", false).setPrimaryKey(),
                         new TimestampColumnDef("subprocess_binding_date", true),
                         new TimestampColumnDef("update_date", true),
-                        new VarcharColumnDef("category", 1024, false),
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", false),
-                        new VarcharColumnDef("description", 1024, true),
-                        new VarcharColumnDef("name", 1024, false),
-                        new VarcharColumnDef("language", 1024, false),
                         new BlobColumnDef("bytes", true),
                         new BigintColumnDef("update_user_id", true),
-                        new BigintColumnDef("create_user_id", true)
+                        new BigintColumnDef("create_user_id", true),
+                        new BigintColumnDef("definition_id", false),
+                        new BigintColumnDef("subversion", false)
                 )),
                 getDDLCreateTable("bpm_setting", list(
                         new BigintColumnDef("id", false).setPrimaryKey(),
@@ -202,7 +281,8 @@ public class DbMigration0 extends DbMigration {
                         new IntColumnDef("subprocess_index", true),
                         new BigintColumnDef("parent_token_id", true),
                         new BigintColumnDef("parent_process_id", false),
-                        new BigintColumnDef("process_id", false)
+                        new BigintColumnDef("process_id", false),
+                        new BigintColumnDef("root_process_id", false)
                 )),
                 getDDLCreateTable("bpm_swimlane", list(
                         new BigintColumnDef("id", false).setPrimaryKey(),
@@ -262,6 +342,11 @@ public class DbMigration0 extends DbMigration {
                         new BigintColumnDef("longvalue", true),
                         new DoubleColumnDef("doublevalue", true),
                         new BigintColumnDef("process_id", false)
+                )),
+                getDDLCreateTable("db_migration", list(
+                        new VarcharColumnDef("name", 255, false).setPrimaryKeyNoAutoInc(),
+                        new TimestampColumnDef("when_started", false),
+                        new TimestampColumnDef("when_finished", true)
                 )),
                 getDDLCreateTable("executor", list(
                         new VarcharColumnDef("discriminator", 1, false),
@@ -377,6 +462,18 @@ public class DbMigration0 extends DbMigration {
                         new VarcharColumnDef("value", 1024, true)
                 )),
 
+                getDDLCreateIndex("archived_log", "ix_arch_log_process", "process_id"),
+                getDDLCreateIndex("archived_process", "ix_arch_process_def_ver", "definition_version_id"),
+                getDDLCreateIndex("archived_process", "ix_arch_process_root_token", "root_token_id"),
+                getDDLCreateIndex("archived_subprocess", "ix_arch_subprocess_parent", "parent_process_id"),
+                getDDLCreateIndex("archived_subprocess", "ix_arch_subprocess_process", "process_id"),
+                getDDLCreateIndex("archived_subprocess", "ix_arch_subprocess_root", "root_process_id"),
+                getDDLCreateIndex("archived_swimlane", "ix_arch_swimlane_process", "process_id"),
+                getDDLCreateIndex("archived_token", "ix_arch_message_selector", "message_selector"),
+                getDDLCreateIndex("archived_token", "ix_arch_token_parent", "parent_id"),
+                getDDLCreateIndex("archived_token", "ix_arch_token_process", "process_id"),
+                getDDLCreateIndex("archived_variable", "ix_arch_variable_name", "name"),
+                getDDLCreateIndex("archived_variable", "ix_arch_variable_process", "process_id"),
                 getDDLCreateIndex("batch_presentation", "ix_batch_presentation_profile", "profile_id"),
                 getDDLCreateIndex("bot", "ix_bot_station", "bot_station_id"),
                 getDDLCreateIndex("bot_task", "ix_bot_task_bot", "bot_id"),
@@ -390,8 +487,9 @@ public class DbMigration0 extends DbMigration {
                 getDDLCreateIndex("bpm_agglog_tasks", "ix_agglog_tasks_process", "process_id"),
                 getDDLCreateIndex("bpm_job", "ix_job_process", "process_id"),
                 getDDLCreateIndex("bpm_log", "ix_log_process", "process_id"),
-                getDDLCreateIndex("bpm_process", "ix_process_definition", "definition_id"),
+                getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"),
                 getDDLCreateIndex("bpm_process", "ix_process_root_token", "root_token_id"),
+                getDDLCreateIndex("bpm_process_definition", "ix_definition_latest_ver", "latest_version_id"),
                 getDDLCreateIndex("bpm_subprocess", "ix_subprocess_parent_process", "parent_process_id"),
                 getDDLCreateIndex("bpm_subprocess", "ix_subprocess_process", "process_id"),
                 getDDLCreateIndex("bpm_swimlane", "ix_swimlane_process", "process_id"),
@@ -413,7 +511,10 @@ public class DbMigration0 extends DbMigration {
                 getDDLCreateIndex("substitution", "ix_substitution_actor", "actor_id"),
                 getDDLCreateIndex("substitution", "ix_substitution_criteria", "criteria_id"),
 
+                getDDLCreateUniqueKey("archived_variable", "uk_arch_variable_process", "process_id", "name"),
                 getDDLCreateUniqueKey("bot_station", "uk_bot_station_name", "name"),
+                getDDLCreateUniqueKey("bpm_process_definition", "uk_process_definition_name", "name"),
+                getDDLCreateUniqueKey("bpm_process_definition_ver", "uk_version_definition_ver", "definition_id", "version"),
                 getDDLCreateUniqueKey("bpm_variable", "uk_variable_2", "process_id", "name"),
                 getDDLCreateUniqueKey("executor", "uk_executor_name", "name"),
                 getDDLCreateUniqueKey("executor_group_member", "uk_executor_group_member_2", "executor_id", "group_id"),
@@ -425,18 +526,28 @@ public class DbMigration0 extends DbMigration {
                 getDDLCreateUniqueKey("substitution", "uk_substitution_2", "position_index", "actor_id"),
                 getDDLCreateUniqueKey("wfe_constants", "uk_wfe_constants_name", "name"),
 
+                getDDLCreateForeignKey("archived_process", "fk_arch_process_def_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
+                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_parent", "parent_process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_process", "process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_root", "root_process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_swimlane", "fk_arch_swimlane_executor", "executor_id", "executor", "id"),
+                getDDLCreateForeignKey("archived_swimlane", "fk_arch_swimlane_process", "process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_token", "fk_arch_token_process", "process_id", "archived_process", "id"),
+                getDDLCreateForeignKey("archived_variable", "fk_arch_variable_process", "process_id", "archived_process", "id"),
                 getDDLCreateForeignKey("batch_presentation", "fk_batch_presentation_profile", "profile_id", "profile", "id"),
                 getDDLCreateForeignKey("bot", "fk_bot_station", "bot_station_id", "bot_station", "id"),
                 getDDLCreateForeignKey("bot_task", "fk_bot_task_bot", "bot_id", "bot", "id"),
                 getDDLCreateForeignKey("bpm_agglog_assignments", "fk_agglog_assignments_1", "assignment_object_id", "bpm_agglog_tasks", "id"),
                 getDDLCreateForeignKey("bpm_job", "fk_job_process", "process_id", "bpm_process", "id"),
                 getDDLCreateForeignKey("bpm_job", "fk_job_token", "token_id", "bpm_token", "id"),
-                getDDLCreateForeignKey("bpm_process", "fk_process_definition", "definition_id", "bpm_process_definition", "id"),
+                getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
                 getDDLCreateForeignKey("bpm_process", "fk_process_root_token", "root_token_id", "bpm_token", "id"),
-                getDDLCreateForeignKey("bpm_process_definition", "fk_definition_create_user", "create_user_id", "executor", "id"),
-                getDDLCreateForeignKey("bpm_process_definition", "fk_definition_update_user", "update_user_id", "executor", "id"),
+                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_definition_create_user", "create_user_id", "executor", "id"),
+                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_definition_update_user", "update_user_id", "executor", "id"),
+                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_version_definition", "definition_id", "bpm_process_definition", "id"),
                 getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_parent_process", "parent_process_id", "bpm_process", "id"),
                 getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_process", "process_id", "bpm_process", "id"),
+                getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_root", "root_process_id", "bpm_process", "id"),
                 getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_token", "parent_token_id", "bpm_token", "id"),
                 getDDLCreateForeignKey("bpm_swimlane", "fk_swimlane_executor", "executor_id", "executor", "id"),
                 getDDLCreateForeignKey("bpm_swimlane", "fk_swimlane_process", "process_id", "bpm_process", "id"),
@@ -464,9 +575,62 @@ public class DbMigration0 extends DbMigration {
 
     @Override
     public void executeDML(Connection conn) throws Exception {
+        try (PreparedStatement stmt = conn.prepareStatement("insert into db_migration(name, when_started_when_finished) values(?, ?, ?)")) {
+            insertMigration(stmt, "AddAggregatedTaskIndexPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddAssignDateColumnPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddBatchPresentationIsSharedPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddColumnForEmbeddedBotTaskFileName", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddColumnsToSubstituteEscalatedTasksPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddCreateDateColumns", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddDeploymentAuditPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddDueDateExpressionToJobAndTask", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddEmbeddedFileForBotTask", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddHierarchyProcess", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddMultiTaskIndexToTaskPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddNodeIdToProcessLogPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddParentProcessIdPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddProcessAndTokenExecutionStatusPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddSequentialFlagToBot", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddSettingsTable", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddSubprocessBindingDatePatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddSubProcessIndexColumn", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddTitleAndDepartmentColumnsToActorPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddTokenErrorDataPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddTokenMessageSelectorPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddTransactionalBotSupport", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "AddVariableUniqueKeyPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "CreateAdminScriptTables", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "CreateAggregatedLogsTables", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "CreateReportsTables", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "ExpandDescriptionsPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "ExpandVarcharPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "JbpmRefactoringPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "NodeTypeChangePatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "PerformancePatch401", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "PermissionMappingPatch403", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "RefactorPermissionsStep1", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "RefactorPermissionsStep3", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "TaskCreateLogSeverityChangedPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "TaskEndDateRemovalPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "TaskOpenedByExecutorsPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "TransitionLogPatch", 1537829358814L, 1537829358814L);
+            insertMigration(stmt, "SplitProcessDefinitionVersion", 1537829358824L, 1537829358862L);
+            insertMigration(stmt, "AddSubprocessRootIdColumn", 1537829358867L, 1537829358870L);
+            insertMigration(stmt, "SupportProcessArchiving", 1537829358875L, 1537829358956L);
+            insertMigration(stmt, "RenameProcessesBatchPresentationCategories", 1537829358962L, 1537829358964L);
+            insertMigration(stmt, "RenameProcessesBatchPresentationClassTypes", 1537829358967L, 1537829358968L);
+            insertMigration(stmt, "RenameSequences", 1537829358972L, 1537829358973L);
+        }
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("insert into wfe_constants (" + insertPkColumn() + "name, value) values (" +
                     insertPkNextVal("wfe_constants") + "'ru.runa.database_version', 59)");
         }
+    }
+
+    private void insertMigration(PreparedStatement stmt, String name, long whenStarted, Long whenFinished) throws Exception {
+        stmt.setString(1, name);
+        stmt.setTimestamp(2, new Timestamp(whenStarted));
+        stmt.setTimestamp(3, whenFinished == null ? null : new Timestamp(whenFinished));
+        stmt.executeUpdate();
     }
 }
