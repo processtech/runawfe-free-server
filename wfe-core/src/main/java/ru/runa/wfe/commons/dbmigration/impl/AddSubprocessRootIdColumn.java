@@ -2,8 +2,6 @@ package ru.runa.wfe.commons.dbmigration.impl;
 
 import java.sql.Connection;
 import java.sql.Types;
-import java.util.Collections;
-import java.util.List;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
@@ -14,8 +12,8 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
 public class AddSubprocessRootIdColumn extends DbMigration {
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        return Collections.singletonList(
+    protected void executeDDLBefore() {
+        executeUpdates(
                 // First, add new column as nullable.
                 getDDLCreateColumn("bpm_subprocess", new BigintColumnDef("root_process_id", true))
         );
@@ -63,8 +61,8 @@ public class AddSubprocessRootIdColumn extends DbMigration {
     }
 
     @Override
-    protected List<String> getDDLQueriesAfter() {
-        return list(
+    protected void executeDDLAfter() {
+        executeUpdates(
                 // Last, alter column to be not-null.
                 getDDLModifyColumnNullability("bpm_subprocess", "root_process_id", dialect.getTypeName(Types.BIGINT), false),
                 getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_root", "root_process_id", "bpm_process", "id")

@@ -1,23 +1,18 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
 import java.sql.Types;
-import java.util.List;
-
 import org.hibernate.SQLQuery;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.execution.ProcessHierarchyUtils;
 
 public class AddParentProcessIdPatch extends DbMigration {
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = super.getDDLQueriesBefore();
-        sql.add(getDDLCreateColumn("BPM_PROCESS", new ColumnDef("PARENT_ID", Types.BIGINT)));
-        return sql;
+    protected void executeDDLBefore() {
+        executeUpdates(getDDLCreateColumn("BPM_PROCESS", new ColumnDef("PARENT_ID", Types.BIGINT)));
     }
 
     @Override
@@ -36,5 +31,4 @@ public class AddParentProcessIdPatch extends DbMigration {
             }
         }
     }
-
 }

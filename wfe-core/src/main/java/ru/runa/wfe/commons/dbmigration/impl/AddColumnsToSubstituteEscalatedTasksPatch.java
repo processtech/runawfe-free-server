@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.hibernate.Session;
-
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 public class AddColumnsToSubstituteEscalatedTasksPatch extends DbMigration {
@@ -15,26 +13,22 @@ public class AddColumnsToSubstituteEscalatedTasksPatch extends DbMigration {
     private static final Pattern DECIMAL_LONG = Pattern.compile("([\\d]+)");
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = super.getDDLQueriesAfter();
-
-        sql.add(getDDLCreateColumn("EXECUTOR", new ColumnDef("PROCESS_ID", Types.BIGINT, true)));
-        sql.add(getDDLCreateColumn("EXECUTOR", new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true)));
-
-        log.info(String.format("getDDLQueriesBefore: sql: %s", sql));
-
-        return sql;
+    protected void executeDDLBefore() {
+        executeUpdates(
+                getDDLCreateColumn("EXECUTOR", new ColumnDef("PROCESS_ID", Types.BIGINT, true)),
+                getDDLCreateColumn("EXECUTOR", new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true))
+        );
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void executeDML(Session session) throws Exception {
+    public void executeDML(Session session) {
         List<Object[]> bundles = session.createSQLQuery("SELECT ID, DESCRIPTION FROM EXECUTOR WHERE DISCRIMINATOR IN ('E', 'T')").list();
 
         for (Object[] bundle : bundles) {
             try {
                 log.info(String.format("applyPatch: id: %s set PROCESS_ID description: %s", bundle[0], bundle[1]));
-                Long pid = Long.valueOf(0);
+                Long pid = 0L;
                 Matcher m;
                 if (bundle[1] != null && ((m = DECIMAL_LONG.matcher((CharSequence) bundle[1])).find())) {
                     MatchResult mr = m.toMatchResult();
@@ -63,5 +57,4 @@ public class AddColumnsToSubstituteEscalatedTasksPatch extends DbMigration {
             }
         }
     }
-
 }

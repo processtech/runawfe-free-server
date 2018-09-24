@@ -19,10 +19,8 @@ public class AddAssignDateColumnPatch extends DbMigration {
     private CurrentProcessLogDao currentProcessLogDao;
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = super.getDDLQueriesBefore();
-        sql.add(getDDLCreateColumn("BPM_TASK", new ColumnDef("ASSIGN_DATE", dialect.getTypeName(Types.TIMESTAMP))));
-        return sql;
+    protected void executeDDLBefore() {
+        executeUpdates(getDDLCreateColumn("BPM_TASK", new ColumnDef("ASSIGN_DATE", dialect.getTypeName(Types.TIMESTAMP))));
     }
 
     @Override

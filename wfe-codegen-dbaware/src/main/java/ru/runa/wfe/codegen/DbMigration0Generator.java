@@ -2,7 +2,6 @@ package ru.runa.wfe.codegen;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.Objects;
 import lombok.val;
 import lombok.var;
 import ru.runa.wfe.codegen.DbStructureAnalyzer.Structure;
@@ -28,14 +27,13 @@ class DbMigration0Generator {
         if (!st.migrations.isEmpty()) {
             w.write("import java.sql.Timestamp;\n");
         }
-        w.write("import java.util.List;\n" +
-                "\n" +
+        w.write("\n" +
                 "public class DbMigration0 extends DbMigration {\n" +
                 "\n" +
                 "    @Override\n" +
                 "    @SuppressWarnings(\"ConstantConditions\")\n" +
-                "    protected List<String> getDDLQueriesBefore() {\n" +
-                "        return list(");
+                "    protected void executeDDLQueriesBefore() {\n" +
+                "        executeUpdates(");
 
 
         var firstSequence = true;

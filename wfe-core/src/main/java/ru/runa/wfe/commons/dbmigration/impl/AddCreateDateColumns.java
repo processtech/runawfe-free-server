@@ -1,17 +1,14 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
+import com.google.common.collect.Lists;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
-
-import com.google.common.collect.Lists;
 
 public class AddCreateDateColumns extends DbMigration {
     private static final String COLUMN_CREATE_DATE = "CREATE_DATE";
@@ -37,19 +34,19 @@ public class AddCreateDateColumns extends DbMigration {
     }
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = super.getDDLQueriesBefore();
-        sql.add(getDDLRenameColumn("BPM_LOG", "LOG_DATE", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)));
-        sql.add(getDDLRenameColumn("BPM_PROCESS_DEFINITION", "DEPLOYED", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)));
-        sql.add(getDDLRenameColumn("SYSTEM_LOG", "TIME", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)));
+    protected void executeDDLBefore() {
+        executeUpdates(
+                getDDLRenameColumn("BPM_LOG", "LOG_DATE", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)),
+                getDDLRenameColumn("BPM_PROCESS_DEFINITION", "DEPLOYED", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)),
+                getDDLRenameColumn("SYSTEM_LOG", "TIME", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP))
+        );
         for (String tableName : TABLES_TO_ADD_COLUMN) {
-            sql.add(getDDLCreateColumn(tableName, new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)));
+            executeUpdates(getDDLCreateColumn(tableName, new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)));
         }
-        return sql;
     }
 
     @Override
-    public void executeDML(Session session) throws Exception {
+    public void executeDML(Session session) {
         Calendar fakeCreateCalendar = CalendarUtil.getZeroTimeCalendar(Calendar.getInstance());
         fakeCreateCalendar.set(Calendar.DAY_OF_YEAR, 1);
         Date fakeCreateDate = fakeCreateCalendar.getTime();
@@ -63,5 +60,4 @@ public class AddCreateDateColumns extends DbMigration {
             log.info("'" + sql + "' executed for " + rowsUpdated + " rows");
         }
     }
-
 }

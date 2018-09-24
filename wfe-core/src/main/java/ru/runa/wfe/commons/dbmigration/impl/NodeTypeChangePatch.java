@@ -34,7 +34,7 @@ public class NodeTypeChangePatch extends DbMigration {
     }
 
     @Override
-    public void executeDML(Session session) throws Exception {
+    public void executeDML(Session session) {
         for (Map.Entry<String, String> entry : CHANGES.entrySet()) {
             SQLQuery updateQuery = session.createSQLQuery("UPDATE BPM_TOKEN SET NODE_TYPE=:newNodeType WHERE NODE_TYPE=:oldNodeType");
             updateQuery.setString("oldNodeType", entry.getKey());
@@ -56,5 +56,4 @@ public class NodeTypeChangePatch extends DbMigration {
             }
         }
     }
-
 }

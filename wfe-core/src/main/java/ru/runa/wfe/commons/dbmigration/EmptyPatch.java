@@ -8,5 +8,4 @@ package ru.runa.wfe.commons.dbmigration;
  * 
  */
 public class EmptyPatch extends DbMigration {
-
 }

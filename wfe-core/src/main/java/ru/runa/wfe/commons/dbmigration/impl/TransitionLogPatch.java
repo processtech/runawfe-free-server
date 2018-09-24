@@ -3,7 +3,6 @@ package ru.runa.wfe.commons.dbmigration.impl;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import lombok.val;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -88,9 +87,7 @@ public class TransitionLogPatch extends DbMigration {
     }
 
     @Override
-    protected List<String> getDDLQueriesAfter() {
-        List<String> sql = super.getDDLQueriesAfter();
-        sql.add(getDDLDropTable("JBPM_PASSTRANS"));
-        return sql;
+    protected void executeDDLAfter() {
+        executeUpdates(getDDLDropTable("JBPM_PASSTRANS"));
     }
 }

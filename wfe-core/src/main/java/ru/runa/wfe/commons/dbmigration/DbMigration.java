@@ -1,8 +1,8 @@
 package ru.runa.wfe.commons.dbmigration;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,20 +31,34 @@ public abstract class DbMigration {
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
     protected final DbType dbType = ApplicationContextFactory.getDbType();
 
+    private ThreadLocal<String> currentCategory = new ThreadLocal<>();
+    private ThreadLocal<Session> currentSession = new ThreadLocal<>();
+
     @Autowired
     protected SessionFactory sessionFactory;
 
     public void execute() throws Exception {
-        val session = sessionFactory.getCurrentSession();
-        executeDDL(session, "[DDLBefore]", getDDLQueriesBefore());
-        session.setCacheMode(CacheMode.IGNORE);
-        executeDML(session);
-        session.flush();
-        executeDDL(session, "[DDLAfter]", getDDLQueriesAfter());
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            currentSession.set(session);
+
+            currentCategory.set("[DDLBefore]");
+            executeDDLBefore();
+
+            currentCategory.set(null);
+            session.setCacheMode(CacheMode.IGNORE);
+            executeDML(session);
+            session.flush();
+
+            currentCategory.set("[DDLAfter]");
+            executeDDLAfter();
+        } finally {
+            currentCategory.set(null);
+            currentSession.set(null);
+        }
     }
 
-    protected List<String> getDDLQueriesBefore() {
-        return Lists.newArrayList();
+    protected void executeDDLBefore() {
     }
 
     /**
@@ -62,8 +76,7 @@ public abstract class DbMigration {
     public void executeDML(Connection conn) throws Exception {
     }
 
-    protected List<String> getDDLQueriesAfter() {
-        return Lists.newArrayList();
+    protected void executeDDLAfter() {
     }
 
     /**
@@ -112,27 +125,28 @@ public abstract class DbMigration {
      *
      * @return Result of last update.
      */
-    protected final int executeUpdates(Connection conn, String... queries) throws Exception {
-        try (val stmt = conn.createStatement()) {
-            int result = 0;
-            for (val q : queries) {
-                if (!StringUtils.isBlank(q)) {
-                    result = stmt.executeUpdate(q);
+    protected final int executeUpdates(Connection conn, String... queries) {
+        try {
+            val category = currentCategory.get();
+            try (val stmt = conn.createStatement()) {
+                int result = 0;
+                for (val q : queries) {
+                    if (!StringUtils.isBlank(q)) {
+                        if (category != null) {
+                            log.info(category + ": " + q);
+                        }
+                        result = stmt.executeUpdate(q);
+                    }
                 }
+                return result;
             }
-            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private void executeDDL(Session session, String category, List<String> queries) throws Exception {
-        try (val stmt = session.connection().createStatement()) {
-            for (val query : queries) {
-                if (!StringUtils.isBlank(query)) {
-                    log.info(category + ": " + query);
-                    stmt.executeUpdate(query);
-                }
-            }
-        }
+    protected final int executeUpdates(String... queries) {
+        return executeUpdates(currentSession.get().connection(), queries);
     }
 
     private static void checkIndentifierLength(String id) {
@@ -210,7 +224,11 @@ public abstract class DbMigration {
                 switch (dbType) {
                 case HSQL:
                 case MSSQL:
-                    primaryKeyModifier = "IDENTITY NOT NULL PRIMARY KEY";
+                    if (columnDef.autoIncremented) {
+                        primaryKeyModifier = "IDENTITY NOT NULL PRIMARY KEY";
+                    } else {
+                        primaryKeyModifier = "NOT NULL PRIMARY KEY";
+                    }
                     break;
                 case ORACLE:
                     primaryKeyModifier = "NOT NULL PRIMARY KEY";
@@ -219,10 +237,18 @@ public abstract class DbMigration {
                     primaryKeyModifier = "PRIMARY KEY";
                     break;
                 case MYSQL:
-                    primaryKeyModifier = "NOT NULL PRIMARY KEY AUTO_INCREMENT";
+                    if (columnDef.autoIncremented) {
+                        primaryKeyModifier = "NOT NULL PRIMARY KEY AUTO_INCREMENT";
+                    } else {
+                        primaryKeyModifier = "NOT NULL PRIMARY KEY";
+                    }
                     break;
                 case H2:
-                    primaryKeyModifier = "GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY";
+                    if (columnDef.autoIncremented) {
+                        primaryKeyModifier = "GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY";
+                    } else {
+                        primaryKeyModifier = "NOT NULL PRIMARY KEY";
+                    }
                     break;
                 default:
                     primaryKeyModifier = "PRIMARY KEY";
@@ -423,6 +449,7 @@ public abstract class DbMigration {
 
     public static class ColumnDef {
         private boolean primaryKey;
+        private boolean autoIncremented;
         private final String name;
         private int sqlType;
         private String sqlTypeName;
@@ -479,6 +506,12 @@ public abstract class DbMigration {
         }
 
         public ColumnDef setPrimaryKey() {
+            primaryKey = true;
+            autoIncremented = true;
+            return this;
+        }
+
+        public ColumnDef setPrimaryKeyNoAutoInc() {
             primaryKey = true;
             return this;
         }

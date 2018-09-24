@@ -1,17 +1,13 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
+import com.google.common.base.Strings;
 import java.sql.Types;
 import java.util.HashMap;
-import java.util.List;
-
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.commons.xml.XmlUtils;
-
-import com.google.common.base.Strings;
 
 /**
  * Adds BPM_LOG.NODE_ID column and fill it from attributes for old records.
@@ -22,14 +18,12 @@ import com.google.common.base.Strings;
 public class AddNodeIdToProcessLogPatch extends DbMigration {
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = super.getDDLQueriesAfter();
-        sql.add(getDDLCreateColumn("BPM_LOG", new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true)));
-        return sql;
+    protected void executeDDLBefore() {
+        executeUpdates(getDDLCreateColumn("BPM_LOG", new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true)));
     }
 
     @Override
-    public void executeDML(Session session) throws Exception {
+    public void executeDML(Session session) {
         String q;
         String inCollection = "('1','2','3','5','9','S','6','N','L','B','Z','7','8')";
         q = "SELECT COUNT(*) FROM BPM_LOG WHERE DISCRIMINATOR IN " + inCollection + " AND CONTENT IS NOT NULL";
@@ -58,5 +52,4 @@ public class AddNodeIdToProcessLogPatch extends DbMigration {
             }
         }
     }
-
 }

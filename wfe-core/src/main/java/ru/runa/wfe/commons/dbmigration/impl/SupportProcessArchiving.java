@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.util.List;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
@@ -12,8 +11,8 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
 public class SupportProcessArchiving extends DbMigration {
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        return list(
+    protected void executeDDLBefore() {
+        executeUpdates(
                 // Nullable per-definition configuration; default is SystemProperties.getProcessDefaultSecondsBeforeArchiving():
                 getDDLCreateColumn("bpm_process_definition", new IntColumnDef("seconds_before_archiving", true)),
 

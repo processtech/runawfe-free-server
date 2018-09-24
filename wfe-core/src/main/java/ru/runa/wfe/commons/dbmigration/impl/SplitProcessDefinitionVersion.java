@@ -12,7 +12,7 @@ public class SplitProcessDefinitionVersion extends DbMigration {
 
     @Override
     @SuppressWarnings("ConstantConditions")
-    protected List<String> getDDLQueriesBefore() {
+    protected void executeDDLBefore() {
 
         // Table BPM_PROCESS_DEFINITION does not have UK(name, version), so perform sanity check first.
         @SuppressWarnings("unchecked")
@@ -36,34 +36,34 @@ public class SplitProcessDefinitionVersion extends DbMigration {
             throw new RuntimeException(sb.toString());
         }
 
-        return list(
-            // I want to avoid sequence setval(), since some SQL servers don't have sequences. So I rename table and secuence instead.
-            getDDLRenameTable("bpm_process_definition", "bpm_process_definition_ver"),
-            getDDLRenameSequence("seq_bpm_process_definition", "seq_bpm_process_definition_ver"),
+        executeUpdates(
+                // I want to avoid sequence setval(), since some SQL servers don't have sequences. So I rename table and secuence instead.
+                getDDLRenameTable("bpm_process_definition", "bpm_process_definition_ver"),
+                getDDLRenameSequence("seq_bpm_process_definition", "seq_bpm_process_definition_ver"),
 
-            getDDLDropForeignKey("bpm_process", "fk_process_definition"),
-            getDDLDropIndex("bpm_process", "ix_process_definition"),
-            getDDLRenameColumn("bpm_process", "definition_id", new BigintColumnDef("definition_version_id", false)),
-            getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"),
-            getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
+                getDDLDropForeignKey("bpm_process", "fk_process_definition"),
+                getDDLDropIndex("bpm_process", "ix_process_definition"),
+                getDDLRenameColumn("bpm_process", "definition_id", new BigintColumnDef("definition_version_id", false)),
+                getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"),
+                getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
 
-            // Can add columns here, but not drop: first we must fill BPM_DEFINITION_VERSION table.
-            getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("definition_id", true)),
-            getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("subversion", true)),   // For future, will be 0 for now.
+                // Can add columns here, but not drop: first we must fill BPM_DEFINITION_VERSION table.
+                getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("definition_id", true)),
+                getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("subversion", true)),   // For future, will be 0 for now.
 
-            // This new table will be filled from BPM_PROCESS_DEFINITION_VER using "group by name".
-            getDDLCreateSequence("seq_bpm_process_definition"),
-            getDDLCreateTable("bpm_process_definition",
-                    new ArrayList<ColumnDef>() {{
-                        add(new BigintColumnDef("id", false).setPrimaryKey());
-                        add(new BigintColumnDef("latest_version_id", true));
-                        add(new VarcharColumnDef("name", 1024, false));
-                        add(new VarcharColumnDef("language", 10, false));
-                        add(new VarcharColumnDef("description", 1024));
-                        add(new VarcharColumnDef("category", 1024, false));
-                    }}
-            ),
-            getDDLCreateUniqueKey("bpm_process_definition", "uk_process_definition_name", "name")
+                // This new table will be filled from BPM_PROCESS_DEFINITION_VER using "group by name".
+                getDDLCreateSequence("seq_bpm_process_definition"),
+                getDDLCreateTable("bpm_process_definition",
+                        new ArrayList<ColumnDef>() {{
+                            add(new BigintColumnDef("id", false).setPrimaryKey());
+                            add(new BigintColumnDef("latest_version_id", true));
+                            add(new VarcharColumnDef("name", 1024, false));
+                            add(new VarcharColumnDef("language", 10, false));
+                            add(new VarcharColumnDef("description", 1024));
+                            add(new VarcharColumnDef("category", 1024, false));
+                        }}
+                ),
+                getDDLCreateUniqueKey("bpm_process_definition", "uk_process_definition_name", "name")
         );
     }
 
@@ -113,19 +113,19 @@ public class SplitProcessDefinitionVersion extends DbMigration {
     }
 
     @Override
-    protected List<String> getDDLQueriesAfter() {
-        return new ArrayList<String>() {{
-            add(getDDLDropColumn("bpm_process_definition_ver", "name"));
-            add(getDDLDropColumn("bpm_process_definition_ver", "language"));
-            add(getDDLDropColumn("bpm_process_definition_ver", "description"));
-            add(getDDLDropColumn("bpm_process_definition_ver", "category"));
-            add(getDDLModifyColumnNullability("bpm_process_definition_ver", "definition_id", dialect.getTypeName(Types.BIGINT), false));
-            add(getDDLModifyColumnNullability("bpm_process_definition_ver", "subversion", dialect.getTypeName(Types.BIGINT), false));
+    protected void executeDDLAfter() {
+        executeUpdates(
+                getDDLDropColumn("bpm_process_definition_ver", "name"),
+                getDDLDropColumn("bpm_process_definition_ver", "language"),
+                getDDLDropColumn("bpm_process_definition_ver", "description"),
+                getDDLDropColumn("bpm_process_definition_ver", "category"),
+                getDDLModifyColumnNullability("bpm_process_definition_ver", "definition_id", dialect.getTypeName(Types.BIGINT), false),
+                getDDLModifyColumnNullability("bpm_process_definition_ver", "subversion", dialect.getTypeName(Types.BIGINT), false),
 
-            add(getDDLCreateUniqueKey("bpm_process_definition_ver", "uk_version_definition_ver", "definition_id", "version"));
-            add(getDDLCreateForeignKey("bpm_process_definition_ver", "fk_version_definition", "definition_id", "bpm_process_definition", "id"));
+                getDDLCreateUniqueKey("bpm_process_definition_ver", "uk_version_definition_ver", "definition_id", "version"),
+                getDDLCreateForeignKey("bpm_process_definition_ver", "fk_version_definition", "definition_id", "bpm_process_definition", "id"),
 
-            add(getDDLCreateIndex("bpm_process_definition", "ix_definition_latest_ver", "latest_version_id"));
-        }};
+                getDDLCreateIndex("bpm_process_definition", "ix_definition_latest_ver", "latest_version_id")
+        );
     }
 }

@@ -1,22 +1,17 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
 import java.sql.Types;
-import java.util.List;
-
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 public class AddHierarchyProcess extends DbMigration {
     private static final String DELIM = "/";
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = super.getDDLQueriesBefore();
-        sql.add(getDDLCreateColumn("JBPM_PROCESSINSTANCE", new ColumnDef("TREE_PATH", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))));
-        return sql;
+    protected void executeDDLBefore() {
+        executeUpdates(getDDLCreateColumn("JBPM_PROCESSINSTANCE", new ColumnDef("TREE_PATH", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))));
     }
 
     @Override
@@ -44,5 +39,4 @@ public class AddHierarchyProcess extends DbMigration {
             appendParentsProcessId(session, superProcessTokenId, hierarchy);
         }
     }
-
 }
