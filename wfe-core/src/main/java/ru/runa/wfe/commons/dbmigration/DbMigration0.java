@@ -3,7 +3,8 @@
 //
 // UPD. Initial version was manually edited by dimgel:
 //      - fixed long (PostgreSQL-generated) and random (Hibernate-generated) UK/FK names;
-//      - replaced PK with UK on table ACTOR_PASSWORD (see tnms #5151-52).
+//      - placed setPrimaryKeyNoAutoInc() on table ACTOR_PASSWORD (see tnms #5151-52);
+//      - renamed SEQ_EXECUTOR_RELATION to SEQ_EXECUTOR_RELATION_PAIR so code generator will NOT generate setPrimaryKeyNoAutoInc().
 //      Please keep these updates and don't regenerate from non-empty database; see wfe-codegen-dbaware/README.txt.
 //
 package ru.runa.wfe.commons.dbmigration;
@@ -37,7 +38,7 @@ public class DbMigration0 extends DbMigration {
                 getDDLCreateSequence("seq_bpm_variable"),
                 getDDLCreateSequence("seq_executor"),
                 getDDLCreateSequence("seq_executor_group_member"),
-                getDDLCreateSequence("seq_executor_relation"),
+                getDDLCreateSequence("seq_executor_relation_pair"),
                 getDDLCreateSequence("seq_localization"),
                 getDDLCreateSequence("seq_permission_mapping"),
                 getDDLCreateSequence("seq_priveleged_mapping"),

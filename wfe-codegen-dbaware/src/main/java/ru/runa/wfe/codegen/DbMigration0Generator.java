@@ -32,7 +32,7 @@ class DbMigration0Generator {
                 "\n" +
                 "    @Override\n" +
                 "    @SuppressWarnings(\"ConstantConditions\")\n" +
-                "    protected void executeDDLQueriesBefore() {\n" +
+                "    protected void executeDDLBefore() {\n" +
                 "        executeUpdates(");
 
 

@@ -153,12 +153,12 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             AddSubprocessBindingDatePatch.class,
             AddTransactionalBotSupport.class,
             RefactorPermissionsStep1.class,
-            RefactorPermissionsStep3.class,
-            SplitProcessDefinitionVersion.class,
-            AddSubprocessRootIdColumn.class,
-            SupportProcessArchiving.class,
-            RenameProcessesBatchPresentationCategories.class,
-            RenameProcessesBatchPresentationClassTypes.class
+            RefactorPermissionsStep3.class
+//            SplitProcessDefinitionVersion.class,
+//            AddSubprocessRootIdColumn.class,
+//            SupportProcessArchiving.class,
+//            RenameProcessesBatchPresentationCategories.class,
+//            RenameProcessesBatchPresentationClassTypes.class
     );
 
     @Autowired
