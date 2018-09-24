@@ -64,10 +64,6 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.ListFormat;
 
-/**
- * @created on 01.04.2005
- * @modifier 22.03.2006 gaidomartin@gmail.com
- */
 public class DatabaseTaskHandler extends TaskHandlerBase {
 
     @Override

@@ -116,23 +116,29 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition getProcessDefinitionVersion(@WebParam(name = "user") @NonNull User user,
+    public WfDefinition getProcessDefinitionVersion(
+            @WebParam(name = "user") @NonNull User user,
             @WebParam(name = "definitionName") @NonNull String definitionName,
-            @WebParam(name = "definitionVersion") @NonNull Long definitionVersion) {
+            @WebParam(name = "definitionVersion") @NonNull Long definitionVersion
+    ) {
         return processDefinitionLogic.getProcessDefinitionVersion(user, definitionName, definitionVersion);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition getProcessDefinition(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId) {
+    public WfDefinition getProcessDefinition(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId
+    ) {
         return processDefinitionLogic.getProcessDefinition(user, processDefinitionVersionId);
     }
 
     @Override
     @WebResult(name = "result")
-    public ParsedProcessDefinition getParsedProcessDefinition(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId) {
+    public ParsedProcessDefinition getParsedProcessDefinition(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId
+    ) {
         return processDefinitionLogic.getParsedProcessDefinition(user, processDefinitionVersionId);
     }
 
@@ -245,7 +251,8 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     public UserType getUserType(
             @WebParam(name = "user") @NonNull User user,
             @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
-            @WebParam(name = "name") @NonNull String name) {
+            @WebParam(name = "name") @NonNull String name
+    ) {
         return processDefinitionLogic.getDefinition(processDefinitionVersionId).getUserType(name);
     }
 

@@ -27,12 +27,8 @@ public class RelationAlreadyExistException extends InternalApplicationException 
 
     /**
      * Create instance with specified relation name.
-     * 
-     * @param name
-     *            Name of relation, which already exists.
      */
     public RelationAlreadyExistException(String relationName) {
         super(relationName);
     }
-
 }

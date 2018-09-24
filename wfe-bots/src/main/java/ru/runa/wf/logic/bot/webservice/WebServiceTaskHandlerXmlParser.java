@@ -94,8 +94,8 @@ public class WebServiceTaskHandlerXmlParser {
      * Read XML from specified stream and create
      * {@link WebServiceTaskHandlerSettings} instance according to XML.
      * 
-     * @param data
-     *            Stream with XML to read.
+     * @param configuration
+     *            XML to read.
      * @return Instance of {@link WebServiceTaskHandlerSettings} created
      *         according to XML.
      */

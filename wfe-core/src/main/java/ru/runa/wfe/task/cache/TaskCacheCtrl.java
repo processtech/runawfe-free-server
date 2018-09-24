@@ -42,7 +42,7 @@ public class TaskCacheCtrl extends BaseCacheCtrl<TaskCacheImpl> {
 
     /**
      * Returns tasks for {@link Actor} with specified id, according to {@link BatchPresentation}. May return null, if tasks wasn't set by
-     * {@link #setTasks(long, BatchPresentation, WfTask[])} call.
+     * {@link #setTasks(VersionedCacheData, Long, BatchPresentation, List)} call.
      *
      * @param actorId
      *            {@link Actor} identity, which tasks will be returned.

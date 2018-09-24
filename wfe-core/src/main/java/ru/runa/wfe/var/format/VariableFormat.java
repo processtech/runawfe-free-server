@@ -74,8 +74,6 @@ public abstract class VariableFormat {
     /**
      * Parses variable object from JSON string.
      *
-     * @param source
-     *            string in JSON format
      * @return object, can be <code>null</code>
      */
     public Object parseJSON(String json) {
@@ -104,9 +102,8 @@ public abstract class VariableFormat {
     /**
      * Formats given variable object to JSON format.
      *
-     * @param object
-     *            object, can be <code>null</code>
-     * @return JSON string or <code>null</code>
+     * @param value Can be <code>null</code>.
+     * @return JSON string or <code>null</code>.
      */
     public final String formatJSON(Object value) {
         if (value == null) {

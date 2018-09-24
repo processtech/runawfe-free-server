@@ -17,18 +17,14 @@
  */
 package ru.runa.wf.logic.bot.startprocess;
 
-/**
- * * added 9.06.2009 by gavrusev_sergei from version 2
- * 
- */
 public class StartProcessTask {
     private final String name;
     private final StartProcessVariableMapping[] startProcessVariableMappings;
     private String startedProcessIdValueName;
 
     /**
-     * @param process
-     *            name
+     * @param name
+     *            process name
      * @param variables
      *            {@link StartProcessVariableMapping}
      */

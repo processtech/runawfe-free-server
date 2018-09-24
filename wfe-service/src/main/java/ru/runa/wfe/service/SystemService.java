@@ -35,13 +35,10 @@ public interface SystemService {
     /**
      * Performs application context startup.
      */
-    public void initialize();
+    void initialize();
 
     /**
-     * Logins to the system. Acquires {@link Permission#LOGIN_TO_SYSTEM} permission.
-     * 
-     * @param user
-     * @throws AuthorizationException
+     * Logins to the system. Requires {@link Permission#LOGIN} permission.
      */
     void login(User user) throws AuthorizationException;
 
@@ -52,8 +49,6 @@ public interface SystemService {
 
     /**
      * Get localization of string from database.
-     * 
-     * @param name
      * 
      * @return localized string
      */
@@ -93,5 +88,4 @@ public interface SystemService {
      * Get system errors.
      */
     List<SystemError> getSystemErrors(User user);
-
 }

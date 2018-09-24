@@ -21,7 +21,6 @@
 package ru.runa.wfe.audit;
 
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -35,10 +34,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlSeeAlso;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import ru.runa.wfe.user.Actor;
 
 /**
@@ -70,11 +67,6 @@ public abstract class SystemLog {
 
     /**
      * Creates instance of base class for system logs.
-     * 
-     * @param actorCode
-     *            Code of {@link Actor}, executed action.
-     * @param createDate
-     *            Action time.
      */
     public SystemLog(Long actorId) {
         this.actorId = actorId;

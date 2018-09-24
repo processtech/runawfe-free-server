@@ -41,12 +41,6 @@ public class User implements Principal, Serializable {
     protected User() {
     }
 
-    /**
-     * @param actor
-     *            logged actor
-     * @param actor
-     *            secured key
-     */
     public User(Actor actor, byte[] securedKey) {
         this.actor = actor;
         this.securedKey = securedKey;

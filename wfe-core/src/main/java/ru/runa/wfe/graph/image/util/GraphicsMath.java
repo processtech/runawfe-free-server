@@ -5,9 +5,6 @@ import java.awt.geom.Point2D;
 public class GraphicsMath {
 	/**
 	 * Returns the middle point of segment joining points a and b. 
-	 * @param a
-	 * @param b
-	 * @return
 	 */
 	public static Point2D.Double getMiddle(Point2D.Double a, Point2D.Double b) {
 		return new Point2D.Double((a.x+b.x)/2, (a.y+b.y)/2); 
@@ -53,10 +50,6 @@ public class GraphicsMath {
 	
     /**
      * Function to calculate the angle between vector (1,0) and vector (x2-x1, y2-y1).  
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
      * @return angle
      */
     public static double getAngle(double x1, double y1, double x2, double y2) {
@@ -122,5 +115,4 @@ public class GraphicsMath {
     public static Point2D.Double getVector(Point2D.Double a, Point2D.Double b) {
     	return new Point2D.Double(b.x-a.x, b.y-a.y);
     }
-
 }

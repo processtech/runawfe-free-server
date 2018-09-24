@@ -18,7 +18,6 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationAlreadyExistException;
@@ -161,8 +160,6 @@ public interface RelationService {
      *            Relation name.
      * @param batchPresentation
      *            Restrictions to get {@link RelationPair}.
-     * @return
-     * @throws RelationDoesNotExistException
      */
     List<RelationPair> getRelationPairs(User user, String name, BatchPresentation batchPresentation) throws RelationDoesNotExistException;
 

@@ -20,8 +20,7 @@ package ru.runa.wfe.commons.sqltask;
 import com.google.common.base.Objects;
 
 /**
- * Represents Queury in {@link ru.runa.commons.sqltask.DatabaseTask} Created on
- * 01.04.2005 ;-)
+ * Represents Queury in {@link ru.runa.wfe.commons.sqltask.DatabaseTask}.
  * 
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m

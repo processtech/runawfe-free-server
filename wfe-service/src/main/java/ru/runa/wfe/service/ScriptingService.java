@@ -21,8 +21,6 @@ public interface ScriptingService {
      *
      * @param user
      *            authorized user
-     * @param scriptData
-     *            script data
      * @param externalResources
      *            external script data (par files, bot configurations and so one).
      * @throws AdminScriptException

@@ -18,8 +18,7 @@
 package ru.runa.wfe.commons.sqltask;
 
 /**
- * Represents parameter of {@link ru.runa.commons.sqltask.AbstractQuery}Created
- * on 01.04.2005
+ * Represents parameter of {@link ru.runa.wfe.commons.sqltask.AbstractQuery}
  * 
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
