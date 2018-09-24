@@ -3,8 +3,10 @@ package ru.runa.wfe.commons.dbmigration;
 import com.google.common.base.Joiner;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
@@ -85,12 +87,17 @@ public abstract class DbMigration {
      * ImmutableList.of() requires all list items to be non-null, but getDDLCreateSequence() may return null.
      * Arrays.asList() does not support add() and addAll() operations.
      */
-    protected final <T> ArrayList<T> list(T... oo) {
-        val result = new ArrayList<T>(oo.length);
-        for (T o : oo) {
-            result.add(o);
+    @SafeVarargs
+    protected final <T> List<T> list(T... oo) {
+        if (oo.length == 0) {
+            return Collections.emptyList();
+        } else if (oo.length == 1) {
+            return Collections.singletonList(oo[0]);
+        } else {
+            val result = new ArrayList<T>(oo.length);
+            Collections.addAll(result, oo);
+            return result;
         }
-        return result;
     }
 
     /**
@@ -120,22 +127,54 @@ public abstract class DbMigration {
         }
     }
 
+    private int executeOneUpdate(Statement stmt, String category, String query, int lastResult) throws SQLException {
+        if (StringUtils.isBlank(query)) {
+            return lastResult;
+        }
+        if (category != null) {
+            log.info(category + ": " + query);
+        }
+        return stmt.executeUpdate(query);
+    }
+
     /**
-     * Helper for subclasses.
+     * Helper for subclasses, for executeDML() method.
      *
      * @return Result of last update.
      */
-    protected final int executeUpdates(Connection conn, String... queries) {
+    protected final int executeUpdates(String... queries) {
         try {
+            val conn = currentSession.get().connection();
             val category = currentCategory.get();
             try (val stmt = conn.createStatement()) {
                 int result = 0;
                 for (val q : queries) {
-                    if (!StringUtils.isBlank(q)) {
-                        if (category != null) {
-                            log.info(category + ": " + q);
+                    result = executeOneUpdate(stmt, category, q, result);
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Helper for subclasses, for executeDDL...() methods.
+     *
+     * @return Result of last update.
+     */
+    @SafeVarargs
+    protected final int executeUpdates(List<String>... queries) {
+        try {
+            val conn = currentSession.get().connection();
+            val category = currentCategory.get();
+            try (val stmt = conn.createStatement()) {
+                int result = 0;
+                for (val qq : queries) {
+                    if (qq != null) {
+                        for (val q : qq) {
+                            result = executeOneUpdate(stmt, category, q, result);
                         }
-                        result = stmt.executeUpdate(q);
                     }
                 }
                 return result;
@@ -145,72 +184,59 @@ public abstract class DbMigration {
         }
     }
 
-    protected final int executeUpdates(String... queries) {
-        return executeUpdates(currentSession.get().connection(), queries);
-    }
-
     private static void checkIndentifierLength(String id) {
         if (id != null && id.length() > 30) {
             throw new RuntimeException("Identifier \"" + id + "\".length " + id.length() + " > 30 (Oracle restriction)");
         }
     }
 
-    protected final String getDDLCreateSequence(String sequenceName) {
+    protected final List<String> getDDLCreateSequence(String sequenceName) {
         checkIndentifierLength(sequenceName);
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
-                return "create sequence " + sequenceName;
+                return list("create sequence " + sequenceName);
             default:
                 return null;
         }
     }
 
-    protected final String getDDLCreateSequence(String sequenceName, long nextValue) {
+    protected final List<String> getDDLCreateSequence(String sequenceName, long nextValue) {
         checkIndentifierLength(sequenceName);
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
-                return "create sequence " + sequenceName + " start with " + nextValue;
+                return list("create sequence " + sequenceName + " start with " + nextValue);
             default:
                 return null;
         }
     }
 
-    protected final String getDDLDropSequence(String sequenceName) {
+    protected final List<String> getDDLDropSequence(String sequenceName) {
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
-                return "drop sequence " + sequenceName;
+                return list("drop sequence " + sequenceName);
             default:
                 return null;
         }
     }
 
-    protected final String getDDLRenameSequence(String sequenceName, String newName) {
+    protected final List<String> getDDLRenameSequence(String sequenceName, String newName) {
         checkIndentifierLength(newName);
         switch (dbType) {
             case ORACLE:
-                return "rename " + sequenceName + " to " + newName;
+                return list("rename " + sequenceName + " to " + newName);
             case POSTGRESQL:
-                return "alter sequence " + sequenceName + " rename to " + newName;
+                return list("alter sequence " + sequenceName + " rename to " + newName);
             default:
                 return null;
         }
     }
 
-    /**
-     * @deprecated Don't pass "unique" parameter, create named unique constraint instead.
-     *
-     * @see #getDDLCreateTable(String, List)
-     * @see #getDDLCreateUniqueKey(String, String, String...)
-     */
-    @Deprecated
-    protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions, String unique) {
-        // See TODO below.
-        checkIndentifierLength("pk_" + tableName);
-
-        val query = new StringBuilder("CREATE TABLE " + tableName + " (");
+    protected final List<String> getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions) {
+        val query = new StringBuilder();
+        query.append("CREATE TABLE ").append(tableName).append(" (");
         for (ColumnDef columnDef : columnDefinitions) {
             if (columnDefinitions.indexOf(columnDef) > 0) {
                 query.append(", ");
@@ -218,8 +244,15 @@ public abstract class DbMigration {
             query.append(columnDef.name).append(" ").append(columnDef.getSqlTypeName(dialect));
             if (columnDef.primaryKey) {
                 // TODO Different SQL servers will generate different PK constraint name.
-                //      Instead, should generate "pk_table_name" in separate statement (see getDDLCreatePrimaryKey())
+                //      Instead, should generate "pk_table_name" and (optionally) "seq_table_name" in separate statement
+                //      (for that getDDL...() methods now return List<String>; no separate getDDLCreateSequence() should be needed)
                 //      and warn+trim or fail if checkIdentifierLength("pk_table_name") fails.
+                if (columnDef.autoIncremented) {
+                    checkIndentifierLength("seq_" + tableName);
+                } else {
+                    checkIndentifierLength("pk_" + tableName);
+                }
+
                 String primaryKeyModifier;
                 switch (dbType) {
                 case HSQL:
@@ -261,100 +294,91 @@ public abstract class DbMigration {
                 query.append(" NOT NULL");
             }
         }
-        if (unique != null) {
-            query.append(", UNIQUE ").append(unique);
-        }
         query.append(")");
-        return query.toString();
+        return list(query.toString());
     }
 
-
-    protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions) {
-        return getDDLCreateTable(tableName, columnDefinitions, null);
-    }
-
-
-    protected final String getDDLRenameTable(String oldTableName, String newTableName) {
+    protected final List<String> getDDLRenameTable(String oldTableName, String newTableName) {
         checkIndentifierLength(newTableName);
         switch (dbType) {
             case MSSQL:
-                return "sp_rename '" + oldTableName + "', '" + newTableName + "'";
+                return list("sp_rename '" + oldTableName + "', '" + newTableName + "'");
             case MYSQL:
-                return "RENAME TABLE " + oldTableName + " TO " + newTableName;
+                return list("RENAME TABLE " + oldTableName + " TO " + newTableName);
             default:
-                return "ALTER TABLE " + oldTableName + " RENAME TO " + newTableName;
+                return list("ALTER TABLE " + oldTableName + " RENAME TO " + newTableName);
         }
     }
 
-    protected final String getDDLDropTable(String tableName) {
-        return "DROP TABLE " + tableName;
+    protected final List<String> getDDLDropTable(String tableName) {
+        return list("DROP TABLE " + tableName);
     }
 
-    protected final String getDDLCreateIndex(String tableName, String indexName, String... columnNames) {
+    protected final List<String> getDDLCreateIndex(String tableName, String indexName, String... columnNames) {
         checkIndentifierLength(indexName);
         for (val cn : columnNames) {
             checkIndentifierLength(cn);
         }
         String conjunctedColumnNames = Joiner.on(", ").join(columnNames);
-        return "CREATE INDEX " + indexName + " ON " + tableName + " (" + conjunctedColumnNames + ")";
+        return list("CREATE INDEX " + indexName + " ON " + tableName + " (" + conjunctedColumnNames + ")");
     }
 
-    protected final String getDDLCreateUniqueKey(String tableName, String constraintName, String... columnNames) {
+    protected final List<String> getDDLCreateUniqueKey(String tableName, String constraintName, String... columnNames) {
         checkIndentifierLength(constraintName);
         for (val cn : columnNames) {
             checkIndentifierLength(cn);
         }
         String conjunctedColumnNames = Joiner.on(", ").join(columnNames);
-        return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + conjunctedColumnNames + ")";
+        return list("ALTER TABLE " + tableName + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + conjunctedColumnNames + ")");
     }
 
-    protected final String getDDLRenameIndex(String tableName, String indexName, String newIndexName) {
+    protected final List<String> getDDLRenameIndex(String tableName, String indexName, String newIndexName) {
         checkIndentifierLength(newIndexName);
         switch (dbType) {
             case MSSQL:
-                return "sp_rename '" + tableName + "." + indexName + "', '" + newIndexName + "'";
+                return list("sp_rename '" + tableName + "." + indexName + "', '" + newIndexName + "'");
             case H2:
             case ORACLE:
             case POSTGRESQL:
-                return "alter index " + indexName + " rename to " + newIndexName;
+                return list("alter index " + indexName + " rename to " + newIndexName);
             default:
                 throw new NotImplementedException();  // TODO ...
         }
     }
 
-    protected final String getDDLDropIndex(String tableName, String indexName) {
+    protected final List<String> getDDLDropIndex(String tableName, String indexName) {
         switch (dbType) {
             case H2:
             case ORACLE:
             case POSTGRESQL:
-                return "DROP INDEX " + indexName;
+                return list("DROP INDEX " + indexName);
             default:
-                return "DROP INDEX " + indexName + " ON " + tableName;
+                return list("DROP INDEX " + indexName + " ON " + tableName);
         }
     }
 
-    protected final String getDDLCreateForeignKey(String tableName, String keyName, String columnName, String refTableName, String refColumnName) {
+    protected final List<String> getDDLCreateForeignKey(String tableName, String keyName, String columnName, String refTableName, String refColumnName) {
         checkIndentifierLength(keyName);
-        return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " FOREIGN KEY (" + columnName + ") REFERENCES " + refTableName + " ("
-                + refColumnName + ")";
+        return list("ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " FOREIGN KEY (" + columnName + ") REFERENCES " + refTableName +
+                " (" + refColumnName + ")");
     }
 
-    protected final String getDDLCreatePrimaryKey(String tableName, String keyName, String columnName) {
+    protected final List<String> getDDLCreatePrimaryKey(String tableName, String keyName, String columnName) {
         checkIndentifierLength(keyName);
-        return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " PRIMARY KEY (" + columnName + ")";
+        return list("ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " PRIMARY KEY (" + columnName + ")");
     }
 
-    protected final String getDDLRenameForeignKey(String keyName, String newKeyName) {
+    protected final List<String> getDDLRenameForeignKey(String keyName, String newKeyName) {
         checkIndentifierLength(newKeyName);
         switch (dbType) {
             case MSSQL:
-                return "sp_rename '" + keyName + "', '" + newKeyName + "'";
+                return list("sp_rename '" + keyName + "', '" + newKeyName + "'");
             default:
                 throw new NotImplementedException();  // TODO ...
         }
     }
 
-    protected final String getDDLDropForeignKey(String tableName, String keyName) {
+    protected final List<String> getDDLDropForeignKey(String tableName, String keyName) {
         String constraint;
         switch (dbType) {
             case MYSQL:
@@ -364,82 +388,83 @@ public abstract class DbMigration {
                 constraint = "CONSTRAINT";
                 break;
         }
-        return "ALTER TABLE " + tableName + " DROP " + constraint + " " + keyName;
+        return list("ALTER TABLE " + tableName + " DROP " + constraint + " " + keyName);
     }
 
-    protected final String getDDLCreateColumn(String tableName, ColumnDef columnDef) {
+    protected final List<String> getDDLCreateColumn(String tableName, ColumnDef columnDef) {
         String lBraced = "";
         String rBraced = "";
         if (dbType == DbType.ORACLE) {
             lBraced = "(";
             rBraced = ")";
         }
-        String query = "ALTER TABLE " + tableName + " ADD " + lBraced;
-        query += columnDef.name + " " + columnDef.getSqlTypeName(dialect);
+        val query = new StringBuilder();
+        query.append("ALTER TABLE ").append(tableName).append(" ADD ").append(lBraced);
+        query.append(columnDef.name).append(" ").append(columnDef.getSqlTypeName(dialect));
         if (columnDef.defaultValue != null) {
-            query += " DEFAULT " + columnDef.defaultValue;
+            query.append(" DEFAULT ").append(columnDef.defaultValue);
         }
         if (!columnDef.allowNulls) {
-            query += " NOT NULL";
+            query.append(" NOT NULL");
         }
-        query += rBraced;
-        return query;
+        query.append(rBraced);
+        return list(query.toString());
     }
 
-    protected final String getDDLRenameColumn(String tableName, String oldColumnName, ColumnDef newColumnDef) {
+    protected final List<String> getDDLRenameColumn(String tableName, String oldColumnName, ColumnDef newColumnDef) {
         switch (dbType) {
             case ORACLE:
             case POSTGRESQL:
-                return "ALTER TABLE " + tableName + " RENAME COLUMN " + oldColumnName + " TO " + newColumnDef.name;
+                return list("ALTER TABLE " + tableName + " RENAME COLUMN " + oldColumnName + " TO " + newColumnDef.name);
             case MSSQL:
-                return "sp_rename '" + tableName + "." + oldColumnName + "', '" + newColumnDef.name + "', 'COLUMN'";
+                return list("sp_rename '" + tableName + "." + oldColumnName + "', '" + newColumnDef.name + "', 'COLUMN'");
             case MYSQL:
-                return "ALTER TABLE " + tableName + " CHANGE " + oldColumnName + " " + newColumnDef.name + " " + newColumnDef.getSqlTypeName(dialect);
+                return list("ALTER TABLE " + tableName + " CHANGE " + oldColumnName + " " + newColumnDef.name + " " + newColumnDef.getSqlTypeName(dialect));
             default:
-                return "ALTER TABLE " + tableName + " ALTER COLUMN " + oldColumnName + " RENAME TO " + newColumnDef.name;
+                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + oldColumnName + " RENAME TO " + newColumnDef.name);
         }
     }
 
-    protected final String getDDLModifyColumn(String tableName, String columnName, String sqlTypeName) {
+    protected final List<String> getDDLModifyColumn(String tableName, String columnName, String sqlTypeName) {
         switch (dbType) {
             case ORACLE:
-                return "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + sqlTypeName + ")";
+                return list("ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + sqlTypeName + ")");
             case POSTGRESQL:
-                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " TYPE " + sqlTypeName;
+                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " TYPE " + sqlTypeName);
             case MYSQL:
-                return "ALTER TABLE " + tableName + " MODIFY COLUMN " + columnName + " " + sqlTypeName;
+                return list("ALTER TABLE " + tableName + " MODIFY COLUMN " + columnName + " " + sqlTypeName);
             default:
-                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + sqlTypeName;
+                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + sqlTypeName);
         }
     }
 
-    protected final String getDDLModifyColumnNullability(String tableName, String columnName, String currentSqlTypeName,
+    protected final List<String> getDDLModifyColumnNullability(String tableName, String columnName, String currentSqlTypeName,
             @SuppressWarnings("SameParameterValue") boolean nullable) {
         switch (dbType) {
             case H2:
             case HSQL:
-                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (nullable ? "NULL" : "NOT NULL");
+                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (nullable ? "NULL" : "NOT NULL"));
             case MYSQL:
-                return "ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL");
+                return list("ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL"));
             case ORACLE:
-                return "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (nullable ? "NULL" : "NOT NULL") + ")";
+                return list("ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (nullable ? "NULL" : "NOT NULL") + ")");
             case POSTGRESQL:
-                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (nullable ? "DROP" : "SET") + " NOT NULL";
+                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (nullable ? "DROP" : "SET") + " NOT NULL");
             default:
-                return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL");
+                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL"));
         }
     }
 
-    protected final String getDDLDropColumn(String tableName, String columnName) {
-        return "ALTER TABLE " + tableName + " DROP COLUMN " + columnName;
+    protected final List<String> getDDLDropColumn(String tableName, String columnName) {
+        return list("ALTER TABLE " + tableName + " DROP COLUMN " + columnName);
     }
 
-    protected final String getDDLTruncateTable(String tableName) {
-        return "TRUNCATE TABLE " + tableName;
+    protected final List<String> getDDLTruncateTable(String tableName) {
+        return list("TRUNCATE TABLE " + tableName);
     }
 
-    protected final String getDDLTruncateTableUsingDelete(@SuppressWarnings("SameParameterValue") String tableName) {
-        return "DELETE FROM " + tableName;
+    protected final List<String> getDDLTruncateTableUsingDelete(@SuppressWarnings("SameParameterValue") String tableName) {
+        return list("DELETE FROM " + tableName);
     }
 
     @Override

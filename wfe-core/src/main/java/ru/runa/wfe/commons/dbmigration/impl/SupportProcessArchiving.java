@@ -18,7 +18,7 @@ public class SupportProcessArchiving extends DbMigration {
 
                 // Process: all fields except EXECUTION_STATUS.
                 getDDLCreateTable("archived_process", list(
-                        new BigintColumnDef("id", false).setPrimaryKey(),
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
                         new BigintColumnDef("parent_id", true),
                         new TimestampColumnDef("end_date", true),
                         new TimestampColumnDef("start_date", true),
@@ -30,7 +30,7 @@ public class SupportProcessArchiving extends DbMigration {
 
                 // Token: all fields except EXECUTION_STATUS:
                 getDDLCreateTable("archived_token", list(
-                        new BigintColumnDef("id", false).setPrimaryKey(),
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
                         new VarcharColumnDef("error_message", 1024, true),
                         new VarcharColumnDef("transition_id", 1024, true),
                         new VarcharColumnDef("message_selector", 1024, true),
@@ -48,7 +48,7 @@ public class SupportProcessArchiving extends DbMigration {
 
                 // NodeProcess: all fields.
                 getDDLCreateTable("archived_subprocess", list(
-                        new BigintColumnDef("id", false).setPrimaryKey(),
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
                         new TimestampColumnDef("create_date", false),
                         new VarcharColumnDef("parent_node_id", 1024, true),
                         new IntColumnDef("subprocess_index", true),
@@ -60,7 +60,7 @@ public class SupportProcessArchiving extends DbMigration {
 
                 // Swimlane: all fields.
                 getDDLCreateTable("archived_swimlane", list(
-                        new BigintColumnDef("id", false).setPrimaryKey(),
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", true),
                         new VarcharColumnDef("name", 1024, true),
@@ -71,7 +71,7 @@ public class SupportProcessArchiving extends DbMigration {
                 // Variable: all fields.
                 getDDLCreateTable("archived_variable", list(
                         new CharColumnDef("discriminator", 1, false),
-                        new BigintColumnDef("id", false).setPrimaryKey(),
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
                         new TimestampColumnDef("create_date", false),
                         new VarcharColumnDef("stringvalue", 1024, true),
                         new CharColumnDef("converter", 1, true),
@@ -87,7 +87,7 @@ public class SupportProcessArchiving extends DbMigration {
                 // ProcessLog: all fields.
                 getDDLCreateTable("archived_log", list(
                         new CharColumnDef("discriminator", 1, false),
-                        new BigintColumnDef("id", false).setPrimaryKey(),
+                        new BigintColumnDef("id", false).setPrimaryKeyNoAutoInc(),
                         new VarcharColumnDef("severity", 1024, false),
                         new BigintColumnDef("token_id", true),
                         new TimestampColumnDef("create_date", false),

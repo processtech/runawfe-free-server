@@ -51,7 +51,7 @@ public class DbMigration0 extends DbMigration {
                 getDDLCreateSequence("seq_wfe_constants"),
 
                 getDDLCreateTable("actor_password", list(
-                        new BigintColumnDef("actor_id", false).setPrimaryKey(),
+                        new BigintColumnDef("actor_id", false).setPrimaryKeyNoAutoInc(),
                         new BlobColumnDef("password", false)
                 )),
                 getDDLCreateTable("admin_script", list(

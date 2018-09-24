@@ -139,9 +139,9 @@ public class RefactorPermissionsStep1 extends DbMigration {
                             add(new VarcharColumnDef("object_type", 32,false));
                             add(new BigintColumnDef("object_id", false));
                             add(new VarcharColumnDef("permission", 32, false));
-                        }},
-                        "(object_id, object_type, permission, executor_id)"
-                )
+                        }}
+                ),
+                getDDLCreateUniqueKey("permission_mapping", "uk_permission_mapping_4", "object_id", "object_type", "permission", "executor_id")
         );
     }
 

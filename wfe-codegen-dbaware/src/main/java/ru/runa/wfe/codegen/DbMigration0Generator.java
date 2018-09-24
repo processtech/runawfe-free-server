@@ -98,7 +98,11 @@ class DbMigration0Generator {
                         throw new Exception("Internal error: unhandled column type " + c.type);
                 }
                 if (c.isPrimaryKey) {
-                    w.write(".setPrimaryKey()");
+                    if (st.sequenceNames.contains("seq_" + t.name)) {
+                        w.write(".setPrimaryKey()");
+                    } else {
+                        w.write(".setPrimaryKeyNoAutoInc()");
+                    }
                 }
             }
             w.write("\n" +

@@ -41,7 +41,7 @@ public class AddSubprocessRootIdColumn extends DbMigration {
                         ")";
                 break;
         }
-        executeUpdates(conn, sql);
+        executeUpdates(sql);
 
         // Set ROOT_PROCESS_ID in loop (each step -- next deepness level in all trees), until nothing more to do.
         do {
@@ -57,7 +57,7 @@ public class AddSubprocessRootIdColumn extends DbMigration {
                             "where root_process_id is null and exists (" + subquery + ")";
                     break;
             }
-        } while (executeUpdates(conn, sql) != 0);
+        } while (executeUpdates(sql) != 0);
     }
 
     @Override

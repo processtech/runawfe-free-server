@@ -291,13 +291,14 @@ public class ProcessArchiver {
         return true;
     }
 
+    // TODO Inline this method if MSSQL works. I fixed issue by introducing DbMigration.ColumnDef.setPrimaryKeyNoAutoInc().
     private void doInsertSelect(Statement stmt, String archivedTableName, String sql) throws Exception {
-        DbType dbType = ApplicationContextFactory.getDbType();
-        if (dbType == DbType.MSSQL) {
-            sql = "set identity_insert " + archivedTableName + " on; " +
-                    sql +
-                    "set identity_insert " + archivedTableName + " off";
-        }
+//        DbType dbType = ApplicationContextFactory.getDbType();
+//        if (dbType == DbType.MSSQL) {
+//            sql = "set identity_insert " + archivedTableName + " on; " +
+//                    sql +
+//                    "set identity_insert " + archivedTableName + " off";
+//        }
         stmt.executeUpdate(sql);
     }
 }
