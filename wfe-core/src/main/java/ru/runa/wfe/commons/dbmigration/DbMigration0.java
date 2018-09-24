@@ -47,7 +47,7 @@ public class DbMigration0 extends DbMigration {
                 getDDLCreateSequence("seq_substitution"),
                 getDDLCreateSequence("seq_substitution_criteria"),
                 getDDLCreateSequence("seq_system_log"),
-                getDDLCreateSequence("seq_wfe_constants", 2),
+                getDDLCreateSequence("seq_wfe_constants"),
 
                 getDDLCreateTable("actor_password", list(
                         new BigintColumnDef("actor_id", false).setPrimaryKey(),
@@ -464,7 +464,8 @@ public class DbMigration0 extends DbMigration {
     @Override
     public void executeDML(Connection conn) throws Exception {
         try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("insert into wfe_constants (id, name, value) values (1, 'ru.runa.database_version', 59)");
+            stmt.executeUpdate("insert into wfe_constants (" + insertPkColumn() + "name, value) values (" +
+                    insertPkNextVal("wfe_constants") + "'ru.runa.database_version', 59)");
         }
     }
 }

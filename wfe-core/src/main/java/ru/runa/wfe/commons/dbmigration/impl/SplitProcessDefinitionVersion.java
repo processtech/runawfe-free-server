@@ -72,24 +72,10 @@ public class SplitProcessDefinitionVersion extends DbMigration {
         try (val stmt = conn.createStatement()) {
 
             // Fill new BPM_PROCESS_DEFINITION table (except latest_version_id).
-            String idName, idValue;
-            switch (dbType) {
-                case ORACLE:
-                    idName = "id, ";
-                    idValue = "seq_bpm_process_definition.nextval, ";
-                    break;
-                case POSTGRESQL:
-                    idName = "id, ";
-                    idValue = "nextval('seq_bpm_process_definition'), ";
-                    break;
-                default:
-                    idName = "";
-                    idValue = "";
-            }
-            stmt.executeUpdate("insert into bpm_process_definition (" + idName + "name, language, description, category) " +
+            stmt.executeUpdate("insert into bpm_process_definition (" + insertPkColumn() + "name, language, description, category) " +
                     // Take distinct name and arbitrary values for other fields (they all should be the same in all rows with same name);
                     // max() is as good as anything else.
-                    "select " + idValue + "d.name, d.language, d.description, d.category " +
+                    "select " + insertPkNextVal("bpm_process_definition") + "d.name, d.language, d.description, d.category " +
                     "from (" +
                     "    select name, max(language) as language, max(description) as description, max(category) as category " +
                     "    from bpm_process_definition_ver " +

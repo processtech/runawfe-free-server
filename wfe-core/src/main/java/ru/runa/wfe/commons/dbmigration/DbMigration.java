@@ -81,6 +81,33 @@ public abstract class DbMigration {
     }
 
     /**
+     * Helper for subclasses, to insert rows into tables with auto-incremented PK. Use in columns list.
+     */
+    protected final String insertPkColumn() {
+        switch (dbType) {
+            case ORACLE:
+            case POSTGRESQL:
+                return "id, ";
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * Helper for subclasses, to insert rows into tables with auto-incremented PK. Use in values() list.
+     */
+    protected final String insertPkNextVal(String tableName) {
+        switch (dbType) {
+            case ORACLE:
+                return "seq_" + tableName + ".nextval, ";
+            case POSTGRESQL:
+                return "nextval('seq_" + tableName + "'), ";
+            default:
+                return "";
+        }
+    }
+
+    /**
      * Helper for subclasses.
      *
      * @return Result of last update.
@@ -403,7 +430,7 @@ public abstract class DbMigration {
         private String defaultValue;
 
         /**
-         * @deprecated Use shortcut subclasses (BigintColumnDef, etc.); create missing subclasses. Finally, make this constructor protected.
+         * @deprecated Use shortcut subclasses (BigintColumnDef, etc.); create missing subclasses. Finally, DELETE this constructor.
          */
         @Deprecated
         public ColumnDef(String name, int sqlType, boolean allowNulls) {

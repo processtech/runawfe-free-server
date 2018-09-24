@@ -1,9 +1,6 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import java.util.List;
-import lombok.val;
-import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
@@ -16,80 +13,91 @@ public class SupportProcessArchiving extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {
-        val sqls = list(
+        return list(
                 // Nullable per-definition configuration; default is SystemProperties.getProcessDefaultSecondsBeforeArchiving():
                 getDDLCreateColumn("bpm_process_definition", new IntColumnDef("seconds_before_archiving", true)),
 
                 // Process: all fields except EXECUTION_STATUS.
-                "create table archived_process as " +
-                        "select id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id " +
-                        "from bpm_process " +
-                        "where 0=1",
+                getDDLCreateTable("archived_process", list(
+                        new BigintColumnDef("id", false),
+                        new BigintColumnDef("parent_id", true),
+                        new TimestampColumnDef("end_date", true),
+                        new TimestampColumnDef("start_date", true),
+                        new VarcharColumnDef("tree_path", 1024, true),
+                        new BigintColumnDef("version", true),
+                        new BigintColumnDef("definition_version_id", false),
+                        new BigintColumnDef("root_token_id", false)
+                )),
 
                 // Token: all fields except EXECUTION_STATUS:
-                "create table archived_token as " +
-                        "select id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, " +
-                        "       reactivate_parent, node_type, version, name, process_id, parent_id " +
-                        "from bpm_token " +
-                        "where 0=1",
+                getDDLCreateTable("archived_token", list(
+                        new BigintColumnDef("id", false),
+                        new VarcharColumnDef("error_message", 1024, true),
+                        new VarcharColumnDef("transition_id", 1024, true),
+                        new VarcharColumnDef("message_selector", 1024, true),
+                        new TimestampColumnDef("error_date", true),
+                        new TimestampColumnDef("end_date", true),
+                        new TimestampColumnDef("start_date", true),
+                        new VarcharColumnDef("node_id", 1024, true),
+                        new BooleanColumnDef("reactivate_parent", true),
+                        new VarcharColumnDef("node_type", 1024, true),
+                        new BigintColumnDef("version", true),
+                        new VarcharColumnDef("name", 1024, true),
+                        new BigintColumnDef("process_id", true),
+                        new BigintColumnDef("parent_id", true)
+                )),
 
                 // NodeProcess: all fields.
-                "create table archived_subprocess as " +
-                        "select * " +
-                        "from bpm_subprocess " +
-                        "where 0=1",
+                getDDLCreateTable("archived_subprocess", list(
+                        new BigintColumnDef("id", false),
+                        new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("parent_node_id", 1024, true),
+                        new IntColumnDef("subprocess_index", true),
+                        new BigintColumnDef("parent_token_id", true),
+                        new BigintColumnDef("parent_process_id", false),
+                        new BigintColumnDef("process_id", false),
+                        new BigintColumnDef("root_process_id", false)
+                )),
 
                 // Swimlane: all fields.
-                "create table archived_swimlane as " +
-                        "select * " +
-                        "from bpm_swimlane " +
-                        "where 0=1",
+                getDDLCreateTable("archived_swimlane", list(
+                        new BigintColumnDef("id", false),
+                        new TimestampColumnDef("create_date", false),
+                        new BigintColumnDef("version", true),
+                        new VarcharColumnDef("name", 1024, true),
+                        new BigintColumnDef("process_id", true),
+                        new BigintColumnDef("executor_id", true)
+                )),
 
                 // Variable: all fields.
-                "create table archived_variable as " +
-                        "select * " +
-                        "from bpm_variable " +
-                        "where 0=1",
+                getDDLCreateTable("archived_variable", list(
+                        new CharColumnDef("discriminator", 1, false),
+                        new BigintColumnDef("id", false),
+                        new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("stringvalue", 1024, true),
+                        new CharColumnDef("converter", 1, true),
+                        new BigintColumnDef("version", true),
+                        new VarcharColumnDef("name", 1024, true),
+                        new TimestampColumnDef("datevalue", true),
+                        new BlobColumnDef("bytes", true),
+                        new BigintColumnDef("longvalue", true),
+                        new DoubleColumnDef("doublevalue", true),
+                        new BigintColumnDef("process_id", false)
+                )),
 
                 // ProcessLog: all fields.
-                "create table archived_log as " +
-                        "select * " +
-                        "from bpm_log " +
-                        "where 0=1"
-        );
+                getDDLCreateTable("archived_log", list(
+                        new CharColumnDef("discriminator", 1, false),
+                        new BigintColumnDef("id", false),
+                        new VarcharColumnDef("severity", 1024, false),
+                        new BigintColumnDef("token_id", true),
+                        new TimestampColumnDef("create_date", false),
+                        new VarcharColumnDef("node_id", 1024, true),
+                        new BigintColumnDef("process_id", false),
+                        new BlobColumnDef("bytes", true),
+                        new VarcharColumnDef("content", 4000, true)
+                )),
 
-        // ORA-01442: column to be modified to NOT NULL is already NOT NULL
-        if (dbType != DbType.ORACLE) {
-            sqls.addAll(list(
-                    getDDLModifyColumnNullability("archived_process", "id", dialect.getTypeName(Types.BIGINT), false),
-                    getDDLModifyColumnNullability("archived_process", "definition_version_id", dialect.getTypeName(Types.BIGINT), false),
-                    getDDLModifyColumnNullability("archived_process", "root_token_id", dialect.getTypeName(Types.BIGINT), false),
-
-                    getDDLModifyColumnNullability("archived_token", "id", dialect.getTypeName(Types.BIGINT), false),
-
-                    getDDLModifyColumnNullability("archived_subprocess", "id", dialect.getTypeName(Types.BIGINT), false),
-                    getDDLModifyColumnNullability("archived_subprocess", "create_date", dialect.getTypeName(Types.DATE), false),
-                    getDDLModifyColumnNullability("archived_subprocess", "process_id", dialect.getTypeName(Types.BIGINT), false),
-                    getDDLModifyColumnNullability("archived_subprocess", "parent_process_id", dialect.getTypeName(Types.BIGINT), false),
-
-                    getDDLModifyColumnNullability("archived_swimlane", "id", dialect.getTypeName(Types.BIGINT), false),
-                    getDDLModifyColumnNullability("archived_swimlane", "create_date", dialect.getTypeName(Types.DATE), false),
-
-                    getDDLModifyColumnNullability("archived_variable", "id", dialect.getTypeName(Types.BIGINT), false),
-                    getDDLModifyColumnNullability("archived_variable", "discriminator", dialect.getTypeName(Types.CHAR, 1, 1, 1), false),
-                    getDDLModifyColumnNullability("archived_variable", "process_id", dialect.getTypeName(Types.BIGINT), false),
-                    getDDLModifyColumnNullability("archived_variable", "create_date", dialect.getTypeName(Types.DATE), false),
-
-                    getDDLModifyColumnNullability("archived_log", "discriminator", dialect.getTypeName(Types.CHAR, 1, 1, 1), false),
-                    getDDLModifyColumnNullability("archived_log", "id", dialect.getTypeName(Types.BIGINT), false),
-                    getDDLModifyColumnNullability("archived_log", "severity", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false),
-                    getDDLModifyColumnNullability("archived_log", "create_date", dialect.getTypeName(Types.DATE), false),
-                    getDDLModifyColumnNullability("archived_log", "process_id", dialect.getTypeName(Types.BIGINT), false)
-            ));
-        }
-
-        // Do it after making PK columns non-null, otherwise H2 complains.
-        sqls.addAll(list(
                 getDDLCreatePrimaryKey("archived_process", "pk_archived_process", "id"),
                 getDDLCreateIndex     ("archived_process", "ix_arch_process_def_ver", "definition_version_id"),
                 getDDLCreateForeignKey("archived_process", "fk_arch_process_def_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
@@ -128,8 +136,6 @@ public class SupportProcessArchiving extends DbMigration {
 
                 getDDLCreatePrimaryKey("archived_log", "pk_archived_log", "id"),
                 getDDLCreateIndex("archived_log", "ix_arch_log_process", "process_id")
-        ));
-
-        return sqls;
+        );
     }
 }

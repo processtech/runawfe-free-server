@@ -46,12 +46,7 @@ class DbMigration0Generator {
             } else {
                 w.write(",\n");
             }
-            w.write("                getDDLCreateSequence(\"" + s + "\"");
-            if (Objects.equals(s, "seq_wfe_constants") && st.version != null) {
-                // We're going to insert version below with ID = 1, so start sequence with 2 instead of 1.
-                w.write(", 2");
-            }
-            w.write(")");
+            w.write("                getDDLCreateSequence(\"" + s + "\")");
         }
 
 
@@ -178,7 +173,8 @@ class DbMigration0Generator {
             }
             if (st.version != null) {
                 w.write("        try (Statement stmt = conn.createStatement()) {\n" +
-                        "            stmt.executeUpdate(\"insert into wfe_constants (id, name, value) values (1, 'ru.runa.database_version', " + st.version + ")\");\n" +
+                        "            stmt.executeUpdate(\"insert into wfe_constants (\" + insertPkColumn() + \"name, value) values (\" +\n" +
+                        "                    insertPkNextVal(\"wfe_constants\") + \"'ru.runa.database_version', " + st.version + ")\");\n" +
                         "        }\n");
             }
             w.write("    }\n");
