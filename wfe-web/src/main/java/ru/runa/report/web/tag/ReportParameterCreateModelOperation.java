@@ -1,13 +1,11 @@
 package ru.runa.report.web.tag;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
+import lombok.val;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -81,13 +79,13 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
         List<WfDefinition> definitions = Delegates.getDefinitionService().getProcessDefinitions(user,
                 BatchPresentationFactory.DEFINITIONS.createNonPaged(), false);
         if (definitions == null) {
-            definitions = new ArrayList<WfDefinition>();
+            definitions = new ArrayList<>();
         }
-        Set<String> swimlanes = new TreeSet<String>();
+        val swimlanes = new TreeSet<String>();
 
         for (WfDefinition definition : definitions) {
             try {
-                for (SwimlaneDefinition swimlane : Delegates.getDefinitionService().getSwimlaneDefinitions(user, definition.getId())) {
+                for (SwimlaneDefinition swimlane : Delegates.getDefinitionService().getSwimlaneDefinitions(user, definition.getVersionId())) {
                     swimlanes.add(swimlane.getName());
                 }
             } catch (Exception e) {

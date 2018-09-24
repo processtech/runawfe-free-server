@@ -133,8 +133,8 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         Element processDefinitionHref;
         try {
             WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getUser(), process.getDefinitionId());
-            String url = Commons.getActionUrl(ru.runa.common.WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, definition.getId(),
-                    pageContext, PortletUrlType.Render);
+            String url = Commons.getActionUrl(ru.runa.common.WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME,
+                    definition.getVersionId(), pageContext, PortletUrlType.Render);
             processDefinitionHref = new A(url, process.getName());
         } catch (Exception e) {
             processDefinitionHref = new StringElement(process.getName());

@@ -127,7 +127,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     private Element addUpgradeProcessesLink(WfDefinition definition) {
         Div div = new Div();
-        String url = Commons.getActionUrl(UpgradeProcessesToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
+        String url = Commons.getActionUrl(UpgradeProcessesToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getVersionId(),
                 pageContext, PortletUrlType.Render);
         A upgradeProcessLink = new A(url, MessagesProcesses.PROCESSES_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
         upgradeProcessLink.addAttribute("data-definitionName", definition.getName());

@@ -46,7 +46,7 @@ public class RedeployProcessTdBuilder extends BaseTdBuilder {
         ConcreteElement startLink;
 
         if (isEnabled(object, env)) {
-            startLink = new A(Commons.getActionUrl(WebResources.ACTION_MAPPING_REDEPLOY_PROCESS_DEFINITION, IdForm.ID_INPUT_NAME, pd.getId(),
+            startLink = new A(Commons.getActionUrl(WebResources.ACTION_MAPPING_REDEPLOY_PROCESS_DEFINITION, IdForm.ID_INPUT_NAME, pd.getVersionId(),
                     env.getPageContext(), PortletUrlType.Action), MessagesProcesses.LABEL_REDEPLOY_PROCESS_DEFINIION.message(env.getPageContext()));
         } else {
             startLink = new StringElement();

@@ -69,7 +69,9 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         isButtonEnabled = isUndeployAllowed(definitions);
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(
                 new TdBuilder[] { new CheckboxTdBuilder("id", Permission.ALL), new StartProcessTdBuilder() },
-                batchPresentation, new TdBuilder[] { new PropertiesProcessTdBuilder() });
+                batchPresentation,
+                new TdBuilder[] { new PropertiesProcessTdBuilder() }
+        );
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
                 pageContext);

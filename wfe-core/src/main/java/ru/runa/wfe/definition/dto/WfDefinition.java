@@ -36,11 +36,8 @@ import ru.runa.wfe.user.Actor;
 public class WfDefinition extends SecuredObject implements Comparable<WfDefinition>, EntityWithType {
     private static final long serialVersionUID = -6032491529439317948L;
 
-    /**
-     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
-     */
     private Long id;
-
+    private Long versionId;
     private String name;
     private String description;
     private String[] categories;
@@ -61,7 +58,8 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     }
 
     public WfDefinition(ProcessDefinition d, ProcessDefinitionVersion dv) {
-        id = dv.getId();
+        id = d.getId();
+        versionId = dv.getId();
         version = dv.getVersion();
         name = d.getName();
         description = d.getDescription();
@@ -101,11 +99,12 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         return SecuredObjectType.DEFINITION;
     }
 
-    /**
-     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
-     */
     public Long getId() {
         return id;
+    }
+
+    public Long getVersionId() {
+        return versionId;
     }
 
     public String getName() {
@@ -183,19 +182,19 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(versionId);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof WfDefinition) {
-            return Objects.equal(id, ((WfDefinition) obj).id);
+            return Objects.equal(versionId, ((WfDefinition) obj).versionId);
         }
         return super.equals(obj);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).add("version", version).toString();
+        return Objects.toStringHelper(this).add("versionId", versionId).add("name", name).add("version", version).toString();
     }
 }

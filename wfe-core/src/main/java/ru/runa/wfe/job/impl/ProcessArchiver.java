@@ -1,5 +1,6 @@
 package ru.runa.wfe.job.impl;
 
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -210,7 +211,7 @@ public class ProcessArchiver {
                 // Create rows in referenced tables first, then in referencing tables.
 
                 // Refernces self, plus has root_token_id field.
-                stmt.executeUpdate("insert into archived_process " +
+                doInsertSelect(stmt, "archived_process", "insert into archived_process " +
                         "      (id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id) " +
                         "select id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id " +
                         "from bpm_process " +
@@ -218,7 +219,7 @@ public class ProcessArchiver {
                 );
 
                 // References process and self.
-                stmt.executeUpdate("insert into archived_token " +
+                doInsertSelect(stmt, "archived_token", "insert into archived_token " +
                         "      (id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name) " +
                         "select id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name " +
                         "from bpm_token " +
@@ -226,7 +227,7 @@ public class ProcessArchiver {
                 );
 
                 // References process, also has parent_token_id field.
-                stmt.executeUpdate("insert into archived_subprocess " +
+                doInsertSelect(stmt, "archived_subprocess", "insert into archived_subprocess " +
                         "      (id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id) " +
                         "select id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id " +
                         "from bpm_subprocess " +
@@ -234,7 +235,7 @@ public class ProcessArchiver {
                 );
 
                 // References process.
-                stmt.executeUpdate("insert into archived_swimlane " +
+                doInsertSelect(stmt, "archived_swimlane", "insert into archived_swimlane " +
                         "      (id, process_id, create_date, name, version, executor_id) " +
                         "select id, process_id, create_date, name, version, executor_id " +
                         "from bpm_swimlane " +
@@ -242,7 +243,7 @@ public class ProcessArchiver {
                 );
 
                 // References process.
-                stmt.executeUpdate("insert into archived_variable " +
+                doInsertSelect(stmt, "archived_variable", "insert into archived_variable " +
                         "      (discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue) " +
                         "select discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue " +
                         "from bpm_variable " +
@@ -250,7 +251,7 @@ public class ProcessArchiver {
                 );
 
                 // No FKs, but has process_id and token_id fields.
-                stmt.executeUpdate("insert into archived_log " +
+                doInsertSelect(stmt, "archived_log", "insert into archived_log " +
                         "      (discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content) " +
                         "select discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content " +
                         "from bpm_log " +
@@ -288,5 +289,15 @@ public class ProcessArchiver {
         }
 
         return true;
+    }
+
+    private void doInsertSelect(Statement stmt, String archivedTableName, String sql) throws Exception {
+        DbType dbType = ApplicationContextFactory.getDbType();
+        if (dbType == DbType.MSSQL) {
+            sql = "set identity_insert " + archivedTableName + " on; " +
+                    sql +
+                    "set identity_insert " + archivedTableName + " off";
+        }
+        stmt.executeUpdate(sql);
     }
 }

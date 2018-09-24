@@ -46,7 +46,7 @@ import ru.runa.wfe.user.User;
 public class RedeployProcessDefinitionAction extends BaseDeployProcessDefinitionAction {
     public static final String ACTION_PATH = "/redeployProcessDefinition";
 
-    private Long definitionId;
+    private Long definitionVersionId;
 
     @Override
     protected void doAction(User user, FileForm fileForm, boolean isUpdateCurrentVersion, List<String> categories, Integer secondsBeforeArchiving)
@@ -56,21 +56,21 @@ public class RedeployProcessDefinitionAction extends BaseDeployProcessDefinition
         WfDefinition definition = isUpdateCurrentVersion
                 ? Delegates.getDefinitionService().updateProcessDefinition(user, definitionVersionId, data)
                 : Delegates.getDefinitionService().redeployProcessDefinition(user, definitionVersionId, data, categories, secondsBeforeArchiving);
-        this.definitionId = definition.getId();
+        this.definitionVersionId = definition.getVersionId();
     }
 
     @Override
     protected ActionForward getSuccessAction(ActionMapping mapping) {
-        return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, definitionId);
+        return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, definitionVersionId);
     }
 
     @Override
     protected ActionForward getErrorForward(ActionMapping mapping) {
-        return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), IdForm.ID_INPUT_NAME, definitionId);
+        return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), IdForm.ID_INPUT_NAME, definitionVersionId);
     }
 
     @Override
     protected void prepare(FileForm fileForm) {
-        definitionId = fileForm.getId();
+        definitionVersionId = fileForm.getId();
     }
 }

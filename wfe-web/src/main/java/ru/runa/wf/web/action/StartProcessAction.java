@@ -53,19 +53,20 @@ public class StartProcessAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         StartProcessForm startProcessForm = (StartProcessForm) form;
-        Long definitionId = startProcessForm.getId();
+        Long definitionVersionId = startProcessForm.getId();
         if (startProcessForm.getName() != null) {
             WfDefinition definition = Delegates.getDefinitionService().getLatestProcessDefinition(getLoggedUser(request), startProcessForm.getName());
-            definitionId = definition.getId();
+            definitionVersionId = definition.getVersionId();
         }
         try {
             ActionForward forward;
             saveToken(request);
-            Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getLoggedUser(request), definitionId);
+            Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getLoggedUser(request), definitionVersionId);
             if (interaction.hasForm() || interaction.getOutputTransitions().size() > 1) {
-                forward = Commons.forward(mapping.findForward(WebResources.FORWARD_SUCCESS_DISPLAY_START_FORM), IdForm.ID_INPUT_NAME, definitionId);
+                forward = Commons.forward(mapping.findForward(WebResources.FORWARD_SUCCESS_DISPLAY_START_FORM), IdForm.ID_INPUT_NAME,
+                        definitionVersionId);
             } else {
-                WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);
+                WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionVersionId);
                 Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null);
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
                 forward = mapping.findForward(Resources.FORWARD_SUCCESS);

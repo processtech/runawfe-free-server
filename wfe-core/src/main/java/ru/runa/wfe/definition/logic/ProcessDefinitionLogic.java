@@ -431,14 +431,14 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
      * @param batchPresentation of type DEFINITIONS.
      */
     public List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
-        List<Long> processIdRestriction = getIdRestriction(user);
-        if (processIdRestriction.isEmpty()) {
+        List<Long> definitionIdRestriction = getIdRestriction(user);
+        if (definitionIdRestriction.isEmpty()) {
             return Lists.newArrayList();
         }
 
         CompilerParameters parameters = CompilerParameters.create(enablePaging)
                 .loadOnlySpecificHqlFields("latestVersion.id")
-                .addOwners(new RestrictionsToOwners(processIdRestriction, "id"));
+                .addOwners(new RestrictionsToOwners(definitionIdRestriction, "id"));
         List<Number> definitionVersionIds = new PresentationCompiler<Number>(batchPresentation).getBatch(parameters);
         val processDefinitions = new HashMap<ProcessDefinition, ParsedProcessDefinition>(definitionVersionIds.size());
         val definitions = new ArrayList<ProcessDefinition>(definitionVersionIds.size());

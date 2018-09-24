@@ -73,7 +73,7 @@ public interface DefinitionService {
      *            If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
      * @return redeployed definition
      */
-    WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] archive, List<String> categories,
+    WfDefinition redeployProcessDefinition(User user, Long definitionVersionId, byte[] archive, List<String> categories,
             Integer secondsBeforeArchiving) throws DefinitionDoesNotExistException, DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
@@ -213,11 +213,9 @@ public interface DefinitionService {
      * 
      * @param user
      *            authorized user
-     * @param definitionId
-     *            process definition id
      * @return not <code>null</code>
      */
-    List<SwimlaneDefinition> getSwimlaneDefinitions(User user, Long definitionId) throws DefinitionDoesNotExistException;
+    List<SwimlaneDefinition> getSwimlaneDefinitions(User user, Long processDefinitionVersionId) throws DefinitionDoesNotExistException;
 
     /**
      * Gets all variable user types for process definition by id.

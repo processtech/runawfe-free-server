@@ -95,7 +95,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public Long startProcessWS(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
             @WebParam(name = "variables") List<Variable> variables) {
         WfDefinition definition = processDefinitionLogic.getLatestProcessDefinition(user, definitionName);
-        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(definition.getId());
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(definition.getVersionId());
         return startProcess(user, definitionName, VariableConverter.unmarshal(parsedProcessDefinition, variables));
     }
 

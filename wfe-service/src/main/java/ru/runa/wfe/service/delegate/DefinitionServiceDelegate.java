@@ -202,9 +202,9 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     }
 
     @Override
-    public List<SwimlaneDefinition> getSwimlaneDefinitions(User user, Long definitionId) {
+    public List<SwimlaneDefinition> getSwimlaneDefinitions(User user, Long processDefinitionVersionId) {
         try {
-            return getDefinitionService().getSwimlaneDefinitions(user, definitionId);
+            return getDefinitionService().getSwimlaneDefinitions(user, processDefinitionVersionId);
         } catch (Exception e) {
             throw handleException(e);
         }

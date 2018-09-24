@@ -38,7 +38,7 @@ public class ProcessDefinitionDescriptionFormTag extends ProcessDefinitionBaseFo
 
     @Override
     protected void fillFormData(final TD tdFormElement) {
-        Long id = ((WfDefinition) getSecuredObject()).getId();
+        Long id = ((WfDefinition) getSecuredObject()).getVersionId();
         String url = Commons.getActionUrl(ProcessDefinitionDescriptionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, id, pageContext,
                 PortletUrlType.Action);
         tdFormElement.addElement(new IFrame().setSrc(url).setWidth("100%"));

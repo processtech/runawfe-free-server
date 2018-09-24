@@ -19,7 +19,7 @@ public class SupportProcessArchiving extends DbMigration {
 
                 // Process: all fields except EXECUTION_STATUS.
                 getDDLCreateTable("archived_process", list(
-                        new BigintColumnDef("id", false),
+                        new BigintColumnDef("id", false).setPrimaryKey(),
                         new BigintColumnDef("parent_id", true),
                         new TimestampColumnDef("end_date", true),
                         new TimestampColumnDef("start_date", true),
@@ -31,7 +31,7 @@ public class SupportProcessArchiving extends DbMigration {
 
                 // Token: all fields except EXECUTION_STATUS:
                 getDDLCreateTable("archived_token", list(
-                        new BigintColumnDef("id", false),
+                        new BigintColumnDef("id", false).setPrimaryKey(),
                         new VarcharColumnDef("error_message", 1024, true),
                         new VarcharColumnDef("transition_id", 1024, true),
                         new VarcharColumnDef("message_selector", 1024, true),
@@ -49,7 +49,7 @@ public class SupportProcessArchiving extends DbMigration {
 
                 // NodeProcess: all fields.
                 getDDLCreateTable("archived_subprocess", list(
-                        new BigintColumnDef("id", false),
+                        new BigintColumnDef("id", false).setPrimaryKey(),
                         new TimestampColumnDef("create_date", false),
                         new VarcharColumnDef("parent_node_id", 1024, true),
                         new IntColumnDef("subprocess_index", true),
@@ -61,7 +61,7 @@ public class SupportProcessArchiving extends DbMigration {
 
                 // Swimlane: all fields.
                 getDDLCreateTable("archived_swimlane", list(
-                        new BigintColumnDef("id", false),
+                        new BigintColumnDef("id", false).setPrimaryKey(),
                         new TimestampColumnDef("create_date", false),
                         new BigintColumnDef("version", true),
                         new VarcharColumnDef("name", 1024, true),
@@ -72,7 +72,7 @@ public class SupportProcessArchiving extends DbMigration {
                 // Variable: all fields.
                 getDDLCreateTable("archived_variable", list(
                         new CharColumnDef("discriminator", 1, false),
-                        new BigintColumnDef("id", false),
+                        new BigintColumnDef("id", false).setPrimaryKey(),
                         new TimestampColumnDef("create_date", false),
                         new VarcharColumnDef("stringvalue", 1024, true),
                         new CharColumnDef("converter", 1, true),
@@ -88,7 +88,7 @@ public class SupportProcessArchiving extends DbMigration {
                 // ProcessLog: all fields.
                 getDDLCreateTable("archived_log", list(
                         new CharColumnDef("discriminator", 1, false),
-                        new BigintColumnDef("id", false),
+                        new BigintColumnDef("id", false).setPrimaryKey(),
                         new VarcharColumnDef("severity", 1024, false),
                         new BigintColumnDef("token_id", true),
                         new TimestampColumnDef("create_date", false),
@@ -98,14 +98,12 @@ public class SupportProcessArchiving extends DbMigration {
                         new VarcharColumnDef("content", 4000, true)
                 )),
 
-                getDDLCreatePrimaryKey("archived_process", "pk_archived_process", "id"),
                 getDDLCreateIndex     ("archived_process", "ix_arch_process_def_ver", "definition_version_id"),
                 getDDLCreateForeignKey("archived_process", "fk_arch_process_def_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
                 getDDLCreateIndex     ("archived_process", "ix_arch_process_root_token", "root_token_id"),
                 // Not created: would be violated during batch insert-select in ProcessArchiver.
                 //getDDLCreateForeignKey("archived_process", "fk_arch_process_root_token", "root_token_id", "archived_token", "id")
 
-                getDDLCreatePrimaryKey("archived_token", "pk_archived_token", "id"),
                 getDDLCreateIndex     ("archived_token", "ix_arch_message_selector", "message_selector"),
                 getDDLCreateIndex     ("archived_token", "ix_arch_token_parent", "parent_id"),
                 getDDLCreateIndex     ("archived_token", "ix_arch_token_process", "process_id"),
@@ -113,7 +111,6 @@ public class SupportProcessArchiving extends DbMigration {
                 // Not created: would be violated during batch insert-select in ProcessArchiver.
                 //getDDLCreateForeignKey("archived_token", "fk_arch_token_parent", "parent_id", "archived_token", "id")
 
-                getDDLCreatePrimaryKey("archived_subprocess", "pk_archived_subprocess", "id"),
                 getDDLCreateIndex     ("archived_subprocess", "ix_arch_subprocess_process", "process_id"),
                 getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_process", "process_id", "archived_process", "id"),
                 getDDLCreateIndex     ("archived_subprocess", "ix_arch_subprocess_parent", "parent_process_id"),
@@ -123,18 +120,15 @@ public class SupportProcessArchiving extends DbMigration {
                 // Not created: would be violated during batch insert-select in ProcessArchiver.
                 //getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_token", "parent_token_id", "archived_token", "id")
 
-                getDDLCreatePrimaryKey("archived_swimlane", "pk_arch_swimlane", "id"),
                 getDDLCreateIndex     ("archived_swimlane", "ix_arch_swimlane_process", "process_id"),
                 getDDLCreateForeignKey("archived_swimlane", "fk_arch_swimlane_process", "process_id", "archived_process", "id"),
                 getDDLCreateForeignKey("archived_swimlane", "fk_arch_swimlane_executor", "executor_id", "executor", "id"),
 
-                getDDLCreatePrimaryKey("archived_variable", "pk_archived_variable", "id"),
                 getDDLCreateIndex     ("archived_variable", "ix_arch_variable_name", "name"),
                 getDDLCreateIndex     ("archived_variable", "ix_arch_variable_process", "process_id"),
                 getDDLCreateForeignKey("archived_variable", "fk_arch_variable_process", "process_id", "archived_process", "id"),
                 getDDLCreateUniqueKey ("archived_variable", "uk_arch_variable_process", "process_id", "name"),
 
-                getDDLCreatePrimaryKey("archived_log", "pk_archived_log", "id"),
                 getDDLCreateIndex("archived_log", "ix_arch_log_process", "process_id")
         );
     }

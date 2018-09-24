@@ -227,8 +227,8 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @Override
     @WebResult(name = "result")
     public List<SwimlaneDefinition> getSwimlaneDefinitions(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long definitionId) {
-        return processDefinitionLogic.getSwimlanes(user, definitionId);
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId) {
+        return processDefinitionLogic.getSwimlanes(user, processDefinitionVersionId);
     }
 
     @Override

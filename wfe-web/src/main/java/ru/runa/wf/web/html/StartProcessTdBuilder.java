@@ -55,14 +55,14 @@ public class StartProcessTdBuilder extends BaseTdBuilder {
         String href;
         if (definition.isCanBeStarted()) {
             if (definition.hasStartImage()) {
-                href = Commons.getActionUrl(StartImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(), env.getPageContext(),
-                        PortletUrlType.Resource);
+                href = Commons.getActionUrl(StartImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getVersionId(),
+                        env.getPageContext(), PortletUrlType.Resource);
             } else {
                 href = Commons.getUrl(WebResources.START_PROCESS_IMAGE, env.getPageContext(), PortletUrlType.Resource);
             }
         } else {
             if (definition.hasDisabledImage()) {
-                href = Commons.getActionUrl(StartDisabledImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
+                href = Commons.getActionUrl(StartDisabledImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getVersionId(),
                         env.getPageContext(), PortletUrlType.Resource);
             } else {
                 href = Commons.getUrl(WebResources.START_PROCESS_DISABLED_IMAGE, env.getPageContext(), PortletUrlType.Resource);
@@ -77,7 +77,7 @@ public class StartProcessTdBuilder extends BaseTdBuilder {
             startLink = new A(url).addElement(startImg);
             if (ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_PARAMETER)
                     || ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER)) {
-                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(env.getUser(), definition.getId());
+                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(env.getUser(), definition.getVersionId());
                 if (!(interaction.hasForm() || interaction.getOutputTransitions().size() > 1)) {
                     String actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
                     startLink.addAttribute("onclick",
@@ -95,6 +95,6 @@ public class StartProcessTdBuilder extends BaseTdBuilder {
     @Override
     public String getValue(Object object, Env env) {
         WfDefinition pd = (WfDefinition) object;
-        return String.valueOf(pd.getId());
+        return String.valueOf(pd.getVersionId());
     }
 }
