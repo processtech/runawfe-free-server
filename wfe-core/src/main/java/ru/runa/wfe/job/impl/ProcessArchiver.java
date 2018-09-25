@@ -151,8 +151,9 @@ public class ProcessArchiver {
         switch (dbType) {
             case H2:
             case HSQL:
+                return "dateadd('second', " + seconds + ", " + endDateField + ") < ?";  // Works for H2.
             case MSSQL:
-                return "dateadd('second', " + seconds + ", " + endDateField + ") < ?";  // Works for H2, at least.
+                return "dateadd(second, " + seconds + ", " + endDateField + ") < ?";
             case ORACLE:
                 return "(" + endDateField + " + numtodsinterval(" + seconds + ", 'second')) < ?";
             case POSTGRESQL:
