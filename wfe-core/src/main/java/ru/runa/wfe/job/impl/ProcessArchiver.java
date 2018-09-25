@@ -179,7 +179,9 @@ public class ProcessArchiver {
             q.setLong(1, lastHandledProcessId);
             q.setTimestamp(2, currentTime);
             q.setTimestamp(3, currentTime);
-            q.setInt(4, ROOT_PROCESS_IDS_PER_STEP);
+            if (ApplicationContextFactory.getDialect().supportsVariableLimit()) {
+                q.setInt(4, ROOT_PROCESS_IDS_PER_STEP);
+            }
             val rs = q.executeQuery();
             while (rs.next()) {
                 processIds.add(rs.getLong(1));
