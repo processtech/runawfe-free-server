@@ -575,7 +575,7 @@ public class DbMigration0 extends DbMigration {
 
     @Override
     public void executeDML(Connection conn) throws Exception {
-        try (PreparedStatement stmt = conn.prepareStatement("insert into db_migration(name, when_started_when_finished) values(?, ?, ?)")) {
+        try (PreparedStatement stmt = conn.prepareStatement("insert into db_migration(name, when_started, when_finished) values(?, ?, ?)")) {
             insertMigration(stmt, "AddAggregatedTaskIndexPatch", 1537829358814L, 1537829358814L);
             insertMigration(stmt, "AddAssignDateColumnPatch", 1537829358814L, 1537829358814L);
             insertMigration(stmt, "AddBatchPresentationIsSharedPatch", 1537829358814L, 1537829358814L);

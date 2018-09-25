@@ -165,7 +165,7 @@ class DbMigration0Generator {
                     "    @Override\n" +
                     "    public void executeDML(Connection conn) throws Exception {\n");
             if (!st.migrations.isEmpty()) {
-                w.write("        try (PreparedStatement stmt = conn.prepareStatement(\"insert into db_migration(name, when_started_when_finished) values(?, ?, ?)\")) {\n");
+                w.write("        try (PreparedStatement stmt = conn.prepareStatement(\"insert into db_migration(name, when_started, when_finished) values(?, ?, ?)\")) {\n");
                 for (val m : st.migrations) {
                     // TODO I wonder if timezone will interfere so each run we'll get more and more shifted time.
                     w.write("            insertMigration(stmt, \"" + m.name + "\", " + m.whenStarted.getTime() + "L, " +
