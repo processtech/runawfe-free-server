@@ -36,13 +36,13 @@ public class CurrentAdminActionLog extends CurrentProcessLog implements AdminAct
     @Override
     @Transient
     public String getPatternName() {
-        return getClass().getSimpleName() + "." + getAttributeNotNull(ATTR_ACTION);
+        return "AdminActionLog." + getAttributeNotNull(ATTR_ACTION);
     }
 
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        List<Object> result = Lists.<Object>newArrayList(new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)));
+        List<Object> result = Lists.newArrayList(new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)));
         for (int i = 0; i < 10; i++) {
             String param = getAttribute(ATTR_PARAM + i);
             if (param != null) {

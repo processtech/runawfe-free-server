@@ -106,7 +106,14 @@ public abstract class BaseProcessLog implements ProcessLog {
     @Override
     @Transient
     public String getPatternName() {
-        return getClass().getSimpleName();
+        String s = getClass().getSimpleName();
+        if (s.startsWith("Current")) {
+            return s.substring(7);
+        }
+        if (s.startsWith("Archived")) {
+            return s.substring(8);
+        }
+        throw new RuntimeException("Unsupported class name: " + getClass().getSimpleName());
     }
 
     @Override
