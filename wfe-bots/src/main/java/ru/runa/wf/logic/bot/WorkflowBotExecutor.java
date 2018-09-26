@@ -37,7 +37,7 @@ import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
 import ru.runa.wfe.lang.Node;
@@ -157,7 +157,7 @@ public class WorkflowBotExecutor {
                         continue;
                     }
                 } else {
-                    if (StringUtils.startsWith(task.getNodeId(), IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
+                    if (StringUtils.startsWith(task.getNodeId(), FileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
                         ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user,
                                 task.getDefinitionId());
                         Node taskNode = processDefinition.getNode(task.getNodeId());

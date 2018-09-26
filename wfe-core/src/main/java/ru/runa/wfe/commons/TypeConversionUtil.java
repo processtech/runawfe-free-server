@@ -31,7 +31,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.IExecutorLoader;
+import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.format.UserTypeFormat;
 
@@ -49,7 +49,7 @@ public class TypeConversionUtil {
         return convertTo(classConvertTo, object, null, null);
     }
 
-    public static <T> T convertTo(Class<T> classConvertTo, Object object, ITypeConvertor preConvertor, ITypeConvertor postConvertor) {
+    public static <T> T convertTo(Class<T> classConvertTo, Object object, TypeConvertor preConvertor, TypeConvertor postConvertor) {
         try {
             Preconditions.checkNotNull(classConvertTo, "classConvertTo is null");
             if (preConvertor != null) {
@@ -199,7 +199,7 @@ public class TypeConversionUtil {
         throw new InternalApplicationException("No conversion found between '" + object.getClass() + "' and '" + classConvertTo + "'");
     }
 
-    public static <T> List<T> convertToList(Class<T> componentClass, Object object, ITypeConvertor preConvertor, ITypeConvertor postConvertor) {
+    public static <T> List<T> convertToList(Class<T> componentClass, Object object, TypeConvertor preConvertor, TypeConvertor postConvertor) {
         List<T> result = Lists.newArrayList();
         if (object == null) {
         } else if (object.getClass().isArray()) {
@@ -291,7 +291,7 @@ public class TypeConversionUtil {
         }
     }
 
-    public static <T extends Executor> T convertToExecutor(Object object, IExecutorLoader executorLoader) {
+    public static <T extends Executor> T convertToExecutor(Object object, ExecutorLoader executorLoader) {
         if (object == null || object instanceof Executor) {
             return (T) object;
         }

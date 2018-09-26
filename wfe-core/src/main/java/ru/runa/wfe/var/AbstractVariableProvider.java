@@ -6,19 +6,19 @@ import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.IExecutorLoader;
+import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.var.dto.WfVariable;
 
 /**
- * Base implementation of {@link IVariableProvider}.
+ * Base implementation of {@link VariableProvider}.
  * 
  * @author Dofs
  * @since 4.0
  */
-public abstract class AbstractVariableProvider implements IVariableProvider {
+public abstract class AbstractVariableProvider implements VariableProvider {
     protected final Log log = LogFactory.getLog(getClass());
 
-    protected IExecutorLoader getExecutorLoader() {
+    protected ExecutorLoader getExecutorLoader() {
         return ApplicationContextFactory.getExecutorDAO();
     }
 

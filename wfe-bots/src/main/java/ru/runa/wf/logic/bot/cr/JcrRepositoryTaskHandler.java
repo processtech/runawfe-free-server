@@ -37,8 +37,8 @@ import javax.naming.InitialContext;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
@@ -61,7 +61,7 @@ public class JcrRepositoryTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         Session session = null;
         try {
             Context context = new InitialContext();
@@ -73,11 +73,11 @@ public class JcrRepositoryTaskHandler extends TaskHandlerBase {
 
             for (JcrTask jcrTask : config.getTasks()) {
                 if (JcrTask.GET_FILE.equals(jcrTask.getOperationName())) {
-                    FileVariable fileVariable = getFile(session, jcrTask.getPath(), jcrTask.getFileName());
+                    FileVariableImpl fileVariable = getFile(session, jcrTask.getPath(), jcrTask.getFileName());
                     outputVariables.put(jcrTask.getVariableName(), fileVariable);
                 }
                 if (JcrTask.PUT_FILE.equals(jcrTask.getOperationName())) {
-                    FileVariable fileVariable = variableProvider.getValue(FileVariable.class, jcrTask.getVariableName());
+                    FileVariableImpl fileVariable = variableProvider.getValue(FileVariableImpl.class, jcrTask.getVariableName());
                     putFile(session, fileVariable, jcrTask.getPath(), jcrTask.getFileName());
                 }
                 if (JcrTask.REMOVE_FILE.equals(jcrTask.getOperationName())) {
@@ -93,7 +93,7 @@ public class JcrRepositoryTaskHandler extends TaskHandlerBase {
         }
     }
 
-    private void putFile(Session session, FileVariable fileVariable, String path, String fileName) throws RepositoryException {
+    private void putFile(Session session, FileVariableImpl fileVariable, String path, String fileName) throws RepositoryException {
         if (!session.getRootNode().hasNode(path)) {
             session.getRootNode().addNode(path);
         }
@@ -116,7 +116,7 @@ public class JcrRepositoryTaskHandler extends TaskHandlerBase {
         contentNode.setProperty(JCR_LAST_MODIFIED, lastModified);
     }
 
-    public FileVariable getFile(Session session, String path, String fileName) throws RepositoryException, IOException {
+    public FileVariableImpl getFile(Session session, String path, String fileName) throws RepositoryException, IOException {
         Node folderNode = session.getRootNode().getNode(path);
         Node fileNode = folderNode.getNode(fileName);
         Node file = fileNode.getNode(JCR_CONTENT);
@@ -126,7 +126,7 @@ public class JcrRepositoryTaskHandler extends TaskHandlerBase {
         try {
             stream = dataProperty.getBinary().getStream();
             byte[] content = ByteStreams.toByteArray(stream);
-            return new FileVariable(fileNode.getName(), content, contentType);
+            return new FileVariableImpl(fileNode.getName(), content, contentType);
         } finally {
             Closeables.closeQuietly(stream);
         }

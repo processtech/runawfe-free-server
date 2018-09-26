@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.relation.dao.RelationDAO;
-import ru.runa.wfe.relation.dao.RelationPairDAO;
+import ru.runa.wfe.relation.dao.RelationDao;
+import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.user.dao.ExecutorDao;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -28,11 +28,11 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
     private boolean inversed;
 
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
     @Autowired
-    private RelationDAO relationDAO;
+    private RelationDao relationDao;
     @Autowired
-    private RelationPairDAO relationPairDAO;
+    private RelationPairDao relationPairDao;
 
     public static boolean isValid(String initializer) {
         return initializer != null && initializer.startsWith(RELATION_BEGIN);
@@ -66,26 +66,26 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
     }
 
     @Override
-    public List<? extends Executor> evaluate(IVariableProvider variableProvider) {
+    public List<? extends Executor> evaluate(VariableProvider variableProvider) {
         Executor parameter;
         if (relationParameterVariableName.startsWith(RELATION_PARAM_VALUE)) {
             String executorValue = relationParameterVariableName.substring(RELATION_PARAM_VALUE.length());
-            parameter = TypeConversionUtil.convertToExecutor(executorValue, executorDAO);
+            parameter = TypeConversionUtil.convertToExecutor(executorValue, executorDao);
         } else {
             parameter = variableProvider.getValueNotNull(Executor.class, relationParameterVariableName);
         }
         Set<Executor> parameters = Sets.newHashSet();
         parameters.add(parameter);
-        parameters.addAll(executorDAO.getExecutorParentsAll(parameter, false));
+        parameters.addAll(executorDao.getExecutorParentsAll(parameter, false));
         Set<Executor> result = Sets.newHashSet();
-        Relation relation = relationDAO.getNotNull(relationName);
+        Relation relation = relationDao.getNotNull(relationName);
         if (inversed) {
-            List<RelationPair> pairs = relationPairDAO.getExecutorsRelationPairsLeft(relation, parameters);
+            List<RelationPair> pairs = relationPairDao.getExecutorsRelationPairsLeft(relation, parameters);
             for (RelationPair pair : pairs) {
                 result.add(pair.getRight());
             }
         } else {
-            List<RelationPair> pairs = relationPairDAO.getExecutorsRelationPairsRight(relation, parameters);
+            List<RelationPair> pairs = relationPairDao.getExecutorsRelationPairsRight(relation, parameters);
             for (RelationPair pair : pairs) {
                 result.add(pair.getLeft());
             }

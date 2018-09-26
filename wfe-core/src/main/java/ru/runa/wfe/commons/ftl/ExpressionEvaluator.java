@@ -19,7 +19,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 public class ExpressionEvaluator {
     private static final Pattern VARIABLE_REGEXP = Pattern.compile("\\$\\{(.*?[^\\\\])\\}");
@@ -43,7 +43,7 @@ public class ExpressionEvaluator {
         }
     }
 
-    public static Date evaluateDueDate(IVariableProvider variableProvider, String expression) {
+    public static Date evaluateDueDate(VariableProvider variableProvider, String expression) {
         Date baseDate;
         String durationString = null;
         if (expression != null && expression.startsWith("#")) {
@@ -78,13 +78,13 @@ public class ExpressionEvaluator {
      *
      * @return duration in milliseconds, always >= 0
      */
-    public static long evaluateDuration(IVariableProvider variableProvider, String expression) {
+    public static long evaluateDuration(VariableProvider variableProvider, String expression) {
         Date dueDate = evaluateDueDate(variableProvider, expression);
         long duration = new CalendarInterval(new Date(), dueDate).getLengthInMillis();
         return duration > 0 ? duration : 0;
     }
 
-    public static Object evaluateVariableNotNull(IVariableProvider variableProvider, String expression) {
+    public static Object evaluateVariableNotNull(VariableProvider variableProvider, String expression) {
         Preconditions.checkNotNull(expression);
         if (expression.startsWith("${") && expression.endsWith("}")) {
             String variableName = expression.substring(2, expression.length() - 1);
@@ -93,7 +93,7 @@ public class ExpressionEvaluator {
         return expression;
     }
 
-    public static Object evaluateVariable(IVariableProvider variableProvider, String expression) {
+    public static Object evaluateVariable(VariableProvider variableProvider, String expression) {
         Preconditions.checkNotNull(expression);
         if (expression.startsWith("${") && expression.endsWith("}")) {
             String variableName = expression.substring(2, expression.length() - 1);
@@ -118,7 +118,7 @@ public class ExpressionEvaluator {
         return buffer.toString();
     }
 
-    public static String substitute(String value, IVariableProvider variableProvider) {
+    public static String substitute(String value, VariableProvider variableProvider) {
         if (value == null) {
             return null;
         }
@@ -133,7 +133,7 @@ public class ExpressionEvaluator {
         return buffer.toString();
     }
 
-    public static String process(User user, String template, IVariableProvider variableProvider, WebHelper webHelper) {
+    public static String process(User user, String template, VariableProvider variableProvider, WebHelper webHelper) {
         FormHashModel model = new FormHashModel(user, variableProvider, webHelper);
         model.putAll(staticModels);
         // if (staticModels.size() > 0) {

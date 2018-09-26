@@ -72,7 +72,7 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 @DiscriminatorValue(value = "0")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class ProcessLog implements IAttributes, Serializable, Comparable<ProcessLog> {
+public abstract class ProcessLog implements Attributes, Serializable, Comparable<ProcessLog> {
     private static final long serialVersionUID = 1L;
 
     public static int getAttributeMaxLength() {

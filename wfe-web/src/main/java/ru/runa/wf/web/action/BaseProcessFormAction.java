@@ -39,7 +39,7 @@ import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Strings;
 
@@ -100,7 +100,7 @@ public abstract class BaseProcessFormAction extends ActionBase {
     }
 
     protected Map<String, Object> getFormVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction,
-            IVariableProvider variableProvider) {
+            VariableProvider variableProvider) {
         return FormSubmissionUtils.extractVariables(request, actionForm, interaction, variableProvider);
     }
 

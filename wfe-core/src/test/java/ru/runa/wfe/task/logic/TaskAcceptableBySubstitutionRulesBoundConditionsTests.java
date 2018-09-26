@@ -1,14 +1,9 @@
 package ru.runa.wfe.task.logic;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +13,19 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
-import ru.runa.wfe.ss.logic.ISubstitutionLogic;
+import ru.runa.wfe.ss.logic.SubstitutionLogic;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
-import com.google.common.collect.Maps;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
@@ -43,7 +40,7 @@ public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends Abstr
     public Object[][] getTestcases() {
         return new Object[][] { { "terminate after unsatisfied substitution", false, new TaskAcceptableTestCaseDataSet() {
             @Override
-            public void mockRules(ISubstitutionLogic substitutionLogic) {
+            public void mockRules(SubstitutionLogic substitutionLogic) {
                 when(substitutionLogic.getSubstitutors(assignedActor)).thenReturn(mapOfSubstitionRule);
                 createUnsatisfiedSubstitutionRuleEntry(1L, mapOfSubstitionRule, actors);
                 setActorInactive(1L);
@@ -52,7 +49,7 @@ public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends Abstr
 
         } }, { "terminate after satisfied substitution", true, new TaskAcceptableTestCaseDataSet() {
             @Override
-            public void mockRules(ISubstitutionLogic substitutionLogic) {
+            public void mockRules(SubstitutionLogic substitutionLogic) {
                 when(substitutionLogic.getSubstitutors(assignedActor)).thenReturn(mapOfSubstitionRule);
                 createSatisfiedSubstitutionRuleEntry(1L, mapOfSubstitionRule, actors);
                 createSatisfiedTerminatorSubstitutionRuleEntry(2L, mapOfSubstitionRule, actors);
@@ -62,7 +59,7 @@ public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends Abstr
 
         } }, { "terminate before satisfied substitution", false, new TaskAcceptableTestCaseDataSet() {
             @Override
-            public void mockRules(ISubstitutionLogic substitutionLogic) {
+            public void mockRules(SubstitutionLogic substitutionLogic) {
                 when(substitutionLogic.getSubstitutors(assignedActor)).thenReturn(mapOfSubstitionRule);
                 createSatisfiedTerminatorSubstitutionRuleEntry(1L, mapOfSubstitionRule, actors);
                 createSatisfiedSubstitutionRuleEntry(2L, mapOfSubstitionRule, actors);
@@ -72,7 +69,7 @@ public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends Abstr
 
         } }, { "try unsatisfied terminate before satisfied substitution", true, new TaskAcceptableTestCaseDataSet() {
             @Override
-            public void mockRules(ISubstitutionLogic substitutionLogic) {
+            public void mockRules(SubstitutionLogic substitutionLogic) {
                 when(substitutionLogic.getSubstitutors(assignedActor)).thenReturn(mapOfSubstitionRule);
                 createUnsatisfiedTerminatorSubstitutionRuleEntry(1L, mapOfSubstitionRule, actors);
                 createSatisfiedSubstitutionRuleEntry(2L, mapOfSubstitionRule, actors);
@@ -106,9 +103,9 @@ public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends Abstr
         Map<Long, Actor> actors = Maps.newHashMap();
 
         @Override
-        public void mockRules(IExecutorDAO executorDAO) {
+        public void mockRules(ExecutorDao executorDao) {
             for (Map.Entry<Long, Actor> entry : actors.entrySet()) {
-                when(executorDAO.getActor(entry.getKey())).thenReturn(entry.getValue());
+                when(executorDao.getActor(entry.getKey())).thenReturn(entry.getValue());
             }
         }
 

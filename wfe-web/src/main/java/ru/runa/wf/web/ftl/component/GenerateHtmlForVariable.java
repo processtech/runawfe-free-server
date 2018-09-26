@@ -31,7 +31,7 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
@@ -146,7 +146,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
     public GenerateHtmlForVariableResult onFile(FileFormat fileFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
-        return new GenerateHtmlForVariableResult(context, getFileComponent(webHelper, variableName, (IFileVariable) value, !context.readonly));
+        return new GenerateHtmlForVariableResult(context, getFileComponent(webHelper, variableName, (FileVariable) value, !context.readonly));
     }
 
     @Override
@@ -188,7 +188,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             }
         }
         if (!context.readonly) {
-            result.addElement(createAddElement());
+            result.addElement(createAddElement(scriptingVariableName));
         }
         return new GenerateHtmlForVariableResult(context, result.toString());
     }
@@ -232,7 +232,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
                 elementRow.addElement(createRemoveElement(context));
                 result.addElement(new Div().addElement(elementRow));
             }
-            result.addElement(createAddElement());
+            result.addElement(createAddElement(scriptingVariableName));
         } else {
             Table table = new Table();
             table.setClass("list");
@@ -392,7 +392,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         return html.toString();
     }
 
-    public static String getFileComponent(WebHelper webHelper, String variableName, IFileVariable value, boolean enabled) {
+    public static String getFileComponent(WebHelper webHelper, String variableName, FileVariable value, boolean enabled) {
         if (!WebResources.isAjaxFileInputEnabled()) {
             return "<input type=\"file\" name=\"" + variableName + "\" class=\"inputFile\" />";
         }
@@ -514,6 +514,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
      */
     private Input createRemoveElement(GenerateHtmlForVariableContext context) {
         Input removeButton = new Input();
+        removeButton.setName("remove_" + context.variable.getDefinition().getScriptingNameWithoutDots());
         removeButton.setType("button");
         removeButton.setValue(" - ");
         removeButton.setStyle("width: 30px;");
@@ -524,10 +525,11 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
     /**
      * @return add button for list and so on containers.
      */
-    private Div createAddElement() {
+    private Div createAddElement(String scriptingVariableName) {
         Div result = new Div();
         Input addButton = new Input();
         result.addElement(addButton);
+        addButton.setName("add_" + scriptingVariableName);
         addButton.setType("button");
         addButton.setClass("add");
         addButton.setStyle("width: 30px;");

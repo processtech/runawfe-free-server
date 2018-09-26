@@ -28,7 +28,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Preconditions;
 
@@ -54,7 +54,7 @@ public class SwimlaneAssignerTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         List<? extends Executor> executors = SwimlaneInitializerHelper.evaluate(swimlaneInitializer, variableProvider);
         Delegates.getExecutionService().assignSwimlane(user, task.getProcessId(), swimlaneName, executors.get(0));
         return null;

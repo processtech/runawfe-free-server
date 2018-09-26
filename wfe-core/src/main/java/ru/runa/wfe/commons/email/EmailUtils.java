@@ -42,9 +42,9 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ExecutorDAO;
-import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.user.dao.ExecutorDao;
+import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.file.FileVariable;
 
 public class EmailUtils {
     private static final Log log = LogFactory.getLog(EmailConfig.class);
@@ -148,7 +148,7 @@ public class EmailUtils {
         }
     }
 
-    public static void prepareMessage(User user, EmailConfig config, Interaction interaction, IVariableProvider variableProvider) {
+    public static void prepareMessage(User user, EmailConfig config, Interaction interaction, VariableProvider variableProvider) {
         config.setMessageId(variableProvider.getProcessId() + ": " + (interaction != null ? interaction.getName() : "no interaction"));
         config.applySubstitutions(variableProvider);
         String formTemplate;
@@ -173,7 +173,7 @@ public class EmailUtils {
         config.setMessage(formMessage);
         log.debug(formMessage);
         for (String variableName : config.getAttachmentVariableNames()) {
-            IFileVariable fileVariable = variableProvider.getValue(IFileVariable.class, variableName);
+            FileVariable fileVariable = variableProvider.getValue(FileVariable.class, variableName);
             if (fileVariable != null) {
                 Attachment attachment = new Attachment();
                 attachment.fileName = fileVariable.getName();
@@ -191,8 +191,8 @@ public class EmailUtils {
                 emails.add(actor.getEmail().trim());
             }
         } else if (executor instanceof Group) {
-            ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-            Collection<Actor> actors = executorDAO.getGroupActors((Group) executor);
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+            Collection<Actor> actors = executorDao.getGroupActors((Group) executor);
             for (Actor actor : actors) {
                 if (actor.isActive() && !Utils.isNullOrEmpty(actor.getEmail())) {
                     emails.add(actor.getEmail().trim());

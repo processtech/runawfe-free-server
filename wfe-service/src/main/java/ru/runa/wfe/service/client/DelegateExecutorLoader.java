@@ -4,10 +4,10 @@ import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.IExecutorLoader;
+import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.user.User;
 
-public class DelegateExecutorLoader implements IExecutorLoader {
+public class DelegateExecutorLoader implements ExecutorLoader {
     private final User user;
     private final ExecutorService executorService;
 

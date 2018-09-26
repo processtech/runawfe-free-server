@@ -17,13 +17,13 @@
  */
 package ru.runa.wfe.presentation.filter;
 
-import ru.runa.wfe.commons.SQLCommons;
-import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
+import ru.runa.wfe.commons.SqlCommons;
+import ru.runa.wfe.commons.SqlCommons.StringEqualsExpression;
 import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 public class StringFilterCriteria extends FilterCriteria {
-    public static final String ANY_SYMBOLS = SQLCommons.ANY_SYMBOLS;
-    public static final String ANY_SYMBOL = SQLCommons.ANY_SYMBOL;
+    public static final String ANY_SYMBOLS = SqlCommons.ANY_SYMBOLS;
+    public static final String ANY_SYMBOL = SqlCommons.ANY_SYMBOL;
     private static final long serialVersionUID = -1849845246809052465L;
     private boolean ignoreCase;
 
@@ -42,7 +42,13 @@ public class StringFilterCriteria extends FilterCriteria {
 
     @Override
     public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
-        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
+        final String template = getFilterTemplate(0);
+        if (template.contains(",")) {
+            return buildInOperator(aliasedFieldName);
+        } else if (template.contains("-")) {
+            return buildBetweenOperator(aliasedFieldName);
+        }
+        StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(template);
         String searchValue = expression.getValue();
         String alias = makePlaceHolderName(aliasedFieldName);
         String where = "";

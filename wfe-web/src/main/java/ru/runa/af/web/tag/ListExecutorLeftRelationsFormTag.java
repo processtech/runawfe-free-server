@@ -34,7 +34,7 @@ import ru.runa.common.web.html.ItemUrlStrategy;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.StringsHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -62,7 +62,7 @@ public class ListExecutorLeftRelationsFormTag extends SecuredObjectFormTag {
         executors.addAll(Delegates.getExecutorService().getExecutorGroups(getUser(), getSecuredObject(), batchPresentation, false));
         List<Relation> relations = Delegates.getRelationService().getRelationsContainingExecutorsOnLeft(getUser(), executors);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, BatchPresentationFactory.RELATIONS.createDefault(), null);
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(null, BatchPresentationFactory.RELATIONS.createDefault(), null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(relations, batchPresentation, pageContext,
                 WebResources.ACTION_MAPPING_MANAGE_RELATION, "", new RelationURLStrategy(), builders);
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(getNames());

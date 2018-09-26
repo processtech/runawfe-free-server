@@ -27,13 +27,13 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
-import ru.runa.wfe.presentation.dao.BatchPresentationDAO;
+import ru.runa.wfe.presentation.dao.BatchPresentationDao;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ProfileDAO;
+import ru.runa.wfe.user.dao.ProfileDao;
 
 /**
  * Actor's profile management.
@@ -44,28 +44,28 @@ import ru.runa.wfe.user.dao.ProfileDAO;
 public class ProfileLogic extends CommonLogic {
 
     @Autowired
-    private ProfileDAO profileDAO;
+    private ProfileDao profileDao;
     @Autowired
-    private BatchPresentationDAO batchPresentationDAO;
+    private BatchPresentationDao batchPresentationDao;
 
     public List<Profile> getProfiles(User user, List<Long> actorIds) throws ExecutorDoesNotExistException {
         List<Profile> result = Lists.newArrayListWithCapacity(actorIds.size());
         for (Long actorId : actorIds) {
-            Actor actor = executorDAO.getActor(actorId);
-            permissionDAO.checkAllowed(user, Permission.LIST, actor);
+            Actor actor = executorDao.getActor(actorId);
+            permissionDao.checkAllowed(user, Permission.LIST, actor);
             result.add(getProfile(actor));
         }
         return result;
     }
 
     public Profile getProfile(Actor actor) {
-        Profile profile = profileDAO.get(actor);
+        Profile profile = profileDao.get(actor);
         if (profile == null) {
             profile = new Profile(actor);
-            profileDAO.create(profile);
+            profileDao.create(profile);
         }
-        profile.setAdministrator(executorDAO.isAdministrator(actor));
-        List<BatchPresentation> sharedPresentations = batchPresentationDAO.getAllShared();
+        profile.setAdministrator(executorDao.isAdministrator(actor));
+        List<BatchPresentation> sharedPresentations = batchPresentationDao.getAllShared();
         Set<BatchPresentation> existing = profile.getBatchPresentations();
         for (BatchPresentation presentation : sharedPresentations) {
             if (!existing.contains(presentation)) {
@@ -77,8 +77,8 @@ public class ProfileLogic extends CommonLogic {
 
     public void updateProfiles(User user, List<Profile> profiles) {
         for (Profile profile : profiles) {
-            permissionDAO.checkAllowed(user, Permission.UPDATE, profile.getActor());
-            profileDAO.update(profile);
+            permissionDao.checkAllowed(user, Permission.UPDATE, profile.getActor());
+            profileDao.update(profile);
         }
     }
 
@@ -89,7 +89,7 @@ public class ProfileLogic extends CommonLogic {
                 if (getBatchPresentationByName(profile.getBatchPresentations(), category, BatchPresentation.REFERENCE_SIGN + newActiveBatchName) != null) {
                     newActiveBatchName = BatchPresentation.REFERENCE_SIGN + newActiveBatchName;
                 } else {
-                    List<BatchPresentation> sharedPresentations = batchPresentationDAO.getAllShared();
+                    List<BatchPresentation> sharedPresentations = batchPresentationDao.getAllShared();
                     BatchPresentation sharedPresentation = getBatchPresentationByName(sharedPresentations, category, newActiveBatchName);
                     if (sharedPresentation != null) {
                         BatchPresentation presentationRef = sharedPresentation.clone();
@@ -129,8 +129,8 @@ public class ProfileLogic extends CommonLogic {
         if (batchPresentation.isShared() && !getProfile(user.getActor()).isAdministrator()) {
             throw new InternalApplicationException("cannot save batch presentation, user is not administrator");
         }
-        batchPresentationDAO.update(batchPresentation);
-        batchPresentationDAO.flushPendingChanges();
+        batchPresentationDao.update(batchPresentation);
+        batchPresentationDao.flushPendingChanges();
         return getProfile(user.getActor());
     }
 

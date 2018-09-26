@@ -45,7 +45,7 @@ public class Delegates {
     private static Map<Class<?>, Object> delegates = Maps.newHashMap();
 
     @SuppressWarnings("unchecked")
-    protected static <T extends EJB3Delegate> T getDelegate(Class<T> delegateClass) {
+    protected static <T extends Ejb3Delegate> T getDelegate(Class<T> delegateClass) {
         if (!delegates.containsKey(delegateClass)) {
             Object delegate = createDelegate(delegateClass);
             delegates.put(delegateClass, delegate);
@@ -53,7 +53,7 @@ public class Delegates {
         return (T) delegates.get(delegateClass);
     }
 
-    public static <T extends EJB3Delegate> T createDelegate(Class<T> delegateClass) {
+    public static <T extends Ejb3Delegate> T createDelegate(Class<T> delegateClass) {
         return ClassLoaderUtil.instantiate(delegateClass);
     }
 

@@ -19,7 +19,7 @@ package ru.runa.af.web;
 
 import java.util.List;
 
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -45,7 +45,7 @@ public class BatchPresentationUtils {
         return false;
     }
 
-    public static TDBuilder[] getBuilders(TDBuilder[] prefix, BatchPresentation batchPresentation, TDBuilder[] suffix) {
+    public static TdBuilder[] getBuilders(TdBuilder[] prefix, BatchPresentation batchPresentation, TdBuilder[] suffix) {
         int displayed = batchPresentation.getDisplayFields().length;
         for (FieldDescriptor field : batchPresentation.getDisplayFields()) {
             if (field.displayName.startsWith(ClassPresentation.editable_prefix) || field.displayName.startsWith(ClassPresentation.filterable_prefix)
@@ -55,7 +55,7 @@ public class BatchPresentationUtils {
         }
         int prefixBuildersLength = prefix != null ? prefix.length : 0;
         int suffixBuildersLength = suffix != null ? suffix.length : 0;
-        TDBuilder[] builders = new TDBuilder[prefixBuildersLength + displayed + suffixBuildersLength];
+        TdBuilder[] builders = new TdBuilder[prefixBuildersLength + displayed + suffixBuildersLength];
         if (prefixBuildersLength != 0) {
             for (int i = 0; i < prefix.length; ++i) {
                 builders[i] = prefix[i];
@@ -66,7 +66,7 @@ public class BatchPresentationUtils {
             if (!batchPresentation.getDisplayFields()[i].displayName.startsWith(ClassPresentation.editable_prefix)
                     && !batchPresentation.getDisplayFields()[i].displayName.startsWith(ClassPresentation.filterable_prefix)
                     && batchPresentation.getDisplayFields()[i].fieldState == FieldState.ENABLED) {
-                builders[idx++ + prefixBuildersLength] = (TDBuilder) batchPresentation.getDisplayFields()[i].getTDBuilder();
+                builders[idx++ + prefixBuildersLength] = (TdBuilder) batchPresentation.getDisplayFields()[i].getTdBuilder();
             }
         }
         if (suffixBuildersLength != 0) {

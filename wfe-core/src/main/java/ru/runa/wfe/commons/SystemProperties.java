@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.execution.logic.ProcessExecutionListener;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
@@ -23,7 +23,7 @@ public class SystemProperties {
     public static final String RESOURCE_EXTENSION_PREFIX = "wfe.custom.";
     public static final String DEPRECATED_PREFIX = "deprecated.";
 
-    private static volatile List<IProcessExecutionListener> processExecutionListeners = null;
+    private static volatile List<ProcessExecutionListener> processExecutionListeners = null;
 
     public static PropertyResources getResources() {
         return RESOURCES;
@@ -124,7 +124,7 @@ public class SystemProperties {
     }
 
     public static String getLocalFileStoragePath() {
-        return RESOURCES.getStringProperty("file.variable.local.storage.path", IOCommons.getAppServerDirPath() + "/wfe.filedata");
+        return RESOURCES.getStringProperty("file.variable.local.storage.path", IoCommons.getAppServerDirPath() + "/wfe.filedata");
     }
 
     public static int getLocalFileStorageFileLimit() {
@@ -292,14 +292,14 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("temporary.groups.delete.on.task.end", false);
     }
 
-    public static List<IProcessExecutionListener> getProcessExecutionListeners() {
+    public static List<ProcessExecutionListener> getProcessExecutionListeners() {
         if (processExecutionListeners == null) {
             synchronized (SystemProperties.class) {
                 if (processExecutionListeners == null) {
                     processExecutionListeners = Lists.newArrayList();
                     for (String className : RESOURCES.getMultipleStringProperty("process.execution.listeners")) {
                         try {
-                            IProcessExecutionListener listener = ClassLoaderUtil.instantiate(className);
+                            ProcessExecutionListener listener = ClassLoaderUtil.instantiate(className);
                             processExecutionListeners.add(listener);
                         } catch (Throwable th) {
                             processExecutionListeners = null;

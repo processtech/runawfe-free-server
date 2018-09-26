@@ -2,7 +2,7 @@ package ru.runa.wfe.extension.handler;
 
 import java.util.Map;
 
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Unsupported handler. Can be used as a stub for throwing exception.
@@ -12,7 +12,7 @@ import ru.runa.wfe.var.IVariableProvider;
 public class UnsupportedHandler extends CommonHandler {
 
     @Override
-    protected Map<String, Object> executeAction(IVariableProvider variableProvider) throws Exception {
+    protected Map<String, Object> executeAction(VariableProvider variableProvider) throws Exception {
         throw new UnsupportedOperationException();
     }
 

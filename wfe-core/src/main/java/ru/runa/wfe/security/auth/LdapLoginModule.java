@@ -75,7 +75,7 @@ public class LdapLoginModule extends LoginModuleBase {
             log.warn(e);
             throw new LoginException("invalid login or password");
         }
-        return executorDAO.getActorCaseInsensitive(actorName);
+        return executorDao.getActorCaseInsensitive(actorName);
     }
 
     private String formatUsername(String username) {

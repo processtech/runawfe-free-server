@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.EntityWithType;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.SecuredObject;
@@ -54,9 +54,9 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
 
     public WfDefinition(ProcessDefinition definition, boolean canBeStarted) {
         this(definition.getDeployment());
-        hasHtmlDescription = definition.getFileData(IFileDataProvider.INDEX_FILE_NAME) != null;
-        hasStartImage = definition.getFileData(IFileDataProvider.START_IMAGE_FILE_NAME) != null;
-        hasDisabledImage = definition.getFileData(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
+        hasHtmlDescription = definition.getFileData(FileDataProvider.INDEX_FILE_NAME) != null;
+        hasStartImage = definition.getFileData(FileDataProvider.START_IMAGE_FILE_NAME) != null;
+        hasDisabledImage = definition.getFileData(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
         subprocessOnly = definition.getAccessType() == ProcessDefinitionAccessType.OnlySubprocess;
         this.canBeStarted = canBeStarted && !subprocessOnly;
     }

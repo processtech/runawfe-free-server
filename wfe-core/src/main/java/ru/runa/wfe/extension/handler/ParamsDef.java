@@ -8,7 +8,7 @@ import org.dom4j.Element;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -72,7 +72,7 @@ public class ParamsDef {
         return result;
     }
 
-    public <T> T getInputParamValue(String name, IVariableProvider variableProvider) {
+    public <T> T getInputParamValue(String name, VariableProvider variableProvider) {
         ParamDef paramDef = getInputParam(name);
         if (paramDef == null) {
             return null;
@@ -87,7 +87,7 @@ public class ParamsDef {
         return result;
     }
 
-    public <T> T getInputParamValueNotNull(String name, IVariableProvider variableProvider) {
+    public <T> T getInputParamValueNotNull(String name, VariableProvider variableProvider) {
         Object result = getInputParamValue(name, variableProvider);
         if (result == null) {
             // for more appropriate exception

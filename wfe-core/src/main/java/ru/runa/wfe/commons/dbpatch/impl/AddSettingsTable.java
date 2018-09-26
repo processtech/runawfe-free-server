@@ -4,14 +4,14 @@ import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class AddSettingsTable extends DBPatch {
+public class AddSettingsTable extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = super.getDDLQueriesAfter();
-        List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
+        List<ColumnDef> columns = new LinkedList<DbPatch.ColumnDef>();
         ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
         id.setPrimaryKey();
         columns.add(id);

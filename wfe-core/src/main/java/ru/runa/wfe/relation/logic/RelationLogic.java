@@ -29,8 +29,8 @@ import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationAlreadyExistException;
 import ru.runa.wfe.relation.RelationDoesNotExistException;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.relation.dao.RelationDAO;
-import ru.runa.wfe.relation.dao.RelationPairDAO;
+import ru.runa.wfe.relation.dao.RelationDao;
+import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.Executor;
@@ -43,9 +43,9 @@ import ru.runa.wfe.user.User;
  */
 public class RelationLogic extends CommonLogic {
     @Autowired
-    private RelationDAO relationDAO;
+    private RelationDao relationDao;
     @Autowired
-    private RelationPairDAO relationPairDAO;
+    private RelationPairDao relationPairDao;
 
     /**
      * Add {@link RelationPair} to {@link Relation} with specified name.
@@ -61,9 +61,9 @@ public class RelationLogic extends CommonLogic {
      * @return Created relation pair.
      */
     public RelationPair addRelationPair(User user, Long relationId, Executor left, Executor right) {
-        permissionDAO.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
-        Relation relation = relationDAO.getNotNull(relationId);
-        return relationPairDAO.addRelationPair(relation, left, right);
+        permissionDao.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
+        Relation relation = relationDao.getNotNull(relationId);
+        return relationPairDao.addRelationPair(relation, left, right);
     }
 
     /**
@@ -75,13 +75,13 @@ public class RelationLogic extends CommonLogic {
      * @return Created relation.
      */
     public Relation createRelation(User user, Relation relation) {
-        permissionDAO.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
-        return relationDAO.create(relation);
+        permissionDao.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
+        return relationDao.create(relation);
     }
 
     public Relation updateRelation(User user, Relation relation) {
-        permissionDAO.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
-        return relationDAO.update(relation);
+        permissionDao.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
+        return relationDao.update(relation);
     }
 
     /**
@@ -110,8 +110,8 @@ public class RelationLogic extends CommonLogic {
      * @return List of {@link RelationPair}.
      */
     public List<RelationPair> getExecutorRelationPairsRight(User user, String relationName, List<? extends Executor> right) {
-        Relation relation = relationName != null ? relationDAO.getNotNull(relationName) : null;
-        return relationPairDAO.getExecutorsRelationPairsRight(relation, right);
+        Relation relation = relationName != null ? relationDao.getNotNull(relationName) : null;
+        return relationPairDao.getExecutorsRelationPairsRight(relation, right);
     }
 
     /**
@@ -126,8 +126,8 @@ public class RelationLogic extends CommonLogic {
      * @return List of {@link RelationPair}.
      */
     public List<RelationPair> getExecutorRelationPairsLeft(User user, String relationName, List<? extends Executor> left) {
-        Relation relation = relationName != null ? relationDAO.getNotNull(relationName) : null;
-        return relationPairDAO.getExecutorsRelationPairsLeft(relation, left);
+        Relation relation = relationName != null ? relationDao.getNotNull(relationName) : null;
+        return relationPairDao.getExecutorsRelationPairsLeft(relation, left);
     }
 
     public List<Relation> getRelationsContainingExecutorsOnLeft(User user, List<Executor> executors) {
@@ -152,7 +152,7 @@ public class RelationLogic extends CommonLogic {
      * @return Relation with specified name.
      */
     public Relation getRelation(User user, String relationName) {
-        return relationDAO.getNotNull(relationName);
+        return relationDao.getNotNull(relationName);
     }
 
     /**
@@ -165,7 +165,7 @@ public class RelationLogic extends CommonLogic {
      * @return Relation with specified name.
      */
     public Relation getRelation(User user, Long relationId) {
-        return relationDAO.getNotNull(relationId);
+        return relationDao.getNotNull(relationId);
     }
 
     /**
@@ -179,8 +179,8 @@ public class RelationLogic extends CommonLogic {
      *            Restrictions to get {@link RelationPair}.
      */
     public List<RelationPair> getRelations(User user, String relationName, BatchPresentation batchPresentation) {
-        Relation relation = relationDAO.getNotNull(relationName);
-        return relationPairDAO.getRelationPairs(relation, batchPresentation);
+        Relation relation = relationDao.getNotNull(relationName);
+        return relationPairDao.getRelationPairs(relation, batchPresentation);
     }
 
     /**
@@ -194,8 +194,8 @@ public class RelationLogic extends CommonLogic {
      *            Restrictions to get {@link RelationPair}.
      */
     public List<RelationPair> getRelations(User user, Long relationId, BatchPresentation batchPresentation) {
-        Relation relation = relationDAO.getNotNull(relationId);
-        return relationPairDAO.getRelationPairs(relation, batchPresentation);
+        Relation relation = relationDao.getNotNull(relationId);
+        return relationPairDao.getRelationPairs(relation, batchPresentation);
     }
 
     /**
@@ -207,9 +207,9 @@ public class RelationLogic extends CommonLogic {
      *            {@link RelationPair} identity.
      */
     public void removeRelationPair(User user, Long relationPairId) {
-        permissionDAO.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
-        RelationPair relationPair = relationPairDAO.getNotNull(relationPairId);
-        relationPairDAO.delete(relationPair);
+        permissionDao.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
+        RelationPair relationPair = relationPairDao.getNotNull(relationPairId);
+        relationPairDao.delete(relationPair);
     }
 
     /**
@@ -221,7 +221,7 @@ public class RelationLogic extends CommonLogic {
      *            Relation identity.
      */
     public void removeRelation(User user, Long relationId) {
-        permissionDAO.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
-        relationDAO.delete(relationId);
+        permissionDao.checkAllowed(user, Permission.ALL, SecuredSingleton.RELATIONS);
+        relationDao.delete(relationId);
     }
 }

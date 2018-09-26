@@ -17,9 +17,10 @@
  */
 package ru.runa.wfe.service.delegate;
 
+import ru.runa.wfe.var.file.FileVariableImpl;
+
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -34,12 +35,11 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
-import ru.runa.wfe.var.file.FileVariable;
 
 /**
  * Created on 28.09.2004
  */
-public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionService {
+public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionService {
 
     public ExecutionServiceDelegate() {
         super(ExecutionService.class);
@@ -176,7 +176,7 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public FileVariable getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
+    public FileVariableImpl getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
         try {
             return getExecutionService().getFileVariableValue(user, processId, variableName);
         } catch (Exception e) {
@@ -248,14 +248,24 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
+    public List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         try {
-            return getExecutionService().getSwimlanes(user, processId);
+            return getExecutionService().getProcessSwimlanes(user, processId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
+    @Override
+    public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern) {
+        return getExecutionService().getActiveProcessesSwimlanes(user, namePattern);
+    }
+    
+    @Override
+    public boolean reassignSwimlane(User user, Long id) {
+        return getExecutionService().reassignSwimlane(user, id);
+    }
+    
     @Override
     public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) throws ProcessDoesNotExistException {
         try {

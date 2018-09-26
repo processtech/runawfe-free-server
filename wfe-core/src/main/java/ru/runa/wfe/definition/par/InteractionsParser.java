@@ -23,7 +23,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.MultiTaskNode;
@@ -60,7 +60,7 @@ public class InteractionsParser implements ProcessArchiveParser {
     @Override
     public void readFromArchive(ProcessArchive archive, ProcessDefinition processDefinition) {
         try {
-            String formsFileName = IFileDataProvider.FORMS_XML_FILE_NAME;
+            String formsFileName = FileDataProvider.FORMS_XML_FILE_NAME;
             if (processDefinition instanceof SubprocessDefinition) {
                 formsFileName = processDefinition.getNodeId() + "." + formsFileName;
             }
@@ -68,7 +68,7 @@ public class InteractionsParser implements ProcessArchiveParser {
             if (formsXml == null) {
                 return;
             }
-            byte[] processScriptData = processDefinition.getFileData(IFileDataProvider.FORM_JS_FILE_NAME);
+            byte[] processScriptData = processDefinition.getFileData(FileDataProvider.FORM_JS_FILE_NAME);
             Document document = XmlUtils.parseWithoutValidation(formsXml);
             List<Element> formElements = document.getRootElement().elements(FORM_ELEMENT_NAME);
             for (Element formElement : formElements) {
@@ -96,7 +96,7 @@ public class InteractionsParser implements ProcessArchiveParser {
                 if (!Strings.isNullOrEmpty(scriptFileName)) {
                     formScriptData = processDefinition.getFileDataNotNull(scriptFileName);
                 }
-                byte[] css = processDefinition.getFileData(IFileDataProvider.FORM_CSS_FILE_NAME);
+                byte[] css = processDefinition.getFileData(FileDataProvider.FORM_CSS_FILE_NAME);
                 byte[] template = null;
                 if (!Strings.isNullOrEmpty(templateFileName)) {
                     template = processDefinition.getFileDataNotNull(templateFileName);

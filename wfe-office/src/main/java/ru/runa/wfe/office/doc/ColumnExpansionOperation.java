@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.runa.wfe.commons.TypeConversionUtil;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 
@@ -28,7 +28,7 @@ public class ColumnExpansionOperation extends AbstractIteratorOperation {
         }
     }
 
-    public String getStringValue(DocxConfig config, IVariableProvider variableProvider, Object key) {
+    public String getStringValue(DocxConfig config, VariableProvider variableProvider, Object key) {
         if (iterateBy == IterateBy.indexes) {
             return String.valueOf(key);
         }
