@@ -11,19 +11,20 @@ import javax.script.ScriptEngineManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.extension.handler.ParamsDef;
-import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.DateFormat;
 import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Sets;
 
 public class ConditionProcessor {
 
@@ -165,6 +166,8 @@ public class ConditionProcessor {
                 toAppend = "'" + obj + "'";
             } else if (obj instanceof Date) {
                 toAppend = String.valueOf(((Date) obj).getTime());
+            } else if (obj instanceof Executor) {
+                toAppend = "'" + ((Executor) obj).getName() + "'";
             } else {
                 toAppend = obj + "";
             }

@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.user.dao;
 
-import ru.runa.wfe.user.ExecutorLoader;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -46,6 +44,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.ExecutorGroupMembership;
+import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.QActor;
 import ru.runa.wfe.user.QExecutor;
