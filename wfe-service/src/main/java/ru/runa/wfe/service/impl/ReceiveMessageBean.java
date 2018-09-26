@@ -158,10 +158,13 @@ public class ReceiveMessageBean implements MessageListener {
                 Errors.addSystemError(new InternalApplicationException(errorMessage));
             } else {
                 try {
+                    transaction.begin();
                     Signal signal = new Signal(message);
                     log.debug("Rejecting message request " + messageString + ", persisting to " + signal);
                     signalDao.create(signal);
-                } catch (JMSException e) {
+                    transaction.commit();
+                } catch (Exception e) {
+                    Utils.rollbackTransaction(transaction);
                     Throwables.propagate(e);
                 }
             }
