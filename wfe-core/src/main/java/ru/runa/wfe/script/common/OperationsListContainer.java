@@ -17,6 +17,7 @@ import ru.runa.wfe.script.botstation.RemoveAllConfigurationsFromBotOperation;
 import ru.runa.wfe.script.botstation.RemoveConfigurationsFromBotOperation;
 import ru.runa.wfe.script.botstation.UpdateBotOperation;
 import ru.runa.wfe.script.botstation.UpdateBotStationOperation;
+import ru.runa.wfe.script.datasource.DeployDataSourceOperation;
 import ru.runa.wfe.script.executor.AddExecutorsToGroupOperation;
 import ru.runa.wfe.script.executor.CreateActorOperation;
 import ru.runa.wfe.script.executor.CreateGroupOperation;
@@ -74,12 +75,13 @@ public abstract class OperationsListContainer {
             @XmlElement(name = ReplicateBatchPresentationOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = ReplicateBatchPresentationOperation.class),
             @XmlElement(name = CustomOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = CustomOperation.class),
 
+            @XmlElement(name = DeployDataSourceOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = DeployDataSourceOperation.class),
+
             // Permissions manipulation:
             @XmlElement(name = AddPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = AddPermissionsOperation.class),
             @XmlElement(name = RemovePermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemovePermissionsOperation.class),
             @XmlElement(name = RemoveAllPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemoveAllPermissionsOperation.class),
-            @XmlElement(name = SetPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOperation.class),
-    })
+            @XmlElement(name = SetPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOperation.class) })
     public List<ScriptOperation> operations = Lists.newArrayList();
 
     /**

@@ -2,7 +2,6 @@ package ru.runa.wfe.office.doc;
 
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;

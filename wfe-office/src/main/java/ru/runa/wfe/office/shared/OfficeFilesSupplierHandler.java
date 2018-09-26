@@ -1,7 +1,6 @@
 package ru.runa.wfe.office.shared;
 
 import java.util.Map;
-
 import ru.runa.wf.logic.bot.BotFileDataProvider;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.execution.ExecutionContext;

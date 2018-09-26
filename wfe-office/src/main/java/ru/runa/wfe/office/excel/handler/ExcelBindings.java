@@ -1,18 +1,16 @@
 package ru.runa.wfe.office.excel.handler;
 
+import com.google.common.net.MediaType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.office.shared.FilesSupplierConfig;
 import ru.runa.wfe.var.VariableProvider;
-import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.file.FileVariable;
-
-import com.google.common.net.MediaType;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 public class ExcelBindings extends FilesSupplierConfig {
     private final List<ExcelBinding> bindings = new ArrayList<ExcelBinding>();

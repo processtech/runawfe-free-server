@@ -24,6 +24,7 @@ import ru.runa.wfe.service.AuditService;
 import ru.runa.wfe.service.AuthenticationService;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.BotService;
+import ru.runa.wfe.service.DataSourceService;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.ExecutorService;
@@ -116,4 +117,9 @@ public class Delegates {
     public static ReportService getReportService() {
         return getDelegate(ReportServiceDelegate.class);
     }
+
+    public static DataSourceService getDataSourceService() {
+        return getDelegate(DataSourceServiceDelegate.class);
+    }
+
 }

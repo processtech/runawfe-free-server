@@ -1,16 +1,14 @@
 package ru.runa.wfe.office.excel;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 
 public class ExcelDataStore {
     private static Map<Class<? extends ExcelConstraints>, Class<? extends ExcelStorable<?, ?>>> mappings = Maps.newHashMap();

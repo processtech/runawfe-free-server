@@ -1,14 +1,12 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.util.List;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 public class MergeDocxConfig extends DocxConfig {
     private final List<DocxInfo> inputFileInfos = Lists.newArrayList();

@@ -1,7 +1,7 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
@@ -9,8 +9,6 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.StringFormat;
-
-import com.google.common.collect.Maps;
 
 public class TestVariableProvider extends AbstractVariableProvider {
     private final Map<String, WfVariable> variables = Maps.newHashMap();

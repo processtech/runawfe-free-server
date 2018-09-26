@@ -23,9 +23,13 @@ public class MessagesOther {
     public static final StrutsMessage TITLE_IMPORT_DATAFILE = new StrutsMessage("managesystem.datafile.import.title");
     public static final StrutsMessage TITLE_EXPORT_DATAFILE = new StrutsMessage("managesystem.datafile.export.title");
     public static final StrutsMessage LABEL_DATAFILE_SET_PASSWORD = new StrutsMessage("managesystem.datafile.set.password.label");
+    public static final StrutsMessage LABEL_DATAFILE_SET_PASSWORD_DATA_SOURCE = new StrutsMessage("managesystem.datafile.set.password.datasource.label");
     public static final StrutsMessage LABEL_DATAFILE_CLEAR_PASSWORD = new StrutsMessage("managesystem.datafile.clear.password.label");
+    public static final StrutsMessage LABEL_DATAFILE_CLEAR_PASSWORD_DATA_SOURCE = new StrutsMessage("managesystem.datafile.clear.password.datasource.label");
     public static final StrutsMessage TITLE_DATAFILE_ACTION_PASSWORD = new StrutsMessage("managesystem.datafile.action.password.title");
+    public static final StrutsMessage TITLE_DATAFILE_ACTION_PASSWORD_DATA_SOURCE = new StrutsMessage("managesystem.datafile.action.password.datasource.title");
     public static final StrutsMessage TITLE_DATAFILE_PASSWORD = new StrutsMessage("managesystem.datafile.password.title");
+    public static final StrutsMessage TITLE_DATAFILE_PASSWORD_DATA_SOURCE = new StrutsMessage("managesystem.datafile.password.datasource.title");
     public static final StrutsMessage TITLE_DATAFILE = new StrutsMessage("managesystem.datafile.title");
     public static final StrutsMessage LABEL_DATAFILE_UPLOADONLY = new StrutsMessage("managesystem.datafile.uploadonly.label");
     public static final StrutsMessage LABEL_DATAFILE_CLEARBEFOREUPLOAD = new StrutsMessage("managesystem.datafile.clearbeforeupload.label");
@@ -35,6 +39,7 @@ public class MessagesOther {
     public static final StrutsMessage EXECUTOR_STATE_DONT_UPDATE = new StrutsMessage("executor.state.dont.update");
     public static final StrutsMessage IMPORT_DATA_SUCCESS = new StrutsMessage("import.data.success");
     public static final StrutsMessage ERROR_BLOCKED_FILE = new StrutsMessage("error.blocked.file");
+    public static final StrutsMessage ERROR_JDBC_STORE = new StrutsMessage("error.jdbc.store");
 
     public static final StrutsMessage LABEL_SYNCHRONIZE_LDAP = new StrutsMessage("label.synchronize.ldap");
     public static final StrutsMessage LABEL_IS_MISSED = new StrutsMessage("label.is.missed");
