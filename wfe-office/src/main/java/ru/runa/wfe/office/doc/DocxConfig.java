@@ -1,19 +1,16 @@
 package ru.runa.wfe.office.doc;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.office.shared.FilesSupplierConfig;
-import ru.runa.wfe.var.format.VariableFormat;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.net.MediaType;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.office.shared.FilesSupplierConfig;
+import ru.runa.wfe.var.format.VariableFormat;
 
 public class DocxConfig extends FilesSupplierConfig {
     public static final String PDF_EXTENSION = "pdf";

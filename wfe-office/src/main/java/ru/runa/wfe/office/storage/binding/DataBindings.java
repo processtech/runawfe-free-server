@@ -1,15 +1,13 @@
 package ru.runa.wfe.office.storage.binding;
 
+import com.google.common.net.MediaType;
 import java.util.ArrayList;
 import java.util.List;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.office.shared.FilesSupplierConfig;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.file.FileVariable;
-
-import com.google.common.net.MediaType;
 
 public class DataBindings extends FilesSupplierConfig {
 

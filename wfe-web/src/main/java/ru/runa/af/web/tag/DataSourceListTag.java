@@ -18,11 +18,9 @@
 package ru.runa.af.web.tag;
 
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.DeleteDataSourceAction;
 import ru.runa.af.web.html.DataSourceTableBuilder;
 import ru.runa.common.web.ConfirmationPopupHelper;

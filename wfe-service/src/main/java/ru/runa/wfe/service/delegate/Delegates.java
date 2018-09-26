@@ -17,10 +17,8 @@
  */
 package ru.runa.wfe.service.delegate;
 
-import java.util.Map;
-
 import com.google.common.collect.Maps;
-
+import java.util.Map;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.service.AuditService;
 import ru.runa.wfe.service.AuthenticationService;

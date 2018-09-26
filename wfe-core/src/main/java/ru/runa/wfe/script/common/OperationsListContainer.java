@@ -1,14 +1,11 @@
 package ru.runa.wfe.script.common;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
-
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.batch.ReplicateBatchPresentationOperation;
 import ru.runa.wfe.script.botstation.AddConfigurationsToBotOperation;

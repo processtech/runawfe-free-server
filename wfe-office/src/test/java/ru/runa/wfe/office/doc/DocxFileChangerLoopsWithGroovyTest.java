@@ -1,15 +1,13 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Test;
 import org.testng.collections.Lists;
-
-import com.google.common.collect.Maps;
 
 /**
  * @author Alekseev Vitaly

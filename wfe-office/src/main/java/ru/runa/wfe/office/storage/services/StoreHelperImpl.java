@@ -1,15 +1,12 @@
 package ru.runa.wfe.office.storage.services;
 
+import com.google.common.collect.Maps;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.office.storage.BlockedFileException;
 import ru.runa.wfe.office.storage.JdbcStoreException;

@@ -2,12 +2,10 @@ package ru.runa.wfe.office.excel;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-
 import ru.runa.wfe.office.excel.utils.ExcelHelper;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
