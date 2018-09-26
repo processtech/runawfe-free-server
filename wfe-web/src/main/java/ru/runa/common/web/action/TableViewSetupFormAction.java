@@ -157,6 +157,12 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
         } else if (TableViewSetupForm.SHARED_TYPE_NO.equals(tableViewSetupForm.getSharedType())) {
             batchPresentation.setShared(false);
         }
+        for (int fieldId : tableViewSetupForm.getExclusiveFilterIds()) {
+            FilterCriteria filterCriteria = batchPresentation.getFilteredFields().get(fieldId);
+            if (filterCriteria != null) {
+                filterCriteria.setExclusive(true);
+            }
+        }
     }
 
     public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {

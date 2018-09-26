@@ -295,16 +295,16 @@ public class HibernateCompilerHqlBuider {
             }
             if (field.filterMode == FieldFilterMode.DATABASE) {
                 StringBuilder filter = new StringBuilder();
-                String condition = entry.getValue().buildWhereCondition(
-                        field.dbSources[0].getValueDBPath(AccessType.FILTER, aliasMapping.getAlias(field)), placeholders);
-                filter.append("(").append(condition).append(")");
+                String condition = entry.getValue()
+                        .buildWhereCondition(field.dbSources[0].getValueDBPath(AccessType.FILTER, aliasMapping.getAlias(field)), placeholders);
+                filter.append(entry.getValue().isExclusive() ? " not " : "").append("(").append(condition).append(")");
                 result.add(filter.toString());
             }
             if (field.filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION) {
                 StringBuilder filter = new StringBuilder();
                 String condition = entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath(AccessType.FILTER, "subQuery"),
                         placeholders);
-                filter.append("(").append(ClassPresentation.classNameSQL).append(".id IN (SELECT ")
+                filter.append((entry.getValue().isExclusive() ? " not " : "") + "(").append(ClassPresentation.classNameSQL).append(".id IN (SELECT ")
                         .append(field.dbSources[0].getJoinExpression("subQuery")).append(" FROM ")
                         .append(field.dbSources[0].getSourceObject().getName()).append(" AS subQuery WHERE ").append(condition).append("))");
                 result.add(filter.toString());
@@ -419,8 +419,8 @@ public class HibernateCompilerHqlBuider {
                 isOrderByInheritance = true;
                 continue; // Fields with inheritance will be processed later
             }
-            query.append(needComma ? ", " : " ").append(
-                    sortedFields[i].dbSources[0].getValueDBPath(AccessType.ORDER, aliasMapping.getAlias(sortedFields[i])));
+            query.append(needComma ? ", " : " ")
+                    .append(sortedFields[i].dbSources[0].getValueDBPath(AccessType.ORDER, aliasMapping.getAlias(sortedFields[i])));
             query.append(fieldsToSortModes[i] ? " asc" : " desc");
             needComma = true;
         }
