@@ -29,6 +29,7 @@ public class FieldsSerializer {
     private static final String EXPANDED_BLOCKS = "blocks";
     private static final String INDEX_ATTR = "index";
     private static final String VALUE_ATTR = "value";
+    private static final String EXCLUSIVE_ATTR = "exclusive";
 
     public static BatchPresentationFields fromDataSafe(ClassPresentationType type, byte[] data) {
         try {
@@ -75,6 +76,7 @@ public class FieldsSerializer {
             for (Element tplElement : (List<Element>) element.elements(FILTER_TEMPLATE)) {
                 templates.add(tplElement.getText());
             }
+            criteria.setExclusive("true".equals(element.attributeValue(EXCLUSIVE_ATTR)));
             criteria.applyFilterTemplates(templates.toArray(new String[templates.size()]));
             fields.filters.put(key, criteria);
         }
@@ -119,6 +121,9 @@ public class FieldsSerializer {
             Element filterElement = filtersElement.addElement(I);
             filterElement.addAttribute(INDEX_ATTR, entry.getKey().toString());
             filterElement.addAttribute(FILTER_CLASS_ATTR, entry.getValue().getClass().getName());
+            if (entry.getValue().isExclusive()) {
+                filterElement.addAttribute(EXCLUSIVE_ATTR, "true");
+            }
             for (String template : entry.getValue().getFilterTemplates()) {
                 filterElement.addElement(FILTER_TEMPLATE).addText(template);
             }
