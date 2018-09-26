@@ -9,9 +9,16 @@ import lombok.val;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.Dialect;
 import org.springframework.transaction.annotation.Transactional;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.hibernate.HibernateUtil;
+import ru.runa.wfe.execution.NodeProcess;
+import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.var.Variable;
 
 @CommonsLog
 public class ProcessArchiver {
@@ -32,6 +39,9 @@ public class ProcessArchiver {
      * If false, execute() does nothing.
      */
     private boolean permanentFailure = false;
+
+    private Dialect dialect = null;
+    private DbType dbType = null;
 
     /**
      * Contains four "?" params:
@@ -68,7 +78,7 @@ public class ProcessArchiver {
         }
         try {
             log.info("Started");
-            generateSqlsOnce();
+            initializeOnce();
             currentTime = new Timestamp(System.currentTimeMillis());
             lastHandledProcessId = 0;
             totalProcessIdsHandled = 0;
@@ -82,20 +92,21 @@ public class ProcessArchiver {
         }
     }
 
-    private void generateSqlsOnce() {
-        if (sqlSelectRootProcessIds != null && sqlSelectSubProcessIds != null) {
+    private void initializeOnce() {
+        if (dialect != null && dbType != null && sqlSelectRootProcessIds != null && sqlSelectSubProcessIds != null) {
             return;
         }
 
-        Dialect dialect = ApplicationContextFactory.getDialect();
+        dialect = ApplicationContextFactory.getDialect();
         if (!dialect.supportsLimit()) {
             permanentFailure = true;
             throw new RuntimeException("Current database dialect " + dialect + " does not support LIMIT; ProcessArchiver disabled");
         }
 
         // There is no date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. Must fallback to SQL.
-        // And since this arithmetic is different for different SQL servers, have to switch on server type.
-        DbType dbType = ApplicationContextFactory.getDbType();
+        // And this arithmetic is different for different SQL servers.
+        dbType = ApplicationContextFactory.getDbType();
+
         int defaultSecondsBeforeArchiving = SystemProperties.getProcessDefaultSecondsBeforeArchiving();
 
         // Since we don't have true tree closure with (root_id, root_id, 0) record,
@@ -111,7 +122,7 @@ public class ProcessArchiver {
                 "      not exists (select s.process_id from bpm_subprocess s where s.process_id = p.id) and " +
                 // Check condition for root processes:
                 "      p.execution_status = 'ENDED' and " +
-                "      " + generateEndDateCheckExpression("d", "p.end_date", dbType, defaultSecondsBeforeArchiving) + " and " +
+                "      " + generateEndDateCheckExpression("d", "p.end_date", defaultSecondsBeforeArchiving) + " and " +
                 "      not exists (select t.process_id from bpm_task t where t.process_id = p.id) and " +
                 "      not exists (select j.process_id from bpm_job j where j.process_id = p.id) and " +
                 // Check no descendant processes exist that violate condition:
@@ -123,7 +134,7 @@ public class ProcessArchiver {
                 "          inner join bpm_process_definition d2 on (d2.id = dv2.definition_id) " +
                 "          where s2.root_process_id = p.id and (" +
                 "                p2.execution_status <> 'ENDED' or " +
-                "                not(" + generateEndDateCheckExpression("d2", "p2.end_date", dbType, defaultSecondsBeforeArchiving) + ") or " +
+                "                not(" + generateEndDateCheckExpression("d2", "p2.end_date", defaultSecondsBeforeArchiving) + ") or " +
                 "                exists (select t.process_id from bpm_task t where t.process_id = p2.id) or " +
                 "                exists (select j.process_id from bpm_job j where j.process_id = p2.id) " +
                 "          ) " +
@@ -144,7 +155,7 @@ public class ProcessArchiver {
      * @param definitionAlias E.g. "d".
      * @param endDateField E.g. "p.end_date" for process, or "t.end_date" for token.
      */
-    private String generateEndDateCheckExpression(String definitionAlias, String endDateField, DbType dbType, int defaultSecondsBeforeArchiving) {
+    private String generateEndDateCheckExpression(String definitionAlias, String endDateField, int defaultSecondsBeforeArchiving) {
         // COALESCE function is the same in all supported SQL servers.
         val seconds = "coalesce(" + definitionAlias + ".seconds_before_archiving, " + defaultSecondsBeforeArchiving + ")";
 
@@ -180,7 +191,7 @@ public class ProcessArchiver {
             q.setLong(1, lastHandledProcessId);
             q.setTimestamp(2, currentTime);
             q.setTimestamp(3, currentTime);
-            if (ApplicationContextFactory.getDialect().supportsVariableLimit()) {
+            if (dialect.supportsVariableLimit()) {
                 q.setInt(4, ROOT_PROCESS_IDS_PER_STEP);
             }
             val rs = q.executeQuery();
@@ -291,12 +302,12 @@ public class ProcessArchiver {
             }
         }
 
+        HibernateUtil.clearSecondLevelCaches(Process.class, NodeProcess.class, Token.class, Swimlane.class, ProcessLog.class, Variable.class);
         return true;
     }
 
     // TODO Inline this method if MSSQL works. I fixed issue by introducing DbMigration.ColumnDef.setPrimaryKeyNoAutoInc().
     private void doInsertSelect(Statement stmt, String archivedTableName, String sql) throws Exception {
-//        DbType dbType = ApplicationContextFactory.getDbType();
 //        if (dbType == DbType.MSSQL) {
 //            sql = "set identity_insert " + archivedTableName + " on; " +
 //                    sql +

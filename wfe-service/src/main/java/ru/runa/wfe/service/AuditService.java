@@ -49,7 +49,7 @@ public interface AuditService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public List<NodeGraphElement> getProcessHistoryDiagramElements(User user, Long processId, Long taskId, String subprocessId)
+    List<NodeGraphElement> getProcessHistoryDiagramElements(User user, Long processId, Long taskId, String subprocessId)
             throws ProcessDoesNotExistException;
 
     /**
@@ -64,7 +64,7 @@ public interface AuditService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public byte[] getProcessHistoryDiagram(User user, Long processId, Long taskId, String subprocessId) throws ProcessDoesNotExistException;
+    byte[] getProcessHistoryDiagram(User user, Long processId, Long taskId, String subprocessId) throws ProcessDoesNotExistException;
 
     /**
      * Gets process logs by filter.
@@ -75,7 +75,7 @@ public interface AuditService {
      *            process log filter
      * @return not <code>null</code>
      */
-    public ProcessLogs getProcessLogs(User user, ProcessLogFilter filter);
+    ProcessLogs getProcessLogs(User user, ProcessLogFilter filter);
 
     /**
      * Gets process log byte array value.
@@ -86,7 +86,7 @@ public interface AuditService {
      *            process log id
      * @return value or <code>null</code>
      */
-    public Object getProcessLogValue(User user, Long logId);
+    Object getProcessLogValue(User user, Long logId);
 
     /**
      * Gets system logs for {@link BatchPresentation}.
@@ -96,7 +96,7 @@ public interface AuditService {
      * @param batchPresentation
      * @return not <code>null</code>
      */
-    public List<SystemLog> getSystemLogs(User user, BatchPresentation batchPresentation);
+    List<SystemLog> getSystemLogs(User user, BatchPresentation batchPresentation);
 
     /**
      * Gets system log count for {@link BatchPresentation}.
@@ -106,5 +106,5 @@ public interface AuditService {
      * @param batchPresentation
      * @return not <code>null</code>
      */
-    public int getSystemLogsCount(User user, BatchPresentation batchPresentation);
+    int getSystemLogsCount(User user, BatchPresentation batchPresentation);
 }
