@@ -28,10 +28,11 @@ public class CurrentNodeProcessDao
         return queryFactory.selectFrom(np).where(np.subProcess.id.eq(subProcessId)).fetchFirst();
     }
 
-    public CurrentProcess getRootProcessByParentProcessId(long parentProcessId) {
+    public CurrentProcess getRootProcessByParentProcess(CurrentProcess parentProcess) {
         val p = QCurrentProcess.currentProcess;
         val np = QCurrentNodeProcess.currentNodeProcess;
-        return queryFactory.select(p).from(np).innerJoin(np.rootProcess, p).where(np.process.id.eq(parentProcessId)).fetchFirst();
+        val result = queryFactory.select(p).from(np).innerJoin(np.rootProcess, p).where(np.process.id.eq(parentProcess.getId())).fetchFirst();
+        return result != null ? result : parentProcess;
     }
 
     @Override

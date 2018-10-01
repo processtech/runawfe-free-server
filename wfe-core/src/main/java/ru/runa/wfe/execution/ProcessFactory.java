@@ -95,7 +95,7 @@ public class ProcessFactory {
     public CurrentProcess createSubprocess(ExecutionContext parentExecutionContext, ParsedProcessDefinition parsedProcessDefinition,
             Map<String, Object> variables, int index) {
         CurrentProcess parentProcess = parentExecutionContext.getCurrentProcess();
-        CurrentProcess rootProcess = currentNodeProcessDao.getRootProcessByParentProcessId(parentProcess.getId());
+        CurrentProcess rootProcess = currentNodeProcessDao.getRootProcessByParentProcess(parentProcess);
         Node subProcessNode = parentExecutionContext.getNode();
         ExecutionContext subExecutionContext = createProcessInternal(parsedProcessDefinition, variables, null, parentProcess, null);
         currentNodeProcessDao.create(new CurrentNodeProcess(subProcessNode, parentExecutionContext.getCurrentToken(), rootProcess,
