@@ -53,6 +53,11 @@ public class RedeployProcessDefinitionAction extends BaseDeployProcessDefinition
             throws IOException {
         byte[] data = Strings.isNullOrEmpty(fileForm.getFile().getFileName()) ? null : fileForm.getFile().getFileData();
         Long definitionVersionId = fileForm.getId();
+        if (secondsBeforeArchiving == null) {
+            // API does not change current value if we pass null;
+            // but form will show current value and user can edit / delete it, so if user deleted value, we must delete it too.
+            secondsBeforeArchiving = -1;
+        }
         WfDefinition definition = isUpdateCurrentVersion
                 ? Delegates.getDefinitionService().updateProcessDefinition(user, definitionVersionId, data)
                 : Delegates.getDefinitionService().redeployProcessDefinition(user, definitionVersionId, data, categories, secondsBeforeArchiving);

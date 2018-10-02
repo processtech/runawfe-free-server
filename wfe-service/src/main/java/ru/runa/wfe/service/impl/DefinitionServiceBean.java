@@ -84,8 +84,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
             @WebParam(name = "categories") List<String> categories,
             @WebParam(name = "secondsBeforeArchiving") Integer secondsBeforeArchiving
     ) {
-        return processDefinitionLogic.redeployProcessDefinition(user, processDefinitionVersionId, par, categories,
-                secondsBeforeArchiving == null ? -1 : secondsBeforeArchiving);
+        return processDefinitionLogic.redeployProcessDefinition(user, processDefinitionVersionId, par, categories, secondsBeforeArchiving);
     }
 
     @Override
