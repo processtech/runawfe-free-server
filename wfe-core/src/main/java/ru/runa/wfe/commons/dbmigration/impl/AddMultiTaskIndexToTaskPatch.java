@@ -13,6 +13,6 @@ public class AddMultiTaskIndexToTaskPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(getDDLCreateColumn("BPM_TASK", new ColumnDef("TASK_INDEX", dialect.getTypeName(Types.INTEGER), true)));
+        executeUpdates(getDDLCreateColumn("BPM_TASK", new ColumnDef("TASK_INDEX", dialect.getTypeName(Types.INTEGER), true)));
     }
 }

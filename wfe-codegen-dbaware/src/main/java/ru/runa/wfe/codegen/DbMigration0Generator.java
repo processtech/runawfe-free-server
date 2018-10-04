@@ -33,7 +33,7 @@ class DbMigration0Generator {
                 "    @Override\n" +
                 "    @SuppressWarnings(\"ConstantConditions\")\n" +
                 "    protected void executeDDLBefore() {\n" +
-                "        executeDDL(");
+                "        executeUpdates(");
 
 
         var firstSequence = true;

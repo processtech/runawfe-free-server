@@ -7,7 +7,7 @@ public class AddTokenErrorDataPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateColumn("BPM_TOKEN", new ColumnDef("ERROR_DATE", Types.TIMESTAMP)),
                 getDDLCreateColumn("BPM_TOKEN", new ColumnDef("ERROR_MESSAGE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)))
         );

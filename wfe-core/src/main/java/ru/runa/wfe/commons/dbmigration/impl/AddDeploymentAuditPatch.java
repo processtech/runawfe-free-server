@@ -14,7 +14,7 @@ public class AddDeploymentAuditPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("CREATE_USER_ID", dialect.getTypeName(Types.BIGINT), true)),
                 getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("UPDATE_DATE", dialect.getTypeName(Types.DATE), true)),
                 getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("UPDATE_USER_ID", dialect.getTypeName(Types.BIGINT), true))
@@ -28,7 +28,7 @@ public class AddDeploymentAuditPatch extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateForeignKey("BPM_PROCESS_DEFINITION", "FK_DEFINITION_CREATE_USER", "CREATE_USER_ID", "EXECUTOR", "ID"),
                 getDDLCreateForeignKey("BPM_PROCESS_DEFINITION", "FK_DEFINITION_UPDATE_USER", "UPDATE_USER_ID", "EXECUTOR", "ID")
         );

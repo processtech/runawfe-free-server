@@ -8,7 +8,7 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
 public class AddBatchPresentationIsSharedPatch extends DbMigration {
     @Override
     protected void executeDDLBefore() {
-        executeDDL(getDDLCreateColumn("BATCH_PRESENTATION", new ColumnDef("SHARED", dialect.getTypeName(Types.BIT), true)));
+        executeUpdates(getDDLCreateColumn("BATCH_PRESENTATION", new ColumnDef("SHARED", dialect.getTypeName(Types.BIT), true)));
     }
 
     @Override
@@ -19,6 +19,6 @@ public class AddBatchPresentationIsSharedPatch extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeDDL(getDDLModifyColumnNullability("BATCH_PRESENTATION", "SHARED", dialect.getTypeName(Types.BIT), false));
+        executeUpdates(getDDLModifyColumnNullability("BATCH_PRESENTATION", "SHARED", dialect.getTypeName(Types.BIT), false));
     }
 }

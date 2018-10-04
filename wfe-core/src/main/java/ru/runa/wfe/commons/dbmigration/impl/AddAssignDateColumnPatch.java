@@ -20,7 +20,7 @@ public class AddAssignDateColumnPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(getDDLCreateColumn("BPM_TASK", new ColumnDef("ASSIGN_DATE", dialect.getTypeName(Types.TIMESTAMP))));
+        executeUpdates(getDDLCreateColumn("BPM_TASK", new ColumnDef("ASSIGN_DATE", dialect.getTypeName(Types.TIMESTAMP))));
     }
 
     @Override

@@ -8,7 +8,7 @@ public class AddTransactionalBotSupport extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateColumn(TABLE_NAME, new ColumnDef("IS_TRANSACTIONAL", dialect.getTypeName(Types.BIT))),
                 getDDLCreateColumn(TABLE_NAME, new ColumnDef("TRANSACTIONAL_TIMEOUT", dialect.getTypeName(Types.BIGINT))),
                 getDDLCreateColumn(TABLE_NAME, new ColumnDef("BOUND_DUE_DATE", dialect.getTypeName(Types.TIMESTAMP))),

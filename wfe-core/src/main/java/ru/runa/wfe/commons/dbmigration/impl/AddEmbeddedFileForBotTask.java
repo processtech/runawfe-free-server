@@ -12,6 +12,6 @@ public class AddEmbeddedFileForBotTask extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(getDDLCreateColumn("BOT_TASK", new ColumnDef("EMBEDDED_FILE", Types.BLOB)));
+        executeUpdates(getDDLCreateColumn("BOT_TASK", new ColumnDef("EMBEDDED_FILE", Types.BLOB)));
     }
 }

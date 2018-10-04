@@ -127,7 +127,7 @@ public class RefactorPermissionsStep1 extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(
+        executeUpdates(
                 getDDLRenameTable("permission_mapping", "permission_mapping__old"),
                 getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("object_type", 32, true)),
                 getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("permission", 32, true)),
@@ -236,7 +236,7 @@ public class RefactorPermissionsStep1 extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeDDL(
+        executeUpdates(
                 getDDLDropTable("permission_mapping__old"),
                 getDDLCreateIndex("permission_mapping", "ix_permission_mapping_data", "executor_id", "object_type", "permission", "object_id"),
                 getDDLCreateForeignKey("permission_mapping", "fk_permission_executor", "executor_id", "executor", "id")

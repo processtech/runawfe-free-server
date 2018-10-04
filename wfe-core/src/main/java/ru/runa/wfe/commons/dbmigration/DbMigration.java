@@ -3,6 +3,7 @@ package ru.runa.wfe.commons.dbmigration;
 import com.google.common.base.Joiner;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +20,6 @@ import org.hibernate.dialect.Dialect;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
-import ru.runa.wfe.commons.ManualTransactionManager;
 
 /**
  * Base class for database migration (which are applied at startup).
@@ -33,39 +33,30 @@ public abstract class DbMigration {
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
     protected final DbType dbType = ApplicationContextFactory.getDbType();
 
-    private ThreadLocal<String> currentDDLLogMessagePrefix = new ThreadLocal<>();
+    private ThreadLocal<String> currentCategory = new ThreadLocal<>();
+    private ThreadLocal<Session> currentSession = new ThreadLocal<>();
 
     @Autowired
-    private ManualTransactionManager txManager;
-    @Autowired
-    private SessionFactory sessionFactory;
+    protected SessionFactory sessionFactory;
 
-    final void execute() throws Exception {
-        val dbType = ApplicationContextFactory.getDbType();
+    public void execute() throws Exception {
         try {
-            currentDDLLogMessagePrefix.set("[DDLBefore]");
+            Session session = sessionFactory.getCurrentSession();
+            currentSession.set(session);
+
+            currentCategory.set("[DDLBefore]");
             executeDDLBefore();
 
-            val runnable = new ManualTransactionManager.TxRunnable() {
-                @Override
-                public void run(Connection conn) throws Exception {
-                    val session = sessionFactory.getCurrentSession();
-                    session.setCacheMode(CacheMode.IGNORE);
-                    executeDML(session);
-                    session.flush();
-                }
-            };
-            if (dbType.hasTransactionalDDL) {
-                // We are already inside transaction started by DbMigrationManager.
-                runnable.run(null);
-            } else {
-                txManager.runInTransaction(runnable);
-            }
+            currentCategory.set(null);
+            session.setCacheMode(CacheMode.IGNORE);
+            executeDML(session);
+            session.flush();
 
-            currentDDLLogMessagePrefix.set("[DDLAfter]");
+            currentCategory.set("[DDLAfter]");
             executeDDLAfter();
         } finally {
-            currentDDLLogMessagePrefix.set(null);
+            currentCategory.set(null);
+            currentSession.set(null);
         }
     }
 
@@ -136,6 +127,16 @@ public abstract class DbMigration {
         }
     }
 
+    private int executeOneUpdate(Statement stmt, String category, String query, int lastResult) throws SQLException {
+        if (StringUtils.isBlank(query)) {
+            return lastResult;
+        }
+        if (category != null) {
+            log.info(category + ": " + query);
+        }
+        return stmt.executeUpdate(query);
+    }
+
     /**
      * Helper for subclasses, for executeDML() method.
      *
@@ -143,14 +144,12 @@ public abstract class DbMigration {
      */
     protected final int executeUpdates(String... queries) {
         try {
-            val conn = ApplicationContextFactory.getSessionFactory().getCurrentSession().connection();
-            val category = currentDDLLogMessagePrefix.get();
+            val conn = currentSession.get().connection();
+            val category = currentCategory.get();
             try (val stmt = conn.createStatement()) {
                 int result = 0;
                 for (val q : queries) {
-                    if (!StringUtils.isBlank(q)) {
-                        result = stmt.executeUpdate(q);
-                    }
+                    result = executeOneUpdate(stmt, category, q, result);
                 }
                 return result;
             }
@@ -161,45 +160,26 @@ public abstract class DbMigration {
 
     /**
      * Helper for subclasses, for executeDDL...() methods.
+     *
+     * @return Result of last update.
      */
     @SafeVarargs
-    protected final void executeDDL(List<String>... queries) {
+    protected final int executeUpdates(List<String>... queries) {
         try {
-            val dbType = ApplicationContextFactory.getDbType();
-            val logMessagePrefix = currentDDLLogMessagePrefix.get();
-            if (dbType.hasTransactionalDDL) {
-                // We are already inside transaction started by DbMigrationManager.
-
-                val conn = ApplicationContextFactory.getSessionFactory().getCurrentSession().connection();
-                try (val stmt = conn.createStatement()) {
-                    for (val qq : queries) {
-                        if (qq != null) {
-                            for (val q : qq) {
-                                if (!StringUtils.isBlank(q)) {
-                                    log.info(logMessagePrefix + ": " + q);
-                                    stmt.executeUpdate(q);
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                // Run each DDL in separate transaction. ManualTransactionManager.runOneDDLInTransaction() handles Oracle in a special way.
-
+            val conn = currentSession.get().connection();
+            val category = currentCategory.get();
+            try (val stmt = conn.createStatement()) {
+                int result = 0;
                 for (val qq : queries) {
                     if (qq != null) {
                         for (val q : qq) {
-                            if (!StringUtils.isBlank(q)) {
-                                log.info(logMessagePrefix + ": " + q);
-                                txManager.runOneDDLInTransaction(q);
-                            }
+                            result = executeOneUpdate(stmt, category, q, result);
                         }
                     }
                 }
+                return result;
             }
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

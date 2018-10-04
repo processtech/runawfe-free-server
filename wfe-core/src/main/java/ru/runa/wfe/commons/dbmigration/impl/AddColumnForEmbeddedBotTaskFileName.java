@@ -7,6 +7,6 @@ public class AddColumnForEmbeddedBotTaskFileName extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(getDDLCreateColumn("BOT_TASK", new ColumnDef("EMBEDDED_FILE_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))));
+        executeUpdates(getDDLCreateColumn("BOT_TASK", new ColumnDef("EMBEDDED_FILE_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))));
     }
 }

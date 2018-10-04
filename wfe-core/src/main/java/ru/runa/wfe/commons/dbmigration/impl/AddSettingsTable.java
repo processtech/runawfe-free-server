@@ -7,7 +7,7 @@ public class AddSettingsTable extends DbMigration {
     @Override
     @SuppressWarnings("ConstantConditions")
     protected void executeDDLBefore() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateTable("BPM_SETTING", list(
                         new BigintColumnDef("ID", false).setPrimaryKey(),
                         new VarcharColumnDef("FILE_NAME", 1024, false),

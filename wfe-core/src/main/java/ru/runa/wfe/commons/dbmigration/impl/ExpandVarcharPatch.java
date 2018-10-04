@@ -6,7 +6,7 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
 public class ExpandVarcharPatch extends DbMigration {
     @Override
     protected void executeDDLBefore() {
-        executeDDL(
+        executeUpdates(
                 getDDLModifyColumn("BATCH_PRESENTATION", "CATEGORY", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)),
                 getDDLModifyColumn("BATCH_PRESENTATION", "CLASS_TYPE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)),
                 getDDLModifyColumn("BATCH_PRESENTATION", "NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)),

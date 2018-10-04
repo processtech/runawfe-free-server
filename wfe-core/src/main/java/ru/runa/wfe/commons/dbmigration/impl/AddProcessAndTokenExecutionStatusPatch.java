@@ -11,7 +11,7 @@ public class AddProcessAndTokenExecutionStatusPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateColumn("BPM_PROCESS", new ColumnDef("EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255))),
                 getDDLCreateColumn("BPM_TOKEN", new ColumnDef("EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255)))
         );
@@ -27,7 +27,7 @@ public class AddProcessAndTokenExecutionStatusPatch extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeDDL(
+        executeUpdates(
                 getDDLModifyColumnNullability("BPM_PROCESS", "EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false),
                 getDDLModifyColumnNullability("BPM_TOKEN", "EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false)
         );

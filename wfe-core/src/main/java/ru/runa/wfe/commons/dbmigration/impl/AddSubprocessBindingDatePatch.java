@@ -7,6 +7,6 @@ public class AddSubprocessBindingDatePatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("SUBPROCESS_BINDING_DATE", dialect.getTypeName(Types.TIMESTAMP))));
+        executeUpdates(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("SUBPROCESS_BINDING_DATE", dialect.getTypeName(Types.TIMESTAMP))));
     }
 }

@@ -25,8 +25,7 @@ public class DbMigrationManager {
         private HashSet<String> appliedMigrationNames = null;
         private Integer oldDbVersion = null;
 
-        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-        boolean isDbInitialized() {
+        public boolean isDbInitialized() {
             return appliedMigrationNames != null || oldDbVersion != null;
         }
     }
@@ -129,38 +128,36 @@ public class DbMigrationManager {
             ctx.oldDbVersion = queryOldDbVersion();
         }
 
-        val dbType = ApplicationContextFactory.getDbType();
-
         // If table DB_MIGRATION does not exist, create it and populate with migrations already applied,
         // using old DB "version" stored in WFE_CONSTANTS. From now on, this old "version" won't be neither used nor updated.
         if (ctx.appliedMigrationNames == null) {
             log.info("First run detected, creating and populating table DB_MIGRATION...");
-
-            // TODO Remove oldDbVersion in WFE 5. Migrations already applied must be inserted by DbMigration0.
-            if (ctx.oldDbVersion == null) {
-                throw new Exception("Could not retrieve legacy DB version from WFE_CONSTANTS");
-            }
-            if (ctx.oldDbVersion > migrations.size()) {
-                throw new Exception("dbVersion " + ctx.oldDbVersion + " > migrations.size() " + migrations.size());
-            }
-
-            String sqlTimestampTypeName;
-            switch (dbType) {
-                case MSSQL:
-                    sqlTimestampTypeName = "datetime";
-                    break;
-                default:
-                    sqlTimestampTypeName = "timestamp";
-            }
-            txManager.runOneDDLInTransaction("create table db_migration (" +
-                    "name varchar(255) not null primary key, " +
-                    "when_started " + sqlTimestampTypeName + " not null, " +
-                    "when_finished " + sqlTimestampTypeName +
-                    ")");
-
             txManager.runInTransaction(new TxRunnable() {
                 @Override
                 public void run(Connection conn) throws Exception {
+
+                    String sqlTimestampTypeName;
+                    switch (ApplicationContextFactory.getDbType()) {
+                        case MSSQL:
+                            sqlTimestampTypeName = "datetime";
+                            break;
+                        default:
+                            sqlTimestampTypeName = "timestamp";
+                    }
+                    executeUpdates(conn, "create table db_migration (" +
+                            "name varchar(255) not null primary key, " +
+                            "when_started " + sqlTimestampTypeName + " not null, " +
+                            "when_finished " + sqlTimestampTypeName +
+                            ")");
+
+                    // TODO Remove in WFE 5. Migrations already applied must be inserted by DbMigration0.
+                    if (ctx.oldDbVersion == null) {
+                        throw new Exception("Could not retrieve legacy DB version from WFE_CONSTANTS");
+                    }
+                    if (ctx.oldDbVersion > migrations.size()) {
+                        throw new Exception("dbVersion " + ctx.oldDbVersion + " > migrations.size() " + migrations.size());
+                    }
+
                     ctx.appliedMigrationNames = new HashSet<>();
                     val now = new Timestamp(System.currentTimeMillis());
                     try (val stmt = conn.prepareStatement("insert into db_migration (name, when_started, when_finished) values (?, ?, ?)")) {
@@ -202,22 +199,16 @@ public class DbMigrationManager {
             txManager.runInTransaction(new TxRunnable() {
                 @Override
                 public void run(Connection conn) throws Exception {
+                    // No reason to split single insert into insert + update(when_finished) both performed in single transaction for PostgreSQL,
+                    // but Oracle does not have transactional DDL. TODO Or maybe perform this first insert in separate transaction?
                     try (val stmt = conn.prepareStatement("insert into db_migration (name, when_started) values (?, ?)")) {
                         stmt.setString(1, name);
                         stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
                         stmt.executeUpdate();
                     }
-                }
-            });
-            if (!dbType.hasTransactionalDDL) {
-                migration.execute();
-            }
-            txManager.runInTransaction(new TxRunnable() {
-                @Override
-                public void run(Connection conn) throws Exception {
-                    if (dbType.hasTransactionalDDL) {
-                        migration.execute();
-                    }
+
+                    migration.execute();
+
                     try (val stmt = conn.prepareStatement("update db_migration set when_finished = ? where name = ?")) {
                         stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
                         stmt.setString(2, name);
@@ -225,7 +216,6 @@ public class DbMigrationManager {
                     }
                 }
             });
-
             ctx.appliedMigrationNames.add(name);
             appliedNow.add(migration);
         }

@@ -18,7 +18,7 @@ public class DbMigration0 extends DbMigration {
     @Override
     @SuppressWarnings("ConstantConditions")
     protected void executeDDLBefore() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateSequence("seq_admin_script"),
                 getDDLCreateSequence("seq_batch_presentation"),
                 getDDLCreateSequence("seq_bot"),

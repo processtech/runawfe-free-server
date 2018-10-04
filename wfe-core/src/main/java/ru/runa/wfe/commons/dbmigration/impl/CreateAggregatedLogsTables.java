@@ -19,7 +19,7 @@ public class CreateAggregatedLogsTables extends DbMigration {
      * Creates table, indexes e.t.c for {@link AssignmentHistory}.
      */
     private void createAssignmentHistoryTable() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateTable("BPM_AGGLOG_ASSIGNMENTS", list(
                         new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
                         new ColumnDef("DISCRIMINATOR", dialect.getTypeName(Types.CHAR, 1, 1, 1), false),
@@ -40,7 +40,7 @@ public class CreateAggregatedLogsTables extends DbMigration {
      * Creates table, indexes e.t.c for {@link TaskAggregatedLog}.
      */
     private void createTaskHistoryTable() {
-        executeDDL(
+        executeUpdates(
             getDDLCreateTable("BPM_AGGLOG_TASKS", list(
                     new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
                     new ColumnDef("TASK_ID", dialect.getTypeName(Types.BIGINT), false),
@@ -67,7 +67,7 @@ public class CreateAggregatedLogsTables extends DbMigration {
      * Creates table, indexes e.t.c for {@link ProcessInstanceAggregatedLog}.
      */
     private void createProcessHistoryTable() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateTable("BPM_AGGLOG_PROCESS", list(
                         new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
                         new ColumnDef("PROCESS_ID", dialect.getTypeName(Types.BIGINT), false),

@@ -13,7 +13,30 @@ public class SplitProcessDefinitionVersion extends DbMigration {
     @Override
     @SuppressWarnings("ConstantConditions")
     protected void executeDDLBefore() {
-        executeDDL(
+
+        // Table BPM_PROCESS_DEFINITION does not have UK(name, version), so perform sanity check first.
+        @SuppressWarnings("unchecked")
+        List<Object[]> duplicates = sessionFactory.getCurrentSession()
+                .createSQLQuery("select name, version, count(*) from bpm_process_definition group by name, version having count(*) > 1")
+                .list();
+        if (!duplicates.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Duplicated (name,version): ");
+            boolean first = true;
+            for (Object[] row : duplicates) {
+                String name = (String) row[0];
+                Long version = (Long) row[1];
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append(", ");
+                }
+                sb.append("(").append(name).append(",").append(version).append(")");
+            }
+            throw new RuntimeException(sb.toString());
+        }
+
+        executeUpdates(
                 // I want to avoid sequence setval(), since some SQL servers don't have sequences. So I rename table and secuence instead.
                 getDDLRenameTable("bpm_process_definition", "bpm_process_definition_ver"),
                 getDDLRenameSequence("seq_bpm_process_definition", "seq_bpm_process_definition_ver"),
@@ -91,7 +114,7 @@ public class SplitProcessDefinitionVersion extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeDDL(
+        executeUpdates(
                 getDDLDropColumn("bpm_process_definition_ver", "name"),
                 getDDLDropColumn("bpm_process_definition_ver", "language"),
                 getDDLDropColumn("bpm_process_definition_ver", "description"),

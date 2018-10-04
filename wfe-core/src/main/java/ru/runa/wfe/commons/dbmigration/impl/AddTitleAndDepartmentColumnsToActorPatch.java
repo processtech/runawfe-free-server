@@ -7,7 +7,7 @@ public class AddTitleAndDepartmentColumnsToActorPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeDDL(
+        executeUpdates(
                 getDDLCreateColumn("EXECUTOR", new ColumnDef("TITLE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))),
                 getDDLCreateColumn("EXECUTOR", new ColumnDef("DEPARTMENT", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))),
                 getDDLModifyColumn("EXECUTOR", "PHONE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))
