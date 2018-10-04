@@ -12,6 +12,6 @@ public class TaskEndDateRemovalPatch extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeUpdates(getDDLDropColumn("BPM_TASK", "END_DATE"));
+        executeDDL(getDDLDropColumn("BPM_TASK", "END_DATE"));
     }
 }

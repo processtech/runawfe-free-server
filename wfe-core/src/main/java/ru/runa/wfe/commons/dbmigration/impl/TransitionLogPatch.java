@@ -88,6 +88,6 @@ public class TransitionLogPatch extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeUpdates(getDDLDropTable("JBPM_PASSTRANS"));
+        executeDDL(getDDLDropTable("JBPM_PASSTRANS"));
     }
 }

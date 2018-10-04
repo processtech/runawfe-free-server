@@ -27,14 +27,14 @@ public class CreateReportsTables extends DbMigration implements DbMigrationPostP
     protected void executeDDLBefore() {
         createReportParametersTable();
         createReportsTable();
-        executeUpdates(getDDLCreateForeignKey("REPORT_PARAMETER", "FK_REPORT_PARAMETER_REPORT", "REPORT_ID", "REPORT", "ID"));
+        executeDDL(getDDLCreateForeignKey("REPORT_PARAMETER", "FK_REPORT_PARAMETER_REPORT", "REPORT_ID", "REPORT", "ID"));
     }
 
     /**
      * Creates table, indexes e.t.c for {@link ReportParameter}.
      */
     private void createReportParametersTable() {
-        executeUpdates(
+        executeDDL(
                 getDDLCreateTable("REPORT_PARAMETER", list(
                         new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
                         new ColumnDef("REPORT_ID", Types.BIGINT, false),
@@ -54,7 +54,7 @@ public class CreateReportsTables extends DbMigration implements DbMigrationPostP
      * @return Returns list of sql commands for table creation.
      */
     private void createReportsTable() {
-        executeUpdates(
+        executeDDL(
                 getDDLCreateTable("REPORT", list(
                         new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
                         new ColumnDef("VERSION", Types.BIGINT, false),

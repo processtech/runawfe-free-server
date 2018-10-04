@@ -35,7 +35,7 @@ public class PerformancePatch401 extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(
+        executeDDL(
                 getDDLCreateColumn("PERMISSION_MAPPING", new ColumnDef("TYPE_ID", Types.BIGINT)),
                 getDDLDropColumn("PERMISSION_MAPPING", "VERSION")
         );
@@ -43,7 +43,7 @@ public class PerformancePatch401 extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeUpdates(
+        executeDDL(
                 getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_IDENTIFIABLE_ID"),
                 getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_TYPE"),
                 getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_EXECUTOR"),
@@ -55,7 +55,7 @@ public class PerformancePatch401 extends DbMigration {
         if (dbType == DbType.MSSQL) {
             executeUpdates("CREATE NONCLUSTERED INDEX IX_VARIABLE_NAME ON BPM_VARIABLE (NAME) INCLUDE (PROCESS_ID, STRINGVALUE)");
         } else {
-            executeUpdates(getDDLCreateIndex("BPM_VARIABLE", "IX_VARIABLE_NAME", "NAME"));
+            executeDDL(getDDLCreateIndex("BPM_VARIABLE", "IX_VARIABLE_NAME", "NAME"));
         }
     }
 

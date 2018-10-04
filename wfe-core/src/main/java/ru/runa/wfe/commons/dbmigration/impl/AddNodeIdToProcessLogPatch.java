@@ -19,7 +19,7 @@ public class AddNodeIdToProcessLogPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(getDDLCreateColumn("BPM_LOG", new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true)));
+        executeDDL(getDDLCreateColumn("BPM_LOG", new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true)));
     }
 
     @Override

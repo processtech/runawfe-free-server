@@ -9,7 +9,7 @@ public class RenameSequences extends DbMigration {
 
     @Override
     public void executeDDLBefore() {
-        executeUpdates(
+        executeDDL(
                 getDDLRenameSequence("SEQ_EXECUTOR_RELATION", "SEQ_EXECUTOR_RELATION_PAIR"),
                 getDDLRenameSequence("SEQ_RELATION_GROUP", "SEQ_EXECUTOR_RELATION")
         );

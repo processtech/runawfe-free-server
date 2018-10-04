@@ -1,5 +1,6 @@
 package ru.runa.wfe.commons;
 
+import lombok.RequiredArgsConstructor;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
@@ -7,7 +8,14 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
  * 
  * @author Dofs
  */
+@RequiredArgsConstructor
 public enum DbType {
-    // TODO Delete MYSQL in WFE 5. BTW it does not work in WFE 4 anyway, see comment inside JbpmRefactoringPatch.
-    HSQL, ORACLE, POSTGRESQL, MSSQL, MYSQL, H2
+    H2(false),
+    HSQL(false),
+    MSSQL(false),
+    MYSQL(false),  // TODO Delete in WFE 5. BTW it does not work in WFE 4 anyway, see comment inside JbpmRefactoringPatch.
+    ORACLE(false),
+    POSTGRESQL(true);
+
+    public final boolean hasTransactionalDDL;
 }

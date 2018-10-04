@@ -19,6 +19,10 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 public class ManualTransactionManager {
 
     public static abstract class TxBase {
+
+        /**
+         * Helper for subclasses.
+         */
         protected final int executeUpdates(Connection conn, String... sqls) throws SQLException {
             try (Statement stmt = conn.createStatement()) {
                 int result = 0;
@@ -55,7 +59,10 @@ public class ManualTransactionManager {
     }
 
 
-    public <R> R callInTransaction(TxCallable<R> callable) throws Exception {
+    /**
+     * @param noCommit Against Oracle error "ORA-02089: COMMIT is not allowed in a subordinate session", see #706.
+     */
+    private <R> R impl(TxCallable<R> callable, boolean noCommit) throws Exception {
         R result;
         TransactionStatus txStatus = txManager.getTransaction(txDefinition);
         try {
@@ -64,17 +71,39 @@ public class ManualTransactionManager {
             txManager.rollback(txStatus);
             throw e;
         }
-        txManager.commit(txStatus);
+        if (!noCommit) {
+            txManager.commit(txStatus);
+        }
         return result;
     }
 
+    public <R> R callInTransaction(TxCallable<R> callable) throws Exception {
+        return impl(callable, false);
+    }
+
     public void runInTransaction(TxRunnable runnable) throws Exception {
-        callInTransaction(new TxCallable<Object>() {
+        impl(new TxCallable<Object>() {
             @Override
             public Object call(Connection conn) throws Exception {
                 runnable.run(conn);
                 return null;
             }
-        });
+        }, false);
+    }
+
+    /**
+     * Against Oracle error "ORA-02089: COMMIT is not allowed in a subordinate session", see #706.
+     */
+    public void runOneDDLInTransaction(String sql) throws Exception {
+        boolean noCommit = ApplicationContextFactory.getDbType() == DbType.ORACLE;
+        impl(new TxCallable<Object>() {
+            @Override
+            public Object call(Connection conn) throws Exception {
+                try (Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate(sql);
+                }
+                return null;
+            }
+        }, noCommit);
     }
 }

@@ -12,7 +12,7 @@ public class AddParentProcessIdPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(getDDLCreateColumn("BPM_PROCESS", new ColumnDef("PARENT_ID", Types.BIGINT)));
+        executeDDL(getDDLCreateColumn("BPM_PROCESS", new ColumnDef("PARENT_ID", Types.BIGINT)));
     }
 
     @Override

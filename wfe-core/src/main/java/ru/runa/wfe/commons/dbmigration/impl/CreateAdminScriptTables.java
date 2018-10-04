@@ -15,7 +15,7 @@ public class CreateAdminScriptTables extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(
+        executeDDL(
                 getDDLCreateTable("ADMIN_SCRIPT", list(
                         new BigintColumnDef("ID", false).setPrimaryKey(),
                         new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false),

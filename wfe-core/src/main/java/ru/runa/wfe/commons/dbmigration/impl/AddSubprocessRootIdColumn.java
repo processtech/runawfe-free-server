@@ -13,7 +13,7 @@ public class AddSubprocessRootIdColumn extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(
+        executeDDL(
                 // First, add new column as nullable.
                 getDDLCreateColumn("bpm_subprocess", new BigintColumnDef("root_process_id", true))
         );
@@ -62,7 +62,7 @@ public class AddSubprocessRootIdColumn extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeUpdates(
+        executeDDL(
                 // Last, alter column to be not-null.
                 getDDLModifyColumnNullability("bpm_subprocess", "root_process_id", dialect.getTypeName(Types.BIGINT), false),
                 getDDLCreateForeignKey("bpm_subprocess", "fk_subprocess_root", "root_process_id", "bpm_process", "id")

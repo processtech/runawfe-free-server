@@ -23,12 +23,12 @@ public class TaskOpenedByExecutorsPatch extends DbMigration {
 
     @Override
     protected void executeDDLAfter() {
-        executeUpdates(getDDLDropColumn("BPM_TASK", "FIRST_OPEN"));
+        executeDDL(getDDLDropColumn("BPM_TASK", "FIRST_OPEN"));
     }
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(
+        executeDDL(
                 getDDLCreateTable("BPM_TASK_OPENED", list(
                         new ColumnDef("TASK_ID", Types.BIGINT, false),
                         new ColumnDef("EXECUTOR_ID", Types.BIGINT, false)

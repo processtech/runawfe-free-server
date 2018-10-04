@@ -46,7 +46,7 @@ public class JbpmRefactoringPatch extends DbMigration {
         System.out.println("handleManualIndexes = " + handleManualIndexes);
         // "MySQL DB update to version RunaWFE4.x is not supported because of mass column (which are foreign keys) renames [Error on rename of (errno: 150)]"
 
-        executeUpdates(
+        executeDDL(
                 // removed unused tables and columns
                 getDDLDropTable("PROPERTY_IDS"),
                 getDDLDropTable("JBPM_TASKACTORPOOL"),
@@ -241,11 +241,11 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLCreateForeignKey("BPM_SWIMLANE", "FK_SWIMLANE_EXECUTOR", "EXECUTOR_ID", "EXECUTOR", "ID")
         );
         if (handleManualIndexes) {
-            executeUpdates(getDDLDropIndex("BPM_SWIMLANE", getObjectName("IDX_SWIMLINST_TASKMGMTINST")));
+            executeDDL(getDDLDropIndex("BPM_SWIMLANE", getObjectName("IDX_SWIMLINST_TASKMGMTINST")));
         }
 
         // ru.runa.wfe.task.Task
-        executeUpdates(
+        executeDDL(
                 getDDLRenameTable("JBPM_TASKINSTANCE", "BPM_TASK"),
                 getDDLDropColumn("BPM_TASK", "ISBLOCKING_"),
                 getDDLDropColumn("BPM_TASK", "PRIORITY_"),
@@ -280,9 +280,9 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLCreateForeignKey("BPM_TASK", "FK_TASK_EXECUTOR", "EXECUTOR_ID", "EXECUTOR", "ID")
         );
         if (handleManualIndexes) {
-            executeUpdates(getDDLDropIndex("BPM_TASK", getObjectName("IDX_TASKINST_ACTOREND")));
+            executeDDL(getDDLDropIndex("BPM_TASK", getObjectName("IDX_TASKINST_ACTOREND")));
         }
-        executeUpdates(
+        executeDDL(
                 getDDLDropIndex("BPM_TASK", getObjectName("IDX_TASK_ACTORID")),
                 getDDLDropIndex("BPM_TASK", getObjectName("IDX_TSKINST_TMINST")),
         
@@ -293,9 +293,9 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLRenameColumn("BPM_LOG", "CLASS_", new ColumnDef("DISCRIMINATOR", Types.CHAR))
         );
         if (handleManualIndexes && !Strings.isNullOrEmpty(getObjectName("LOG_TOKEN_IDX"))) {
-            executeUpdates(getDDLDropIndex("BPM_LOG", getObjectName("LOG_TOKEN_IDX")));
+            executeDDL(getDDLDropIndex("BPM_LOG", getObjectName("LOG_TOKEN_IDX")));
         }
-        executeUpdates(
+        executeDDL(
                 getDDLDropColumn("BPM_LOG", "INDEX_"),
                 getDDLRenameColumn("BPM_LOG", "DATE_", new ColumnDef("LOG_DATE", Types.DATE)),
                 getDDLDropForeignKey("BPM_LOG", getObjectName("FK_LOG_TOKEN")),
@@ -389,9 +389,9 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLDropForeignKey("BPM_VARIABLE", getObjectName("FK_VAR_TSKINST"))
         );
         if (handleManualIndexes) {
-            executeUpdates(getDDLDropIndex("BPM_VARIABLE", getObjectName("IDX_VARINST_TASKINST")));
+            executeDDL(getDDLDropIndex("BPM_VARIABLE", getObjectName("IDX_VARINST_TASKINST")));
         }
-        executeUpdates(
+        executeDDL(
                 getDDLDropColumn("BPM_VARIABLE", "TASKINSTANCE_"),
                 getDDLDropColumn("BPM_VARIABLE", "STRINGIDCLASS_"),
                 getDDLDropColumn("BPM_VARIABLE", "LONGIDCLASS_"),
@@ -442,7 +442,7 @@ public class JbpmRefactoringPatch extends DbMigration {
     @Override
     protected void executeDDLAfter() {
         if (jbpmIdTablesExist) {
-            executeUpdates(
+            executeDDL(
                     getDDLDropTable("JBPM_ID_MEMBERSHIP"),
                     getDDLDropTable("JBPM_ID_PERMISSIONS"),
                     getDDLDropTable("JBPM_ID_GROUP"),
@@ -450,9 +450,9 @@ public class JbpmRefactoringPatch extends DbMigration {
             );
         }
         if (jbpmCommentTableExists) {
-            executeUpdates(getDDLDropTable("JBPM_COMMENT"));
+            executeDDL(getDDLDropTable("JBPM_COMMENT"));
         }
-        executeUpdates(
+        executeDDL(
                 getDDLDropColumn("BPM_SWIMLANE", "TASKMGMTINSTANCE_"),
                 getDDLDropColumn("BPM_SWIMLANE", "ACTORID_"),
                 getDDLDropColumn("BPM_TASK", "ACTORID_"),

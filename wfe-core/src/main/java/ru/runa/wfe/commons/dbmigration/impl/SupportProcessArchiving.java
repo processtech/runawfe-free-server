@@ -12,7 +12,7 @@ public class SupportProcessArchiving extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(
+        executeDDL(
                 // Nullable per-definition configuration; default is SystemProperties.getProcessDefaultSecondsBeforeArchiving():
                 getDDLCreateColumn("bpm_process_definition", new IntColumnDef("seconds_before_archiving", true)),
 

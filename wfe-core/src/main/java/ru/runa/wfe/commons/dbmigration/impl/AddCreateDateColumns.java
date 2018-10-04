@@ -35,13 +35,13 @@ public class AddCreateDateColumns extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(
+        executeDDL(
                 getDDLRenameColumn("BPM_LOG", "LOG_DATE", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)),
                 getDDLRenameColumn("BPM_PROCESS_DEFINITION", "DEPLOYED", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)),
                 getDDLRenameColumn("SYSTEM_LOG", "TIME", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP))
         );
         for (String tableName : TABLES_TO_ADD_COLUMN) {
-            executeUpdates(getDDLCreateColumn(tableName, new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)));
+            executeDDL(getDDLCreateColumn(tableName, new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)));
         }
     }
 

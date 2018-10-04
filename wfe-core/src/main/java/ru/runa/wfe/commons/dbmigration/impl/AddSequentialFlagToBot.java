@@ -9,7 +9,7 @@ public class AddSequentialFlagToBot extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(
+        executeDDL(
                 getDDLCreateColumn("BOT_TASK", new ColumnDef("IS_SEQUENTIAL", dialect.getTypeName(Types.BIT))),
                 getDDLCreateColumn("BOT", new ColumnDef("IS_SEQUENTIAL", dialect.getTypeName(Types.BIT)))
         );

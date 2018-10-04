@@ -7,7 +7,7 @@ public class ExpandDescriptionsPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(
+        executeDDL(
                 getDDLModifyColumn("BPM_TASK", "DESCRIPTION", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)),
                 getDDLModifyColumn("BPM_PROCESS_DEFINITION", "DESCRIPTION", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)),
                 getDDLModifyColumn("EXECUTOR_RELATION", "DESCRIPTION", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)),
