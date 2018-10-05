@@ -20,7 +20,9 @@ public interface Attributes {
     static final String ATTR_TASK_NAME = "taskName";
     static final String ATTR_INDEX = "index";
     static final String ATTR_IS_FILE_VALUE = "fileValue";
+    static final String ATTR_IS_EXECUTOR_VALUE = "executorValue";
     static final String ATTR_DUE_DATE = "dueDate";
     static final String ATTR_ID = "id";
     static final String ATTR_PARAM = "param";
+    static final String ATTR_VALUE_TRUE = Boolean.TRUE.toString();
 }
