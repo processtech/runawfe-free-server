@@ -299,3 +299,29 @@ tr.executor_group {
 .button-red {
 	background-color: tomato;
 }
+
+.checkBoxNone {
+	display: none;
+}
+.checkBoxCustom {
+	position: relative;
+	top: -2px;
+	width: 16px;
+	height: 16px;
+	background: url(images/checkmark.png) center no-repeat white;
+	background-size: cover;
+	cursor: pointer;
+	display: inline-block;
+	vertical-align: middle;
+}
+.checkBoxNone:checked + .checkBoxCustom::before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	background: url(images/cross.png) center no-repeat white;
+	background-size: cover;
+}
