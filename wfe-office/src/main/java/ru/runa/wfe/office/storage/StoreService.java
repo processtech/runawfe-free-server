@@ -1,7 +1,6 @@
 package ru.runa.wfe.office.storage;
 
 import java.util.Properties;
-
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
 import ru.runa.wfe.var.dto.WfVariable;
 

@@ -1,13 +1,10 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.collect.Lists;
 
 public class LoopOperation extends AbstractIteratorOperation {
     private String iteratorVariableName;
