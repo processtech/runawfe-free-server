@@ -21,78 +21,12 @@
  */
 package ru.runa.wfe.commons.hibernate;
 
-import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
-import org.hibernate.HibernateException;
-import org.hibernate.usertype.UserType;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 
-// TODO Make generic interface for DB-aware enums, and make base class for enum types (which should statically initialize dbvalue-to-enum map).
-//      We already have other enum types in this very package.
-public class EndReasonEnumType implements UserType {
+public class EndReasonEnumType extends DbAwareEnumType<Integer, TaskAggregatedLog.EndReason> {
 
-    static final int[] SQLTYPES = new int[] { Types.INTEGER };
-
-    @Override
-    public boolean equals(Object o1, Object o2) {
-        return (o1 == o2);
-    }
-
-    @Override
-    public int hashCode(Object o) throws HibernateException {
-        return o.hashCode();
-    }
-
-    @Override
-    public Object deepCopy(Object o) throws HibernateException {
-        return o;
-    }
-
-    @Override
-    public boolean isMutable() {
-        return false;
-    }
-
-    @Override
-    public Serializable disassemble(Object o) throws HibernateException {
-        return (Serializable) o;
-    }
-
-    @Override
-    public Object assemble(Serializable s, Object o) throws HibernateException {
-        return s;
-    }
-
-    @Override
-    public Object replace(Object original, Object target, Object owner) {
-        return target;
-    }
-
-    @Override
-    public int[] sqlTypes() {
-        return SQLTYPES;
-    }
-
-    @Override
-    public Class<?> returnedClass() {
-        return TaskAggregatedLog.EndReason.class;
-    }
-
-    @Override
-    public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
-        int i = rs.getInt(names[0]);
-        return rs.wasNull() ? null : TaskAggregatedLog.EndReason.fromDbValue(i);
-    }
-
-    @Override
-    public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
-        if (value == null) {
-            st.setNull(index, Types.INTEGER);
-        } else {
-            st.setObject(index, ((TaskAggregatedLog.EndReason)value).dbValue, Types.INTEGER);
-        }
+    public EndReasonEnumType() {
+        super(Types.INTEGER, Integer.class, TaskAggregatedLog.EndReason.class);
     }
 }

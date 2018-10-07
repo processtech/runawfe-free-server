@@ -1,9 +1,6 @@
 package ru.runa.wfe.audit.aggregated;
 
-import com.google.common.collect.Maps;
 import java.util.Date;
-import java.util.EnumSet;
-import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,10 +11,12 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
+import ru.runa.wfe.commons.hibernate.DbAwareEnum;
 
 @Entity
 @Table(name = "BPM_AGGLOG_TASK")
@@ -100,7 +99,8 @@ public class TaskAggregatedLog {
     /**
      * End task reason.
      */
-    public enum EndReason {
+    @RequiredArgsConstructor
+    public enum EndReason implements DbAwareEnum<Integer> {
         /**
          * Something wrong - unsupported value e.t.c.
          */
@@ -134,25 +134,7 @@ public class TaskAggregatedLog {
          */
         ADMIN_END(6);
 
-        /**
-         * Value, used to store reason in database.
-         */
-        public final int dbValue;
-
-        private final static Map<Integer, EndReason> registry = Maps.newHashMap();
-        static {
-            for (EndReason reason : EnumSet.allOf(EndReason.class)) {
-                registry.put(reason.dbValue, reason);
-            }
-        }
-
-        EndReason(int dbValue) {
-            this.dbValue = dbValue;
-        }
-
-        public static EndReason fromDbValue(int dbValue) {
-            EndReason reason = registry.get(dbValue);
-            return reason == null ? EndReason.UNKNOWN : reason;
-        }
+        @Getter
+        private final Integer dbValue;
     }
 }
