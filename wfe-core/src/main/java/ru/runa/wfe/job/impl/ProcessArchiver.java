@@ -293,13 +293,13 @@ public class ProcessArchiver {
                         "      (id, new_executor_name, old_executor_name, assignment_date, agglog_task_id, idx) " +
                         "select id, new_executor_name, old_executor_name, assignment_date, agglog_task_id, idx " +
                         "from bpm_agglog_assignment " +
-                        "where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCSV
+                        "where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCSV + ")"
                 );
 
                 // Delete rows in reverse order (from referencing tables first):
 
                 // References archived_agglog_task.
-                stmt.executeUpdate("delete from bpm_agglog_assignment where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCSV);
+                stmt.executeUpdate("delete from bpm_agglog_assignment where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCSV + ")");
 
                 // No FKs, but has process_id field.
                 stmt.executeUpdate("delete from bpm_agglog_task where process_id in " + pidsCSV);
