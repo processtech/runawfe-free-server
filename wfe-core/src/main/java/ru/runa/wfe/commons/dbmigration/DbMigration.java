@@ -60,7 +60,7 @@ public abstract class DbMigration {
         }
     }
 
-    protected void executeDDLBefore() {
+    protected void executeDDLBefore() throws Exception {
     }
 
     /**
@@ -78,7 +78,7 @@ public abstract class DbMigration {
     public void executeDML(Connection conn) throws Exception {
     }
 
-    protected void executeDDLAfter() {
+    protected void executeDDLAfter() throws Exception {
     }
 
     /**
@@ -478,7 +478,7 @@ public abstract class DbMigration {
         private final String name;
         private int sqlType;
         private String sqlTypeName;
-        private final boolean allowNulls;
+        private boolean allowNulls;
         private String defaultValue;
 
         /**
@@ -531,12 +531,14 @@ public abstract class DbMigration {
         }
 
         public ColumnDef setPrimaryKey() {
+            allowNulls = false;
             primaryKey = true;
             autoIncremented = true;
             return this;
         }
 
         public ColumnDef setPrimaryKeyNoAutoInc() {
+            allowNulls = false;
             primaryKey = true;
             return this;
         }

@@ -225,7 +225,7 @@ public class ProcessArchiver {
                 // Create rows in referenced tables first, then in referencing tables.
 
                 // Refernces self, plus has root_token_id field.
-                doInsertSelect(stmt, "archived_process", "insert into archived_process " +
+                stmt.executeUpdate("insert into archived_process " +
                         "      (id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id) " +
                         "select id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id " +
                         "from bpm_process " +
@@ -233,7 +233,7 @@ public class ProcessArchiver {
                 );
 
                 // References process and self.
-                doInsertSelect(stmt, "archived_token", "insert into archived_token " +
+                stmt.executeUpdate("insert into archived_token " +
                         "      (id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name) " +
                         "select id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name " +
                         "from bpm_token " +
@@ -241,7 +241,7 @@ public class ProcessArchiver {
                 );
 
                 // References process, also has parent_token_id field.
-                doInsertSelect(stmt, "archived_subprocess", "insert into archived_subprocess " +
+                stmt.executeUpdate("insert into archived_subprocess " +
                         "      (id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id) " +
                         "select id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id " +
                         "from bpm_subprocess " +
@@ -249,7 +249,7 @@ public class ProcessArchiver {
                 );
 
                 // References process.
-                doInsertSelect(stmt, "archived_swimlane", "insert into archived_swimlane " +
+                stmt.executeUpdate("insert into archived_swimlane " +
                         "      (id, process_id, create_date, name, version, executor_id) " +
                         "select id, process_id, create_date, name, version, executor_id " +
                         "from bpm_swimlane " +
@@ -257,7 +257,7 @@ public class ProcessArchiver {
                 );
 
                 // References process.
-                doInsertSelect(stmt, "archived_variable", "insert into archived_variable " +
+                stmt.executeUpdate("insert into archived_variable " +
                         "      (discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue) " +
                         "select discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue " +
                         "from bpm_variable " +
@@ -265,14 +265,47 @@ public class ProcessArchiver {
                 );
 
                 // No FKs, but has process_id and token_id fields.
-                doInsertSelect(stmt, "archived_log", "insert into archived_log " +
+                stmt.executeUpdate("insert into archived_log " +
                         "      (discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content) " +
                         "select discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content " +
                         "from bpm_log " +
                         "where process_id in " + pidsCSV
                 );
 
+                // No FKs, but has process_id field.
+                stmt.executeUpdate("insert into archived_agglog_process " +
+                        "      (id, process_id, parent_process_id, cancel_actor_name, end_reason, start_actor_name, create_date, end_date) " +
+                        "select id, process_id, parent_process_id, cancel_actor_name, end_reason, start_actor_name, create_date, end_date " +
+                        "from bpm_agglog_process " +
+                        "where process_id in " + pidsCSV
+                );
+
+                // No FKs, but has process_id field.
+                stmt.executeUpdate("insert into archived_agglog_task " +
+                        "      (id, initial_actor_name, complete_actor_name, end_reason, swimlane_name, token_id, task_name, task_id, create_date, end_date, deadline_date, node_id, task_index, process_id) " +
+                        "select id, initial_actor_name, complete_actor_name, end_reason, swimlane_name, token_id, task_name, task_id, create_date, end_date, deadline_date, node_id, task_index, process_id " +
+                        "from bpm_agglog_task " +
+                        "where process_id in " + pidsCSV
+                );
+
+                // References archived_agglog_task.
+                stmt.executeUpdate("insert into archived_agglog_assignment " +
+                        "      (id, new_executor_name, old_executor_name, assignment_date, agglog_task_id, idx) " +
+                        "select id, new_executor_name, old_executor_name, assignment_date, agglog_task_id, idx " +
+                        "from bpm_agglog_assignment " +
+                        "where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCSV
+                );
+
                 // Delete rows in reverse order (from referencing tables first):
+
+                // References archived_agglog_task.
+                stmt.executeUpdate("delete from bpm_agglog_assignment where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCSV);
+
+                // No FKs, but has process_id field.
+                stmt.executeUpdate("delete from bpm_agglog_task where process_id in " + pidsCSV);
+
+                // No FKs, but has process_id field.
+                stmt.executeUpdate("delete from bpm_agglog_process where process_id in " + pidsCSV);
 
                 // No FKs, but has process_id and token_id fields.
                 stmt.executeUpdate("delete from bpm_log where process_id in " + pidsCSV);
@@ -304,15 +337,5 @@ public class ProcessArchiver {
 
         HibernateUtil.clearSecondLevelCaches(Process.class, NodeProcess.class, Token.class, Swimlane.class, ProcessLog.class, Variable.class);
         return true;
-    }
-
-    // TODO Inline this method if MSSQL works. I fixed issue by introducing DbMigration.ColumnDef.setPrimaryKeyNoAutoInc().
-    private void doInsertSelect(Statement stmt, String archivedTableName, String sql) throws Exception {
-//        if (dbType == DbType.MSSQL) {
-//            sql = "set identity_insert " + archivedTableName + " on; " +
-//                    sql +
-//                    "set identity_insert " + archivedTableName + " off";
-//        }
-        stmt.executeUpdate(sql);
     }
 }

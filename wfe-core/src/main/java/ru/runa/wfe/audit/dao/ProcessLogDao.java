@@ -15,6 +15,7 @@ import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.CurrentProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.dao.GenericDao2;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
@@ -27,13 +28,13 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog, CurrentProcessLogDao, ArchivedProcessLog, ArchivedProcessLogDao> {
 
     private ProcessDao processDao;
-    private ProcessLogAwareDao customizationDao;
+    private ProcessDefinitionLoader processDefinitionLoader;
 
     @Autowired
-    public ProcessLogDao(CurrentProcessLogDao dao1, ArchivedProcessLogDao dao2, ProcessDao processDao, ProcessLogAwareDao customizationDao) {
+    public ProcessLogDao(CurrentProcessLogDao dao1, ArchivedProcessLogDao dao2, ProcessDao processDao, ProcessDefinitionLoader loader) {
         super(dao1, dao2);
         this.processDao = processDao;
-        this.customizationDao = customizationDao;
+        this.processDefinitionLoader = loader;
     }
 
     public List<? extends BaseProcessLog> getAll(@NonNull Process process) {
@@ -104,8 +105,15 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
             processLog.setNodeId(token.getNodeId());
         }
         processLog.setCreateDate(new Date());
+
         dao1.create(processLog);
-        registerInCustomizationDao(processLog, process, token);
+
+        try {
+            UpdateAggregatedLogVisitor op = new UpdateAggregatedLogVisitor(sessionFactory, queryFactory, processDefinitionLoader, process);
+            processLog.processBy(op);
+        } catch (Throwable e) {
+            log.warn("Failed to update aggregated log", e);
+        }
     }
 
     /**
@@ -113,13 +121,5 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
      */
     public void deleteAll(CurrentProcess process) {
         dao1.deleteAll(process);
-    }
-
-    private void registerInCustomizationDao(CurrentProcessLog processLog, CurrentProcess process, CurrentToken token) {
-        try {
-            customizationDao.addLog(processLog, process, token);
-        } catch (Throwable e) {
-            log.warn("Custom log handler throws exception", e);
-        }
     }
 }

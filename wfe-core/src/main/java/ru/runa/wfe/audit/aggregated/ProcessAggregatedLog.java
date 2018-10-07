@@ -18,8 +18,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessStartLog;
-import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.execution.CurrentToken;
 
 /**
  * Log information about process instance.
@@ -28,7 +26,7 @@ import ru.runa.wfe.execution.CurrentToken;
 @Table(name = "BPM_AGGLOG_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProcessInstanceAggregatedLog {
+public class ProcessAggregatedLog {
     /**
      * Identity for this log instance.
      */
@@ -36,7 +34,7 @@ public class ProcessInstanceAggregatedLog {
     /**
      * Process instance id.
      */
-    private long processInstanceId;
+    private long processId;
     /**
      * Parent process instance or null, if no parent process instance.
      */
@@ -63,12 +61,12 @@ public class ProcessInstanceAggregatedLog {
      */
     private EndReason endReason;
 
-    public ProcessInstanceAggregatedLog() {
+    public ProcessAggregatedLog() {
         super();
     }
 
-    public ProcessInstanceAggregatedLog(ProcessStartLog processStartLog, CurrentProcess process, CurrentToken token) {
-        processInstanceId = processStartLog.getProcessId();
+    public ProcessAggregatedLog(ProcessStartLog processStartLog) {
+        processId = processStartLog.getProcessId();
         actorName = processStartLog.getActorName();
         createDate = processStartLog.getCreateDate();
         endReason = EndReason.PROCESSING;
@@ -98,12 +96,12 @@ public class ProcessInstanceAggregatedLog {
     }
 
     @Column(name = "PROCESS_ID", nullable = false)
-    public long getProcessInstanceId() {
-        return processInstanceId;
+    public long getProcessId() {
+        return processId;
     }
 
-    public void setProcessInstanceId(long processInstanceId) {
-        this.processInstanceId = processInstanceId;
+    public void setProcessId(long processInstanceId) {
+        this.processId = processInstanceId;
     }
 
     @Column(name = "PARENT_PROCESS_ID")
@@ -163,7 +161,7 @@ public class ProcessInstanceAggregatedLog {
     /**
      * Process instance complete reason.
      */
-    public static enum EndReason {
+    public enum EndReason {
         /**
          * Something wrong - end state has unsupported value.
          */
@@ -194,7 +192,7 @@ public class ProcessInstanceAggregatedLog {
             }
         }
 
-        private EndReason(int dbValue) {
+        EndReason(int dbValue) {
             this.dbValue = dbValue;
         }
 

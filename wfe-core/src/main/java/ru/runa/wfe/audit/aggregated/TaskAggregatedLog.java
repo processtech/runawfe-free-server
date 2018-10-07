@@ -1,324 +1,106 @@
 package ru.runa.wfe.audit.aggregated;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import ru.runa.wfe.audit.TaskAssignLog;
-import ru.runa.wfe.audit.TaskCreateLog;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.execution.CurrentToken;
-import ru.runa.wfe.lang.InteractionNode;
-import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.TaskDefinition;
+import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name = "BPM_AGGLOG_TASKS")
+@Table(name = "BPM_AGGLOG_TASK")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
+@Getter
+@Setter
 public class TaskAggregatedLog {
-    /**
-     * Identity for this log instance.
-     */
-    private Long id;
-    /**
-     * Task instance id.
-     */
-    private Long taskId;
-    /**
-     * Process instance id.
-     */
-    private Long processId;
-    /**
-     * Actor name, which initially assigned to task.
-     */
-    private String initialActorName;
-    /**
-     * Actor name, which complete task. May be null if task not completed or completed not by user (timeout and so on).
-     */
-    private String completeActorName;
-    /**
-     * Task instance creation date.
-     */
-    private Date createDate;
-    /**
-     * Task instance deadline date.
-     */
-    private Date deadlineDate;
-    /**
-     * Task instance end date. May be null, if task instance still not ended.
-     */
-    private Date endDate;
-    /**
-     * Task instance complete reason.
-     */
-    private EndReason endReason;
-    /**
-     * Token id.
-     */
-    private Long tokenId;
-    /**
-     * Process definition node id.
-     */
-    private String nodeId;
-    /**
-     * Task name.
-     */
-    private String taskName;
-    private Integer taskIndex;
-    /**
-     * Swimlane, assigned to task.
-     */
-    private String swimlaneName;
-    /**
-     * Assignment history for task instance. Initial assignment and completed actor is also here.
-     */
-    private List<TaskAssignmentHistory> assignmentHistory = new LinkedList<>();
-
-    public TaskAggregatedLog() {
-        super();
-    }
-
-    public TaskAggregatedLog(TaskCreateLog taskCreateLog, ProcessDefinitionLoader processDefinitionLoader, CurrentProcess process, CurrentToken token) {
-        taskId = taskCreateLog.getTaskId();
-        processId = taskCreateLog.getProcessId();
-        createDate = taskCreateLog.getCreateDate();
-        deadlineDate = taskCreateLog.getDeadlineDate();
-        tokenId = taskCreateLog.getTokenId();
-        nodeId = taskCreateLog.getNodeId();
-        taskName = taskCreateLog.getTaskName();
-        taskIndex = taskCreateLog.getTaskIndex();
-        Node node = processDefinitionLoader.getDefinition(process).getNode(taskCreateLog.getNodeId());
-        if (node != null && node instanceof InteractionNode) {
-            List<TaskDefinition> tasks = ((InteractionNode) node).getTasks();
-            if (tasks != null && !tasks.isEmpty() && tasks.get(0).getSwimlane() != null) {
-                swimlaneName = tasks.get(0).getSwimlane().getName();
-            }
-        }
-        endReason = EndReason.PROCESSING;
-    }
-
-    /**
-     * Updates information on task assignment.
-     *
-     * @param taskAssignLog
-     *            Task assignment log to update information.
-     */
-    public void updateAssignment(TaskAssignLog taskAssignLog) {
-        saveAssignment(taskAssignLog.getCreateDate(), taskAssignLog.getNewExecutorName());
-        if (!Strings.isNullOrEmpty(initialActorName)) {
-            return;
-        }
-        initialActorName = taskAssignLog.getNewExecutorName();
-    }
-
-    /**
-     * Updates information on task end.
-     *
-     * @param endDate
-     *            Task instance end date.
-     * @param actorName
-     *            Actor, which end's task.
-     * @param endReason
-     *            Task instance complete reason.
-     */
-    public void updateOnEnd(Date endDate, String actorName, EndReason endReason) {
-        saveAssignment(endDate, actorName);
-        this.endDate = endDate;
-        completeActorName = actorName;
-        this.endReason = endReason;
-    }
-
-    /**
-     * Save assignment if actor name is changed.
-     *
-     * @param assignmentDate
-     *            Assignment date.
-     * @param newExecutorName
-     *            Assignment actor name.
-     */
-    private void saveAssignment(Date assignmentDate, String newExecutorName) {
-        String oldExecutorName = null;
-        if (!assignmentHistory.isEmpty()) {
-            oldExecutorName = assignmentHistory.get(assignmentHistory.size() - 1).getNewExecutorName();
-            for (TaskAssignmentHistory assignment : assignmentHistory) {
-                // This check is for import - assignment may already be saved
-                // before import operation.
-                if (assignment.getAssignDate().equals(assignmentDate) && assignment.getNewExecutorName().equals(newExecutorName)) {
-                    oldExecutorName = newExecutorName;
-                    break;
-                }
-            }
-        }
-        if (oldExecutorName == null || !oldExecutorName.equals(newExecutorName)) {
-            assignmentHistory.add(new TaskAssignmentHistory(this, id, assignmentDate, oldExecutorName, newExecutorName));
-        }
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_AGGLOG_TASKS", allocationSize = 1)
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_AGGLOG_TASK", allocationSize = 1)
     @Column(name = "ID")
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private Long id;
 
     @Column(name = "TASK_ID", nullable = false)
-    public Long getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
-    }
+    private Long taskId;
 
     @Column(name = "PROCESS_ID", nullable = false)
-    public Long getProcessId() {
-        return processId;
-    }
+    private Long processId;
 
-    public void setProcessId(Long processId) {
-        this.processId = processId;
-    }
-
+    /**
+     * Actor name which was initially assigned to task.
+     */
     @Column(name = "INITIAL_ACTOR_NAME", length = 1024)
-    public String getInitialActorName() {
-        return initialActorName;
-    }
+    private String initialActorName;
 
-    public void setInitialActorName(String initialActorName) {
-        this.initialActorName = initialActorName;
-    }
-
+    /**
+     * Actor name which completed task. Null if task is not completed or completed not by user (timeout and so on).
+     */
     @Column(name = "COMPLETE_ACTOR_NAME", length = 1024)
-    public String getCompleteActorName() {
-        return completeActorName;
-    }
+    private String completeActorName;
 
-    public void setCompleteActorName(String completeActorName) {
-        this.completeActorName = completeActorName;
-    }
-
+    /**
+     * Task instance creation date.
+     */
     @Column(name = "CREATE_DATE", nullable = false)
-    public Date getCreateDate() {
-        return createDate;
-    }
+    private Date createDate;
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
+    /**
+     * Task instance deadline date.
+     */
     @Column(name = "DEADLINE_DATE")
-    public Date getDeadlineDate() {
-        return deadlineDate;
-    }
+    private Date deadlineDate;
 
-    public void setDeadlineDate(Date deadlineDate) {
-        this.deadlineDate = deadlineDate;
-    }
-
+    /**
+     * Task instance end date. Null if task instance still not ended.
+     */
     @Column(name = "END_DATE")
-    public Date getEndDate() {
-        return endDate;
-    }
+    private Date endDate;
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
+    /**
+     * Task instance completion reason.
+     */
     @Column(name = "END_REASON", nullable = false)
-    public int getEndReason() {
-        return endReason.getDbValue();
-    }
-
-    public void setEndReason(int endReason) {
-        this.endReason = EndReason.fromDbValue(endReason);
-    }
+    @Type(type = "ru.runa.wfe.commons.hibernate.EndReasonEnumType")
+    private EndReason endReason;
 
     @Column(name = "TOKEN_ID", nullable = false)
-    public Long getTokenId() {
-        return tokenId;
-    }
+    private Long tokenId;
 
-    public void setTokenId(Long tokenId) {
-        this.tokenId = tokenId;
-    }
-
+    /**
+     * Process definition node id.
+     */
     @Column(name = "NODE_ID", nullable = false, length = 1024)
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
+    private String nodeId;
 
     @Column(name = "TASK_NAME", nullable = false, length = 1024)
-    public String getTaskName() {
-        return taskName;
-    }
-
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
-    }
+    private String taskName;
 
     @Column(name = "TASK_INDEX")
-    public Integer getTaskIndex() {
-        return taskIndex;
-    }
+    private Integer taskIndex;
 
-    public void setTaskIndex(Integer taskIndex) {
-        this.taskIndex = taskIndex;
-    }
-
+    /**
+     * Swimlane, assigned to task.
+     */
     @Column(name = "SWIMLANE_NAME", length = 1024)
-    public String getSwimlaneName() {
-        return swimlaneName;
-    }
-
-    public void setSwimlaneName(String swimlaneName) {
-        this.swimlaneName = swimlaneName;
-    }
-
-    @OneToMany(targetEntity = TaskAssignmentHistory.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "ASSIGNMENT_OBJECT_ID", nullable = false)
-    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
-    public List<TaskAssignmentHistory> getAssignmentHistory() {
-        return assignmentHistory;
-    }
-
-    public void setAssignmentHistory(List<TaskAssignmentHistory> assignmentHistory) {
-        this.assignmentHistory = assignmentHistory;
-    }
+    private String swimlaneName;
 
     /**
      * End task reason.
      */
-    public static enum EndReason {
+    public enum EndReason {
         /**
          * Something wrong - unsupported value e.t.c.
          */
@@ -355,22 +137,17 @@ public class TaskAggregatedLog {
         /**
          * Value, used to store reason in database.
          */
-        private final int dbValue;
+        public final int dbValue;
 
         private final static Map<Integer, EndReason> registry = Maps.newHashMap();
-
         static {
             for (EndReason reason : EnumSet.allOf(EndReason.class)) {
-                registry.put(reason.getDbValue(), reason);
+                registry.put(reason.dbValue, reason);
             }
         }
 
         EndReason(int dbValue) {
             this.dbValue = dbValue;
-        }
-
-        public int getDbValue() {
-            return dbValue;
         }
 
         public static EndReason fromDbValue(int dbValue) {
