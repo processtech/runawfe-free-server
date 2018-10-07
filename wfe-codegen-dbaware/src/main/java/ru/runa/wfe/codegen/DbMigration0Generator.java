@@ -68,31 +68,32 @@ class DbMigration0Generator {
                 w.write("                        new ");
 
                 val quotedName = "\"" + c.name + "\"";
-                val allowNulls = c.isNotNull ? "false" : "true";
+                // No need for "not null" for PK column:
+                val allowNulls = c.isNotNull && !c.isPrimaryKey ? ", false" : "";
                 switch (c.type) {
                     case BIGINT:
-                        w.write("BigintColumnDef(" + quotedName + ", " + allowNulls + ")");
+                        w.write("BigintColumnDef(" + quotedName + allowNulls + ")");
                         break;
                     case BLOB:
-                        w.write("BlobColumnDef(" + quotedName + ", " + allowNulls + ")");
+                        w.write("BlobColumnDef(" + quotedName + allowNulls + ")");
                         break;
                     case BOOLEAN:
-                        w.write("BooleanColumnDef(" + quotedName + ", " + allowNulls + ")");
+                        w.write("BooleanColumnDef(" + quotedName + allowNulls + ")");
                         break;
                     case CHAR:
-                        w.write("CharColumnDef(" + quotedName + ", " + c.typeLength + ", " + allowNulls + ")");
+                        w.write("CharColumnDef(" + quotedName + ", " + c.typeLength + allowNulls + ")");
                         break;
                     case DOUBLE:
-                        w.write("DoubleColumnDef(" + quotedName + ", " + allowNulls + ")");
+                        w.write("DoubleColumnDef(" + quotedName + allowNulls + ")");
                         break;
                     case INT:
-                        w.write("IntColumnDef(" + quotedName + ", " + allowNulls + ")");
+                        w.write("IntColumnDef(" + quotedName + allowNulls + ")");
                         break;
                     case TIMESTAMP:
-                        w.write("TimestampColumnDef(" + quotedName + ", " + allowNulls + ")");
+                        w.write("TimestampColumnDef(" + quotedName + allowNulls + ")");
                         break;
                     case VARCHAR:
-                        w.write("VarcharColumnDef(" + quotedName + ", " + c.typeLength + ", " + allowNulls + ")");
+                        w.write("VarcharColumnDef(" + quotedName + ", " + c.typeLength + allowNulls + ")");
                         break;
                     default:
                         throw new Exception("Internal error: unhandled column type " + c.type);
