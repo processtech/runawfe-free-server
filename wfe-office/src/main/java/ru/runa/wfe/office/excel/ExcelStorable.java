@@ -1,7 +1,6 @@
 package ru.runa.wfe.office.excel;
 
 import org.apache.poi.ss.usermodel.Workbook;
-
 import ru.runa.wfe.var.format.VariableFormat;
 
 public abstract class ExcelStorable<C extends ExcelConstraints, Data> {

@@ -1,8 +1,7 @@
 package ru.runa.wfe.office.doc;
 
-import ru.runa.wfe.var.VariableProvider;
-
 import com.google.common.base.Objects;
+import ru.runa.wfe.var.VariableProvider;
 
 public class ReplaceOperation extends Operation {
     protected boolean placeholderRead;

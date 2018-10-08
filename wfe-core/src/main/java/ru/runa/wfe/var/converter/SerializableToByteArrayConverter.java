@@ -29,13 +29,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.Converter;
 import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 public class SerializableToByteArrayConverter implements Converter {
     private static final long serialVersionUID = 1L;
@@ -58,6 +59,7 @@ public class SerializableToByteArrayConverter implements Converter {
         }
     }
 
+    @SuppressWarnings("resource")
     @Override
     public Object revert(Object o) {
         try {
@@ -75,6 +77,17 @@ public class SerializableToByteArrayConverter implements Converter {
 
         public BackCompatibleObjectInputStream(InputStream in) throws IOException {
             super(in);
+        }
+
+        @Override
+        protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
+            final ObjectStreamClass osc = super.readClassDescriptor();
+            final String className = BackCompatibilityClassNames.getClassName(osc.getName());
+            if (FileVariable.class.getName().equals(className)) {
+                // rm787 v4.4.0: special case after rename IFileVariable -> FileVariable, FileVariable -> FileVariableImpl
+                return ObjectStreamClass.lookup(FileVariableImpl.class);
+            }
+            return osc;
         }
 
         @Override
@@ -99,5 +112,7 @@ public class SerializableToByteArrayConverter implements Converter {
                 return ClassLoaderUtil.loadClass(className);
             }
         }
+
     }
+
 }

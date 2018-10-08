@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ru.runa.wfe</groupId>
-	<version>4.3.1-SNAPSHOT</version>
+	<version>4-SNAPSHOT</version>
 	<artifactId>wfe-appserver</artifactId>
 	<packaging>pom</packaging>
 	<name>RunaWFE application server</name>
