@@ -32,7 +32,10 @@ import lombok.val;
 import org.hibernate.HibernateException;
 import org.hibernate.usertype.UserType;
 
-@SuppressWarnings("WeakerAccess")
+/**
+ * Don't delete, maybe someday we'll optimize DB row sizes.
+ */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class DbAwareEnumType<T, E extends DbAwareEnum<T>> implements UserType {
 
     private int[] types;

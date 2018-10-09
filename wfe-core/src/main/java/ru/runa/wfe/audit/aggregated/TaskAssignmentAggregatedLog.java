@@ -35,9 +35,6 @@ public class TaskAssignmentAggregatedLog {
     @JoinColumn(name = "AGGLOG_TASK_ID", nullable = false)
     private TaskAggregatedLog log;
 
-    @Column(name = "IDX", nullable = false)
-    private Integer idx;
-
     @Column(name = "ASSIGNMENT_DATE", nullable = false)
     private Date assignDate;
 

@@ -24,7 +24,7 @@ import ru.runa.wfe.audit.aggregated.QProcessAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAssignmentAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
-import ru.runa.wfe.audit.aggregated.TaskAggregatedLog.EndReason;
+import ru.runa.wfe.audit.aggregated.TaskEndReason;
 import ru.runa.wfe.audit.aggregated.TaskAssignmentAggregatedLog;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
@@ -105,7 +105,7 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
         tal.setTaskName(l.getTaskName());
         tal.setTaskIndex(l.getTaskIndex());
         tal.setSwimlaneName(swimlaneName);
-        tal.setEndReason(EndReason.PROCESSING);
+        tal.setEndReason(TaskEndReason.PROCESSING);
         sessionFactory.getCurrentSession().save(tal);
     }
 
@@ -126,32 +126,32 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
 
     @Override
     public void onTaskEndLog(TaskEndLog taskEndLog) {
-        onTaskEnd(taskEndLog, EndReason.COMPLETED);
+        onTaskEnd(taskEndLog, TaskEndReason.COMPLETED);
     }
 
     @Override
     public void onTaskRemovedOnProcessEndLog(TaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog) {
-        onTaskEnd(taskRemovedOnProcessEndLog, EndReason.PROCESS_END);
+        onTaskEnd(taskRemovedOnProcessEndLog, TaskEndReason.PROCESS_END);
     }
 
     @Override
     public void onTaskExpiredLog(TaskExpiredLog taskExpiredLog) {
-        onTaskEnd(taskExpiredLog, EndReason.TIMEOUT);
+        onTaskEnd(taskExpiredLog, TaskEndReason.TIMEOUT);
     }
 
     @Override
     public void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog) {
-        onTaskEnd(taskEndBySubstitutorLog, EndReason.SUBSTITUTOR_END);
+        onTaskEnd(taskEndBySubstitutorLog, TaskEndReason.SUBSTITUTOR_END);
     }
 
     @Override
     public void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog) {
-        onTaskEnd(taskEndByAdminLog, EndReason.ADMIN_END);
+        onTaskEnd(taskEndByAdminLog, TaskEndReason.ADMIN_END);
     }
 
     @Override
     public void onTaskCancelledLog(TaskCancelledLog taskCancelledLog) {
-        onTaskEnd(taskCancelledLog, EndReason.CANCELLED);
+        onTaskEnd(taskCancelledLog, TaskEndReason.CANCELLED);
     }
 
     private ProcessAggregatedLog getProcessLog(long processId) {
@@ -164,7 +164,7 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
         return queryFactory.selectFrom(l).where(l.taskId.eq(taskId)).fetchFirst();
     }
 
-    private void onTaskEnd(TaskEndLog taskEndLog, EndReason endReason) {
+    private void onTaskEnd(TaskEndLog taskEndLog, TaskEndReason endReason) {
         TaskAggregatedLog l = getTaskLog(taskEndLog.getTaskId());
         if (l == null) {
             return;
@@ -181,27 +181,25 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
     private void saveAssignment(TaskAggregatedLog tal, Date assignmentDate, String newExecutorName) {
         // Insert new record if last executor name is different from newExecutorName,
         // and if same record does not already exists (this check is for import operation: assignment may already be saved before import).
-        // Instead of loading all detail rows via Hibernate collections, here I check both conditions using single optimized SQL query
-        // which also returns data necessary for constructing new record.
+        // Instead of loading all detail rows via Hibernate collections, here I check both conditions using single optimized SQL query.
         val l = QTaskAssignmentAggregatedLog.taskAssignmentAggregatedLog;
         val l2 = QTaskAssignmentAggregatedLog.taskAssignmentAggregatedLog;
-        val rows = queryFactory.select(l.newExecutorName, l.idx)
+        List<String> rows = queryFactory.select(l.newExecutorName)
                 .from(l)
-                .where(l.idx.eq(JPAExpressions.select(l2.idx.max()).from(l2).where(l2.log.eq(tal))).or(
+                .where(l.id.eq(JPAExpressions.select(l2.id.max()).from(l2).where(l2.log.eq(tal))).or(
                         l.assignDate.eq(assignmentDate).and(l.newExecutorName.eq(newExecutorName))
                 ))
-                .orderBy(l.idx.desc())
+                .orderBy(l.id.desc())
                 .fetch();
 
         // If rows.size() == 0, no detail rows exist for given TaskAggregatedLog ==> insert.
         // If rows.size() >  1, we got both last AND existing row ==> DON'T insert.
         // If rows.size() == 1, have to check returned newExecutorName.
-        val oldExecutorName = rows.size() == 1 ? rows.get(0).get(l.newExecutorName) : null;
+        val oldExecutorName = rows.size() == 1 ? rows.get(0) : null;
         if (rows.isEmpty() || rows.size() == 1 && !Objects.equals(oldExecutorName, newExecutorName)) {
             val taal = new TaskAssignmentAggregatedLog();
             taal.setLog(tal);
             //noinspection ConstantConditions
-            taal.setIdx(rows.isEmpty() ? 0 : rows.get(0).get(l.idx) + 1);
             taal.setAssignDate(assignmentDate);
             taal.setOldExecutorName(oldExecutorName);
             taal.setNewExecutorName(newExecutorName);

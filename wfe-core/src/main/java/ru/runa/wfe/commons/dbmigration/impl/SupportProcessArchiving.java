@@ -14,27 +14,7 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
 public class SupportProcessArchiving extends DbMigration {
 
     @Override
-    protected void executeDDLBefore() throws Exception {
-
-        // Sanity check.
-        val conn = sessionFactory.getCurrentSession().connection();
-        try (Statement stmt = conn.createStatement()) {
-            val rs = stmt.executeQuery("select count(*) from bpm_agglog_assignments where discriminator <> 'T'");
-            rs.next();
-            long n = rs.getLong(1);
-            if (n > 0) {
-                throw new RuntimeException("Column bpm_agglog_assignments.discriminator contains " + n + " non-'T' values. Migration aborted.");
-            }
-        }
-        try (Statement stmt = conn.createStatement()) {
-            val rs = stmt.executeQuery("select count(*) from bpm_agglog_assignments where assignment_object_id is null");
-            rs.next();
-            long n = rs.getLong(1);
-            if (n > 0) {
-                throw new RuntimeException("Column bpm_agglog_assignments.assignment_object_id contains " + n + " null(s). Migration aborted.");
-            }
-        }
-
+    protected void executeDDLBefore() {
         executeUpdates(
                 // Nullable per-definition configuration; default is SystemProperties.getProcessDefaultSecondsBeforeArchiving():
                 getDDLCreateColumn("bpm_process_definition", new IntColumnDef("seconds_before_archiving", true)),
@@ -126,24 +106,18 @@ public class SupportProcessArchiving extends DbMigration {
                         new BigintColumnDef("process_id", true),
                         new BigintColumnDef("parent_process_id"),
                         new VarcharColumnDef("cancel_actor_name", 1024),
-                        new IntColumnDef("end_reason", true),
+                        new VarcharColumnDef("end_reason", 16),
                         new VarcharColumnDef("start_actor_name", 1024),
                         new TimestampColumnDef("create_date", true),
                         new TimestampColumnDef("end_date")
                 )),
 
                 // TaskAggregatedLog: all fields.
-                getDDLRenameTable("bpm_agglog_tasks", "bpm_agglog_task"),
-                getDDLRenameSequence("seq_bpm_agglog_tasks", "seq_bpm_agglog_task"),
-                getDDLRenameIndex("bpm_agglog_task", "ix_agglog_tasks_create_date", "ix_agglog_task_create_date"),
-                getDDLRenameIndex("bpm_agglog_task", "ix_agglog_tasks_end_date", "ix_agglog_task_end_date"),
-                getDDLRenameIndex("bpm_agglog_task", "ix_agglog_tasks_process", "ix_agglog_task_process"),
-
                 getDDLCreateTable("archived_agglog_task", list(
                         new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
                         new VarcharColumnDef("initial_actor_name", 1024),
                         new VarcharColumnDef("complete_actor_name", 1024),
-                        new IntColumnDef("end_reason", true),
+                        new VarcharColumnDef("end_reason", 16),
                         new VarcharColumnDef("swimlane_name", 1024),
                         new BigintColumnDef("token_id", true),
                         new VarcharColumnDef("task_name", 1024, true),
@@ -157,19 +131,12 @@ public class SupportProcessArchiving extends DbMigration {
                 )),
 
                 // TaskAssignmentAggregatedLog: all fields.
-                getDDLRenameTable("bpm_agglog_assignments", "bpm_agglog_assignment"),
-                getDDLRenameSequence("seq_bpm_agglog_assignments", "seq_bpm_agglog_assignment"),
-                getDDLDropColumn("bpm_agglog_assignment", "discriminator"),
-                getDDLRenameColumn("bpm_agglog_assignment", "assignment_object_id", new BigintColumnDef("agglog_task_id")),
-                getDDLModifyColumnNullability("bpm_agglog_assignment", "agglog_task_id", dialect.getTypeName(Types.BIGINT), false),
-
                 getDDLCreateTable("archived_agglog_assignment", list(
                         new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
                         new VarcharColumnDef("new_executor_name", 1024),
                         new VarcharColumnDef("old_executor_name", 1024),
                         new TimestampColumnDef("assignment_date", true),
-                        new BigintColumnDef("agglog_task_id"),
-                        new IntColumnDef("idx")
+                        new BigintColumnDef("agglog_task_id")
                 )),
 
                 getDDLCreateIndex     ("archived_process", "ix_arch_process_def_ver", "definition_version_id"),

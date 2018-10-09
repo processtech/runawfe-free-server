@@ -1,11 +1,10 @@
 package ru.runa.wfe.audit.aggregated;
 
-import com.google.common.collect.Maps;
 import java.util.Date;
-import java.util.EnumSet;
-import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -59,7 +58,7 @@ public class ProcessAggregatedLog {
     /**
      * Process instance complete reason.
      */
-    private EndReason endReason;
+    private ProcessEndReason endReason;
 
     public ProcessAggregatedLog() {
         super();
@@ -69,18 +68,18 @@ public class ProcessAggregatedLog {
         processId = processStartLog.getProcessId();
         actorName = processStartLog.getActorName();
         createDate = processStartLog.getCreateDate();
-        endReason = EndReason.PROCESSING;
+        endReason = ProcessEndReason.PROCESSING;
     }
 
     public void update(ProcessEndLog processEndLog) {
         endDate = processEndLog.getCreateDate();
-        endReason = EndReason.COMPLETED;
+        endReason = ProcessEndReason.COMPLETED;
     }
 
     public void update(ProcessCancelLog processCancelLog) {
         endDate = processCancelLog.getCreateDate();
         cancelActorName = processCancelLog.getActorName();
-        endReason = EndReason.CANCELLED;
+        endReason = ProcessEndReason.CANCELLED;
     }
 
     @Id
@@ -150,59 +149,12 @@ public class ProcessAggregatedLog {
     }
 
     @Column(name = "END_REASON", nullable = false)
-    public int getEndReason() {
-        return endReason == null ? EndReason.UNKNOWN.getDbValue() : endReason.getDbValue();
+    @Enumerated(EnumType.STRING)
+    public ProcessEndReason getEndReason() {
+        return endReason;
     }
 
-    public void setEndReason(int endReason) {
-        this.endReason = EndReason.fromDbValue(endReason);
-    }
-
-    /**
-     * Process instance complete reason.
-     */
-    public enum EndReason {
-        /**
-         * Something wrong - end state has unsupported value.
-         */
-        UNKNOWN(-1),
-        /**
-         * Process instance is not finished yet.
-         */
-        PROCESSING(0),
-        /**
-         * Process instance completed correct.
-         */
-        COMPLETED(1),
-        /**
-         * Process instance was cancelled.
-         */
-        CANCELLED(2);
-
-        /**
-         * Value, used to store reason in database.
-         */
-        private final int dbValue;
-
-        private final static Map<Integer, EndReason> registry = Maps.newHashMap();
-
-        static {
-            for (EndReason reason : EnumSet.allOf(EndReason.class)) {
-                registry.put(reason.getDbValue(), reason);
-            }
-        }
-
-        EndReason(int dbValue) {
-            this.dbValue = dbValue;
-        }
-
-        public int getDbValue() {
-            return dbValue;
-        }
-
-        public static EndReason fromDbValue(int dbValue) {
-            EndReason reason = registry.get(dbValue);
-            return reason == null ? EndReason.UNKNOWN : reason;
-        }
+    public void setEndReason(ProcessEndReason endReason) {
+        this.endReason = endReason;
     }
 }

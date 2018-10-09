@@ -3,6 +3,8 @@ package ru.runa.wfe.audit.aggregated;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,12 +13,9 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
-import ru.runa.wfe.commons.hibernate.DbAwareEnum;
 
 @Entity
 @Table(name = "BPM_AGGLOG_TASK")
@@ -72,8 +71,8 @@ public class TaskAggregatedLog {
      * Task instance completion reason.
      */
     @Column(name = "END_REASON", nullable = false)
-    @Type(type = "ru.runa.wfe.commons.hibernate.EndReasonEnumType")
-    private EndReason endReason;
+    @Enumerated(EnumType.STRING)
+    private TaskEndReason endReason;
 
     @Column(name = "TOKEN_ID", nullable = false)
     private Long tokenId;
@@ -96,45 +95,4 @@ public class TaskAggregatedLog {
     @Column(name = "SWIMLANE_NAME", length = 1024)
     private String swimlaneName;
 
-    /**
-     * End task reason.
-     */
-    @RequiredArgsConstructor
-    public enum EndReason implements DbAwareEnum<Integer> {
-        /**
-         * Something wrong - unsupported value e.t.c.
-         */
-        UNKNOWN(-1),
-        /**
-         * Task is in processing.
-         */
-        PROCESSING(0),
-        /**
-         * Task is completed normally.
-         */
-        COMPLETED(1),
-        /**
-         * Task was cancelled.
-         */
-        CANCELLED(2),
-        /**
-         * Task was timeout.
-         */
-        TIMEOUT(3),
-        /**
-         * Task was end by substitutor.
-         */
-        SUBSTITUTOR_END(4),
-        /**
-         * Task was end by process end.
-         */
-        PROCESS_END(5),
-        /**
-         * Task was end by admin.
-         */
-        ADMIN_END(6);
-
-        @Getter
-        private final Integer dbValue;
-    }
 }

@@ -290,8 +290,8 @@ public class ProcessArchiver {
 
                 // References archived_agglog_task.
                 stmt.executeUpdate("insert into archived_agglog_assignment " +
-                        "      (id, new_executor_name, old_executor_name, assignment_date, agglog_task_id, idx) " +
-                        "select id, new_executor_name, old_executor_name, assignment_date, agglog_task_id, idx " +
+                        "      (id, new_executor_name, old_executor_name, assignment_date, agglog_task_id) " +
+                        "select id, new_executor_name, old_executor_name, assignment_date, agglog_task_id " +
                         "from bpm_agglog_assignment " +
                         "where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCSV + ")"
                 );

@@ -69,6 +69,7 @@ import ru.runa.wfe.commons.dbmigration.impl.RenameProcessesBatchPresentationClas
 import ru.runa.wfe.commons.dbmigration.impl.RenameSequences;
 import ru.runa.wfe.commons.dbmigration.impl.SplitProcessDefinitionVersion;
 import ru.runa.wfe.commons.dbmigration.impl.SupportProcessArchiving;
+import ru.runa.wfe.commons.dbmigration.impl.SupportProcessArchivingBefore;
 import ru.runa.wfe.commons.dbmigration.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbmigration.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbmigration.impl.TaskOpenedByExecutorsPatch;
@@ -157,6 +158,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             RefactorPermissionsStep3.class,
             SplitProcessDefinitionVersion.class,
             AddSubprocessRootIdColumn.class,
+            SupportProcessArchivingBefore.class,
             SupportProcessArchiving.class,
             RenameProcessesBatchPresentationCategories.class,
             RenameProcessesBatchPresentationClassTypes.class,
