@@ -28,6 +28,7 @@ import java.util.Map;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
@@ -42,12 +43,14 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
+import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.ProcessDefinitionInfoVisitor;
+import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -58,6 +61,8 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecuredSingleton;
+import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 
@@ -283,6 +288,11 @@ public class DefinitionLogic extends WfCommonLogic {
     private void removeDeployment(User user, Deployment deployment) {
         List<Process> processes = processDao.findAllProcesses(deployment.getId());
         for (Process process : processes) {
+            List<Task> tasks = taskDao.findByProcess(process);
+            for (Task task : tasks) {
+                task.delete();
+            }
+            ApplicationContextFactory.getTaskDAO().flushPendingChanges();
             deleteProcess(user, process);
         }
         deploymentDao.delete(deployment);
