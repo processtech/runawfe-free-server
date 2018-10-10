@@ -288,11 +288,6 @@ public class DefinitionLogic extends WfCommonLogic {
     private void removeDeployment(User user, Deployment deployment) {
         List<Process> processes = processDao.findAllProcesses(deployment.getId());
         for (Process process : processes) {
-            List<Task> tasks = taskDao.findByProcess(process);
-            for (Task task : tasks) {
-                task.delete();
-            }
-            ApplicationContextFactory.getTaskDAO().flushPendingChanges();
             deleteProcess(user, process);
         }
         deploymentDao.delete(deployment);
