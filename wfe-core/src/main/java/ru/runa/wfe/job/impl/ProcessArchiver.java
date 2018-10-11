@@ -1,6 +1,5 @@
 package ru.runa.wfe.job.impl;
 
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -11,6 +10,7 @@ import org.hibernate.dialect.Dialect;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.hibernate.HibernateUtil;
@@ -18,6 +18,7 @@ import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.extension.ProcessArchiverStepHandler;
 import ru.runa.wfe.var.Variable;
 
 @CommonsLog
@@ -185,7 +186,7 @@ public class ProcessArchiver {
         // With Hibernate 4+, use session.doReturningWork():
         val conn = ApplicationContextFactory.getSessionFactory().getCurrentSession().connection();
 
-        val processIds = new ArrayList<Number>();
+        val processIds = new ArrayList<Long>();
 
         try (val q = conn.prepareStatement(sqlSelectRootProcessIds)) {
             q.setLong(1, lastHandledProcessId);
@@ -220,7 +221,7 @@ public class ProcessArchiver {
 
         try (val stmt = conn.createStatement()) {
             // ATTENTION! Don't Lists.partition(processIds), or you'll get FK violations if parent and child processes go into different partitions.
-            val pidsCSV = "(" + StringUtils.join(processIds, ",") + ")";
+            val pidsCsv = "(" + StringUtils.join(processIds, ",") + ")";
             try {
                 // Create rows in referenced tables first, then in referencing tables.
 
@@ -229,7 +230,7 @@ public class ProcessArchiver {
                         "      (id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id) " +
                         "select id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id " +
                         "from bpm_process " +
-                        "where id in " + pidsCSV
+                        "where id in " + pidsCsv
                 );
 
                 // References process and self.
@@ -237,7 +238,7 @@ public class ProcessArchiver {
                         "      (id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name) " +
                         "select id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name " +
                         "from bpm_token " +
-                        "where process_id in " + pidsCSV
+                        "where process_id in " + pidsCsv
                 );
 
                 // References process, also has parent_token_id field.
@@ -245,7 +246,7 @@ public class ProcessArchiver {
                         "      (id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id) " +
                         "select id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id " +
                         "from bpm_subprocess " +
-                        "where process_id in " + pidsCSV + " or parent_process_id in " + pidsCSV
+                        "where process_id in " + pidsCsv + " or parent_process_id in " + pidsCsv
                 );
 
                 // References process.
@@ -253,7 +254,7 @@ public class ProcessArchiver {
                         "      (id, process_id, create_date, name, version, executor_id) " +
                         "select id, process_id, create_date, name, version, executor_id " +
                         "from bpm_swimlane " +
-                        "where process_id in " + pidsCSV
+                        "where process_id in " + pidsCsv
                 );
 
                 // References process.
@@ -261,7 +262,7 @@ public class ProcessArchiver {
                         "      (discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue) " +
                         "select discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue " +
                         "from bpm_variable " +
-                        "where process_id in " + pidsCSV
+                        "where process_id in " + pidsCsv
                 );
 
                 // No FKs, but has process_id and token_id fields.
@@ -269,7 +270,7 @@ public class ProcessArchiver {
                         "      (discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content) " +
                         "select discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content " +
                         "from bpm_log " +
-                        "where process_id in " + pidsCSV
+                        "where process_id in " + pidsCsv
                 );
 
                 // No FKs, but has process_id field.
@@ -277,7 +278,7 @@ public class ProcessArchiver {
                         "      (id, initial_actor_name, complete_actor_name, end_reason, swimlane_name, token_id, task_name, task_id, create_date, end_date, deadline_date, node_id, task_index, process_id) " +
                         "select id, initial_actor_name, complete_actor_name, end_reason, swimlane_name, token_id, task_name, task_id, create_date, end_date, deadline_date, node_id, task_index, process_id " +
                         "from bpm_agglog_task " +
-                        "where process_id in " + pidsCSV
+                        "where process_id in " + pidsCsv
                 );
 
                 // References archived_agglog_task.
@@ -285,42 +286,48 @@ public class ProcessArchiver {
                         "      (id, new_executor_name, old_executor_name, assignment_date, agglog_task_id) " +
                         "select id, new_executor_name, old_executor_name, assignment_date, agglog_task_id " +
                         "from bpm_agglog_assignment " +
-                        "where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCSV + ")"
+                        "where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCsv + ")"
                 );
+
+                // Call handlers.
+                for (String handlerClassName : SystemProperties.getProcessArchiverStepHandlers()) {
+                    ProcessArchiverStepHandler handler = ClassLoaderUtil.instantiate(handlerClassName);
+                    handler.handle(conn, processIds, pidsCsv);
+                }
 
                 // Delete rows in reverse order (from referencing tables first):
 
                 // References archived_agglog_task.
-                stmt.executeUpdate("delete from bpm_agglog_assignment where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCSV + ")");
+                stmt.executeUpdate("delete from bpm_agglog_assignment where agglog_task_id in (select id from bpm_agglog_task where process_id in " + pidsCsv + ")");
 
                 // No FKs, but has process_id field.
-                stmt.executeUpdate("delete from bpm_agglog_task where process_id in " + pidsCSV);
+                stmt.executeUpdate("delete from bpm_agglog_task where process_id in " + pidsCsv);
 
                 // No FKs, but has process_id and token_id fields.
-                stmt.executeUpdate("delete from bpm_log where process_id in " + pidsCSV);
+                stmt.executeUpdate("delete from bpm_log where process_id in " + pidsCsv);
 
                 // References process.
-                stmt.executeUpdate("delete from bpm_variable where process_id in " + pidsCSV);
+                stmt.executeUpdate("delete from bpm_variable where process_id in " + pidsCsv);
 
                 // References process.
-                stmt.executeUpdate("delete from bpm_swimlane where process_id in " + pidsCSV);
+                stmt.executeUpdate("delete from bpm_swimlane where process_id in " + pidsCsv);
 
                 // References process and token.
-                stmt.executeUpdate("delete from bpm_subprocess where process_id in " + pidsCSV + " or parent_process_id in " + pidsCSV);
+                stmt.executeUpdate("delete from bpm_subprocess where process_id in " + pidsCsv + " or parent_process_id in " + pidsCsv);
 
                 // References token and self.
                 // Since token references process, must null that references before deleting processes.
                 // Also, I delete processes before tokens, because reverse FK cannot bpm_process.root_token_id is not null.
-                stmt.executeUpdate("update bpm_process set parent_id = null where id in " + pidsCSV);
-                stmt.executeUpdate("update bpm_token set process_id = null where process_id in " + pidsCSV);
-                stmt.executeUpdate("delete from bpm_process where id in " + pidsCSV);
+                stmt.executeUpdate("update bpm_process set parent_id = null where id in " + pidsCsv);
+                stmt.executeUpdate("update bpm_token set process_id = null where process_id in " + pidsCsv);
+                stmt.executeUpdate("delete from bpm_process where id in " + pidsCsv);
 
                 // References process (already deleted above) and self.
-                // Process_id is already nulled above, so cannot check it against pidsCSV, only against nulls.
+                // Process_id is already nulled above, so cannot check it against pidsCsv, only against nulls.
                 stmt.executeUpdate("update bpm_token set parent_id = null where process_id is null");
                 stmt.executeUpdate("delete from bpm_token where process_id is null");
             } catch (Throwable e) {
-                throw new RuntimeException("Failed for pidsCSV = " + pidsCSV, e);
+                throw new RuntimeException("Failed for pidsCsv = " + pidsCsv, e);
             }
         }
 

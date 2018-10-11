@@ -262,6 +262,10 @@ public class SystemProperties {
         return RESOURCES.getMultipleStringProperty("process.end.handlers");
     }
 
+    public static List<String> getProcessArchiverStepHandlers() {
+        return RESOURCES.getMultipleStringProperty("process.archiver.step.handlers");
+    }
+
     public static List<String> getProcessAdminGroupNames() {
         return RESOURCES.getMultipleStringProperty("process.admin.groups");
     }
@@ -356,8 +360,8 @@ public class SystemProperties {
      * -1 means "disable archiving", see {@link #isProcessArchivingEnabled()}. Defaults to 1 year.
      */
     public static int getProcessDefaultSecondsBeforeArchiving() {
-        return RESOURCES.getIntegerProperty("process.default.seconds.before.archiving", -1);
-//        return RESOURCES.getIntegerProperty("process.default.seconds.before.archiving", 60);
+//        return RESOURCES.getIntegerProperty("process.default.seconds.before.archiving", -1);
+        return RESOURCES.getIntegerProperty("process.default.seconds.before.archiving", 60);
 //        return RESOURCES.getIntegerProperty("process.default.seconds.before.archiving", 365 * 86400);
     }
 
