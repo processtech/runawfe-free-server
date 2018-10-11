@@ -1,7 +1,6 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
 import java.sql.Types;
-import ru.runa.wfe.audit.aggregated.ProcessAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
@@ -63,7 +62,7 @@ public class CreateAggregatedLogsTables extends DbMigration {
     }
 
     /**
-     * Creates table, indexes e.t.c for {@link ProcessAggregatedLog}.
+     * Creates table, indexes e.t.c for ProcessAggregatedLog.
      */
     private void createProcessHistoryTable() {
         executeUpdates(

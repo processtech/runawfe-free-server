@@ -21,16 +21,9 @@ public class SupportProcessArchivingBefore extends DbMigration {
         // Sanity check.
         val conn = sessionFactory.getCurrentSession().connection();
         try (Statement stmt = conn.createStatement()) {
-            var rs = stmt.executeQuery("select count(*) from bpm_agglog_process where end_reason is not null and end_reason not between -1 and 2");
+            var rs = stmt.executeQuery("select count(*) from bpm_agglog_tasks where end_reason is not null and end_reason not between -1 and 6");
             rs.next();
             long n = rs.getLong(1);
-            if (n > 0) {
-                throw new RuntimeException("Column bpm_agglog_process.end_reason contains " + n + " invalid value(s). Migration aborted.");
-            }
-
-            rs = stmt.executeQuery("select count(*) from bpm_agglog_tasks where end_reason is not null and end_reason not between -1 and 6");
-            rs.next();
-            n = rs.getLong(1);
             if (n > 0) {
                 throw new RuntimeException("Column bpm_agglog_tasks.end_reason contains " + n + " invalid value(s). Migration aborted.");
             }
@@ -51,8 +44,7 @@ public class SupportProcessArchivingBefore extends DbMigration {
         }
 
         executeUpdates(
-                getDDLRenameColumn("bpm_agglog_process", "end_reason", new IntColumnDef("end_reason_old")),
-                getDDLCreateColumn("bpm_agglog_process", new VarcharColumnDef("end_reason", 16)),
+                getDDLDropTable("bpm_agglog_process"),
 
                 getDDLRenameTable("bpm_agglog_tasks", "bpm_agglog_task"),
                 getDDLRenameSequence("seq_bpm_agglog_tasks", "seq_bpm_agglog_task"),
@@ -74,13 +66,6 @@ public class SupportProcessArchivingBefore extends DbMigration {
     @Override
     public void executeDML(Connection conn) {
         executeUpdates(
-                "update bpm_agglog_process set end_reason = case end_reason_old " +
-                        "when -1 then 'UNKNOWN' " +
-                        "when 0 then 'PROCESSING' " +
-                        "when 1 then 'COMPLETED' " +
-                        "when 2 then 'CANCELLED' " +
-                        "else null " +
-                        "end",
                 "update bpm_agglog_task set end_reason = case end_reason_old " +
                         "when -1 then 'UNKNOWN' " +
                         "when 0 then 'PROCESSING' " +
@@ -98,7 +83,6 @@ public class SupportProcessArchivingBefore extends DbMigration {
     @Override
     protected void executeDDLAfter() {
         executeUpdates(
-                getDDLDropColumn("bpm_agglog_process", "end_reason_old"),
                 getDDLDropColumn("bpm_agglog_task", "end_reason_old")
         );
     }

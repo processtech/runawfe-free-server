@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import lombok.val;
 import org.hibernate.SessionFactory;
-import ru.runa.wfe.audit.ProcessCancelLog;
-import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessLogVisitor;
-import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskCancelledLog;
 import ru.runa.wfe.audit.TaskCreateLog;
@@ -19,13 +16,11 @@ import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.TaskExpiredLog;
 import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
-import ru.runa.wfe.audit.aggregated.ProcessAggregatedLog;
-import ru.runa.wfe.audit.aggregated.QProcessAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAssignmentAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
-import ru.runa.wfe.audit.aggregated.TaskEndReason;
 import ru.runa.wfe.audit.aggregated.TaskAssignmentAggregatedLog;
+import ru.runa.wfe.audit.aggregated.TaskEndReason;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentProcess;
@@ -50,34 +45,6 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
         this.queryFactory = queryFactory;
         this.processDefinitionLoader = processDefinitionLoader;
         this.process = process;
-    }
-
-    @Override
-    public void onProcessStartLog(ProcessStartLog processStartLog) {
-        if (getProcessLog(processStartLog.getProcessId()) != null) {
-            return;
-        }
-        sessionFactory.getCurrentSession().save(new ProcessAggregatedLog(processStartLog));
-    }
-
-    @Override
-    public void onProcessEndLog(ProcessEndLog processEndLog) {
-        ProcessAggregatedLog logEntry = getProcessLog(processEndLog.getProcessId());
-        if (logEntry == null) {
-            return;
-        }
-        logEntry.update(processEndLog);
-        sessionFactory.getCurrentSession().merge(logEntry);
-    }
-
-    @Override
-    public void onProcessCancelLog(ProcessCancelLog processCancelLog) {
-        ProcessAggregatedLog logEntry = getProcessLog(processCancelLog.getProcessId());
-        if (logEntry == null) {
-            return;
-        }
-        logEntry.update(processCancelLog);
-        sessionFactory.getCurrentSession().merge(logEntry);
     }
 
     @Override
@@ -152,11 +119,6 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
     @Override
     public void onTaskCancelledLog(TaskCancelledLog taskCancelledLog) {
         onTaskEnd(taskCancelledLog, TaskEndReason.CANCELLED);
-    }
-
-    private ProcessAggregatedLog getProcessLog(long processId) {
-        val l = QProcessAggregatedLog.processAggregatedLog;
-        return queryFactory.selectFrom(l).where(l.processId.eq(processId)).fetchFirst();
     }
 
     private TaskAggregatedLog getTaskLog(long taskId) {
