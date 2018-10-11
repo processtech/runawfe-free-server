@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.extension.Configurable;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -66,7 +66,7 @@ public class Delegation implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("class", className).add("configuration", configuration).toString();
+        return MoreObjects.toStringHelper(this).add("class", className).add("configuration", configuration).toString();
     }
 
 }

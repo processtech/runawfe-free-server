@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.presentation.filter;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -106,7 +107,7 @@ public abstract class FilterCriteria implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("filters", filterTemplates).toString();
+        return MoreObjects.toStringHelper(this).add("filters", filterTemplates).toString();
     }
 
     public boolean isExclusive() {

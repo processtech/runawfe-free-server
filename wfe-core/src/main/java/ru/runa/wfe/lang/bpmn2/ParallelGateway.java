@@ -24,6 +24,7 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -235,7 +236,7 @@ public class ParallelGateway extends Node {
 
                     @Override
                     public String toString() {
-                        return Objects.toStringHelper(getClass()).add("processId", processId).add("gateway", gateway).toString();
+                        return MoreObjects.toStringHelper(getClass()).add("processId", processId).add("gateway", gateway).toString();
                     }
 
                 }.executeInTransaction(false);
@@ -302,7 +303,7 @@ public class ParallelGateway extends Node {
 
                     @Override
                     public String toString() {
-                        return Objects.toStringHelper(getClass()).add("processId", processId).add("gateway", gateway).toString();
+                        return MoreObjects.toStringHelper(getClass()).add("processId", processId).add("gateway", gateway).toString();
                     }
 
                 }.executeInTransaction(false);

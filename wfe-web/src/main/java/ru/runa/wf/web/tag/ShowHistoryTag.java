@@ -17,6 +17,7 @@
  */
 package ru.runa.wf.web.tag;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -57,7 +58,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        String withSubprocesses = Objects.firstNonNull(pageContext.getRequest().getParameter("withSubprocesses"), "false");
+        String withSubprocesses = MoreObjects.firstNonNull(pageContext.getRequest().getParameter("withSubprocesses"), "false");
         String[] severityNames = pageContext.getRequest().getParameterValues("severities");
         if (severityNames == null) {
             severityNames = new String[] { Severity.DEBUG.name(), Severity.ERROR.name(), Severity.INFO.name() };

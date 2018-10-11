@@ -23,6 +23,7 @@ import ru.runa.wfe.extension.handler.var.SetDateVariableHandler.CalendarConfig.C
 import ru.runa.wfe.var.DelegableVariableProvider;
 import ru.runa.wfe.var.VariableProvider;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 
@@ -166,7 +167,7 @@ public class SetDateVariableHandler extends CommonHandler {
 
             @Override
             public String toString() {
-                return Objects.toStringHelper(getClass()).add("type", type).add("businessTime", businessTime).add("field", field)
+                return MoreObjects.toStringHelper(getClass()).add("type", type).add("businessTime", businessTime).add("field", field)
                         .add("expression", expression).toString();
             }
         }

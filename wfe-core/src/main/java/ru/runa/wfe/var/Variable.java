@@ -60,7 +60,7 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * Base class for classes that store variable values in the database.
@@ -236,7 +236,7 @@ public abstract class Variable<T extends Object> {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", getId()).add("name", getName()).toString();
+        return MoreObjects.toStringHelper(this).add("id", getId()).add("name", getName()).toString();
     }
 
 }

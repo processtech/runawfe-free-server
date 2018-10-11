@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import ru.runa.wfe.var.file.FileVariable;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /*
  * Options not implemented: acceptFileTypes, maxFileSize
@@ -71,7 +71,7 @@ public class UploadedFile implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(getClass()).add("name", name).toString();
+        return MoreObjects.toStringHelper(getClass()).add("name", name).toString();
     }
 
 }
