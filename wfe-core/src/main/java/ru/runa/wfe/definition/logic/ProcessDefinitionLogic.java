@@ -404,7 +404,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         if (processIdRestriction.isEmpty()) {
             return result;
         }
-        CompilerParameters parameters = CompilerParameters.create(enablePaging).addOwners(new RestrictionsToOwners(processIdRestriction, "id"));
+        CompilerParameters parameters = CompilerParameters.create(enablePaging).addOwners(new RestrictionsToOwners(processIdRestriction, "definition.id"));
         List<ProcessDefinitionVersion> versions = new PresentationCompiler<ProcessDefinitionVersion>(batchPresentation).getBatch(parameters);
         for (ProcessDefinitionVersion dv : versions) {
             result.add(new WfDefinition(dv));
