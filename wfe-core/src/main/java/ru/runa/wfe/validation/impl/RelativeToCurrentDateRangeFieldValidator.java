@@ -2,9 +2,7 @@ package ru.runa.wfe.validation.impl;
 
 import java.util.Calendar;
 import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.var.format.DateFormat;
@@ -19,7 +17,7 @@ public class RelativeToCurrentDateRangeFieldValidator extends RangeFieldValidato
     }
 
     protected boolean ignoreTime() {
-        return false;
+        return getParameter(boolean.class, "ignoreTime", false);
     }
 
     private Date getParameter(String name, boolean add) {
@@ -35,7 +33,7 @@ public class RelativeToCurrentDateRangeFieldValidator extends RangeFieldValidato
             CalendarUtil.setZeroTimeCalendar(current);
         }
         if (useBusinessCalendar()) {
-            Date date = businessCalendar.apply(new Date(), daysCount + " business days");
+            Date date = businessCalendar.apply(current.getTime(), daysCount + " business days");
             current.setTime(date);
         } else {
             current.add(Calendar.DAY_OF_MONTH, daysCount);
