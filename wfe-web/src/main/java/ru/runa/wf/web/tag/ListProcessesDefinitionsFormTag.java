@@ -68,7 +68,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.ALL), new StartProcessTdBuilder() },
+                new TdBuilder[] { new CheckboxTdBuilder("versionId", Permission.ALL), new StartProcessTdBuilder() },
                 batchPresentation,
                 new TdBuilder[] { new PropertiesProcessTdBuilder() }
         );

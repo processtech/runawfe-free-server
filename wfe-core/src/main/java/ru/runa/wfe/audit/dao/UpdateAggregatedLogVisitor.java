@@ -144,8 +144,8 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
         // Insert new record if last executor name is different from newExecutorName,
         // and if same record does not already exists (this check is for import operation: assignment may already be saved before import).
         // Instead of loading all detail rows via Hibernate collections, here I check both conditions using single optimized SQL query.
-        val l = QTaskAssignmentAggregatedLog.taskAssignmentAggregatedLog;
-        val l2 = QTaskAssignmentAggregatedLog.taskAssignmentAggregatedLog;
+        val l = new QTaskAssignmentAggregatedLog("l");
+        val l2 = new QTaskAssignmentAggregatedLog("l2");
         List<String> rows = queryFactory.select(l.newExecutorName)
                 .from(l)
                 .where(l.id.eq(JPAExpressions.select(l2.id.max()).from(l2).where(l2.log.eq(tal))).or(

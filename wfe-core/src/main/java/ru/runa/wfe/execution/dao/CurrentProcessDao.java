@@ -42,13 +42,13 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
      *
      * @return Null if not found.
      */
-    public String findParentProcessDefinitionName(Long processDefinitionId) {
-        QProcessDefinition d0 = QProcessDefinition.processDefinition;
-        QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;
-        QProcessDefinitionVersion dv0 = QProcessDefinitionVersion.processDefinitionVersion;
-        QCurrentProcess p = QCurrentProcess.currentProcess;
-        QCurrentProcess p0 = QCurrentProcess.currentProcess;
-        QCurrentNodeProcess np = QCurrentNodeProcess.currentNodeProcess;
+    public String findParentProcessDefinitionName(long processDefinitionId) {
+        QProcessDefinition d0 = new QProcessDefinition("d0");
+        QProcessDefinitionVersion dv = new QProcessDefinitionVersion("dv");
+        QProcessDefinitionVersion dv0 = new QProcessDefinitionVersion("dv0");
+        QCurrentProcess p = new QCurrentProcess("p");
+        QCurrentProcess p0 = new QCurrentProcess("p0");
+        QCurrentNodeProcess np = new QCurrentNodeProcess("np");
         return queryFactory.select(d0.name)
                 .from(dv, p, np, p0, dv0, d0)
                 .where(dv.definition.id.eq(processDefinitionId)

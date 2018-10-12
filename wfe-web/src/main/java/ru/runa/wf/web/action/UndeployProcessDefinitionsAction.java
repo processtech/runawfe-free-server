@@ -47,9 +47,9 @@ public class UndeployProcessDefinitionsAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse responce) {
         IdsForm idsForm = (IdsForm) form;
-        for (Long id : idsForm.getIds()) {
+        for (Long definitionVersionId : idsForm.getIds()) {
             try {
-                WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), id);
+                WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionVersionId);
                 Delegates.getDefinitionService().undeployProcessDefinition(getLoggedUser(request), definition.getName(), null);
             } catch (Exception e) {
                 addError(request, e);
