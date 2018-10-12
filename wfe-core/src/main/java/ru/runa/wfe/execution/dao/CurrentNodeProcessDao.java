@@ -1,5 +1,6 @@
 package ru.runa.wfe.execution.dao;
 
+import com.google.common.base.Preconditions;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import lombok.val;
@@ -29,9 +30,10 @@ public class CurrentNodeProcessDao
     }
 
     public CurrentProcess getRootProcessByParentProcess(CurrentProcess parentProcess) {
+        Preconditions.checkArgument(parentProcess.getId() != null);
         val p = QCurrentProcess.currentProcess;
         val np = QCurrentNodeProcess.currentNodeProcess;
-        val result = queryFactory.select(p).from(np).innerJoin(np.rootProcess, p).where(np.process.id.eq(parentProcess.getId())).fetchFirst();
+        val result = queryFactory.select(p).from(np).innerJoin(np.rootProcess, p).where(np.subProcess.id.eq(parentProcess.getId())).fetchFirst();
         return result != null ? result : parentProcess;
     }
 

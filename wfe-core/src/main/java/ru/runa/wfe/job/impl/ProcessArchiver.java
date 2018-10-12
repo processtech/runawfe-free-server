@@ -139,7 +139,7 @@ public class ProcessArchiver {
                 "                exists (select t.process_id from bpm_task t where t.process_id = p2.id) or " +
                 "                exists (select j.process_id from bpm_job j where j.process_id = p2.id) " +
                 "          ) " +
-                "      )" +
+                "      ) " +
                 "order by p.id", 0, ROOT_PROCESS_IDS_PER_STEP);
 
         // "Order by" is for determinism and to simplify updating lastHandledProcessId.
