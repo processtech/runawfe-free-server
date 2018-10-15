@@ -17,6 +17,11 @@
  */
 package ru.runa.wfe.var.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,9 +29,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -51,29 +56,25 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionVariableProvider;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
+import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Variables access logic.
@@ -219,8 +220,41 @@ public class VariableLogic extends WfCommonLogic {
         permissionDao.checkAllowed(user, Permission.LIST, process);
         ProcessDefinition processDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
+        updateMessageSelectorIfExists (processDefinition, executionContext, process, variables);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
         executionContext.setVariableValues(variables);
+    }
+    
+    private void updateMessageSelectorIfExists(ProcessDefinition processDefinition, ExecutionContext executionContext, //
+            Process process, Map<String, Object> variables) {
+        for (Map.Entry<String, Object> entry : variables.entrySet()) {
+            String variableKey = entry.getKey();
+            String variableValue = entry.getValue().toString();
+            String storedValue = executionContext.getVariableValue(variableKey).toString();
+
+            List<Token> tokenList = tokenDao.findByProcessAndMessageSelectorLikeAndExecutionStatusIsNotEnded(process,
+                    Utils.MESSAGE_SELECTOR_VALUE_DELIMITER + storedValue);
+            if (tokenList.size() != 1) {
+                log.info("Found more than one variable with message selector like " + storedValue);
+            } else {
+                Token token = tokenList.get(0);
+                BaseMessageNode messageNode = (BaseMessageNode) processDefinition.getNodeNotNull(token.getNodeId());
+                Map<String, String> storedMappedNames = Utils.getStoredNameValuePair(messageNode, variableKey);
+                String storedVariableName = storedMappedNames.get(variableKey);
+                String messageSelector = token.getMessageSelector();
+                Pattern pattern = Pattern
+                        .compile(storedVariableName + Utils.MESSAGE_SELECTOR_VALUE_DELIMITER + ".*\\" + Utils.MESSAGE_SELECTOR_DELIMITER + "|"
+                                + storedVariableName + Utils.MESSAGE_SELECTOR_VALUE_DELIMITER + "[^" + Utils.MESSAGE_SELECTOR_DELIMITER + "]*$");
+                Matcher matcher = pattern.matcher(messageSelector);
+                if (matcher.find()) {
+                    if (matcher.group().contains(Utils.MESSAGE_SELECTOR_DELIMITER)) {
+                        variableValue += Utils.MESSAGE_SELECTOR_DELIMITER;
+                    }
+                    token.setMessageSelector(
+                            messageSelector.replace(matcher.group(), storedVariableName + Utils.MESSAGE_SELECTOR_VALUE_DELIMITER + variableValue));
+                }
+            }
+        }
     }
 
     private WfVariableHistoryState getHistoricalVariableOnRange(User user, ProcessLogFilter filter) {

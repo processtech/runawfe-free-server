@@ -27,6 +27,15 @@ public class TokenDao extends GenericDao<Token> {
         QToken t = QToken.token;
         return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.executionStatus.ne(ExecutionStatus.ENDED))).fetch();
     }
+    
+    public List<Token> findByProcessAndMessageSelectorLikeAndExecutionStatusIsNotEnded(ru.runa.wfe.execution.Process process, String message) {
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t)
+                .where(t.process.eq(process)
+                        .and(t.messageSelector.like("%" + message + "%"))
+                        .and(t.executionStatus.ne(ExecutionStatus.ENDED)))
+                .fetch();
+    }
 
     public List<Token> findByProcessAndExecutionStatus(ru.runa.wfe.execution.Process process, ExecutionStatus status) {
         QToken t = QToken.token;
