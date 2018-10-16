@@ -194,7 +194,6 @@ public class Task implements Assignable {
 
     @CollectionOfElements
     @JoinTable(name = "BPM_TASK_OPENED", joinColumns = { @JoinColumn(name = "TASK_ID", nullable = false, updatable = false) })
-    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
     @Column(name = "EXECUTOR_ID", updatable = false)
     @ForeignKey(name = "FK_TASK_OPENED_TASK")
     public Set<Long> getOpenedByExecutorIds() {
