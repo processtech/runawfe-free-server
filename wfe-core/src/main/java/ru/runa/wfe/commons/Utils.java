@@ -59,7 +59,7 @@ public class Utils {
     private static Queue bpmMessageQueue;
     private static Queue emailQueue;
     private static Queue nodeAsyncExecutionQueue;
-    public static final String MESSAGE_SELECTOR_DELIMITER = ",";
+    private static final String MESSAGE_SELECTOR_DELIMITER = ",";
     public static final String MESSAGE_SELECTOR_VALUE_DELIMITER = "=";
 
     private static InitialContext getInitialContext() throws NamingException {
@@ -224,11 +224,11 @@ public class Utils {
         return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(selectors);
     }
     
-    public static Map<String, String> getStoredNameValuePair(BaseMessageNode messageNode, String inputString) {
+    public static Map<String, String> getVariableNameMappedNamePair(BaseMessageNode messageNode, String variableName) {
         Map<String, String> map = Maps.newHashMap();
         for (VariableMapping mapping : messageNode.getVariableMappings()) {
-            if (mapping.isPropertySelector() && mapping.getMappedName().contains(inputString)) {
-                map.put(inputString, mapping.getName());
+            if (mapping.isPropertySelector() && mapping.getMappedName().contains(variableName)) {
+                map.put(variableName, mapping.getName());
             }
         }
         return map;

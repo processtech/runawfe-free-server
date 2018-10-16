@@ -220,43 +220,10 @@ public class VariableLogic extends WfCommonLogic {
         permissionDao.checkAllowed(user, Permission.LIST, process);
         ProcessDefinition processDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-        updateMessageSelectorIfExists (processDefinition, executionContext, process, variables);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
         executionContext.setVariableValues(variables);
     }
     
-    private void updateMessageSelectorIfExists(ProcessDefinition processDefinition, ExecutionContext executionContext, //
-            Process process, Map<String, Object> variables) {
-        for (Map.Entry<String, Object> entry : variables.entrySet()) {
-            String variableKey = entry.getKey();
-            String variableValue = entry.getValue().toString();
-            String storedValue = executionContext.getVariableValue(variableKey).toString();
-
-            List<Token> tokenList = tokenDao.findByProcessAndMessageSelectorLikeAndExecutionStatusIsNotEnded(process,
-                    Utils.MESSAGE_SELECTOR_VALUE_DELIMITER + storedValue);
-            if (tokenList.size() != 1) {
-                log.info("Found more than one variable with message selector like " + storedValue);
-            } else {
-                Token token = tokenList.get(0);
-                BaseMessageNode messageNode = (BaseMessageNode) processDefinition.getNodeNotNull(token.getNodeId());
-                Map<String, String> storedMappedNames = Utils.getStoredNameValuePair(messageNode, variableKey);
-                String storedVariableName = storedMappedNames.get(variableKey);
-                String messageSelector = token.getMessageSelector();
-                Pattern pattern = Pattern
-                        .compile(storedVariableName + Utils.MESSAGE_SELECTOR_VALUE_DELIMITER + ".*\\" + Utils.MESSAGE_SELECTOR_DELIMITER + "|"
-                                + storedVariableName + Utils.MESSAGE_SELECTOR_VALUE_DELIMITER + "[^" + Utils.MESSAGE_SELECTOR_DELIMITER + "]*$");
-                Matcher matcher = pattern.matcher(messageSelector);
-                if (matcher.find()) {
-                    if (matcher.group().contains(Utils.MESSAGE_SELECTOR_DELIMITER)) {
-                        variableValue += Utils.MESSAGE_SELECTOR_DELIMITER;
-                    }
-                    token.setMessageSelector(
-                            messageSelector.replace(matcher.group(), storedVariableName + Utils.MESSAGE_SELECTOR_VALUE_DELIMITER + variableValue));
-                }
-            }
-        }
-    }
-
     private WfVariableHistoryState getHistoricalVariableOnRange(User user, ProcessLogFilter filter) {
         HashSet<String> simpleVariablesChanged = Sets.<String> newHashSet();
         // Next call is for filling simpleVariablesChanged structure.

@@ -50,6 +50,7 @@ import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
+import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
@@ -386,7 +387,9 @@ public class ExecutionContext {
             }
             log.debug("Updating variable '" + variableDefinition.getName() + "' in '" + getProcess() + "' to '" + value + "'"
                     + (value != null ? " of " + value.getClass() : ""));
+            Object oldValue = variable.getValue();
             resultingVariableLog = variable.setValue(this, value, variableDefinition);
+            updateMessageSelectorIfExists(processDefinition, variable, token.getProcess(), oldValue);
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
@@ -418,6 +421,24 @@ public class ExecutionContext {
             Date oldDate = job.getDueDate();
             job.setDueDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), job.getDueDateExpression()));
             log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));
+        }
+    }
+
+    private void updateMessageSelectorIfExists(ProcessDefinition processDefinition, Variable<?> variable, //
+            Process process, Object oldValue) {
+        List<Token> tokenList = tokenDao.findByProcessAndMessageSelectorLikeAndExecutionStatusIsNotEnded(process,
+                Utils.MESSAGE_SELECTOR_VALUE_DELIMITER + TypeConversionUtil.convertTo(String.class, oldValue));
+        for (Token token : tokenList) {
+            Node node = processDefinition.getNodeNotNull(token.getNodeId());
+            if (!(node instanceof BaseMessageNode)) {
+                continue;
+            }
+            BaseMessageNode messageNode = (BaseMessageNode) node;
+            Map<String, String> mappedNames = Utils.getVariableNameMappedNamePair(messageNode, variable.getName());
+            String newValue = Utils.getReceiveMessageNodeSelector(getVariableProvider(), messageNode);
+            if (mappedNames.size() != 0 && newValue.contains(mappedNames.get(variable.getName()))) {
+                token.setMessageSelector(newValue);
+            }
         }
     }
 }
