@@ -162,7 +162,7 @@ public class EditSettingsTag extends TitledFormTag {
                 lp.add(p);
             }
         }
-        boolean inputDisabled = !DatabaseProperties.isDynamicSettingsEnabled();
+        boolean inputDisabled = !DatabaseProperties.isDatabaseSettingsEnabled();
         for (Setting p : lp) {
             String description = getDescription(pageContext, resource + "_" + p.title);
             String value = properties.getStringProperty(p.title, "");
