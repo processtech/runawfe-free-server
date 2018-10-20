@@ -42,36 +42,41 @@ public class DataSourceStorage implements DataSourceStuff {
     private static synchronized void registerDrivers() {
         try {
             File driversDir = new File(IoCommons.getAppServerDirPath() + "/wfe.data-sources/drivers");
-            if (driversDir.exists()) {
-                File[] drivers = driversDir.listFiles();
-                if (drivers.length > driverJarNames.size()) {
-                    List<URL> urls = Lists.newArrayList();
-                    for (File driver : drivers) {
-                        String driverJarName = driver.getAbsolutePath();
-                        if (!driverJarNames.contains(driverJarName)) {
-                            urls.add(new URL(MessageFormat.format("jar:file:{0}!/", driverJarName)));
-                            driverJarNames.add(driverJarName);
-                        }
-                    }
-                    URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[] {}));
-                    JdbcDataSourceType[] dsTypes = JdbcDataSourceType.values();
-                    for (JdbcDataSourceType dsType : dsTypes) {
-                        if (!registeredDsTypes.contains(dsType)) {
-                            String driverClassName = dsType.driverClassName();
-                            try {
-                                Driver driver = (Driver) Class.forName(driverClassName, true, urlClassLoader).newInstance();
-                                DriverManager.registerDriver(new DriverWrapper(driver));
-                                registeredDsTypes.add(dsType);
-                                log.info("JDBC-driver " + driverClassName + " registered successfully");
-                            } catch (ClassNotFoundException | SQLException e) {
-                                log.info("JDBC-driver " + driverClassName + " not available");
-                            }
-                        }
+            if (!driversDir.exists()) {
+                return;
+            }
+            File[] drivers = driversDir.listFiles();
+            if (drivers == null) {
+                return;
+            }
+            List<URL> urls = Lists.newArrayList();
+            for (File driver : drivers) {
+                String driverJarName = driver.getAbsolutePath();
+                if (!driverJarNames.contains(driverJarName)) {
+                    urls.add(new URL(MessageFormat.format("jar:file:{0}!/", driverJarName)));
+                    driverJarNames.add(driverJarName);
+                }
+            }
+            if (urls.isEmpty()) {
+                return;
+            }
+            URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[] {}));
+            JdbcDataSourceType[] dsTypes = JdbcDataSourceType.values();
+            for (JdbcDataSourceType dsType : dsTypes) {
+                if (!registeredDsTypes.contains(dsType)) {
+                    String driverClassName = dsType.driverClassName();
+                    try {
+                        Driver driver = (Driver) Class.forName(driverClassName, true, urlClassLoader).newInstance();
+                        DriverManager.registerDriver(new DriverWrapper(driver));
+                        registeredDsTypes.add(dsType);
+                        log.info("JDBC-driver " + driverClassName + " registered successfully");
+                    } catch (ClassNotFoundException | SQLException e) {
+                        log.info("JDBC-driver " + driverClassName + " not available");
                     }
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("registerDrivers failed", e);
         }
     }
 
