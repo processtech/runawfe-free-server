@@ -14,7 +14,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.var.VariableProvider;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -95,7 +95,7 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("relationName", relationName).add("relationParameterVariableName", relationParameterVariableName)
+        return MoreObjects.toStringHelper(this).add("relationName", relationName).add("relationParameterVariableName", relationParameterVariableName)
                 .add("inversed", inversed).toString();
     }
 

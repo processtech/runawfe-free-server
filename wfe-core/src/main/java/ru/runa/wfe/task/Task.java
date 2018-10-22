@@ -21,6 +21,7 @@
  */
 package ru.runa.wfe.task;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import java.util.Date;
@@ -331,7 +332,7 @@ public class Task implements Assignable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).add("assignedTo", executor).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).add("assignedTo", executor).toString();
     }
 
 }

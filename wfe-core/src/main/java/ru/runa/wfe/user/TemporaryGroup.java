@@ -7,7 +7,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * Used for dynamic assignment multiple executors in swimlanes.
@@ -42,7 +42,7 @@ public class TemporaryGroup extends Group {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", getId()).add("name", getName()).add("description", getDescription()).toString();
+        return MoreObjects.toStringHelper(this).add("id", getId()).add("name", getName()).add("description", getDescription()).toString();
     }
 
     @Column(name = "PROCESS_ID")

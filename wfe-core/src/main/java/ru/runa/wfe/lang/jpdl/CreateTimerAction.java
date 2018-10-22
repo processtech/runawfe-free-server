@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 
 import ru.runa.wfe.audit.CreateTimerLog;
@@ -81,7 +81,7 @@ public class CreateTimerAction extends Action {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("event", getEvent()).add("dueDate", dueDate).toString();
+        return MoreObjects.toStringHelper(this).add("event", getEvent()).add("dueDate", dueDate).toString();
     }
 
     public static List<CreateTimerAction> getNodeTimerActions(GraphElement graphElement, boolean includeEscalation) {

@@ -22,7 +22,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 
@@ -120,7 +120,7 @@ public class EmailTaskNotifier implements TaskNotifier {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("enabled", enabled).add("onlyIfTaskActorEmailDefined", onlyIfTaskActorEmailDefined)
+        return MoreObjects.toStringHelper(this).add("enabled", enabled).add("onlyIfTaskActorEmailDefined", onlyIfTaskActorEmailDefined)
                 .add("configPath", configPath).add("includeEmailsFilter", includeEmailsFilter).add("excludeEmailsFilter", excludeEmailsFilter)
                 .add("includeProcessNameFilter", includeProcessNameFilter).add("excludeProcessNameFilter", excludeProcessNameFilter).toString();
     }

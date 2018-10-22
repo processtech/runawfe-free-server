@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -209,7 +210,7 @@ public class ReceiveMessageBean implements MessageListener {
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(getClass()).add("processId", processId).add("tokenId", tokenId).add("node", node).toString();
+            return MoreObjects.toStringHelper(getClass()).add("processId", processId).add("tokenId", tokenId).add("node", node).toString();
         }
     }
 

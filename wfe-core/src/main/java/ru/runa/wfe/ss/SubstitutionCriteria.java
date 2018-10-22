@@ -37,7 +37,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * Criterion for applying substitution rule.
@@ -98,7 +98,7 @@ public class SubstitutionCriteria implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).add("configuration", configuration).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).add("configuration", configuration).toString();
     }
 
     public boolean isSatisfied(ExecutionContext executionContext, Task task, Actor asActor, Actor substitutorActor) {

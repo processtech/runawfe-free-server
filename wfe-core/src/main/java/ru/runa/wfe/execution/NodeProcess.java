@@ -20,6 +20,7 @@ import org.hibernate.annotations.Index;
 
 import ru.runa.wfe.lang.Node;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 @Entity
@@ -137,7 +138,7 @@ public class NodeProcess {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("nodeId", nodeId).add("process", process).add("subProcess", subProcess).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("nodeId", nodeId).add("process", process).add("subProcess", subProcess).toString();
     }
 
 }

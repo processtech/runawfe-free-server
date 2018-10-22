@@ -1,11 +1,10 @@
 package ru.runa.wfe.extension.function;
 
+import com.google.common.base.MoreObjects;
 import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.google.common.base.Objects;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -67,7 +66,7 @@ public abstract class Function<T extends Object> {
     
     @Override
     public String toString() {
-        return Objects.toStringHelper(getClass()).add("parameters count", parameterDefinitions.length).toString();
+        return MoreObjects.toStringHelper(getClass()).add("parameters count", parameterDefinitions.length).toString();
     }
     
     public static class Param {
