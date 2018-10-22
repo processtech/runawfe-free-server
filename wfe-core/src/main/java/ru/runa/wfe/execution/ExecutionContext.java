@@ -431,13 +431,11 @@ public class ExecutionContext {
         for (Token token : tokenList) {
             Node node = processDefinition.getNodeNotNull(token.getNodeId());
             if (!(node instanceof BaseMessageNode)) {
-                continue;
+                throw new InternalApplicationException("Message selector must be definded only for catch event message node");
             }
             BaseMessageNode messageNode = (BaseMessageNode) node;
-            Map<String, String> mappedNames = Utils.getVariableNameMappedNamePair(messageNode, variable.getName());
-            String newValue = Utils.getReceiveMessageNodeSelector(getVariableProvider(), messageNode);
-            if (mappedNames.size() != 0 && newValue.contains(mappedNames.get(variable.getName()))) {
-                token.setMessageSelector(newValue);
+            if (messageNode.areSelectorsContainVariable(variable.getName())) {
+                token.setMessageSelector(Utils.getReceiveMessageNodeSelector(getVariableProvider(), messageNode));
             }
         }
     }

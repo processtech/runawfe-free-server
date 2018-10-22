@@ -1,6 +1,8 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.base.Objects;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
+import ru.runa.wfe.var.VariableMapping;
 
 public abstract class BaseMessageNode extends VariableContainerNode {
     private static final long serialVersionUID = 1L;
@@ -17,6 +19,16 @@ public abstract class BaseMessageNode extends VariableContainerNode {
 
     public void setEventType(MessageEventType eventType) {
         this.eventType = eventType;
+    }
+
+    
+    public boolean areSelectorsContainVariable(String variableName) {
+        for (VariableMapping mapping : this.getVariableMappings()) {
+            if (mapping.isPropertySelector() && Objects.equal(mapping.getMappedName(), "${" + variableName + "}")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -223,16 +223,6 @@ public class Utils {
         Collections.sort(selectors);
         return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(selectors);
     }
-    
-    public static Map<String, String> getVariableNameMappedNamePair(BaseMessageNode messageNode, String variableName) {
-        Map<String, String> map = Maps.newHashMap();
-        for (VariableMapping mapping : messageNode.getVariableMappings()) {
-            if (mapping.isPropertySelector() && mapping.getMappedName().contains(variableName)) {
-                map.put(variableName, mapping.getName());
-            }
-        }
-        return map;
-    }
 
     public static String getObjectMessageStrictSelector(ObjectMessage message) throws JMSException {
         return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(getObjectMessageSelectorSelectors(message));
