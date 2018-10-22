@@ -29,7 +29,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 @Entity
 @Table(name = "BPM_JOB")
@@ -141,7 +141,7 @@ public abstract class Job {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).add("dueDate", CalendarUtil.formatDateTime(dueDate))
+        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).add("dueDate", CalendarUtil.formatDateTime(dueDate))
                 .add("process", getProcess()).toString();
     }
 

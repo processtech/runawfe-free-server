@@ -1,6 +1,6 @@
 package ru.runa.wfe.office.doc;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
@@ -107,6 +107,6 @@ public class AbstractIteratorOperation extends Operation {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(getClass()).add("by", iterateBy).add("container", containerVariableName).add("item", iterateBy).toString();
+        return MoreObjects.toStringHelper(getClass()).add("by", iterateBy).add("container", containerVariableName).add("item", iterateBy).toString();
     }
 }

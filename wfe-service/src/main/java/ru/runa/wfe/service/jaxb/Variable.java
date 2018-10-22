@@ -1,6 +1,6 @@
 package ru.runa.wfe.service.jaxb;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 public class Variable {
     public String name;
@@ -10,6 +10,6 @@ public class Variable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(getClass()).add("name", name).add("value", value).toString();
+        return MoreObjects.toStringHelper(getClass()).add("name", name).add("value", value).toString();
     }
 }

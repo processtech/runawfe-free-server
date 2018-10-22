@@ -25,7 +25,7 @@ import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
@@ -72,7 +72,7 @@ public class Action extends GraphElement {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("event", actionEvent).add("delegation", delegation).toString();
+        return MoreObjects.toStringHelper(this).add("event", actionEvent).add("delegation", delegation).toString();
     }
 
 }

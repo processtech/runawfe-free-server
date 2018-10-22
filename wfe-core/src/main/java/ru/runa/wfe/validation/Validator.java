@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.validation;
 
+import com.google.common.base.MoreObjects;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -29,8 +30,6 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
-
-import com.google.common.base.Objects;
 
 public abstract class Validator {
     protected final Log log = LogFactory.getLog(getClass());
@@ -126,6 +125,6 @@ public abstract class Validator {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("config", config).toString();
+        return MoreObjects.toStringHelper(this).add("config", config).toString();
     }
 }

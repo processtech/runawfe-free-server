@@ -7,7 +7,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -56,7 +56,7 @@ public class ScriptNode extends Node implements BoundaryEventContainer {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", getNodeId()).add("delegation", delegation).toString();
+        return MoreObjects.toStringHelper(this).add("id", getNodeId()).add("delegation", delegation).toString();
     }
 
 }
