@@ -33,6 +33,7 @@ public class ImportDataFileTag extends TitledFormTag {
         table.setClass(Resources.CLASS_LIST_TABLE);
         createAddDataRow(table);
         clearPasswordRow(table);
+        clearPasswordForDataSourcesRow(table);
         Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true);
         table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE.message(pageContext), fileInput));
         tdFormElement.addElement(table);
@@ -81,6 +82,31 @@ public class ImportDataFileTag extends TitledFormTag {
         passwordText.setStyle("width: 300px;");
         passInputTd.addElement(passwordText);
         table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE_PASSWORD.message(pageContext), passInputTd));
+    }
+
+    private void clearPasswordForDataSourcesRow(Table table) {
+        TD td = new TD();
+        Input setPasswordInput = new Input(Input.RADIO, ImportDataFileAction.PASSWORD_DATA_SOURCE_PARAM, ImportDataFileAction.SET_PASSWORD);
+        setPasswordInput.setID(ImportDataFileAction.SET_PASSWORD);
+        setPasswordInput.setChecked(true);
+        td.addElement(setPasswordInput);
+        Label label = new Label(ImportDataFileAction.SET_PASSWORD);
+        label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_SET_PASSWORD_DATA_SOURCE.message(pageContext)));
+        td.addElement(label);
+        td.addElement(Entities.NBSP);
+        Input clearPasswordInput = new Input(Input.RADIO, ImportDataFileAction.PASSWORD_DATA_SOURCE_PARAM, ImportDataFileAction.CLEAR_PASSWORD);
+        clearPasswordInput.setID(ImportDataFileAction.CLEAR_PASSWORD);
+        td.addElement(clearPasswordInput);
+        label = new Label(ImportDataFileAction.CLEAR_PASSWORD);
+        label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_CLEAR_PASSWORD_DATA_SOURCE.message(pageContext)));
+        td.addElement(label);
+        table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE_ACTION_PASSWORD_DATA_SOURCE.message(pageContext), td));
+        TD passInputTd = new TD();
+        Input passwordText = new Input(Input.TEXT, ImportDataFileAction.PASSWORD_VALUE_DATA_SOURCE_PARAM, "321");
+        passwordText.setID(ImportDataFileAction.PASSWORD_VALUE_DATA_SOURCE_PARAM);
+        passwordText.setStyle("width: 300px;");
+        passInputTd.addElement(passwordText);
+        table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE_PASSWORD_DATA_SOURCE.message(pageContext), passInputTd));
     }
 
     @Override

@@ -1,8 +1,7 @@
 package ru.runa.wfe.office.doc;
 
-import ru.runa.wfe.var.file.FileVariable;
-
 import com.google.common.base.Strings;
+import ru.runa.wfe.var.file.FileVariable;
 
 public class InsertImageOperation extends ReplaceOperation {
     private FileVariable fileVariable;

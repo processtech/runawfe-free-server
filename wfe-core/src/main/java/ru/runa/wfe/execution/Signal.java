@@ -22,7 +22,7 @@
 package ru.runa.wfe.execution;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Enumeration;
@@ -111,7 +111,7 @@ public class Signal implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("selectors", messageSelectorsValue).add("data", messageDataValue).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("selectors", messageSelectorsValue).add("data", messageDataValue).toString();
     }
 
     private Map<String, String> getMessageSelectorsMap(ObjectMessage message) throws JMSException {

@@ -52,7 +52,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
@@ -241,7 +241,7 @@ public abstract class ProcessLog implements Attributes, Serializable, Comparable
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("nodeId", nodeId).add("tokenId", tokenId)
+        return MoreObjects.toStringHelper(this).add("id", id).add("nodeId", nodeId).add("tokenId", tokenId)
                 .add("date", CalendarUtil.formatDateTime(createDate)).add("attributes", attributes).toString();
     }
 }

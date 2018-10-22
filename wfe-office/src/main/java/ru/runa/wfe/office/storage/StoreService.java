@@ -1,13 +1,12 @@
 package ru.runa.wfe.office.storage;
 
 import java.util.Properties;
-
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
 import ru.runa.wfe.var.dto.WfVariable;
 
 public interface StoreService {
 
-    public static final String PROP_CONSTRAINTS = "constaraints";
+    public static final String PROP_CONSTRAINTS = "constraints";
     public static final String PROP_PATH = "path";
     public static final String PROP_FORMAT = "format";
 

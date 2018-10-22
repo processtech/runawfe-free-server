@@ -83,7 +83,7 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
 
     public void testGetSwimlanesByUnauthorizedSubject() throws Exception {
         try {
-            executionService.getSwimlanes(helper.getUnauthorizedPerformerUser(), instanceId);
+            executionService.getProcessSwimlanes(helper.getUnauthorizedPerformerUser(), instanceId);
             fail("testGetSwimlanesByUnauthorizedSubject(), no AuthorizationException");
         } catch (AuthorizationException e) {
         }
@@ -91,7 +91,7 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
 
     public void testGetSwimlanesByFakeSubject() throws Exception {
         try {
-            executionService.getSwimlanes(helper.getFakeUser(), instanceId);
+            executionService.getProcessSwimlanes(helper.getFakeUser(), instanceId);
             fail("testGetSwimlanesByFakeSubject(), no AuthenticationException");
         } catch (AuthenticationException e) {
         }
@@ -99,7 +99,7 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
 
     public void testGetSwimlanesByNullSubject() throws Exception {
         try {
-            executionService.getSwimlanes(null, instanceId);
+            executionService.getProcessSwimlanes(null, instanceId);
             fail("testGetSwimlanesByNullSubject(), no IllegalArgumentException");
         } catch (IllegalArgumentException e) {
         }
@@ -107,14 +107,14 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
 
     public void testGetSwimlanesByAuthorizedSubjectWithInvalidProcessId() throws Exception {
         try {
-            executionService.getSwimlanes(helper.getAuthorizedPerformerUser(), -1l);
+            executionService.getProcessSwimlanes(helper.getAuthorizedPerformerUser(), -1l);
             fail("testGetSwimlanesByAuthorizedSubjectWithInvalidProcessId(), no ProcessInstanceDoesNotExistException");
         } catch (ProcessDoesNotExistException e) {
         }
     }
 
     public void testGetSwimlanesByAuthorizedSubject() throws Exception {
-        List<WfSwimlane> WfSwimlanes = executionService.getSwimlanes(helper.getAuthorizedPerformerUser(), instanceId);
+        List<WfSwimlane> WfSwimlanes = executionService.getProcessSwimlanes(helper.getAuthorizedPerformerUser(), instanceId);
         List<String> expectedNames = Lists.newArrayList("boss", "requester", "erp operator");
         List<String> actualNames = Lists.newArrayList();
         for (WfSwimlane WfSwimlane : WfSwimlanes) {

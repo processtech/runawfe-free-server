@@ -1,5 +1,9 @@
 package ru.runa.wfe.office.storage;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -20,29 +23,27 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
+import ru.runa.wfe.datasource.DataSource;
+import ru.runa.wfe.datasource.DataSourceStorage;
+import ru.runa.wfe.datasource.DataSourceStuff;
+import ru.runa.wfe.datasource.ExcelDataSource;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.office.excel.AttributeConstraints;
 import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.excel.utils.ExcelHelper;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 public class StoreServiceImpl implements StoreService {
 
@@ -156,7 +157,19 @@ public class StoreServiceImpl implements StoreService {
         constraints = (ExcelConstraints) properties.get(PROP_CONSTRAINTS);
         format = (VariableFormat) properties.get(PROP_FORMAT);
         fullPath = properties.getProperty(PROP_PATH);
-        File f = new File(fullPath);
+        if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) || fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
+            String dsName = null;
+            if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)) {
+                dsName = fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE.length());
+            } else {
+                dsName = (String) variableProvider.getValueNotNull(fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE.length()));
+            }
+            DataSource ds = DataSourceStorage.getDataSource(dsName);
+            if (ds instanceof ExcelDataSource) {
+                ExcelDataSource eds = (ExcelDataSource) ds;
+                fullPath = eds.getFilePath() + "/" + eds.getFileName();
+            }
+        }
         createFileIfNotExist(fullPath);
     }
 

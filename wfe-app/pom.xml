@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.runa.wfe</groupId>
 	<artifactId>wfe-app</artifactId>
-	<version>4.3.1-SNAPSHOT</version>
+	<version>4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>RunaWFE application</name>
 
@@ -77,7 +77,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>17.0</version>
+				<version>26.0-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-beanutils</groupId>

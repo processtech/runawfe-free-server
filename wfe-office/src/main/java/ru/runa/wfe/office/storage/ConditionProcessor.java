@@ -1,29 +1,25 @@
 package ru.runa.wfe.office.storage;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.extension.handler.ParamsDef;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.DateFormat;
 import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Sets;
 
 public class ConditionProcessor {
 

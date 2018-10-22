@@ -49,7 +49,7 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
     protected void fillFormElement(TD tdFormElement) {
         User user = getUser();
         Long processId = getProcessId();
-        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getSwimlanes(user, processId);
+        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(user, processId);
         BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
         batchPresentation.setFieldsToSort(new int[] { 1 }, new boolean[] { true });
         List<? extends Executor> allowedExecutors = Delegates.getExecutorService().getExecutors(user, batchPresentation);

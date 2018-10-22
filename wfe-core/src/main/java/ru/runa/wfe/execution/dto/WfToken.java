@@ -28,6 +28,7 @@ import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.dto.WfNode;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -124,7 +125,7 @@ public class WfToken implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).toString();
     }
 
 }

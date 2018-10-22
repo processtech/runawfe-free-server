@@ -24,7 +24,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 
 import ru.runa.wfe.security.SecuredObjectType;
@@ -145,7 +145,7 @@ public class Actor extends Executor {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", getId()).add("name", getName()).add("code", getCode()).toString();
+        return MoreObjects.toStringHelper(this).add("id", getId()).add("name", getName()).add("code", getCode()).toString();
     }
 
     @Transient

@@ -24,8 +24,6 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
-import ru.runa.wfe.audit.presentation.FileValue;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 
@@ -50,10 +48,7 @@ public class VariableCreateLog extends VariableLog {
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        if (isFileValue()) {
-            return new Object[] { getVariableName(), new FileValue(getId(), getVariableNewValueAttribute()) };
-        }
-        return new Object[] { getVariableName(), getVariableNewValue() };
+        return new Object[] { getVariableName(), getVariableNewValueForPattern() };
     }
 
     @Override

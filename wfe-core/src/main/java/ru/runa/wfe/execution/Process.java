@@ -21,7 +21,7 @@
  */
 package ru.runa.wfe.execution;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Throwables;
 import java.util.Date;
 import java.util.List;
@@ -337,7 +337,7 @@ public class Process extends SecuredObjectBase {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("status", executionStatus).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("status", executionStatus).toString();
     }
 
 }

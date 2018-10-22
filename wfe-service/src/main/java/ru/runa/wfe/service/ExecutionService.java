@@ -157,8 +157,32 @@ public interface ExecutionService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException;
+    public List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException;
 
+    /**
+     * Gets all roles.
+     *
+     * @param user
+     *            authorized user
+     * @param namePattern
+     *            role name
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern);
+    
+    /**
+     * Reassigns initialized process role.
+     *
+     * @param user
+     *            authorized user
+     * @param id
+     *            id
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public boolean reassignSwimlane(User user, Long id);
+    
     /**
      * Assigns role by name to specified executor.
      *

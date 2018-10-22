@@ -1,10 +1,13 @@
 package ru.runa.wfe.script.common;
 
-import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.bot.logic.BotLogic;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
@@ -45,6 +48,8 @@ public class ScriptExecutionContext {
     private User user;
 
     private String defaultPassword;
+
+    private String dataSourceDefaultPassword;
 
     private Map<String, byte[]> externalResources;
 
@@ -114,6 +119,10 @@ public class ScriptExecutionContext {
         return defaultPassword;
     }
 
+    public String getDataSourceDefaultPassword() {
+        return dataSourceDefaultPassword;
+    }
+
     public byte[] getExternalResource(String resourceFile) {
         byte[] externalResource = externalResources.get(resourceFile);
         if (externalResource == null) {
@@ -130,15 +139,26 @@ public class ScriptExecutionContext {
         this.defaultPassword = defaultPassword;
     }
 
+    private void setDataSourceDefaultPassword(String defaultPassword) {
+        this.dataSourceDefaultPassword = defaultPassword;
+    }
+
     private void setExternalResources(Map<String, byte[]> externalResources) {
         this.externalResources = externalResources;
     }
 
     public static ScriptExecutionContext create(User user, Map<String, byte[]> externalResources, String defaultPassword) {
+        return create(user, externalResources, defaultPassword, null);
+    }
+
+    public static ScriptExecutionContext create(User user, Map<String, byte[]> externalResources, String defaultPassword,
+            String dataSourceDefaultPassword) {
         ScriptExecutionContext context = ApplicationContextFactory.createAutowiredBean(ScriptExecutionContext.class);
         context.setDefaultPassword(defaultPassword);
+        context.setDataSourceDefaultPassword(dataSourceDefaultPassword);
         context.setUser(user);
         context.setExternalResources(externalResources);
         return context;
     }
+
 }
