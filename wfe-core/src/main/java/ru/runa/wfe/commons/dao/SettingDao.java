@@ -17,7 +17,7 @@
  */
 package ru.runa.wfe.commons.dao;
 
-import java.util.List;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.val;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,40 +35,32 @@ public class SettingDao extends GenericDao<Setting> {
         super(Setting.class);
     }
 
-    private Setting get(String fileName, String name) {
-        val s = QSetting.setting;
-        return queryFactory.selectFrom(s).where(s.fileName.eq(fileName).and(s.name.eq(name))).fetchFirst();
-    }
-
     public String getValue(String fileName, String name) {
-        Setting property = get(fileName, name);
-        if (property == null) {
-            return null;
-        }
-        return property.getValue();
+        val s = QSetting.setting;
+        return queryFactory.select(s.value).from(s).where(s.fileName.eq(fileName).and(s.name.eq(name))).fetchFirst();
     }
 
     public void setValue(String fileName, String name, String value) {
         log.debug("setValue(" + fileName + ", " + name + ", " + value + ")");
-        Setting property = get(fileName, name);
+
+        val s = QSetting.setting;
+        BooleanExpression cond = s.fileName.eq(fileName).and(s.name.eq(name));
+
         if (value == null) {
-            if (property != null) {
-                delete(property);
-            }
+            queryFactory.delete(s).where(cond).execute();
             return;
         }
-        if (property == null) {
+
+        val id = queryFactory.select(s.id).from(s).where(cond).fetchFirst();
+        if (id == null) {
             create(new Setting(fileName, name, value));
         } else {
-            property.setValue(value);
-            update(property);
+            queryFactory.update(s).set(s.value, value).where(cond).execute();
         }
     }
 
     public void clear() {
-        List<Setting> list = getAll();
-        for (Setting l : list) {
-            delete(l);
-        }
+        val s = QSetting.setting;
+        queryFactory.delete(s).execute();
     }
 }

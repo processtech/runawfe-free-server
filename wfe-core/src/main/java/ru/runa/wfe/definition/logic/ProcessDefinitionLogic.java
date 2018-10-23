@@ -309,6 +309,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         for (CurrentProcess p : processes) {
             deleteProcess(user, p);
         }
+        currentProcessDao.flushPendingChanges();
 
         if (dv == null) {
             processDefinitionVersionDao.deleteAll(d.getId());
