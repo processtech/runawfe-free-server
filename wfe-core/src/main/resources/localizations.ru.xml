@@ -43,6 +43,7 @@
   <artifact enabled="false" name="ru.runa.wfe.extension.handler.user.ActorNameActionHandler" label="Получить имя пользователя"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.GetExecutorInfoHandler" label="Получить информацию об исполнителе"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.GetExecutorByRelationHandler" label="Получить исполнителя по отношению"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.ExecutorsListFromGroupHandler" label="Получить список исполнителей, входящих в группу"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.GetExecutorsByRelationHandler" label="Получить список исполнителей по отношению"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.GetObjectFromMapActionHandler" label="Получить элемент карты"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.GetObjectFromListActionHandler" label="Получить элемент списка"/>
@@ -61,6 +62,7 @@
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.SQLDirectorFunction" label="Директор"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.ExecutorByNameFunction" label="Исполнитель по имени"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.GetActorsByCodesFunction" label="Исполнитель по коду"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.ExecutorsFromListFunction" label="Исполнители из списка"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.SQLChiefFunction" label="Руководитель"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.DemoChiefFunction" label="Руководитель (демо)"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.SQLFunction" label="Функция SQL"/>
