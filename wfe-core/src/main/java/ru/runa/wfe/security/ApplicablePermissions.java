@@ -249,10 +249,10 @@ public final class ApplicablePermissions {
         add(SecuredObjectType.LOGS, ALL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
 
-        add(SecuredObjectType.PROCESS, ALL, LIST, READ, CANCEL)
+        add(SecuredObjectType.PROCESS, ALL, LIST, READ, UPDATE, CANCEL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.PROCESSES, ALL, LIST, READ, CANCEL)
+        add(SecuredObjectType.PROCESSES, ALL, LIST, READ, UPDATE, CANCEL)
                 .defaults(LIST)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 

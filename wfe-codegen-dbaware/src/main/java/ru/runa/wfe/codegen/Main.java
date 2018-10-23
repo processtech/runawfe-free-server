@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 /**
  * Analyzes PostgreSQL database structure and generates wfe-core/src/main/java/ru/runa/wfe/commons/dbmigration/DbMigration0.java.
  *
- * @author Dmitry Grigoriev (dimgel.ru, dimgel.me). Based on my private project's source code.
- *         That means, I preserve the right to use same approach & code in any other projects, open or closed source, under any license.
+ * @author Dmitry Grigoriev (dimgel.ru, dimgel.me, dimgel@mail.ru)
  */
 public class Main {
 

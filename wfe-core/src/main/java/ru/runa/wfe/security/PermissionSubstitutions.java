@@ -341,15 +341,17 @@ public class PermissionSubstitutions {
         add(PROCESS, ALL).list();
         add(PROCESS, CANCEL).self(ALL).list();
         add(PROCESS, LIST).self(ALL, READ, CANCEL).list();
-        add(PROCESS, READ).self(ALL).list();
+        add(PROCESS, READ).self(ALL, UPDATE).list();
         add(PROCESS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS).list();
-        add(PROCESS, UPDATE_PERMISSIONS).self(ALL).list();
+        add(PROCESS, UPDATE).self(ALL).list();
+        add(PROCESS, UPDATE_PERMISSIONS).self(ALL, UPDATE).list();
 
         add(PROCESSES, CANCEL).self(ALL);
         add(PROCESSES, LIST).self(ALL, READ, CANCEL);
-        add(PROCESSES, READ).self(ALL);
+        add(PROCESSES, READ).self(ALL, UPDATE);
         add(PROCESSES, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
-        add(PROCESSES, UPDATE_PERMISSIONS).self(ALL);
+        add(PROCESSES, UPDATE).self(ALL);
+        add(PROCESSES, UPDATE_PERMISSIONS).self(ALL, UPDATE);
 
         // System singleton:
         add(RELATIONS, LIST).self(ALL);
