@@ -1,6 +1,6 @@
 package ru.runa.wfe.execution.logic;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -37,7 +37,6 @@ public class BotSwimlaneInitializer extends SwimlaneInitializer {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("botName", botName).toString();
+        return MoreObjects.toStringHelper(this).add("botName", botName).toString();
     }
-
 }

@@ -18,16 +18,14 @@
 
 package ru.runa.wfe.task.dto;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskDeadlineUtils;
 import ru.runa.wfe.user.Actor;
@@ -243,7 +241,6 @@ public class WfTask implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("definitionId", definitionId).add("processId", processId).add("id", id).add("name", name).toString();
+        return MoreObjects.toStringHelper(this).add("definitionId", definitionId).add("processId", processId).add("id", id).add("name", name).toString();
     }
-
 }

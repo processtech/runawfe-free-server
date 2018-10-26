@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.definition.dto;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -195,6 +196,6 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("versionId", versionId).add("name", name).add("version", version).toString();
+        return MoreObjects.toStringHelper(this).add("versionId", versionId).add("name", name).add("version", version).toString();
     }
 }

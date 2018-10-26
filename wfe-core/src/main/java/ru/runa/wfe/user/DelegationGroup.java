@@ -1,11 +1,9 @@
 package ru.runa.wfe.user;
 
+import com.google.common.base.MoreObjects;
 import java.util.Date;
-
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-
-import com.google.common.base.Objects;
 
 /**
  * Delegation group
@@ -34,7 +32,6 @@ public class DelegationGroup extends TemporaryGroup {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", getId()).add("name", getName()).add("processId", getProcessId()).toString();
+        return MoreObjects.toStringHelper(this).add("id", getId()).add("name", getName()).add("processId", getProcessId()).toString();
     }
-
 }

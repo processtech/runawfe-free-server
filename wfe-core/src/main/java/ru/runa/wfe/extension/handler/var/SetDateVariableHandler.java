@@ -1,5 +1,6 @@
 package ru.runa.wfe.extension.handler.var;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
@@ -163,10 +164,9 @@ public class SetDateVariableHandler extends CommonHandler {
 
             @Override
             public String toString() {
-                return Objects.toStringHelper(getClass()).add("type", type).add("businessTime", businessTime).add("field", field)
+                return MoreObjects.toStringHelper(getClass()).add("type", type).add("businessTime", businessTime).add("field", field)
                         .add("expression", expression).toString();
             }
         }
-
     }
 }

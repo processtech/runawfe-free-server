@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.ss;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
@@ -157,7 +158,7 @@ public class Substitution implements Comparable<Substitution>, Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("actorId", actorId).add("enabled", enabled).add("position", position)
+        return MoreObjects.toStringHelper(this).add("id", id).add("actorId", actorId).add("enabled", enabled).add("position", position)
                 .add("orgFunction", orgFunction).add("criteria", getCriteria()).toString();
     }
 }

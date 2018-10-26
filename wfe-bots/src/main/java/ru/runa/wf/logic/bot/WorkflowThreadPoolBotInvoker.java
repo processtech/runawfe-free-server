@@ -65,7 +65,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
      */
     @Override
     public synchronized void invokeBots(BotStation botStation, boolean resetFailedDelay) {
-        this.botStation = botStation;
+        this.botStation = Delegates.getBotService().getBotStation(botStation.getId());
         if (botInvokerInvocation != null && !botInvokerInvocation.isDone()) {
             log.debug("botInvokerInvocation != null && !botInvokerInvocation.isDone()");
             return;
@@ -186,7 +186,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
 
     /**
      * Schedules all task for bot. Each parallel tasks scheduled as self. Sequential tasks is grouped for sequential execution.
-     * 
+     *
      * @param botExecutor
      *            Bot execution data.
      * @param tasks
@@ -220,8 +220,8 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
             }
         }
         for (String taskName : sequentialTasks.keySet()) {
-            WorkflowSequentialBotTaskExecutor botTaskExecutor = new WorkflowSequentialBotTaskExecutor(botExecutor.getBot(), botExecutor.getBotTasks()
-                    .get(taskName), sequentialTasks.get(taskName));
+            WorkflowSequentialBotTaskExecutor botTaskExecutor = new WorkflowSequentialBotTaskExecutor(botExecutor.getBot(),
+                    botExecutor.getBotTasks().get(taskName), sequentialTasks.get(taskName));
             ScheduledFuture<?> future = executor.schedule(botTaskExecutor, 200, TimeUnit.MILLISECONDS);
             scheduledTasks.put(botTaskExecutor, future);
         }
@@ -229,7 +229,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
 
     /**
      * Schedules new tasks for sequential bot.
-     * 
+     *
      * @param botExecutor
      *            Component, used to create new bot task executors.
      */

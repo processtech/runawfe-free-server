@@ -1,6 +1,6 @@
 package ru.runa.wfe.user;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -73,7 +73,7 @@ public class EscalationGroup extends TemporaryGroup {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", getId()).add("name", getName()).add("original", getOriginalExecutor()).add("level", level)
+        return MoreObjects.toStringHelper(this).add("id", getId()).add("name", getName()).add("original", getOriginalExecutor()).add("level", level)
                 .toString();
     }
 }

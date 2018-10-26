@@ -1,19 +1,20 @@
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.apache.ecs.html.TextArea;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.FormSubmissionUtils;
@@ -56,10 +57,6 @@ import ru.runa.wfe.var.format.VariableDisplaySupport;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 import ru.runa.wfe.var.format.VariableInputSupport;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 /**
  * Component for generation HTML code for displaying variable or get inputs from usr for variable.
@@ -188,7 +185,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             }
         }
         if (!context.readonly) {
-            result.addElement(createAddElement());
+            result.addElement(createAddElement(scriptingVariableName));
         }
         return new GenerateHtmlForVariableResult(context, result.toString());
     }
@@ -232,7 +229,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
                 elementRow.addElement(createRemoveElement(context));
                 result.addElement(new Div().addElement(elementRow));
             }
-            result.addElement(createAddElement());
+            result.addElement(createAddElement(scriptingVariableName));
         } else {
             Table table = new Table();
             table.setClass("list");
@@ -514,6 +511,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
      */
     private Input createRemoveElement(GenerateHtmlForVariableContext context) {
         Input removeButton = new Input();
+        removeButton.setName("remove_" + context.variable.getDefinition().getScriptingNameWithoutDots());
         removeButton.setType("button");
         removeButton.setValue(" - ");
         removeButton.setStyle("width: 30px;");
@@ -524,10 +522,11 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
     /**
      * @return add button for list and so on containers.
      */
-    private Div createAddElement() {
+    private Div createAddElement(String scriptingVariableName) {
         Div result = new Div();
         Input addButton = new Input();
         result.addElement(addButton);
+        addButton.setName("add_" + scriptingVariableName);
         addButton.setType("button");
         addButton.setClass("add");
         addButton.setStyle("width: 30px;");

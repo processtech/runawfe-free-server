@@ -25,6 +25,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Blob;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -49,6 +50,9 @@ import ru.runa.wfe.commons.sqltask.Result;
 import ru.runa.wfe.commons.sqltask.StoredProcedureQuery;
 import ru.runa.wfe.commons.sqltask.SwimlaneParameter;
 import ru.runa.wfe.commons.sqltask.SwimlaneResult;
+import ru.runa.wfe.datasource.DataSourceStorage;
+import ru.runa.wfe.datasource.DataSourceStuff;
+import ru.runa.wfe.datasource.JdbcDataSource;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandlerBase;
 import ru.runa.wfe.user.Actor;
@@ -69,6 +73,7 @@ public class SqlActionHandler extends ActionHandlerBase {
     @Autowired
     private ExecutorDao executorDao;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void execute(ExecutionContext executionContext) throws Exception {
         Map<String, Object> in = Maps.newHashMap();
@@ -83,11 +88,30 @@ public class SqlActionHandler extends ActionHandlerBase {
             Connection conn = null;
             try {
                 DatabaseTask databaseTask = databaseTasks[i];
-                PreparedStatement ps = null;
-                DataSource ds = (DataSource) context.lookup(databaseTask.getDatasourceName());
-                conn = ds.getConnection();
+                String dsName = databaseTask.getDatasourceName();
+                int colonIndex = dsName.indexOf(':');
+                if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)
+                        || dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
+                    if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)) {
+                        dsName = dsName.substring(colonIndex + 1);
+                    } else {
+                        dsName = (String) executionContext.getVariableValue(dsName.substring(colonIndex + 1));
+                    }
+                    JdbcDataSource jds = (JdbcDataSource) DataSourceStorage.getDataSource(dsName);
+                    conn = DriverManager.getConnection(DataSourceStuff.adjustUrl(jds), jds.getUserName(), jds.getPassword());
+                } else { // jndi
+                    if (colonIndex > 0) {
+                        if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_JNDI_NAME)) {
+                            dsName = dsName.substring(colonIndex + 1);
+                        } else {
+                            dsName = (String) executionContext.getVariableValue(dsName.substring(colonIndex + 1));
+                        }
+                    }
+                    conn = ((DataSource) context.lookup(dsName)).getConnection();
+                }
                 for (int j = 0; j < databaseTask.getQueriesCount(); j++) {
                     AbstractQuery query = databaseTask.getQuery(j);
+                    PreparedStatement ps;
                     if (query instanceof Query) {
                         log.debug("Preparing query " + query.getSql());
                         ps = conn.prepareStatement(query.getSql());

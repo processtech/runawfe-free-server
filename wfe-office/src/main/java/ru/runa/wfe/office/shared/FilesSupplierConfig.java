@@ -1,5 +1,7 @@
 package ru.runa.wfe.office.shared;
 
+import com.google.common.io.Files;
+import com.google.common.net.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -7,17 +9,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-
-import com.google.common.io.Files;
-import com.google.common.net.MediaType;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.var.VariableProvider;
-import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 public abstract class FilesSupplierConfig {
     protected String inputFilePath;
@@ -159,5 +157,4 @@ public abstract class FilesSupplierConfig {
             fileVariable.setData(toByteArray());
         }
     }
-
 }

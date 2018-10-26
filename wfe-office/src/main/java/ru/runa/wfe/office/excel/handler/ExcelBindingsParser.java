@@ -1,14 +1,11 @@
 package ru.runa.wfe.office.excel.handler;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
-
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
-
-import com.google.common.base.Preconditions;
 
 public class ExcelBindingsParser extends FilesSupplierConfigParser<ExcelBindings> {
 
@@ -36,5 +33,4 @@ public class ExcelBindingsParser extends FilesSupplierConfigParser<ExcelBindings
             bindings.getBindings().add(binding);
         }
     }
-
 }

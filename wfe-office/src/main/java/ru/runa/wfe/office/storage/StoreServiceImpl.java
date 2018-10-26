@@ -21,6 +21,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import ru.runa.wfe.datasource.DataSource;
+import ru.runa.wfe.datasource.DataSourceStorage;
+import ru.runa.wfe.datasource.DataSourceStuff;
+import ru.runa.wfe.datasource.ExcelDataSource;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.office.excel.AttributeConstraints;
@@ -123,7 +127,19 @@ public class StoreServiceImpl implements StoreService {
         constraints = (ExcelConstraints) properties.get(PROP_CONSTRAINTS);
         format = (VariableFormat) properties.get(PROP_FORMAT);
         fullPath = properties.getProperty(PROP_PATH);
-        File f = new File(fullPath);
+        if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) || fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
+            String dsName;
+            if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)) {
+                dsName = fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE.length());
+            } else {
+                dsName = (String) variableProvider.getValueNotNull(fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE.length()));
+            }
+            DataSource ds = DataSourceStorage.getDataSource(dsName);
+            if (ds instanceof ExcelDataSource) {
+                ExcelDataSource eds = (ExcelDataSource) ds;
+                fullPath = eds.getFilePath() + "/" + eds.getFileName();
+            }
+        }
         createFileIfNotExist(fullPath);
     }
 

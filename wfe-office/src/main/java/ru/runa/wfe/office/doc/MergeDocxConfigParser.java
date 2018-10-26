@@ -1,9 +1,7 @@
 package ru.runa.wfe.office.doc;
 
 import java.util.List;
-
 import org.dom4j.Element;
-
 import ru.runa.wfe.office.doc.MergeDocxConfig.DocxInfo;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
 
@@ -25,5 +23,4 @@ public class MergeDocxConfigParser extends FilesSupplierConfigParser<MergeDocxCo
             config.getInputFileInfos().add(info);
         }
     }
-
 }

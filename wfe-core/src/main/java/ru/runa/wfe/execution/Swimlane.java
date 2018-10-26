@@ -1,5 +1,6 @@
 package ru.runa.wfe.execution;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.util.Date;
 import javax.persistence.Access;
@@ -47,6 +48,6 @@ public abstract class Swimlane<P extends Process> {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("name", name).add("value", getExecutor()).toString();
+        return MoreObjects.toStringHelper(this).add("name", name).add("value", getExecutor()).toString();
     }
 }

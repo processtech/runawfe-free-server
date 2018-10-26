@@ -19,9 +19,7 @@ package ru.runa.common.web;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
 import ru.runa.common.WebResources;
 
 public class ConfirmationPopupHelper {
@@ -43,6 +41,7 @@ public class ConfirmationPopupHelper {
     public static final String REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER = "remove.executorsfromgroups";
     public static final String REMOVE_BOT_STATION_PARAMETER = "remove.botstation";
     public static final String REMOVE_BOT_PARAMETER = "remove.bot";
+    public static final String REMOVE_DATA_SOURCE_PARAMETER = "remove.datasource";
     public static final String USE_DEFAULT_PROPERTIES_PARAMETER = "use.default.properties";
 
     private static final Map<String, StrutsMessage> confirmationResource = new HashMap<String, StrutsMessage>();
@@ -64,6 +63,7 @@ public class ConfirmationPopupHelper {
         confirmationCookies.put(REMOVE_BOT_STATION_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_BOT_STATION);
         confirmationCookies.put(REMOVE_EXECUTORS_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_EXECUTORS);
         confirmationCookies.put(REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_EXECUTORS_FROM_GROUPS);
+        confirmationCookies.put(REMOVE_DATA_SOURCE_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_DATA_SOURCE);
         confirmationCookies.put(USE_DEFAULT_PROPERTIES_PARAMETER, MessagesConfirmation.COOKIE_USE_DEFAULT_PROPERTIES);
     }
 
@@ -83,6 +83,7 @@ public class ConfirmationPopupHelper {
         confirmationResource.put(REMOVE_BOT_STATION_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_BOT_STATION);
         confirmationResource.put(REMOVE_EXECUTORS_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_EXECUTORS);
         confirmationResource.put(REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_EXECUTORS_FROM_GROUPS);
+        confirmationResource.put(REMOVE_DATA_SOURCE_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_DATA_SOURCE);
         confirmationResource.put(USE_DEFAULT_PROPERTIES_PARAMETER, MessagesConfirmation.CONF_POPUP_USE_DEFAULT_PROPERTIES);
     }
 

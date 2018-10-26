@@ -66,7 +66,7 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
             A a = new A(updateSwimlaneUrl, MessagesProcesses.LINK_UPDATE_SWIMLANE.message(pageContext));
             updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
         }
-        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getSwimlanes(getUser(), getIdentifiableId());
+        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(getUser(), getIdentifiableId());
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_SWIMLANE_NAME.message(pageContext));
         headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));

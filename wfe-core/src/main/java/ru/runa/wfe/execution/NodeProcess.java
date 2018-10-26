@@ -1,6 +1,6 @@
 package ru.runa.wfe.execution;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.util.Date;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -46,7 +46,7 @@ public abstract class NodeProcess<P extends Process, T extends Token> {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("id", getId()).add("nodeId", nodeId).add("process", getProcess()).add("subProcess", getSubProcess())
                 .toString();
     }

@@ -22,11 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 
 /**
@@ -58,6 +55,7 @@ public class TableViewSetupForm extends IdsForm {
     public static final String SHARED_TYPE_NAME = "sharedType";
     public static final String SHARED_TYPE_NO = "no";
     public static final String SHARED_TYPE_SHARED = "shared";
+    public static final String EXCLUSIVE_FILTER_IDS = "exclusiveFilterIds";
 
     private int viewSize;
     private String saveAsBatchPresentationName;
@@ -71,6 +69,8 @@ public class TableViewSetupForm extends IdsForm {
     private int[] filterPositionsIds;
     private int[] fieldsToFilterIds;
     private String[] fieldsToFilterCriterias;
+
+    private int[] exclusiveFilterIds;
 
     private String returnAction;
 
@@ -311,4 +311,16 @@ public class TableViewSetupForm extends IdsForm {
     public String getSharedType() {
         return sharedType;
     }
+
+    public int[] getExclusiveFilterIds() {
+        if (exclusiveFilterIds == null) {
+            return new int[0];
+        }
+        return exclusiveFilterIds;
+    }
+
+    public void setExclusiveFilterIds(int[] exclusiveFilterIds) {
+        this.exclusiveFilterIds = exclusiveFilterIds;
+    }
+
 }

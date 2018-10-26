@@ -60,7 +60,9 @@ public class DocxFileChanger {
                             tableExpansionOperation.addOperation(columnIndex, operation);
                         }
                         String text0 = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, 0);
-                        DocxUtils.setCellText(cell, text0);
+                        if (!java.util.Objects.equals(text0, cell.getText())) {
+                            DocxUtils.setCellText(cell, text0);
+                        }
                     }
                     if (tableExpansionOperation.getRows() == 0) {
                         for (XWPFTableCell cell : cells) {
@@ -101,5 +103,4 @@ public class DocxFileChanger {
         }
         return document;
     }
-
 }

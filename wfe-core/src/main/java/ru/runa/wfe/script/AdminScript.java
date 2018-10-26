@@ -21,7 +21,7 @@
  */
 package ru.runa.wfe.script;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -79,6 +79,6 @@ public class AdminScript implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).toString();
     }
 }

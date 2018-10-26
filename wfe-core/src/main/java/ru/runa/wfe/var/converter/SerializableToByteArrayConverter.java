@@ -33,8 +33,8 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.Converter;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.FileVariableImpl;
 

@@ -2,12 +2,11 @@ package ru.runa.wfe.office.excel;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import lombok.val;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-
 import ru.runa.wfe.office.excel.utils.ExcelHelper;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
@@ -17,7 +16,7 @@ public class ListColumnExcelStorable extends ExcelStorable<ColumnConstraints, Li
 
     @Override
     public void load(Workbook workbook) {
-        List<Object> list = new ArrayList<Object>();
+        val list = new ArrayList<Object>();
         int rowIndex = constraints.getRowStartIndex();
         VariableFormat elementFormat = FormatCommons.createComponent((VariableFormatContainer) format, 0);
         while (true) {
@@ -46,8 +45,6 @@ public class ListColumnExcelStorable extends ExcelStorable<ColumnConstraints, Li
     private Cell getCell(Workbook workbook, int rowIndex, boolean createIfLost) {
         Sheet sheet = ExcelHelper.getSheet(workbook, constraints.getSheetName(), constraints.getSheetIndex());
         Row row = ExcelHelper.getRow(sheet, rowIndex, true);
-        Cell cell = ExcelHelper.getCell(row, constraints.getColumnIndex(), createIfLost);
-        return cell;
+        return ExcelHelper.getCell(row, constraints.getColumnIndex(), createIfLost);
     }
-
 }

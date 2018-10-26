@@ -1,17 +1,14 @@
 package ru.runa.wfe.office.storage.handler;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
-
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
 import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.DataBindings;
 import ru.runa.wfe.office.storage.binding.QueryType;
-
-import com.google.common.base.Preconditions;
 
 public class StorageBindingsParser extends FilesSupplierConfigParser<DataBindings> {
 
@@ -22,7 +19,7 @@ public class StorageBindingsParser extends FilesSupplierConfigParser<DataBinding
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void parseCustom(Element root, DataBindings bindings) throws Exception {
+    protected void parseCustom(Element root, DataBindings bindings) {
         List<Element> bindingElements = root.elements("binding");
 
         for (Element bindingElement : bindingElements) {

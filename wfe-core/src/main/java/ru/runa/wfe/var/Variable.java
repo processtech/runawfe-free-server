@@ -1,6 +1,6 @@
 package ru.runa.wfe.var;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.util.Arrays;
 import java.util.Date;
 import javax.persistence.Column;
@@ -153,6 +153,6 @@ public abstract class Variable<P extends Process, V> {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", getId()).add("name", getName()).toString();
+        return MoreObjects.toStringHelper(this).add("id", getId()).add("name", getName()).toString();
     }
 }

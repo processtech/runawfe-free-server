@@ -1,5 +1,7 @@
 package ru.runa.wf.web.action;
 
+import com.google.common.base.Strings;
+import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,17 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
-
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
@@ -27,6 +26,7 @@ import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -38,9 +38,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Strings;
-import com.google.common.io.ByteStreams;
 
 /**
  * 
@@ -58,6 +55,8 @@ public class ImportDataFileAction extends ActionBase {
     public static final String UPLOAD_ONLY = "uploadOnly";
     public static final String SET_PASSWORD = "setPassword";
     public static final String CLEAR_PASSWORD = "clearPassword";
+    public static final String PASSWORD_DATA_SOURCE_PARAM = "passwordTypeDataSource";
+    public static final String PASSWORD_VALUE_DATA_SOURCE_PARAM = "passwordValueDataSource";
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -80,6 +79,11 @@ public class ImportDataFileAction extends ActionBase {
             final String passwordParamType = request.getParameter(PASSWORD_PARAM);
             if (SET_PASSWORD.equals(passwordParamType)) {
                 defaultPasswordValue = request.getParameter(PASSWORD_VALUE_PARAM);
+            }
+            String dataSourceDefaultPasswordValue = null;
+            final String dataSourcePasswordParamType = request.getParameter(PASSWORD_DATA_SOURCE_PARAM);
+            if (SET_PASSWORD.equals(dataSourcePasswordParamType)) {
+                dataSourceDefaultPasswordValue = request.getParameter(PASSWORD_VALUE_DATA_SOURCE_PARAM);
             }
 
             ZipInputStream zin = new ZipInputStream(new ByteArrayInputStream(archive));
@@ -104,8 +108,9 @@ public class ImportDataFileAction extends ActionBase {
                 List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged());
                 ProcessFilter processFilter = new ProcessFilter();
                 for (WfProcess process : processes) {
-                	if (!Strings.isNullOrEmpty(process.getHierarchyIds()))
-                		continue;
+                    if (!Strings.isNullOrEmpty(process.getHierarchyIds())) {
+                        continue;
+                    }
                     processFilter.setId(process.getId());
                     Delegates.getExecutionService().removeProcesses(user, processFilter);
                 }
@@ -152,10 +157,11 @@ public class ImportDataFileAction extends ActionBase {
                     ids.add(executor.getId());
                 }
                 Delegates.getExecutorService().remove(user, ids);
+                DataSourceStorage.clear();
             }
 
             List<String> errors = Delegates.getScriptingService().executeAdminScriptSkipError(user, scriptXml, externalResources,
-                    defaultPasswordValue);
+                    defaultPasswordValue, dataSourceDefaultPasswordValue);
             if (errors != null && errors.size() > 0) {
                 for (String error : errors) {
                     addError(request, new Exception(error));

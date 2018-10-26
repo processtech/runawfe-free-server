@@ -12,7 +12,7 @@ import ru.runa.wfe.extension.orgfunction.NullOrgFunction;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.VariableProvider;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -58,7 +58,7 @@ public class OrgFunctionSwimlaneInitializer extends SwimlaneInitializer {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("orgFunctionClassName", orgFunctionClassName).add("parameters", Lists.newArrayList(parameterNames))
+        return MoreObjects.toStringHelper(this).add("orgFunctionClassName", orgFunctionClassName).add("parameters", Lists.newArrayList(parameterNames))
                 .toString();
     }
 

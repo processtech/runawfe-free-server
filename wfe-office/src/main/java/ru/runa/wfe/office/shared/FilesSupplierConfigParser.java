@@ -2,7 +2,6 @@ package ru.runa.wfe.office.shared;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
 
 public abstract class FilesSupplierConfigParser<T extends FilesSupplierConfig> {
@@ -29,5 +28,4 @@ public abstract class FilesSupplierConfigParser<T extends FilesSupplierConfig> {
         parseCustom(root, config);
         return config;
     }
-
 }

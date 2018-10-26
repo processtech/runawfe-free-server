@@ -25,6 +25,8 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.presentation.ExecutorNameValue;
+import ru.runa.wfe.audit.presentation.FileValue;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableDefinition;
@@ -55,15 +57,20 @@ public abstract class CurrentVariableLog extends CurrentProcessLog implements Va
     }
 
     protected void setVariableNewValue(CurrentVariable<?> variable, Object newValue, VariableDefinition variableDefinition) {
-        addAttributeWithTruncation(ATTR_NEW_VALUE, variable.toString(newValue, variableDefinition));
-        boolean file = newValue instanceof FileVariable;
-        // TODO FileVariableMatcher
-        addAttribute(ATTR_IS_FILE_VALUE, String.valueOf(file));
-        if (variable.getStorableValue() instanceof byte[]) {
-            setBytes((byte[]) variable.getStorableValue());
-        } else if (newValue instanceof Executor) {
-            setBytes((byte[]) new SerializableToByteArrayConverter().convert(null, variable, newValue));
+        String newValueString;
+        if (newValue instanceof Executor) {
+            newValueString = ((Executor) newValue).getName();
+            addAttribute(ATTR_IS_EXECUTOR_VALUE, ATTR_VALUE_TRUE);
+        } else {
+            newValueString = variable.toString(newValue, variableDefinition);
+            if (newValue instanceof FileVariable) {
+                addAttribute(ATTR_IS_FILE_VALUE, ATTR_VALUE_TRUE);
+            }
+            if (variable.getStorableValue() instanceof byte[]) {
+                setBytes((byte[]) variable.getStorableValue());
+            }
         }
+        addAttributeWithTruncation(ATTR_NEW_VALUE, newValueString);
     }
 
     @Override
@@ -87,24 +94,24 @@ public abstract class CurrentVariableLog extends CurrentProcessLog implements Va
     @Override
     @Transient
     public boolean isFileValue() {
-        return "true".equals(getAttribute(ATTR_IS_FILE_VALUE));
+        return ATTR_VALUE_TRUE.equals(getAttribute(ATTR_IS_FILE_VALUE));
+    }
+
+    @Override
+    @Transient
+    public boolean isExecutorValue() {
+        return ATTR_VALUE_TRUE.equals(getAttribute(ATTR_IS_EXECUTOR_VALUE));
     }
 
     @Override
     @Transient
     public Object getVariableNewValue() {
-        byte[] bytes = getBytes();
-        if (bytes != null) {
-            if (isFileValue()) {
-                return new FileVariableToByteArrayConverter().revert(bytes);
-            }
-            try {
-                return new SerializableToByteArrayConverter().revert(bytes);
-            } catch (Exception e) {
-                return new StringToByteArrayConverter().revert(bytes);
-            }
-        }
-        return getVariableNewValueAttribute();
+        return CurrentAndArchiveCommons.variableLog_getVariableNewValue(this);
+    }
+
+    @Transient
+    public Object getVariableNewValueForPattern() {
+        return CurrentAndArchiveCommons.variableLog_getVariableNewValueForPattern(this);
     }
 
     @Transient

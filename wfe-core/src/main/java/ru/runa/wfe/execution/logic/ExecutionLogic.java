@@ -77,6 +77,7 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.extension.ProcessEndHandler;
+import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.history.GraphHistoryBuilder;
@@ -90,6 +91,7 @@ import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.BoundaryEvent;
+import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -625,7 +627,7 @@ public class ExecutionLogic extends WfCommonLogic {
         return true;
     }
 
-    public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
+    public List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(processId);
         ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
         permissionDao.checkAllowed(user, Permission.LIST, process);
@@ -641,9 +643,39 @@ public class ExecutionLogic extends WfCommonLogic {
                     assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
                 }
             }
-            result.add(new WfSwimlane(swimlaneDefinition, assignedExecutor));
+            result.add(new WfSwimlane(swimlaneDefinition, swimlane, assignedExecutor));
         }
         return result;
+    }
+    
+    public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern) {
+        List<CurrentSwimlane> list = currentSwimlaneDao.findByNamePatternInActiveProcesses(namePattern);
+        List<WfSwimlane> listSwimlanes = Lists.newArrayList();
+        for (Swimlane swimlane : list) {
+            ParsedProcessDefinition processDefinition = getDefinition(swimlane.getProcess());
+            SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlane.getName());
+            Executor assignedExecutor = swimlane.getExecutor();
+            if (assignedExecutor == null || !permissionDao.isAllowed(user, Permission.LIST, assignedExecutor)) {
+                assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
+            }
+            listSwimlanes.add(new WfSwimlane(swimlaneDefinition, swimlane, assignedExecutor));
+        }
+        return listSwimlanes;
+    }
+    
+    public boolean reassignSwimlane(User user, Long id) {
+        CurrentSwimlane swimlane = currentSwimlaneDao.get(id);
+        Process process = swimlane.getProcess();
+        ParsedProcessDefinition processDefinition = getDefinition(process);
+        Delegation delegation = processDefinition.getSwimlaneNotNull(swimlane.getName()).getDelegation();
+        Executor oldExecutor = swimlane.getExecutor();
+        try {
+            AssignmentHandler handler = delegation.getInstance();
+            handler.assign(new ExecutionContext(processDefinition, process), swimlane);
+        } catch (Exception e) {
+            log.error("Unable to reassign swimlane " + id, e);
+        }
+        return !Objects.equal(oldExecutor, swimlane.getExecutor());
     }
 
     public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) {

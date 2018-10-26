@@ -20,7 +20,9 @@ public interface Attributes {
     String ATTR_TASK_NAME = "taskName";
     String ATTR_INDEX = "index";
     String ATTR_IS_FILE_VALUE = "fileValue";
+    String ATTR_IS_EXECUTOR_VALUE = "executorValue";
     String ATTR_DUE_DATE = "dueDate";
     String ATTR_ID = "id";
     String ATTR_PARAM = "param";
+    String ATTR_VALUE_TRUE = Boolean.TRUE.toString();
 }

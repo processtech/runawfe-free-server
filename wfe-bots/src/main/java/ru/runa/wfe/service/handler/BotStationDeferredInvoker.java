@@ -5,6 +5,7 @@ import ru.runa.wfe.commons.DeferredTransactionListener;
 import ru.runa.wfe.service.delegate.BotInvokerServiceDelegate;
 
 import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 public class BotStationDeferredInvoker extends DeferredTransactionListener {
     private final BotStation botStation;
@@ -38,7 +39,6 @@ public class BotStationDeferredInvoker extends DeferredTransactionListener {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(getClass()).add("botStation", botStation).toString();
+        return MoreObjects.toStringHelper(getClass()).add("botStation", botStation).toString();
     }
-
 }

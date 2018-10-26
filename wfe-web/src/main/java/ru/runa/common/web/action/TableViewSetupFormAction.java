@@ -19,16 +19,13 @@ package ru.runa.common.web.action;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.actions.LookupDispatchAction;
-
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
@@ -156,6 +153,12 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             batchPresentation.setShared(true);
         } else if (TableViewSetupForm.SHARED_TYPE_NO.equals(tableViewSetupForm.getSharedType())) {
             batchPresentation.setShared(false);
+        }
+        for (int fieldId : tableViewSetupForm.getExclusiveFilterIds()) {
+            FilterCriteria filterCriteria = batchPresentation.getFilteredFields().get(fieldId);
+            if (filterCriteria != null) {
+                filterCriteria.setExclusive(true);
+            }
         }
     }
 

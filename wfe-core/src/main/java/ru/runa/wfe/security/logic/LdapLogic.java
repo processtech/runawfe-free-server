@@ -17,8 +17,8 @@
  */
 package ru.runa.wfe.security.logic;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -150,7 +150,7 @@ public class LdapLogic {
                 String phone = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserPhoneAttribute());
                 String title = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserTitleAttribute());
                 String department = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserDepartmentAttribute());
-                ToStringHelper toStringHelper = Objects.toStringHelper("user info");
+                ToStringHelper toStringHelper = MoreObjects.toStringHelper("user info");
                 toStringHelper.add("name", name).add("description", description).add("fullName", fullName).add("email", email);
                 toStringHelper.add("phone", phone).add("title", title).add("department", department).omitNullValues();
                 log.debug("Read " + toStringHelper.toString());
@@ -265,7 +265,7 @@ public class LdapLogic {
         for (SearchResult searchResult : groupResultsByDistinguishedName.values()) {
             String name = getStringAttribute(searchResult, ATTR_ACCOUNT_NAME);
             String description = getStringAttribute(searchResult, LdapProperties.getSynchronizationGroupDescriptionAttribute());
-            ToStringHelper toStringHelper = Objects.toStringHelper("group info");
+            ToStringHelper toStringHelper = MoreObjects.toStringHelper("group info");
             toStringHelper.add("name", name).add("description", description).omitNullValues();
             log.debug("Read " + toStringHelper.toString());
             Group group = existingGroupsByLdapNameMap.get(name);

@@ -1,5 +1,6 @@
 package ru.runa.wfe.service.client;
 
+import com.google.common.base.MoreObjects;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.DefinitionService;
@@ -10,8 +11,6 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Objects;
 
 /**
  * Implementation which uses service call for each variable retrieval (through RunaWFE delegates).
@@ -100,7 +99,6 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("processId", processId).toString();
+        return MoreObjects.toStringHelper(this).add("processId", processId).toString();
     }
-
 }

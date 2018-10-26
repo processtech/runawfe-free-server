@@ -41,7 +41,7 @@ public class SingleThreadBotInvoker implements BotInvoker {
 
     @Override
     public synchronized void invokeBots(BotStation botStation, boolean resetFailedDelay) {
-        this.botStation = botStation;
+        this.botStation = Delegates.getBotService().getBotStation(botStation.getId());
         logBotsActivites();
         configure();
         for (WorkflowBotExecutor botExecutor : botExecutors) {

@@ -117,7 +117,10 @@ public class TaskDao extends GenericDao<Task> {
 
     public void deleteAll(CurrentProcess process) {
         log.debug("deleting tasks for process " + process.getId());
-        val t = QTask.task;
-        queryFactory.delete(t).where(t.process.eq(process)).execute();
+        List<Task> tasks = findByProcess(process);
+        for (Task task : tasks) {
+            task.delete();
+        }
+        flushPendingChanges();
     }
 }

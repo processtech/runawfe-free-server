@@ -1,14 +1,11 @@
 package ru.runa.wf.web.servlet;
 
 import java.util.List;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.execution.dto.WfSwimlane;
@@ -39,7 +36,7 @@ public class AjaxSwimlaneCurrentExecutor extends JsonAjaxCommand {
         if (swimlaneName == null || swimlaneName.isEmpty()) {
             throw new InternalApplicationException("swimlaneName cannot be empty");
         }
-        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getSwimlanes(user, processId);
+        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(user, processId);
         WfSwimlane targetSwimlane = null;
         for (WfSwimlane swimlane : swimlanes) {
             if (swimlaneName.equals(swimlane.getDefinition().getName())) {
@@ -61,5 +58,4 @@ public class AjaxSwimlaneCurrentExecutor extends JsonAjaxCommand {
         }
         return root;
     }
-
 }

@@ -1,7 +1,7 @@
 package ru.runa.wf.web.tag;
 
+import com.google.common.base.Strings;
 import java.util.List;
-
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Label;
@@ -11,9 +11,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
-import com.google.common.base.Strings;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
@@ -49,7 +46,7 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
     protected void fillFormElement(TD tdFormElement) {
         User user = getUser();
         Long processId = getProcessId();
-        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getSwimlanes(user, processId);
+        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(user, processId);
         BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
         batchPresentation.setFieldsToSort(new int[] { 1 }, new boolean[] { true });
         List<? extends Executor> allowedExecutors = Delegates.getExecutorService().getExecutors(user, batchPresentation);

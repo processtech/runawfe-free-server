@@ -1,6 +1,6 @@
 package ru.runa.wfe.job;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -132,8 +132,7 @@ public abstract class Job {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).add("dueDate", CalendarUtil.formatDateTime(dueDate))
+        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).add("dueDate", CalendarUtil.formatDateTime(dueDate))
                 .add("process", getProcess()).toString();
     }
-
 }

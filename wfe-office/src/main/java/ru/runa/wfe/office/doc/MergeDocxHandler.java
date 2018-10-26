@@ -1,24 +1,21 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.collect.Maps;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.poi.xwpf.converter.pdf.PdfConverter;
 import org.apache.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
-
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.office.doc.MergeDocxConfig.DocxInfo;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
 import ru.runa.wfe.office.shared.OfficeFilesSupplierHandler;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.collect.Maps;
 
 public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig> {
 
@@ -70,5 +67,4 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
         }
         return result;
     }
-
 }

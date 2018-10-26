@@ -17,7 +17,7 @@
  */
 package ru.runa.wfe.validation;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -126,6 +126,6 @@ public abstract class Validator {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("config", config).toString();
+        return MoreObjects.toStringHelper(this).add("config", config).toString();
     }
 }

@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
@@ -173,6 +173,6 @@ public abstract class GraphElement implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", getNodeId()).add("name", getName()).toString();
+        return MoreObjects.toStringHelper(this).add("id", getNodeId()).add("name", getName()).toString();
     }
 }

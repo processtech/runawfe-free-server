@@ -1,8 +1,7 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.base.MoreObjects;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.base.Objects;
 
 public class ReplaceOperation extends Operation {
     protected boolean placeholderRead;
@@ -55,7 +54,6 @@ public class ReplaceOperation extends Operation {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(getClass()).add("placeholder", placeholder).add("value", value).toString();
+        return MoreObjects.toStringHelper(getClass()).add("placeholder", placeholder).add("value", value).toString();
     }
-
 }

@@ -215,9 +215,9 @@ public class WfCommonLogic extends CommonLogic {
         processLogDao.deleteAll(process);
         jobDao.deleteByProcess(process);
         currentVariableDao.deleteAll(process);
-        currentProcessDao.delete(process);
         taskDao.deleteAll(process);
         currentSwimlaneDao.deleteAll(process);
+        currentProcessDao.delete(process);
         systemLogDao.create(new ProcessDeleteLog(
                 user.getActor().getId(), process.getDefinitionVersion().getDefinition().getName(), process.getId()
         ));

@@ -248,8 +248,21 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public List<WfSwimlane> getSwimlanes(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
-        return executionLogic.getSwimlanes(user, processId);
+    public List<WfSwimlane> getProcessSwimlanes(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
+        return executionLogic.getProcessSwimlanes(user, processId);
+    }
+    
+    @Override
+    @WebResult(name = "result")
+    public List<WfSwimlane> getActiveProcessesSwimlanes(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "namePattern") @NonNull String namePattern) {
+        return executionLogic.getActiveProcessesSwimlanes(user, namePattern);
+    }
+    
+    @Override
+    @WebResult(name = "result")
+    public boolean reassignSwimlane(@WebParam(name = "user") User user, @WebParam(name = "id") @NonNull Long id) {
+        return executionLogic.reassignSwimlane(user, id);
     }
 
     @Override

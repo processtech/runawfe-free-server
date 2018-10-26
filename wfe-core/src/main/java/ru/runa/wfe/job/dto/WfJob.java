@@ -10,6 +10,7 @@ import ru.runa.wfe.job.Job;
 import ru.runa.wfe.lang.NodeType;
 
 import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * Process job.
@@ -90,7 +91,6 @@ public class WfJob implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("processId", processId).add("id", id).add("name", name).toString();
+        return MoreObjects.toStringHelper(this).add("processId", processId).add("id", id).add("name", name).toString();
     }
-
 }

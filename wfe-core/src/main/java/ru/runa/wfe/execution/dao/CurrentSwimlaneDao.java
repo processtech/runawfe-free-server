@@ -7,6 +7,7 @@ import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.QCurrentSwimlane;
 import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentException;
@@ -33,6 +34,11 @@ public class CurrentSwimlaneDao extends GenericDao<CurrentSwimlane> {
     public CurrentSwimlane findByProcessAndName(CurrentProcess process, String name) {
         val s = QCurrentSwimlane.currentSwimlane;
         return queryFactory.selectFrom(s).where(s.process.eq(process).and(s.name.eq(name))).fetchFirst();
+    }
+
+    public List<CurrentSwimlane> findByNamePatternInActiveProcesses(String name) {
+        val s = QCurrentSwimlane.currentSwimlane;
+        return queryFactory.selectFrom(s).where(s.name.like(name).and(s.process.executionStatus.notIn(ExecutionStatus.ENDED))).fetch();
     }
 
     public CurrentSwimlane findOrCreate(CurrentProcess process, SwimlaneDefinition swimlaneDefinition) {

@@ -14,5 +14,11 @@ public interface VariableLog extends ProcessLog {
     boolean isFileValue();
 
     @Transient
+    boolean isExecutorValue();
+
+    @Transient
     Object getVariableNewValue();
+
+    @Transient
+    Object getVariableNewValueForPattern();
 }

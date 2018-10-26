@@ -35,7 +35,6 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
-import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.FileVariableImpl;
 
 /**
@@ -146,8 +145,32 @@ public interface ExecutionService {
      *            process id process id
      * @return not <code>null</code>
      */
-    List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException;
+    List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException;
 
+    /**
+     * Gets all roles.
+     *
+     * @param user
+     *            authorized user
+     * @param namePattern
+     *            role name
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern);
+    
+    /**
+     * Reassigns initialized process role.
+     *
+     * @param user
+     *            authorized user
+     * @param id
+     *            id
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    boolean reassignSwimlane(User user, Long id);
+    
     /**
      * Assigns role by name to specified executor.
      *

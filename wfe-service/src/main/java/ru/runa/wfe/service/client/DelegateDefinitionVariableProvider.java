@@ -1,7 +1,8 @@
 package ru.runa.wfe.service.client;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import java.util.List;
-
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.service.DefinitionService;
@@ -11,8 +12,6 @@ import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Objects;
 
 public class DelegateDefinitionVariableProvider extends AbstractVariableProvider {
     private final DefinitionService definitionService;
@@ -88,6 +87,6 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("definitionVersionId", definitionVersionId).toString();
+        return MoreObjects.toStringHelper(this).add("definitionVersionId", definitionVersionId).toString();
     }
 }

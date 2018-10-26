@@ -1,17 +1,14 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
-
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.office.doc.DocxConfig.TableConfig;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.base.Preconditions;
 
 public class DocxConfigParser extends FilesSupplierConfigParser<DocxConfig> {
 
@@ -51,5 +48,4 @@ public class DocxConfigParser extends FilesSupplierConfigParser<DocxConfig> {
             config.getTypeHints().put(variableName, variableFormat);
         }
     }
-
 }

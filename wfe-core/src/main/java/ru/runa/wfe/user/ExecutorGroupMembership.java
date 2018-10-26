@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.user;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.util.Date;
 import javax.persistence.Column;
@@ -130,6 +131,6 @@ public class ExecutorGroupMembership {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("group", getGroup()).add("executor", getExecutor()).toString();
+        return MoreObjects.toStringHelper(this).add("group", getGroup()).add("executor", getExecutor()).toString();
     }
 }
