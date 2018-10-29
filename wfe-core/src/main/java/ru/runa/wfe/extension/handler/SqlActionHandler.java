@@ -101,10 +101,10 @@ public class SqlActionHandler extends ActionHandlerBase {
                     conn = DriverManager.getConnection(DataSourceStuff.adjustUrl(jds), jds.getUserName(), jds.getPassword());
                 } else { // jndi
                     if (colonIndex > 0) {
-                        if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_JNDI_NAME)) {
-                            dsName = dsName.substring(colonIndex + 1);
-                        } else {
+                        if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_JNDI_NAME_VARIABLE)) {
                             dsName = (String) executionContext.getVariableValue(dsName.substring(colonIndex + 1));
+                        } else {
+                            dsName = dsName.substring(colonIndex + 1);
                         }
                     }
                     conn = ((DataSource) context.lookup(dsName)).getConnection();
