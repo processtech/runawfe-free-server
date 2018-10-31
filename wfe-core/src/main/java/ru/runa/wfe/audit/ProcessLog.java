@@ -1,5 +1,6 @@
 package ru.runa.wfe.audit;
 
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ import lombok.AllArgsConstructor;
  * </ul>
  * So there's an inevitable mess of class and interface usages.
  */
-public interface ProcessLog extends Attributes, Comparable<ProcessLog> {
+public interface ProcessLog extends Attributes, Comparable<ProcessLog>, Serializable {
 
     // TODO Consider using this to reduce class hiearchy.
     @AllArgsConstructor

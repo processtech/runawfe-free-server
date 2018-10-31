@@ -35,7 +35,7 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 @DiscriminatorValue(value = "0")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class CurrentProcessLog extends BaseProcessLog implements Serializable {
+public abstract class CurrentProcessLog extends BaseProcessLog {
     private static final long serialVersionUID = 1L;
 
     private Long id;
