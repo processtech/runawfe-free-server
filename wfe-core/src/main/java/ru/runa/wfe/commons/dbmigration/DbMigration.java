@@ -478,12 +478,12 @@ public abstract class DbMigration {
     }
 
     public static class ColumnDef {
-        private boolean primaryKey;
-        private boolean autoIncremented;
         private final String name;
-        private String sqlTypeName;
+        private final String sqlTypeName;
         private boolean isNullable = true;
-        private String defaultValue;
+        private boolean primaryKey = false;
+        private boolean autoIncremented = false;
+        private String defaultValue = null;
 
         /**
          * Creates column def which allows null values.
