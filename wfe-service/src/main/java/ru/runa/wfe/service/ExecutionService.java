@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service;
 
-import ru.runa.wfe.var.file.FileVariableImpl;
-
 import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -37,6 +35,7 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 /**
  * Process execution service.
@@ -417,5 +416,15 @@ public interface ExecutionService {
      *            process id
      */
     public void suspendProcess(User user, Long processId);
+
+    /**
+     * Sends signal to receivers (CatchEventNode).
+     */
+    public void sendSignal(User user, Map<String, String> routingData, Map<String, Object> payloadData, long ttlInSeconds);
+
+    /**
+     * Check whether signal can be handled immediately (there are exist at least one matching active CatchEventNode).
+     */
+    public boolean signalReceiverIsActive(User user, Map<String, String> routingData);
 
 }
