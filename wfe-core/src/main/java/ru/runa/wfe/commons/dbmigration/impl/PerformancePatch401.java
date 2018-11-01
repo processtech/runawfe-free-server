@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import org.hibernate.Session;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
@@ -36,7 +35,7 @@ public class PerformancePatch401 extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLCreateColumn("PERMISSION_MAPPING", new ColumnDef("TYPE_ID", Types.BIGINT)),
+                getDDLCreateColumn("PERMISSION_MAPPING", new BigintColumnDef("TYPE_ID")),
                 getDDLDropColumn("PERMISSION_MAPPING", "VERSION")
         );
     }

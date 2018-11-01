@@ -28,6 +28,7 @@ public class WfProcess extends SecuredObjectBase {
     private Date startDate;
     private Date endDate;
     private int version;
+    private boolean archive;
 
     /**
      * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
@@ -51,6 +52,7 @@ public class WfProcess extends SecuredObjectBase {
         endDate = process.getEndDate();
         hierarchyIds = process.getHierarchyIds();
         executionStatus = process.getExecutionStatus();
+        archive = process.isArchive();
     }
 
     @Override
@@ -122,6 +124,10 @@ public class WfProcess extends SecuredObjectBase {
 
     public ExecutionStatus getExecutionStatus() {
         return executionStatus;
+    }
+
+    public boolean isArchive() {
+        return archive;
     }
 
     @Override

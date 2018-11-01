@@ -9,10 +9,10 @@ public class AddSettingsTable extends DbMigration {
     protected void executeDDLBefore() {
         executeUpdates(
                 getDDLCreateTable("BPM_SETTING", list(
-                        new BigintColumnDef("ID", false).setPrimaryKey(),
-                        new VarcharColumnDef("FILE_NAME", 1024, false),
-                        new VarcharColumnDef("NAME", 1024, false),
-                        new VarcharColumnDef("VALUE", 1024, true)
+                        new BigintColumnDef("ID").notNull().primaryKey(),
+                        new VarcharColumnDef("FILE_NAME", 1024).notNull(),
+                        new VarcharColumnDef("NAME", 1024).notNull(),
+                        new VarcharColumnDef("VALUE", 1024).notNull()
                 )),
                 getDDLCreateSequence("SEQ_BPM_SETTING")
         );

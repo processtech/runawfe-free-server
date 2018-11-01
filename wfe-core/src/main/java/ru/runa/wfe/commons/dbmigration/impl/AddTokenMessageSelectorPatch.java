@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.Utils;
@@ -22,7 +21,7 @@ public class AddTokenMessageSelectorPatch extends DbMigration implements DbMigra
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLCreateColumn("BPM_TOKEN", new ColumnDef("MESSAGE_SELECTOR", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))),
+                getDDLCreateColumn("BPM_TOKEN", new VarcharColumnDef("MESSAGE_SELECTOR", 1024)),
                 getDDLCreateIndex("BPM_TOKEN", "IX_MESSAGE_SELECTOR", "MESSAGE_SELECTOR")
         );
     }

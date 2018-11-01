@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 public class AddTokenErrorDataPatch extends DbMigration {
@@ -8,8 +7,8 @@ public class AddTokenErrorDataPatch extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLCreateColumn("BPM_TOKEN", new ColumnDef("ERROR_DATE", Types.TIMESTAMP)),
-                getDDLCreateColumn("BPM_TOKEN", new ColumnDef("ERROR_MESSAGE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)))
+                getDDLCreateColumn("BPM_TOKEN", new TimestampColumnDef("ERROR_DATE")),
+                getDDLCreateColumn("BPM_TOKEN", new VarcharColumnDef("ERROR_MESSAGE", 1024))
         );
     }
 }

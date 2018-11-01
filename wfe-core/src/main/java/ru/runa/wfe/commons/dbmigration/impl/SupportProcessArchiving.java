@@ -1,8 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Statement;
-import java.sql.Types;
-import lombok.val;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
@@ -17,126 +14,114 @@ public class SupportProcessArchiving extends DbMigration {
     protected void executeDDLBefore() {
         executeUpdates(
                 // Nullable per-definition configuration; default is SystemProperties.getProcessDefaultSecondsBeforeArchiving():
-                getDDLCreateColumn("bpm_process_definition", new IntColumnDef("seconds_before_archiving", true)),
+                getDDLCreateColumn("bpm_process_definition", new IntColumnDef("seconds_before_archiving")),
 
                 // Process: all fields except EXECUTION_STATUS.
                 getDDLCreateTable("archived_process", list(
-                        new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
-                        new BigintColumnDef("parent_id", true),
-                        new TimestampColumnDef("end_date", true),
-                        new TimestampColumnDef("start_date", true),
-                        new VarcharColumnDef("tree_path", 1024, true),
-                        new BigintColumnDef("version", true),
-                        new BigintColumnDef("definition_version_id"),
-                        new BigintColumnDef("root_token_id")
+                        new BigintColumnDef("id").primaryKeyNoAutoInc(),
+                        new BigintColumnDef("parent_id"),
+                        new TimestampColumnDef("end_date"),
+                        new TimestampColumnDef("start_date"),
+                        new VarcharColumnDef("tree_path", 1024),
+                        new BigintColumnDef("version"),
+                        new BigintColumnDef("definition_version_id").notNull(),
+                        new BigintColumnDef("root_token_id").notNull()
                 )),
 
                 // Token: all fields except EXECUTION_STATUS:
                 getDDLCreateTable("archived_token", list(
-                        new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
-                        new VarcharColumnDef("error_message", 1024, true),
-                        new VarcharColumnDef("transition_id", 1024, true),
-                        new VarcharColumnDef("message_selector", 1024, true),
-                        new TimestampColumnDef("error_date", true),
-                        new TimestampColumnDef("end_date", true),
-                        new TimestampColumnDef("start_date", true),
-                        new VarcharColumnDef("node_id", 1024, true),
-                        new BooleanColumnDef("reactivate_parent", true),
-                        new VarcharColumnDef("node_type", 1024, true),
-                        new BigintColumnDef("version", true),
-                        new VarcharColumnDef("name", 1024, true),
-                        new BigintColumnDef("process_id", true),
-                        new BigintColumnDef("parent_id", true)
+                        new BigintColumnDef("id").primaryKeyNoAutoInc(),
+                        new VarcharColumnDef("error_message", 1024),
+                        new VarcharColumnDef("transition_id", 1024),
+                        new VarcharColumnDef("message_selector", 1024),
+                        new TimestampColumnDef("error_date"),
+                        new TimestampColumnDef("end_date"),
+                        new TimestampColumnDef("start_date"),
+                        new VarcharColumnDef("node_id", 1024),
+                        new BooleanColumnDef("reactivate_parent"),
+                        new VarcharColumnDef("node_type", 1024),
+                        new BigintColumnDef("version"),
+                        new VarcharColumnDef("name", 1024),
+                        new BigintColumnDef("process_id"),
+                        new BigintColumnDef("parent_id")
                 )),
 
                 // NodeProcess: all fields.
                 getDDLCreateTable("archived_subprocess", list(
-                        new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
-                        new TimestampColumnDef("create_date"),
-                        new VarcharColumnDef("parent_node_id", 1024, true),
-                        new IntColumnDef("subprocess_index", true),
-                        new BigintColumnDef("parent_token_id", true),
-                        new BigintColumnDef("parent_process_id"),
-                        new BigintColumnDef("process_id"),
-                        new BigintColumnDef("root_process_id")
+                        new BigintColumnDef("id").primaryKeyNoAutoInc(),
+                        new TimestampColumnDef("create_date").notNull(),
+                        new VarcharColumnDef("parent_node_id", 1024),
+                        new IntColumnDef("subprocess_index"),
+                        new BigintColumnDef("parent_token_id"),
+                        new BigintColumnDef("parent_process_id").notNull(),
+                        new BigintColumnDef("process_id").notNull(),
+                        new BigintColumnDef("root_process_id").notNull()
                 )),
 
                 // Swimlane: all fields.
                 getDDLCreateTable("archived_swimlane", list(
-                        new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
-                        new TimestampColumnDef("create_date"),
-                        new BigintColumnDef("version", true),
-                        new VarcharColumnDef("name", 1024, true),
-                        new BigintColumnDef("process_id", true),
-                        new BigintColumnDef("executor_id", true)
+                        new BigintColumnDef("id").primaryKeyNoAutoInc(),
+                        new TimestampColumnDef("create_date").notNull(),
+                        new BigintColumnDef("version"),
+                        new VarcharColumnDef("name", 1024),
+                        new BigintColumnDef("process_id"),
+                        new BigintColumnDef("executor_id")
                 )),
 
                 // Variable: all fields.
                 getDDLCreateTable("archived_variable", list(
-                        new CharColumnDef("discriminator", 1),
-                        new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
-                        new TimestampColumnDef("create_date"),
-                        new VarcharColumnDef("stringvalue", 1024, true),
-                        new CharColumnDef("converter", 1, true),
-                        new BigintColumnDef("version", true),
-                        new VarcharColumnDef("name", 1024, true),
-                        new TimestampColumnDef("datevalue", true),
-                        new BlobColumnDef("bytes", true),
-                        new BigintColumnDef("longvalue", true),
-                        new DoubleColumnDef("doublevalue", true),
-                        new BigintColumnDef("process_id")
+                        new CharColumnDef("discriminator", 1).notNull(),
+                        new BigintColumnDef("id").primaryKeyNoAutoInc(),
+                        new TimestampColumnDef("create_date").notNull(),
+                        new VarcharColumnDef("stringvalue", 1024),
+                        new CharColumnDef("converter", 1),
+                        new BigintColumnDef("version"),
+                        new VarcharColumnDef("name", 1024),
+                        new TimestampColumnDef("datevalue"),
+                        new BlobColumnDef("bytes"),
+                        new BigintColumnDef("longvalue"),
+                        new DoubleColumnDef("doublevalue"),
+                        new BigintColumnDef("process_id").notNull()
                 )),
 
                 // ProcessLog: all fields.
                 getDDLCreateTable("archived_log", list(
-                        new CharColumnDef("discriminator", 1),
-                        new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
-                        new VarcharColumnDef("severity", 1024),
-                        new BigintColumnDef("token_id", true),
-                        new TimestampColumnDef("create_date"),
-                        new VarcharColumnDef("node_id", 1024, true),
-                        new BigintColumnDef("process_id"),
-                        new BlobColumnDef("bytes", true),
-                        new VarcharColumnDef("content", 4000, true)
-                )),
-
-                // ProcessAggregatedLog: all fields.
-                getDDLCreateTable("archived_agglog_process", list(
-                        new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
-                        new BigintColumnDef("process_id", true),
-                        new BigintColumnDef("parent_process_id"),
-                        new VarcharColumnDef("cancel_actor_name", 1024),
-                        new VarcharColumnDef("end_reason", 16),
-                        new VarcharColumnDef("start_actor_name", 1024),
-                        new TimestampColumnDef("create_date", true),
-                        new TimestampColumnDef("end_date")
+                        new CharColumnDef("discriminator", 1).notNull(),
+                        new BigintColumnDef("id").primaryKeyNoAutoInc(),
+                        new VarcharColumnDef("severity", 1024).notNull(),
+                        new BigintColumnDef("token_id"),
+                        new TimestampColumnDef("create_date").notNull(),
+                        new VarcharColumnDef("node_id", 1024),
+                        new BigintColumnDef("process_id").notNull(),
+                        new BlobColumnDef("bytes"),
+                        new VarcharColumnDef("content", 4000)
                 )),
 
                 // TaskAggregatedLog: all fields.
                 getDDLCreateTable("archived_agglog_task", list(
-                        new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
+                        new BigintColumnDef("id").primaryKeyNoAutoInc(),
                         new VarcharColumnDef("initial_actor_name", 1024),
                         new VarcharColumnDef("complete_actor_name", 1024),
                         new VarcharColumnDef("end_reason", 16),
                         new VarcharColumnDef("swimlane_name", 1024),
-                        new BigintColumnDef("token_id", true),
-                        new VarcharColumnDef("task_name", 1024, true),
-                        new BigintColumnDef("task_id", true),
-                        new TimestampColumnDef("create_date", true),
+                        new BigintColumnDef("token_id").notNull(),
+                        new VarcharColumnDef("task_name", 1024).notNull(),
+                        new BigintColumnDef("task_id").notNull(),
+                        new TimestampColumnDef("create_date").notNull(),
                         new TimestampColumnDef("end_date"),
                         new TimestampColumnDef("deadline_date"),
-                        new VarcharColumnDef("node_id", 1024, true),
+                        new VarcharColumnDef("node_id", 1024).notNull(),
                         new IntColumnDef("task_index"),
-                        new BigintColumnDef("process_id", true)
+                        new BigintColumnDef("process_id").notNull()
                 )),
 
                 // TaskAssignmentAggregatedLog: all fields.
                 getDDLCreateTable("archived_agglog_assignment", list(
-                        new BigintColumnDef("id").setPrimaryKeyNoAutoInc(),
+                        new BigintColumnDef("id").primaryKeyNoAutoInc(),
                         new VarcharColumnDef("new_executor_name", 1024),
                         new VarcharColumnDef("old_executor_name", 1024),
-                        new TimestampColumnDef("assignment_date", true),
-                        new BigintColumnDef("agglog_task_id")
+                        new TimestampColumnDef("assignment_date").notNull(),
+                        new BigintColumnDef("agglog_task_id").notNull()
                 )),
 
                 getDDLCreateIndex     ("archived_process", "ix_arch_process_def_ver", "definition_version_id"),
@@ -171,10 +156,6 @@ public class SupportProcessArchiving extends DbMigration {
                 getDDLCreateUniqueKey ("archived_variable", "uk_arch_variable_process", "process_id", "name"),
 
                 getDDLCreateIndex("archived_log", "ix_arch_log_process", "process_id"),
-
-                getDDLCreateIndex("archived_agglog_process", "ix_arch_agglog_proc_create", "create_date"),
-                getDDLCreateIndex("archived_agglog_process", "ix_arch_agglog_proc_end", "end_date"),
-                getDDLCreateIndex("archived_agglog_process", "ix_arch_agglog_proc_pid", "process_id"),
 
                 getDDLCreateIndex("archived_agglog_task", "ix_arch_agglog_task_create", "create_date"),
                 getDDLCreateIndex("archived_agglog_task", "ix_arch_agglog_task_end", "end_date"),

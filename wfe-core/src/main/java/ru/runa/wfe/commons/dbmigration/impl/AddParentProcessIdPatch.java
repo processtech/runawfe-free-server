@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import org.hibernate.SQLQuery;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -12,7 +11,7 @@ public class AddParentProcessIdPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(getDDLCreateColumn("BPM_PROCESS", new ColumnDef("PARENT_ID", Types.BIGINT)));
+        executeUpdates(getDDLCreateColumn("BPM_PROCESS", new BigintColumnDef("PARENT_ID")));
     }
 
     @Override

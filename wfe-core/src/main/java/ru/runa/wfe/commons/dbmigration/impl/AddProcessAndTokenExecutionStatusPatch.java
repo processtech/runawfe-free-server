@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import org.hibernate.Session;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
@@ -12,8 +11,8 @@ public class AddProcessAndTokenExecutionStatusPatch extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLCreateColumn("BPM_PROCESS", new ColumnDef("EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255))),
-                getDDLCreateColumn("BPM_TOKEN", new ColumnDef("EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255)))
+                getDDLCreateColumn("BPM_PROCESS", new VarcharColumnDef("EXECUTION_STATUS", 255)),
+                getDDLCreateColumn("BPM_TOKEN", new VarcharColumnDef("EXECUTION_STATUS", 255))
         );
     }
 
@@ -28,8 +27,8 @@ public class AddProcessAndTokenExecutionStatusPatch extends DbMigration {
     @Override
     protected void executeDDLAfter() {
         executeUpdates(
-                getDDLModifyColumnNullability("BPM_PROCESS", "EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false),
-                getDDLModifyColumnNullability("BPM_TOKEN", "EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false)
+                getDDLModifyColumnNullability("BPM_PROCESS", new VarcharColumnDef("EXECUTION_STATUS", 255).notNull()),
+                getDDLModifyColumnNullability("BPM_TOKEN", new VarcharColumnDef("EXECUTION_STATUS", 255).notNull())
         );
     }
 }

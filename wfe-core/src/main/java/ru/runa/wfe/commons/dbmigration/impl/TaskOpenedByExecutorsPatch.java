@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -30,8 +29,8 @@ public class TaskOpenedByExecutorsPatch extends DbMigration {
     protected void executeDDLBefore() {
         executeUpdates(
                 getDDLCreateTable("BPM_TASK_OPENED", list(
-                        new ColumnDef("TASK_ID", Types.BIGINT, false),
-                        new ColumnDef("EXECUTOR_ID", Types.BIGINT, false)
+                        new BigintColumnDef("TASK_ID").notNull(),
+                        new BigintColumnDef("EXECUTOR_ID").notNull()
                 )),
                 getDDLCreateForeignKey("BPM_TASK_OPENED", "FK_TASK_OPENED_TASK", "TASK_ID", "BPM_TASK", "ID")
         );

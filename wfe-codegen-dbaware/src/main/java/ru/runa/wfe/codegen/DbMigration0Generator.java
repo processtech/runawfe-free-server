@@ -69,41 +69,42 @@ class DbMigration0Generator {
 
                 val quotedName = "\"" + c.name + "\"";
                 // No need for "not null" for PK column:
-                val allowNulls = c.isNotNull && !c.isPrimaryKey ? ", false" : "";
                 switch (c.type) {
                     case BIGINT:
-                        w.write("BigintColumnDef(" + quotedName + allowNulls + ")");
+                        w.write("BigintColumnDef(" + quotedName + ")");
                         break;
                     case BLOB:
-                        w.write("BlobColumnDef(" + quotedName + allowNulls + ")");
+                        w.write("BlobColumnDef(" + quotedName + ")");
                         break;
                     case BOOLEAN:
-                        w.write("BooleanColumnDef(" + quotedName + allowNulls + ")");
+                        w.write("BooleanColumnDef(" + quotedName + ")");
                         break;
                     case CHAR:
-                        w.write("CharColumnDef(" + quotedName + ", " + c.typeLength + allowNulls + ")");
+                        w.write("CharColumnDef(" + quotedName + ", " + c.typeLength + ")");
                         break;
                     case DOUBLE:
-                        w.write("DoubleColumnDef(" + quotedName + allowNulls + ")");
+                        w.write("DoubleColumnDef(" + quotedName + ")");
                         break;
                     case INT:
-                        w.write("IntColumnDef(" + quotedName + allowNulls + ")");
+                        w.write("IntColumnDef(" + quotedName + ")");
                         break;
                     case TIMESTAMP:
-                        w.write("TimestampColumnDef(" + quotedName + allowNulls + ")");
+                        w.write("TimestampColumnDef(" + quotedName + ")");
                         break;
                     case VARCHAR:
-                        w.write("VarcharColumnDef(" + quotedName + ", " + c.typeLength + allowNulls + ")");
+                        w.write("VarcharColumnDef(" + quotedName + ", " + c.typeLength + ")");
                         break;
                     default:
                         throw new Exception("Internal error: unhandled column type " + c.type);
                 }
                 if (c.isPrimaryKey) {
                     if (st.sequenceNames.contains("seq_" + t.name)) {
-                        w.write(".setPrimaryKey()");
+                        w.write(".primaryKey()");
                     } else {
-                        w.write(".setPrimaryKeyNoAutoInc()");
+                        w.write(".primaryKeyNoAutoInc()");
                     }
+                } else if (c.isNotNull) {
+                    w.write(".notNull()");
                 }
             }
             w.write("\n" +

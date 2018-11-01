@@ -15,9 +15,9 @@ public class AddDeploymentAuditPatch extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("CREATE_USER_ID", dialect.getTypeName(Types.BIGINT), true)),
-                getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("UPDATE_DATE", dialect.getTypeName(Types.DATE), true)),
-                getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("UPDATE_USER_ID", dialect.getTypeName(Types.BIGINT), true))
+                getDDLCreateColumn("BPM_PROCESS_DEFINITION", new BigintColumnDef("CREATE_USER_ID")),
+                getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("UPDATE_DATE", dialect.getTypeName(Types.DATE))),
+                getDDLCreateColumn("BPM_PROCESS_DEFINITION", new BigintColumnDef("UPDATE_USER_ID"))
         );
     }
 

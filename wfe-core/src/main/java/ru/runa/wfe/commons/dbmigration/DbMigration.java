@@ -8,6 +8,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.NonNull;
 import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -241,7 +242,7 @@ public abstract class DbMigration {
             if (columnDefinitions.indexOf(columnDef) > 0) {
                 query.append(", ");
             }
-            query.append(columnDef.name).append(" ").append(columnDef.getSqlTypeName(dialect));
+            query.append(columnDef.name).append(" ").append(columnDef.sqlTypeName);
             if (columnDef.primaryKey) {
                 // TODO Different SQL servers will generate different PK constraint name.
                 //      Instead, should generate "pk_table_name" and (optionally) "seq_table_name" in separate statement
@@ -290,7 +291,7 @@ public abstract class DbMigration {
                 query.append(" ").append(primaryKeyModifier);
                 continue;
             }
-            if (!columnDef.allowNulls) {
+            if (!columnDef.isNullable) {
                 query.append(" NOT NULL");
             }
         }
@@ -400,11 +401,11 @@ public abstract class DbMigration {
         }
         val query = new StringBuilder();
         query.append("ALTER TABLE ").append(tableName).append(" ADD ").append(lBraced);
-        query.append(columnDef.name).append(" ").append(columnDef.getSqlTypeName(dialect));
+        query.append(columnDef.name).append(" ").append(columnDef.sqlTypeName);
         if (columnDef.defaultValue != null) {
             query.append(" DEFAULT ").append(columnDef.defaultValue);
         }
-        if (!columnDef.allowNulls) {
+        if (!columnDef.isNullable) {
             query.append(" NOT NULL");
         }
         query.append(rBraced);
@@ -419,13 +420,15 @@ public abstract class DbMigration {
             case MSSQL:
                 return list("sp_rename '" + tableName + "." + oldColumnName + "', '" + newColumnDef.name + "', 'COLUMN'");
             case MYSQL:
-                return list("ALTER TABLE " + tableName + " CHANGE " + oldColumnName + " " + newColumnDef.name + " " + newColumnDef.getSqlTypeName(dialect));
+                return list("ALTER TABLE " + tableName + " CHANGE " + oldColumnName + " " + newColumnDef.name + " " + newColumnDef.sqlTypeName);
             default:
                 return list("ALTER TABLE " + tableName + " ALTER COLUMN " + oldColumnName + " RENAME TO " + newColumnDef.name);
         }
     }
 
-    protected final List<String> getDDLModifyColumn(String tableName, String columnName, String sqlTypeName) {
+    protected final List<String> getDDLModifyColumn(String tableName, ColumnDef columnDef) {
+        String columnName = columnDef.name;
+        String sqlTypeName = columnDef.sqlTypeName;
         switch (dbType) {
             case ORACLE:
                 return list("ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + sqlTypeName + ")");
@@ -438,20 +441,22 @@ public abstract class DbMigration {
         }
     }
 
-    protected final List<String> getDDLModifyColumnNullability(String tableName, String columnName, String currentSqlTypeName,
-            @SuppressWarnings("SameParameterValue") boolean nullable) {
+    protected final List<String> getDDLModifyColumnNullability(String tableName, ColumnDef columnDef) {
+        val columnName = columnDef.name;
+        val currentSqlTypeName = columnDef.sqlTypeName;
+        val isNullable = columnDef.isNullable;
         switch (dbType) {
             case H2:
             case HSQL:
-                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (nullable ? "NULL" : "NOT NULL"));
+                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (isNullable ? "NULL" : "NOT NULL"));
             case MYSQL:
-                return list("ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL"));
+                return list("ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (isNullable ? "NULL" : "NOT NULL"));
             case ORACLE:
-                return list("ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (nullable ? "NULL" : "NOT NULL") + ")");
+                return list("ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (isNullable ? "NULL" : "NOT NULL") + ")");
             case POSTGRESQL:
-                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (nullable ? "DROP" : "SET") + " NOT NULL");
+                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (isNullable ? "DROP" : "SET") + " NOT NULL");
             default:
-                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " " + (nullable ? "NULL" : "NOT NULL"));
+                return list("ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " " + (isNullable ? "NULL" : "NOT NULL"));
         }
     }
 
@@ -476,74 +481,41 @@ public abstract class DbMigration {
         private boolean primaryKey;
         private boolean autoIncremented;
         private final String name;
-        private int sqlType;
         private String sqlTypeName;
-        private boolean allowNulls;
+        private boolean isNullable = true;
         private String defaultValue;
 
         /**
-         * @deprecated Use shortcut subclasses (BigintColumnDef, etc.); create missing subclasses. Finally, DELETE this constructor.
-         */
-        @Deprecated
-        public ColumnDef(String name, int sqlType, boolean allowNulls) {
-            checkIndentifierLength(name);
-            this.name = name;
-            this.sqlType = sqlType;
-            this.allowNulls = allowNulls;
-        }
-
-        /**
+         * Creates column def which allows null values.
+         *
          * @deprecated Use shortcut subclasses; create missing subclasses. Finally, make this constructor protected.
          */
         @Deprecated
-        public ColumnDef(String name, String sqlTypeName, boolean allowNulls) {
+        public ColumnDef(@NonNull String name, @NonNull String sqlTypeName) {
             checkIndentifierLength(name);
             this.name = name;
             this.sqlTypeName = sqlTypeName;
-            this.allowNulls = allowNulls;
         }
 
-        /**
-         * Creates column def which allows null values.
-         *
-         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, delete this constructor.
-         */
-        @Deprecated
-        public ColumnDef(String name, int sqlType) {
-            this(name, sqlType, true);
+        public ColumnDef notNull() {
+            isNullable = false;
+            return this;
         }
 
-        /**
-         * Creates column def which allows null values.
-         *
-         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, delete this constructor.
-         */
-        @Deprecated
-        public ColumnDef(String name, String sqlTypeName) {
-            this(name, sqlTypeName, true);
-        }
-
-        public String getSqlTypeName(Dialect dialect) {
-            if (sqlTypeName != null) {
-                return sqlTypeName;
-            }
-            return dialect.getTypeName(sqlType);
-        }
-
-        public ColumnDef setPrimaryKey() {
-            allowNulls = false;
+        public ColumnDef primaryKey() {
+            isNullable = false;
             primaryKey = true;
             autoIncremented = true;
             return this;
         }
 
-        public ColumnDef setPrimaryKeyNoAutoInc() {
-            allowNulls = false;
+        public ColumnDef primaryKeyNoAutoInc() {
+            isNullable = false;
             primaryKey = true;
             return this;
         }
 
-        public ColumnDef setDefaultValue(String defaultValue) {
+        public ColumnDef defaultValue(String defaultValue) {
             this.defaultValue = defaultValue;
             return this;
         }
@@ -551,41 +523,29 @@ public abstract class DbMigration {
 
     @SuppressWarnings({"WeakerAccess", "deprecation"})
     public class BigintColumnDef extends ColumnDef {
-        public BigintColumnDef(String name, boolean allowNulls) {
-            super(name, Types.BIGINT, allowNulls);
-        }
         public BigintColumnDef(String name) {
-            this(name, true);
+            super(name, dialect.getTypeName(Types.BIGINT));
         }
     }
 
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class BlobColumnDef extends ColumnDef {
-        public BlobColumnDef(String name, boolean allowNulls) {
-            super(name, dialect.getTypeName(Types.BLOB), allowNulls);
-        }
         public BlobColumnDef(String name) {
-            this(name, true);
+            super(name, dialect.getTypeName(Types.BLOB));
         }
     }
 
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class BooleanColumnDef extends ColumnDef {
-        public BooleanColumnDef(String name, boolean allowNulls) {
-            super(name, dialect.getTypeName(Types.BIT), allowNulls);
-        }
         public BooleanColumnDef(String name) {
-            this(name, true);
+            super(name, dialect.getTypeName(Types.BIT));
         }
     }
 
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class CharColumnDef extends ColumnDef {
-        public CharColumnDef(String name, int length, boolean allowNulls) {
-            super(name, dialect.getTypeName(Types.CHAR, length, length, length), allowNulls);
-        }
         public CharColumnDef(String name, int length) {
-            this(name, length, true);
+            super(name, dialect.getTypeName(Types.CHAR, length, length, length));
         }
     }
 
@@ -595,52 +555,37 @@ public abstract class DbMigration {
     @Deprecated
     @SuppressWarnings({"unused", "WeakerAccess"})
     public class DateColumnDef extends ColumnDef {
-        public DateColumnDef(String name, boolean allowNulls) {
-            super(name, dialect.getTypeName(Types.DATE), allowNulls);
-        }
         public DateColumnDef(String name) {
-            this(name, true);
+            super(name, dialect.getTypeName(Types.DATE));
         }
     }
 
 
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class DoubleColumnDef extends ColumnDef {
-        public DoubleColumnDef(String name, boolean allowNulls) {
-            super(name, dialect.getTypeName(Types.DOUBLE), allowNulls);
-        }
         public DoubleColumnDef(String name) {
-            this(name, true);
+            super(name, dialect.getTypeName(Types.DOUBLE));
         }
     }
 
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class IntColumnDef extends ColumnDef {
-        public IntColumnDef(String name, boolean allowNulls) {
-            super(name, dialect.getTypeName(Types.INTEGER), allowNulls);
-        }
         public IntColumnDef(String name) {
-            this(name, true);
+            super(name, dialect.getTypeName(Types.INTEGER));
         }
     }
 
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class TimestampColumnDef extends ColumnDef {
-        public TimestampColumnDef(String name, boolean allowNulls) {
-            super(name, dialect.getTypeName(Types.TIMESTAMP), allowNulls);
-        }
         public TimestampColumnDef(String name) {
-            this(name, true);
+            super(name, dialect.getTypeName(Types.TIMESTAMP));
         }
     }
 
     @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class VarcharColumnDef extends ColumnDef {
-        public VarcharColumnDef(String name, int length, boolean allowNulls) {
-            super(name, dialect.getTypeName(Types.VARCHAR, length, length, length), allowNulls);
-        }
         public VarcharColumnDef(String name, int length) {
-            this(name, length, true);
+            super(name, dialect.getTypeName(Types.VARCHAR, length, length, length));
         }
     }
 }

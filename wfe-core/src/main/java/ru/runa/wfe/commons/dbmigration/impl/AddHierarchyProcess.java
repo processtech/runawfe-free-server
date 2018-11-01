@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -11,7 +10,7 @@ public class AddHierarchyProcess extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(getDDLCreateColumn("JBPM_PROCESSINSTANCE", new ColumnDef("TREE_PATH", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))));
+        executeUpdates(getDDLCreateColumn("JBPM_PROCESSINSTANCE", new VarcharColumnDef("TREE_PATH", 1024)));
     }
 
     @Override

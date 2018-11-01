@@ -19,13 +19,13 @@ public class CreateAggregatedLogsTables extends DbMigration {
     private void createAssignmentHistoryTable() {
         executeUpdates(
                 getDDLCreateTable("BPM_AGGLOG_ASSIGNMENTS", list(
-                        new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
-                        new ColumnDef("DISCRIMINATOR", dialect.getTypeName(Types.CHAR, 1, 1, 1), false),
-                        new ColumnDef("ASSIGNMENT_OBJECT_ID", dialect.getTypeName(Types.BIGINT), false),
-                        new ColumnDef("IDX", dialect.getTypeName(Types.INTEGER), false),
-                        new ColumnDef("ASSIGNMENT_DATE", dialect.getTypeName(Types.DATE), false),
-                        new ColumnDef("OLD_EXECUTOR_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true),
-                        new ColumnDef("NEW_EXECUTOR_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true)
+                        new BigintColumnDef("ID").primaryKey(),
+                        new CharColumnDef("DISCRIMINATOR", 1).notNull(),
+                        new BigintColumnDef("ASSIGNMENT_OBJECT_ID").notNull(),
+                        new IntColumnDef("IDX").notNull(),
+                        new TimestampColumnDef("ASSIGNMENT_DATE").notNull(),
+                        new VarcharColumnDef("OLD_EXECUTOR_NAME", 1024),
+                        new VarcharColumnDef("NEW_EXECUTOR_NAME", 1024)
                 )),
                 getDDLCreateSequence("SEQ_BPM_AGGLOG_ASSIGNMENTS"),
                 getDDLCreateIndex("BPM_AGGLOG_ASSIGNMENTS", "IX_AGGLOG_ASSIGN_DATE", "ASSIGNMENT_DATE"),
@@ -40,19 +40,19 @@ public class CreateAggregatedLogsTables extends DbMigration {
     private void createTaskHistoryTable() {
         executeUpdates(
             getDDLCreateTable("BPM_AGGLOG_TASKS", list(
-                    new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
-                    new ColumnDef("TASK_ID", dialect.getTypeName(Types.BIGINT), false),
-                    new ColumnDef("PROCESS_ID", dialect.getTypeName(Types.BIGINT), false),
-                    new ColumnDef("INITIAL_ACTOR_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true),
-                    new ColumnDef("COMPLETE_ACTOR_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true),
-                    new ColumnDef("CREATE_DATE", dialect.getTypeName(Types.DATE), false),
-                    new ColumnDef("DEADLINE_DATE", dialect.getTypeName(Types.DATE), true),
-                    new ColumnDef("END_DATE", dialect.getTypeName(Types.DATE), true),
-                    new ColumnDef("END_REASON", dialect.getTypeName(Types.INTEGER), false),
-                    new ColumnDef("TOKEN_ID", dialect.getTypeName(Types.BIGINT), false),
-                    new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true),
-                    new ColumnDef("TASK_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true),
-                    new ColumnDef("SWIMLANE_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true)
+                    new BigintColumnDef("ID").primaryKey(),
+                    new BigintColumnDef("TASK_ID").notNull(),
+                    new BigintColumnDef("PROCESS_ID").notNull(),
+                    new VarcharColumnDef("INITIAL_ACTOR_NAME", 1024),
+                    new VarcharColumnDef("COMPLETE_ACTOR_NAME", 1024),
+                    new ColumnDef("CREATE_DATE", dialect.getTypeName(Types.DATE)).notNull(),
+                    new ColumnDef("DEADLINE_DATE", dialect.getTypeName(Types.DATE)),
+                    new ColumnDef("END_DATE", dialect.getTypeName(Types.DATE)),
+                    new IntColumnDef("END_REASON").notNull(),
+                    new BigintColumnDef("TOKEN_ID").notNull(),
+                    new VarcharColumnDef("NODE_ID", 1024),
+                    new VarcharColumnDef("TASK_NAME", 1024),
+                    new VarcharColumnDef("SWIMLANE_NAME", 1024)
             )),
             getDDLCreateSequence("SEQ_BPM_AGGLOG_TASKS"),
             getDDLCreateIndex("BPM_AGGLOG_TASKS", "IX_AGGLOG_TASKS_PROCESS", "PROCESS_ID"),
@@ -67,14 +67,14 @@ public class CreateAggregatedLogsTables extends DbMigration {
     private void createProcessHistoryTable() {
         executeUpdates(
                 getDDLCreateTable("BPM_AGGLOG_PROCESS", list(
-                        new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
-                        new ColumnDef("PROCESS_ID", dialect.getTypeName(Types.BIGINT), false),
-                        new ColumnDef("PARENT_PROCESS_ID", dialect.getTypeName(Types.BIGINT), true),
-                        new ColumnDef("START_ACTOR_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true),
-                        new ColumnDef("CANCEL_ACTOR_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true),
-                        new ColumnDef("CREATE_DATE", dialect.getTypeName(Types.DATE), false),
-                        new ColumnDef("END_DATE", dialect.getTypeName(Types.DATE), true),
-                        new ColumnDef("END_REASON", dialect.getTypeName(Types.INTEGER), false)
+                        new BigintColumnDef("ID").primaryKey(),
+                        new BigintColumnDef("PROCESS_ID").notNull(),
+                        new BigintColumnDef("PARENT_PROCESS_ID"),
+                        new VarcharColumnDef("START_ACTOR_NAME", 1024),
+                        new VarcharColumnDef("CANCEL_ACTOR_NAME", 1024),
+                        new ColumnDef("CREATE_DATE", dialect.getTypeName(Types.DATE)).notNull(),
+                        new ColumnDef("END_DATE", dialect.getTypeName(Types.DATE)),
+                        new IntColumnDef("END_REASON")
                 )),
                 getDDLCreateSequence("SEQ_BPM_AGGLOG_PROCESS"),
                 getDDLCreateIndex("BPM_AGGLOG_PROCESS", "IX_AGGLOG_PROCESS_INSTANCE", "PROCESS_ID"),

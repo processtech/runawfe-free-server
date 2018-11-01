@@ -15,8 +15,8 @@ public class AddColumnsToSubstituteEscalatedTasksPatch extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLCreateColumn("EXECUTOR", new ColumnDef("PROCESS_ID", Types.BIGINT, true)),
-                getDDLCreateColumn("EXECUTOR", new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true))
+                getDDLCreateColumn("EXECUTOR", new BigintColumnDef("PROCESS_ID")),
+                getDDLCreateColumn("EXECUTOR", new VarcharColumnDef("NODE_ID", 255))
         );
     }
 

@@ -9,11 +9,11 @@ public class AddTransactionalBotSupport extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLCreateColumn(TABLE_NAME, new ColumnDef("IS_TRANSACTIONAL", dialect.getTypeName(Types.BIT))),
-                getDDLCreateColumn(TABLE_NAME, new ColumnDef("TRANSACTIONAL_TIMEOUT", dialect.getTypeName(Types.BIGINT))),
+                getDDLCreateColumn(TABLE_NAME, new BooleanColumnDef("IS_TRANSACTIONAL")),
+                getDDLCreateColumn(TABLE_NAME, new BigintColumnDef("TRANSACTIONAL_TIMEOUT")),
                 getDDLCreateColumn(TABLE_NAME, new ColumnDef("BOUND_DUE_DATE", dialect.getTypeName(Types.TIMESTAMP))),
-                getDDLCreateColumn(TABLE_NAME, new ColumnDef("BOUND_PROCESS_ID", dialect.getTypeName(Types.BIGINT))),
-                getDDLCreateColumn(TABLE_NAME, new ColumnDef("BOUND_SUBPROCESS_ID", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)))
+                getDDLCreateColumn(TABLE_NAME, new BigintColumnDef("BOUND_PROCESS_ID")),
+                getDDLCreateColumn(TABLE_NAME, new VarcharColumnDef("BOUND_SUBPROCESS_ID", 1024))
         );
     }
 }

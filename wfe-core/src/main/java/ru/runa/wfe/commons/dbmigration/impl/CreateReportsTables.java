@@ -1,7 +1,6 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
 import com.google.common.collect.Lists;
-import java.sql.Types;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.SystemProperties;
@@ -36,12 +35,12 @@ public class CreateReportsTables extends DbMigration implements DbMigrationPostP
     private void createReportParametersTable() {
         executeUpdates(
                 getDDLCreateTable("REPORT_PARAMETER", list(
-                        new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
-                        new ColumnDef("REPORT_ID", Types.BIGINT, false),
-                        new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false),
-                        new ColumnDef("TYPE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false),
-                        new ColumnDef("INNER_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false),
-                        new ColumnDef("REQUIRED", dialect.getTypeName(Types.BIT), false)
+                        new BigintColumnDef("ID").primaryKey(),
+                        new BigintColumnDef("REPORT_ID").notNull(),
+                        new VarcharColumnDef("NAME", 1024).notNull(),
+                        new VarcharColumnDef("TYPE", 1024).notNull(),
+                        new VarcharColumnDef("INNER_NAME", 1024).notNull(),
+                        new BooleanColumnDef("REQUIRED").notNull()
                 )),
                 getDDLCreateSequence("SEQ_REPORT_PARAMETER"),
                 getDDLCreateIndex("REPORT_PARAMETER", "IX_PARAMETER_REPORT_ID", "REPORT_ID")
@@ -56,13 +55,13 @@ public class CreateReportsTables extends DbMigration implements DbMigrationPostP
     private void createReportsTable() {
         executeUpdates(
                 getDDLCreateTable("REPORT", list(
-                        new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey(),
-                        new ColumnDef("VERSION", Types.BIGINT, false),
-                        new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false),
-                        new ColumnDef("DESCRIPTION", dialect.getTypeName(Types.VARCHAR, 2048, 2048, 2048), true),
-                        new ColumnDef("COMPILED_REPORT", dialect.getTypeName(Types.BLOB), false),
-                        new ColumnDef("CONFIG_TYPE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false),
-                        new ColumnDef("CATEGORY", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true)
+                        new BigintColumnDef("ID").primaryKey(),
+                        new BigintColumnDef("VERSION").notNull(),
+                        new VarcharColumnDef("NAME", 1024).notNull(),
+                        new VarcharColumnDef("DESCRIPTION", 2048),
+                        new BlobColumnDef("COMPILED_REPORT").notNull(),
+                        new VarcharColumnDef("CONFIG_TYPE", 1024).notNull(),
+                        new VarcharColumnDef("CATEGORY", 1024)
                 )),
                 getDDLCreateSequence("SEQ_REPORT"),
                 getDDLCreateUniqueKey("REPORT", "IX_REPORT_NAME", "NAME")

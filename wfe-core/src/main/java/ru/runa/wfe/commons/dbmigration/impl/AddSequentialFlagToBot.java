@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
@@ -10,8 +9,8 @@ public class AddSequentialFlagToBot extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLCreateColumn("BOT_TASK", new ColumnDef("IS_SEQUENTIAL", dialect.getTypeName(Types.BIT))),
-                getDDLCreateColumn("BOT", new ColumnDef("IS_SEQUENTIAL", dialect.getTypeName(Types.BIT)))
+                getDDLCreateColumn("BOT_TASK", new BooleanColumnDef("IS_SEQUENTIAL")),
+                getDDLCreateColumn("BOT", new BooleanColumnDef("IS_SEQUENTIAL"))
         );
     }
 

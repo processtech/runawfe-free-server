@@ -2,7 +2,6 @@ package ru.runa.wfe.commons.dbmigration.impl;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.sql.Types;
 import lombok.val;
 import lombok.var;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
@@ -59,7 +58,7 @@ public class SupportProcessArchivingBefore extends DbMigration {
                 getDDLDropColumn("bpm_agglog_assignment", "discriminator"),
                 getDDLDropColumn("bpm_agglog_assignment", "idx"),
                 getDDLRenameColumn("bpm_agglog_assignment", "assignment_object_id", new BigintColumnDef("agglog_task_id")),
-                getDDLModifyColumnNullability("bpm_agglog_assignment", "agglog_task_id", dialect.getTypeName(Types.BIGINT), false)
+                getDDLModifyColumnNullability("bpm_agglog_assignment", new BigintColumnDef("agglog_task_id").notNull())
         );
     }
 

@@ -2,7 +2,6 @@ package ru.runa.wfe.commons.dbmigration.impl;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.val;
@@ -43,24 +42,24 @@ public class SplitProcessDefinitionVersion extends DbMigration {
 
                 getDDLDropForeignKey("bpm_process", "fk_process_definition"),
                 getDDLDropIndex("bpm_process", "ix_process_definition"),
-                getDDLRenameColumn("bpm_process", "definition_id", new BigintColumnDef("definition_version_id", false)),
+                getDDLRenameColumn("bpm_process", "definition_id", new BigintColumnDef("definition_version_id").notNull()),
                 getDDLCreateIndex("bpm_process", "ix_process_definition_ver", "definition_version_id"),
                 getDDLCreateForeignKey("bpm_process", "fk_process_definition_ver", "definition_version_id", "bpm_process_definition_ver", "id"),
 
                 // Can add columns here, but not drop: first we must fill BPM_DEFINITION_VERSION table.
-                getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("definition_id", true)),
-                getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("subversion", true)),   // For future, will be 0 for now.
+                getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("definition_id")),
+                getDDLCreateColumn("bpm_process_definition_ver", new BigintColumnDef("subversion")),   // For future, will be 0 for now.
 
                 // This new table will be filled from BPM_PROCESS_DEFINITION_VER using "group by name".
                 getDDLCreateSequence("seq_bpm_process_definition"),
                 getDDLCreateTable("bpm_process_definition",
                         new ArrayList<ColumnDef>() {{
-                            add(new BigintColumnDef("id", false).setPrimaryKey());
-                            add(new BigintColumnDef("latest_version_id", true));
-                            add(new VarcharColumnDef("name", 1024, false));
-                            add(new VarcharColumnDef("language", 10, false));
+                            add(new BigintColumnDef("id").primaryKey());
+                            add(new BigintColumnDef("latest_version_id"));
+                            add(new VarcharColumnDef("name", 1024).notNull());
+                            add(new VarcharColumnDef("language", 10).notNull());
                             add(new VarcharColumnDef("description", 1024));
-                            add(new VarcharColumnDef("category", 1024, false));
+                            add(new VarcharColumnDef("category", 1024).notNull());
                         }}
                 ),
                 getDDLCreateUniqueKey("bpm_process_definition", "uk_process_definition_name", "name")
@@ -119,8 +118,8 @@ public class SplitProcessDefinitionVersion extends DbMigration {
                 getDDLDropColumn("bpm_process_definition_ver", "language"),
                 getDDLDropColumn("bpm_process_definition_ver", "description"),
                 getDDLDropColumn("bpm_process_definition_ver", "category"),
-                getDDLModifyColumnNullability("bpm_process_definition_ver", "definition_id", dialect.getTypeName(Types.BIGINT), false),
-                getDDLModifyColumnNullability("bpm_process_definition_ver", "subversion", dialect.getTypeName(Types.BIGINT), false),
+                getDDLModifyColumnNullability("bpm_process_definition_ver", new BigintColumnDef("definition_id").notNull()),
+                getDDLModifyColumnNullability("bpm_process_definition_ver", new BigintColumnDef("subversion").notNull()),
 
                 getDDLCreateUniqueKey("bpm_process_definition_ver", "uk_version_definition_ver", "definition_id", "version"),
                 getDDLCreateForeignKey("bpm_process_definition_ver", "fk_version_definition", "definition_id", "bpm_process_definition", "id"),

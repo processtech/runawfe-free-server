@@ -112,16 +112,16 @@ public class RefactorPermissionsStep1 extends DbMigration {
     protected void executeDDLBefore() {
         executeUpdates(
                 getDDLRenameTable("permission_mapping", "permission_mapping__old"),
-                getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("object_type", 32, true)),
-                getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("permission", 32, true)),
+                getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("object_type", 32)),
+                getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("permission", 32)),
                 getDDLCreateTable(
                         "permission_mapping",
                         new ArrayList<ColumnDef>() {{
-                            add(new BigintColumnDef("id", false).setPrimaryKey());
-                            add(new BigintColumnDef("executor_id", false));
-                            add(new VarcharColumnDef("object_type", 32,false));
-                            add(new BigintColumnDef("object_id", false));
-                            add(new VarcharColumnDef("permission", 32, false));
+                            add(new BigintColumnDef("id").primaryKey());
+                            add(new BigintColumnDef("executor_id").notNull());
+                            add(new VarcharColumnDef("object_type", 32).notNull());
+                            add(new BigintColumnDef("object_id").notNull());
+                            add(new VarcharColumnDef("permission", 32).notNull());
                         }}
                 ),
                 getDDLCreateUniqueKey("permission_mapping", "uk_permission_mapping_4", "object_id", "object_type", "permission", "executor_id")

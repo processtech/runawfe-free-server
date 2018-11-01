@@ -1,7 +1,6 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
 import com.google.common.collect.Lists;
-import java.sql.Types;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -36,12 +35,12 @@ public class AddCreateDateColumns extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLRenameColumn("BPM_LOG", "LOG_DATE", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)),
-                getDDLRenameColumn("BPM_PROCESS_DEFINITION", "DEPLOYED", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)),
-                getDDLRenameColumn("SYSTEM_LOG", "TIME", new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP))
+                getDDLRenameColumn("BPM_LOG", "LOG_DATE", new TimestampColumnDef(COLUMN_CREATE_DATE)),
+                getDDLRenameColumn("BPM_PROCESS_DEFINITION", "DEPLOYED", new TimestampColumnDef(COLUMN_CREATE_DATE)),
+                getDDLRenameColumn("SYSTEM_LOG", "TIME", new TimestampColumnDef(COLUMN_CREATE_DATE))
         );
         for (String tableName : TABLES_TO_ADD_COLUMN) {
-            executeUpdates(getDDLCreateColumn(tableName, new ColumnDef(COLUMN_CREATE_DATE, Types.TIMESTAMP)));
+            executeUpdates(getDDLCreateColumn(tableName, new TimestampColumnDef(COLUMN_CREATE_DATE)));
         }
     }
 

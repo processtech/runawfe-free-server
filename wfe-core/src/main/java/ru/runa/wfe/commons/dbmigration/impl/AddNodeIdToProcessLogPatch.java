@@ -1,7 +1,6 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
 import com.google.common.base.Strings;
-import java.sql.Types;
 import java.util.HashMap;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
@@ -19,7 +18,7 @@ public class AddNodeIdToProcessLogPatch extends DbMigration {
 
     @Override
     protected void executeDDLBefore() {
-        executeUpdates(getDDLCreateColumn("BPM_LOG", new ColumnDef("NODE_ID", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true)));
+        executeUpdates(getDDLCreateColumn("BPM_LOG", new VarcharColumnDef("NODE_ID", 255)));
     }
 
     @Override
