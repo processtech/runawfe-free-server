@@ -171,6 +171,14 @@ function setLocalStorageValue(key, value) {
 	}
 }
 
+function restoreDefaultSettingValue(settingName, fileName) {
+	jQuery.ajax({
+		type: "POST",
+		url: "/wfe/restore_setting.do",
+		data: { settingName: settingName, fileName: fileName }
+	});
+}
+
 function setSystemMenuVisible(visible, update) {
 	if (visible) {
 		$(".systemMenu").show();
