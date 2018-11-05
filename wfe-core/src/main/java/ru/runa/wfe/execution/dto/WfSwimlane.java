@@ -41,9 +41,7 @@ public class WfSwimlane implements Serializable {
     }
 
     public WfSwimlane(SwimlaneDefinition definition, Swimlane swimlane, Executor assignedExecutor) {
-        Preconditions.checkNotNull(swimlane);
-        Preconditions.checkNotNull(definition);
-        this.id = swimlane.getId();
+        this.id = swimlane != null ? swimlane.getId() : null;
         this.definition = definition;
         this.executor = assignedExecutor;
     }
