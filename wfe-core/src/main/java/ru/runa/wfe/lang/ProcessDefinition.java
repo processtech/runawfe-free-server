@@ -43,6 +43,7 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
+import ru.runa.wfe.var.format.MapFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 public class ProcessDefinition extends GraphElement implements IFileDataProvider {
@@ -168,13 +169,25 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
             if (parentVariableDefinition != null && parentVariableDefinition.isUserType()) {
                 parentUserTypeVariableDefinition = parentVariableDefinition;
             }
-            if (parentVariableDefinition != null && componentStartIndex != -1
-                    && ListFormat.class.getName().equals(parentVariableDefinition.getFormatClassName())) {
-                String appendix = parentName.substring(componentStartIndex);
-                String format = parentVariableDefinition.getFormatComponentClassNames()[0];
-                parentUserTypeVariableDefinition = new VariableDefinition(parentVariableDefinition.getName() + appendix,
-                        parentVariableDefinition.getScriptingName() + appendix, format, getUserType(format));
-                parentUserTypeVariableDefinition.initComponentUserTypes(this);
+            if (parentVariableDefinition != null && componentStartIndex != -1) {
+                if (ListFormat.class.getName().equals(parentVariableDefinition.getFormatClassName())) {
+                    String appendix = parentName.substring(componentStartIndex);
+                    String format = parentVariableDefinition.getFormatComponentClassNames()[0];
+                    parentUserTypeVariableDefinition = new VariableDefinition(parentVariableDefinition.getName() + appendix,
+                            parentVariableDefinition.getScriptingName() + appendix, format, getUserType(format));
+                    parentUserTypeVariableDefinition.initComponentUserTypes(this);
+                } else if (MapFormat.class.getName().equals(parentVariableDefinition.getFormatClassName())) {
+                    String appendix = parentName.substring(componentStartIndex);
+                    String userTypeName;                
+                    if (appendix.contains(":k")) {
+                        userTypeName = parentVariableDefinition.getFormatComponentClassNames()[0];
+                    } else {
+                        userTypeName = parentVariableDefinition.getFormatComponentClassNames()[1];
+                    }
+                    parentUserTypeVariableDefinition = new VariableDefinition(parentVariableDefinition.getName() + appendix,
+                        parentVariableDefinition.getScriptingName() + appendix, parentVariableDefinition.getFormat(), getUserType(userTypeName));
+                    parentUserTypeVariableDefinition.initComponentUserTypes(this);
+                }
             }
             if (parentUserTypeVariableDefinition != null) {
                 VariableDefinition attributeDefinition = parentUserTypeVariableDefinition.getUserType().getAttributeExpanded(remainderName);
