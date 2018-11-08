@@ -71,15 +71,12 @@ public class ExecutorServiceDelegateGetAllTest extends ServletTestCase {
     final public void testgetExecutorsByAuthorizedPerformer() throws Exception {
         List<? extends Executor> executors = executorService.getExecutors(th.getAuthorizedPerformerUser(), th.getExecutorBatchPresentation());
         LinkedList<Executor> realExecutors = new LinkedList<Executor>(executorsMap.values());
-        Actor authorizedPerformerActor = th.getAuthorizedPerformerActor();
-        realExecutors.add(authorizedPerformerActor);
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutors() returns wrong executor set", realExecutors, executors);
     }
 
     public void testgetExecutorsByUnauthorizedPerformer() throws Exception {
         List<? extends Executor> executors = executorService.getExecutors(th.getUnauthorizedPerformerUser(), th.getExecutorBatchPresentation());
-        List<Actor> unauthorizedPerformerArray = Lists.newArrayList(th.getUnauthorizedPerformerActor());
-        ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutors() returns wrong executor set", unauthorizedPerformerArray, executors);
+        assertTrue("businessDelegate.getExecutors() returns executors", executors.isEmpty());
     }
 
     public void testgetExecutorsWithNullSubject() throws Exception {
