@@ -34,6 +34,12 @@ public class ValidatorConfig {
         this.type = type;
     }
 
+    public ValidatorConfig(String validatorType, String message, Map<String, String> params) {
+        this.type = validatorType;
+        this.message = message;
+        this.params.putAll(params);
+    }
+    
     public Map<String, String> getParams() {
         return params;
     }

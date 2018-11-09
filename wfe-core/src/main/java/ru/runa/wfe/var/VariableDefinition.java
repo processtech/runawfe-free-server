@@ -21,8 +21,10 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import ru.runa.wfe.validation.ValidatorConfig;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
@@ -46,6 +48,7 @@ public class VariableDefinition implements Serializable {
     private UserType[] formatComponentUserTypes;
     private boolean publicAccess;
     private Object defaultValue;
+    private Map<String, ValidatorConfig> validators;
     private VariableStoreType storeType = VariableStoreType.DEFAULT;
     private transient VariableFormat variableFormat;
 
@@ -160,6 +163,14 @@ public class VariableDefinition implements Serializable {
 
     public void setPublicAccess(boolean publicAccess) {
         this.publicAccess = publicAccess;
+    }
+    
+    public Map<String, ValidatorConfig> getValidators() {
+        return validators;
+    }
+    
+    public void setValidators(Map<String, ValidatorConfig> validators) {
+        this.validators = validators;
     }
 
     public Object getDefaultValue() {
