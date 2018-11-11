@@ -80,9 +80,15 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @WebMethod(exclude = true)
     @Override
     public void completeTask(@NonNull User user, @NonNull Long taskId, Map<String, Object> variables, Long swimlaneActorId) {
+        completeTask(user, taskId, variables);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public void completeTask(@NonNull User user, @NonNull Long taskId, Map<String, Object> variables) {
         Long processId = taskLogic.getProcessId(user, taskId);
         FileVariablesUtil.unproxyFileVariables(user, processId, taskId, variables);
-        taskLogic.completeTask(user, taskId, variables, swimlaneActorId);
+        taskLogic.completeTask(user, taskId, variables);
     }
 
     @Override

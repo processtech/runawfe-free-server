@@ -21,14 +21,12 @@ import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.TaskFormBuilder;
 import ru.runa.wf.web.TaskFormBuilderFactory;
-import ru.runa.wf.web.form.ProcessForm;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
@@ -38,7 +36,6 @@ public class TaskFormTag extends WFFormTag {
     private static final long serialVersionUID = -8864271538433581304L;
 
     private Long taskId;
-    private Long actorId;
 
     public Long getTaskId() {
         return taskId;
@@ -47,15 +44,6 @@ public class TaskFormTag extends WFFormTag {
     @Attribute(required = true, rtexprvalue = true)
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
-    }
-
-    public Long getActorId() {
-        return actorId;
-    }
-
-    @Attribute(required = true, rtexprvalue = true)
-    public void setActorId(Long actorId) {
-        this.actorId = actorId;
     }
 
     @Override
@@ -80,7 +68,6 @@ public class TaskFormTag extends WFFormTag {
     protected void fillFormElement(TD tdFormElement) {
         super.fillFormElement(tdFormElement);
         tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(taskId)));
-        tdFormElement.addElement(new Input(Input.HIDDEN, ProcessForm.ACTOR_ID_INPUT_NAME, String.valueOf(actorId)));
         tdFormElement.addElement(new Input(Input.HIDDEN, WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, "redirectEnabled"));
     }
 
