@@ -3,6 +3,7 @@ package ru.runa.wfe.validation;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -93,19 +94,15 @@ public class ValidatorManager {
         return validators;
     }
     
-    private List<Validator> createVariableValidators (User user, ExecutionContext executionContext, VariableProvider variableProvider, 
-            Map<String, VariableDefinition> interactionVariables, ValidatorContext validatorContext, Map<String, Object> variables) {
+    public List<Validator> createValidatorsFromValidatorConfigs(User user, ExecutionContext executionContext, VariableProvider variableProvider,
+            ValidatorContext validatorContext, Map<String, Object> variables, Map<String, ValidatorConfig> validatorConfigs, String variableName) {
         List<Validator> validators = Lists.newArrayList();
-        for (VariableDefinition definition : interactionVariables.values()) {
-            if (definition.getValidators() != null) {
-                for (ValidatorConfig config : definition.getValidators().values()) {
-                    if (config.getParams().get(FieldValidator.FIELD_NAME_PARAMETER_NAME) == null) {
-                        config.getParams().put(FieldValidator.FIELD_NAME_PARAMETER_NAME, definition.getName());
-                    };
-                }
-                addValidatorsToList(definition.getValidators().values(), validators, user, executionContext, variableProvider, validatorContext, variables);
-            }
+        for (ValidatorConfig config : validatorConfigs.values()) {
+            if (config.getParams().get(FieldValidator.FIELD_NAME_PARAMETER_NAME) == null) {
+                config.getParams().put(FieldValidator.FIELD_NAME_PARAMETER_NAME, variableName);
+            };
         }
+        addValidatorsToList(validatorConfigs.values(), validators, user, executionContext, variableProvider, validatorContext, variables);
         return validators;
     }
     
@@ -113,7 +110,22 @@ public class ValidatorManager {
             Map<String, VariableDefinition> interactionVariables, Map<String, Object> variables) {
         ValidatorContext validatorContext = new ValidatorContext();
         List<Validator> validators = createValidators(user, executionContext, variableProvider, validationXml, validatorContext, variables);
-        validators.addAll(createVariableValidators(user, executionContext, variableProvider, interactionVariables, validatorContext, variables));
+        processValidators(variableProvider, validators);
+        return validatorContext;
+    }
+    
+    public ValidatorContext validateVariable(User user, ExecutionContext executionContext, VariableProvider variableProvider,
+            String variableName, Object value) {
+        ValidatorContext validatorContext = new ValidatorContext();
+        Map<String, ValidatorConfig> validatorConfigs = variableProvider.getVariableNotNull(variableName).getDefinition().getValidators();
+        Map<String, Object> variable = Maps.newHashMap();
+        variable.put(variableName, value);
+        List<Validator> validators = createValidatorsFromValidatorConfigs(user, executionContext, variableProvider, validatorContext, variable, validatorConfigs, variableName);
+        processValidators(variableProvider, validators);
+        return validatorContext;
+    }
+    
+    private void processValidators(VariableProvider variableProvider, List<Validator> validators) {
         // can be null for single output transition
         String transitionName = (String) variableProvider.getValue(WfProcess.SELECTED_TRANSITION_KEY);
         for (Validator validator : validators) {
@@ -132,7 +144,6 @@ public class ValidatorManager {
                 validator.addError(getInternalErrorMessage());
             }
         }
-        return validatorContext;
     }
 
 }

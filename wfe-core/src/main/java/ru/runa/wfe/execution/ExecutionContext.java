@@ -53,11 +53,15 @@ import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
+import ru.runa.wfe.validation.ValidationException;
+import ru.runa.wfe.validation.ValidatorContext;
+import ru.runa.wfe.validation.ValidatorManager;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
@@ -281,6 +285,11 @@ public class ExecutionContext {
 
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
+        ValidatorManager validatorManager = ValidatorManager.getInstance();
+        ValidatorContext validatorContext = validatorManager.validateVariable(UserHolder.get(), this, getVariableProvider(), variableDefinition.getName(), value);
+        if (validatorContext.hasGlobalErrors() || validatorContext.hasFieldErrors()) {
+            throw new ValidationException(validatorContext.getFieldErrors(), validatorContext.getGlobalErrors());
+        }
         switch (variableDefinition.getStoreType()) {
         case BLOB: {
             setSimpleVariableValue(getProcessDefinition(), getToken(), variableDefinition, value);
