@@ -42,6 +42,10 @@ public class GrantPermissionsAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         GrantPermissionsForm form = (GrantPermissionsForm) actionForm;
+        String returnAction = form.getReturnAction();
+        if (returnAction.contains("grantPermissionsForm.do")) {
+            form.setReturnAction(returnAction.replace("grantPermissionsForm.do", "managePermissionsForm.do"));
+        }
         List<Long> ids = Lists.newArrayList(form.getIds());
         try {
             SecuredObjectType securedObjectType = SecuredObjectType.valueOf(form.getSecuredObjectType());

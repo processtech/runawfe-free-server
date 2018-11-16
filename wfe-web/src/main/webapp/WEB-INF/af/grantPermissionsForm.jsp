@@ -7,7 +7,7 @@
     String securedObjectType = pageContext.getRequest().getParameter("type");
     String s = pageContext.getRequest().getParameter("id");
     Long identifiableId = s == null ? null : Long.parseLong(s);
-    String returnAction = pageContext.getRequest().getParameter("return");
+	String returnAction = "/grantPermissionsForm.do?type=EXECUTORS&return=%2FgrantPermissionsForm.do";
 
     // For batchPresentation chooser/editor, return action is current page URI.
     String selfAction = Commons.getSelfActionWithQueryString(pageContext);
