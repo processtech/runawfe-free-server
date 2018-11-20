@@ -31,13 +31,14 @@ import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.BatchPresentationCompilerFactory;
+import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDao;
@@ -355,7 +356,13 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
         List<Task> tasks = Lists.newArrayList();
         for (List<Executor> list : Lists.partition(Lists.newArrayList(executorsToGetTasks), SystemProperties.getDatabaseParametersCount())) {
             CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(list, "executor"));
-            tasks.addAll((List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters));
+            List<Task> resultTasks = Lists.newArrayList();
+            for (Task task : (List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters)) {
+                if (!((InteractionNode) processDefinitionLoader.getDefinition(task.getProcess()).getNode(task.getNodeId())).getFirstTaskNotNull().isReassignSwimlane()) {
+                    resultTasks.add(task);
+                }
+            }
+            tasks.addAll(resultTasks);
         }
         return tasks;
     }
