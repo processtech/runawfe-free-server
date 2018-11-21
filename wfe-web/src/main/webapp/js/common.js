@@ -191,3 +191,128 @@ function setSystemMenuVisible(visible, update) {
 		setLocalStorageValue(SYSTEM_MENU_VISIBLE, visible);
 	}
 }
+
+// Filter criteria specifics
+
+var editListFilterCriteriaDialogContent = "<div><textarea id=\"listFilterCriteriaId\" style=\"width: 95%; height: 90%;\"/></div>";
+
+function editListFilterCriteria(inputTextId, titleText, saveButtonText, cancelButtonText) {
+	$.editor = $(editListFilterCriteriaDialogContent).dialog( {
+		modal: true,
+		autoOpen: false,
+		title: titleText,
+		height: 300,
+		width: 400,
+		overlay: {
+			backgroundColor: "#000", opacity: 0.5
+		},
+	    close: function(event, ui) {
+			destroyFilterCriteriaEditor();
+		}
+	});
+	var inputText = $("#" + inputTextId).val().trim();
+	try {
+		var obj = JSON.parse(inputText);
+		inputText = "";
+		if (obj instanceof Array) {
+			for (var i = 0; i < obj.length; i++) {
+				var item = obj[i].trim();
+				if (item.length > 0) {
+					inputText += item + "\n";
+				}
+			}
+		}
+	} catch(e) {
+		inputText = "";
+	}
+	$("#listFilterCriteriaId").val(inputText);
+	var buttons = {};
+	buttons[saveButtonText] = function() {
+		saveListFilterCriteria(inputTextId);
+	};
+	buttons[cancelButtonText] = function() {
+		destroyFilterCriteriaEditor();
+	};
+	$.editor.dialog("option", "buttons", buttons);
+	$.editor.dialog("open");
+}
+
+function saveListFilterCriteria(inputTextId) {
+	try {
+		var items = $("#listFilterCriteriaId").val().trim().split("\n");
+		for (var i = 0; i < items.length; i++) {
+			if (items[i].length == 0) {
+				items.splice(i--, 1);
+			}
+		}
+		$("#" + inputTextId).val(items.length > 0 ? JSON.stringify(items) : "");
+	} catch(e) {
+		alert(e);
+	}
+	destroyFilterCriteriaEditor();
+}
+
+function destroyFilterCriteriaEditor() {
+	$.editor.dialog("destroy").remove();
+}
+
+var editRangeFilterCriteriaDialogContent = "<div><input type=\"text\" id=\"rangeMinFilterCriteriaId\" style=\"width: 47%;\"/>&nbsp;-&nbsp;<input type=\"text\" id=\"rangeMaxFilterCriteriaId\" style=\"width: 47%;\"/></div>";
+
+function editRangeFilterCriteria(inputTextId, titleText, saveButtonText, cancelButtonText) {
+	$.editor = $(editRangeFilterCriteriaDialogContent).dialog( {
+		modal: true,
+		autoOpen: false,
+		title: titleText,
+		height: 140,
+		width: 400,
+		overlay: {
+			backgroundColor: "#000", opacity: 0.5
+		},
+	    close: function(event, ui) {
+			destroyFilterCriteriaEditor();
+		}
+	});
+	var inputText = $("#" + inputTextId).val().trim();
+	var minValue = "";
+	var maxValue = "";
+	try {
+		var obj = JSON.parse(inputText);
+		if (obj instanceof Object) {
+			if (obj.min) {
+				minValue = obj.min.trim();
+			}
+			maxValue = obj.max.trim();
+		}
+	} catch(e) {
+		// do nothing
+	}
+	$("#rangeMinFilterCriteriaId").val(minValue);
+	$("#rangeMaxFilterCriteriaId").val(maxValue);
+	var buttons = {};
+	buttons[saveButtonText] = function() {
+		saveRangeFilterCriteria(inputTextId);
+	};
+	buttons[cancelButtonText] = function() {
+		destroyFilterCriteriaEditor();
+	};
+	$.editor.dialog("option", "buttons", buttons);
+	$.editor.dialog("open");
+}
+
+function saveRangeFilterCriteria(inputTextId) {
+	try {
+		var range = {};
+		var minValue = $("#rangeMinFilterCriteriaId").val().trim();
+		if (minValue.length > 0) {
+			range.min = minValue;
+		}
+		var maxValue = $("#rangeMaxFilterCriteriaId").val().trim();
+		if (maxValue.length > 0) {
+			range.max = maxValue;
+		}
+		$("#" + inputTextId).val(Object.getOwnPropertyNames(range).length > 0 ? JSON.stringify(range) : "");
+	} catch(e) {
+		alert(e);
+	}
+	destroyFilterCriteriaEditor();
+}

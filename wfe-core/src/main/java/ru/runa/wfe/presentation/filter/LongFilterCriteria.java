@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.presentation.filter;
 
+import com.google.common.base.Strings;
 import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 /**
@@ -63,6 +64,32 @@ public class LongFilterCriteria extends FilterCriteria {
         sb.append(" ");
         placeholders.add(placeHolderName, Long.valueOf(template));
         return sb.toString();
+    }
+
+    private String buildInOperator(String aliasedFieldName) {
+        String where = "";
+        String[] values = getFilterTemplate(0).split(",");
+        if (values.length > 0) {
+            for (String value : values) {
+                if (Strings.isNullOrEmpty(where)) {
+                    where = aliasedFieldName + " IN (";
+                } else {
+                    where += ",";
+                }
+                where += "'" + value.trim() + "'";
+            }
+            where += ")";
+        }
+        return where;
+    }
+
+    private String buildBetweenOperator(String aliasedFieldName) {
+        String where = "";
+        String[] values = getFilterTemplate(0).split("-");
+        if (values.length == 2) {
+            where = aliasedFieldName + " BETWEEN '" + values[0].trim() + "' AND '" + values[1].trim() + "'";
+        }
+        return where;
     }
 
 }
