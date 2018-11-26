@@ -84,7 +84,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Creates component to build HQL query for {@link BatchPresentation}.
-     * 
+     *
      * @param batchPresentation
      *            {@link BatchPresentation}, used to build HQL query.
      * @param parameters
@@ -98,7 +98,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Returns Map from HQL positional parameter name to parameter value, generated after build method call.
-     * 
+     *
      * @return Map from HQL positional parameter name to parameter value.
      */
     public QueryParametersMap getPlaceholders() {
@@ -107,7 +107,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Returns HQL query string, generated after build method call.
-     * 
+     *
      * @return HQL query string.
      */
     public String getQuery() {
@@ -116,7 +116,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Check, if query has some filters on fields with inheritance. This method must be called after build method call.
-     * 
+     *
      * @return Flag, equals true, if HQL query must be tuned for correct inheritance filtering.
      */
     public boolean isFilterByInheritance() {
@@ -125,7 +125,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Check, if query has some sorting on fields with inheritance. This method must be called after build method call.
-     * 
+     *
      * @return Flag, equals true, if HQL query must be tuned for correct inheritance ordering.
      */
     public boolean isOrderByInheritance() {
@@ -134,7 +134,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Returns mapping from {@link FieldDescriptor} to HQL query parameters aliases, initialized after build method call.
-     * 
+     *
      * @return Mapping from {@link FieldDescriptor} to HQL query parameters aliases.
      */
     public HibernateCompilerAliasMapping getAliasMapping() {
@@ -210,7 +210,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Generates expressions to satisfy {@link ClassPresentation} restriction.
-     * 
+     *
      * @return List of string, represents expressions.
      */
     private List<String> addClassPresentationRestriction() {
@@ -224,15 +224,12 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Generates expressions to satisfy fields join restrictions (How to join root persistent object with field database source).
-     * 
+     *
      * @return List of string, represents expressions.
      */
     private List<String> addJoinFieldRestrictions() {
         List<String> result = new LinkedList<>();
         for (String alias : aliasMapping.getAliases()) {
-            if (alias.equals(ClassPresentation.classNameSQL)) {
-                continue;
-            }
             for (final FieldDescriptor field : aliasMapping.getFields(alias)) {
                 if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation)) {
                     continue;
@@ -260,7 +257,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Generates expressions to satisfy owners restrictions.
-     * 
+     *
      * @return List of string, represents expressions.
      */
     private List<String> addOwners() {
@@ -277,7 +274,7 @@ public class HibernateCompilerHqlBuider {
     /**
      * Generates expressions to satisfy fields filtering restrictions. This function doesn't generates filtering for fields with inheritance. It must
      * be handled in SQL translation stage.
-     * 
+     *
      * @return List of string, represents expressions.
      */
     private List<String> addFilters() {
@@ -315,7 +312,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Generates expressions to satisfy security restrictions (to load only objects with permission).
-     * 
+     *
      * @return List of string, represents expressions.
      */
     // TODO Largely duplicates PermissionDAO logic. After (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
@@ -380,7 +377,7 @@ public class HibernateCompilerHqlBuider {
 
     /**
      * Generates expressions for identity restrictions.
-     * 
+     *
      * @return List of string, represents expressions.
      */
     private List<String> addIdRestrictions() {
