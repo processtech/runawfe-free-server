@@ -285,7 +285,18 @@ public class ExecutionContext {
 
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
+        NodeProcess parentNodeProcess = this.getParentNodeProcess();
         ValidatorManager validatorManager = ValidatorManager.getInstance();
+        if (parentNodeProcess != null) {
+            Long superDefinitionId = parentNodeProcess.getProcess().getDeployment().getId();
+            ProcessDefinition superDefinition = processDefinitionLoader.getDefinition(superDefinitionId);
+            ExecutionContext parentContext = new ExecutionContext(superDefinition, parentNodeProcess.getParentToken());
+            ValidatorContext validatorContext = validatorManager.validateVariable(UserHolder.get(), parentContext,
+                    parentContext.getVariableProvider(), variableDefinition.getName(), value);
+            if (validatorContext.hasGlobalErrors() || validatorContext.hasFieldErrors()) {
+                throw new ValidationException(validatorContext.getFieldErrors(), validatorContext.getGlobalErrors());
+            }
+        }
         ValidatorContext validatorContext = validatorManager.validateVariable(UserHolder.get(), this, getVariableProvider(), variableDefinition.getName(), value);
         if (validatorContext.hasGlobalErrors() || validatorContext.hasFieldErrors()) {
             throw new ValidationException(validatorContext.getFieldErrors(), validatorContext.getGlobalErrors());

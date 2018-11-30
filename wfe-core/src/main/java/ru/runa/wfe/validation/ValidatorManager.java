@@ -110,22 +110,32 @@ public class ValidatorManager {
             Map<String, VariableDefinition> interactionVariables, Map<String, Object> variables) {
         ValidatorContext validatorContext = new ValidatorContext();
         List<Validator> validators = createValidators(user, executionContext, variableProvider, validationXml, validatorContext, variables);
-        processValidators(variableProvider, validators);
+        processValidators(user, variableProvider, validators);
         return validatorContext;
     }
     
-    public ValidatorContext validateVariable(User user, ExecutionContext executionContext, VariableProvider variableProvider,
-            String variableName, Object value) {
+    public ValidatorContext validateVariable(User user, ExecutionContext executionContext, VariableProvider variableProvider, String variableName,
+            Object value) {
         ValidatorContext validatorContext = new ValidatorContext();
-        Map<String, ValidatorConfig> validatorConfigs = variableProvider.getVariableNotNull(variableName).getDefinition().getValidators();
-        Map<String, Object> variable = Maps.newHashMap();
-        variable.put(variableName, value);
-        List<Validator> validators = createValidatorsFromValidatorConfigs(user, executionContext, variableProvider, validatorContext, variable, validatorConfigs, variableName);
-        processValidators(variableProvider, validators);
+        Map<String, ValidatorConfig> validatorConfigs;
+        if (variableName.contains(".")) {
+            int indexOfDelimiter = variableName.indexOf(".");
+            validatorConfigs = variableProvider.getVariableNotNull(variableName.substring(0, indexOfDelimiter)).getDefinition().getUserType()
+                    .getAttribute(variableName.substring(indexOfDelimiter + 1, variableName.length())).getValidators();
+        } else {
+            validatorConfigs = variableProvider.getVariableNotNull(variableName).getDefinition().getValidators();
+        }
+        if (validatorConfigs != null) {
+            Map<String, Object> variable = Maps.newHashMap();
+            variable.put(variableName, value);
+            List<Validator> validators = createValidatorsFromValidatorConfigs(user, executionContext, variableProvider, validatorContext, variable,
+                    validatorConfigs, variableName);
+            processValidators(user, variableProvider, validators);
+        }
         return validatorContext;
     }
     
-    private void processValidators(VariableProvider variableProvider, List<Validator> validators) {
+    private void processValidators(User user, VariableProvider variableProvider, List<Validator> validators) {
         // can be null for single output transition
         String transitionName = (String) variableProvider.getValue(WfProcess.SELECTED_TRANSITION_KEY);
         for (Validator validator : validators) {
