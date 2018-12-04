@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.security.SecuredObjectBase;
@@ -49,6 +50,7 @@ public class WfProcess extends SecuredObjectBase {
     // map is not usable in web services
     private final List<WfVariable> variables = Lists.newArrayList();
     private ExecutionStatus executionStatus;
+    private String processErrors = "";
 
     public WfProcess() {
     }
@@ -62,6 +64,22 @@ public class WfProcess extends SecuredObjectBase {
         endDate = process.getEndDate();
         hierarchyIds = process.getHierarchyIds();
         executionStatus = process.getExecutionStatus();
+    }
+    
+    public WfProcess (Process process, String processErrors) {
+        id = process.getId();
+        name = process.getDeployment().getName();
+        definitionId = process.getDeployment().getId();
+        version = process.getDeployment().getVersion().intValue();
+        startDate = process.getStartDate();
+        endDate = process.getEndDate();
+        hierarchyIds = process.getHierarchyIds();
+        executionStatus = process.getExecutionStatus();
+        this.processErrors = processErrors;
+    }
+    
+    public String getProcessErrors() {
+        return processErrors;
     }
 
     @Override

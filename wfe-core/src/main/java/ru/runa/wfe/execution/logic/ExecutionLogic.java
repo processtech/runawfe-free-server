@@ -138,7 +138,7 @@ public class ExecutionLogic extends WfCommonLogic {
     public WfProcess getProcess(User user, Long id) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(id);
         permissionDao.checkAllowed(user, Permission.LIST, process);
-        return new WfProcess(process);
+        return new WfProcess(process, getProcessErrors(process));
     }
 
     public WfProcess getParentProcess(User user, Long processId) throws ProcessDoesNotExistException {
@@ -146,7 +146,8 @@ public class ExecutionLogic extends WfCommonLogic {
         if (nodeProcess == null) {
             return null;
         }
-        return new WfProcess(nodeProcess.getProcess());
+        Process resultProcess = nodeProcess.getProcess();
+        return new WfProcess(resultProcess, getProcessErrors(resultProcess));
     }
 
     public List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
@@ -454,6 +455,17 @@ public class ExecutionLogic extends WfCommonLogic {
         List<Process> processes = getPersistentObjects(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES, false);
         return toWfProcesses(processes, null);
     }
+    
+    private String getProcessErrors(Process process) {
+        List<String> processErrors = Lists.newArrayList();
+        for (WfToken token : getTokens(process)) {
+            if (token.getExecutionStatus() != ExecutionStatus.FAILED || token.getErrorMessage() == null) {
+                continue;
+            }
+            processErrors.add(token.getErrorMessage());
+        }
+        return String.join(", ", processErrors);
+    }
 
     private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
         List<WfToken> result = Lists.newArrayList();
@@ -475,7 +487,7 @@ public class ExecutionLogic extends WfCommonLogic {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
         Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
         for (Process process : processes) {
-            WfProcess wfProcess = new WfProcess(process);
+            WfProcess wfProcess = new WfProcess(process, getProcessErrors(process));
             if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
                 try {
                     ProcessDefinition processDefinition = getDefinition(process);
