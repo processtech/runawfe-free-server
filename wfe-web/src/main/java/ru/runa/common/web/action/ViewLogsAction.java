@@ -28,7 +28,6 @@ import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.User;
 
 /**
  * @author dofs
@@ -68,42 +67,15 @@ public class ViewLogsAction extends ActionBase {
                     request.setAttribute("pagingToolbar", createPagingToolbar(form));
                 }
 
-                String logFileContent;
+                String logFileContent = null;
                 if (form.getMode() == ViewLogForm.MODE_SEARCH) {
-                    List<Integer> lineNumbers = new ArrayList<>();
-                    String lines = searchLines(file, form, lineNumbers);
-                    StringBuilder b = new StringBuilder(lines.length() + 200);
-                    b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
-                    for (Integer num : lineNumbers) {
-                        b.append(num).append("<br>");
-                    }
-                    b.append("</td><td class=\"content\">");
-                    b.append(lines);
-                    b.append("</td></tr></table>");
-                    logFileContent = b.toString();
-                } else if (form.getMode() == ViewLogForm.MODE_ERRORS_AND_WARNS) {
-                    List<Integer> lineNumbers = new ArrayList<>();
-                    String lines = searchErrorsAndWarns(file, lineNumbers);
-                    StringBuilder b = new StringBuilder(lines.length() + 200);
-                    b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
-                    for (Integer num : lineNumbers) {
-                        b.append(num).append("<br>");
-                    }
-                    b.append("</td><td class=\"content\">");
-                    b.append(lines);
-                    b.append("</td></tr></table>");
-                    logFileContent = b.toString();
+                    logFileContent = wrapLines(searchLines(file, form, new ArrayList<>()), form, new ArrayList<>());
+                } else if (form.getMode() == ViewLogForm.MODE_ERRORS) {
+                    logFileContent = wrapLines(searchErrors(file, new ArrayList<>()), form, new ArrayList<>());
+                } else if (form.getMode() == ViewLogForm.MODE_WARNS) {
+                    logFileContent = wrapLines(searchWarns(file, new ArrayList<>()), form, new ArrayList<>());
                 } else {
-                    String lines = readLines(file, form);
-                    StringBuilder b = new StringBuilder(lines.length() + 200);
-                    b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
-                    for (int i = form.getStartLine(); i <= form.getEndLine(); i++) {
-                        b.append(i).append("<br>");
-                    }
-                    b.append("</td><td class=\"content\">");
-                    b.append(lines);
-                    b.append("</td></tr></table>");
-                    logFileContent = b.toString();
+                    logFileContent = wrapLines(readLines(file, form), form, null);
                 }
                 request.setAttribute("logFileContent", logFileContent);
             }
@@ -114,6 +86,24 @@ public class ViewLogsAction extends ActionBase {
             addError(request, e);
             return mapping.findForward(Resources.FORWARD_FAILURE);
         }
+    }
+    
+    private String wrapLines (String lines, ViewLogForm form, List<Integer> lineNumbers) {
+        StringBuilder b = new StringBuilder(lines.length() + 200);
+        b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
+        if (lineNumbers != null) {
+            for (Integer num : lineNumbers) {
+                b.append(num).append("<br>");
+            }
+        } else {
+            for (int i = form.getStartLine(); i <= form.getEndLine(); i++) {
+                b.append(i).append("<br>");
+            }
+        }
+        b.append("</td><td class=\"content\">");
+        b.append(lines);
+        b.append("</td></tr></table>");
+        return b.toString();
     }
 
     private int countLines(File file) throws IOException {
@@ -236,7 +226,7 @@ public class ViewLogsAction extends ActionBase {
         }
     }
 
-    private String searchErrorsAndWarns(File file, List<Integer> lineNumbers) throws IOException {
+    private String searchErrors(File file, List<Integer> lineNumbers) throws IOException {
         InputStream is = null;
         LineNumberReader lnReader = null;
         try {
@@ -255,12 +245,54 @@ public class ViewLogsAction extends ActionBase {
                     b.append(line).append("<br>");
                     lineNumbers.add(i);
                 } else {
-                    found = StringUtils.contains(line, " ERROR ") || StringUtils.contains(line, " WARN ");
+                    found = StringUtils.contains(line, " ERROR ");
                     if (found) {
                         line = StringEscapeUtils.escapeHtml(line);
                         line = line.replaceAll("\\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
                         b.append(line).append("<br>");
                         lineNumbers.add(i);
+                        if (lineNumbers.size() > limitLinesCount) {
+                            break;
+                        }
+                    }
+                }
+                i++;
+            }
+            return b.toString();
+        } finally {
+            Closeables.closeQuietly(lnReader);
+            Closeables.closeQuietly(is);
+        }
+    }
+    
+    private String searchWarns(File file, List<Integer> lineNumbers) throws IOException {
+        InputStream is = null;
+        LineNumberReader lnReader = null;
+        try {
+            // TODO may be use more structured parsing
+            // http://logging.apache.org/log4j/companions/receivers/apidocs/org/apache/log4j/varia/LogFilePatternReceiver.html
+            StringBuilder b = new StringBuilder(1000);
+            is = new FileInputStream(file);
+            lnReader = new LineNumberReader(new InputStreamReader(is));
+            int i = 1;
+            String line;
+            boolean found = false;
+            while (null != (line = lnReader.readLine())) {
+                if (found && line.length() > 0 && (Character.isWhitespace(line.charAt(0)) || Character.isLetter(line.charAt(0)))) {
+                    line = StringEscapeUtils.escapeHtml(line);
+                    line = line.replaceAll("\\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+                    b.append(line).append("<br>");
+                    lineNumbers.add(i);
+                } else {
+                    found = StringUtils.contains(line, " WARN ");
+                    if (found) {
+                        line = StringEscapeUtils.escapeHtml(line);
+                        line = line.replaceAll("\\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+                        b.append(line).append("<br>");
+                        lineNumbers.add(i);
+                        if (lineNumbers.size() > limitLinesCount) {
+                            break;
+                        }
                     }
                 }
                 i++;

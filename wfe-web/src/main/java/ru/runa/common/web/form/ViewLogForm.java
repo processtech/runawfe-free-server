@@ -16,8 +16,9 @@ public class ViewLogForm extends ActionForm {
     public static final int MODE_PAGING = 1;
     public static final int MODE_SEARCH = 2;
     public static final int MODE_END_LINES = 3;
-    public static final int MODE_ERRORS_AND_WARNS = 4;
+    public static final int MODE_ERRORS = 4;
     public static final int MODE_DOWNLOAD = 5;
+    public static final int MODE_WARNS = 6;
 
     private String fileName;
     private int allLinesCount;
