@@ -32,6 +32,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
@@ -44,9 +47,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     private final Log log = LogFactory.getLog(WorkflowThreadPoolBotInvoker.class);
 
@@ -55,6 +55,8 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     private ScheduledThreadPoolExecutor executor;
 
     private long configurationVersion = -1;
+
+    private long botstationId = -1;
 
     private final Map<Bot, WorkflowBotExecutor> botExecutors = Maps.newHashMap();
 
@@ -123,7 +125,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     private void configure() {
         String botStationErrorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_STATION_CONFIGURATION_ERROR, botStation.getName());
         try {
-            if (botStation.getVersion() != configurationVersion) {
+            if (botStation.getVersion() != configurationVersion || botstationId != botStation.getId()) {
                 log.info("Will update bots configuration.");
                 String username = BotStationResources.getSystemUsername();
                 String password = BotStationResources.getSystemPassword();
@@ -137,7 +139,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
                         log.info("Configuring " + bot.getUsername());
                         User user = Delegates.getAuthenticationService().authenticateByLoginPassword(bot.getUsername(), bot.getPassword());
                         List<BotTask> tasks = Delegates.getBotService().getBotTasks(user, bot.getId());
-                        if (existingBotExecutors.containsKey(bot)) {
+                        if (existingBotExecutors.containsKey(bot) && bot.getId().equals(existingBotExecutors.get(bot).getBot().getId())) {
                             WorkflowBotExecutor botExecutor = existingBotExecutors.get(bot);
                             botExecutor.reinitialize(bot, tasks);
                             botExecutors.put(bot, botExecutor);
@@ -151,6 +153,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
                     }
                 }
                 configurationVersion = botStation.getVersion();
+                botstationId = botStation.getId();
             } else {
                 log.debug("bots configuration is up to date, version = " + botStation.getVersion());
             }
@@ -190,7 +193,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
 
     /**
      * Schedules all task for bot. Each parallel tasks scheduled as self. Sequential tasks is grouped for sequential execution.
-     * 
+     *
      * @param botExecutor
      *            Bot execution data.
      * @param tasks
@@ -224,8 +227,8 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
             }
         }
         for (String taskName : sequentialTasks.keySet()) {
-            WorkflowSequentialBotTaskExecutor botTaskExecutor = new WorkflowSequentialBotTaskExecutor(botExecutor.getBot(), botExecutor.getBotTasks()
-                    .get(taskName), sequentialTasks.get(taskName));
+            WorkflowSequentialBotTaskExecutor botTaskExecutor = new WorkflowSequentialBotTaskExecutor(botExecutor.getBot(),
+                    botExecutor.getBotTasks().get(taskName), sequentialTasks.get(taskName));
             ScheduledFuture<?> future = executor.schedule(botTaskExecutor, 200, TimeUnit.MILLISECONDS);
             scheduledTasks.put(botTaskExecutor, future);
         }
@@ -233,7 +236,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
 
     /**
      * Schedules new tasks for sequential bot.
-     * 
+     *
      * @param botExecutor
      *            Component, used to create new bot task executors.
      */
