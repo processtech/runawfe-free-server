@@ -74,6 +74,13 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
         this.botStation = botStation;
         if (botInvokerInvocation != null && !botInvokerInvocation.isDone()) {
             log.debug("botInvokerInvocation != null && !botInvokerInvocation.isDone()");
+            executor.schedule(new Runnable() {
+
+                @Override
+                public void run() {
+                    invokeBots(botStation, resetFailedDelay);
+                }
+            }, 1000, TimeUnit.MILLISECONDS);
             return;
         }
         int poolSize = BotStationResources.getThreadPoolSize();
