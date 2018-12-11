@@ -157,7 +157,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
         patches.add(AddProcessClientData.class);
-//        patches.add(IndexProcessClientData.class);
+//        patches.add(IndexProcessClientData.class);  // Commented out: timed out waiting for TNMS filling this column.
         dbPatches = Collections.unmodifiableList(patches);
     }
 
