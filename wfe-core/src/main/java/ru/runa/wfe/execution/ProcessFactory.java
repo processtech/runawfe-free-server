@@ -129,6 +129,7 @@ public class ProcessFactory {
         processDao.create(process);
         if (parentProcess != null) {
             process.setParentId(parentProcess.getId());
+            process.setClientData(parentProcess.getClientData());
         }
         process.setHierarchyIds(
                 ProcessHierarchyUtils.createHierarchy(parentProcess != null ? parentProcess.getHierarchyIds() : null, process.getId()));
