@@ -157,7 +157,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
         patches.add(AddProcessClientData.class);
-        patches.add(IndexProcessClientData.class);
+//        patches.add(IndexProcessClientData.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 
