@@ -60,7 +60,6 @@ import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandVarcharPatch;
-import ru.runa.wfe.commons.dbpatch.impl.IndexProcessClientData;
 import ru.runa.wfe.commons.dbpatch.impl.JbpmRefactoringPatch;
 import ru.runa.wfe.commons.dbpatch.impl.NodeTypeChangePatch;
 import ru.runa.wfe.commons.dbpatch.impl.PerformancePatch401;
@@ -157,7 +156,6 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
         patches.add(AddProcessClientData.class);
-//        patches.add(IndexProcessClientData.class);  // Commented out: timed out waiting for TNMS filling this column.
         dbPatches = Collections.unmodifiableList(patches);
     }
 
