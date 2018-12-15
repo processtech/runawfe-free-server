@@ -70,7 +70,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
      * Checking botInvokerInvocation.isDone() leads to run() method called only once per moment.
      */
     @Override
-    public synchronized void invokeBots(BotStation botStation, boolean resetFailedDelay) {
+    public synchronized void invokeBots(final BotStation botStation, final boolean resetFailedDelay) {
         this.botStation = botStation;
         if (botInvokerInvocation != null && !botInvokerInvocation.isDone()) {
             log.debug("botInvokerInvocation != null && !botInvokerInvocation.isDone()");
