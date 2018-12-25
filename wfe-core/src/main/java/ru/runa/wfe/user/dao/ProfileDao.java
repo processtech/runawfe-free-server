@@ -50,9 +50,10 @@ public class ProfileDao extends GenericDao<Profile> {
      *            Actor to remove profile.
      */
     public void delete(Actor actor) {
-        Profile profile = get(actor);
-        if (profile != null) {
-            sessionFactory.getCurrentSession().delete(profile);
+        Profile actorProfile = get(actor);
+        if (actorProfile != null) {
+            QProfile p = QProfile.profile;
+            queryFactory.delete(p).where(p.id.eq(actorProfile.getId())).execute();
         }
     }
 }
