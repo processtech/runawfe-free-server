@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.security.SecuredObjectBase;
@@ -51,36 +50,25 @@ public class WfProcess extends SecuredObjectBase {
     // map is not usable in web services
     private final List<WfVariable> variables = Lists.newArrayList();
     private ExecutionStatus executionStatus;
-    private String processErrors = "";
+    private String errors;
 
     public WfProcess() {
     }
 
-    public WfProcess(Process process) {
-        id = process.getId();
-        name = process.getDeployment().getName();
-        definitionId = process.getDeployment().getId();
-        version = process.getDeployment().getVersion().intValue();
-        startDate = process.getStartDate();
-        endDate = process.getEndDate();
-        hierarchyIds = process.getHierarchyIds();
-        executionStatus = process.getExecutionStatus();
+    public WfProcess(Process process, String errors) {
+        this.id = process.getId();
+        this.name = process.getDeployment().getName();
+        this.definitionId = process.getDeployment().getId();
+        this.version = process.getDeployment().getVersion().intValue();
+        this.startDate = process.getStartDate();
+        this.endDate = process.getEndDate();
+        this.hierarchyIds = process.getHierarchyIds();
+        this.executionStatus = process.getExecutionStatus();
+        this.errors = errors;
     }
     
-    public WfProcess (Process process, String processErrors) {
-        id = process.getId();
-        name = process.getDeployment().getName();
-        definitionId = process.getDeployment().getId();
-        version = process.getDeployment().getVersion().intValue();
-        startDate = process.getStartDate();
-        endDate = process.getEndDate();
-        hierarchyIds = process.getHierarchyIds();
-        executionStatus = process.getExecutionStatus();
-        this.processErrors = processErrors;
-    }
-    
-    public String getProcessErrors() {
-        return processErrors;
+    public String getErrors() {
+        return errors;
     }
 
     @Override

@@ -4,7 +4,7 @@ import org.apache.ecs.html.TD;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.execution.dto.WfProcess;
 
-public class ProcessErrorReasonTdBuilder implements TdBuilder {
+public class ProcessErrorsTdBuilder implements TdBuilder {
 
     @Override
     public TD build(Object object, Env env) {
@@ -17,7 +17,7 @@ public class ProcessErrorReasonTdBuilder implements TdBuilder {
     @Override
     public String getValue(Object object, Env env) {
         WfProcess process = (WfProcess) object;
-        return process.getProcessErrors();
+        return process.getErrors();
     }
 
     @Override
