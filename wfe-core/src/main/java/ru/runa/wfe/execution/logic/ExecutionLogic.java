@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
@@ -465,6 +466,20 @@ public class ExecutionLogic extends WfCommonLogic {
             processErrors.add(token.getErrorMessage());
         }
         return String.join(", ", processErrors);
+    }
+
+    public List<Token> findTokensForMessageSelector(Map<String, String> routingData) {
+        if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
+            if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
+                String messageSelector = Utils.getObjectMessageStrictSelector(routingData);
+                return tokenDao.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
+            } else {
+                Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(routingData);
+                return tokenDao.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
+            }
+        } else {
+            throw new InternalApplicationException("Method not implemented for process.execution.message.predefined.selector.enabled = false");
+        }
     }
 
     private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
