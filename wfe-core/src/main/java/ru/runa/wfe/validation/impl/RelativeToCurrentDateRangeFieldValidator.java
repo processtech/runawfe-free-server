@@ -2,9 +2,7 @@ package ru.runa.wfe.validation.impl;
 
 import java.util.Calendar;
 import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.var.format.DateFormat;
@@ -22,14 +20,12 @@ public class RelativeToCurrentDateRangeFieldValidator extends RangeFieldValidato
         return false;
     }
 
-    private Date getParameter(String name, boolean add) {
+    private Date getParameter(String name, int deltaSign) {
         Integer daysCount = getParameter(Integer.class, name, null);
         if (daysCount == null) {
             return null;
         }
-        if (!add && daysCount != 0) {
-            daysCount = -1 * daysCount;
-        }
+        daysCount *= deltaSign;
         Calendar current = Calendar.getInstance();
         if (ignoreTime() || DateFormat.class.getName().equals(getVariableProvider().getVariableNotNull(getFieldName()).getDefinition().getFormat())) {
             CalendarUtil.setZeroTimeCalendar(current);
@@ -45,12 +41,11 @@ public class RelativeToCurrentDateRangeFieldValidator extends RangeFieldValidato
 
     @Override
     protected Date getMaxComparatorValue(Class<Date> clazz) {
-        return getParameter("max", true);
+        return getParameter("max", 1);
     }
 
     @Override
     protected Date getMinComparatorValue(Class<Date> clazz) {
-        return getParameter("min", false);
+        return getParameter("min", -1);
     }
-
 }
