@@ -112,7 +112,21 @@ public interface TaskService {
      * @throws TaskDoesNotExistException
      * @throws ValidationException
      */
+    @Deprecated
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException,
+            ValidationException;
+
+    /**
+     * Completes task by id.
+     * 
+     * @param user
+     *            authorized user
+     * @param taskId
+     *            task id
+     * @param variables
+     *            variable values, can contain transition name by key ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY
+     */
+    void completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException,
             ValidationException;
 
     /**
