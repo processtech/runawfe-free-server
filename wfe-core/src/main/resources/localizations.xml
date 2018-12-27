@@ -32,6 +32,7 @@
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.ConvertGroupsToUsersHandler" label="Expand groups (convert to users)"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.GetExecutorByRelationHandler" label="Get executor by relation"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.GetExecutorInfoHandler" label="Get executor info"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.ExecutorsListFromGroupHandler" label="Get group executors"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.GetExecutorsByRelationHandler" label="Get executors list by relation"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.GetObjectFromListActionHandler" label="Get object from list"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.GetObjectFromMapActionHandler" label="Get object from map"/>
@@ -62,6 +63,7 @@
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.DemoChiefFunction" label="Demo chief"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.SQLDirectorFunction" label="Director"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.ExecutorByNameFunction" label="Executor by name"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.ExecutorsFromListFunction" label="Executors from list"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.SQLFunction" label="SQL function"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.GetActorsByCodesFunction" label="Users by codes"/>
   <artifact enabled="false" name="ru.runa.wfe.var.format.BigDecimalFormat" label="Big decimal"/>
