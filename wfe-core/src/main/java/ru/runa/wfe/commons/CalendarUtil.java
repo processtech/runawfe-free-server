@@ -122,10 +122,7 @@ public class CalendarUtil {
     }
 
     public static String format(Calendar calendar, String format) {
-        if (calendar == null) {
-            return null;
-        }
-        return format(calendar.getTime(), format);
+        return calendar == null ? null : format(calendar.getTime(), format);
     }
 
     public static String formatDate(Calendar calendar) {
@@ -169,19 +166,8 @@ public class CalendarUtil {
         return maxCalendar;
     }
 
-    /**
-     *
-     * @param oneStart
-     *            is a list of start - end pairs of calendar
-     * @param oneEnd
-     *            is a list of start - end pairs of calendar
-     * @return 0 if no intersection. Returns N milliseconds of total intersection time
-     */
     private static boolean isIntersectionStrong(Calendar oneStart, Calendar oneEnd, Calendar twoStart, Calendar twoEnd) {
-        if (oneEnd.compareTo(twoStart) < 0 || twoEnd.compareTo(oneStart) < 0) {
-            return false;
-        }
-        return true;
+        return oneEnd.compareTo(twoStart) >= 0 && twoEnd.compareTo(oneStart) >= 0;
     }
 
     public static List<CalendarInterval> mergeIntersectingIntervalsNotOrdered(List<CalendarInterval> intervals) {
@@ -336,7 +322,7 @@ public class CalendarUtil {
     }
 
     protected static List<Calendar> transformToCalendarList(List<CalendarInterval> list) {
-        ArrayList<Calendar> result = new ArrayList<Calendar>(2 * list.size());
+        val result = new ArrayList<Calendar>(2 * list.size());
         for (CalendarInterval calendarInterval : list) {
             result.add(calendarInterval.getFrom());
             result.add(calendarInterval.getTo());
@@ -345,7 +331,7 @@ public class CalendarUtil {
     }
 
     protected static List<CalendarInterval> transformToCalendarIntervalList(List<Calendar> list) {
-        ArrayList<CalendarInterval> result = new ArrayList<CalendarInterval>(list.size() / 2);
+        val result = new ArrayList<CalendarInterval>(list.size() / 2);
         for (int i = 0; i < list.size(); i = i + 2) {
             result.add(new CalendarInterval(list.get(i), list.get(i + 1)));
         }
