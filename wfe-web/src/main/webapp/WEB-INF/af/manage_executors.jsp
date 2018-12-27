@@ -23,6 +23,7 @@ $(document).ready(function() {
 	$("<option />", {val: "D", text: delegationGroupLabel}).appendTo(select);
 	select.val(input.val());
 	input.replaceWith(select);
+	$("table.view-setup tr[field='batch_presentation.executor.type'] img[class='button-more']").remove();
 });
 </script>
 </tiles:put>

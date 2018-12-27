@@ -2,6 +2,7 @@ package ru.runa.wfe.commons.bc;
 
 import java.util.Calendar;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -64,6 +65,6 @@ public class BusinessDuration {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(getClass()).add("amount", amount).add("field", calendarField).add("businessTime", businessTime).toString();
+        return MoreObjects.toStringHelper(getClass()).add("amount", amount).add("field", calendarField).add("businessTime", businessTime).toString();
     }
 }

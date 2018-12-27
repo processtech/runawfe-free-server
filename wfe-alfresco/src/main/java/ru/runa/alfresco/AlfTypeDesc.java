@@ -8,6 +8,7 @@ import java.util.Map;
 import org.alfresco.service.namespace.QName;
 
 import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 
 /**
@@ -101,6 +102,6 @@ public class AlfTypeDesc {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("alf", getAlfrescoTypeNameWithPrefix()).add("java", javaClassName).toString();
+        return MoreObjects.toStringHelper(this).add("alf", getAlfrescoTypeNameWithPrefix()).add("java", javaClassName).toString();
     }
 }

@@ -23,10 +23,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.html.Form;
@@ -39,14 +37,13 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.SaveSettingsAction;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.form.SettingsFileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.DatabaseProperties;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.security.AuthorizationException;
@@ -154,7 +151,7 @@ public class EditSettingsTag extends TitledFormTag {
         String headerDescription = MessagesOther.LABEL_SETTING_DESCRIPTION.message(pageContext);
         String headerValue = MessagesOther.LABEL_SETTING_VALUE.message(pageContext);
         table.addElement("<tr><th class='list'>" + headerTitle + "</th><th class='list'>" + headerDescription
-                + "</th><th class='list' style='width:300px'>" + headerValue + "</th></tr>");
+                + "</th><th class='list' style='width:300px'>" + headerValue + "</th><th class='list'></th></tr>");
         List<Setting> lp = pf.settings;
         if (lp.size() == 0) {
             lp = new LinkedList<Setting>();
@@ -165,6 +162,7 @@ public class EditSettingsTag extends TitledFormTag {
                 lp.add(p);
             }
         }
+        boolean inputDisabled = !DatabaseProperties.isDatabaseSettingsEnabled();
         for (Setting p : lp) {
             String description = getDescription(pageContext, resource + "_" + p.title);
             String value = properties.getStringProperty(p.title, "");
@@ -176,10 +174,17 @@ public class EditSettingsTag extends TitledFormTag {
                 if (p.pattern != null) {
                     i.addAttribute("pattern", p.pattern);
                 }
+                if (inputDisabled) {
+                    i.addAttribute("disabled", inputDisabled);
+                }
                 input = i.toString();
             } else {
                 StringBuilder b = new StringBuilder();
-                b.append("<select style='width: 300px' name='" + SettingsFileForm.newValueInputName(p.title) + "'>");
+                b.append("<select style='width: 300px' name='" + SettingsFileForm.newValueInputName(p.title) + "'");
+                if (inputDisabled) {
+                    b.append(" disabled");
+                }
+                b.append(">");
                 b.append("<option selected>");
                 b.append(value);
                 b.append("</option>");
@@ -194,8 +199,13 @@ public class EditSettingsTag extends TitledFormTag {
                 b.append("</select>");
                 input = b.toString();
             }
+            Input resetValue = null;
+            if (properties.isSettingStoredInDatabase(p.title)) {
+                resetValue = new Input(Input.SUBMIT, SettingsFileForm.newValueInputName(p.title), MessagesCommon.BUTTON_RESTORE.message(pageContext));
+                resetValue.addAttribute("onclick", "restoreDefaultSettingValue('" + p.title + "', '" + resource + "')");
+            }
             table.addElement("<tr><td class='list'>" + p.title + "</td>" + "<td class='list'>" + description + "</td>" + "<td class='list'>"
-                    + oldInput.toString() + input + "</td>" + "</tr>");
+                    + oldInput.toString() + input + "</td>" + "<td class='list'>" + ((resetValue == null) ? "" : resetValue) + "</td></tr>");
         }
         tdFormElement.addElement(table);
     }

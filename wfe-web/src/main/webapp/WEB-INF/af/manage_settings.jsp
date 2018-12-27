@@ -5,7 +5,7 @@
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 <tiles:put name="body" type="string" >
 <wf:systemSettings>
-	<div align="right">
+	<div align="right" <%= Commons.isDatabaseSettingsEnabled() %>>
 		<a href="drop_settings.do" onclick="return confirm('<%= Commons.getMessage("confirmpopup.drop.settings", pageContext) %>')" >
 			<%= Commons.getMessage("link.drop_settings", pageContext) %>
 		</a>

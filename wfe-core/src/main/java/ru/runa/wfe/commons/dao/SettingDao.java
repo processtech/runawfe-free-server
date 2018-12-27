@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.commons.dao;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,6 +46,15 @@ public class SettingDao extends GenericDao<Setting> {
         }
         return property.getValue();
     }
+    
+    public Long getIdentifier(String fileName, String name) {
+        Setting property = get(fileName, name);
+        if (property == null) {
+           log.error("No property found for file " + fileName + " with name " + name + ".");
+           return null;
+        }
+        return property.getId();
+    }
 
     public void setValue(String fileName, String name, String value) {
         log.debug("setValue(" + fileName + ", " + name + ", " + value + ")");
@@ -61,6 +71,13 @@ public class SettingDao extends GenericDao<Setting> {
             property.setValue(value);
             update(property);
         }
+    }
+    
+    @Override
+    public void delete(Long id) {
+        Preconditions.checkNotNull(id);
+        QSetting s = QSetting.setting; 
+        queryFactory.delete(s).where(s.id.eq(id)).execute();
     }
 
     public void clear() {

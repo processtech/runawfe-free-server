@@ -20,7 +20,7 @@ package ru.runa.wfe.validation;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -56,6 +56,6 @@ public class ValidatorConfig {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("type", type).add("params", params).toString();
+        return MoreObjects.toStringHelper(this).add("type", type).add("params", params).toString();
     }
 }

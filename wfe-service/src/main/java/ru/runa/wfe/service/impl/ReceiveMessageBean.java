@@ -17,12 +17,14 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -50,6 +52,7 @@ import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -68,6 +71,8 @@ import ru.runa.wfe.var.VariableProvider;
 @SuppressWarnings("unchecked")
 public class ReceiveMessageBean implements MessageListener {
     private static Log log = LogFactory.getLog(ReceiveMessageBean.class);
+    @Autowired
+    private ExecutionLogic executionLogic;
     @Autowired
     private TokenDao tokenDao;
     @Autowired
@@ -90,15 +95,9 @@ public class ReceiveMessageBean implements MessageListener {
             transaction.begin();
             List<Token> tokens;
             if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
-                if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
-                    String messageSelector = Utils.getObjectMessageStrictSelector(message);
-                    tokens = tokenDao.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
-                    log.debug("Checking " + tokens.size() + " tokens by messageSelector = " + messageSelector);
-                } else {
-                    Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(message);
-                    tokens = tokenDao.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
-                    log.debug("Checking " + tokens.size() + " tokens by messageSelectors = " + messageSelectors);
-                }
+                Map<String, String> routingData = getRoutingData(message);
+                tokens = executionLogic.findTokensForMessageSelector(routingData);
+                log.debug("Checking " + tokens.size() + " tokens by routingData = " + routingData);
             } else {
                 tokens = tokenDao.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
                 log.debug("Checking " + tokens.size() + " tokens");
@@ -161,6 +160,18 @@ public class ReceiveMessageBean implements MessageListener {
         }
     }
 
+    private Map<String, String> getRoutingData(ObjectMessage message) throws JMSException {
+        Map<String, String> map = new HashMap<>();
+        Enumeration<String> propertyNames = message.getPropertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String propertyName = propertyNames.nextElement();
+            if (!propertyName.startsWith("JMS")) {
+                map.put(propertyName, message.getStringProperty(propertyName));
+            }
+        }
+        return map;
+    }
+
     private void handleMessage(final ReceiveMessageData data, final ObjectMessage message) {
         try {
             new TransactionalExecutor(context.getUserTransaction()) {
@@ -209,7 +220,7 @@ public class ReceiveMessageBean implements MessageListener {
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(getClass()).add("processId", processId).add("tokenId", tokenId).add("node", node).toString();
+            return MoreObjects.toStringHelper(getClass()).add("processId", processId).add("tokenId", tokenId).add("node", node).toString();
         }
     }
 

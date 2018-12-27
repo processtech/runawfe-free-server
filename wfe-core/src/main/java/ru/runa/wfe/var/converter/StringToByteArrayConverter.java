@@ -19,7 +19,7 @@ public class StringToByteArrayConverter implements Converter {
 
     @Override
     public boolean supports(Object value) {
-        return value instanceof String;
+        return value instanceof String && ((String) value).length() > Variable.getMaxStringSize();
     }
 
 }

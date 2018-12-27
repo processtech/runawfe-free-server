@@ -21,8 +21,13 @@ public class TaskServiceDelegate extends Ejb3Delegate implements TaskService {
 
     @Override
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) {
+        completeTask(user, taskId, variables);
+    }
+
+    @Override
+    public void completeTask(User user, Long taskId, Map<String, Object> variables) {
         try {
-            getTaskService().completeTask(user, taskId, variables, swimlaneActorId);
+            getTaskService().completeTask(user, taskId, variables);
         } catch (Exception e) {
             throw handleException(e);
         }

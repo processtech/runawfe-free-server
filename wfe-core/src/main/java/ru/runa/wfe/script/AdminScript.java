@@ -36,7 +36,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * Admin script.
@@ -83,6 +83,6 @@ public class AdminScript implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).toString();
     }
 }

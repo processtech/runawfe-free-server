@@ -20,7 +20,6 @@ package ru.runa.common.web.html.format;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import ru.runa.wfe.presentation.SystemLogTypeFilterCriteria;
 import ru.runa.wfe.presentation.SystemLogTypeHelper;
 import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
@@ -38,7 +37,7 @@ public class FilterFormatsFactory {
     private static FiltersParser filtersParser = new FilterParserImpl();
 
     static {
-        formattersMap.put(String.class.getName(), new StringFilterTDFormatter());
+        formattersMap.put(String.class.getName(), new StringFilterTDFormatter2());
         formattersMap.put(Integer.class.getName(), new StringFilterTDFormatter());
         formattersMap.put(Date.class.getName(), new DateFilterTDFormatter());
         formattersMap.put(AnywhereStringFilterCriteria.class.getName(), new StringFilterTDFormatter());

@@ -21,6 +21,7 @@
  */
 package ru.runa.wfe.execution;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
@@ -372,7 +373,7 @@ public class Token implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("processId", getProcess().getId()).add("nodeId", nodeId).add("status", executionStatus)
+        return MoreObjects.toStringHelper(this).add("id", id).add("processId", getProcess().getId()).add("nodeId", nodeId).add("status", executionStatus)
                 .toString();
     }
 

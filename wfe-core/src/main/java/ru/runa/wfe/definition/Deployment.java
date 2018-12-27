@@ -1,6 +1,7 @@
 package ru.runa.wfe.definition;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.util.Date;
 import java.util.List;
@@ -203,7 +204,7 @@ public class Deployment extends SecuredObject {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).add("version", version).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).add("version", version).toString();
     }
 
     @Transient
