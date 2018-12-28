@@ -70,6 +70,7 @@ import ru.runa.wfe.var.dao.VariableLoaderDaoFallback;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
+import ru.runa.wfe.var.impl.ByteArrayVariable;
 
 public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
@@ -387,9 +388,11 @@ public class ExecutionContext {
             }
             log.debug("Updating variable '" + variableDefinition.getName() + "' in '" + getProcess() + "' to '" + value + "'"
                     + (value != null ? " of " + value.getClass() : ""));
-            Object oldValue = variable.getValue();
             resultingVariableLog = variable.setValue(this, value, variableDefinition);
-            updateMessageSelectorIfExists(processDefinition, variable, token.getProcess(), oldValue);
+            if (!(ByteArrayVariable.class.isAssignableFrom(variable.getClass()))) {
+                Object oldValue = variable.getValue();
+                updateMessageSelectorIfExists(processDefinition, variable, token.getProcess(), oldValue);
+            }
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
