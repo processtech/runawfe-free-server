@@ -1,5 +1,11 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
@@ -7,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -23,10 +28,8 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.error.ProcessError;
@@ -37,18 +40,11 @@ import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.Variables;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
@@ -224,12 +220,12 @@ public class Utils {
         return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(selectors);
     }
 
-    public static String getObjectMessageStrictSelector(ObjectMessage message) throws JMSException {
-        return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(getObjectMessageSelectorSelectors(message));
+    public static String getObjectMessageStrictSelector(Map<String, String> routingData) {
+        return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(getObjectMessageSelectorSelectors(routingData));
     }
 
-    public static Set<String> getObjectMessageCombinationSelectors(ObjectMessage message) throws JMSException {
-        List<String> selectors = getObjectMessageSelectorSelectors(message);
+    public static Set<String> getObjectMessageCombinationSelectors(Map<String, String> routingData) {
+        List<String> selectors = getObjectMessageSelectorSelectors(routingData);
         Set<String> result = Sets.newHashSet();
         for (Set<String> set : Sets.powerSet(Sets.newHashSet(selectors))) {
             List<String> list = Lists.newArrayList(set);
@@ -239,14 +235,10 @@ public class Utils {
         return result;
     }
 
-    private static List<String> getObjectMessageSelectorSelectors(ObjectMessage message) throws JMSException {
+    private static List<String> getObjectMessageSelectorSelectors(Map<String, String> routingData) {
         List<String> selectors = Lists.newArrayList();
-        Enumeration<String> propertyNames = message.getPropertyNames();
-        while (propertyNames.hasMoreElements()) {
-            String propertyName = propertyNames.nextElement();
-            if (!propertyName.startsWith("JMS")) {
-                selectors.add(propertyName + MESSAGE_SELECTOR_VALUE_DELIMITER + message.getStringProperty(propertyName));
-            }
+        for (Map.Entry<String, String> entry : routingData.entrySet()) {
+            selectors.add(entry.getKey() + MESSAGE_SELECTOR_VALUE_DELIMITER + entry.getValue());
         }
         Collections.sort(selectors);
         return selectors;

@@ -17,35 +17,44 @@ public class RelativeToCurrentDateRangeFieldValidator extends RangeFieldValidato
     }
 
     protected boolean ignoreTime() {
-        return false;
+        return getParameter(boolean.class, "ignoreTime", false)
+                || DateFormat.class.getName().equals(getVariableProvider().getVariableNotNull(getFieldName()).getDefinition().getFormat());
     }
 
-    private Date getParameter(String name, int deltaSign) {
+    private Date getParameter(String name, boolean add) {
         Integer daysCount = getParameter(Integer.class, name, null);
         if (daysCount == null) {
             return null;
         }
-        daysCount *= deltaSign;
-        Calendar current = Calendar.getInstance();
-        if (ignoreTime() || DateFormat.class.getName().equals(getVariableProvider().getVariableNotNull(getFieldName()).getDefinition().getFormat())) {
-            CalendarUtil.setZeroTimeCalendar(current);
+        if (!add && daysCount != 0) {
+            daysCount = -1 * daysCount;
         }
+        Calendar result;
         if (useBusinessCalendar()) {
             Date date = businessCalendar.apply(new Date(), daysCount + " business days");
-            current.setTime(date);
+            result = CalendarUtil.dateToCalendar(date);
         } else {
-            current.add(Calendar.DAY_OF_MONTH, daysCount);
+            result = Calendar.getInstance();
+            result.add(Calendar.DAY_OF_MONTH, daysCount);
         }
-        return current.getTime();
+        if (ignoreTime()) {
+            if (add) {
+                CalendarUtil.setLastSecondTimeCalendar(result);
+            } else {
+                CalendarUtil.setZeroTimeCalendar(result);
+            }
+        }
+        return result.getTime();
     }
 
     @Override
     protected Date getMaxComparatorValue(Class<Date> clazz) {
-        return getParameter("max", 1);
+        return getParameter("max", true);
     }
 
     @Override
     protected Date getMinComparatorValue(Class<Date> clazz) {
-        return getParameter("min", -1);
+        return getParameter("min", false);
     }
+
 }
