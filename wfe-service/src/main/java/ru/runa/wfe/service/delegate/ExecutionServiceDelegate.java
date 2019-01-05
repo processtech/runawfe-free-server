@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service.delegate;
 
-import ru.runa.wfe.var.file.FileVariableImpl;
-
 import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -35,6 +33,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 /**
  * Created on 28.09.2004
@@ -306,6 +305,24 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     public void suspendProcess(User user, Long processId) {
         try {
             getExecutionService().suspendProcess(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void sendSignal(User user, Map<String, String> routingData, Map<String, Object> payloadData, long ttl) {
+        try {
+            getExecutionService().sendSignal(user, routingData, payloadData, ttl);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public boolean signalReceiverIsActive(User user, Map<String, String> routingData) {
+        try {
+            return getExecutionService().signalReceiverIsActive(user, routingData);
         } catch (Exception e) {
             throw handleException(e);
         }

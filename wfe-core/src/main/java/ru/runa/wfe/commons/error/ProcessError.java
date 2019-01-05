@@ -1,9 +1,8 @@
 package ru.runa.wfe.commons.error;
 
+import com.google.common.base.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import com.google.common.base.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProcessError extends SystemError {
@@ -17,7 +16,6 @@ public class ProcessError extends SystemError {
     }
 
     public ProcessError(ProcessErrorType type, Long processId, String nodeId) {
-        super(null);
         this.type = type;
         this.processId = processId;
         this.nodeId = nodeId;

@@ -188,7 +188,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                         variables.put(entry.getValue().getVariableName(), object);
                     }
                 }
-                Delegates.getTaskService().completeTask(user, task.getId(), variables, null);
+                Delegates.getTaskService().completeTask(user, task.getId(), variables);
                 log.debug("Handled bot task " + task + ", " + bot + " by " + taskHandler.getClass());
             }
         } catch (TaskDoesNotExistException e) {

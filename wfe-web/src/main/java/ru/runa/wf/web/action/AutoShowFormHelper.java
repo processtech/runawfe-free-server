@@ -46,7 +46,6 @@ public class AutoShowFormHelper {
         	WfTask task = tasks.get(0);
             Map<String, Object> params = new HashMap<>();
             params.put(ProcessForm.ID_INPUT_NAME, task.getId());
-            params.put(ProcessForm.ACTOR_ID_INPUT_NAME, task.getOwner().getId());
             return Commons.forward(mapping.findForward(LOCAL_FORWARD_SUBMIT_TASK), params);
         } else if (tasks.size() > 1) {
             // list tasks
