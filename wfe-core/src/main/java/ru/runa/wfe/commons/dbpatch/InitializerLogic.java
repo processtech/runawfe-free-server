@@ -45,6 +45,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddMultiTaskIndexToTaskPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddNodeIdToProcessLogPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddParentProcessIdPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddProcessAndTokenExecutionStatusPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddProcessExternalData;
 import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
@@ -154,6 +155,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(AddTransactionalBotSupport.class);
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
+        patches.add(AddProcessExternalData.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 
