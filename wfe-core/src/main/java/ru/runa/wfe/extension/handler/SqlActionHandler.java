@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.extension.handler;
 
-import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,9 +34,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+import lombok.val;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.SqlCommons;
@@ -76,18 +75,17 @@ public class SqlActionHandler extends ActionHandlerBase {
     @SuppressWarnings("unchecked")
     @Override
     public void execute(ExecutionContext executionContext) throws Exception {
-        Map<String, Object> in = Maps.newHashMap();
+        val in = new HashMap<String, Object>();
         in.put(DatabaseTask.INSTANCE_ID_VARIABLE_NAME, executionContext.getToken().getProcess().getId());
         in.put(DatabaseTask.CURRENT_DATE_VARIABLE_NAME, new Date());
         MapDelegableVariableProvider variableProvider = new MapDelegableVariableProvider(in, executionContext.getVariableProvider());
         DatabaseTask[] databaseTasks = DatabaseTaskXmlParser.parse(configuration, variableProvider);
         log.debug("all variables: " + in);
-        Map<String, Object> out = new HashMap<String, Object>();
-        Context context = new InitialContext();
-        for (int i = 0; i < databaseTasks.length; i++) {
+        val out = new HashMap<String, Object>();
+        val context = new InitialContext();
+        for (DatabaseTask databaseTask : databaseTasks) {
             Connection conn = null;
             try {
-                DatabaseTask databaseTask = databaseTasks[i];
                 String dsName = databaseTask.getDatasourceName();
                 int colonIndex = dsName.indexOf(':');
                 if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)
@@ -111,7 +109,7 @@ public class SqlActionHandler extends ActionHandlerBase {
                 }
                 for (int j = 0; j < databaseTask.getQueriesCount(); j++) {
                     AbstractQuery query = databaseTask.getQuery(j);
-                    PreparedStatement ps = null;
+                    PreparedStatement ps;
                     if (query instanceof Query) {
                         log.debug("Preparing query " + query.getSql());
                         ps = conn.prepareStatement(query.getSql());
@@ -133,7 +131,7 @@ public class SqlActionHandler extends ActionHandlerBase {
                                     WfVariable variable = variableProvider.getVariableNotNull(entry.getKey());
                                     Object variableValue;
                                     if (variable.getDefinition().getFormatNotNull() instanceof ListFormat) {
-                                        ArrayList<Object> list = new ArrayList<Object>();
+                                        val list = new ArrayList<Object>();
                                         list.add(entry.getValue());
                                         variableValue = list;
                                     } else {
@@ -163,14 +161,14 @@ public class SqlActionHandler extends ActionHandlerBase {
     }
 
     private Map<String, Object> extractResults(MapDelegableVariableProvider in, ResultSet resultSet, AbstractQuery query) throws Exception {
-        Map<String, Object> out = new HashMap<String, Object>();
+        val out = new HashMap<String, Object>();
         for (int i = 0; i < query.getResultVariableCount(); i++) {
             Result result = query.getResultVariable(i);
             String fieldName = result.getFieldName();
             Object newValue = resultSet.getObject(i + 1);
             log.debug("Obtaining result " + fieldName + " from " + newValue);
             if (result instanceof SwimlaneResult) {
-                Actor actor = null;
+                Actor actor;
                 if ("code".equals(fieldName)) {
                     actor = executorDao.getActorByCode(((Number) newValue).longValue());
                 } else if ("id".equals(fieldName)) {
@@ -213,7 +211,7 @@ public class SqlActionHandler extends ActionHandlerBase {
             Object value = in.getValue(parameter.getVariableName());
             if (parameter instanceof SwimlaneParameter) {
                 Actor actor = executorDao.getActorByCode(Long.parseLong((String) value));
-                value = PropertyUtils.getProperty(actor, ((SwimlaneParameter) parameter).getFieldName());
+                value = PropertyUtils.getProperty(actor, parameter.getFieldName());
             } else if (parameter.isFieldSetup()) {
                 value = PropertyUtils.getProperty(value, parameter.getFieldName());
             }

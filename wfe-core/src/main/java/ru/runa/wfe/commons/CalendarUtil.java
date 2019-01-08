@@ -8,7 +8,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 
 /**
@@ -122,10 +122,7 @@ public class CalendarUtil {
     }
 
     public static String format(Calendar calendar, String format) {
-        if (calendar == null) {
-            return null;
-        }
-        return format(calendar.getTime(), format);
+        return calendar == null ? null : format(calendar.getTime(), format);
     }
 
     public static String formatDate(Calendar calendar) {
@@ -169,26 +166,15 @@ public class CalendarUtil {
         return maxCalendar;
     }
 
-    /**
-     *
-     * @param oneStart
-     *            is a list of start - end pairs of calendar
-     * @param oneEnd
-     *            is a list of start - end pairs of calendar
-     * @return 0 if no intersection. Returns N milliseconds of total intersection time
-     */
     private static boolean isIntersectionStrong(Calendar oneStart, Calendar oneEnd, Calendar twoStart, Calendar twoEnd) {
-        if (oneEnd.compareTo(twoStart) < 0 || twoEnd.compareTo(oneStart) < 0) {
-            return false;
-        }
-        return true;
+        return oneEnd.compareTo(twoStart) >= 0 && twoEnd.compareTo(oneStart) >= 0;
     }
 
     public static List<CalendarInterval> mergeIntersectingIntervalsNotOrdered(List<CalendarInterval> intervals) {
         if (intervals == null || intervals.size() < 2) {
             return intervals;
         }
-        List<CalendarInterval> result = new ArrayList<CalendarInterval>();
+        val result = new ArrayList<CalendarInterval>();
         Collections.sort(intervals);
         CalendarInterval current = intervals.get(0);
         for (int i = 1; i < intervals.size(); i++) {
@@ -222,13 +208,13 @@ public class CalendarUtil {
     }
 
     public static List<Calendar> subtract(Calendar oneStart, Calendar oneEnd, Calendar twoStart, Calendar twoEnd) {
-        ArrayList<Calendar> result = new ArrayList<Calendar>(4);
+        val result = new ArrayList<Calendar>(4);
         if (!isIntersectionStrong(oneStart, oneEnd, twoStart, twoEnd)) {
             result.add((Calendar) oneStart.clone());
             result.add((Calendar) oneEnd.clone());
             return result;
         }
-        Calendar current = null;
+        Calendar current;
         if (oneStart.before(twoStart)) {
             current = (Calendar) oneStart.clone();
             result.add(current);
@@ -260,9 +246,8 @@ public class CalendarUtil {
             return subtractFrom;
         }
         List<Calendar> current;
-        ArrayList<Calendar> result = new ArrayList<Calendar>();
-        result.addAll(subtractFrom);
-        ArrayList<Calendar> temp = new ArrayList<Calendar>();
+        val result = new ArrayList<Calendar>(subtractFrom);
+        val temp = new ArrayList<Calendar>();
         for (int i = 0; i < subtractThese.size(); i = i + 2) {
             for (int j = 0; j < result.size(); j = j + 2) {
                 current = subtract(result.get(j), result.get(j + 1), subtractThese.get(i), subtractThese.get(i + 1));
@@ -337,7 +322,7 @@ public class CalendarUtil {
     }
 
     protected static List<Calendar> transformToCalendarList(List<CalendarInterval> list) {
-        ArrayList<Calendar> result = new ArrayList<Calendar>(2 * list.size());
+        val result = new ArrayList<Calendar>(2 * list.size());
         for (CalendarInterval calendarInterval : list) {
             result.add(calendarInterval.getFrom());
             result.add(calendarInterval.getTo());
@@ -346,7 +331,7 @@ public class CalendarUtil {
     }
 
     protected static List<CalendarInterval> transformToCalendarIntervalList(List<Calendar> list) {
-        ArrayList<CalendarInterval> result = new ArrayList<CalendarInterval>(list.size() / 2);
+        val result = new ArrayList<CalendarInterval>(list.size() / 2);
         for (int i = 0; i < list.size(); i = i + 2) {
             result.add(new CalendarInterval(list.get(i), list.get(i + 1)));
         }
@@ -375,12 +360,11 @@ public class CalendarUtil {
     }
 
     public static CalendarInterval convertToOrderedInterval(String date1, String date2, String format) {
-        List<Calendar> calendarList = new ArrayList<Calendar>(2);
+        val calendarList = new ArrayList<Calendar>(2);
         calendarList.add(convertToCalendar(date1, format));
         calendarList.add(convertToCalendar(date2, format));
         Collections.sort(calendarList);
-        CalendarInterval result = new CalendarInterval(calendarList.get(0), calendarList.get(1), true);
-        return result;
+        return new CalendarInterval(calendarList.get(0), calendarList.get(1), true);
     }
 
     public static Date convertToDate(String dateAsString, String format) {
@@ -391,8 +375,11 @@ public class CalendarUtil {
         }
     }
 
+    public static Date convertToDate(String dateAsString) {
+        return convertToDate(dateAsString, DATE_WITHOUT_TIME_FORMAT);
+    }
+
     public static Calendar convertToCalendar(String dateAsString, String format) {
         return dateToCalendar(convertToDate(dateAsString, format));
     }
-
 }

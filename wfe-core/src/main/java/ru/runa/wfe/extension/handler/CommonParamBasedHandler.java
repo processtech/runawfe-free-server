@@ -1,15 +1,13 @@
 package ru.runa.wfe.extension.handler;
 
+import com.google.common.base.Throwables;
 import java.util.Map;
-
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.base.Throwables;
 
 /**
  * Base class for standard XML parameter-based configuration.
@@ -20,7 +18,7 @@ public abstract class CommonParamBasedHandler extends TaskHandlerBase implements
     private ParamsDef paramsDef;
 
     @Override
-    public void setConfiguration(String configuration) throws Exception {
+    public void setConfiguration(String configuration) {
         paramsDef = ParamsDef.parse(configuration);
     }
 
@@ -41,7 +39,7 @@ public abstract class CommonParamBasedHandler extends TaskHandlerBase implements
     }
 
     @Override
-    public Map<String, Object> handle(final User user, final VariableProvider variableProvider, final WfTask task) throws Exception {
+    public Map<String, Object> handle(final User user, final VariableProvider variableProvider, final WfTask task) {
         HandlerData handlerData = new HandlerData(paramsDef, user, variableProvider, task);
         TimeMeasurer timeMeasurer = new TimeMeasurer(log);
         try {
@@ -53,5 +51,4 @@ public abstract class CommonParamBasedHandler extends TaskHandlerBase implements
         }
         return handlerData.getOutputVariables();
     }
-
 }

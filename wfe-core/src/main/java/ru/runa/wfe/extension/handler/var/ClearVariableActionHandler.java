@@ -17,5 +17,4 @@ public class ClearVariableActionHandler extends CommonParamBasedHandler {
         ParamDef paramDef = handlerData.getOutputParamNotNull("object");
         handlerData.setOutputVariable(paramDef.getVariableName(), null);
     }
-
 }

@@ -17,11 +17,12 @@
  */
 package ru.runa.wfe.definition.par;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import java.util.List;
-
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
@@ -33,10 +34,6 @@ import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 
 /**
  * Created on 17.11.2004
