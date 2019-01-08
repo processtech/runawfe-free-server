@@ -369,4 +369,10 @@ public abstract class DbPatch {
             super(name, dialect.getTypeName(Types.VARCHAR, length, length, length), allowNulls);
         }
     }
+
+    public class DateColumnDef extends ColumnDef {
+        public DateColumnDef(String name, boolean allowNulls) {
+            super(name, Types.TIMESTAMP, allowNulls);
+        }
+    }
 }

@@ -183,6 +183,12 @@ public abstract class Node extends GraphElement {
         // fire the leave-node event for this node
         fireEvent(executionContext, ActionEvent.NODE_ENTER);
         executionContext.addLog(new NodeEnterLog(this));
+        boolean async = getAsyncExecution(executionContext);
+        if (async) {
+            ApplicationContextFactory.getNodeAsyncExecutor().execute(token, true);
+        } else {
+            handle(executionContext);
+        }
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessEndNode)) {
             for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
                 Node boundaryNode = (Node) boundaryEvent;
@@ -192,12 +198,6 @@ public abstract class Node extends GraphElement {
                 ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
-        }
-        boolean async = getAsyncExecution(executionContext);
-        if (async) {
-            ApplicationContextFactory.getNodeAsyncExecutor().execute(token, true);
-        } else {
-            handle(executionContext);
         }
     }
 

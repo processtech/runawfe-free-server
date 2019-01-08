@@ -50,7 +50,9 @@ import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.Signal;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.dao.SignalDao;
 import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.BaseMessageNode;
@@ -81,6 +83,8 @@ public class ReceiveMessageBean implements MessageListener {
     private ProcessLogDao processLogDao;
     @Resource
     private MessageDrivenContext context;
+    @Autowired
+    private SignalDao signalDao;
 
     @Override
     public void onMessage(Message jmsMessage) {
@@ -152,7 +156,16 @@ public class ReceiveMessageBean implements MessageListener {
                 log.error(errorMessage);
                 Errors.addSystemError(new InternalApplicationException(errorMessage));
             } else {
-                throw new MessagePostponedException(messageString);
+                try {
+                    transaction.begin();
+                    Signal signal = new Signal(message);
+                    log.debug("Rejecting message request " + messageString + ", persisting to " + signal);
+                    signalDao.create(signal);
+                    transaction.commit();
+                } catch (Exception e) {
+                    Utils.rollbackTransaction(transaction);
+                    Throwables.propagate(e);
+                }
             }
         }
         for (ReceiveMessageData data : handlers) {

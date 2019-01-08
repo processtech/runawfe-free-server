@@ -58,6 +58,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
+import ru.runa.wfe.commons.dbpatch.impl.CreateSignalTable;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandVarcharPatch;
 import ru.runa.wfe.commons.dbpatch.impl.JbpmRefactoringPatch;
@@ -156,6 +157,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
         patches.add(AddProcessExternalData.class);
+        patches.add(CreateSignalTable.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 
