@@ -88,7 +88,7 @@ public class Process extends SecuredObjectBase {
     private String hierarchyIds;
     private Deployment deployment;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
-    private Long clientData;
+    private Long externalData;
 
     public Process() {
     }
@@ -200,13 +200,13 @@ public class Process extends SecuredObjectBase {
     /**
      * Inherited by subprocesses (copied from parent process to subprocess on subprocess creation).
      */
-    @Column(name = "CLIENT_DATA")
-    public Long getClientData() {
-        return clientData;
+    @Column(name = "EXTERNAL_DATA")
+    public Long getExternalData() {
+        return externalData;
     }
 
-    public void setClientData(Long clientData) {
-        this.clientData = clientData;
+    public void setExternalData(Long clientData) {
+        this.externalData = clientData;
     }
 
     /**
