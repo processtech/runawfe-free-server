@@ -18,7 +18,7 @@ public abstract class CommonParamBasedHandler extends TaskHandlerBase implements
     private ParamsDef paramsDef;
 
     @Override
-    public void setConfiguration(String configuration) {
+    public void setConfiguration(String configuration) throws Exception {
         paramsDef = ParamsDef.parse(configuration);
     }
 
