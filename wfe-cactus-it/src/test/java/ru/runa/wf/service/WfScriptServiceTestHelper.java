@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.util.Collection;
 
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -26,9 +25,9 @@ public class WfScriptServiceTestHelper extends WfServiceTestHelper {
         super(testClassPrefixName);
     }
 
-    public boolean isAllowedToExecutor(Identifiable identifiable, Executor executor, Permission permission) throws ExecutorDoesNotExistException,
+    public boolean isAllowedToExecutor(SecuredObject securedObject, Executor executor, Permission permission) throws ExecutorDoesNotExistException,
             InternalApplicationException {
-        Collection<Permission> permissions = authorizationService.getIssuedPermissions(adminUser, executor, identifiable);
+        Collection<Permission> permissions = authorizationService.getIssuedPermissions(adminUser, executor, securedObject);
         return permissions.contains(permission);
     }
 
@@ -73,8 +72,8 @@ public class WfScriptServiceTestHelper extends WfServiceTestHelper {
     }
 
     public WfProcess startProcessInstance(String processDefinitionName, Executor performer) throws InternalApplicationException {
-        Collection<Permission> validPermissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ,
-            DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> validPermissions = Lists.newArrayList(Permission.START, Permission.READ,
+            Permission.READ_PROCESS);
         getAuthorizationService().setPermissions(adminUser, performer.getId(), validPermissions,
             getDefinitionService().getLatestProcessDefinition(adminUser, processDefinitionName));
         getExecutionService().startProcess(adminUser, processDefinitionName, null);

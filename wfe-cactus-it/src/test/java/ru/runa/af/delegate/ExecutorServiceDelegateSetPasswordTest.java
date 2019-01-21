@@ -28,7 +28,6 @@ import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 
 import java.util.List;
@@ -53,7 +52,7 @@ public class ExecutorServiceDelegateSetPasswordTest extends ServletTestCase {
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
         th.createDefaultExecutorsMap();
-        List<Permission> updatePermissions = Lists.newArrayList(ExecutorPermission.UPDATE);
+        List<Permission> updatePermissions = Lists.newArrayList(Permission.UPDATE);
 
         actor = th.getBaseGroupActor();
         th.setPermissionsToAuthorizedPerformer(updatePermissions, actor);

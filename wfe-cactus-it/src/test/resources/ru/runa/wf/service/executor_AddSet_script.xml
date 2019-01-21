@@ -11,56 +11,63 @@
 		<executor name="tin"/>
 	</addExecutorsToGroup>
 
-	<addPermissionsOnActor name="toto" executor="dorothy">
-		<permission name="permission.update_permissions"/>
-    	<permission name="permission.update_executor"/>
-	</addPermissionsOnActor>
+	<addPermissions type="EXECUTOR" name="toto" executor="dorothy">
+		<permission name="READ"/>	
+		<permission name="UPDATE"/>    	
+	</addPermissions>
 	
-	<setPermissionsOnActor name="toto" executor="dorothy">
-		<permission name="permission.read"/>		
-	</setPermissionsOnActor>
+	<setPermissions type="EXECUTOR" name="toto" executor="dorothy">
+		<permission name="READ"/>		
+	</setPermissions>
 
-	<addPermissionsOnGroup name="employee" executor="dorothy">
-		<permission name="permission.list_group"/>
-		<permission name="permission.add_to_group"/>
-		<permission name="permission.remove_from_group"/>
-	</addPermissionsOnGroup>
+	<addPermissions type="EXECUTOR" name="employee" executor="dorothy">
+		<permission name="LIST"/>
+		<permission name="READ"/>
+		<permission name="VIEW_TASKS"/>
+	</addPermissions>
 	
-	<setPermissionsOnGroup name="employee" executor="dorothy">
-		<permission name="permission.read"/>
-		<permission name="permission.update_permissions"/>
-		<permission name="permission.update_executor"/>
-	</setPermissionsOnGroup>
+	<setPermissions type="EXECUTOR" name="employee" executor="dorothy">		
+		<permission name="UPDATE"/>
+		<permission name="UPDATE_STATUS"/>
+		<permission name="DELETE"/>
+	</setPermissions>
          
-	<addPermissionsOnGroup name="employee" executor="employee">
-		<permission name="permission.read"/>
-		<permission name="permission.list_group"/>
-		<permission name="permission.add_to_group"/>
-		<permission name="permission.remove_from_group"/>
-	</addPermissionsOnGroup>
+	<addPermissions type="EXECUTOR" name="employee" executor="employee">
+		<permission name="READ"/>
+		<permission name="UPDATE"/>		
+	</addPermissions>
 	
-	<setPermissionsOnGroup name="employee" executor="employee">
-		<permission name="permission.read"/>
-	</setPermissionsOnGroup>
+	<setPermissions type="EXECUTOR" name="employee" executor="employee">
+		<permission name="READ"/>
+	</setPermissions>
 
-	<addPermissionsOnActor name="tin" executor="employee">
-		<permission name="permission.read"/>
-		<permission name="permission.update_permissions"/>
-	</addPermissionsOnActor>
+	<addPermissions type="EXECUTOR" name="tin" executor="employee">
+		<permission name="READ"/>		
+	</addPermissions>
 	
-	<setPermissionsOnActor name="tin" executor="employee">
-		<permission name="permission.read"/>
-	</setPermissionsOnActor>
+	<setPermissions type="EXECUTOR" name="tin" executor="employee">
+		<permission name="UPDATE"/>
+	</setPermissions>
 
-	<addPermissionsOnSystem executor="employee">
-		<permission name="permission.login_to_system" />
-	</addPermissionsOnSystem>
+	<addPermissions type="EXECUTORS" executor="employee">
+		<permission name="LOGIN"/>		
+	</addPermissions>
 	
-	<setPermissionsOnSystem executor="employee">
-		<permission name="permission.read" />
-		<permission name="permission.update_permissions" />
-		<permission name="permission.create_executor" />
-		<permission name="permission.deploy_definition" />
-	</setPermissionsOnSystem>
-
+	<setPermissions type="EXECUTORS" executor="employee">
+		<permission name="UPDATE"/>
+		<permission name="CREATE"/>
+	</setPermissions>
+	
+	<addPermissions type="DEFINITIONS" name="5" executor="employee">
+		<permission name="LIST"/>
+		<permission name="READ"/>		
+	</addPermissions>
+	
+	<setPermissions type="DEFINITIONS" executor="employee">
+		<permission name="CREATE"/>
+		<permission name="UPDATE"/>
+		<permission name="START"/>
+		<permission name="READ_PROCESS"/>
+		<permission name="CANCEL_PROCESS"/>		
+	</setPermissions>
 </workflowScript>

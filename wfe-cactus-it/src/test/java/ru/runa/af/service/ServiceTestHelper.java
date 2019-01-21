@@ -17,6 +17,7 @@
  */
 package ru.runa.af.service;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +32,13 @@ import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationAlreadyExistException;
 import ru.runa.wfe.relation.RelationDoesNotExistException;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.security.ASystem;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.PermissionSubstitutions;
+import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.WeakPasswordException;
 import ru.runa.wfe.service.AuthenticationService;
 import ru.runa.wfe.service.AuthorizationService;
@@ -161,10 +164,10 @@ public class ServiceTestHelper {
         createProfileServiceDelegate();
     }
 
-    public List<Long> toIds(Collection<? extends Identifiable> list) {
+    public List<Long> toIds(Collection<? extends SecuredObject> list) {
         List<Long> ids = Lists.newArrayList();
-        for (Identifiable identifiable : list) {
-            ids.add(identifiable.getIdentifiableId());
+        for (SecuredObject securedObject : list) {
+            ids.add(securedObject.getIdentifiableId());
         }
         return ids;
     }
@@ -180,10 +183,7 @@ public class ServiceTestHelper {
     public User getAdminUser() {
         return adminUser;
     }
-
-    public ASystem getAASystem() {
-        return ASystem.INSTANCE;
-    }
+   
 
     /**
      * Creates groups and actors group contains subGroup and subActor subGroup contains subGroupActor
@@ -299,19 +299,19 @@ public class ServiceTestHelper {
         authorizationService.setPermissions(adminUser, getAuthorizedPerformerActor().getId(), permissions, executor);
     }
 
-    public void setPermissionsToAuthorizedPerformerOnExecutors(Collection<Permission> permissions, List<? extends Executor> executors)
+    public void setPermissionsToAuthorizedPerformerOnExecutorsList(Collection<Permission> permissions, List<? extends Executor> executors)
             throws InternalApplicationException {
         for (Executor executor : executors) {
             authorizationService.setPermissions(adminUser, getAuthorizedPerformerActor().getId(), permissions, executor);
         }
     }
 
-    public void setPermissionsToAuthorizedPerformerOnSystem(Collection<Permission> permissions) throws InternalApplicationException {
-        authorizationService.setPermissions(adminUser, getAuthorizedPerformerActor().getId(), permissions, ASystem.INSTANCE);
+    public void setPermissionsToAuthorizedPerformerOnExecutors(Collection<Permission> permissions) {
+        authorizationService.setPermissions(adminUser, getAuthorizedPerformerActor().getId(), permissions, SecuredSingleton.EXECUTORS);
     }
 
-    public Actor createActorIfNotExist(String name, String description) throws ExecutorAlreadyExistsException, AuthorizationException,
-            AuthenticationException {
+    public Actor createActorIfNotExist(String name, String description)
+            throws ExecutorAlreadyExistsException, AuthorizationException, AuthenticationException {
         Actor actor;
         try {
             actor = executorService.getExecutorByName(adminUser, name);
@@ -322,8 +322,8 @@ public class ServiceTestHelper {
         return actor;
     }
 
-    public List<Actor> createActorArray(String name, String description) throws ExecutorAlreadyExistsException, AuthorizationException,
-            AuthenticationException {
+    public List<Actor> createActorArray(String name, String description)
+            throws ExecutorAlreadyExistsException, AuthorizationException, AuthenticationException {
         Actor[] actorArray = new Actor[5];
         actorArray[0] = executorService.create(adminUser, new Actor(name + "0", description + "0"));
         actorArray[1] = executorService.create(adminUser, new Actor(name + "1", description + "1"));
@@ -338,8 +338,8 @@ public class ServiceTestHelper {
         return Lists.newArrayList(actorArray);
     }
 
-    public Group createGroupIfNotExist(String name, String description) throws ExecutorAlreadyExistsException, AuthorizationException,
-            AuthenticationException {
+    public Group createGroupIfNotExist(String name, String description)
+            throws ExecutorAlreadyExistsException, AuthorizationException, AuthenticationException {
         Group group;
         try {
             group = executorService.getExecutorByName(adminUser, name);
@@ -472,8 +472,8 @@ public class ServiceTestHelper {
             unauthorizedPerformerActor = executorService.create(adminUser, new Actor(unauthorizedActorName, UNAUTHORIZED_PERFORMER_DESCRIPTION));
             executorService.setPassword(adminUser, unauthorizedPerformerActor, UNAUTHORIZED_PERFORMER_PASSWORD);
         }
-        authorizedPerformerUser = authenticationService
-                .authenticateByLoginPassword(authorizedPerformerActor.getName(), AUTHORIZED_PERFORMER_PASSWORD);
+        authorizedPerformerUser = authenticationService.authenticateByLoginPassword(authorizedPerformerActor.getName(),
+                AUTHORIZED_PERFORMER_PASSWORD);
         unauthorizedPerformerUser = authenticationService.authenticateByLoginPassword(unauthorizedPerformerActor.getName(),
                 UNAUTHORIZED_PERFORMER_PASSWORD);
     }
@@ -498,9 +498,11 @@ public class ServiceTestHelper {
         return authorizationService.getIssuedPermissions(adminUser, performer, executor);
     }
 
+    /*
     public Collection<Permission> getOwnPermissionsAASystem(Executor performer) throws InternalApplicationException {
         return authorizationService.getIssuedPermissions(adminUser, performer, ASystem.INSTANCE);
     }
+    */
 
     /** check if default executors still exists in db, and id so removes them */
     private void removeDefaultExecutors() throws InternalApplicationException {
@@ -610,8 +612,8 @@ public class ServiceTestHelper {
      * @Override public SecuredObjectType getSecuredObjectType() { return SecuredObjectType.DEFINITION; } }; }
      */
 
-    public Substitution createTerminator(User user, SubstitutionCriteria substitutionCriteria, boolean isEnabled) throws AuthorizationException,
-            ExecutorDoesNotExistException, AuthenticationException {
+    public Substitution createTerminator(User user, SubstitutionCriteria substitutionCriteria, boolean isEnabled)
+            throws AuthorizationException, ExecutorDoesNotExistException, AuthenticationException {
         TerminatorSubstitution terminatorSubstitution = new TerminatorSubstitution();
         terminatorSubstitution.setOrgFunction("");
         terminatorSubstitution.setActorId(user.getActor().getId());
@@ -638,13 +640,13 @@ public class ServiceTestHelper {
         return BatchPresentationFactory.EXECUTORS.createDefault(presentationId);
     }
 
-    public Relation createRelation(String name, String description) throws RelationAlreadyExistException, AuthorizationException,
-            AuthenticationException {
+    public Relation createRelation(String name, String description)
+            throws RelationAlreadyExistException, AuthorizationException, AuthenticationException {
         return relationService.createRelation(adminUser, new Relation(name, description));
     }
 
-    public RelationPair addRelationPair(Long relationId, Executor left, Executor right) throws RelationDoesNotExistException, AuthorizationException,
-            AuthenticationException {
+    public RelationPair addRelationPair(Long relationId, Executor left, Executor right)
+            throws RelationDoesNotExistException, AuthorizationException, AuthenticationException {
         return relationService.addRelationPair(adminUser, relationId, left, right);
     }
 
@@ -652,8 +654,8 @@ public class ServiceTestHelper {
         relationService.removeRelation(adminUser, relationId);
     }
 
-    public <T extends SubstitutionCriteria> T createSubstitutionCriteria(T substitutionCriteria) throws AuthorizationException,
-            ExecutorDoesNotExistException, AuthenticationException {
+    public <T extends SubstitutionCriteria> T createSubstitutionCriteria(T substitutionCriteria)
+            throws AuthorizationException, ExecutorDoesNotExistException, AuthenticationException {
         if (substitutionCriteria == null) {
             return null;
         }
@@ -661,16 +663,16 @@ public class ServiceTestHelper {
         return (T) substitutionService.getCriteriaByName(getAdminUser(), substitutionCriteria.getName());
     }
 
-    public void removeSubstitutionCriteria(SubstitutionCriteria substitutionCriteria) throws AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    public void removeSubstitutionCriteria(SubstitutionCriteria substitutionCriteria)
+            throws AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         if (substitutionCriteria == null) {
             return;
         }
         substitutionService.deleteCriteria(getAdminUser(), substitutionCriteria);
     }
 
-    public void removeCriteriaFromSubstitution(Substitution substitution) throws AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException, SubstitutionDoesNotExistException {
+    public void removeCriteriaFromSubstitution(Substitution substitution)
+            throws AuthorizationException, AuthenticationException, ExecutorDoesNotExistException, SubstitutionDoesNotExistException {
         substitution.setCriteria(null);
         substitutionService.updateSubstitution(getAdminUser(), substitution);
     }
@@ -680,7 +682,7 @@ public class ServiceTestHelper {
     public <T extends Executor> List<T> getExecutors(User performer, List<Long> ids) {
         List<T> res = Lists.newArrayList();
         for (Long id : ids) {
-            res.add(executorService.<T> getExecutor(performer, id));
+            res.add(executorService.<T>getExecutor(performer, id));
         }
         return res;
     }

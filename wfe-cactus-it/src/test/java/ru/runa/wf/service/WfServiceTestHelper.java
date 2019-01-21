@@ -32,17 +32,14 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.TaskService;
@@ -145,8 +142,8 @@ public class WfServiceTestHelper extends ServiceTestHelper {
         hrOperator = createActorIfNotExist(HR_ACTOR_NAME, "Actor in HR");
         getExecutorService().setPassword(getAdminUser(), hrOperator, HR_ACTOR_PWD);
         bossGroup = createGroupIfNotExist(SWIMLANE1_GROUP_NAME, "Group in swimlane of test process");
-        List<Permission> p = Lists.newArrayList(SystemPermission.LOGIN_TO_SYSTEM);
-        getAuthorizationService().setPermissions(getAdminUser(), erpOperator.getId(), p, ASystem.INSTANCE);
+        List<Permission> p = Lists.newArrayList(Permission.LOGIN);
+        getAuthorizationService().setPermissions(getAdminUser(), erpOperator.getId(), p, SecuredSingleton.EXECUTORS);
         erpOperatorUser = Delegates.getAuthenticationService().authenticateByLoginPassword(erpOperator.getName(), SWIMLANE2_ACTOR_PWD);
         hrOperatorUser = Delegates.getAuthenticationService().authenticateByLoginPassword(hrOperator.getName(), HR_ACTOR_PWD);
     }
@@ -245,32 +242,32 @@ public class WfServiceTestHelper extends ServiceTestHelper {
 
     public void deployValidProcessDefinition() {
         try {
-            Collection<Permission> deployPermissions = Lists.newArrayList(WorkflowSystemPermission.DEPLOY_DEFINITION);
-            setPermissionsToAuthorizedPerformerOnSystem(deployPermissions);
+            Collection<Permission> deployPermissions = Lists.newArrayList(Permission.CREATE);
+            setPermissionsToAuthorizedPerformerOnExecutors(deployPermissions);
             definitionService.deployProcessDefinition(getAuthorizedPerformerUser(), getValidProcessDefinition(), Lists.newArrayList("testProcess"));
         } catch (DefinitionAlreadyExistException e) {
         }
     }
 
     public void undeployValidProcessDefinition() throws InternalApplicationException {
-        Collection<Permission> undeployPermissions = Lists.newArrayList(DefinitionPermission.UNDEPLOY_DEFINITION);
-        setPermissionsToAuthorizedPerformerOnDefinitionByName(undeployPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
+        Collection<Permission> undeployPermissions = Lists.newArrayList(Permission.ALL);
+        setPermissionsToAuthorizedPerformerOnExecutors(undeployPermissions);
         definitionService.undeployProcessDefinition(getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
     }
 
     public void deployValidProcessDefinition(String parResourceName) throws IOException {
         try {
-            Collection<Permission> deployPermissions = Lists.newArrayList(WorkflowSystemPermission.DEPLOY_DEFINITION);
-            setPermissionsToAuthorizedPerformerOnSystem(deployPermissions);
-            definitionService.deployProcessDefinition(getAuthorizedPerformerUser(), readBytesFromFile(parResourceName), Lists.newArrayList(
-                    "testProcess"));
+            Collection<Permission> deployPermissions = Lists.newArrayList(Permission.CREATE);
+            setPermissionsToAuthorizedPerformerOnExecutors(deployPermissions);
+            definitionService.deployProcessDefinition(getAuthorizedPerformerUser(), readBytesFromFile(parResourceName),
+                    Lists.newArrayList("testProcess"));
         } catch (DefinitionAlreadyExistException e) {
         }
     }
 
     public void undeployValidProcessDefinition(String parDefinitionName) throws InternalApplicationException {
-        Collection<Permission> undeployPermissions = Lists.newArrayList(DefinitionPermission.UNDEPLOY_DEFINITION);
-        setPermissionsToAuthorizedPerformerOnDefinitionByName(undeployPermissions, parDefinitionName);
+        Collection<Permission> undeployPermissions = Lists.newArrayList(Permission.ALL);
+        setPermissionsToAuthorizedPerformerOnExecutors(undeployPermissions);
         definitionService.undeployProcessDefinition(getAuthorizedPerformerUser(), parDefinitionName, null);
     }
 

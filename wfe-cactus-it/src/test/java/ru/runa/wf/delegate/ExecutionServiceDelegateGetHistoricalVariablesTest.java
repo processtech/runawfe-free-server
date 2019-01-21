@@ -35,7 +35,6 @@ import junit.framework.Assert;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
@@ -63,7 +62,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
         th = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
         th.deployValidProcessDefinition(WfServiceTestHelper.LONG_WITH_VARIABLES_PROCESS_FILE_NAME);
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.LONG_WITH_VARIABLES_PROCESS_NAME);
         for (Stage stage : Stage.values()) {
             stage.DoStageAction(this);
@@ -129,7 +128,6 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             }
             if (wfVariable.getValue() instanceof List) {
                 ArrayAssert.assertEqualArrays((List) expected.get(name), (List) wfVariable.getValue());
-
             } else if (wfVariable.getValue() instanceof UserTypeMap && ((UserTypeMap) wfVariable.getValue()).isEmpty()) {
                 Assert.assertTrue(name + " value is not equals on " + stage,
                         expected.get(name) == null || (expected.get(name) instanceof UserTypeMap && ((UserTypeMap) expected.get(name)).isEmpty()));
@@ -189,15 +187,21 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varLong", 2L);
                 changedVariables.put("varListString", Lists.newArrayList("str1", "str2"));
                 changedVariables.put("varString", "123");
-                HashMap<String, UserTypeMap> map = Maps.newHashMap();
-                map.put("11", createUserType(testInstance, 1L, null, Lists.newArrayList("123", "@34"), null));
+                HashMap<UserTypeMap, UserTypeMap> map = Maps.newHashMap();
+                map.put(createUserTypeK(testInstance, 199L, "str22"), createUserType(testInstance, 1L, null, Lists.newArrayList("123", "@34"), null));
                 changedVariables.put("varMapStringUT", map);
                 simpleVariablesChanged.add("varLong");
                 simpleVariablesChanged.add("varListString[0]");
                 simpleVariablesChanged.add("varListString[1]");
                 simpleVariablesChanged.add("varListString.size");
                 simpleVariablesChanged.add("varString");
-                simpleVariablesChanged.add("varMapStringUT");
+                simpleVariablesChanged.add("varMapStringUT[0:k].fieldStringK");
+                simpleVariablesChanged.add("varMapStringUT[0:k].fieldLongK");
+                simpleVariablesChanged.add("varMapStringUT[0:v].fieldListString[0]");
+                simpleVariablesChanged.add("varMapStringUT[0:v].fieldListString[1]");
+                simpleVariablesChanged.add("varMapStringUT[0:v].fieldListString.size");
+                simpleVariablesChanged.add("varMapStringUT[0:v].fieldLong");
+                simpleVariablesChanged.add("varMapStringUT.size");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
                 return taskStub.getId();
             }
@@ -291,16 +295,25 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varMapStringUT", null);
                 simpleVariablesChanged.add("varLong");
                 simpleVariablesChanged.add("varString");
-                simpleVariablesChanged.add("varUT.fieldString");
-                simpleVariablesChanged.add("varUT.fieldListString.size");
-                simpleVariablesChanged.add("varUT.fieldListString[1]");
-                simpleVariablesChanged.add("varUT.fieldMapStringString");
+
                 simpleVariablesChanged.add("varListUT[0].fieldLong");
                 simpleVariablesChanged.add("varListUT[0].fieldListString.size");
                 simpleVariablesChanged.add("varListUT[0].fieldListString[0]");
-                simpleVariablesChanged.add("varListUT[1].fieldListString.size");
                 simpleVariablesChanged.add("varListUT[1].fieldListString[0]");
-                simpleVariablesChanged.add("varMapStringUT");
+                simpleVariablesChanged.add("varListUT[1].fieldListString.size");
+                simpleVariablesChanged.add("varMapStringUT.size");
+                simpleVariablesChanged.add("varMapStringUT[0:k].fieldStringK");
+                simpleVariablesChanged.add("varMapStringUT[0:k].fieldLongK");
+                simpleVariablesChanged.add("varMapStringUT[0:v].fieldLong");
+                simpleVariablesChanged.add("varMapStringUT[0:v].fieldListString.size");
+                simpleVariablesChanged.add("varMapStringUT[0:v].fieldListString[0]");
+                simpleVariablesChanged.add("varMapStringUT[0:v].fieldListString[1]");
+                simpleVariablesChanged.add("varUT.fieldString");
+                simpleVariablesChanged.add("varUT.fieldListString.size");
+                simpleVariablesChanged.add("varUT.fieldListString[1]");
+                simpleVariablesChanged.add("varUT.fieldMapStringString.size");
+                simpleVariablesChanged.add("varUT.fieldMapStringString[0:k]");
+                simpleVariablesChanged.add("varUT.fieldMapStringString[0:v]");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
                 return taskStub.getId();
             }
@@ -335,8 +348,9 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
                 changedVariables.put("varLong", 8L);
                 changedVariables.put("varListUT", null);
-                HashMap<String, UserTypeMap> map = Maps.newHashMap();
-                map.put("11", createUserType(testInstance, 1L, null, Lists.newArrayList("123", "4@34"), null));
+                HashMap<UserTypeMap, UserTypeMap> map = Maps.newHashMap();
+                map.put(createUserTypeK(testInstance, 198L, "str44"),
+                        createUserType(testInstance, 1L, null, Lists.newArrayList("123", "4@34"), null));
                 changedVariables.put("varMapStringUT", map);
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
                 return taskStub.getId();
@@ -444,6 +458,17 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             type.put("fieldString", str);
             type.put("fieldListString", list);
             type.put("fieldMapStringString", map);
+            return type;
+        }
+
+        protected UserTypeMap createUserTypeK(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance, Long longVal, String str)
+                throws Exception {
+            WfServiceTestHelper th2 = testInstance.th;
+            User user = th2.getAuthorizedPerformerUser();
+            WfProcess process = th2.getExecutionService().getProcess(user, testInstance.processId);
+            UserTypeMap type = new UserTypeMap(th2.getDefinitionService().getUserType(user, process.getDefinitionId(), "UK"));
+            type.put("fieldStringK", str);
+            type.put("fieldLongK", longVal);
             return type;
         }
 

@@ -18,8 +18,6 @@
 
 package ru.runa.af.delegate;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthenticationException;
@@ -67,16 +65,9 @@ public class AuthenticationServiceDelegatePasswordLoginModuleTest extends Servle
     }
 
     /*
-    private boolean hasActorPrincipal(Subject subject, Actor actor) {
-        Set<ActorPrincipal> principals = subject.getPrincipals(ActorPrincipal.class);
-        for (ActorPrincipal actorPrincipal : principals) {
-            if (actorPrincipal.getActor().equals(actor)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    */
+     * private boolean hasActorPrincipal(Subject subject, Actor actor) { Set<ActorPrincipal> principals = subject.getPrincipals(ActorPrincipal.class);
+     * for (ActorPrincipal actorPrincipal : principals) { if (actorPrincipal.getActor().equals(actor)) { return true; } } return false; }
+     */
 
     public void testValidPassword() throws Exception {
         User validSubject = authenticationService.authenticateByLoginPassword(validActor.getName(), ACTOR_VALID_PWD);

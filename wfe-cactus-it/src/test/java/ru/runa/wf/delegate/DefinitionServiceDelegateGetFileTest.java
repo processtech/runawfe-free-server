@@ -24,7 +24,6 @@ import org.apache.cactus.ServletTestCase;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
@@ -54,7 +53,7 @@ public class DefinitionServiceDelegateGetFileTest extends ServletTestCase {
 
         helper.deployValidProcessDefinition();
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.READ);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
         definitionId = definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME)
@@ -77,12 +76,9 @@ public class DefinitionServiceDelegateGetFileTest extends ServletTestCase {
     }
 
     /*
-     * We allowing that now public void testGetFileTestByUnauthorizedSubject()
-     * throws Exception { try {
-     * definitionDelegate.getFile(helper.getUnauthorizedPerformerUser(),
-     * definitionId, VALID_FILE_NAME);
-     * assertTrue("testGetFileTestByUnauthorizedSubject , no AuthorizationException"
-     * , false); } catch (AuthorizationException e) { } }
+     * We allowing that now public void testGetFileTestByUnauthorizedSubject() throws Exception { try {
+     * definitionDelegate.getFile(helper.getUnauthorizedPerformerUser(), definitionId, VALID_FILE_NAME);
+     * assertTrue("testGetFileTestByUnauthorizedSubject , no AuthorizationException" , false); } catch (AuthorizationException e) { } }
      */
 
     public void testGetFileTestByNullUser() throws Exception {

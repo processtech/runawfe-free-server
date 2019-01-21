@@ -19,8 +19,6 @@
 package ru.runa.af.delegate;
 
 import com.google.common.collect.Lists;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
@@ -32,7 +30,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 
 import java.util.Collection;
 
@@ -49,7 +46,7 @@ public class ExecutorServiceDelegateRemoveExecutorsFromGroupTest extends Servlet
 
     private Group subGroup;
 
-    private final Collection<Permission> removeFromGroupReadPermissions = Lists.newArrayList(Permission.READ, GroupPermission.REMOVE_FROM_GROUP);
+    private final Collection<Permission> updatePermissions = Lists.newArrayList(Permission.UPDATE);
 
     private final Collection<Permission> readPermissions = Lists.newArrayList(Permission.READ);
 
@@ -61,7 +58,7 @@ public class ExecutorServiceDelegateRemoveExecutorsFromGroupTest extends Servlet
         actor = th.getBaseGroupActor();
         th.setPermissionsToAuthorizedPerformer(readPermissions, actor);
         group = th.getBaseGroup();
-        th.setPermissionsToAuthorizedPerformer(removeFromGroupReadPermissions, group);
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, group);
         subGroup = th.getSubGroup();
         th.setPermissionsToAuthorizedPerformer(readPermissions, subGroup);
 
@@ -92,7 +89,7 @@ public class ExecutorServiceDelegateRemoveExecutorsFromGroupTest extends Servlet
             // this is supposed result
         }
 
-        th.setPermissionsToAuthorizedPerformer(removeFromGroupReadPermissions, group);
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, group);
 
         executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList(actor.getId()), group.getId());
 
@@ -111,7 +108,7 @@ public class ExecutorServiceDelegateRemoveExecutorsFromGroupTest extends Servlet
             // this is supposed result
         }
 
-        th.setPermissionsToAuthorizedPerformer(removeFromGroupReadPermissions, group);
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, group);
 
         executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList(subGroup.getId()), group.getId());
 
@@ -156,27 +153,18 @@ public class ExecutorServiceDelegateRemoveExecutorsFromGroupTest extends Servlet
             // TODO
         } catch (ExecutorDoesNotExistException e) {
             // this is supposed result
-            fail ("TODO trap");
+            fail("TODO trap");
         }
     }
 
     /*
-    public void testRemoveNullExecutor() throws Exception {
-        try {
-            executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList((Executor) null), group.getId());
-            fail("NullExecutor removed from group ", false);
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-
-        try {
-            executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), null, group);
-            fail("NullExecutor removed from group ", false);
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-    }
-    */
+     * public void testRemoveNullExecutor() throws Exception { try { executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(),
+     * Lists.newArrayList((Executor) null), group.getId()); fail("NullExecutor removed from group ", false); } catch (IllegalArgumentException e) { //
+     * this is supposed result }
+     * 
+     * try { executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), null, group); fail("NullExecutor removed from group ", false);
+     * } catch (IllegalArgumentException e) { // this is supposed result } }
+     */
 
     public void testRemoveActorWithNullSubject() throws Exception {
         try {

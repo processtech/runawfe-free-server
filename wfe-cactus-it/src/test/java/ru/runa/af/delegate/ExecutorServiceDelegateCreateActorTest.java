@@ -22,11 +22,12 @@ import java.util.Collection;
 
 import org.apache.cactus.ServletTestCase;
 
+import ru.runa.wfe.security.SecuredSingleton;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
@@ -55,8 +56,8 @@ public class ExecutorServiceDelegateCreateActorTest extends ServletTestCase {
     protected void setUp() throws Exception {
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
-        Collection<Permission> createPermissions = Lists.newArrayList(SystemPermission.CREATE_EXECUTOR);
-        th.setPermissionsToAuthorizedPerformerOnSystem(createPermissions);
+        Collection<Permission> createPermissions = Lists.newArrayList(Permission.CREATE);
+        th.setPermissionsToAuthorizedPerformerOnExecutors(createPermissions);
         actor = new Actor(NAME, DESC, FULL_NAME, CODE);
         super.setUp();
     }
@@ -65,7 +66,6 @@ public class ExecutorServiceDelegateCreateActorTest extends ServletTestCase {
     protected void tearDown() throws Exception {
         th.removeExecutorIfExists(actor);
         actor = null;
-
         th.releaseResources();
         executorService = null;
 

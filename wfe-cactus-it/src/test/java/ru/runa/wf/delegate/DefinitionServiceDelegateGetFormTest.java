@@ -26,7 +26,6 @@ import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -71,9 +70,9 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         executionService = Delegates.getExecutionService();
 
         definitionService.deployProcessDefinition(th.getAdminUser(),
-            WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"));
+                WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"));
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
 
         executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME, null);
@@ -142,8 +141,8 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
         assertEquals(tasks.size() > 0, true);
 
-        Interaction interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(), tasks
-                .get(0).getNodeId());
+        Interaction interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(),
+                tasks.get(0).getNodeId());
 
         // TODO assertEquals("state name differs from expected", STATE_1_NAME,
         // interaction.getStateName());
@@ -180,8 +179,8 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
             th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
 
             tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
-            interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(), tasks.get(0)
-                    .getNodeId());
+            interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(),
+                    tasks.get(0).getNodeId());
 
             // TODO assertEquals("state name differs from expected",
             // STATE_2_NAME, interaction.getStateName());

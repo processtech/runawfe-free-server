@@ -24,7 +24,6 @@ import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthenticationException;
@@ -76,7 +75,7 @@ public class ExecutionServiceDelegateCancelProcessInstanceTest extends ServletTe
     }
 
     public void testCancelProcessInstanceByAuthorizedSubject() throws Exception {
-        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.CANCEL_PROCESS), processInstance);
+        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.CANCEL), processInstance);
         executionService.cancelProcess(helper.getAuthorizedPerformerUser(), processInstance.getId());
 
         List<WfProcess> processInstances = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
@@ -95,7 +94,7 @@ public class ExecutionServiceDelegateCancelProcessInstanceTest extends ServletTe
     }
 
     public void testCancelProcessInstanceByAuthorizedSubjectWithInvalidProcessId() throws Exception {
-        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.CANCEL_PROCESS), processInstance);
+        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.CANCEL), processInstance);
         try {
             executionService.cancelProcess(helper.getAuthorizedPerformerUser(), -1l);
             // TODO

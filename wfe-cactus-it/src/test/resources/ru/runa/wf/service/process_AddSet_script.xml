@@ -2,28 +2,28 @@
 <workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml workflowScript.xsd">
 	 <!-- Sample wfe script add set process permissions-->
 	
-	<addPermissionsOnDefinition name="validProcess" executor="employee">
-		<permission name="permission.read"/>
-		<permission name="permission.update_permissions"/>
-		<permission name="permission.redeploy_definition"/>
-		<permission name="permission.undeploy_definition"/>
-		<permission name="permission.start_process"/>
-		<permission name="permission.read_process"/>
-		<permission name="permission.cancel_process"/>
-	</addPermissionsOnDefinition>
+	<addPermissions type="DEFINITION" name="validProcess" executor="employee">
+		<permission name="LIST"/>
+		<permission name="UPDATE"/>
+		<permission name="START"/>
+		<permission name="READ"/>
+		<permission name="READ_PROCESS"/>
+		<permission name="CANCEL_PROCESS"/>
+	</addPermissions>
 	
-	<setPermissionsOnDefinition name="validProcess" executor="employee">
-		<permission name="permission.read"/>
-	</setPermissionsOnDefinition>
+	<setPermissions type="DEFINITION" name="validProcess" executor="employee">
+		<permission name="READ"/>
+	</setPermissions>
 	
-	<addPermissionsOnProcesses name="validProcess" executor="employee">
-		<permission name="permission.update_permissions" />
-	</addPermissionsOnProcesses>
+	<addPermissions type="DEFINITION" name="validProcess" executor="employee">
+		<permission name="UPDATE"/>
+	</addPermissions>
 	
-	<addPermissionsOnProcesses name="validProcess" executor="employee">
-		<permission name="permission.read" />
-		<permission name="permission.cancel_process" />
-	</addPermissionsOnProcesses>
+	<addPermissions type="DEFINITION" name="validProcess" executor="employee">
+		<permission name="READ"/>
+		<permission name="READ_PROCESS"/>
+		<permission name="CANCEL_PROCESS"/>
+	</addPermissions>
 
 
 </workflowScript>

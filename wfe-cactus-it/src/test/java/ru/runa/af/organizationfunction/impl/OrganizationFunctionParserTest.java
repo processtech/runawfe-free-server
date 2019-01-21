@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.dto.WfTask;
 
 import com.google.common.collect.Lists;
@@ -56,7 +56,7 @@ public class OrganizationFunctionParserTest extends ServletTestCase {
         th.deployValidProcessDefinition(PROCESS_PATH);
 
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(
-                Lists.newArrayList(DefinitionPermission.READ, DefinitionPermission.START_PROCESS, DefinitionPermission.UNDEPLOY_DEFINITION),
+                Lists.newArrayList(Permission.START),
                 PROCESS_NAME);
 
         legalVariables = new HashMap<String, Object>();

@@ -8,8 +8,6 @@ import org.apache.cactus.ServletTestCase;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -36,16 +34,16 @@ public class DefinitionServiceDelegateGetDeclaredVariablesNamesTest extends Serv
         helper = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
 
-        Collection<Permission> deployPermissions = Lists.newArrayList(WorkflowSystemPermission.DEPLOY_DEFINITION);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(deployPermissions);
+        Collection<Permission> deployPermissions = Lists.newArrayList(Permission.CREATE);
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(deployPermissions);
         definitionService.deployProcessDefinition(helper.getAuthorizedPerformerUser(),
                 WfServiceTestHelper.readBytesFromFile(DEFINITION_WITH_VARIABLES_XML + ".par"), Lists.newArrayList("testProcess"));
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.READ);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, DEFINITION_WITH_VARIABLES_XML);
 
-        definitionWithVariablesXmlId = definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(),
-                DEFINITION_WITH_VARIABLES_XML).getId();
+        definitionWithVariablesXmlId = definitionService
+                .getLatestProcessDefinition(helper.getAuthorizedPerformerUser(), DEFINITION_WITH_VARIABLES_XML).getId();
 
         super.setUp();
     }

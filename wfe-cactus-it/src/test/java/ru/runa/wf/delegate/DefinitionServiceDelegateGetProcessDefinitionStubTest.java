@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -62,7 +61,7 @@ public class DefinitionServiceDelegateGetProcessDefinitionStubTest extends Servl
     }
 
     public void testGetProcessDefinitionStubByAuthorizedSubject() throws Exception {
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.READ);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
         WfDefinition process = definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(),

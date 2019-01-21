@@ -28,6 +28,7 @@ import ru.runa.junit.ArrayAssert;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -53,14 +54,9 @@ public class AuthorizationServiceDelegateSetPermissions2Test extends ServletTest
     protected void setUp() throws Exception {
         helper = new ServiceTestHelper(AuthorizationServiceDelegateSetPermissionsTest.class.getName());
         helper.createDefaultExecutorsMap();
-
-        Collection<Permission> systemPermissions = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(systemPermissions);
-
-        Collection<Permission> executorPermissions = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
-        helper.setPermissionsToAuthorizedPerformer(executorPermissions, helper.getBaseGroupActor());
-        helper.setPermissionsToAuthorizedPerformer(executorPermissions, helper.getSubGroupActor());
-        helper.setPermissionsToAuthorizedPerformer(executorPermissions, helper.getBaseGroup());
+        
+        Collection<Permission> executorsP = Lists.newArrayList(Permission.UPDATE);
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(executorsP);
 
         authorizationService = Delegates.getAuthorizationService();
         executorService = Delegates.getExecutorService();
@@ -82,7 +78,7 @@ public class AuthorizationServiceDelegateSetPermissions2Test extends ServletTest
 
     public void testSetPermissionsNullUser() throws Exception {
         try {
-            authorizationService.setPermissions(null, legalActorIds, legalPermissions, helper.getAASystem());
+            authorizationService.setPermissions(null, legalActorIds, legalPermissions, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermission allows Null subject");
         } catch (IllegalArgumentException e) {
         }
@@ -90,7 +86,7 @@ public class AuthorizationServiceDelegateSetPermissions2Test extends ServletTest
 
     public void testSetPermissionsFakeSubject() throws Exception {
         try {
-            authorizationService.setPermissions(helper.getFakeUser(), legalActorIds, legalPermissions, helper.getAASystem());
+            authorizationService.setPermissions(helper.getFakeUser(), legalActorIds, legalPermissions, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermission allows Fake subject");
         } catch (AuthenticationException e) {
         }
@@ -101,9 +97,9 @@ public class AuthorizationServiceDelegateSetPermissions2Test extends ServletTest
             List<Long> fakedActorIds = Lists.newArrayList(0L, 0L, 0L);
             List<Collection<Permission>> permissions = Lists.newArrayList();
             for (int i = 0; i < fakedActorIds.size(); i++) {
-                permissions.add(Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS));
+                permissions.add(Lists.newArrayList(Permission.READ, Permission.UPDATE));
             }
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), fakedActorIds, permissions, helper.getAASystem());
+            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), fakedActorIds, permissions, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermission allows Fake executor");
         } catch (ExecutorDoesNotExistException e) {
         }
@@ -111,7 +107,7 @@ public class AuthorizationServiceDelegateSetPermissions2Test extends ServletTest
 
     public void testSetPermissionsNullExecutor() throws Exception {
         try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), null, legalPermissions, helper.getAASystem());
+            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), null, legalPermissions, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermission allows Fake executor");
         } catch (IllegalArgumentException e) {
         }
@@ -120,33 +116,33 @@ public class AuthorizationServiceDelegateSetPermissions2Test extends ServletTest
     public void testSetPermissionsNullPermissions() throws Exception {
         try {
             authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), legalActorIds, (List<Collection<Permission>>) null,
-                    helper.getAASystem());
+                    SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermission allows Null permissions");
         } catch (IllegalArgumentException e) {
         }
     }
 
-    public void testSetPermissionsNullIdentifiable() throws Exception {
+    public void testSetPermissionsNullSecuredObject() throws Exception {
         try {
             authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), legalActorIds, legalPermissions, null);
-            fail("AuthorizationDelegate.setPermission allows Null identifiable");
+            fail("AuthorizationDelegate.setPermission allows Null SecuredObject");
         } catch (IllegalArgumentException e) {
         }
     }
 
     public void testSetPermissions() throws Exception {
-        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), legalActorIds, legalPermissions, helper.getAASystem());
+        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), legalActorIds, legalPermissions, SecuredSingleton.EXECUTORS);
         for (int i = 0; i < legalActorIds.size(); i++) {
             Executor executor = executorService.getExecutor(helper.getAuthorizedPerformerUser(), legalActorIds.get(i));
             Collection<Permission> actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), executor,
-                    helper.getAASystem());
+                    SecuredSingleton.EXECUTORS);
             ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions on system",
                     legalPermissions.get(i), actual);
         }
 
         legalPermissions = Lists.newArrayList();
-        legalPermissions.add(Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS));
-        legalPermissions.add(Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS));
+        legalPermissions.add(Lists.newArrayList(Permission.READ, Permission.UPDATE_STATUS));
+        legalPermissions.add(Lists.newArrayList(Permission.READ, Permission.UPDATE_STATUS));
         authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), legalActorIds, legalPermissions, helper.getBaseGroupActor());
         for (int i = 0; i < legalActorIds.size(); i++) {
             Executor executor = executorService.getExecutor(helper.getAuthorizedPerformerUser(), legalActorIds.get(i));
@@ -171,7 +167,7 @@ public class AuthorizationServiceDelegateSetPermissions2Test extends ServletTest
 
     public void testSetPermissionsUnauthorized() throws Exception {
         try {
-            authorizationService.setPermissions(helper.getUnauthorizedPerformerUser(), legalActorIds, legalPermissions, helper.getAASystem());
+            authorizationService.setPermissions(helper.getUnauthorizedPerformerUser(), legalActorIds, legalPermissions, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermission allows unauthorized subject");
         } catch (AuthorizationException e) {
         }

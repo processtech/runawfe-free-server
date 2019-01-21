@@ -43,14 +43,12 @@ public class ExecutorServiceDelegateRemoveManyExecutorsFromGroupTest extends Ser
 
     private List<Actor> additionalActors;
 
-    private final Collection<Permission> addToGroupReadListPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP, GroupPermission.ADD_TO_GROUP);
+    private final Collection<Permission> updatePermissions = Lists.newArrayList(Permission.UPDATE);
 
     private final Collection<Permission> readPermissions = Lists.newArrayList(Permission.READ);
 
-    private final Collection<Permission> removeFromGroupReadPermissions = Lists.newArrayList(Permission.READ, GroupPermission.REMOVE_FROM_GROUP);
-
-    private List<Executor> getAdditionalActors() throws InternalApplicationException, AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    private List<Executor> getAdditionalActors()
+            throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         List<Long> ids = Lists.newArrayList();
         for (Executor executor : additionalActors) {
             ids.add(executor.getId());
@@ -58,8 +56,8 @@ public class ExecutorServiceDelegateRemoveManyExecutorsFromGroupTest extends Ser
         return th.getExecutors(th.getAdminUser(), ids);
     }
 
-    private Group getAdditionalGroup() throws InternalApplicationException, AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    private Group getAdditionalGroup()
+            throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         return executorService.getExecutor(th.getAuthorizedPerformerUser(), additionalGroup.getId());
     }
 
@@ -70,8 +68,8 @@ public class ExecutorServiceDelegateRemoveManyExecutorsFromGroupTest extends Ser
         additionalGroup = th.createGroupIfNotExist("additionalG", "Additional Group");
         additionalActors = th.createActorArray("additionalMixed", "Additional Mixed");
 
-        th.setPermissionsToAuthorizedPerformer(addToGroupReadListPermissions, additionalGroup);
-        th.setPermissionsToAuthorizedPerformerOnExecutors(readPermissions, additionalActors);
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additionalActors);
 
         executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), th.toIds(additionalActors), additionalGroup.getId());
 
@@ -82,6 +80,7 @@ public class ExecutorServiceDelegateRemoveManyExecutorsFromGroupTest extends Ser
 
         assertTrue("Executor is not in group before removing", th.isExecutorsInGroup(getAdditionalActors(), getAdditionalGroup()));
 
+        th.setPermissionsToAuthorizedPerformer(readPermissions, getAdditionalGroup());
         List<Executor> executors = getAdditionalActors();
         try {
             executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), th.toIds(executors), getAdditionalGroup().getId());
@@ -90,7 +89,7 @@ public class ExecutorServiceDelegateRemoveManyExecutorsFromGroupTest extends Ser
             // this is supposed result
         }
 
-        th.setPermissionsToAuthorizedPerformer(removeFromGroupReadPermissions, getAdditionalGroup());
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, getAdditionalGroup());
 
         executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), th.toIds(getAdditionalActors()), getAdditionalGroup().getId());
 
@@ -108,21 +107,21 @@ public class ExecutorServiceDelegateRemoveManyExecutorsFromGroupTest extends Ser
     }
 
     public void testRemoveFakeActor() throws Exception {
-        th.setPermissionsToAuthorizedPerformer(removeFromGroupReadPermissions, getAdditionalGroup());
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, getAdditionalGroup());
         List<Executor> executors = th.getFakeExecutors();
         try {
             executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), th.toIds(executors), getAdditionalGroup().getId());
             fail("FakeExecutors removed from group ");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // TDOO
         } catch (ExecutorDoesNotExistException e) {
             // this is supposed result
-            fail ("TODO trap");
+            fail("TODO trap");
         }
     }
 
     public void testRemoveNullExecutor() throws Exception {
-        th.setPermissionsToAuthorizedPerformer(removeFromGroupReadPermissions, getAdditionalGroup());
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, getAdditionalGroup());
         List<Long> executors = Lists.newArrayList(null, null, null);
         try {
             executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), executors, getAdditionalGroup().getId());

@@ -26,7 +26,6 @@ import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
@@ -42,7 +41,7 @@ public class ExecutorServiceDelegateCreateGroupTest extends ServletTestCase {
 
     private static String testPrefix = ExecutorServiceDelegateCreateGroupTest.class.getName();
 
-    private final List<Permission> createPermissions = Lists.newArrayList(SystemPermission.CREATE_EXECUTOR);
+    private final List<Permission> createPermissions = Lists.newArrayList(Permission.CREATE);
 
     private Group group;
 
@@ -50,7 +49,7 @@ public class ExecutorServiceDelegateCreateGroupTest extends ServletTestCase {
     protected void setUp() throws Exception {
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
-        th.setPermissionsToAuthorizedPerformerOnSystem(createPermissions);
+        th.setPermissionsToAuthorizedPerformerOnExecutors(createPermissions);
         super.setUp();
     }
 

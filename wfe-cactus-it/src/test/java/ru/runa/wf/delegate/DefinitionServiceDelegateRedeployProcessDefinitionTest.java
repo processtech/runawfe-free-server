@@ -25,7 +25,6 @@ import org.apache.cactus.ServletTestCase;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -58,7 +57,7 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
 
         processDefinitionId = definitionService.getLatestProcessDefinition(helper.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getId();
 
-        Collection<Permission> redeployPermissions = Lists.newArrayList(DefinitionPermission.READ, DefinitionPermission.REDEPLOY_DEFINITION);
+        Collection<Permission> redeployPermissions = Lists.newArrayList(Permission.UPDATE);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(redeployPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
         super.setUp();

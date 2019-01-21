@@ -18,7 +18,6 @@
 package ru.runa.af.delegate;
 
 import com.google.common.collect.Lists;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthorizationException;
@@ -27,7 +26,6 @@ import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.*;
 
-import javax.security.auth.Subject;
 import java.util.List;
 import java.util.Map;
 
@@ -46,14 +44,14 @@ public class ExecutorServiceDelegateGetActorByIdTest extends ServletTestCase {
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
         th.createDefaultExecutorsMap();
-        List<Permission> readUpdatePermissions = Lists.newArrayList(Permission.READ, ExecutorPermission.UPDATE);
+        List<Permission> readPermissions = Lists.newArrayList(Permission.READ);
         executorsMap = th.getDefaultExecutorsMap();
 
         actor = (Actor) executorsMap.get(ServiceTestHelper.BASE_GROUP_ACTOR_NAME);
-        th.setPermissionsToAuthorizedPerformer(readUpdatePermissions, actor);
+        th.setPermissionsToAuthorizedPerformer(readPermissions, actor);
         group = (Group) executorsMap.get(ServiceTestHelper.BASE_GROUP_NAME);
-        th.setPermissionsToAuthorizedPerformer(readUpdatePermissions, group);
-        th.setPermissionsToAuthorizedPerformer(readUpdatePermissions, (Actor) executorsMap.get(ServiceTestHelper.SUB_GROUP_ACTOR_NAME));
+        th.setPermissionsToAuthorizedPerformer(readPermissions, group);
+        th.setPermissionsToAuthorizedPerformer(readPermissions, (Actor) executorsMap.get(ServiceTestHelper.SUB_GROUP_ACTOR_NAME));
         super.setUp();
     }
 
@@ -70,13 +68,13 @@ public class ExecutorServiceDelegateGetActorByIdTest extends ServletTestCase {
             executorService.getExecutor(th.getUnauthorizedPerformerUser(), actor.getId());
             fail("businessDelegate allow to getActor() to performer with UnauthorizedPerformerSubject");
         } catch (AuthorizationException e) {
-            //That's what we expect
+            // That's what we expect
         }
         try {
             executorService.getExecutor(th.getUnauthorizedPerformerUser(), th.getSubGroupActor().getId());
             fail("businessDelegate allow to getActor() to performer with UnauthorizedPerformerSubject");
         } catch (AuthorizationException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 
@@ -85,7 +83,7 @@ public class ExecutorServiceDelegateGetActorByIdTest extends ServletTestCase {
             executorService.getExecutor(th.getAuthorizedPerformerUser(), -1l);
             fail("businessDelegate does not throw Exception to getActor()");
         } catch (ExecutorDoesNotExistException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 
@@ -94,7 +92,7 @@ public class ExecutorServiceDelegateGetActorByIdTest extends ServletTestCase {
             executorService.getExecutorByName(th.getAuthorizedPerformerUser(), null);
             fail("businessDelegate allow to getActor()with null actor.");
         } catch (IllegalArgumentException e) {
-            //That's what we expect 
+            // That's what we expect
         }
     }
 
@@ -103,7 +101,7 @@ public class ExecutorServiceDelegateGetActorByIdTest extends ServletTestCase {
             executorService.getExecutor(null, actor.getId());
             fail("businessDelegate allow to getActor() to performer with null subject.");
         } catch (IllegalArgumentException e) {
-            //That's what we expect 
+            // That's what we expect
         }
     }
 
@@ -112,7 +110,7 @@ public class ExecutorServiceDelegateGetActorByIdTest extends ServletTestCase {
             Actor actor = executorService.<Actor>getExecutor(th.getAuthorizedPerformerUser(), group.getId());
             fail("businessDelegete allow to getActor() where the group really is returned.");
         } catch (ClassCastException e) {
-            //That's what we expect 
+            // That's what we expect
         }
     }
 

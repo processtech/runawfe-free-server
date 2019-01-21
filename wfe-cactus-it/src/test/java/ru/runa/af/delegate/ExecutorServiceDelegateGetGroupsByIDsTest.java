@@ -18,7 +18,6 @@
 package ru.runa.af.delegate;
 
 import com.google.common.collect.Lists;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
@@ -49,7 +48,7 @@ public class ExecutorServiceDelegateGetGroupsByIDsTest extends ServletTestCase {
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
         additionalGroups = th.createGroupArray("additionalG", "Additional Group");
-        th.setPermissionsToAuthorizedPerformerOnExecutors(readPermissions, additionalGroups);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additionalGroups);
 
         additionalGroupsIDs = Lists.newArrayList();
         for (Group group : additionalGroups) {
@@ -93,7 +92,7 @@ public class ExecutorServiceDelegateGetGroupsByIDsTest extends ServletTestCase {
 
     public void testGetActorsInsteadOfGroups() throws Exception {
         List<Executor> additional = th.createMixedActorsGroupsArray("mixed", "Additional mixed");
-        th.setPermissionsToAuthorizedPerformerOnExecutors(readPermissions, additional);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additional);
 
         additionalGroupsIDs = Lists.newArrayList();
         for (Executor executor : additional) {

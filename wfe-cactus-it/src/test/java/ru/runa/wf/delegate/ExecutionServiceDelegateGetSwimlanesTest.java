@@ -24,7 +24,6 @@ import org.apache.cactus.ServletTestCase;
 
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -58,9 +57,11 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
 
         helper.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ,
-                DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+
+        permissions = Lists.newArrayList(Permission.READ);
+        helper.setPermissionsToAuthorizedPerformer(permissions, helper.getAuthorizedPerformerActor());
 
         // instanceId =
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);

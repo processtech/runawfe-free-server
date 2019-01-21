@@ -25,8 +25,6 @@ import org.apache.cactus.ServletTestCase;
 import org.hibernate.TransientObjectException;
 
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -61,7 +59,7 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
 
         th.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
         executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
@@ -137,9 +135,9 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals(1, tasks.size());
 
-        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.READ),
+        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.READ),
                 executionService.getProcess(th.getAdminUser(), proc1));
-        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.READ),
+        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.READ),
                 executionService.getProcess(th.getAdminUser(), proc2));
 
         List<WfVariable> variables = executionService.getVariables(th.getAuthorizedPerformerUser(), tasks.get(0).getProcessId());
@@ -161,9 +159,9 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals(1, tasks.size());
 
-        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.READ),
+        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.READ),
                 executionService.getProcess(th.getAdminUser(), proc1));
-        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.READ),
+        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.READ),
                 executionService.getProcess(th.getAdminUser(), proc2));
 
         List<WfVariable> variables = executionService.getVariables(th.getAuthorizedPerformerUser(), tasks.get(0).getProcessId());

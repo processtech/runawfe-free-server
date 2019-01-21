@@ -9,7 +9,6 @@ import org.apache.cactus.ServletTestCase;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -35,7 +34,7 @@ public class ExecutionServiceDelegateTimerTest extends ServletTestCase {
     protected void setUp() throws Exception {
         th = new WfServiceTestHelper(getClass().getName());
         th.deployValidProcessDefinition(WfServiceTestHelper.TIMER_PROCESS_NAME + ".par");
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.TIMER_PROCESS_NAME);
 
         th.addExecutorToGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());

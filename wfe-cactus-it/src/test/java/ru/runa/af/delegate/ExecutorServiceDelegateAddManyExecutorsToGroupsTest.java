@@ -34,7 +34,6 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 
 import com.google.common.collect.Lists;
 
@@ -55,12 +54,9 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
 
     private List<Executor> additionalActorGroupsMixed;
 
-    private final Collection<Permission> addToGroupPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP,
-            GroupPermission.ADD_TO_GROUP);
+    private final Collection<Permission> updatePermissions = Lists.newArrayList(Permission.UPDATE);
 
     private final Collection<Permission> readPermissions = Lists.newArrayList(Permission.READ);
-
-    private final Collection<Permission> readlistPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);
 
     private List<Actor> getAdditionalActors() throws InternalApplicationException {
         List<Long> ids = Lists.newArrayList();
@@ -71,8 +67,8 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
         return executors;
     }
 
-    private List<Group> getAdditionalGroups() throws InternalApplicationException, AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    private List<Group> getAdditionalGroups()
+            throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         List<Long> ids = Lists.newArrayList();
         for (Group group : additionalGroups) {
             ids.add(group.getId());
@@ -80,8 +76,8 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
         return th.getExecutors(th.getAdminUser(), ids);
     }
 
-    private List<Executor> getAdditionalGroupsMixed() throws InternalApplicationException, AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    private List<Executor> getAdditionalGroupsMixed()
+            throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         List<Long> ids = Lists.newArrayList();
         for (Executor executor : additionalActorGroupsMixed) {
             ids.add(executor.getId());
@@ -89,13 +85,13 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
         return th.getExecutors(th.getAdminUser(), ids);
     }
 
-    private Group getAdditionalGroup() throws InternalApplicationException, AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    private Group getAdditionalGroup()
+            throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         return executorService.getExecutor(th.getAdminUser(), additionalGroup.getId());
     }
 
-    private Actor getAdditionalActor() throws InternalApplicationException, AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    private Actor getAdditionalActor()
+            throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         return executorService.getExecutor(th.getAdminUser(), additionalActor.getId());
     }
 
@@ -113,12 +109,12 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
         additionalActorGroupsMixed = th.createMixedActorsGroupsArray("additionalMixed", "Additional Mixed");
 
         th.setPermissionsToAuthorizedPerformer(readPermissions, additionalActor);
-        th.setPermissionsToAuthorizedPerformerOnExecutors(readPermissions, additionalActors);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additionalActors);
 
-        th.setPermissionsToAuthorizedPerformer(readlistPermissions, additionalGroup);
-        th.setPermissionsToAuthorizedPerformerOnExecutors(readlistPermissions, additionalGroups);
+        th.setPermissionsToAuthorizedPerformer(readPermissions, additionalGroup);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additionalGroups);
 
-        th.setPermissionsToAuthorizedPerformerOnExecutors(readPermissions, additionalActorGroupsMixed);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additionalActorGroupsMixed);
 
         super.setUp();
     }
@@ -132,7 +128,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
             // this is supposed result
         }
 
-        th.setPermissionsToAuthorizedPerformer(addToGroupPermissions, additionalGroup);
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
 
         executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), th.toIds(additionalActors), additionalGroup.getId());
 
@@ -148,7 +144,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
             // this is supposed result
         }
 
-        th.setPermissionsToAuthorizedPerformer(addToGroupPermissions, additionalGroup);
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
 
         executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), th.toIds(additionalGroups), getAdditionalGroup().getId());
 
@@ -163,7 +159,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
         } catch (AuthorizationException e) {
             // this is supposed result
         }
-        th.setPermissionsToAuthorizedPerformer(addToGroupPermissions, additionalGroup);
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
         try {
             executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), th.toIds(additionalActorGroupsMixed), getAdditionalGroup().getId());
         } catch (AuthorizationException e) {
@@ -181,7 +177,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
             // this is supposed result
         }
 
-        th.setPermissionsToAuthorizedPerformerOnExecutors(addToGroupPermissions, getAdditionalGroups());
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, getAdditionalGroups());
 
         executorService.addExecutorToGroups(th.getAuthorizedPerformerUser(), executor.getId(), th.toIds(getAdditionalGroups()));
 
@@ -199,7 +195,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
             // this is supposed result
         }
 
-        th.setPermissionsToAuthorizedPerformerOnExecutors(addToGroupPermissions, additionalGroups);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, additionalGroups);
 
         executorService.addExecutorToGroups(th.getAuthorizedPerformerUser(), executor.getId(), th.toIds(getAdditionalGroups()));
 
@@ -226,7 +222,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
     }
 
     public void testAddFakeExecutorsToGroup() throws Exception {
-        th.setPermissionsToAuthorizedPerformer(addToGroupPermissions, additionalGroup);
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
 
         List<Executor> fakeExecutors = Lists.newArrayList(th.getFakeActor(), th.getFakeGroup());
         try {
@@ -240,7 +236,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
     }
 
     public void testAddFakeExecutorToGroups() throws Exception {
-        th.setPermissionsToAuthorizedPerformerOnExecutors(addToGroupPermissions, additionalGroups);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, additionalGroups);
         Executor fakeExecutor = th.getFakeActor();
         try {
             executorService.addExecutorToGroups(th.getAuthorizedPerformerUser(), fakeExecutor.getId(), th.toIds(additionalGroups));
@@ -251,7 +247,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
     }
 
     public void testAddNullExecutorToGroups() throws Exception {
-        th.setPermissionsToAuthorizedPerformerOnExecutors(addToGroupPermissions, additionalGroups);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, additionalGroups);
         try {
             executorService.addExecutorToGroups(th.getAuthorizedPerformerUser(), null, th.toIds(additionalGroups));
             fail("Null Executor added to groups ");
@@ -261,7 +257,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
     }
 
     public void testAddExecutorsToGroupWithNullSubject() throws Exception {
-        th.setPermissionsToAuthorizedPerformer(addToGroupPermissions, additionalGroup);
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
         try {
             executorService.addExecutorsToGroup(null, th.toIds(additionalActorGroupsMixed), additionalGroup.getId());
             fail("Executors added to group ");
@@ -271,7 +267,7 @@ public class ExecutorServiceDelegateAddManyExecutorsToGroupsTest extends Servlet
     }
 
     public void testAddExecutorToGroupsWithNullSubject() throws Exception {
-        th.setPermissionsToAuthorizedPerformerOnExecutors(addToGroupPermissions, additionalGroups);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, additionalGroups);
         Executor executor = additionalActor;
         try {
             executorService.addExecutorToGroups(null, executor.getId(), th.toIds(additionalGroups));

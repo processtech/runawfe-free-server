@@ -25,7 +25,6 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -52,7 +51,7 @@ public class ExecutionServiceDelegateStartProcessInstanceTest extends ServletTes
 
         helper.deployValidProcessDefinition();
 
-        Collection<Permission> startPermissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> startPermissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
         super.setUp();
@@ -112,7 +111,7 @@ public class ExecutionServiceDelegateStartProcessInstanceTest extends ServletTes
     }
 
     public void testStartProcessInstanceByAuthorizedSubjectWithoutREADPermission() throws Exception {
-        Collection<Permission> startPermissions = Lists.newArrayList(DefinitionPermission.START_PROCESS);
+        Collection<Permission> startPermissions = Lists.newArrayList(Permission.START);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
         List<WfProcess> processInstances = executionService.getProcesses(helper.getAdminUser(), helper.getProcessInstanceBatchPresentation());

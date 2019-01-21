@@ -27,6 +27,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -44,10 +45,7 @@ public class AuthorizationServiceDelegateGetOwnPermissionsTest extends ServletTe
         helper = new ServiceTestHelper(AuthorizationServiceDelegateGetOwnPermissionsTest.class.getName());
         helper.createDefaultExecutorsMap();
 
-        Collection<Permission> p = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(p);
-
-        Collection<Permission> executorP = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
+        Collection<Permission> executorP = Lists.newArrayList(Permission.UPDATE);
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
 
@@ -94,18 +92,18 @@ public class AuthorizationServiceDelegateGetOwnPermissionsTest extends ServletTe
         }
     }
 
-    public void testGetOwnPermissionsNullIdentifiable() throws Exception {
+    public void testGetOwnPermissionsNullSecuredObject() throws Exception {
         try {
             authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(), null);
-            fail("AuthorizationDelegate.getIssuedPermissions() allows null identifiable");
+            fail("AuthorizationDelegate.getIssuedPermissions() allows null SecuredObject");
         } catch (IllegalArgumentException e) {
         }
     }
 
-    public void testGetOwnPermissionsFakeIdentifiable() throws Exception {
+    public void testGetOwnPermissionsFakeSecuredObject() throws Exception {
         try {
             authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(), helper.getFakeActor());
-            fail("AuthorizationDelegate.getIssuedPermissions() allows fake identifiable");
+            fail("AuthorizationDelegate.getIssuedPermissions() allows fake SecuredObject");
         } catch (InternalApplicationException e) {
         }
     }
@@ -115,11 +113,11 @@ public class AuthorizationServiceDelegateGetOwnPermissionsTest extends ServletTe
         Collection<Permission> expected = Lists.newArrayList(Permission.READ);
 
         Collection<Permission> actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(),
-                helper.getAASystem());
+                SecuredSingleton.EXECUTORS);
         ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", noPermission, actual);
 
-        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), expected, helper.getAASystem());
-        actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(), helper.getAASystem());
+        authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroupActor().getId(), expected, SecuredSingleton.EXECUTORS);
+        actual = authorizationService.getIssuedPermissions(helper.getAdminUser(), helper.getBaseGroupActor(), SecuredSingleton.EXECUTORS);
         ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", expected, actual);
 
         actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroup(), helper.getBaseGroupActor());
@@ -134,16 +132,16 @@ public class AuthorizationServiceDelegateGetOwnPermissionsTest extends ServletTe
         Collection<Permission> noPermission = Lists.newArrayList();
         Collection<Permission> expected = Lists.newArrayList(Permission.READ);
 
-        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroup().getId(), expected, helper.getAASystem());
-        Collection<Permission> actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(),
-                helper.getAASystem());
+        authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroup().getId(), expected, SecuredSingleton.EXECUTORS);
+        Collection<Permission> actual = authorizationService.getIssuedPermissions(helper.getAdminUser(), helper.getBaseGroupActor(),
+                SecuredSingleton.EXECUTORS);
         ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", noPermission, actual);
 
     }
 
     public void testGetOwnPermissionsUnauthorized() throws Exception {
         try {
-            authorizationService.getIssuedPermissions(helper.getUnauthorizedPerformerUser(), helper.getBaseGroupActor(), helper.getAASystem());
+            authorizationService.getIssuedPermissions(helper.getUnauthorizedPerformerUser(), helper.getBaseGroupActor(), SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.getIssuedPermissions() allows unauthorized operation");
         } catch (AuthorizationException e) {
         }

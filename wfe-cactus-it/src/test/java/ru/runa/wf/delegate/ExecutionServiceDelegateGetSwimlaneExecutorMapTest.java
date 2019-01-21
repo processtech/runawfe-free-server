@@ -23,7 +23,6 @@ import java.util.HashMap;
 import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.security.AuthenticationException;
@@ -54,8 +53,7 @@ public class ExecutionServiceDelegateGetSwimlaneExecutorMapTest extends ServletT
 
         th.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ,
-                DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
         // instanceId =
@@ -186,7 +184,8 @@ public class ExecutionServiceDelegateGetSwimlaneExecutorMapTest extends ServletT
     // }
     // }
 
-    private Executor getExpectedExecutor(WfSwimlane WfSwimlane) throws AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
+    private Executor getExpectedExecutor(WfSwimlane WfSwimlane)
+            throws AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         String name = WfSwimlane.getDefinition().getName();
         if (name.equals("requester")) {
             return th.getAuthorizedPerformerActor();

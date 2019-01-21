@@ -35,9 +35,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.User;
 
 import com.google.common.collect.Lists;
@@ -62,17 +60,15 @@ public class ExecutorServiceDelegateGetExecutorsCanBeAddedToGroupTest extends Se
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
         th.createDefaultExecutorsMap();
-        Collection<Permission> readUpdateAddToGroupPermissions = Lists.newArrayList(Permission.READ, ExecutorPermission.UPDATE,
-                GroupPermission.ADD_TO_GROUP);
-        Collection<Permission> readUpdatePermissions = Lists.newArrayList(Permission.READ, ExecutorPermission.UPDATE);
+        Collection<Permission> updatePermission = Lists.newArrayList(Permission.UPDATE);
         executorsMap = th.getDefaultExecutorsMap();
 
         actor = (Actor) executorsMap.get(ServiceTestHelper.SUB_GROUP_ACTOR_NAME);
-        th.setPermissionsToAuthorizedPerformer(readUpdatePermissions, actor);
+        th.setPermissionsToAuthorizedPerformer(updatePermission, actor);
         group = (Group) executorsMap.get(ServiceTestHelper.BASE_GROUP_NAME);
         subGroup = (Group) executorsMap.get(ServiceTestHelper.SUB_GROUP_NAME);
-        th.setPermissionsToAuthorizedPerformer(readUpdatePermissions, group);
-        th.setPermissionsToAuthorizedPerformer(readUpdateAddToGroupPermissions, subGroup);
+        th.setPermissionsToAuthorizedPerformer(updatePermission, group);
+        th.setPermissionsToAuthorizedPerformer(updatePermission, subGroup);
         super.setUp();
     }
 
@@ -83,7 +79,7 @@ public class ExecutorServiceDelegateGetExecutorsCanBeAddedToGroupTest extends Se
     final public void testGetExecutorsByAuthorizedPerformer1() throws Exception {
         List<Executor> calculatedExecutors = executorService.getGroupChildren(th.getAuthorizedPerformerUser(), getSubGroup(),
                 th.getExecutorBatchPresentation(), true);
-        List<Executor> realExecutors = Lists.newArrayList(group, th.getAuthorizedPerformerActor());
+        List<Executor> realExecutors = Lists.newArrayList((Executor) group);
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutorGroups() returns wrong group set", realExecutors, calculatedExecutors);
     }
 
@@ -92,7 +88,7 @@ public class ExecutorServiceDelegateGetExecutorsCanBeAddedToGroupTest extends Se
         th.setPermissionsToAuthorizedPerformer(readPermissions, th.getBaseGroupActor());
         List<Executor> calculatedExecutors = executorService.getGroupChildren(th.getAuthorizedPerformerUser(), getSubGroup(),
                 th.getExecutorBatchPresentation(), true);
-        List<Executor> realExecutors = Lists.newArrayList(group, th.getAuthorizedPerformerActor(), th.getBaseGroupActor());
+        List<Executor> realExecutors = Lists.newArrayList(group, th.getBaseGroupActor());
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutors ...() returns wrong group set", realExecutors, calculatedExecutors);
     }
 

@@ -18,7 +18,6 @@
 package ru.runa.af.delegate;
 
 import com.google.common.collect.Lists;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
@@ -51,7 +50,7 @@ public class ExecutorServiceDelegateGetExecutorsTest extends ServletTestCase {
 
         additionalActorGroupsMixed = th.createMixedActorsGroupsArray("additionalMixed", "Additional Mixed");
 
-        th.setPermissionsToAuthorizedPerformerOnExecutors(readPermissions, additionalActorGroupsMixed);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additionalActorGroupsMixed);
 
         executorsIDs = Lists.newArrayList();
         for (Executor executor : additionalActorGroupsMixed) {

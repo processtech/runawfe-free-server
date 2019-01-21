@@ -18,8 +18,6 @@
 package ru.runa.af.delegate;
 
 import com.google.common.collect.Lists;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
@@ -47,11 +45,8 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
 
     private List<Long> additionalGroupsIds;
 
-    private final Collection<Permission> addToGroupReadListPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP, GroupPermission.ADD_TO_GROUP);
-
+    private final Collection<Permission> updatePermissions = Lists.newArrayList(Permission.UPDATE);
     private final Collection<Permission> readPermissions = Lists.newArrayList(Permission.READ);
-
-    private final Collection<Permission> removeFromGroupReadPermissions = Lists.newArrayList(Permission.READ, GroupPermission.REMOVE_FROM_GROUP);
 
     protected void setUp() throws Exception {
         executorService = Delegates.getExecutorService();
@@ -70,25 +65,26 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
 
         th.setPermissionsToAuthorizedPerformer(readPermissions, getAdditionalActor());
         th.setPermissionsToAuthorizedPerformer(readPermissions, getAdditionalGroup());
-        th.setPermissionsToAuthorizedPerformerOnExecutors(addToGroupReadListPermissions, getAdditionalGroups());
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, getAdditionalGroups());
 
         executorService.addExecutorToGroups(th.getAuthorizedPerformerUser(), getAdditionalActor().getId(), th.toIds(getAdditionalGroups()));
         executorService.addExecutorToGroups(th.getAuthorizedPerformerUser(), getAdditionalGroup().getId(), th.toIds(getAdditionalGroups()));
+
         super.setUp();
     }
 
-    private List<Group> getAdditionalGroups() throws InternalApplicationException, AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    private List<Group> getAdditionalGroups()
+            throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         return th.getExecutors(th.getAdminUser(), additionalGroupsIds);
     }
 
-    private Actor getAdditionalActor() throws InternalApplicationException, AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    private Actor getAdditionalActor()
+            throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         return executorService.getExecutor(th.getAdminUser(), additionalActorId);
     }
 
-    private Group getAdditionalGroup() throws InternalApplicationException, AuthorizationException, AuthenticationException,
-            ExecutorDoesNotExistException {
+    private Group getAdditionalGroup()
+            throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
         return executorService.getExecutor(th.getAdminUser(), additionalGroupId);
     }
 
@@ -96,6 +92,7 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
 
         assertTrue("Executor is not in groups before removing", th.isExecutorInGroups(getAdditionalActor(), getAdditionalGroups()));
 
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, getAdditionalGroups());
         Executor executor = getAdditionalActor();
         try {
             executorService.removeExecutorFromGroups(th.getAuthorizedPerformerUser(), executor.getId(), th.toIds(getAdditionalGroups()));
@@ -104,8 +101,7 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
             // this is supposed result
         }
 
-        th.setPermissionsToAuthorizedPerformerOnExecutors(removeFromGroupReadPermissions, getAdditionalGroups());
-
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, getAdditionalGroups());
         executorService.removeExecutorFromGroups(th.getAuthorizedPerformerUser(), executor.getId(), th.toIds(getAdditionalGroups()));
 
         assertFalse("Executor not removed from group ", th.isExecutorInGroups(getAdditionalActor(), getAdditionalGroups()));
@@ -115,6 +111,7 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
 
         assertTrue("Executor is not in groups before removing", th.isExecutorInGroups(getAdditionalActor(), getAdditionalGroups()));
 
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, getAdditionalGroups());
         Executor executor = getAdditionalGroup();
         try {
             executorService.removeExecutorFromGroups(th.getAuthorizedPerformerUser(), executor.getId(), th.toIds(getAdditionalGroups()));
@@ -123,8 +120,7 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
             // this is supposed result
         }
 
-        th.setPermissionsToAuthorizedPerformerOnExecutors(removeFromGroupReadPermissions, getAdditionalGroups());
-
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, getAdditionalGroups());
         executorService.removeExecutorFromGroups(th.getAuthorizedPerformerUser(), executor.getId(), th.toIds(getAdditionalGroups()));
 
         assertFalse("Executor not removed from group ", th.isExecutorInGroups(getAdditionalGroup(), getAdditionalGroups()));
@@ -159,7 +155,7 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
             // TODO
         } catch (ExecutorDoesNotExistException e) {
             // this is supposed result
-            fail ("TODO trap");
+            fail("TODO trap");
         }
     }
 
@@ -172,7 +168,7 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
             // TODO
         } catch (ExecutorDoesNotExistException e) {
             // this is supposed result
-            fail ("TODO trap");
+            fail("TODO trap");
         }
     }
 

@@ -19,13 +19,10 @@
 package ru.runa.af.delegate;
 
 import com.google.common.collect.Lists;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -55,26 +52,21 @@ public class ExecutorServiceDelegateHierarchyPermissionsTest extends ServletTest
         authorizationService = Delegates.getAuthorizationService();
         th = new ServiceTestHelper(testPrefix);
         th.createDefaultExecutorsMap();
-        Collection<Permission> updatePermissions = Lists.newArrayList(Permission.READ, ExecutorPermission.UPDATE);
-        Collection<Permission> loginPermissions = Lists.newArrayList(SystemPermission.LOGIN_TO_SYSTEM);
-        Collection<Permission> createExecutorPermissions = Lists.newArrayList(SystemPermission.CREATE_EXECUTOR);
-        Collection<Permission> addToGroupPermissions = Lists.newArrayList(Permission.READ, GroupPermission.ADD_TO_GROUP);
-        Collection<Permission> grantAASystem = Lists.newArrayList(Permission.UPDATE_PERMISSIONS);
+        Collection<Permission> updatePermission = Lists.newArrayList(Permission.UPDATE);
+        Collection<Permission> loginPermissions = Lists.newArrayList(Permission.LOGIN);
+        Collection<Permission> createExecutorPermissions = Lists.newArrayList(Permission.CREATE);
 
         Map<String, Executor> executorsMap = th.getDefaultExecutorsMap();
 
         actor = (Actor) executorsMap.get(ServiceTestHelper.BASE_GROUP_ACTOR_NAME);
-        th.setPermissionsToAuthorizedPerformer(updatePermissions, actor);
         group = (Group) executorsMap.get(ServiceTestHelper.BASE_GROUP_NAME);
-        th.setPermissionsToAuthorizedPerformer(addToGroupPermissions, group);
 
-        th.setPermissionsToAuthorizedPerformerOnSystem(grantAASystem);
+        th.setPermissionsToAuthorizedPerformerOnExecutors(updatePermission);
 
         actor = executorService.getExecutor(th.getAdminUser(), actor.getId());
-        authorizationService.setPermissions(th.getAuthorizedPerformerUser(), actor.getId(), loginPermissions, ASystem.INSTANCE);
+        authorizationService.setPermissions(th.getAuthorizedPerformerUser(), actor.getId(), loginPermissions, SecuredSingleton.EXECUTORS);
         group = executorService.getExecutor(th.getAdminUser(), group.getId());
-        authorizationService.setPermissions(th.getAuthorizedPerformerUser(), group.getId(), createExecutorPermissions, ASystem.INSTANCE);
-
+        authorizationService.setPermissions(th.getAuthorizedPerformerUser(), group.getId(), createExecutorPermissions, SecuredSingleton.EXECUTORS);
         actor = executorService.getExecutor(th.getAdminUser(), actor.getId());
         executorService.setPassword(th.getAuthorizedPerformerUser(), actor, ACTOR_PWD);
 
@@ -84,7 +76,7 @@ public class ExecutorServiceDelegateHierarchyPermissionsTest extends ServletTest
     public void testPermissionsInheritance() throws Exception {
         User additionalUser = Delegates.getAuthenticationService().authenticateByLoginPassword(actor.getName(), ACTOR_PWD);
 
-        if (!authorizationService.isAllowed(additionalUser, SystemPermission.CREATE_EXECUTOR, ASystem.INSTANCE)) {
+        if (!authorizationService.isAllowed(additionalUser, Permission.CREATE, SecuredSingleton.EXECUTORS)) {
             assertTrue("unproper createExecutor permission ", false);
         }
     }

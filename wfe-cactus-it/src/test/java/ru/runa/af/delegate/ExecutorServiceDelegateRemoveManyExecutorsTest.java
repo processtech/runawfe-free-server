@@ -29,7 +29,6 @@ import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.ExecutorPermission;
 
 import com.google.common.collect.Lists;
 
@@ -42,14 +41,14 @@ public class ExecutorServiceDelegateRemoveManyExecutorsTest extends ServletTestC
 
     private List<Executor> additionalActorsGroupsMixed;
 
-    private final List<Permission> readUpdatePermissions = Lists.newArrayList(Permission.READ, ExecutorPermission.UPDATE);
+    private final List<Permission> updatePermissions = Lists.newArrayList(Permission.UPDATE);
 
     @Override
     protected void setUp() throws Exception {
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
         additionalActorsGroupsMixed = th.createMixedActorsGroupsArray("additionalMixed", "Additional Mixed");
-        th.setPermissionsToAuthorizedPerformerOnExecutors(readUpdatePermissions, additionalActorsGroupsMixed);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, additionalActorsGroupsMixed);
     }
 
     public void testRemoveExecutorsByAuthorizedPerformer() throws Exception {

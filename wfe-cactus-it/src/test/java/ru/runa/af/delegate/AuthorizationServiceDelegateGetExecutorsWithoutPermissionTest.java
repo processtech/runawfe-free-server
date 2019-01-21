@@ -28,7 +28,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
@@ -50,14 +50,15 @@ public class AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest exten
         helper = new ServiceTestHelper(AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest.class.getName());
         helper.createDefaultExecutorsMap();
 
-        Collection<Permission> systemP = Lists.newArrayList(Permission.READ, SystemPermission.CREATE_EXECUTOR);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(systemP);
+        Collection<Permission> systemP = Lists.newArrayList(Permission.LIST);
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(systemP);
 
-        Collection<Permission> executorP = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
+        Collection<Permission> executorP = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
 
         authorizationService = Delegates.getAuthorizationService();
+        authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroupActor().getId(), executorP, helper.getBaseGroupActor());
         super.setUp();
     }
 
@@ -70,7 +71,7 @@ public class AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest exten
 
     public void testGetExecutorsWithoutPermissionNullUser() throws Exception {
         try {
-            authorizationService.getExecutorsWithPermission(null, helper.getAASystem(), helper.getExecutorBatchPresentation(), false);
+            authorizationService.getExecutorsWithPermission(null, SecuredSingleton.EXECUTORS, helper.getExecutorBatchPresentation(), false);
             fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows null subject");
         } catch (IllegalArgumentException e) {
         }
@@ -78,25 +79,25 @@ public class AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest exten
 
     public void testGetExecutorsWithoutPermissionFakeSubject() throws Exception {
         try {
-            authorizationService.getExecutorsWithPermission(helper.getFakeUser(), helper.getAASystem(), helper.getExecutorBatchPresentation(), false);
+            authorizationService.getExecutorsWithPermission(helper.getFakeUser(), SecuredSingleton.EXECUTORS, helper.getExecutorBatchPresentation(), false);
             fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows fake subject");
         } catch (AuthenticationException e) {
         }
     }
 
-    public void testGetExecutorsWithoutPermissionNullIdentifiable() throws Exception {
+    public void testGetExecutorsWithoutPermissionNullSecuredObject() throws Exception {
         try {
             authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), null, helper.getExecutorBatchPresentation(), false);
-            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows null identifiable");
+            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows null SecuredObject");
         } catch (IllegalArgumentException e) {
         }
     }
 
-    public void testGetExecutorsWithoutPermissionFakeIdentifiable() throws Exception {
+    public void testGetExecutorsWithoutPermissionFakeSecuredObject() throws Exception {
         try {
             authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), helper.getFakeActor(),
                     helper.getExecutorBatchPresentation(), false);
-            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows fake identifiable");
+            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows fake SecuredObject");
         } catch (InternalApplicationException e) {
         }
     }

@@ -27,10 +27,10 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.GroupPermission;
 
 import com.google.common.collect.Lists;
 
@@ -42,19 +42,15 @@ public class AuthorizationServiceDelegateSetPermissionsTest extends ServletTestC
 
     private AuthorizationService authorizationService;
 
-    private Collection<Permission> p = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
+    private Collection<Permission> p = Lists.newArrayList(Permission.READ, Permission.UPDATE);
 
     @Override
     protected void setUp() throws Exception {
         helper = new ServiceTestHelper(AuthorizationServiceDelegateSetPermissionsTest.class.getName());
         helper.createDefaultExecutorsMap();
 
-        Collection<Permission> systemP = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(systemP);
-
-        Collection<Permission> executorP = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
-        helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
-        helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
+        Collection<Permission> executorsP = Lists.newArrayList(Permission.UPDATE);
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(executorsP);
 
         authorizationService = Delegates.getAuthorizationService();
         super.setUp();
@@ -69,7 +65,7 @@ public class AuthorizationServiceDelegateSetPermissionsTest extends ServletTestC
 
     public void testSetPermissionsNullUser() throws Exception {
         try {
-            authorizationService.setPermissions(null, helper.getBaseGroupActor().getId(), p, helper.getAASystem());
+            authorizationService.setPermissions(null, helper.getBaseGroupActor().getId(), p, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermissions() allows null subject");
         } catch (IllegalArgumentException e) {
         }
@@ -77,7 +73,7 @@ public class AuthorizationServiceDelegateSetPermissionsTest extends ServletTestC
 
     public void testSetPermissionsFakeSubject() throws Exception {
         try {
-            authorizationService.setPermissions(helper.getFakeUser(), helper.getBaseGroupActor().getId(), p, helper.getAASystem());
+            authorizationService.setPermissions(helper.getFakeUser(), helper.getBaseGroupActor().getId(), p, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermissions() allows fake subject");
         } catch (AuthenticationException e) {
         }
@@ -85,7 +81,7 @@ public class AuthorizationServiceDelegateSetPermissionsTest extends ServletTestC
 
     public void testSetPermissionsFakeExecutor() throws Exception {
         try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getFakeActor().getId(), p, helper.getAASystem());
+            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getFakeActor().getId(), p, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermissions() allows null executor");
         } catch (AuthorizationException e) {
         } catch (ExecutorDoesNotExistException e) {
@@ -95,24 +91,25 @@ public class AuthorizationServiceDelegateSetPermissionsTest extends ServletTestC
 
     public void testSetPermissionsNullPermissions() throws Exception {
         try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), null, helper.getAASystem());
+            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), null,
+                    SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermissions() allows null permissions");
         } catch (IllegalArgumentException e) {
         }
     }
 
-    public void testSetPermissionsNullIdentifiable() throws Exception {
+    public void testSetPermissionsNullSecuredObject() throws Exception {
         try {
             authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, null);
-            fail("AuthorizationDelegate.setPermissions() allows null identifiable");
+            fail("AuthorizationDelegate.setPermissions() allows null SecuredObject");
         } catch (IllegalArgumentException e) {
         }
     }
 
-    public void testSetPermissionsFakeIdentifiable() throws Exception {
+    public void testSetPermissionsFakeSecuredObject() throws Exception {
         try {
             authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, helper.getFakeActor());
-            fail("AuthorizationDelegate.setPermissions() allows null identifiable");
+            fail("AuthorizationDelegate.setPermissions() allows null SecuredObject");
         } catch (InternalApplicationException e) {
         }
     }
@@ -127,13 +124,14 @@ public class AuthorizationServiceDelegateSetPermissionsTest extends ServletTestC
         actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroup(), helper.getBaseGroupActor());
         ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", p, actual);
 
-        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, helper.getAASystem());
-        actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(), helper.getAASystem());
+        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, SecuredSingleton.EXECUTORS);
+        actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(),
+                SecuredSingleton.EXECUTORS);
         ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", p, actual);
     }
 
     public void testSetNoPermission() throws Exception {
-        p = GroupPermission.getNoPermissions();
+        p = Lists.newArrayList();
         authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, helper.getBaseGroup());
         Collection<Permission> actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(),
                 helper.getBaseGroup());
@@ -154,7 +152,8 @@ public class AuthorizationServiceDelegateSetPermissionsTest extends ServletTestC
         }
 
         try {
-            authorizationService.setPermissions(helper.getUnauthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, helper.getAASystem());
+            authorizationService.setPermissions(helper.getUnauthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p,
+                    SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermissions() allows unauthorized operation");
         } catch (AuthorizationException e) {
         }
