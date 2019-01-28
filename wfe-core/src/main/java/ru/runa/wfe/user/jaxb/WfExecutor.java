@@ -1,7 +1,6 @@
 package ru.runa.wfe.user.jaxb;
 
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
 public class WfExecutor extends Executor {
@@ -18,11 +17,7 @@ public class WfExecutor extends Executor {
 
     @Override
     public SecuredObjectType getSecuredObjectType() {
-        if (Actor.class.getName().equals(executorClassName)) {
-            return SecuredObjectType.ACTOR;
-        } else {
-            return SecuredObjectType.GROUP;
-        }
+       return SecuredObjectType.EXECUTOR;
     }
 
 }

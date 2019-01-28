@@ -63,7 +63,7 @@ public class Group extends Executor {
     @Transient
     @Override
     public SecuredObjectType getSecuredObjectType() {
-        return SecuredObjectType.GROUP;
+        return SecuredObjectType.EXECUTOR;
     }
 
     @Column(name = "E_MAIL")
