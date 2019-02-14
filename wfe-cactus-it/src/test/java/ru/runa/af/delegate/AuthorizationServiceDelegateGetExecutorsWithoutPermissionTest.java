@@ -58,6 +58,7 @@ public class AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest exten
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
 
         authorizationService = Delegates.getAuthorizationService();
+        authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroupActor().getId(), executorP, helper.getBaseGroupActor());
         super.setUp();
     }
 

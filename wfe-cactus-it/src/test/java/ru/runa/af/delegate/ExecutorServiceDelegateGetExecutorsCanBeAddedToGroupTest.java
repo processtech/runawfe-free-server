@@ -83,7 +83,7 @@ public class ExecutorServiceDelegateGetExecutorsCanBeAddedToGroupTest extends Se
     final public void testGetExecutorsByAuthorizedPerformer1() throws Exception {
         List<Executor> calculatedExecutors = executorService.getGroupChildren(th.getAuthorizedPerformerUser(), getSubGroup(),
                 th.getExecutorBatchPresentation(), true);
-        List<Executor> realExecutors = Lists.newArrayList(group, th.getAuthorizedPerformerActor());
+        List<Executor> realExecutors = Lists.newArrayList((Executor)group);
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutorGroups() returns wrong group set", realExecutors, calculatedExecutors);
     }
 
@@ -92,7 +92,7 @@ public class ExecutorServiceDelegateGetExecutorsCanBeAddedToGroupTest extends Se
         th.setPermissionsToAuthorizedPerformer(readPermissions, th.getBaseGroupActor());
         List<Executor> calculatedExecutors = executorService.getGroupChildren(th.getAuthorizedPerformerUser(), getSubGroup(),
                 th.getExecutorBatchPresentation(), true);
-        List<Executor> realExecutors = Lists.newArrayList(group, th.getAuthorizedPerformerActor(), th.getBaseGroupActor());
+        List<Executor> realExecutors = Lists.newArrayList(group, th.getBaseGroupActor());
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutors ...() returns wrong group set", realExecutors, calculatedExecutors);
     }
 
