@@ -1,6 +1,7 @@
 package ru.runa.wfe.execution.dao;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
@@ -66,5 +67,12 @@ public class TokenDao extends GenericDao<Token> {
     public List<Token> findByMessageSelectorInAndExecutionStatusIsActive(Collection<String> messageSelectors) {
         QToken t = QToken.token;
         return queryFactory.selectFrom(t).where(t.messageSelector.in(messageSelectors).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
+    }
+
+    public List<Token> findByProcessAndEqualsAndAfterEndDate(ru.runa.wfe.execution.Process process, Date endDate) {
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t)
+                .where(t.process.eq(process).and(t.endDate.eq(endDate).or(t.endDate.after(endDate))))
+                .fetch();
     }
 }

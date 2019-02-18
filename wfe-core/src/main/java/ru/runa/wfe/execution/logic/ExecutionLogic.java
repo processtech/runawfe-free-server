@@ -23,6 +23,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,11 +31,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.audit.ProcessActivateLog;
+import ru.runa.wfe.audit.ProcessCancelLog;
+import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.ProcessSuspendLog;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -66,11 +71,15 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
 import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.TimerJob;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
@@ -99,12 +108,111 @@ public class ExecutionLogic extends WfCommonLogic {
     private ExecutorLogic executorLogic;
     @Autowired
     private NodeAsyncExecutor nodeAsyncExecutor;
+    @Autowired
+    private ProcessLogDao processLogDao;
+    @Autowired
+    private JobDao jobDao;
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
         Preconditions.checkArgument(processId != null);
         filter.setId(processId);
         cancelProcesses(user, filter);
+    }
+
+    /**
+     * Restores this process and all the tokens in it.
+     * @param user who restores process (if any), can be <code>null</code>
+     * @param processId is process id who will restored , can't be <code>null</code>
+     * @return is this process was restored
+     */
+    public boolean restoreProcess(User user, Long processId) throws ProcessDoesNotExistException {
+        if (!executorDao.isAdministrator(user.getActor())) {
+            log.warn(user.getName() + " has not Administrator role");
+            return false;
+        }
+
+        Process process = processDao.getNotNull(processId);
+        if (process.getParentId() != null) {
+            log.warn(this + " has parent process");
+            return false;
+        }
+
+        Actor restorer = user.getActor();
+        log.info("Restore " + this + " by " + restorer);
+
+        ProcessLogs processLogs = new ProcessLogs();
+        processLogs.addLogs(processLogDao.getAll(process.getId()), false);
+        ProcessEndLog lastProcessEndLog = processLogs.getLastOrNull(ProcessEndLog.class);
+        ProcessCancelLog lastProcessCancelLog = processLogs.getLastOrNull(ProcessCancelLog.class);
+
+        Date processCancelCreateDate = lastProcessCancelLog == null ? null : lastProcessCancelLog.getCreateDate();
+        Date processEndCreateDate = lastProcessEndLog == null ? null : lastProcessEndLog.getCreateDate();
+
+        Date endDate;
+        if (processCancelCreateDate != null && processEndCreateDate != null) {
+            if (processCancelCreateDate.before(processEndCreateDate)) {
+                endDate = processEndCreateDate;
+            } else {
+                endDate = processCancelCreateDate;
+            }
+        } else if (processCancelCreateDate == null){
+            endDate = processEndCreateDate;
+        } else {
+            endDate = processCancelCreateDate;
+        }
+
+        return restoreProcessWithSubProcesses(user, process, endDate);
+    }
+
+    private boolean restoreProcessWithSubProcesses(User user, Process process, Date endDate) {
+        List<Token> tokens = tokenDao.findByProcessAndEqualsAndAfterEndDate(process, endDate);
+
+        if (tokens.isEmpty()) {
+            log.info("Can't restore because " + this + " has no tokens");
+            return false;
+        }
+
+        if (tokens.size() == 1){
+            NodeType nodeType = tokens.get(0).getNodeType();
+            if (nodeType.equals(NodeType.END_PROCESS) || nodeType.equals(NodeType.END_TOKEN)) {
+                log.info("Can't restore because " + this + " has ended");
+                return false;
+            }
+        }
+
+        processLogDao.addLog(new ProcessActivateLog(user.getActor()), process, null);
+
+        ProcessDefinition processDefinition = getDefinition(process);
+        process.setEndDate(null);
+        process.setExecutionStatus(ExecutionStatus.ACTIVE);
+
+        for (Token token : tokens) {
+            Node node = processDefinition.getNode(token.getNodeId());
+            if (node instanceof TimerNode) {
+                continue;
+            }
+
+            token.setEndDate(null);
+            token.setExecutionStatus(ExecutionStatus.ACTIVE);
+            List<Process> subprocesses = nodeProcessDao.getSubprocesses(token);
+            boolean isSubprocessesRestored = false;
+            if (subprocesses.size() > 0) {
+                for (Process subprocess : subprocesses) {
+                    if (restoreProcessWithSubProcesses(user, subprocess, endDate)) {
+                        isSubprocessesRestored = true;
+                    }
+                }
+                if (!isSubprocessesRestored) {
+                    node.enter(new ExecutionContext(processDefinition, token));
+                }
+            } else {
+                node.enter(new ExecutionContext(processDefinition, token));
+            }
+        }
+
+        log.info(process + " was restored by " + user);
+        return true;
     }
 
     public int getProcessesCount(User user, BatchPresentation batchPresentation) {
@@ -384,7 +492,7 @@ public class ExecutionLogic extends WfCommonLogic {
         }
         return result;
     }
-    
+
     public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern) {
         List<Swimlane> list = swimlaneDao.findByNamePatternInActiveProcesses(namePattern);
         List<WfSwimlane> listSwimlanes = Lists.newArrayList();
@@ -399,7 +507,7 @@ public class ExecutionLogic extends WfCommonLogic {
         }
         return listSwimlanes;
     }
-    
+
     public boolean reassignSwimlane(User user, Long id) {
         Swimlane swimlane = swimlaneDao.get(id);
         Process process = swimlane.getProcess();
@@ -456,7 +564,7 @@ public class ExecutionLogic extends WfCommonLogic {
         List<Process> processes = getPersistentObjects(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES, false);
         return toWfProcesses(processes, null);
     }
-    
+
     private String getProcessErrors(Process process) {
         List<String> processErrors = Lists.newArrayList();
         for (WfToken token : getTokens(process)) {
@@ -566,5 +674,12 @@ public class ExecutionLogic extends WfCommonLogic {
                 suspendProcessWithSubprocesses(user, subprocess);
             }
         }
+    }
+
+    /**
+     * Tells if this process is still active or not.
+     */
+    public boolean hasEnded(Process process) {
+        return process.getExecutionStatus() == ExecutionStatus.ENDED;
     }
 }

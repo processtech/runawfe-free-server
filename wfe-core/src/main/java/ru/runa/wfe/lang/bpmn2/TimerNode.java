@@ -2,6 +2,7 @@ package ru.runa.wfe.lang.bpmn2;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ActionLog;
@@ -83,6 +84,17 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
         jobDao.create(timerJob);
         log.debug("Created " + timerJob);
         executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
+    }
+
+    public void executeWithDueDate(ExecutionContext executionContext, Date dueDate) {
+        TimerJob timerJob = new TimerJob(executionContext.getToken());
+        timerJob.setName(getName());
+        timerJob.setDueDateExpression(dueDateExpression);
+        timerJob.setDueDate(dueDate);
+        timerJob.setRepeatDurationString(repeatDurationString);
+        jobDao.create(timerJob);
+        log.debug("Created " + timerJob);
+        executionContext.addLog(new CreateTimerLog(dueDate));
     }
 
     @Override

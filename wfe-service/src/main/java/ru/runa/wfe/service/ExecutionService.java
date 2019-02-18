@@ -147,6 +147,17 @@ public interface ExecutionService {
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException;
 
     /**
+     * Restore process by id.
+     *
+     * @param user
+     *            authorized user
+     * @param processId
+     *            process id process id
+     * @throws ProcessDoesNotExistException
+     */
+    public boolean restoreProcess(User user, Long processId) throws ProcessDoesNotExistException;
+
+    /**
      * Gets all initialized process roles.
      *
      * @param user

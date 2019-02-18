@@ -140,6 +140,10 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="confirmation.restore.process">
+			<value>true</value>
+			<value>false</value>
+		</property>
 		<property title="confirmation.accept.task">
 			<value>true</value>
 			<value>false</value>

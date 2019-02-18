@@ -221,6 +221,13 @@ public class Process extends SecuredObjectBase {
             return;
         }
         log.info("Ending " + this + " by " + canceller);
+
+        if (canceller != null) {
+            executionContext.addLog(new ProcessCancelLog(canceller));
+        } else {
+            executionContext.addLog(new ProcessEndLog());
+        }
+
         Errors.removeProcessErrors(id);
         TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
         // end the main path of execution
@@ -246,11 +253,7 @@ public class Process extends SecuredObjectBase {
         // after the process end updates are posted to the database
         JobDao jobDao = ApplicationContextFactory.getJobDAO();
         jobDao.deleteByProcess(this);
-        if (canceller != null) {
-            executionContext.addLog(new ProcessCancelLog(canceller));
-        } else {
-            executionContext.addLog(new ProcessEndLog());
-        }
+
         // flush just created tasks
         ApplicationContextFactory.getTaskDAO().flushPendingChanges();
         boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();

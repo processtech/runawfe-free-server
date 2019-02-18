@@ -252,6 +252,12 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
+    public boolean restoreProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
+        return executionLogic.restoreProcess(user, processId);
+    }
+
+    @Override
+    @WebResult(name = "result")
     public List<WfSwimlane> getProcessSwimlanes(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         return executionLogic.getProcessSwimlanes(user, processId);
     }

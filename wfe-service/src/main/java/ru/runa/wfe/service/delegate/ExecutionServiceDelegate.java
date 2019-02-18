@@ -76,6 +76,15 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
+    public boolean restoreProcess(User user, Long processId) {
+        try {
+            return getExecutionService().restoreProcess(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public int getProcessesCount(User user, BatchPresentation batchPresentation) {
         try {
             return getExecutionService().getProcessesCount(user, batchPresentation);

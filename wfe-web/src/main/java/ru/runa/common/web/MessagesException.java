@@ -35,4 +35,5 @@ public final class MessagesException {
     public static final StrutsMessage MESSAGE_VARIABLE_FORMAT_ERROR = new StrutsMessage("variable.format.error");
     public static final StrutsMessage MESSAGE_VALIDATION_ERROR = new StrutsMessage("validation.form.error");
     public static final StrutsMessage EXCEPTION_DATAFILE_NOT_PRESENT = new StrutsMessage("managesystem.datafile.not.present");
+    public static final StrutsMessage PROCESS_NOT_RESTORED_ERROR = new StrutsMessage("process.not.restored");
 }

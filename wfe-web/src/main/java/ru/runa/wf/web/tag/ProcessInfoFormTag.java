@@ -43,6 +43,7 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ActivateProcessExecutionAction;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wf.web.action.RemoveProcessAction;
+import ru.runa.wf.web.action.RestoreProcessAction;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.action.SuspendProcessExecutionAction;
 import ru.runa.wf.web.action.UpgradeProcessToDefinitionVersionAction;
@@ -193,6 +194,16 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                 div.addElement(statusElement);
                 div.addElement(Entities.NBSP);
                 div.addElement(CalendarUtil.formatDateTime(process.getEndDate()));
+
+                A restoreLink = new A();
+                Map<String, String> parameters = Maps.newHashMap();
+                parameters.put(IdForm.ID_INPUT_NAME, process.getId().toString());
+                restoreLink.setHref(Commons.getActionUrl(RestoreProcessAction.ACTION_PATH, parameters, pageContext, PortletUrlType.Render));
+                restoreLink.setClass(Resources.CLASS_BUTTON);
+                restoreLink.setStyle("margin-left: 5px");
+                restoreLink.addElement(MessagesCommon.BUTTON_RESTORE.message(pageContext));
+                div.addElement(restoreLink);
+
                 statusElement = div;
                 break;
             default:

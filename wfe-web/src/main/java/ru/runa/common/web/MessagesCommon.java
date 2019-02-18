@@ -44,6 +44,7 @@ public final class MessagesCommon {
     public static final StrutsMessage BUTTON_APPLY = new StrutsMessage("button.apply");
     // Cancel
     public static final StrutsMessage BUTTON_CANCEL = new StrutsMessage("button.cancel");
+    // Restore
     public static final StrutsMessage BUTTON_RESTORE = new StrutsMessage("button.restore");
     // Remove
     public static final StrutsMessage BUTTON_REMOVE = new StrutsMessage("button.remove");
