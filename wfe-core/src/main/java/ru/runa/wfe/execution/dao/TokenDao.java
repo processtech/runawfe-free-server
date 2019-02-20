@@ -69,7 +69,7 @@ public class TokenDao extends GenericDao<Token> {
         return queryFactory.selectFrom(t).where(t.messageSelector.in(messageSelectors).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
     }
 
-    public List<Token> findByProcessAndEqualsAndAfterEndDate(ru.runa.wfe.execution.Process process, Date endDate) {
+    public List<Token> findByProcessAndEndDateGreaterThanOrEquals(ru.runa.wfe.execution.Process process, Date endDate) {
         QToken t = QToken.token;
         return queryFactory.selectFrom(t)
                 .where(t.process.eq(process).and(t.endDate.eq(endDate).or(t.endDate.after(endDate))))

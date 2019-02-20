@@ -24,6 +24,7 @@ import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.dto.RestoreProcessStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
@@ -155,7 +156,7 @@ public interface ExecutionService {
      *            process id process id
      * @throws ProcessDoesNotExistException
      */
-    public boolean restoreProcess(User user, Long processId) throws ProcessDoesNotExistException;
+    public RestoreProcessStatus restoreProcess(User user, Long processId) throws ProcessDoesNotExistException;
 
     /**
      * Gets all initialized process roles.

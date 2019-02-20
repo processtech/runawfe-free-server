@@ -22,6 +22,7 @@ import java.util.Map;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.dto.RestoreProcessStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
@@ -76,7 +77,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public boolean restoreProcess(User user, Long processId) {
+    public RestoreProcessStatus restoreProcess(User user, Long processId) {
         try {
             return getExecutionService().restoreProcess(user, processId);
         } catch (Exception e) {
