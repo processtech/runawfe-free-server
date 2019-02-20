@@ -17,9 +17,7 @@ import ru.runa.wfe.execution.QArchivedProcess;
 import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.report.QReportDefinition;
 import ru.runa.wfe.report.dto.WfReport;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.QExecutor;
 
 /**
@@ -165,26 +163,6 @@ public class SecuredObjectFactory {
     }
 
     static {
-        add(SecuredObjectType.ACTOR, new Loader(SecuredObjectType.ACTOR) {
-            @Override
-            public SecuredObject findById(Long id) {
-                val e = QExecutor.executor;
-                Executor o = getQueryFactory().selectFrom(e).where(e.id.eq(id)).fetchFirst();
-                Assert.isTrue(o == null || o instanceof Actor);
-                return o;
-            }
-//            @Override
-//            SecuredObject getByName(String name) {
-//                Executor o = instance.executorLogic.getExecutor(user, name);
-//                Assert.isTrue(o == null || o instanceof Actor);
-//                return o;
-//            }
-            @Override
-            List<Tuple> getByNames(Set<String> names) {
-                throw new UnsupportedOperationException("Called for ACTOR, but applicable only to fake EXECUTOR type: no subtype checks are done");
-            }
-        });
-
         add(SecuredSingleton.BOTSTATIONS);
         add(SecuredSingleton.DATAFILE);
         add(SecuredSingleton.DEFINITIONS);
@@ -228,26 +206,6 @@ public class SecuredObjectFactory {
         });
 
         add(SecuredSingleton.EXECUTORS);
-
-        add(SecuredObjectType.GROUP, new Loader(SecuredObjectType.GROUP) {
-            @Override
-            public SecuredObject findById(Long id) {
-                val e = QExecutor.executor;
-                Executor o = getQueryFactory().selectFrom(e).where(e.id.eq(id)).fetchFirst();
-                Assert.isTrue(o == null || o instanceof Group);
-                return o;
-            }
-//            @Override
-//            SecuredObject getByName(User user, String name) {
-//                Executor o = getInstance().executorLogic.getExecutor(user, name);
-//                Assert.isTrue(o == null || o instanceof Group);
-//                return o;
-//            }
-            @Override
-            List<Tuple> getByNames(Set<String> names) {
-                throw new UnsupportedOperationException("Called for GROUP, but applicable only to fake EXECUTOR type: no subtype checks are done");
-            }
-        });
 
         add(SecuredSingleton.LOGS);
 

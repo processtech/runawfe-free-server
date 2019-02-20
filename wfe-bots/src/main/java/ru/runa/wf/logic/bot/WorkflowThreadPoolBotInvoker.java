@@ -35,6 +35,8 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
 
     private long configurationVersion = -1;
 
+    private long botstationId = -1;
+
     private final Map<Bot, WorkflowBotExecutor> botExecutors = Maps.newHashMap();
 
     private Future<?> botInvokerInvocation;
@@ -47,10 +49,17 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
      * Checking botInvokerInvocation.isDone() leads to run() method called only once per moment.
      */
     @Override
-    public synchronized void invokeBots(BotStation botStation, boolean resetFailedDelay) {
+    public synchronized void invokeBots(BotStation botStation, final boolean resetFailedDelay) {
         this.botStation = Delegates.getBotService().getBotStation(botStation.getId());
         if (botInvokerInvocation != null && !botInvokerInvocation.isDone()) {
             log.debug("botInvokerInvocation != null && !botInvokerInvocation.isDone()");
+            executor.schedule(new Runnable() {
+
+                @Override
+                public void run() {
+                    invokeBots(botStation, resetFailedDelay);
+                }
+            }, 1000, TimeUnit.MILLISECONDS);
             return;
         }
         int poolSize = BotStationResources.getThreadPoolSize();
@@ -102,7 +111,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     private void configure() {
         String botStationErrorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_STATION_CONFIGURATION_ERROR, botStation.getName());
         try {
-            if (botStation.getVersion() != configurationVersion) {
+            if (botStation.getVersion() != configurationVersion || botstationId != botStation.getId()) {
                 log.info("Will update bots configuration.");
                 String username = BotStationResources.getSystemUsername();
                 String password = BotStationResources.getSystemPassword();
@@ -116,7 +125,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
                         log.info("Configuring " + bot.getUsername());
                         User user = Delegates.getAuthenticationService().authenticateByLoginPassword(bot.getUsername(), bot.getPassword());
                         List<BotTask> tasks = Delegates.getBotService().getBotTasks(user, bot.getId());
-                        if (existingBotExecutors.containsKey(bot)) {
+                        if (existingBotExecutors.containsKey(bot) && bot.getId().equals(existingBotExecutors.get(bot).getBot().getId())) {
                             WorkflowBotExecutor botExecutor = existingBotExecutors.get(bot);
                             botExecutor.reinitialize(bot, tasks);
                             botExecutors.put(bot, botExecutor);
@@ -130,6 +139,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
                     }
                 }
                 configurationVersion = botStation.getVersion();
+                botstationId = botStation.getId();
             } else {
                 log.debug("bots configuration is up to date, version = " + botStation.getVersion());
             }

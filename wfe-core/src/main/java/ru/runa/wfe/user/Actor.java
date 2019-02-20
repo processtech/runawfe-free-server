@@ -58,7 +58,7 @@ public class Actor extends Executor {
     @Transient
     @Override
     public SecuredObjectType getSecuredObjectType() {
-        return SecuredObjectType.ACTOR;
+        return SecuredObjectType.EXECUTOR;
     }
 
     @Column(name = "CODE")

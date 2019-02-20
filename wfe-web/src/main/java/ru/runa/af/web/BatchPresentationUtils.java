@@ -14,7 +14,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 public class BatchPresentationUtils {
-    private static final SecuredObjectType[] ACTOR_GROUP_CLASSESS = { SecuredObjectType.ACTOR, SecuredObjectType.GROUP };
+    private static final SecuredObjectType[] ACTOR_GROUP_CLASSESS = { SecuredObjectType.EXECUTOR };
 
     public static boolean isExecutorPermissionAllowedForAnyone(User user, List<? extends Executor> executors, BatchPresentation batchPresentation,
             Permission permission) {

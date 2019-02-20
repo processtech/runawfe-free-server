@@ -232,9 +232,6 @@ public class PermissionDao extends CommonDao {
         val result = new HashSet<Long>();
         val typesToCheck = new HashSet<SecuredObjectType>();
         typesToCheck.add(type);
-        if (type == SecuredObjectType.ACTOR || type == SecuredObjectType.GROUP) {
-            typesToCheck.add(SecuredObjectType.EXECUTOR);
-        }
         for (List<Long> idsPart : haveIds ? Lists.partition(idsOrNull, SystemProperties.getDatabaseParametersCount()) : nonEmptyListList) {
             JPQLQuery<Long> q = queryFactory.select(pm.id).from(pm)
                     .where(pm.executor.in(executorWithGroups)
@@ -295,9 +292,6 @@ public class PermissionDao extends CommonDao {
 
         val typesToCheck = new HashSet<SecuredObjectType>();
         typesToCheck.add(type);
-        if (type == SecuredObjectType.ACTOR || type == SecuredObjectType.GROUP) {
-            typesToCheck.add(SecuredObjectType.EXECUTOR);
-        }
         val allowedIdentifiableIds = new HashSet<Long>(result.length);
         int window = SystemProperties.getDatabaseParametersCount() - executorWithGroups.size() - 2;
         Preconditions.checkArgument(window > 100);

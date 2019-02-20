@@ -18,8 +18,7 @@ public class ListExecutorTasksLinkTag extends IdLinkBaseTag {
     @Override
     protected boolean isLinkEnabled() {
         return getUser().getActor().getId().equals(getIdentifiableId())
-                || Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_TASKS, SecuredObjectType.ACTOR, getIdentifiableId())
-                || Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_TASKS, SecuredObjectType.GROUP, getIdentifiableId());
+                || Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_TASKS, SecuredObjectType.EXECUTOR, getIdentifiableId());
     }
 
     @Override

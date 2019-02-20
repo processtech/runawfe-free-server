@@ -40,9 +40,8 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.QExecutor;
 import ru.runa.wfe.user.User;
 
-import static ru.runa.wfe.security.SecuredObjectType.ACTOR;
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
-import static ru.runa.wfe.security.SecuredObjectType.GROUP;
+import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 
 /**
  * Created on 14.03.2005
@@ -158,7 +157,7 @@ public class AuthorizationLogic extends CommonLogic {
             QExecutor e2 = new QExecutor("e2");  // same table as `e`, but different alias
             exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, e2.name)
                     .from(pm, e, e2)
-                    .where(pm.objectType.in(ACTOR, GROUP).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
+                    .where(pm.objectType.eq(EXECUTOR).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
                     .orderBy(pm.objectType.asc(), e2.name.asc(), e.name.asc(), pm.permission.asc()));
         }
 

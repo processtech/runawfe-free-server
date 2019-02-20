@@ -123,8 +123,8 @@ public class TabHeaderTag extends TagSupport {
             if (menuForward.menuMessage.getKey().equals("manage_settings")) {
                 return Delegates.getExecutorService().isAdministrator(getUser());
             }
-            if (menuForward.menuMessage.getKey().equals("manage_observable_tasks") &&
-                    Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.VIEW_TASKS, SecuredObjectType.ACTOR)) {
+            if (menuForward.menuMessage.getKey().equals("manage_observable_tasks")
+                    && Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.VIEW_TASKS, SecuredObjectType.EXECUTOR)) {
                 return true;
             }
             if (menuForward.object != null) {
