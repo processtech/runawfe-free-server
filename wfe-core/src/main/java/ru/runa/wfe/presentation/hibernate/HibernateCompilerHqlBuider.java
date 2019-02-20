@@ -222,9 +222,6 @@ public class HibernateCompilerHqlBuider {
     private List<String> addJoinFieldRestrictions() {
         List<String> result = new LinkedList<>();
         for (String alias : aliasMapping.getAliases()) {
-            if (alias.equals(ClassPresentation.classNameSQL)) {
-                continue;
-            }
             for (final FieldDescriptor field : aliasMapping.getFields(alias)) {
                 if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation)) {
                     continue;

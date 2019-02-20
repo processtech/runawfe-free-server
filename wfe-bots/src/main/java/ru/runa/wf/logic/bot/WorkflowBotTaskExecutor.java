@@ -6,12 +6,14 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.val;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarInterval;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.CoreErrorProperties;
@@ -140,10 +142,9 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                 throw new ConfigurationException(CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_CONFIGURATION_ERROR, botTaskName), th);
             }
             log.info("Starting bot task " + task + " with config \n" + taskHandler.getConfiguration());
-            Map<String, Object> variables = taskHandler.handle(user, variableProvider, task);
-            if (variables == null) {
-                variables = new HashMap<String, Object>();
-            }
+            val executor = new BotTaskTransactionalExecutor(user, taskHandler, variableProvider, task);
+            executor.executeInTransaction(true);
+            Map<String, Object> variables = executor.variables;
             Object skipTaskCompletion = variables.remove(TaskHandler.SKIP_TASK_COMPLETION_VARIABLE_NAME);
             if (Objects.equal(Boolean.TRUE, skipTaskCompletion)) {
                 log.info("Bot task " + task + " postponed (skipTaskCompletion) by task handler " + taskHandler.getClass());
@@ -170,7 +171,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                         variables.put(entry.getValue().getVariableName(), object);
                     }
                 }
-                Delegates.getTaskService().completeTask(user, task.getId(), variables, null);
+                Delegates.getTaskService().completeTask(user, task.getId(), variables);
                 log.debug("Handled bot task " + task + ", " + bot + " by " + taskHandler.getClass());
             }
         } catch (TaskDoesNotExistException e) {
@@ -203,7 +204,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             executionStatus = WorkflowBotTaskExecutionStatus.FAILED;
             WfNode node = Delegates.getDefinitionService().getNode(botExecutor.getUser(), task.getDefinitionId(), task.getNodeId());
             if (node != null && node.hasErrorEventHandler() && !(th instanceof ConfigurationException)) {
-                new TransactionalExecutor() {
+                new TransactionalExecutor(ApplicationContextFactory.getTransaction()) {
 
                     @Override
                     protected void doExecuteInTransaction() {
@@ -251,5 +252,30 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             return;
         }
         botLogger.logError(task, th);
+    }
+
+    class BotTaskTransactionalExecutor extends TransactionalExecutor {
+        final User user;
+        final TaskHandler taskHandler;
+        final VariableProvider variableProvider;
+        final WfTask task;
+        Map<String, Object> variables;
+
+        public BotTaskTransactionalExecutor(User user, TaskHandler taskHandler, VariableProvider variableProvider, WfTask task) {
+            super(ApplicationContextFactory.getTransaction());
+            this.user = user;
+            this.taskHandler = taskHandler;
+            this.variableProvider = variableProvider;
+            this.task = task;
+        }
+
+        @Override
+        protected void doExecuteInTransaction() throws Exception {
+            variables = taskHandler.handle(user, variableProvider, task);
+            if (variables == null) {
+                variables = new HashMap<String, Object>();
+            }
+        }
+
     }
 }

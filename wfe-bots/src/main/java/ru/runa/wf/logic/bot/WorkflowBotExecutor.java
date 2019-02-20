@@ -17,6 +17,7 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.FileDataProvider;
@@ -233,7 +234,7 @@ public class WorkflowBotExecutor {
         ParsedSubprocessDefinition subprocessDefinition = parsedProcessDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
         final String embeddedSubprocessNodeId = parsedProcessDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
 
-        new TransactionalExecutor() {
+        new TransactionalExecutor(ApplicationContextFactory.getTransaction()) {
 
             @Override
             protected void doExecuteInTransaction() {

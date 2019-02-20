@@ -1,5 +1,6 @@
 package ru.runa.wf.web.tag;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.jsp.PageContext;
@@ -15,6 +16,7 @@ import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
@@ -70,9 +72,11 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
             area = presentationHelper.createTaskTooltip((TaskNodeGraphElement) element);
         }
         if (element.getData() != null) {
+            Long processId = null;
             Table table = new Table();
             table.setClass(Resources.CLASS_LIST_TABLE);
             for (BaseProcessLog log : element.getData()) {
+                processId = log.getProcessId();
                 String description;
                 try {
                     String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);
@@ -96,7 +100,25 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
                 tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD));
                 table.addElement(tr);
             }
+            if (processId != null) {
+                addErrors(table, processId, element.getNodeId());
+            }
             presentationHelper.addTooltip(element, area, table.toString());
+        }
+    }
+
+    private void addErrors(Table table, Long processId, String nodeId) {
+        List<ProcessError> errors = Delegates.getSystemService().getProcessErrors(user, processId);
+        for (ProcessError error : errors) {
+            if (nodeId.equals(error.getNodeId())) {
+                TR tr = new TR();
+                String eventDateString = CalendarUtil.format(error.getOccurredDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
+                tr.addElement(new TD().addElement(eventDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
+                String typeLabel = Messages.getMessage("errors.type." + error.getType(), pageContext);
+                tr.addElement(new TD().addElement(typeLabel + " " + error.getMessage().substring(error.getMessage().indexOf(" ")))
+                        .setClass(Resources.CLASS_ERROR));
+                table.addElement(tr);
+            }
         }
     }
 

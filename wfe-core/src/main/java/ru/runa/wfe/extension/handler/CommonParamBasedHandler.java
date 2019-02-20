@@ -1,15 +1,13 @@
 package ru.runa.wfe.extension.handler;
 
+import com.google.common.base.Throwables;
 import java.util.Map;
-
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.base.Throwables;
 
 /**
  * Base class for standard XML parameter-based configuration.
@@ -53,5 +51,4 @@ public abstract class CommonParamBasedHandler extends TaskHandlerBase implements
         }
         return handlerData.getOutputVariables();
     }
-
 }

@@ -33,6 +33,7 @@
 		<form-bean name="commonProcessForm" type="ru.runa.wf.web.form.CommonProcessForm" />
 		<form-bean name="fileForm" type="ru.runa.common.web.form.FileForm" />
 		<form-bean name="settingsFileForm" type="ru.runa.common.web.form.SettingsFileForm" />
+		<form-bean name="restoreDefaultSettingValueForm" type="ru.runa.common.web.form.RestoreDefaultSettingValueForm" />
 		<form-bean name="relationForm" type="ru.runa.af.web.form.RelationForm" />
 		<form-bean name="relationPairForm" type="ru.runa.af.web.form.RelationPairForm" />
 		<form-bean name="relationPairsForm" type="ru.runa.af.web.form.RelationPairsForm" />
@@ -125,6 +126,10 @@
 		<action path="/save_settings" type="ru.runa.af.web.action.SaveSettingsAction"
 			name="settingsFileForm" scope="request" input="/WEB-INF/wf/edit_settings.jsp" unknown="false"
 			validate="false">
+			<forward name="success" path="/manage_settings.do" redirect="true" />
+		</action>
+		<action path="/restore_setting" type="ru.runa.af.web.action.RestoreDefaultSettingAction"
+			name="restoreDefaultSettingValueForm" scope="request" input="/WEB-INF/wf/edit_settings.jsp" unknown="false" validate="false">
 			<forward name="success" path="/manage_settings.do" redirect="true" />
 		</action>
 		<action path="/setSorting" type="ru.runa.common.web.action.SetSortingAction"

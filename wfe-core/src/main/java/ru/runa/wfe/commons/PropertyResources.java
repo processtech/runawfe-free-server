@@ -61,6 +61,13 @@ public class PropertyResources {
             propertiesCache.put(fullName, value);
         }
     }
+    
+    public void removeCachedProperty (String name) {
+        String fullName = fileName + '#' + name;
+        synchronized (propertiesCache) {
+            propertiesCache.remove(fullName);
+        }
+    }
 
     public static void clearPropertiesCache() {
         synchronized (propertiesCache) {
@@ -105,6 +112,36 @@ public class PropertyResources {
             return value.trim();
         }
         return null;
+    }
+    
+    public Long getIdentifier (String name) {
+        if (settingDao == null) {
+            try {
+                settingDao = ApplicationContextFactory.getSettingDao();
+            } catch (Exception e) {
+                log.error("No SettingDAO available", e);
+            }
+        }
+        if (settingDao != null) {
+            return settingDao.getIdentifier(fileName, name);
+        }
+        return null;
+    }
+    
+    public boolean isSettingStoredInDatabase(String name) {
+        if (databaseAvailable && useDatabase) {
+            if (settingDao == null) {
+                try {
+                    settingDao = ApplicationContextFactory.getSettingDao();
+                } catch (Exception e) {
+                    log.error("No SettingDAO available", e);
+                }
+            }
+            if (settingDao != null && settingDao.getValue(fileName, name) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getStringPropertyNotNull(String name) {

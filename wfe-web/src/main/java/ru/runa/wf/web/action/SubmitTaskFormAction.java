@@ -2,14 +2,11 @@ package ru.runa.wf.web.action;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.wf.web.FormSubmissionUtils;
@@ -50,7 +47,7 @@ public class SubmitTaskFormAction extends BaseProcessFormAction {
         }
         String transitionName = form.getSubmitButton();
         variables.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
-        Delegates.getTaskService().completeTask(user, taskId, variables, form.getActorId());
+        Delegates.getTaskService().completeTask(user, taskId, variables);
         FormSubmissionUtils.clearUserInputFiles(request);
         return processId;
     }

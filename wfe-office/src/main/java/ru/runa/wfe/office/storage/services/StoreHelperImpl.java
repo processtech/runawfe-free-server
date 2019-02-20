@@ -1,14 +1,12 @@
 package ru.runa.wfe.office.storage.services;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.extension.handler.ParamDef;
-import ru.runa.wfe.office.storage.BlockedFileException;
-import ru.runa.wfe.office.storage.JdbcStoreException;
 import ru.runa.wfe.office.storage.StoreHelper;
 import ru.runa.wfe.office.storage.StoreOperation;
 import ru.runa.wfe.office.storage.StoreService;
@@ -65,20 +63,7 @@ public class StoreHelperImpl implements StoreHelper {
             Method method = invocationMap.get(config.getQueryType());
             return (ExecutionResult) method.invoke(this, binding, variable, config.getCondition());
         } catch (Exception e) {
-            if (e instanceof InvocationTargetException) {
-                Throwable targetEx = ((InvocationTargetException) e).getTargetException();
-                if (targetEx instanceof BlockedFileException) {
-                    throw (BlockedFileException) targetEx;
-                } else if (targetEx instanceof JdbcStoreException) {
-                    throw (JdbcStoreException) targetEx;
-                }
-            } else if (e instanceof BlockedFileException) {
-                throw (BlockedFileException) e;
-            } else if (e instanceof JdbcStoreException) {
-                throw (JdbcStoreException) e;
-            }
-            log.error("", e);
-            return ExecutionResult.EMPTY;
+            throw Throwables.propagate(Throwables.getRootCause(e));
         }
     }
 

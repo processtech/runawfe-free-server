@@ -4,9 +4,10 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -73,15 +74,9 @@ public class ReceiveMessageBean implements MessageListener {
             transaction.begin();
             List<CurrentToken> tokens;
             if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
-                if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
-                    String messageSelector = Utils.getObjectMessageStrictSelector(message);
-                    tokens = currentTokenDao.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
-                    log.debug("Checking " + tokens.size() + " tokens by messageSelector = " + messageSelector);
-                } else {
-                    Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(message);
-                    tokens = currentTokenDao.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
-                    log.debug("Checking " + tokens.size() + " tokens by messageSelectors = " + messageSelectors);
-                }
+                Map<String, String> routingData = getRoutingData(message);
+                tokens = executionLogic.findTokensForMessageSelector(routingData);
+                log.debug("Checking " + tokens.size() + " tokens by routingData = " + routingData);
             } else {
                 tokens = currentTokenDao.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
                 log.debug("Checking " + tokens.size() + " tokens");
@@ -144,6 +139,18 @@ public class ReceiveMessageBean implements MessageListener {
         for (ReceiveMessageData data : handlers) {
             handleMessage(data, message);
         }
+    }
+
+    private Map<String, String> getRoutingData(ObjectMessage message) throws JMSException {
+        Map<String, String> map = new HashMap<>();
+        Enumeration<String> propertyNames = message.getPropertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String propertyName = propertyNames.nextElement();
+            if (!propertyName.startsWith("JMS")) {
+                map.put(propertyName, message.getStringProperty(propertyName));
+            }
+        }
+        return map;
     }
 
     private void handleMessage(final ReceiveMessageData data, final ObjectMessage message) {

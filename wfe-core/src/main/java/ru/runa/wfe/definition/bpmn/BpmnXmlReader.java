@@ -451,7 +451,7 @@ public class BpmnXmlReader {
             taskDefinition.setReassignSwimlaneToTaskPerformer(Boolean.parseBoolean(properties.get(REASSIGN_SWIMLANE_TO_TASK_PERFORMER)));
         }
         if (properties.containsKey(IGNORE_SUBSTITUTION_RULES)) {
-            taskDefinition.setReassignSwimlane(Boolean.parseBoolean(properties.get(IGNORE_SUBSTITUTION_RULES)));
+            taskDefinition.setIgnoreSubsitutionRules(Boolean.parseBoolean(properties.get(IGNORE_SUBSTITUTION_RULES)));
         }
         if (properties.containsKey(TASK_DEADLINE)) {
             taskDefinition.setDeadlineDuration(properties.get(TASK_DEADLINE));

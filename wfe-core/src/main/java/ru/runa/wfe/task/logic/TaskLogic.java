@@ -83,7 +83,7 @@ public class TaskLogic extends WfCommonLogic {
     @Autowired
     private ExecutorLogic executorLogic;
 
-    public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException {
+    public void completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException {
         Task task = taskDao.getNotNull(taskId);
         if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new ProcessSuspendedException(task.getProcess().getId());
@@ -97,11 +97,9 @@ public class TaskLogic extends WfCommonLogic {
             ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, task);
             TaskCompletionBy completionBy = checkCanParticipate(user.getActor(), task);
             BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNodeNotNull(task.getNodeId());
-            if (swimlaneActorId != null) {
-                Actor swimlaneActor = executorDao.getActor(swimlaneActorId);
-                checkCanParticipate(swimlaneActor, task);
-                boolean reassignSwimlane = taskNode.getFirstTaskNotNull().isReassignSwimlaneToTaskPerformer();
-                AssignmentHelper.reassignTask(executionContext, task, swimlaneActor, reassignSwimlane);
+            if (completionBy == TaskCompletionBy.ASSIGNED_EXECUTOR && taskNode.getFirstTaskNotNull().isReassignSwimlaneToTaskPerformer()
+                    && task.getSwimlane() != null) {
+                task.getSwimlane().assignExecutor(executionContext, user.getActor(), false);
             }
             // don't persist selected transition name
             String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);

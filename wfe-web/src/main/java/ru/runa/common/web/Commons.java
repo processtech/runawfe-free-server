@@ -19,6 +19,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.taglib.TagUtils;
 
 import org.springframework.util.Assert;
+import ru.runa.wfe.commons.DatabaseProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -234,6 +235,10 @@ public class Commons {
             return value;
         }
         return false;
+    }
+    
+    public static String isDatabaseSettingsEnabled() {
+        return DatabaseProperties.isDatabaseSettingsEnabled() ? "" : "hidden";
     }
 
     public static String getSelfActionWithQueryString(PageContext ctx) {

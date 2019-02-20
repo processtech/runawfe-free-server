@@ -7,8 +7,8 @@ public class DatabaseProperties {
         return RESOURCES.getStringPropertyNotNull("user.transaction.jndi.name");
     }
     
-    public static boolean isDynamicSettingsEnabled() {
-    	return RESOURCES.getBooleanProperty("dynamic.settings.enabled", true);
+    public static boolean isDatabaseSettingsEnabled() {
+    	return RESOURCES.getBooleanProperty("database.settings.enabled", true);
     }
 
 }

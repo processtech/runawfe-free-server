@@ -45,6 +45,10 @@ public class AuthorizationServiceDelegateGetExecutorsWithPermissionTest extends 
 
         authorizationService = Delegates.getAuthorizationService();
         batchPresentation = helper.getExecutorBatchPresentation();
+        
+        authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroupActor().getId(), executorP, helper.getBaseGroupActor());
+        authorizationService.setPermissions(helper.getAdminUser(), helper.getAuthorizedPerformerActor().getId(), executorP, helper.getAuthorizedPerformerActor());
+        
         super.setUp();
     }
 

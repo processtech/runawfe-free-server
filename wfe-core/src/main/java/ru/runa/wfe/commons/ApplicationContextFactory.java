@@ -6,6 +6,7 @@ import java.util.List;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.transaction.UserTransaction;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -44,6 +45,7 @@ import ru.runa.wfe.var.logic.VariableLogic;
 public class ApplicationContextFactory implements ApplicationContextAware {
     private static ApplicationContext context;
     private static DbType dbType;
+    private static UserTransaction transaction;
 
     /**
      * Taken from: https://stackoverflow.com/a/28408260/4247442
@@ -51,10 +53,15 @@ public class ApplicationContextFactory implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext c) throws BeansException {
         context = c;
+        transaction = Utils.getUserTransaction();
     }
 
     public static ApplicationContext getContext() {
         return context;
+    }
+
+    public static UserTransaction getTransaction() {
+        return transaction;
     }
 
     public static InitializerLogic getInitializerLogic() {

@@ -164,7 +164,7 @@ public class SystemProperties {
 
     /**
      * Change this value sync with DB.
-     * 
+     *
      * @return max string value
      */
     public static int getStringVariableValueLength() {
@@ -244,6 +244,10 @@ public class SystemProperties {
 
     public static String getErrorEmailNotificationConfiguration() {
         return RESOURCES.getStringProperty("error.email.notification.configuration");
+    }
+
+    public static List<String> getErrorEmailNotificationFilterExcludes() {
+        return RESOURCES.getMultipleStringProperty("error.email.notification.filter.excludes");
     }
 
     public static boolean isFormulaHandlerInStrictMode() {

@@ -1,19 +1,16 @@
 package ru.runa.wfe.extension.handler;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandlerBase;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 public class JavaScriptActionHandler extends ActionHandlerBase {
 

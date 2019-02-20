@@ -325,3 +325,8 @@ tr.executor_group {
 	background: url(images/cross.png) center no-repeat white;
 	background-size: cover;
 }
+.button-more {
+	vertical-align: middle;
+	opacity: 0.3;
+	cursor: pointer;
+}

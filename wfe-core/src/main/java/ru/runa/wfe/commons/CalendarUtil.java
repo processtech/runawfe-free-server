@@ -122,10 +122,7 @@ public class CalendarUtil {
     }
 
     public static String format(Calendar calendar, String format) {
-        if (calendar == null) {
-            return null;
-        }
-        return format(calendar.getTime(), format);
+        return calendar == null ? null : format(calendar.getTime(), format);
     }
 
     public static String formatDate(Calendar calendar) {
@@ -169,19 +166,8 @@ public class CalendarUtil {
         return maxCalendar;
     }
 
-    /**
-     *
-     * @param oneStart
-     *            is a list of start - end pairs of calendar
-     * @param oneEnd
-     *            is a list of start - end pairs of calendar
-     * @return 0 if no intersection. Returns N milliseconds of total intersection time
-     */
     private static boolean isIntersectionStrong(Calendar oneStart, Calendar oneEnd, Calendar twoStart, Calendar twoEnd) {
-        if (oneEnd.compareTo(twoStart) < 0 || twoEnd.compareTo(oneStart) < 0) {
-            return false;
-        }
-        return true;
+        return oneEnd.compareTo(twoStart) >= 0 && twoEnd.compareTo(oneStart) >= 0;
     }
 
     public static List<CalendarInterval> mergeIntersectingIntervalsNotOrdered(List<CalendarInterval> intervals) {
@@ -260,8 +246,7 @@ public class CalendarUtil {
             return subtractFrom;
         }
         List<Calendar> current;
-        val result = new ArrayList<Calendar>();
-        result.addAll(subtractFrom);
+        val result = new ArrayList<Calendar>(subtractFrom);
         val temp = new ArrayList<Calendar>();
         for (int i = 0; i < subtractThese.size(); i = i + 2) {
             for (int j = 0; j < result.size(); j = j + 2) {
@@ -388,6 +373,10 @@ public class CalendarUtil {
         } catch (ParseException e) {
             throw new InternalApplicationException("Unable parse " + dateAsString + " with " + format, e);
         }
+    }
+
+    public static Date convertToDate(String dateAsString) {
+        return convertToDate(dateAsString, DATE_WITHOUT_TIME_FORMAT);
     }
 
     public static Calendar convertToCalendar(String dateAsString, String format) {

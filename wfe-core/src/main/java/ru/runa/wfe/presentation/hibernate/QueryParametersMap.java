@@ -25,7 +25,7 @@ public class QueryParametersMap {
     }
 
     public void add(String name, Date value) {
-        map.put(name, new QueryParameterValue(value, Hibernate.DATE, false));
+        map.put(name, new QueryParameterValue(value, Hibernate.TIMESTAMP, false));
     }
 
     public void add(String name, Collection<?> value) {

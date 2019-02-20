@@ -21,7 +21,7 @@ public class FilterFormatsFactory {
     private static FilterParser filtersParser = new FilterParser();
 
     static {
-        formattersMap.put(String.class.getName(), new StringFilterTDFormatter());
+        formattersMap.put(String.class.getName(), new StringFilterTDFormatter2());
         formattersMap.put(Integer.class.getName(), new StringFilterTDFormatter());
         formattersMap.put(Date.class.getName(), new DateFilterTDFormatter());
         formattersMap.put(AnywhereStringFilterCriteria.class.getName(), new StringFilterTDFormatter());

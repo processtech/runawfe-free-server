@@ -216,12 +216,12 @@ public class Utils {
         return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(selectors);
     }
 
-    public static String getObjectMessageStrictSelector(ObjectMessage message) throws JMSException {
-        return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(getObjectMessageSelectorSelectors(message));
+    public static String getObjectMessageStrictSelector(Map<String, String> routingData) {
+        return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(getObjectMessageSelectorSelectors(routingData));
     }
 
-    public static Set<String> getObjectMessageCombinationSelectors(ObjectMessage message) throws JMSException {
-        List<String> selectors = getObjectMessageSelectorSelectors(message);
+    public static Set<String> getObjectMessageCombinationSelectors(Map<String, String> routingData) {
+        List<String> selectors = getObjectMessageSelectorSelectors(routingData);
         Set<String> result = Sets.newHashSet();
         for (Set<String> set : Sets.powerSet(Sets.newHashSet(selectors))) {
             List<String> list = Lists.newArrayList(set);
@@ -231,14 +231,10 @@ public class Utils {
         return result;
     }
 
-    private static List<String> getObjectMessageSelectorSelectors(ObjectMessage message) throws JMSException {
+    private static List<String> getObjectMessageSelectorSelectors(Map<String, String> routingData) {
         List<String> selectors = Lists.newArrayList();
-        Enumeration<String> propertyNames = message.getPropertyNames();
-        while (propertyNames.hasMoreElements()) {
-            String propertyName = propertyNames.nextElement();
-            if (!propertyName.startsWith("JMS")) {
-                selectors.add(propertyName + MESSAGE_SELECTOR_VALUE_DELIMITER + message.getStringProperty(propertyName));
-            }
+        for (Map.Entry<String, String> entry : routingData.entrySet()) {
+            selectors.add(entry.getKey() + MESSAGE_SELECTOR_VALUE_DELIMITER + entry.getValue());
         }
         Collections.sort(selectors);
         return selectors;

@@ -369,4 +369,15 @@ public interface ExecutionService {
      *            authorized user
      */
     void suspendProcess(User user, Long processId);
+
+    /**
+     * Sends signal to receivers (CatchEventNode).
+     */
+    void sendSignal(User user, Map<String, String> routingData, Map<String, Object> payloadData, long ttlInSeconds);
+
+    /**
+     * Check whether signal can be handled immediately (there are exist at least one matching active CatchEventNode).
+     */
+    boolean signalReceiverIsActive(User user, Map<String, String> routingData);
+
 }

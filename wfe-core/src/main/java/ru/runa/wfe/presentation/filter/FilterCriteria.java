@@ -3,7 +3,6 @@ package ru.runa.wfe.presentation.filter;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import java.io.Serializable;
 import java.util.Arrays;
 import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
@@ -99,32 +98,6 @@ public abstract class FilterCriteria implements Serializable {
 
     public void setExclusive(boolean exclusive) {
         this.exclusive = exclusive;
-    }
-
-    protected String buildInOperator(String aliasedFieldName) {
-        String where = "";
-        String[] values = getFilterTemplate(0).split(",");
-        if (values.length > 0) {
-            for (String value : values) {
-                if (Strings.isNullOrEmpty(where)) {
-                    where = aliasedFieldName + " IN (";
-                } else {
-                    where += ",";
-                }
-                where += "'" + value.trim() + "'";
-            }
-            where += ")";
-        }
-        return where;
-    }
-
-    protected String buildBetweenOperator(String aliasedFieldName) {
-        String where = "";
-        String[] values = getFilterTemplate(0).split("-");
-        if (values.length == 2) {
-            where = aliasedFieldName + " BETWEEN '" + values[0].trim() + "' AND '" + values[1].trim() + "'";
-        }
-        return where;
     }
 
 }

@@ -171,9 +171,14 @@ public class BaseProcessVariableLoader {
                     if (readVariableNames.containsKey(readVariableInfo.getVariableName())) {
                         String parentProcessVariableName = readVariableNames.get(readVariableInfo.getVariableName());
                         if (multiSubprocessFlagsMap.get(process)) {
-                            parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_START;
-                            parentProcessVariableName += nodeProcess.getIndex();
-                            parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_END;
+                            ParsedProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader
+                                    .getDefinition(nodeProcess.getProcess());
+                            SubprocessNode subprocessNode = (SubprocessNode) parentProcessDefinition.getNode(nodeProcess.getNodeId());
+                            if (subprocessNode.getVariableMappingNotNull(parentProcessVariableName).isMultiinstanceLink()) {
+                                parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_START;
+                                parentProcessVariableName += nodeProcess.getIndex();
+                                parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_END;
+                            }
                         }
                         parentProcessVariableName += readVariableInfo.getVariableNameRemainder();
                         return parentProcessVariableName;
@@ -208,15 +213,17 @@ public class BaseProcessVariableLoader {
                     final VariableNameInfo syncVariableInfo = VariableNameInfo.createFrom(variableDefinition.getName(), syncVariableNames);
                     if (syncVariableNames.containsKey(syncVariableInfo.getVariableName())) {
                         String parentProcessVariableName = syncVariableNames.get(syncVariableInfo.getVariableName());
+                        ParsedProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader
+                                .getDefinition(nodeProcess.getProcess());
                         if (multiSubprocessFlagsMap.get(process)) {
-                            parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_START;
-                            parentProcessVariableName += nodeProcess.getIndex();
-                            parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_END;
+                            SubprocessNode subprocessNode = (SubprocessNode) parentProcessDefinition.getNode(nodeProcess.getNodeId());
+                            if (subprocessNode.getVariableMappingNotNull(parentProcessVariableName).isMultiinstanceLink()) {
+                                parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_START;
+                                parentProcessVariableName += nodeProcess.getIndex();
+                                parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_END;
+                            }
                         }
                         parentProcessVariableName += syncVariableInfo.getVariableNameRemainder();
-                        ParsedProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(
-                                nodeProcess.getProcess()
-                        );
                         return parentProcessDefinition.getVariable(parentProcessVariableName, false);
                     }
                 }

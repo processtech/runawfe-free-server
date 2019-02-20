@@ -14,7 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
@@ -25,7 +24,6 @@ import ru.runa.wfe.definition.ProcessDefinitionVersion;
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@CommonsLog
 public class CurrentProcess extends Process<CurrentToken> {
     private static final long serialVersionUID = 1L;
 
@@ -83,6 +81,10 @@ public class CurrentProcess extends Process<CurrentToken> {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public void setExternalData(Long externalData) {
+        this.externalData = externalData;
     }
 
     @Override

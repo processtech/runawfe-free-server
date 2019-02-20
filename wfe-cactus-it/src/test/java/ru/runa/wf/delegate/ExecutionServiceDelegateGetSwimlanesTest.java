@@ -16,6 +16,7 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.ExecutorPermission;
 
 import com.google.common.collect.Lists;
 
@@ -44,6 +45,9 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
         Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ,
                 DefinitionPermission.READ_STARTED_PROCESS);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+
+        permissions = Lists.newArrayList(ExecutorPermission.READ);
+        helper.setPermissionsToAuthorizedPerformer(permissions, helper.getAuthorizedPerformerActor());
 
         // instanceId =
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);

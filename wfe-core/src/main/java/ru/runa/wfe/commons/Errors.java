@@ -102,29 +102,35 @@ public class Errors {
     }
 
     public static void sendEmailNotification(final SystemError error) {
-        if (emailNotificationConfigBytes == null) {
-            return;
-        }
-
-        // non-blocking usage for surrounding transaction
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    EmailConfig config = EmailConfigParser.parse(emailNotificationConfigBytes);
-                    Map<String, Object> map = Maps.newHashMap();
-                    map.put("error", error);
-                    VariableProvider variableProvider = new MapVariableProvider(map);
-                    config.applySubstitutions(variableProvider);
-                    String formMessage = ExpressionEvaluator.process(null, config.getMessage(), variableProvider, null);
-                    config.setMessage(formMessage);
-                    config.setMessageId("Error: " + error.getMessage());
-                    // does not work EmailUtils.sendMessageRequest(config);
-                    EmailUtils.sendMessage(config);
-                } catch (Exception e) {
-                    log.error("Unable to send email notification about error", e);
+        if (emailNotificationConfigBytes != null) {
+            if (error.getStackTrace() != null) {
+                for (String filterExcludes : SystemProperties.getErrorEmailNotificationFilterExcludes()) {
+                    if (error.getStackTrace().contains(filterExcludes)) {
+                        log.debug("Ignored (filtered) email notification about " + error.getMessage());
+                        return;
+                    }
                 }
             }
-        }.start();
+            // non-blocking usage for surrounding transaction
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        EmailConfig config = EmailConfigParser.parse(emailNotificationConfigBytes);
+                        Map<String, Object> map = Maps.newHashMap();
+                        map.put("error", error);
+                        VariableProvider variableProvider = new MapVariableProvider(map);
+                        config.applySubstitutions(variableProvider);
+                        String formMessage = ExpressionEvaluator.process(null, config.getMessage(), variableProvider, null);
+                        config.setMessage(formMessage);
+                        config.setMessageId("Error: " + error.getMessage());
+                        // does not work EmailUtils.sendMessageRequest(config);
+                        EmailUtils.sendMessage(config);
+                    } catch (Exception e) {
+                        log.error("Unable to send email notification about error", e);
+                    }
+                };
+            }.start();
+        }
     }
 }

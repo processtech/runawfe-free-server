@@ -206,7 +206,7 @@ public abstract class JdbcStoreService implements StoreService {
     @Override
     public ExecutionResult findByFilter(Properties properties, WfVariable variable, String condition) throws Exception {
         if (!existOutputParamByVariableName(variable)) {
-            return ExecutionResult.EMPTY;
+            throw new WrongParameterException(variable.getDefinition().getName());
         }
         initParams(properties, variable);
         String columns = "";
@@ -248,6 +248,9 @@ public abstract class JdbcStoreService implements StoreService {
     private String condition(String condition) {
         if (Strings.isNullOrEmpty(condition)) {
             return SQL_TRUE_SEARCH_CONDITION;
+        }
+        if (!isConditionValid(condition)) {
+            throw new WrongOperatorException(condition);
         }
         StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(condition);

@@ -4,8 +4,8 @@ import com.google.common.base.Throwables;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.DatabaseProperties;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.dbmigration.impl.AddAggregatedTaskIndexPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddArchivedProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddAssignDateColumnPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddBatchPresentationIsSharedPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddColumnForEmbeddedBotTaskFileName;
@@ -26,6 +27,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddMultiTaskIndexToTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddNodeIdToProcessLogPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddParentProcessIdPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessAndTokenExecutionStatusPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbmigration.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
@@ -139,13 +141,15 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             AddTransactionalBotSupport.class,
             RefactorPermissionsStep1.class,
             RefactorPermissionsStep3.class,
+            AddProcessExternalData.class,
             SplitProcessDefinitionVersion.class,
             AddSubprocessRootIdColumn.class,
             SupportProcessArchivingBefore.class,
             SupportProcessArchiving.class,
             RenameProcessesBatchPresentationCategories.class,
             RenameProcessesBatchPresentationClassTypes.class,
-            RenameSequences.class
+            RenameSequences.class,
+            AddArchivedProcessExternalData.class
     );
 
     @Autowired
@@ -167,7 +171,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             dbTransactionalInitializer.initPermissions();
             postProcessPatches(appliedMigrations);
             dbTransactionalInitializer.initLocalizations();
-            if (DatabaseProperties.isDynamicSettingsEnabled()) {
+            if (DatabaseProperties.isDatabaseSettingsEnabled()) {
                 PropertyResources.setDatabaseAvailable(true);
             }
             log.info("Initialization completed.");

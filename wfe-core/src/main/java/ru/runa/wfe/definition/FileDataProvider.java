@@ -22,6 +22,5 @@ public interface FileDataProvider {
     String COMMENTS_XML_FILE_NAME = "comments.xml";
 
     byte[] getFileData(String fileName);
-
     byte[] getFileDataNotNull(String fileName);
 }

@@ -5,6 +5,7 @@ import java.sql.Driver;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -18,7 +19,13 @@ public class DriverWrapper implements Driver {
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
-        return driver.connect(url, info);
+        Locale currentLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.ENGLISH);
+            return driver.connect(url, info);
+        } finally {
+            Locale.setDefault(currentLocale);
+        }
     }
 
     @Override

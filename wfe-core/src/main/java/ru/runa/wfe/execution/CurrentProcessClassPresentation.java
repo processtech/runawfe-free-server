@@ -17,6 +17,7 @@ public class CurrentProcessClassPresentation extends ClassPresentation {
     public static final String PROCESS_END_DATE = "batch_presentation.process.ended";
     public static final String DEFINITION_VERSION = "batch_presentation.process.definition_version";
     public static final String PROCESS_EXECUTION_STATUS = "batch_presentation.process.execution_status";
+    public static final String ERRORS = "batch_presentation.process.errors";
     public static final String PROCESS_VARIABLE = editable_prefix + "name:batch_presentation.process.variable";
 
     public static final ClassPresentation INSTANCE = new CurrentProcessClassPresentation();
@@ -38,6 +39,8 @@ public class CurrentProcessClassPresentation extends ClassPresentation {
                 new FieldDescriptor(PROCESS_VARIABLE, CurrentVariable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}),
                 new FieldDescriptor(PROCESS_EXECUTION_STATUS, String.class.getName(), new DefaultDbSource(CurrentProcess.class, "executionStatus"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessExecutionStatusTdBuilder", new Object[] {}) });
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessExecutionStatusTdBuilder", new Object[] {}),
+                new FieldDescriptor(ERRORS, String.class.getName(), new DefaultDbSource(Token.class, "errorMessage"), false, FieldFilterMode.NONE,
+                        "ru.runa.wf.web.html.ProcessErrorsTdBuilder", new Object[] {}).setVisible(false) });
     }
 }

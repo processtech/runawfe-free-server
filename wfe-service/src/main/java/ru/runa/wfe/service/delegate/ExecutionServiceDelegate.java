@@ -292,4 +292,23 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
             throw handleException(e);
         }
     }
+
+    @Override
+    public void sendSignal(User user, Map<String, String> routingData, Map<String, Object> payloadData, long ttl) {
+        try {
+            getExecutionService().sendSignal(user, routingData, payloadData, ttl);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public boolean signalReceiverIsActive(User user, Map<String, String> routingData) {
+        try {
+            return getExecutionService().signalReceiverIsActive(user, routingData);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
 }

@@ -1,7 +1,6 @@
 package ru.runa.wfe.extension.handler;
 
 import java.util.Map;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.task.dto.WfTask;
@@ -24,5 +23,4 @@ public abstract class CommonHandler extends TaskHandlerBase implements ActionHan
     public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         return executeAction(variableProvider);
     }
-
 }
