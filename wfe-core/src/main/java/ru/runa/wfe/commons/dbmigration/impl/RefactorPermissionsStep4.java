@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
@@ -31,10 +30,11 @@ public class RefactorPermissionsStep4 extends DbMigration {
         // Replace ACTOR and GROUP types with EXECUTOR in permission_mapping
         // Delete ACTOR and GROUP from priveleged_mapping
         {
-            SQLQuery qUpdate = session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'");
-            SQLQuery qDelete = session.createSQLQuery("delete from priveleged_mapping where type = 'ACTOR' or type = 'GROUP'");
-            qUpdate.executeUpdate();
-            qDelete.executeUpdate();
+            session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'")
+                    .executeUpdate();
+            session.createSQLQuery("delete from priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
+            session.createSQLQuery("delete from priveleged_mapping where type = 'GROUP'").executeUpdate();
+            session.createSQLQuery("update priveleged_mapping set type = 'EXECUTOR' where type = 'ACTOR'").executeUpdate();
         }
     }
 }
