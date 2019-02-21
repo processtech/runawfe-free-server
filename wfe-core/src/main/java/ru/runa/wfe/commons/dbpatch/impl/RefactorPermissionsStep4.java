@@ -17,11 +17,6 @@
  */
 package ru.runa.wfe.commons.dbpatch.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
 
@@ -32,14 +27,14 @@ public class RefactorPermissionsStep4 extends DbPatch {
 
     @Override
     public void executeDML(Session session) {
-        
         // Replace ACTOR and GROUP types with EXECUTOR in permission_mapping
         // Delete ACTOR and GROUP from priveleged_mapping
         {
-            SQLQuery qUpdate = session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'");
-            SQLQuery qDelete = session.createSQLQuery("delete from priveleged_mapping where type = 'ACTOR' or type = 'GROUP'");
-            qUpdate.executeUpdate();
-            qDelete.executeUpdate();
+            session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'")
+                    .executeUpdate();
+            session.createSQLQuery("delete from priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
+            session.createSQLQuery("delete from priveleged_mapping where type = 'GROUP'").executeUpdate();
+            session.createSQLQuery("update priveleged_mapping set type = 'EXECUTOR' where type = 'ACTOR'").executeUpdate();
         }
     }
 }
