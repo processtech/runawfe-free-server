@@ -18,6 +18,7 @@
 package ru.runa.wf.web.tag;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.jsp.PageContext;
@@ -129,13 +130,17 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
     private void addErrors(Table table, Long processId, String nodeId) {
         List<ProcessError> errors = Delegates.getSystemService().getProcessErrors(user, processId);
         for (ProcessError error : errors) {
-            if (nodeId.equals(error.getNodeId())) {
+            if (Objects.equals(nodeId, error.getNodeId())) {
                 TR tr = new TR();
                 String eventDateString = CalendarUtil.format(error.getOccurredDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
                 tr.addElement(new TD().addElement(eventDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
                 String typeLabel = Messages.getMessage("errors.type." + error.getType(), pageContext);
-                tr.addElement(new TD().addElement(typeLabel + " " + error.getMessage().substring(error.getMessage().indexOf(" ")))
-                        .setClass(Resources.CLASS_ERROR));
+                String errorMessage = error.getMessage();
+                int spaceIndex = errorMessage.indexOf(" ");
+                if (spaceIndex != -1) {
+                    errorMessage = errorMessage.substring(spaceIndex);
+                }
+                tr.addElement(new TD().addElement(typeLabel + " " + errorMessage).setClass(Resources.CLASS_ERROR));
                 table.addElement(tr);
             }
         }
