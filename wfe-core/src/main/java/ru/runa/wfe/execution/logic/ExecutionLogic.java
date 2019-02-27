@@ -210,12 +210,20 @@ public class ExecutionLogic extends WfCommonLogic {
         Map<String, Object> extraVariablesMap = Maps.newHashMap();
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(processDefinition));
+        SwimlaneDefinition startTaskSwimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
+        String startTaskSwimlaneName = startTaskSwimlaneDefinition.getName();
+        boolean startTaskSwimlaneExists = variables.containsKey(startTaskSwimlaneName);
+        if (!startTaskSwimlaneExists) {
+            variables.put(startTaskSwimlaneName, user.getActor());
+        }
         validateVariables(user, null, variableProvider, processDefinition, processDefinition.getStartStateNotNull().getNodeId(), variables);
+        if (!startTaskSwimlaneExists) {
+            variables.remove(startTaskSwimlaneName);
+        }
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
         Process process = processFactory.startProcess(processDefinition, variables, user.getActor(), transitionName, transientVariables);
-        SwimlaneDefinition startTaskSwimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
-        Object predefinedProcessStarterObject = variables.get(startTaskSwimlaneDefinition.getName());
+        Object predefinedProcessStarterObject = variables.get(startTaskSwimlaneName);
         if (predefinedProcessStarterObject != null) {
             Executor predefinedProcessStarter = TypeConversionUtil.convertTo(Executor.class, predefinedProcessStarterObject);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);

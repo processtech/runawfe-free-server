@@ -56,9 +56,6 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
         Map<String, Object> variables = getFormVariables(request, actionForm, interaction, new DelegateDefinitionVariableProvider(user, definitionId));
         String transitionName = ((CommonProcessForm) actionForm).getSubmitButton();
         variables.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
-        String startSwimlaneName = Delegates.getDefinitionService().getParsedProcessDefinition(user, definitionId).getStartStateNotNull()
-                .getFirstTaskNotNull().getSwimlane().getName();
-        variables.put(startSwimlaneName, profile.getActor());
         WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(user, definitionId);
         log.debug(user + " submitted start form for definition " + definition.getName());
         Long processId = Delegates.getExecutionService().startProcess(user, definition.getName(), variables);
