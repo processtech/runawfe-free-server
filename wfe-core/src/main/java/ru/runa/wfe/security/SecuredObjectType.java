@@ -98,17 +98,22 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
         return name;
     }
 
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SecuredObjectType) {
+            return name.equals(((SecuredObjectType) obj).name);
+        }
+        return super.equals(obj);
+    }
+
     // Lists & list items:
 
     public static final SecuredObjectType EXECUTORS = new SecuredObjectType("EXECUTORS");
-    public static final SecuredObjectType ACTOR = new SecuredObjectType("ACTOR", EXECUTORS);
-    public static final SecuredObjectType GROUP = new SecuredObjectType("GROUP", EXECUTORS);
-
-    /**
-     * @deprecated Fake, don't use. Hack added to support NamedIdentityType in scripts.
-     * TODO Dofs wanted to merge ACTOR and GROUP types into EXECUTOR, this would be good.
-     */
-    @Deprecated
     public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR", EXECUTORS);
 
     public static final SecuredObjectType DEFINITIONS = new SecuredObjectType("DEFINITIONS");

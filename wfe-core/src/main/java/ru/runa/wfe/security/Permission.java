@@ -129,6 +129,18 @@ public final class Permission implements Serializable, Comparable<Permission> {
         return MoreObjects.toStringHelper(this).add("name", getName()).toString();
     }
 
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Permission) {
+            return name.equals(((Permission) obj).name);
+        }
+        return super.equals(obj);
+    }
 
     /**
      * All permissions.

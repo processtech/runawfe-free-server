@@ -43,7 +43,7 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
     @Override
     protected boolean isVisible() {
         return getExecutor() instanceof Group
-                && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, SecuredObjectType.GROUP, getIdentifiableId());
+                && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, SecuredObjectType.EXECUTOR, getIdentifiableId());
     }
 
     @Override
