@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.QDeployment;
 import ru.runa.wfe.execution.QProcess;
@@ -138,8 +139,12 @@ public class SecuredObjectFactory {
         List<Tuple> tt = getLoader(type).getByNames(names);
         List<Long> foundIds = new ArrayList<>(tt.size());
         Set<String> missingNames = new HashSet<>(names);
+        boolean isDef = type.equals(SecuredObjectType.DEFINITION);
         for (Tuple t : tt) {
-            foundIds.add(t.get(0, Long.class));
+            if(isDef)
+                foundIds.add(ApplicationContextFactory.getDeploymentDAO().getNotNull(t.get(0, Long.class)).getIdentifiableId());
+            else
+                foundIds.add(t.get(0, Long.class));
             missingNames.remove(t.get(1, String.class));
         }
         if (!missingNames.isEmpty()) {
