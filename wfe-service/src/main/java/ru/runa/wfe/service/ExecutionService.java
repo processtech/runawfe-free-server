@@ -419,6 +419,8 @@ public interface ExecutionService {
 
     /**
      * Sends signal to receivers (CatchEventNode).
+     * 
+     * @see https://runawfe.org/doc/BPMNImplementation#messages, https://runawfe.org/rus/doc/BPMNImplementation#messages
      */
     public void sendSignal(User user, Map<String, String> routingData, Map<String, Object> payloadData, long ttlInSeconds);
 
