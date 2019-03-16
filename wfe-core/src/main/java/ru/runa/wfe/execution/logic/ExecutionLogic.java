@@ -467,11 +467,15 @@ public class ExecutionLogic extends WfCommonLogic {
     
     private String getProcessErrors(Process process) {
         List<String> processErrors = Lists.newArrayList();
-        for (WfToken token : getTokens(process)) {
-            if (token.getExecutionStatus() != ExecutionStatus.FAILED || token.getErrorMessage() == null) {
-                continue;
+        try {
+            for (WfToken token : getTokens(process)) {
+                if (token.getExecutionStatus() != ExecutionStatus.FAILED || token.getErrorMessage() == null) {
+                    continue;
+                }
+                processErrors.add(token.getErrorMessage());
             }
-            processErrors.add(token.getErrorMessage());
+        } catch (Exception e) {
+            log.warn(e.toString());
         }
         return String.join(", ", processErrors);
     }

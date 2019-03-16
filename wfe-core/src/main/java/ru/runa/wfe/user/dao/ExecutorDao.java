@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.user.dao;
 
-import ru.runa.wfe.user.ExecutorLoader;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -46,6 +44,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.ExecutorGroupMembership;
+import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.QActor;
 import ru.runa.wfe.user.QExecutor;
@@ -612,14 +611,13 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         Assert.notNull(executor.getId());
         QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
         QActorPassword ap = QActorPassword.actorPassword;
-        QExecutor e = QExecutor.executor;
         queryFactory.delete(egm).where(egm.executor.eq(executor)).execute();
         if (executor instanceof Group) {
             queryFactory.delete(egm).where(egm.group.eq((Group)executor)).execute();
         } else {
             queryFactory.delete(ap).where(ap.actorId.eq(executor.getId())).execute();
         }
-        queryFactory.delete(e).where(e.id.eq(executor.getId())).execute();
+        sessionFactory.getCurrentSession().delete(executor);
     }
 
     /**

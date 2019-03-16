@@ -17,13 +17,13 @@
  */
 package ru.runa.wfe.lang;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.util.List;
-
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.Lists;
 
 public abstract class VariableContainerNode extends Node {
     private static final long serialVersionUID = 1L;
@@ -48,6 +48,15 @@ public abstract class VariableContainerNode extends Node {
             }
         }
         return false;
+    }
+
+    public VariableMapping getVariableMappingNotNull(String name) {
+        for (VariableMapping variableMapping : variableMappings) {
+            if (Objects.equal(name, variableMapping.getName())) {
+                return variableMapping;
+            }
+        }
+        throw new InternalApplicationException("No mapping found by name " + name);
     }
 
     @Override
