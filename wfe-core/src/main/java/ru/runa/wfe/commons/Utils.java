@@ -126,8 +126,22 @@ public class Utils {
         }
     }
 
-    // TODO It is an anti-pattern to create new connections, sessions, producers and consumers for each message you produce or consume
-    public static ObjectMessage sendBpmnMessage(List<VariableMapping> data, VariableProvider variableProvider, long ttl) {
+    public static ObjectMessage sendBpmnMessage(List<VariableMapping> data, VariableProvider variableProvider, long ttlInMilliSeconds) {
+        HashMap<String, String> routingData = new HashMap<>();
+        HashMap<String, Object> payloadData = new HashMap<>();
+        for (VariableMapping variableMapping : data) {
+            if (variableMapping.isPropertySelector()) {
+                Object value = ExpressionEvaluator.evaluateVariableNotNull(variableProvider, variableMapping.getMappedName());
+                String stringValue = TypeConversionUtil.convertTo(String.class, value);
+                routingData.put(variableMapping.getName(), stringValue);
+            } else {
+                payloadData.put(variableMapping.getMappedName(), variableProvider.getValue(variableMapping.getName()));
+            }
+        }
+        return sendBpmnMessage(routingData, payloadData, ttlInMilliSeconds);
+    }
+
+    public static ObjectMessage sendBpmnMessage(Map<String, String> routingData, Map<String, Object> payloadData, long ttlInMilliSeconds) {
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -136,21 +150,11 @@ public class Utils {
             connection = connectionFactory.createConnection();
             session = connection.createSession(true, Session.SESSION_TRANSACTED);
             sender = session.createProducer(bpmMessageQueue);
-            HashMap<String, Object> map = new HashMap<>();
-            for (VariableMapping variableMapping : data) {
-                if (!variableMapping.isPropertySelector()) {
-                    map.put(variableMapping.getMappedName(), variableProvider.getValue(variableMapping.getName()));
-                }
+            ObjectMessage message = session.createObjectMessage(new HashMap<>(payloadData));
+            for (Map.Entry<String, String> entry : routingData.entrySet()) {
+                message.setStringProperty(entry.getKey(), entry.getValue());
             }
-            ObjectMessage message = session.createObjectMessage(map);
-            for (VariableMapping variableMapping : data) {
-                if (variableMapping.isPropertySelector()) {
-                    Object value = ExpressionEvaluator.evaluateVariableNotNull(variableProvider, variableMapping.getMappedName());
-                    String stringValue = TypeConversionUtil.convertTo(String.class, value);
-                    message.setStringProperty(variableMapping.getName(), stringValue);
-                }
-            }
-            sender.send(message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, ttl);
+            sender.send(message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, ttlInMilliSeconds);
             sender.close();
             log.info("message sent: " + toString(message, false));
             return message;

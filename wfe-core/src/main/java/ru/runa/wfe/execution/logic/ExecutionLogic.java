@@ -340,24 +340,24 @@ public class ExecutionLogic extends WfCommonLogic {
         ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
         if (token.hasEnded()) {
             log.debug(this + " already ended");
-            return;
-        }
-        log.info("Ending " + this + " by " + canceller);
-        token.setEndDate(new Date());
-        token.setExecutionStatus(ExecutionStatus.ENDED);
-        Node node = processDefinition.getNode(token.getNodeId());
-        if (node instanceof SubprocessNode) {
-            for (CurrentProcess subProcess : executionContext.getCurrentTokenSubprocesses()) {
-                ParsedProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
-                executionLogic.endProcess(subProcess, new ExecutionContext(subProcessDefinition, subProcess), canceller);
+        } else {
+            log.info("Ending " + this + " by " + canceller);
+            token.setEndDate(new Date());
+            token.setExecutionStatus(ExecutionStatus.ENDED);
+            Node node = processDefinition.getNode(token.getNodeId());
+            if (node instanceof SubprocessNode) {
+                for (CurrentProcess subProcess : executionContext.getCurrentTokenSubprocesses()) {
+                    ParsedProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
+                    executionLogic.endProcess(subProcess, new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                }
+            } else if (node instanceof BaseTaskNode) {
+                ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
+            } else if (node instanceof BoundaryEvent) {
+                log.info("Cancelling " + node + " with " + this);
+                ((BoundaryEvent) node).cancelBoundaryEvent(token);
+            } else if (node == null) {
+                log.warn("Node is null");
             }
-        } else if (node instanceof BaseTaskNode) {
-            ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
-        } else if (node instanceof BoundaryEvent) {
-            log.info("Cancelling " + node + " with " + this);
-            ((BoundaryEvent) node).cancelBoundaryEvent(token);
-        } else if (node == null) {
-            log.warn("Node is null");
         }
         if (recursive) {
             for (CurrentToken child : token.getChildren()) {
@@ -706,11 +706,15 @@ public class ExecutionLogic extends WfCommonLogic {
     
     private String getProcessErrors(Process process) {
         List<String> processErrors = Lists.newArrayList();
-        for (WfToken token : getTokens(process)) {
-            if (token.getExecutionStatus() != ExecutionStatus.FAILED || token.getErrorMessage() == null) {
-                continue;
+        try {
+            for (WfToken token : getTokens(process)) {
+                if (token.getExecutionStatus() != ExecutionStatus.FAILED || token.getErrorMessage() == null) {
+                    continue;
+                }
+                processErrors.add(token.getErrorMessage());
             }
-            processErrors.add(token.getErrorMessage());
+        } catch (Exception e) {
+            log.warn(e.toString());
         }
         return String.join(", ", processErrors);
     }
