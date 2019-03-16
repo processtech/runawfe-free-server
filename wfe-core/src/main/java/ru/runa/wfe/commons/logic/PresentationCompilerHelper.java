@@ -41,7 +41,7 @@ public final class PresentationCompilerHelper {
     /**
      * Classes, loaded by queries for loading all executors (all, group children and so on).
      */
-    private static final SecuredObjectType[] ALL_EXECUTORS_CLASSES = { SecuredObjectType.ACTOR, SecuredObjectType.GROUP };
+    private static final SecuredObjectType[] ALL_EXECUTORS_CLASSES = { SecuredObjectType.EXECUTOR };
 
     /**
      * Create {@linkplain PresentationConfiguredCompiler} for loading all executors. <b>Paging is enabled on executors loading.</b>
@@ -115,7 +115,7 @@ public final class PresentationCompilerHelper {
                 + " as relation WHERE relation.executor.id=" + executor.getId() + ")";
         String[] idRestrictions = { inRestriction, "<> " + executor.getId() };
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.LIST,
-                new SecuredObjectType[] { SecuredObjectType.GROUP });
+                new SecuredObjectType[] { SecuredObjectType.EXECUTOR });
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addRequestedClass(Group.class)
                 .addIdRestrictions(idRestrictions);
         return new PresentationConfiguredCompiler<>(batchPresentation, parameters);

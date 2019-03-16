@@ -90,7 +90,10 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public ExecutionResult findByFilter(Properties properties, WfVariable variable, String condition) throws Exception {
         if (!existOutputParamByVariableName(variable)) {
-            return ExecutionResult.EMPTY;
+            throw new WrongParameterException(variable.getDefinition().getName());
+        }
+        if (!isConditionValid(condition)) {
+            throw new WrongOperatorException(condition);
         }
         initParams(properties);
         Workbook wb = getWorkbook(fullPath);
@@ -108,7 +111,7 @@ public class StoreServiceImpl implements StoreService {
             wb.write(os);
         } catch (IOException e) {
             log.error("", e);
-            throw new BlockedFileException();
+            throw new BlockedFileException(fullPath);
         } finally {
             os.close();
         }
@@ -125,7 +128,7 @@ public class StoreServiceImpl implements StoreService {
             wb.write(os);
         } catch (IOException e) {
             log.error("", e);
-            throw new BlockedFileException();
+            throw new BlockedFileException(fullPath);
         } finally {
             if (os != null) {
                 os.close();
@@ -144,7 +147,7 @@ public class StoreServiceImpl implements StoreService {
             wb.write(os);
         } catch (IOException e) {
             log.error("", e);
-            throw new BlockedFileException();
+            throw new BlockedFileException(fullPath);
         } finally {
             if (os != null) {
                 os.close();

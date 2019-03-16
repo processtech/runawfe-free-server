@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFFooter;
+import org.apache.poi.xwpf.usermodel.XWPFHeader;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
@@ -30,14 +32,24 @@ public class DocxFileChanger {
     }
 
     public XWPFDocument changeAll() {
-        List<IBodyElement> bodyElements = new ArrayList<IBodyElement>(document.getBodyElements());
+        for (XWPFHeader header : document.getHeaderList()) {
+            changeBodyElements(header.getBodyElements());
+        }
+        changeBodyElements(document.getBodyElements());
+        for (XWPFFooter footer : document.getFooterList()) {
+            changeBodyElements(footer.getBodyElements());
+        }
+        return document;
+    }
+
+    private void changeBodyElements(List<IBodyElement> bodyElements) {
         List<XWPFParagraph> paragraphs = Lists.newArrayList();
-        for (IBodyElement bodyElement : bodyElements) {
+        for (IBodyElement bodyElement : new ArrayList<IBodyElement>(bodyElements)) {
             if (bodyElement instanceof XWPFParagraph) {
                 paragraphs.add((XWPFParagraph) bodyElement);
                 continue;
             }
-            if (paragraphs.size() > 0) {
+            if (!paragraphs.isEmpty()) {
                 DocxUtils.replaceInParagraphs(config, variableProvider, paragraphs);
                 paragraphs.clear();
             }
@@ -97,11 +109,10 @@ public class DocxFileChanger {
                 }
             }
         }
-        if (paragraphs.size() > 0) {
+        if (!paragraphs.isEmpty()) {
             DocxUtils.replaceInParagraphs(config, variableProvider, paragraphs);
             paragraphs.clear();
         }
-        return document;
     }
 
 }
