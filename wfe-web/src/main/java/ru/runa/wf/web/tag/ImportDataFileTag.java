@@ -8,7 +8,6 @@ import org.apache.ecs.html.Label;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesOther;
@@ -16,6 +15,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.action.ImportDataFileAction;
+import ru.runa.wfe.commons.SystemProperties;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "importDataFile")
 public class ImportDataFileTag extends TitledFormTag {
@@ -51,6 +51,7 @@ public class ImportDataFileTag extends TitledFormTag {
         td.addElement(Entities.NBSP);
         Input uploadAndClearInput = new Input(Input.RADIO, ImportDataFileAction.UPLOAD_PARAM, ImportDataFileAction.CLEAR_BEFORE_UPLOAD);
         uploadAndClearInput.setID(ImportDataFileAction.CLEAR_BEFORE_UPLOAD);
+        uploadAndClearInput.setDisabled(!SystemProperties.getAdministratorName().equals(getUser().getName()));
         td.addElement(uploadAndClearInput);
         label = new Label(ImportDataFileAction.CLEAR_BEFORE_UPLOAD);
         label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_CLEARBEFOREUPLOAD.message(pageContext)));

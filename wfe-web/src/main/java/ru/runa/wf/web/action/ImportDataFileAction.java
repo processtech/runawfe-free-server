@@ -1,5 +1,7 @@
 package ru.runa.wf.web.action;
 
+import com.google.common.base.Strings;
+import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,20 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
-
-import com.google.common.base.Strings;
-import com.google.common.io.ByteStreams;
-
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
@@ -30,6 +26,7 @@ import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -75,7 +72,7 @@ public class ImportDataFileAction extends ActionBase {
             boolean clearBeforeUpload = false;
 
             String paramType = request.getParameter(UPLOAD_PARAM);
-            if (CLEAR_BEFORE_UPLOAD.equals(paramType)) {
+            if (CLEAR_BEFORE_UPLOAD.equals(paramType) && SystemProperties.getAdministratorName().equals(getLoggedUser(request).getName())) {
                 clearBeforeUpload = true;
             }
 
@@ -91,7 +88,7 @@ public class ImportDataFileAction extends ActionBase {
             }
 
             ZipInputStream zin = new ZipInputStream(new ByteArrayInputStream(archive));
-            Map<String, byte[]> externalResources = new HashMap<String, byte[]>();
+            Map<String, byte[]> externalResources = new HashMap<>();
             ZipEntry entry;
             while ((entry = zin.getNextEntry()) != null) {
                 byte[] bytes = ByteStreams.toByteArray(zin);
@@ -150,7 +147,7 @@ public class ImportDataFileAction extends ActionBase {
 
                 List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user,
                         BatchPresentationFactory.EXECUTORS.createNonPaged());
-                List<Long> ids = new ArrayList<Long>();
+                List<Long> ids = new ArrayList<>();
                 for (Executor executor : executors) {
                     if (ApplicationContextFactory.getPermissionDAO().isPrivilegedExecutor(executor)) {
                         continue;
