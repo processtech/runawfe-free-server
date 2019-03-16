@@ -396,18 +396,17 @@ public class AuthorizationLogic extends CommonLogic {
         permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createExecutorWithPermissionCompiler(user, securedObject,
                 batchPresentation, hasPermission);
-        if (hasPermission) {
-            List<Executor> executors = compiler.getBatch();
-            for (Executor privelegedExecutor : permissionDao.getPrivilegedExecutors(securedObject.getSecuredObjectType())) {
-                if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
-                        && permissionDao.isAllowed(user, Permission.LIST, privelegedExecutor)) {
-                    executors.add(0, privelegedExecutor);
-                }
+        List<Executor> executors = compiler.getBatch();
+        for (Executor privelegedExecutor : permissionDao.getPrivilegedExecutors(securedObject.getSecuredObjectType())) {
+            if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
+                    && permissionDao.isAllowed(user, Permission.LIST, privelegedExecutor)) {
+                if (hasPermission)
+                  executors.add(0, privelegedExecutor);
+                else
+                  executors.remove(privelegedExecutor);
             }
-            return executors;
-        } else {
-            return compiler.getBatch();
         }
+        return executors;
     }
 
     /**
