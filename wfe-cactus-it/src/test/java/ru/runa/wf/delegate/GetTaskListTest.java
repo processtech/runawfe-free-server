@@ -86,6 +86,7 @@ public class GetTaskListTest extends ServletTestCase {
         th.getAuthorizationService().setPermissions(th.getAdminUser(), actor3.getId(), p, SecuredSingleton.EXECUTORS);
         actor3User = Delegates.getAuthenticationService().authenticateByLoginPassword(actor3.getName(), ACTOR3_PASSWD);
         th.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.ALL));
+        th.setPermissionsToAuthorizedPerformerOnDefinitions(Lists.newArrayList(Permission.ALL));
 
         th.getDefinitionService().deployProcessDefinition(th.getAuthorizedPerformerUser(), parBytes, Lists.newArrayList("testProcess"));
         batchPresentation = th.getTaskBatchPresentation();

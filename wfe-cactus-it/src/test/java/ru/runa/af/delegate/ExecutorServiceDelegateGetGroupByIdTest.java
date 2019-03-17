@@ -90,24 +90,6 @@ public class ExecutorServiceDelegateGetGroupByIdTest extends ServletTestCase {
         }
     }
 
-    public void testGetNullGroupByAuthorizedPerformer() throws Exception {
-        try {
-            executorService.getExecutor(th.getAuthorizedPerformerUser(), null);
-            fail("businessDelegate allow to getExecutor()with null group.");
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
-    public void testGetExecutorByNullPerformer() throws Exception {
-        try {
-            executorService.getExecutor(null, group.getId());
-            fail("businessDelegate allow to getExecutor() to performer with null subject.");
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
     public void testGetActorInsteadOfGroup() throws Exception {
         try {
             Group actor = executorService.<Group>getExecutor(th.getAuthorizedPerformerUser(), th.getBaseGroupActor().getId());

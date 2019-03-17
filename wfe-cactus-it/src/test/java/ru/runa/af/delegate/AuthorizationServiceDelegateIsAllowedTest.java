@@ -65,45 +65,11 @@ public class AuthorizationServiceDelegateIsAllowedTest extends ServletTestCase {
         super.tearDown();
     }
 
-    public void testIsAllowedNullUser() throws Exception {
-        try {
-            authorizationService.isAllowed(null, Permission.READ, SecuredSingleton.EXECUTORS);
-            fail("AuthorizationDelegate.isAllowed() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testIsAllowedFakeSubject() throws Exception {
         try {
             authorizationService.isAllowed(helper.getFakeUser(), Permission.READ, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.isAllowed() allows fake subject");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testIsAllowedPermissionUser() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), null, SecuredSingleton.EXECUTORS);
-            fail("AuthorizationDelegate.isAllowed() allows null permission");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testIsAllowedNullSecuredObject() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, (SecuredObject) null);
-            fail("AuthorizationDelegate.isAllowed() allows null SecuredObject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testIsAllowedFakeSecuredObject() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, helper.getFakeActor());
-            // TODO
-            // fail("AuthorizationDelegate.isAllowed() allows fake SecuredObject");
-        } catch (InternalApplicationException e) {
-            fail("TODO trap");
         }
     }
 

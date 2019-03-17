@@ -101,56 +101,11 @@ public class AuthorizationServiceDelegateSetMultiExecutorsPermissionsTest extend
         }
     }
 
-    public void testSetPermissionsNullSubject() throws Exception {
-        try {
-            authorizationService.setPermissions(null, executorIDs, testPermission, additionalActor);
-            fail("AuthorizationDelegate.setPermissions() allows null subject");
-        } catch (IllegalArgumentException e) {
-            // This is what we expect
-        }
-    }
-
     public void testSetPermissionsFakeSubject() throws Exception {
         try {
             authorizationService.setPermissions(th.getFakeUser(), executorIDs, testPermission, additionalActor);
             fail("AuthorizationDelegate.setPermissions() allows fake subject");
         } catch (AuthenticationException e) {
-            // This is what we expect
-        }
-    }
-
-    public void testSetPermissionsFakeSecuredObject() throws Exception {
-        try {
-            authorizationService.setPermissions(th.getAuthorizedPerformerUser(), executorIDs, testPermission, th.getFakeActor());
-            fail("AuthorizationDelegate.setPermissions() allows fake executor");
-        } catch (InternalApplicationException e) {
-            // This is what we expect
-        }
-    }
-
-    public void testSetPermissionsNullPermissions() throws Exception {
-        try {
-            authorizationService.setPermissions(th.getAuthorizedPerformerUser(), executorIDs, (Collection<Permission>) null, additionalActor);
-            fail("AuthorizationDelegate.setPermissions() allows null permissions");
-        } catch (IllegalArgumentException e) {
-            // This is what we expect
-        }
-    }
-
-    public void testSetPermissionsNullSecuredObject() throws Exception {
-        try {
-            authorizationService.setPermissions(th.getAuthorizedPerformerUser(), executorIDs, testPermission, null);
-            fail("AuthorizationDelegate.setPermissions() allows null SecuredObject");
-        } catch (IllegalArgumentException e) {
-            // This is what we expect
-        }
-    }
-
-    public void testSetPermissionsFakeExecutors() throws Exception {
-        try {
-            authorizationService.setPermissions(th.getAuthorizedPerformerUser(), Lists.newArrayList(-1L, -2L, -3L), testPermission, additionalActor);
-            fail("AuthorizationDelegate.setPermissions() allows Fake Executors");
-        } catch (ExecutorDoesNotExistException e) {
             // This is what we expect
         }
     }

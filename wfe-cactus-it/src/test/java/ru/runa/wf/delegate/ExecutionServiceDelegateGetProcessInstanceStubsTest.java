@@ -83,7 +83,7 @@ public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends Servlet
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
         variablesMap.put(name, "anothervalue");
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);       
+        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
         int index = batchPresentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_VARIABLE);
         batchPresentation.addDynamicField(index, name);
         batchPresentation.getFilteredFields().put(0, new StringFilterCriteria(value));
@@ -126,14 +126,6 @@ public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends Servlet
             executionService.getProcesses(helper.getFakeUser(), batchPresentation);
             fail("testGetAllProcessInstanceStubsByFakeSubject, no AuthenticationException");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetProcessInstanceStubsByNullSubject() throws Exception {
-        try {
-            executionService.getProcesses(null, batchPresentation);
-            fail("testGetAllProcessInstanceStubsByNullSubject, no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
         }
     }
 

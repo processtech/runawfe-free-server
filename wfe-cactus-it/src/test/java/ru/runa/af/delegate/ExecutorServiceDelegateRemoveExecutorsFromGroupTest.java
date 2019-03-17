@@ -133,57 +133,6 @@ public class ExecutorServiceDelegateRemoveExecutorsFromGroupTest extends Servlet
         }
     }
 
-    public void testRemoveFakeActor() throws Exception {
-        try {
-            executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList(th.getFakeActor().getId()), group.getId());
-            fail("FakeActor removed from group ");
-        } catch (AuthorizationException e) {
-            // TODO
-        } catch (ExecutorDoesNotExistException e) {
-            // this is supposed result
-            fail("TODO trap");
-        }
-    }
-
-    public void testRemoveFakeSubGroup() throws Exception {
-        try {
-            executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList(th.getFakeGroup().getId()), group.getId());
-            fail("FakeGroup removed from group ");
-        } catch (IllegalArgumentException e) {
-            // TODO
-        } catch (ExecutorDoesNotExistException e) {
-            // this is supposed result
-            fail("TODO trap");
-        }
-    }
-
-    /*
-     * public void testRemoveNullExecutor() throws Exception { try { executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(),
-     * Lists.newArrayList((Executor) null), group.getId()); fail("NullExecutor removed from group ", false); } catch (IllegalArgumentException e) { //
-     * this is supposed result }
-     * 
-     * try { executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), null, group); fail("NullExecutor removed from group ", false);
-     * } catch (IllegalArgumentException e) { // this is supposed result } }
-     */
-
-    public void testRemoveActorWithNullSubject() throws Exception {
-        try {
-            executorService.removeExecutorsFromGroup(null, Lists.newArrayList(actor.getId()), group.getId());
-            fail("Actor removed from group with null subject");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-    }
-
-    public void testRemoveSubGroupWithNullSubject() throws Exception {
-        try {
-            executorService.removeExecutorsFromGroup(null, Lists.newArrayList(subGroup.getId()), group.getId());
-            fail("SubGroup removed from group with null subject");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-    }
-
     protected void tearDown() throws Exception {
         th.releaseResources();
         executorService = null;

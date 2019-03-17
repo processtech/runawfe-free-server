@@ -3,26 +3,24 @@
 	 <!-- Sample wfe script set add process permissions-->
 		
 	<setPermissions type="DEFINITION" name="validProcess" executor="employee">
-		<permission name="LIST"/>
-		<permission name="READ"/>
-		<permission name="UPDATE"/>
+		<permission name="LIST"/>				
 		<permission name="START"/>
 		<permission name="READ_PROCESS"/>
+		<permission name="CANCEL_PROCESS"/>
 	</setPermissions>
 	
 	<removePermissions type="DEFINITION" name="validProcess" executor="employee">
-		<permission name="UPDATE"/>		
-		<permission name="READ_PROCESS"/>
-	</removePermissionsOnDefinition>
+		<permission name="LIST"/>		
+		<permission name="CANCEL_PROCESS"/>
+	</removePermissions>
 	
 	<addPermissions type="DEFINITION" name="validProcess" executor="employee">
 		<permission name="READ"/>
-		<permission name="UPDATE"/>
-		<permission name="CANCEL_PROCESS"/>	
+		<permission name="UPDATE"/>		
 	</addPermissions>
 
     <addPermissions type="DEFINITION" name="validProcess" executor="employee">
-		<permission name="READ_PROCESS"/>
+		<permission name="READ_PROCESS"/>		
 	</addPermissions>
 
 </workflowScript>

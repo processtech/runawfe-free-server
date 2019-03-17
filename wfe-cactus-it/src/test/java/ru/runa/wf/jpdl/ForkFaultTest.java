@@ -60,8 +60,7 @@ public class ForkFaultTest extends ServletTestCase {
 
         th.deployValidProcessDefinition(WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_FILE_NAME);
 
-        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ,
-                Permission.READ_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME);
 
         batchPresentation = th.getTaskBatchPresentation();

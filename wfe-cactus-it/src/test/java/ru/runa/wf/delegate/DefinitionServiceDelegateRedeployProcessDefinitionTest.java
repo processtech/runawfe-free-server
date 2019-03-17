@@ -106,16 +106,6 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
         }
     }
 
-    public void testRedeployProcessWithNullSubject() throws Exception {
-        try {
-            definitionService.redeployProcessDefinition(null, processDefinitionId, helper.getValidProcessDefinition(),
-                    Lists.newArrayList("testProcess"));
-            assertTrue("testRedeployProcessWithNullSubject no IllegalArgumentException", false);
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
     public void testRedeployProcessWithFakeSubject() throws Exception {
         try {
             User fakeUser = helper.getFakeUser();

@@ -18,6 +18,7 @@
 package ru.runa.af.service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,7 @@ import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObject;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.WeakPasswordException;
 import ru.runa.wfe.service.AuthenticationService;
 import ru.runa.wfe.service.AuthorizationService;
@@ -183,7 +182,6 @@ public class ServiceTestHelper {
     public User getAdminUser() {
         return adminUser;
     }
-   
 
     /**
      * Creates groups and actors group contains subGroup and subActor subGroup contains subGroupActor
@@ -497,12 +495,6 @@ public class ServiceTestHelper {
     public Collection<Permission> getOwnPermissions(Executor performer, Executor executor) throws InternalApplicationException {
         return authorizationService.getIssuedPermissions(adminUser, performer, executor);
     }
-
-    /*
-    public Collection<Permission> getOwnPermissionsAASystem(Executor performer) throws InternalApplicationException {
-        return authorizationService.getIssuedPermissions(adminUser, performer, ASystem.INSTANCE);
-    }
-    */
 
     /** check if default executors still exists in db, and id so removes them */
     private void removeDefaultExecutors() throws InternalApplicationException {

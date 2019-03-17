@@ -18,12 +18,11 @@
 
 package ru.runa.af.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wfe.InternalApplicationException;
@@ -37,8 +36,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 public class ExecutorServiceDelegateGetExecutorsCanBeAddedToGroupTest extends ServletTestCase {
     private ServiceTestHelper th;
@@ -97,15 +94,6 @@ public class ExecutorServiceDelegateGetExecutorsCanBeAddedToGroupTest extends Se
             executorService.getGroupChildren(th.getUnauthorizedPerformerUser(), getSubGroup(), th.getExecutorBatchPresentation(), true);
             fail("businessDelegate.getExecutorsByUnauthorizedPerformer() no AuthorizationFailedException");
         } catch (AuthorizationException e) {
-            // That's what we expect
-        }
-    }
-
-    public void testGetExecutorGroupswithNullSubject() throws Exception {
-        try {
-            executorService.getGroupChildren(null, getSubGroup(), th.getExecutorBatchPresentation(), true);
-            fail("GetExecutorswithNullSubject no Exception");
-        } catch (IllegalArgumentException e) {
             // That's what we expect
         }
     }

@@ -101,12 +101,4 @@ public class DefinitionServiceDelegateGetProcessDefinitionStubTest extends Servl
         } catch (AuthenticationException e) {
         }
     }
-
-    public void testGetProcessDefinitionStubByNullSubject() throws Exception {
-        try {
-            definitionService.getLatestProcessDefinition(null, WfServiceTestHelper.VALID_PROCESS_NAME);
-            fail("testGetProcessDefinitionStubByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
 }

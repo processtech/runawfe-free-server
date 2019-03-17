@@ -63,8 +63,8 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
             additionalGroupsIds.add(group.getId());
         }
 
-        th.setPermissionsToAuthorizedPerformer(readPermissions, getAdditionalActor());
-        th.setPermissionsToAuthorizedPerformer(readPermissions, getAdditionalGroup());
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, getAdditionalActor());
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, getAdditionalGroup());
         th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, getAdditionalGroups());
 
         executorService.addExecutorToGroups(th.getAuthorizedPerformerUser(), getAdditionalActor().getId(), th.toIds(getAdditionalGroups()));
@@ -156,58 +156,6 @@ public class ExecutorServiceDelegateRemoveExecutorFromManyGroupsTest extends Ser
         } catch (ExecutorDoesNotExistException e) {
             // this is supposed result
             fail("TODO trap");
-        }
-    }
-
-    public void testRemoveFakeGroupFromGroups() throws Exception {
-        Executor executor = th.getFakeGroup();
-        try {
-            executorService.removeExecutorFromGroups(th.getAuthorizedPerformerUser(), executor.getId(), th.toIds(getAdditionalGroups()));
-            fail("FakeExecutor removed from groups");
-        } catch (IllegalArgumentException e) {
-            // TODO
-        } catch (ExecutorDoesNotExistException e) {
-            // this is supposed result
-            fail("TODO trap");
-        }
-    }
-
-    public void testRemoveNullExecutorFromGroups() throws Exception {
-        try {
-            executorService.removeExecutorFromGroups(th.getAuthorizedPerformerUser(), null, th.toIds(getAdditionalGroups()));
-            fail("NullExecutor removed from groups ");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-    }
-
-    public void testRemoveExecutorFromNullGroups() throws Exception {
-        Executor executor = getAdditionalActor();
-        try {
-            executorService.removeExecutorFromGroups(th.getAuthorizedPerformerUser(), executor.getId(), null);
-            fail("Executor removed from Null groups ");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-    }
-
-    public void testRemoveActorWithNullSubjectFromGroups() throws Exception {
-        Executor executor = getAdditionalActor();
-        try {
-            executorService.removeExecutorFromGroups(null, executor.getId(), th.toIds(getAdditionalGroups()));
-            fail("Executor removed from groups with null subject");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-    }
-
-    public void testRemoveGroupWithNullSubjectFromGroups() throws Exception {
-        Executor executor = getAdditionalGroup();
-        try {
-            executorService.removeExecutorFromGroups(null, executor.getId(), th.toIds(getAdditionalGroups()));
-            fail("Executor removed from groups with null subject");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
         }
     }
 

@@ -87,14 +87,6 @@ public class DefinitionServiceDelegateGetLatestDefinitionStubTest extends Servle
         }
     }
 
-    public void testGetLatestDefinitionStubByNullUser() throws Exception {
-        try {
-            definitionService.getLatestProcessDefinition(null, WfServiceTestHelper.VALID_PROCESS_NAME);
-            fail("testGetLatestDefinitionStubByNullSubject, no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetLatestDefinitionStubByAuthorizedSubjectWithInvalidProcessName() throws Exception {
         try {
             definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(), "0_Invalid_Process_Name");

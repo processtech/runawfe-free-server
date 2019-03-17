@@ -92,8 +92,8 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
         tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("Tasks not returned for Authorized Subject", 1, tasks.size());
         assertEquals("state name differs from expected", "treating collegues on cake and pie", tasks.get(0).getName());
-        assertEquals("task <treating collegues on cake and pie> is not assigned after starting [requester]", th.getAuthorizedPerformerActor(), tasks
-                .get(0).getOwner());
+        assertEquals("task <treating collegues on cake and pie> is not assigned after starting [requester]", th.getAuthorizedPerformerActor(),
+                tasks.get(0).getOwner());
         th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), variables, null);
 
         tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
@@ -183,11 +183,4 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
         }
     }
 
-    public void testGetTasksByNullSubject() throws Exception {
-        try {
-            th.getTaskService().getMyTasks(null, batchPresentation);
-            fail("testGetTasksByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
 }

@@ -342,7 +342,7 @@ public class WfeScriptServiceDelegateTest extends ServletTestCase {
         assertFalse("Check if 'list' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee, Permission.LIST));
 
         assertFalse("Check if 'update' permission is given to employee on employee",
-                helper.isAllowedToExecutor(employee, employee, Permission.DELETE));
+                helper.isAllowedToExecutor(employee, employee, Permission.UPDATE));
 
         // group permission on actor
         assertFalse("Check if 'update' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee, Permission.UPDATE));

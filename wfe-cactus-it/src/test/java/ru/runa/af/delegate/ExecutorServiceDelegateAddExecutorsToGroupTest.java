@@ -74,6 +74,7 @@ public class ExecutorServiceDelegateAddExecutorsToGroupTest extends ServletTestC
             // this is supposed result
         }
 
+        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalActor);
         th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
 
         executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList(additionalActor.getId()), additionalGroup.getId());
@@ -104,33 +105,6 @@ public class ExecutorServiceDelegateAddExecutorsToGroupTest extends ServletTestC
         } catch (ExecutorDoesNotExistException e) {
             // this is supposed result
             fail("TODO trap");
-        }
-    }
-
-    public void testAddNullExecutor() throws Exception {
-        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
-        try {
-            executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList((Long) null), additionalGroup.getId());
-            fail("Executor added to group ");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-
-        try {
-            executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), null, additionalGroup.getId());
-            fail("Executor added to group ");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-    }
-
-    public void testAddExecutorWithNullUser() throws Exception {
-        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
-        try {
-            executorService.addExecutorsToGroup(null, Lists.newArrayList(actor.getId()), additionalGroup.getId());
-            fail("Executor added to group ");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
         }
     }
 

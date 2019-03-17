@@ -58,7 +58,7 @@
 		<permission name="CREATE"/>
 	</setPermissions>
 	
-	<addPermissions type="DEFINITIONS" name="5" executor="employee">
+	<addPermissions type="DEFINITIONS" executor="employee">
 		<permission name="LIST"/>
 		<permission name="READ"/>		
 	</addPermissions>

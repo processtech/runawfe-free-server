@@ -17,11 +17,10 @@
  */
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -32,8 +31,6 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 02.05.2005
@@ -95,14 +92,6 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
             executionService.getProcessSwimlanes(helper.getFakeUser(), instanceId);
             fail("testGetSwimlanesByFakeSubject(), no AuthenticationException");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetSwimlanesByNullSubject() throws Exception {
-        try {
-            executionService.getProcessSwimlanes(null, instanceId);
-            fail("testGetSwimlanesByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
         }
     }
 

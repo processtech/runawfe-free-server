@@ -91,14 +91,6 @@ public class ExecutionServiceDelegateGetProcessInstancesCountTest extends Servle
         }
     }
 
-    public void testGetProcessInstanceCountByNullSubject() throws Exception {
-        try {
-            executionService.getProcessesCount(null, batchPresentation);
-            fail("testGetAllProcessInstanceStubsByNullSubject, no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetProcessInstanceCountByAuthorizedSubjectWithoutREADPermission() throws Exception {
         int processesCount = executionService.getProcessesCount(helper.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("Incorrect processes array", 0, processesCount);

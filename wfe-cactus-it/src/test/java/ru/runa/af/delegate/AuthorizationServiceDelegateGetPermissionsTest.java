@@ -51,7 +51,7 @@ public class AuthorizationServiceDelegateGetPermissionsTest extends ServletTestC
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getSubGroupActor());
-
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.LIST));
         authorizationService = Delegates.getAuthorizationService();
         super.setUp();
     }
@@ -63,51 +63,11 @@ public class AuthorizationServiceDelegateGetPermissionsTest extends ServletTestC
         super.tearDown();
     }
 
-    public void testGetPermissionsNullUser() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(null, helper.getBaseGroupActor(), helper.getBaseGroupActor());
-            fail("AuthorizationDelegate.getIssuedPermissions() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetPermissionsFakeSubject() throws Exception {
         try {
             authorizationService.getIssuedPermissions(helper.getFakeUser(), helper.getBaseGroupActor(), helper.getBaseGroupActor());
             fail("AuthorizationDelegate.getIssuedPermissions() allows fake subject");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetPermissionsNullExecutor() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), null, helper.getBaseGroupActor());
-            fail("AuthorizationDelegate.getIssuedPermissions() allows null executor");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testGetPermissionsFakeExecutor() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getFakeActor(), helper.getBaseGroupActor());
-            fail("AuthorizationDelegate.getIssuedPermissions() allows fake executor");
-        } catch (AuthorizationException e) {
-        }
-    }
-
-    public void testGetPermissionsNullSecuredObject() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(), null);
-            fail("AuthorizationDelegate.getIssuedPermissions() allows null SecuredObject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testGetPermissionsFakeSecuredObject() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(), helper.getFakeActor());
-            fail("AuthorizationDelegate.getIssuedPermissions() allows fake SecuredObject");
-        } catch (InternalApplicationException e) {
         }
     }
 

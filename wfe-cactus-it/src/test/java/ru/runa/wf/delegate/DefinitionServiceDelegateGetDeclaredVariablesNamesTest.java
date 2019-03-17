@@ -35,7 +35,7 @@ public class DefinitionServiceDelegateGetDeclaredVariablesNamesTest extends Serv
         definitionService = Delegates.getDefinitionService();
 
         Collection<Permission> deployPermissions = Lists.newArrayList(Permission.CREATE);
-        helper.setPermissionsToAuthorizedPerformerOnExecutors(deployPermissions);
+        helper.setPermissionsToAuthorizedPerformerOnDefinitions(deployPermissions);
         definitionService.deployProcessDefinition(helper.getAuthorizedPerformerUser(),
                 WfServiceTestHelper.readBytesFromFile(DEFINITION_WITH_VARIABLES_XML + ".par"), Lists.newArrayList("testProcess"));
 
@@ -58,27 +58,6 @@ public class DefinitionServiceDelegateGetDeclaredVariablesNamesTest extends Serv
 
     public void testGetDeclaredVariablesNamesByAuthorizedSubject() {
         testImpl(helper.getAuthorizedPerformerUser(), definitionWithVariablesXmlId, Lists.newArrayList("var1", "Var2", "var3"), null);
-    }
-
-    public void testGetDeclaredVariablesNamesByUnauthorizedSubject() {
-        // testImpl(helper.getUnauthorizedPerformerUser(),
-        // definitionWithVariablesXmlId, null, AuthorizationException.class);
-        // testImpl(helper.getUnauthorizedPerformerUser(),
-        // definitionWithoutVariablesXmlId, null, AuthorizationException.class);
-    }
-
-    public void testGetDeclaredVariablesNamesByNullSubject() {
-        // testImpl(null, definitionWithVariablesXmlId, null,
-        // IllegalArgumentException.class);
-        // testImpl(null, definitionWithoutVariablesXmlId, null,
-        // IllegalArgumentException.class);
-    }
-
-    public void testGetDeclaredVariablesNamesByFakeSubject() {
-        // testImpl(helper.getFakeUser(), definitionWithVariablesXmlId, null,
-        // AuthenticationException.class);
-        // testImpl(helper.getFakeUser(), definitionWithoutVariablesXmlId,
-        // null, AuthenticationException.class);
     }
 
     public void testGetDeclaredVariablesNamesOnInvalidDefinitionId() {

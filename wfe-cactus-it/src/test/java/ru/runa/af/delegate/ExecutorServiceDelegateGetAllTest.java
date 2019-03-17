@@ -78,15 +78,6 @@ public class ExecutorServiceDelegateGetAllTest extends ServletTestCase {
         assertTrue("businessDelegate.getExecutors() returns executors", executors.isEmpty());
     }
 
-    public void testgetExecutorsWithNullSubject() throws Exception {
-        try {
-            executorService.getExecutors(null, th.getExecutorBatchPresentation());
-            fail("businessDelegate.getExecutors() with null subject throws no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
     public void testgetExecutorsWithFakeSubject() throws Exception {
         try {
             User fakeUser = th.getFakeUser();

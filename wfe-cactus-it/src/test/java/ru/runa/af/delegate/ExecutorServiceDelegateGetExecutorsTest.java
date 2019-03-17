@@ -62,8 +62,8 @@ public class ExecutorServiceDelegateGetExecutorsTest extends ServletTestCase {
 
     public void testGetExecutorsByAuthorizedPerformer() throws Exception {
         List<Executor> returnedExecutors = th.getExecutors(th.getAuthorizedPerformerUser(), executorsIDs);
-        ArrayAssert
-                .assertWeakEqualArrays("businessDelegate.getExecutors() returns wrong executor set", additionalActorGroupsMixed, returnedExecutors);
+        ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutors() returns wrong executor set", additionalActorGroupsMixed,
+                returnedExecutors);
     }
 
     public void testGetExecutorsByUnauthorizedPerformer() throws Exception {
@@ -72,7 +72,7 @@ public class ExecutorServiceDelegateGetExecutorsTest extends ServletTestCase {
             th.getExecutors(unauthorizedPerformerUser, executorsIDs);
             fail("businessDelegate allow to getExecutor() to performer without Permission.READ.");
         } catch (AuthorizationException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 
@@ -82,16 +82,7 @@ public class ExecutorServiceDelegateGetExecutorsTest extends ServletTestCase {
             th.getExecutors(th.getAuthorizedPerformerUser(), executorsIDs);
             fail("businessDelegate does not throw Exception to getExecutor() for UnexistedExecutor");
         } catch (ExecutorDoesNotExistException e) {
-            //That's what we expect
-        }
-    }
-
-    public void testGetExecutorsByNullPerformer() throws Exception {
-        try {
-            th.getExecutors(null, executorsIDs);
-            fail("businessDelegate allow to getExecutors() to performer with null subject.");
-        } catch (IllegalArgumentException e) {
-            //That's what we expect 
+            // That's what we expect
         }
     }
 

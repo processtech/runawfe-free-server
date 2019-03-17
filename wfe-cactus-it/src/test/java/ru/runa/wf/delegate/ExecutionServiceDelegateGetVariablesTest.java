@@ -99,14 +99,6 @@ public class ExecutionServiceDelegateGetVariablesTest extends ServletTestCase {
         }
     }
 
-    public void testGetVariablesByNullSubject() throws Exception {
-        try {
-            executionService.getVariables(null, processId);
-            fail("testGetVariablesByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetVariablesByAuthorizedSubjectWithInvalidProcessId() throws Exception {
         try {
             executionService.getVariables(th.getAuthorizedPerformerUser(), -1l);

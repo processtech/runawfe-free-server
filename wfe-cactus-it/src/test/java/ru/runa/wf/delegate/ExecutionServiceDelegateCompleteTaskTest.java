@@ -131,15 +131,6 @@ public class ExecutionServiceDelegateCompleteTaskTest extends ServletTestCase {
         }
     }
 
-    public void testCompleteTaskByNullSubject() throws Exception {
-        initTask();
-        try {
-            th.getTaskService().completeTask(null, task.getId(), legalVariables, null);
-            fail("testCompleteTaskByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testCompleteTaskByFakeSubject() throws Exception {
         initTask();
         try {

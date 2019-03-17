@@ -108,12 +108,12 @@ public class MultiInstanceTest extends ServletTestCase {
             assertEquals(descriminatorValue + "_rw", (String) executionService.getVariable(user, task.getProcessId(), "d_rw").getValue());
             th.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>(), null);
         }
-        ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"), (List<?>) executionService.getVariable(user, processId, "discriminator")
-                .getValue());
+        ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"),
+                (List<?>) executionService.getVariable(user, processId, "discriminator").getValue());
         ArrayAssert.assertEqualArrays(Lists.newArrayList("d1_r", "d2_r", "d3_r"),
                 (List<?>) executionService.getVariable(user, processId, "discriminator_r").getValue());
-        ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"), (List<?>) executionService
-                .getVariable(user, processId, "discriminator_w").getValue());
+        ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"),
+                (List<?>) executionService.getVariable(user, processId, "discriminator_w").getValue());
         ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"),
                 (List<?>) executionService.getVariable(user, processId, "discriminator_rw").getValue());
     }
@@ -136,8 +136,8 @@ public class MultiInstanceTest extends ServletTestCase {
                 (List<?>) executionService.getVariable(user, processId, "discriminator").getValue());
         ArrayAssert.assertEqualArrays("", Lists.newArrayList("d1_r", "d2_r", "d3_r"),
                 (List<?>) executionService.getVariable(user, processId, "discriminator_r").getValue());
-        ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"), (List<?>) executionService
-                .getVariable(user, processId, "discriminator_w").getValue());
+        ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"),
+                (List<?>) executionService.getVariable(user, processId, "discriminator_w").getValue());
         ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"),
                 (List<?>) executionService.getVariable(user, processId, "discriminator_rw").getValue());
     }
@@ -151,28 +151,6 @@ public class MultiInstanceTest extends ServletTestCase {
         System.out.println("multiinstancesubprocesses=" + executionService.getSubprocesses(user, processId, true));
         assertTrue(executionService.getProcess(user, processId).isEnded());
     }
-
-    // public void testNullDiscriminator2() throws Exception {
-    // User user = th.getAdminUser();
-    // Map<String, Object> variables = new HashMap<String, Object>();
-    // variables.put("discriminator", new String[] {});
-    // variables.put("discriminator_r", new String[] {});
-    // if (SystemProperties.isV3CompatibilityMode()) {
-    // Long processId = executionService.startProcess(user,
-    // "multiinstance superprocess", variables);
-    // System.out.println("multiinstancesubprocesses=" +
-    // executionService.getSubprocessesRecursive(user, processId));
-    // assertTrue(executionService.getProcess(user, processId).isEnded());
-    // } else {
-    // try {
-    // executionService.startProcess(user, "multiinstance superprocess",
-    // variables);
-    // fail("No exception on null discriminator");
-    // } catch (RuntimeException e) {
-    // Assert.assertEquals("discriminatorValue == null", e.getMessage());
-    // }
-    // }
-    // }
 
     public void testManySubprocessInToken() throws Exception {
         User user = th.getAdminUser();
@@ -310,8 +288,8 @@ public class MultiInstanceTest extends ServletTestCase {
                 (List<?>) executionService.getVariable(user, processId, "discriminator").getValue());
         ArrayAssert.assertEqualArrays("", Lists.newArrayList("d1_r", "d2_r", "d3_r"),
                 (List<?>) executionService.getVariable(user, processId, "discriminator_r").getValue());
-        ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"), (List<?>) executionService
-                .getVariable(user, processId, "discriminator_w").getValue());
+        ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"),
+                (List<?>) executionService.getVariable(user, processId, "discriminator_w").getValue());
         ArrayAssert.assertEqualArrays(Lists.newArrayList("d1", "d2", "d3"),
                 (List<?>) executionService.getVariable(user, processId, "discriminator_rw").getValue());
     }

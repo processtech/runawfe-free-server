@@ -77,7 +77,8 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
 
         {
             Collection<Permission> perm = Lists.newArrayList(Permission.LOGIN);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutedActor.getId(), perm, SecuredSingleton.EXECUTORS);
+            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutedActor.getId(), perm,
+                    SecuredSingleton.EXECUTORS);
             testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutor.getId(), perm, SecuredSingleton.EXECUTORS);
             testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutor2.getId(), perm, SecuredSingleton.EXECUTORS);
         }

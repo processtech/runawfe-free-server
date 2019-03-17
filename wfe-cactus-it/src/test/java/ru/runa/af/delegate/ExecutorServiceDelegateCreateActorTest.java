@@ -101,24 +101,6 @@ public class ExecutorServiceDelegateCreateActorTest extends ServletTestCase {
         assertEquals("Returned actor differes with created one", actor, returnedActor);
     }
 
-    public void testCreateNullExecutorByAuthorizedPerformer() throws Exception {
-        try {
-            executorService.create(th.getAuthorizedPerformerUser(), (Actor) null);
-            fail("null executor created");
-        } catch (IllegalArgumentException e) {
-            // This is supposed result of operation
-        }
-    }
-
-    public void testCreateExecutorWithNullUser() throws Exception {
-        try {
-            executorService.create(null, actor);
-            fail("executor with null subject created");
-        } catch (IllegalArgumentException e) {
-            // This is supposed result of operation
-        }
-    }
-
     public void testCreateExecutorWithFakeSubject() throws Exception {
         try {
             executorService.create(th.getFakeUser(), actor);

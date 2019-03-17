@@ -25,8 +25,8 @@ public class WfScriptServiceTestHelper extends WfServiceTestHelper {
         super(testClassPrefixName);
     }
 
-    public boolean isAllowedToExecutor(SecuredObject securedObject, Executor executor, Permission permission) throws ExecutorDoesNotExistException,
-            InternalApplicationException {
+    public boolean isAllowedToExecutor(SecuredObject securedObject, Executor executor, Permission permission)
+            throws ExecutorDoesNotExistException, InternalApplicationException {
         Collection<Permission> permissions = authorizationService.getIssuedPermissions(adminUser, executor, securedObject);
         return permissions.contains(permission);
     }
@@ -38,15 +38,6 @@ public class WfScriptServiceTestHelper extends WfServiceTestHelper {
     }
 
     public boolean areExecutorsWeaklyEqual(Executor e1, Executor e2) {
-        /*
-         * if (ApplicationContextFactory.getDBType() == DBType.ORACLE) { if (e1 == null || e2 == null) { return false; } if
-         * (!e1.getName().equals(e2.getName())) { return false; } if (!Objects.equal(e1.getDescription(), e2.getDescription())) { if
-         * (e1.getDescription() == null || e2.getDescription() == null) { return false; } if (!Objects.equal(e1.getDescription().trim(),
-         * e2.getDescription().trim())) { return false; } } if ((e1 instanceof Actor) && (e2 instanceof Actor)) { Actor a1 = (Actor) e1; Actor a2 =
-         * (Actor) e2; if (!a1.getFullName().trim().equals(a2.getFullName().trim())) { return false; } }
-         * 
-         * return true; }
-         */
         if (e1 == null || e2 == null) {
             return false;
         }
@@ -67,15 +58,15 @@ public class WfScriptServiceTestHelper extends WfServiceTestHelper {
 
     }
 
-    public void executeScript(String resourceName) throws IOException, ExecutorDoesNotExistException, AuthenticationException, AuthorizationException {
-        Delegates.getScriptingService().executeAdminScript(adminUser, readBytesFromFile(resourceName), Maps.<String, byte[]> newHashMap());
+    public void executeScript(String resourceName)
+            throws IOException, ExecutorDoesNotExistException, AuthenticationException, AuthorizationException {
+        Delegates.getScriptingService().executeAdminScript(adminUser, readBytesFromFile(resourceName), Maps.<String, byte[]>newHashMap());
     }
 
     public WfProcess startProcessInstance(String processDefinitionName, Executor performer) throws InternalApplicationException {
-        Collection<Permission> validPermissions = Lists.newArrayList(Permission.START, Permission.READ,
-            Permission.READ_PROCESS);
+        Collection<Permission> validPermissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
         getAuthorizationService().setPermissions(adminUser, performer.getId(), validPermissions,
-            getDefinitionService().getLatestProcessDefinition(adminUser, processDefinitionName));
+                getDefinitionService().getLatestProcessDefinition(adminUser, processDefinitionName));
         getExecutionService().startProcess(adminUser, processDefinitionName, null);
         return getExecutionService().getProcesses(adminUser, getProcessInstanceBatchPresentation()).get(0);
     }

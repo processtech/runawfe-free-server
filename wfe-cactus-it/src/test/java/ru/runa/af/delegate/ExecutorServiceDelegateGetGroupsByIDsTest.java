@@ -67,7 +67,7 @@ public class ExecutorServiceDelegateGetGroupsByIDsTest extends ServletTestCase {
             th.getExecutors(th.getUnauthorizedPerformerUser(), additionalGroupsIDs);
             assertTrue("businessDelegate allow to getGroups() with UnauthorizedPerformerSubject", false);
         } catch (AuthorizationException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 
@@ -77,16 +77,7 @@ public class ExecutorServiceDelegateGetGroupsByIDsTest extends ServletTestCase {
             th.getExecutors(th.getAuthorizedPerformerUser(), additionalGroupsIDs);
             assertTrue("businessDelegate does not throw Exception to getGroups() for unexisting groups", false);
         } catch (ExecutorDoesNotExistException e) {
-            //That's what we expect
-        }
-    }
-
-    public void testGetGroupByNullPerformer() throws Exception {
-        try {
-            th.getExecutors(null, additionalGroupsIDs);
-            assertTrue("businessDelegate allow to getGroups() to performer with null subject.", false);
-        } catch (IllegalArgumentException e) {
-            //That's what we expect 
+            // That's what we expect
         }
     }
 
@@ -102,7 +93,7 @@ public class ExecutorServiceDelegateGetGroupsByIDsTest extends ServletTestCase {
             List<Actor> actors = th.<Actor>getExecutors(th.getAuthorizedPerformerUser(), additionalGroupsIDs);
             // TODO assertTrue("businessDelegate allow to getGroup() where the actor really is returned.", false);
         } catch (ExecutorDoesNotExistException e) {
-            //That's what we expect
+            // That's what we expect
             fail("TODO trap");
         }
     }

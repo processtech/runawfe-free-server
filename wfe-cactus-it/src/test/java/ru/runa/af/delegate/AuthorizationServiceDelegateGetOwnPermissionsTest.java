@@ -44,11 +44,10 @@ public class AuthorizationServiceDelegateGetOwnPermissionsTest extends ServletTe
     protected void setUp() throws Exception {
         helper = new ServiceTestHelper(AuthorizationServiceDelegateGetOwnPermissionsTest.class.getName());
         helper.createDefaultExecutorsMap();
-
         Collection<Permission> executorP = Lists.newArrayList(Permission.UPDATE);
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
-
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.LIST));
         authorizationService = Delegates.getAuthorizationService();
         super.setUp();
     }
@@ -60,51 +59,11 @@ public class AuthorizationServiceDelegateGetOwnPermissionsTest extends ServletTe
         super.tearDown();
     }
 
-    public void testGetOwnPermissionsNullSubject() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(null, helper.getBaseGroupActor(), helper.getBaseGroupActor());
-            fail("AuthorizationDelegate.getIssuedPermissions() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetOwnPermissionsFakeSubject() throws Exception {
         try {
             authorizationService.getIssuedPermissions(helper.getFakeUser(), helper.getBaseGroupActor(), helper.getBaseGroupActor());
             fail("AuthorizationDelegate.getIssuedPermissions() allows fake subject");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetOwnPermissionsNullExecutor() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), null, helper.getBaseGroupActor());
-            fail("AuthorizationDelegate.getIssuedPermissions() allows null executor");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testGetOwnPermissionsFakeExecutor() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getFakeActor(), helper.getBaseGroupActor());
-            fail("AuthorizationDelegate.getIssuedPermissions() allows fake executor");
-        } catch (AuthorizationException e) {
-        }
-    }
-
-    public void testGetOwnPermissionsNullSecuredObject() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(), null);
-            fail("AuthorizationDelegate.getIssuedPermissions() allows null SecuredObject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testGetOwnPermissionsFakeSecuredObject() throws Exception {
-        try {
-            authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(), helper.getFakeActor());
-            fail("AuthorizationDelegate.getIssuedPermissions() allows fake SecuredObject");
-        } catch (InternalApplicationException e) {
         }
     }
 

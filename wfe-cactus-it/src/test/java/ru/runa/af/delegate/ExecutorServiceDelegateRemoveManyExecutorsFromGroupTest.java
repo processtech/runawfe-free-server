@@ -69,7 +69,7 @@ public class ExecutorServiceDelegateRemoveManyExecutorsFromGroupTest extends Ser
         additionalActors = th.createActorArray("additionalMixed", "Additional Mixed");
 
         th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
-        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additionalActors);
+        th.setPermissionsToAuthorizedPerformerOnExecutorsList(updatePermissions, additionalActors);
 
         executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), th.toIds(additionalActors), additionalGroup.getId());
 
@@ -102,40 +102,6 @@ public class ExecutorServiceDelegateRemoveManyExecutorsFromGroupTest extends Ser
             executorService.removeExecutorsFromGroup(th.getUnauthorizedPerformerUser(), th.toIds(executors), getAdditionalGroup().getId());
             fail("Executors is removed from group ByUnAuthorizedPerformer");
         } catch (AuthorizationException e) {
-            // this is supposed result
-        }
-    }
-
-    public void testRemoveFakeActor() throws Exception {
-        th.setPermissionsToAuthorizedPerformer(updatePermissions, getAdditionalGroup());
-        List<Executor> executors = th.getFakeExecutors();
-        try {
-            executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), th.toIds(executors), getAdditionalGroup().getId());
-            fail("FakeExecutors removed from group ");
-        } catch (IllegalArgumentException e) {
-            // TDOO
-        } catch (ExecutorDoesNotExistException e) {
-            // this is supposed result
-            fail("TODO trap");
-        }
-    }
-
-    public void testRemoveNullExecutor() throws Exception {
-        th.setPermissionsToAuthorizedPerformer(updatePermissions, getAdditionalGroup());
-        List<Long> executors = Lists.newArrayList(null, null, null);
-        try {
-            executorService.removeExecutorsFromGroup(th.getAuthorizedPerformerUser(), executors, getAdditionalGroup().getId());
-            fail("NullExecutors removed from group ");
-        } catch (IllegalArgumentException e) {
-            // this is supposed result
-        }
-    }
-
-    public void testRemoveExecutorsWithNullSubject() throws Exception {
-        try {
-            executorService.removeExecutorsFromGroup(null, th.toIds(getAdditionalActors()), getAdditionalGroup().getId());
-            fail("Executors removed from group with null subject");
-        } catch (IllegalArgumentException e) {
             // this is supposed result
         }
     }

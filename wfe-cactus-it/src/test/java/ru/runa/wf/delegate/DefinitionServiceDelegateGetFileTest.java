@@ -81,14 +81,6 @@ public class DefinitionServiceDelegateGetFileTest extends ServletTestCase {
      * assertTrue("testGetFileTestByUnauthorizedSubject , no AuthorizationException" , false); } catch (AuthorizationException e) { } }
      */
 
-    public void testGetFileTestByNullUser() throws Exception {
-        try {
-            definitionService.getProcessDefinitionFile(null, definitionId, VALID_FILE_NAME);
-            assertTrue("testGetFormTestByNullSubject , no IllegalArgumentException", false);
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetFileTestByFakeSubject() throws Exception {
         try {
             definitionService.getProcessDefinitionFile(helper.getFakeUser(), definitionId, VALID_FILE_NAME);

@@ -55,9 +55,7 @@ public class OrganizationFunctionParserTest extends ServletTestCase {
 
         th.deployValidProcessDefinition(PROCESS_PATH);
 
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(
-                Lists.newArrayList(Permission.START),
-                PROCESS_NAME);
+        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(Lists.newArrayList(Permission.START), PROCESS_NAME);
 
         legalVariables = new HashMap<String, Object>();
         legalVariables.put("approved", "true");

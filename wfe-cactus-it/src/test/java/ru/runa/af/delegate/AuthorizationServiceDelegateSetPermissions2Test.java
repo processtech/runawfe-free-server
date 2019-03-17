@@ -54,7 +54,7 @@ public class AuthorizationServiceDelegateSetPermissions2Test extends ServletTest
     protected void setUp() throws Exception {
         helper = new ServiceTestHelper(AuthorizationServiceDelegateSetPermissionsTest.class.getName());
         helper.createDefaultExecutorsMap();
-        
+
         Collection<Permission> executorsP = Lists.newArrayList(Permission.UPDATE);
         helper.setPermissionsToAuthorizedPerformerOnExecutors(executorsP);
 
@@ -76,57 +76,11 @@ public class AuthorizationServiceDelegateSetPermissions2Test extends ServletTest
         super.tearDown();
     }
 
-    public void testSetPermissionsNullUser() throws Exception {
-        try {
-            authorizationService.setPermissions(null, legalActorIds, legalPermissions, SecuredSingleton.EXECUTORS);
-            fail("AuthorizationDelegate.setPermission allows Null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testSetPermissionsFakeSubject() throws Exception {
         try {
             authorizationService.setPermissions(helper.getFakeUser(), legalActorIds, legalPermissions, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermission allows Fake subject");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testSetPermissionsFakeExecutor() throws Exception {
-        try {
-            List<Long> fakedActorIds = Lists.newArrayList(0L, 0L, 0L);
-            List<Collection<Permission>> permissions = Lists.newArrayList();
-            for (int i = 0; i < fakedActorIds.size(); i++) {
-                permissions.add(Lists.newArrayList(Permission.READ, Permission.UPDATE));
-            }
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), fakedActorIds, permissions, SecuredSingleton.EXECUTORS);
-            fail("AuthorizationDelegate.setPermission allows Fake executor");
-        } catch (ExecutorDoesNotExistException e) {
-        }
-    }
-
-    public void testSetPermissionsNullExecutor() throws Exception {
-        try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), null, legalPermissions, SecuredSingleton.EXECUTORS);
-            fail("AuthorizationDelegate.setPermission allows Fake executor");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testSetPermissionsNullPermissions() throws Exception {
-        try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), legalActorIds, (List<Collection<Permission>>) null,
-                    SecuredSingleton.EXECUTORS);
-            fail("AuthorizationDelegate.setPermission allows Null permissions");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testSetPermissionsNullSecuredObject() throws Exception {
-        try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), legalActorIds, legalPermissions, null);
-            fail("AuthorizationDelegate.setPermission allows Null SecuredObject");
-        } catch (IllegalArgumentException e) {
         }
     }
 

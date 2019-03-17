@@ -64,7 +64,7 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
         helper.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.UPDATE));
-        
+
         Collection<Permission> executorPermission = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformer(executorPermission, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorPermission, helper.getSubGroupActor());
@@ -96,14 +96,6 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
             executionService.startProcess(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
             fail("testStartProcessInstanceWithMapByFakeSubject(), no AuthenticationException");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testStartProcessInstanceWithMapByNullSubject() throws Exception {
-        try {
-            executionService.startProcess(null, WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
-            fail("testStartProcessInstanceWithMapByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
         }
     }
 

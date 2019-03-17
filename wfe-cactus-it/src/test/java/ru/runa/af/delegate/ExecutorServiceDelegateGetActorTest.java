@@ -92,24 +92,6 @@ public class ExecutorServiceDelegateGetActorTest extends ServletTestCase {
         }
     }
 
-    public void testGetNullActorByAuthorizedPerformer() throws Exception {
-        try {
-            executorService.getExecutorByName(th.getAuthorizedPerformerUser(), null);
-            fail("businessDelegate allow to getExecutorByName() with null actor.");
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
-    public void testGetExecutorByNameByNullPerformer() throws Exception {
-        try {
-            executorService.getExecutorByName(null, testPrefix + ServiceTestHelper.BASE_GROUP_ACTOR_NAME);
-            fail("businessDelegate allow to getExecutorByName() to performer with null subject.");
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
     public void testGetExecutorByNameInsteadOfGroup() throws Exception {
         try {
             Actor actor = executorService.<Actor>getExecutorByName(th.getAuthorizedPerformerUser(), testPrefix + ServiceTestHelper.BASE_GROUP_NAME);

@@ -99,15 +99,6 @@ public class ExecutorServiceDelegateGetGroupsInThatExecutorNotPresentTest extend
         }
     }
 
-    public void testGetExecutorGroupsWithNullSubject() throws Exception {
-        try {
-            executorService.getExecutorGroups(null, actor, th.getExecutorBatchPresentation(), true);
-            assertTrue("getExecutorsInThatExecutorNotPresentwithNullSubject no Exception", false);
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
     public void testGetExecutorGroupsWithoutPermission() throws Exception {
         try {
             List<Permission> noPermissions = Lists.newArrayList();

@@ -91,19 +91,9 @@ public class ExecutorServiceDelegateGetGroupChildrenTest extends ServletTestCase
         }
     }
 
-    public void testGetExecutorGroupsWithNullSubject() throws Exception {
-        try {
-            executorService.getGroupChildren(null, group, th.getExecutorBatchPresentation(), false);
-            fail("GetGroupChildrenwithNullSubject no Exception");
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
     public void testGetExecutorGroupsWithoutPermission() throws Exception {
         try {
-            Collection<Permission> readPermissions = Lists.newArrayList(Permission.READ);
-            th.setPermissionsToAuthorizedPerformer(readPermissions, group);
+            th.setPermissionsToAuthorizedPerformer(Lists.newArrayList(), group);
             executorService.getGroupChildren(th.getAuthorizedPerformerUser(), group, th.getExecutorBatchPresentation(), false);
             fail("testGetGroupChildrenwithoutPermission no Exception");
         } catch (AuthorizationException e) {

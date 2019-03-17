@@ -82,14 +82,6 @@ public class ExecutionServiceDelegateStartProcessInstanceTest extends ServletTes
         }
     }
 
-    public void testStartProcessInstanceByNullSubject() throws Exception {
-        try {
-            executionService.startProcess(null, WfServiceTestHelper.VALID_PROCESS_NAME, null);
-            fail("testStartProcessInstanceByNullSubject, no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testStartProcessInstanceByFakeSubject() throws Exception {
         try {
             executionService.startProcess(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);

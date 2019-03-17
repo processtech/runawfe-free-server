@@ -53,19 +53,17 @@ public class AuthorizationServiceDelegateGetExecutorsWithPermissionTest extends 
         helper = new ServiceTestHelper(AuthorizationServiceDelegateGetExecutorsWithPermissionTest.class.getName());
         helper.createDefaultExecutorsMap();
 
-        Collection<Permission> systemP = Lists.newArrayList(Permission.LIST);
-        helper.setPermissionsToAuthorizedPerformerOnExecutors(systemP);
-        
         Collection<Permission> executorP = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
 
         authorizationService = Delegates.getAuthorizationService();
         batchPresentation = helper.getExecutorBatchPresentation();
-        
+
         authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroupActor().getId(), executorP, helper.getBaseGroupActor());
-        authorizationService.setPermissions(helper.getAdminUser(), helper.getAuthorizedPerformerActor().getId(), executorP, helper.getAuthorizedPerformerActor());
-        
+        authorizationService.setPermissions(helper.getAdminUser(), helper.getAuthorizedPerformerActor().getId(), executorP,
+                helper.getAuthorizedPerformerActor());
+
         super.setUp();
     }
 
@@ -77,27 +75,11 @@ public class AuthorizationServiceDelegateGetExecutorsWithPermissionTest extends 
         super.tearDown();
     }
 
-    public void testGetExecutorsWithPermissionNullUser() throws Exception {
-        try {
-            authorizationService.getExecutorsWithPermission(null, SecuredSingleton.EXECUTORS, batchPresentation, true);
-            fail("AuthorizationDelegate.getExecutorsWithPermission() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetExecutorsWithPermissionFakeSubject() throws Exception {
         try {
             authorizationService.getExecutorsWithPermission(helper.getFakeUser(), SecuredSingleton.EXECUTORS, batchPresentation, true);
             fail("AuthorizationDelegate.getExecutorsWithPermission() allows fake subject");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetExecutorsWithPermissionNullSecuredObject() throws Exception {
-        try {
-            authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), null, batchPresentation, true);
-            fail("AuthorizationDelegate.getExecutorsWithPermission() allows null SecuredObject");
-        } catch (IllegalArgumentException e) {
         }
     }
 

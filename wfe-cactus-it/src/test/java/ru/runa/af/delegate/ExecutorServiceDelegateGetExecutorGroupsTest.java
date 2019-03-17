@@ -128,15 +128,6 @@ public class ExecutorServiceDelegateGetExecutorGroupsTest extends ServletTestCas
         }
     }
 
-    public void testGetExecutorGroupsWithNullSubject() throws Exception {
-        try {
-            executorService.getExecutorGroups(null, actor, th.getExecutorBatchPresentation(), false);
-            fail("GetExecutorGroupswithNullSubject no Exception");
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
     public void testGetExecutorGroupsWithFakeSubject() throws Exception {
         try {
             User fakeUser = th.getFakeUser();

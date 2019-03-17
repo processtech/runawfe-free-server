@@ -63,54 +63,11 @@ public class AuthorizationServiceDelegateSetPermissionsTest extends ServletTestC
         super.tearDown();
     }
 
-    public void testSetPermissionsNullUser() throws Exception {
-        try {
-            authorizationService.setPermissions(null, helper.getBaseGroupActor().getId(), p, SecuredSingleton.EXECUTORS);
-            fail("AuthorizationDelegate.setPermissions() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testSetPermissionsFakeSubject() throws Exception {
         try {
             authorizationService.setPermissions(helper.getFakeUser(), helper.getBaseGroupActor().getId(), p, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.setPermissions() allows fake subject");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testSetPermissionsFakeExecutor() throws Exception {
-        try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getFakeActor().getId(), p, SecuredSingleton.EXECUTORS);
-            fail("AuthorizationDelegate.setPermissions() allows null executor");
-        } catch (AuthorizationException e) {
-        } catch (ExecutorDoesNotExistException e) {
-            fail("TODO trap");
-        }
-    }
-
-    public void testSetPermissionsNullPermissions() throws Exception {
-        try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), null,
-                    SecuredSingleton.EXECUTORS);
-            fail("AuthorizationDelegate.setPermissions() allows null permissions");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testSetPermissionsNullSecuredObject() throws Exception {
-        try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, null);
-            fail("AuthorizationDelegate.setPermissions() allows null SecuredObject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testSetPermissionsFakeSecuredObject() throws Exception {
-        try {
-            authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, helper.getFakeActor());
-            fail("AuthorizationDelegate.setPermissions() allows null SecuredObject");
-        } catch (InternalApplicationException e) {
         }
     }
 

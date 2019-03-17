@@ -64,43 +64,11 @@ public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends Servl
         super.tearDown();
     }
 
-    public void testIsAllowedNullUser() throws Exception {
-        try {
-            authorizationService.isAllowed(null, Permission.READ, Lists.newArrayList(SecuredSingleton.EXECUTORS));
-            fail("AuthorizationDelegate.isAllowed() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testIsAllowedFakeSubject() throws Exception {
         try {
             authorizationService.isAllowed(helper.getFakeUser(), Permission.READ, Lists.newArrayList(SecuredSingleton.EXECUTORS));
             fail("AuthorizationDelegate.isAllowed() allows fake subject");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testIsAllowedPermissionSubject() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), null, Lists.newArrayList(SecuredSingleton.EXECUTORS));
-            fail("AuthorizationDelegate.isAllowed() allows null permission");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testIsAllowedNullSecuredObject() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, (List<SecuredObject>) null);
-            fail("AuthorizationDelegate.isAllowed() allows null SecuredObject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testIsAllowedNullSecuredObjects() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, Lists.newArrayList((SecuredObject) null, null));
-            fail("AuthorizationDelegate.isAllowed() allows null SecuredObject");
-        } catch (IllegalArgumentException e) {
         }
     }
 
@@ -156,9 +124,9 @@ public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends Servl
         try {
             authorizationService.isAllowed(helper.getUnauthorizedPerformerUser(), Permission.READ,
                     Lists.newArrayList(SecuredSingleton.EXECUTORS, helper.getBaseGroupActor(), helper.getBaseGroup()));
-            fail("no error");
+            fail("No Exception: Secured objects should be of the same secured object type (EXECUTORS)");
         } catch (InternalApplicationException e) {
-            assertEquals("SecuredObjects should be of the same secured object type (SYSTEM)", e.getMessage());
+            assertEquals("Secured objects should be of the same secured object type (EXECUTORS)", e.getMessage());
         }
     }
 

@@ -25,6 +25,7 @@ import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.SystemLog;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
@@ -35,6 +36,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 
 import com.google.common.collect.Lists;
+import com.itextpdf.text.log.SysoLogger;
 
 /**
  * Created on 20.08.2004
@@ -49,9 +51,6 @@ public class AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest exten
     protected void setUp() throws Exception {
         helper = new ServiceTestHelper(AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest.class.getName());
         helper.createDefaultExecutorsMap();
-
-        Collection<Permission> systemP = Lists.newArrayList(Permission.LIST);
-        helper.setPermissionsToAuthorizedPerformerOnExecutors(systemP);
 
         Collection<Permission> executorP = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
@@ -69,27 +68,11 @@ public class AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest exten
         super.tearDown();
     }
 
-    public void testGetExecutorsWithoutPermissionNullUser() throws Exception {
-        try {
-            authorizationService.getExecutorsWithPermission(null, SecuredSingleton.EXECUTORS, helper.getExecutorBatchPresentation(), false);
-            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetExecutorsWithoutPermissionFakeSubject() throws Exception {
         try {
             authorizationService.getExecutorsWithPermission(helper.getFakeUser(), SecuredSingleton.EXECUTORS, helper.getExecutorBatchPresentation(), false);
             fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows fake subject");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetExecutorsWithoutPermissionNullSecuredObject() throws Exception {
-        try {
-            authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), null, helper.getExecutorBatchPresentation(), false);
-            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows null SecuredObject");
-        } catch (IllegalArgumentException e) {
         }
     }
 

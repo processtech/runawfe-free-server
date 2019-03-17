@@ -109,15 +109,6 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         definitionService.getTaskNodeInteraction(th.getUnauthorizedPerformerUser(), task.getDefinitionId(), task.getNodeId());
     }
 
-    public void testGetFormTestByNullUser() throws Exception {
-        initTaskData();
-        try {
-            definitionService.getTaskNodeInteraction(null, task.getDefinitionId(), task.getNodeId());
-            fail("testGetFormTestByNullSubject , no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetFormTestByFakeSubject() throws Exception {
         initTaskData();
         try {

@@ -43,8 +43,7 @@ import ru.runa.wfe.validation.ValidationException;
 import com.google.common.collect.Lists;
 
 /**
- * This test class is to check concurrent work of 2 users concerning
- * "Assign task" function.<br />
+ * This test class is to check concurrent work of 2 users concerning "Assign task" function.<br />
  * It does not take into account substitution logic.
  * 
  * @see ExecutionServiceDelegateSubstitutionAssignTaskTest

@@ -52,14 +52,6 @@ public class AASystemServiceDelegateLoginTest extends ServletTestCase {
         super.setUp();
     }
 
-    public void testLoginWithNullUser() throws Exception {
-        try {
-            systemService.login(null);
-            fail("SystemServiceDelegate does not throw IllegalArgumentException on login(null) call.");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testLoginWithUnauthorizedPerformer() throws Exception {
         try {
             systemService.login(th.getUnauthorizedPerformerUser());

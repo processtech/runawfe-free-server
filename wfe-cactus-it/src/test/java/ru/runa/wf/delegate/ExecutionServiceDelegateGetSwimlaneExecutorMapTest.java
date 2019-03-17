@@ -94,14 +94,6 @@ public class ExecutionServiceDelegateGetSwimlaneExecutorMapTest extends ServletT
         }
     }
 
-    public void testGetSwimlaneExecutorMapByNullSubject() throws Exception {
-        try {
-            th.getTaskService().getProcessTasks(null, instanceId, true);
-            fail("testGetSwimlaneExecutorMapByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetSwimlaneExecutorMapByAuthorizedSubjectWithInvalidProcessId() throws Exception {
         try {
             th.getTaskService().getProcessTasks(th.getAuthorizedPerformerUser(), -1l, true);
