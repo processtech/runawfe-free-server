@@ -15,9 +15,7 @@ import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.User;
 
 import com.google.common.collect.Lists;
@@ -42,14 +40,13 @@ public class ExecutorServiceDelegateGetGroupChildrenTest extends ServletTestCase
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
         th.createDefaultExecutorsMap();
-        Collection<Permission> readUpdateListPermissions = Lists.newArrayList(Permission.READ, ExecutorPermission.UPDATE, GroupPermission.LIST_GROUP);
         Collection<Permission> readPermissions = Lists.newArrayList(Permission.READ);
         executorsMap = th.getDefaultExecutorsMap();
 
         actor = (Actor) executorsMap.get(ServiceTestHelper.BASE_GROUP_ACTOR_NAME);
         th.setPermissionsToAuthorizedPerformer(readPermissions, actor);
         group = (Group) executorsMap.get(ServiceTestHelper.BASE_GROUP_NAME);
-        th.setPermissionsToAuthorizedPerformer(readUpdateListPermissions, group);
+        th.setPermissionsToAuthorizedPerformer(readPermissions, group);
         subGroup = (Group) executorsMap.get(ServiceTestHelper.SUB_GROUP_NAME);
         th.setPermissionsToAuthorizedPerformer(readPermissions, subGroup);
 
@@ -76,19 +73,9 @@ public class ExecutorServiceDelegateGetGroupChildrenTest extends ServletTestCase
         }
     }
 
-    public void testGetExecutorGroupsWithNullSubject() throws Exception {
-        try {
-            executorService.getGroupChildren(null, group, th.getExecutorBatchPresentation(), false);
-            fail("GetGroupChildrenwithNullSubject no Exception");
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
-    }
-
     public void testGetExecutorGroupsWithoutPermission() throws Exception {
         try {
-            Collection<Permission> readPermissions = Lists.newArrayList(Permission.READ);
-            th.setPermissionsToAuthorizedPerformer(readPermissions, group);
+            th.setPermissionsToAuthorizedPerformer(Lists.newArrayList(), group);
             executorService.getGroupChildren(th.getAuthorizedPerformerUser(), group, th.getExecutorBatchPresentation(), false);
             fail("testGetGroupChildrenwithoutPermission no Exception");
         } catch (AuthorizationException e) {

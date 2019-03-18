@@ -1,5 +1,8 @@
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -7,18 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.cactus.ServletTestCase;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import junit.framework.Assert;
+import org.apache.cactus.ServletTestCase;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
@@ -46,7 +42,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
         th = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
         th.deployValidProcessDefinition(WfServiceTestHelper.LONG_WITH_VARIABLES_PROCESS_FILE_NAME);
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.LONG_WITH_VARIABLES_PROCESS_NAME);
         for (Stage stage : Stage.values()) {
             stage.DoStageAction(this);
@@ -172,7 +168,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varListString", Lists.newArrayList("str1", "str2"));
                 changedVariables.put("varString", "123");
                 HashMap<UserTypeMap, UserTypeMap> map = Maps.newHashMap();
-                map.put(createUserTypeK(testInstance,199L,"str22"), createUserType(testInstance, 1L, null, Lists.newArrayList("123", "@34"), null));
+                map.put(createUserTypeK(testInstance, 199L, "str22"), createUserType(testInstance, 1L, null, Lists.newArrayList("123", "@34"), null));
                 changedVariables.put("varMapStringUT", map);
                 simpleVariablesChanged.add("varLong");
                 simpleVariablesChanged.add("varListString[0]");
@@ -279,6 +275,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varMapStringUT", null);
                 simpleVariablesChanged.add("varLong");
                 simpleVariablesChanged.add("varString");
+
                 simpleVariablesChanged.add("varListUT[0].fieldLong");
                 simpleVariablesChanged.add("varListUT[0].fieldListString.size");
                 simpleVariablesChanged.add("varListUT[0].fieldListString[0]");
@@ -332,7 +329,8 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varLong", 8L);
                 changedVariables.put("varListUT", null);
                 HashMap<UserTypeMap, UserTypeMap> map = Maps.newHashMap();
-                map.put(createUserTypeK(testInstance,198L,"str44"), createUserType(testInstance, 1L, null, Lists.newArrayList("123", "4@34"), null));
+                map.put(createUserTypeK(testInstance, 198L, "str44"),
+                        createUserType(testInstance, 1L, null, Lists.newArrayList("123", "4@34"), null));
                 changedVariables.put("varMapStringUT", map);
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
                 return taskStub.getId();
@@ -443,7 +441,8 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             return type;
         }
 
-        protected UserTypeMap createUserTypeK(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance, Long longVal, String str) throws Exception {
+        protected UserTypeMap createUserTypeK(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance, Long longVal, String str)
+                throws Exception {
             WfServiceTestHelper th2 = testInstance.th;
             User user = th2.getAuthorizedPerformerUser();
             WfProcess process = th2.getExecutionService().getProcess(user, testInstance.processId);

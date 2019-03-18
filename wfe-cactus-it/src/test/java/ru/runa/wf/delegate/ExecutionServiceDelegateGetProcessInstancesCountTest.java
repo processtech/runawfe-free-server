@@ -7,7 +7,6 @@ import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthenticationException;
@@ -34,7 +33,7 @@ public class ExecutionServiceDelegateGetProcessInstancesCountTest extends Servle
 
         helper.deployValidProcessDefinition();
 
-        Collection<Permission> startPermissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> startPermissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
         batchPresentation = helper.getProcessInstanceBatchPresentation();
         super.setUp();
@@ -75,14 +74,6 @@ public class ExecutionServiceDelegateGetProcessInstancesCountTest extends Servle
         }
     }
 
-    public void testGetProcessInstanceCountByNullSubject() throws Exception {
-        try {
-            executionService.getProcessesCount(null, batchPresentation);
-            fail("testGetAllProcessInstanceStubsByNullSubject, no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetProcessInstanceCountByAuthorizedSubjectWithoutREADPermission() throws Exception {
         int processesCount = executionService.getProcessesCount(helper.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("Incorrect processes array", 0, processesCount);
@@ -93,7 +84,7 @@ public class ExecutionServiceDelegateGetProcessInstancesCountTest extends Servle
 
         List<WfProcess> processInstanceStubs = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
 
-        Collection<Permission> nullPermissions = Permission.getNoPermissions();
+        Collection<Permission> nullPermissions = Lists.newArrayList();
         int withoutPermCount = processInstanceStubs.size() / 2;
         for (int i = 0; i < withoutPermCount; i++) {
             helper.setPermissionsToAuthorizedPerformerOnProcessInstance(nullPermissions, processInstanceStubs.get(i));

@@ -5,18 +5,14 @@ import junit.framework.TestSuite;
 
 import org.apache.cactus.ServletTestCase;
 
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
-import ru.runa.wfe.definition.WorkflowSystemPermission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wf.service.WfScriptServiceTestHelper;
 
 /**
@@ -78,273 +74,295 @@ public class WfeScriptServiceDelegateTest extends ServletTestCase {
 
     public void testCreateActorGroup() throws Exception {
 
-        //check if group and actor exist and remove if so
-        //		removeExecutorsIfExist();
+        // check if group and actor exist and remove if so
+        removeExecutorsIfExist();
 
-        //script with operations is parsed and executed here
+        // script with operations is parsed and executed here
         helper.executeScript(EXECUTOR_CREATE);
 
-        /** This checks are valid only for one paticular given script file. 
-         *  If this script file is edited the following test method must be changed 
-         *  in corresponding way
+        /**
+         * This checks are valid only for one paticular given script file. If this script file is edited the following test method must be changed in
+         * corresponding way
          */
         for (int i = 0; i < EXECUTORS.length; i++) {
             Executor actual = helper.getExecutor(EXECUTORS[i].getName());
             assertTrue("Executors creation name check" + actual.getName(), helper.areExecutorsWeaklyEqual(actual, EXECUTORS[i]));
-
         }
 
-        //check if password is correct
+        // check if password is correct
         assertTrue("Check if tin password is correct", helper.isPasswordCorrect(TIN_ACTOR.getName(), TIN_ACTOR_PASSWORD));
 
-        //check if actors are added to groups correctly
+        // check if actors are added to groups correctly
         Group employeeGroup = (Group) helper.getExecutor(EMPLOYEE_GROUP.getName());
         for (int i = 0; i < EMPLOYEE_GROUP_EXECUTORS.length; i++) {
             Executor actual = helper.getExecutor(EMPLOYEE_GROUP_EXECUTORS[i].getName());
-            assertTrue("Employee group membership check: " + actual.getName() + " is in " + employeeGroup.getName(), helper.isExecutorInGroup(actual,
-                    employeeGroup));
+            assertTrue("Employee group membership check: " + actual.getName() + " is in " + employeeGroup.getName(),
+                    helper.isExecutorInGroup(actual, employeeGroup));
         }
 
         Group bossGroup = (Group) helper.getExecutor(BOSS_GROUP.getName());
         for (int i = 0; i < BOSS_GROUP_EXECUTORS.length; i++) {
             Executor actual = helper.getExecutor(BOSS_GROUP_EXECUTORS[i].getName());
-            assertTrue("Boss group membership check: " + actual.getName() + " is in " + bossGroup.getName(), helper.isExecutorInGroup(actual,
-                    bossGroup));
+            assertTrue("Boss group membership check: " + actual.getName() + " is in " + bossGroup.getName(),
+                    helper.isExecutorInGroup(actual, bossGroup));
         }
 
     }
 
     public void testAddThenSetPermissions() throws Exception {
-        //check if group and actor exist and remove if so
-        //		removeExecutorsIfExist();
+        // check if group and actor exist and remove if so
+        removeExecutorsIfExist();
 
-        //script with operations is parsed and executed here
+        // script with operations is parsed and executed here
         helper.executeScript(ADD_SET);
 
-        /** This checks are valid only for one paticular given script file. 
-         *  If this script file is edited the following test method must be changed 
-         *  in corresponding way
+        /**
+         * This checks are valid only for one paticular given script file. If this script file is edited the following test method must be changed in
+         * corresponding way
          */
-        //executors are created by script		
+        // executors are created by script
         Executor toto = helper.getExecutor(TOTO_ACTOR.getName());
         Executor dorothy = helper.getExecutor(DOROTHY_ACTOR.getName());
         Executor employee = helper.getExecutor(EMPLOYEE_GROUP.getName());
         Executor tin = helper.getExecutor(TIN_ACTOR.getName());
 
-        //actor permissions on actors
-        assertFalse("Check if 'update_permissions' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy,
-                Permission.UPDATE_PERMISSIONS));
-
+        // actor permissions on actors
         assertTrue("Check if 'read' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy, Permission.READ));
 
-        assertFalse("Check if 'update_executor' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy,
-                ExecutorPermission.UPDATE));
+        assertFalse("Check if 'update' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy, Permission.UPDATE));
 
-        //actor permissions on groups
-        assertFalse("Check if 'list_group' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                GroupPermission.LIST_GROUP));
+        // actor permissions on groups
+        assertFalse("Check if 'list' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.LIST));
 
-        assertFalse("Check if 'add_to_group' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                GroupPermission.ADD_TO_GROUP));
+        assertFalse("Check if 'read' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.READ));
 
-        assertFalse("Check if 'remove_from_group' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                GroupPermission.REMOVE_FROM_GROUP));
+        assertFalse("Check if 'view_tasks' permission is given to dorothy on employee",
+                helper.isAllowedToExecutor(employee, dorothy, Permission.VIEW_TASKS));
 
-        assertTrue("Check if 'read' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, GroupPermission.READ));
+        assertTrue("Check if 'update' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.UPDATE));
 
-        assertTrue("Check if 'update_permissions' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                GroupPermission.UPDATE_PERMISSIONS));
+        assertTrue("Check if 'update_status' permission is given to dorothy on employee",
+                helper.isAllowedToExecutor(employee, dorothy, Permission.UPDATE_STATUS));
 
-        assertTrue("Check if 'update_executor' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                ExecutorPermission.UPDATE));
+        assertTrue("Check if 'delete' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.DELETE));
 
-        //group permission on groups
+        // group permission on groups
         assertTrue("Check if 'read' permission is given to employee on employee", helper.isAllowedToExecutor(employee, employee, Permission.READ));
 
-        assertFalse("Check if 'list_group' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee,
-                GroupPermission.LIST_GROUP));
+        assertFalse("Check if 'list' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee, Permission.LIST));
 
-        assertFalse("Check if 'add_to_group' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee,
-                GroupPermission.ADD_TO_GROUP));
+        assertFalse("Check if 'update' permission is given to employees on employee",
+                helper.isAllowedToExecutor(employee, employee, Permission.UPDATE));
 
-        assertFalse("Check if 'remove_from_group' permission is given to employee on employee", helper.isAllowedToExecutor(employee, employee,
-                GroupPermission.REMOVE_FROM_GROUP));
+        assertFalse("Check if 'delete' permission is given to employee on employee",
+                helper.isAllowedToExecutor(employee, employee, Permission.DELETE));
 
-        //group permission on actor
-        assertFalse("Check if 'update_permissions' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee,
-                Permission.UPDATE_PERMISSIONS));
+        // group permission on actor
+        assertFalse("Check if 'read' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee, Permission.READ));
 
-        assertTrue("Check if 'read' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee, Permission.READ));
+        assertTrue("Check if 'update' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee, Permission.UPDATE));
 
-        //group permission on system
-        assertTrue("Check if 'read' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.READ));
+        // group permission on Executors
+        assertTrue("Check if 'update' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.UPDATE));
 
-        assertTrue("Check if 'update_permissions' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.UPDATE_PERMISSIONS));
+        assertTrue("Check if 'create' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.CREATE));
 
-        assertFalse("Check if 'login_to_system' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.LOGIN_TO_SYSTEM));
+        assertFalse("Check if 'login' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.LOGIN));
 
-        assertTrue("Check if 'create_executor' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.CREATE_EXECUTOR));
+        // group permission on Definitions
+        assertFalse("Check if 'read' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.READ));
 
-        assertTrue("Check if 'deploy_definition' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                WorkflowSystemPermission.DEPLOY_DEFINITION));
+        assertFalse("Check if 'list' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.LIST));
 
+        assertTrue("Check if 'create' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.CREATE));
+
+        assertTrue("Check if 'update' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.UPDATE));
+
+        assertTrue("Check if 'start' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.START));
+
+        assertTrue("Check if 'read_process' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.READ_PROCESS));
+
+        assertTrue("Check if 'cancel_process' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.CANCEL_PROCESS));
     }
 
     public void testSetThenAddPermissions() throws Exception {
-        //check if group and actor exist and remove if so
-        //		removeExecutorsIfExist();
+        // check if group and actor exist and remove if so
+        removeExecutorsIfExist();
 
-        //script with operations is parsed and executed here
+        // script with operations is parsed and executed here
         helper.executeScript(SET_ADD);
 
-        /** This checks are valid only for one paticular given script file. 
-         *  If this script file is edited the following test method must be changed 
-         *  in corresponding way
+        /**
+         * This checks are valid only for one paticular given script file. If this script file is edited the following test method must be changed in
+         * corresponding way
          */
         Executor toto = helper.getExecutor(TOTO_ACTOR.getName());
         Executor dorothy = helper.getExecutor(DOROTHY_ACTOR.getName());
         Executor employee = helper.getExecutor(EMPLOYEE_GROUP.getName());
         Executor tin = helper.getExecutor(TIN_ACTOR.getName());
 
-        //actor permissions on actors
-        assertTrue("Check if 'update_permissions' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy,
-                Permission.UPDATE_PERMISSIONS));
+        // actor permissions on actors
+        assertTrue("Check if 'list' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy, Permission.LIST));
 
         assertTrue("Check if 'read' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy, Permission.READ));
 
-        assertTrue("Check if 'update_executor' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy,
-                ExecutorPermission.UPDATE));
+        assertTrue("Check if 'update' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy, Permission.UPDATE));
 
-        //actor permissions on groups
-        assertTrue("Check if 'list_group' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                GroupPermission.LIST_GROUP));
+        // actor permissions on groups
+        assertTrue("Check if 'list' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.LIST));
 
-        assertTrue("Check if 'add_to_group' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                GroupPermission.ADD_TO_GROUP));
+        assertTrue("Check if 'read' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.READ));
 
-        assertTrue("Check if 'remove_from_group' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                GroupPermission.REMOVE_FROM_GROUP));
+        assertTrue("Check if 'update' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.UPDATE));
 
-        assertTrue("Check if 'read' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, GroupPermission.READ));
+        assertTrue("Check if 'delete' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.DELETE));
 
-        assertTrue("Check if 'update_permissions' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                GroupPermission.UPDATE_PERMISSIONS));
+        // group permission on groups
+        assertTrue("Check if 'list' permission is given to employee on employee", helper.isAllowedToExecutor(employee, employee, Permission.LIST));
 
-        assertTrue("Check if 'update_executor' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                ExecutorPermission.UPDATE));
+        assertTrue("Check if 'read' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee, Permission.READ));
 
-        //group permission on groups
-        assertTrue("Check if 'read' permission is given to employee on employee", helper.isAllowedToExecutor(employee, employee, Permission.READ));
+        assertTrue("Check if 'update' permission is given to employees on employee",
+                helper.isAllowedToExecutor(employee, employee, Permission.UPDATE));
 
-        assertTrue("Check if 'list_group' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee,
-                GroupPermission.LIST_GROUP));
+        assertTrue("Check if 'delete' permission is given to employee on employee",
+                helper.isAllowedToExecutor(employee, employee, Permission.DELETE));
 
-        assertTrue("Check if 'add_to_group' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee,
-                GroupPermission.ADD_TO_GROUP));
-
-        assertTrue("Check if 'remove_from_group' permission is given to employee on employee", helper.isAllowedToExecutor(employee, employee,
-                GroupPermission.REMOVE_FROM_GROUP));
-
-        //group permission on actor
-        assertTrue("Check if 'update_permissions' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee,
-                Permission.UPDATE_PERMISSIONS));
-
+        // group permission on actor
         assertTrue("Check if 'read' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee, Permission.READ));
 
-        //group permission on system
-        assertTrue("Check if 'read' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.READ));
+        assertTrue("Check if 'update' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee, Permission.UPDATE));
 
-        assertTrue("Check if 'update_permissions' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.UPDATE_PERMISSIONS));
+        // group permission on Executors
+        assertTrue("Check if 'read' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.READ));
 
-        assertTrue("Check if 'login_to_system' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.LOGIN_TO_SYSTEM));
+        assertTrue("Check if 'update' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.UPDATE));
 
-        assertTrue("Check if 'create_executor' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.CREATE_EXECUTOR));
+        assertTrue("Check if 'login' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.LOGIN));
 
-        assertTrue("Check if 'deploy_definition' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                WorkflowSystemPermission.DEPLOY_DEFINITION));
+        assertTrue("Check if 'create' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.CREATE));
+
+        // group permission on Definitions
+        assertTrue("Check if 'read' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.READ));
+
+        assertTrue("Check if 'create' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.CREATE));
+
+        assertTrue("Check if 'update' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.UPDATE));
+
+        assertTrue("Check if 'start' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.START));
+
+        assertTrue("Check if 'read_process' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.READ_PROCESS));
+
+        assertTrue("Check if 'cancel_process' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.CANCEL_PROCESS));
     }
 
     public void testRemove() throws Exception {
-        //check if group and actor exist and remove if so
-        //		removeExecutorsIfExist();
+        // check if group and actor exist and remove if so
+        removeExecutorsIfExist();
 
-        //script with operations is parsed and executed here
+        // script with operations is parsed and executed here
         helper.executeScript(REMOVE);
 
-        /** This checks are valid only for one paticular given script file. 
-         *  If this script file is edited the following test method must be changed 
-         *  in corresponding way
+        /**
+         * This checks are valid only for one paticular given script file. If this script file is edited the following test method must be changed in
+         * corresponding way
          */
         Executor tin = helper.getExecutor(TIN_ACTOR.getName());
         Executor toto = helper.getExecutor(TOTO_ACTOR.getName());
         Executor dorothy = helper.getExecutor(DOROTHY_ACTOR.getName());
         Executor employee = helper.getExecutor(EMPLOYEE_GROUP.getName());
 
-        //assert that tin is still in employee group		
+        // assert that tin is still in employee group
         assertTrue("Tin is in employee group", helper.isExecutorInGroup(tin, (Group) employee));
 
-        //assert that dorothy is not in employee group
+        // assert that dorothy is not in employee group
         assertFalse("dorothy is not in employee group", helper.isExecutorInGroup(dorothy, (Group) employee));
 
-        //actor permissions on actors
-        assertFalse("Dorothy's 'update_permissions' permission on toto is revoked", helper.isAllowedToExecutor(toto, dorothy,
-                Permission.UPDATE_PERMISSIONS));
+        // actor permissions on actors
+        assertFalse("Dorothy's 'list' permission on toto is revoked", helper.isAllowedToExecutor(toto, dorothy, Permission.LIST));
 
         assertTrue("Check if 'read' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy, Permission.READ));
 
-        assertTrue("Check if 'update_executor' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy,
-                ExecutorPermission.UPDATE));
+        assertTrue("Check if 'update' permission is given to dorothy on toto", helper.isAllowedToExecutor(toto, dorothy, Permission.UPDATE));
 
-        //actor permissions on groups
-        assertFalse("Dorothy's 'update_permissions' permission on employee is revoked", helper.isAllowedToExecutor(employee, dorothy,
-                GroupPermission.UPDATE_PERMISSIONS));
+        // actor permissions on groups
+        assertFalse("Dorothy's 'update_status' permission on employee is revoked",
+                helper.isAllowedToExecutor(employee, dorothy, Permission.UPDATE_STATUS));
 
-        assertTrue("Check if 'read' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, GroupPermission.READ));
+        assertTrue("Check if 'read' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.READ));
 
-        assertTrue("Check if 'update_executor' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy,
-                ExecutorPermission.UPDATE));
+        assertTrue("Check if 'update' permission is given to dorothy on employee", helper.isAllowedToExecutor(employee, dorothy, Permission.UPDATE));
 
-        //group permissions on group
+        // group permissions on group
         assertTrue("Check if 'read' permission is given to employee on employee", helper.isAllowedToExecutor(employee, employee, Permission.READ));
 
-        assertTrue("Check if 'list_group' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee,
-                GroupPermission.LIST_GROUP));
+        assertTrue("Check if 'delete' permission is given to employees on employee",
+                helper.isAllowedToExecutor(employee, employee, Permission.DELETE));
 
-        assertFalse("Check if 'add_to_group' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee,
-                GroupPermission.ADD_TO_GROUP));
+        assertTrue("Check if 'view_tasks' permission is given to employees on employee",
+                helper.isAllowedToExecutor(employee, employee, Permission.VIEW_TASKS));
 
-        assertFalse("Check if 'remove_from_group' permission is given to employee on employee", helper.isAllowedToExecutor(employee, employee,
-                GroupPermission.REMOVE_FROM_GROUP));
+        assertFalse("Check if 'list' permission is given to employees on employee", helper.isAllowedToExecutor(employee, employee, Permission.LIST));
 
-        //group permission on actor
-        assertFalse("Check if 'update_permissions' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee,
-                Permission.UPDATE_PERMISSIONS));
+        assertFalse("Check if 'update' permission is given to employee on employee",
+                helper.isAllowedToExecutor(employee, employee, Permission.UPDATE));
+
+        // group permission on actor
+        assertFalse("Check if 'update' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee, Permission.UPDATE));
 
         assertTrue("Check if 'read' permission is given to employee on tin", helper.isAllowedToExecutor(tin, employee, Permission.READ));
 
-        //group permission on system
-        assertTrue("Check if 'read' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.READ));
+        // group permission on Executors
+        assertTrue("Check if 'read' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.READ));
 
-        assertFalse("Check if 'update_permissions' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.UPDATE_PERMISSIONS));
+        assertTrue("Check if 'login' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.LOGIN));
 
-        assertTrue("Check if 'login_to_system' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.LOGIN_TO_SYSTEM));
+        assertTrue("Check if 'create' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.CREATE));
 
-        assertTrue("Check if 'create_executor' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                SystemPermission.CREATE_EXECUTOR));
+        assertFalse("Check if 'update' permission is given to employee on Executors",
+                helper.isAllowedToExecutor(SecuredSingleton.EXECUTORS, employee, Permission.UPDATE));
 
-        assertTrue("Check if 'deploy_definition' permission is given to employee on system", helper.isAllowedToExecutor(ASystem.INSTANCE, employee,
-                WorkflowSystemPermission.DEPLOY_DEFINITION));
+        // group permission on Definitions
+        assertTrue("Check if 'create' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.CREATE));
+
+        assertTrue("Check if 'update' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.UPDATE));
+
+        assertTrue("Check if 'start' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.START));
+
+        assertFalse("Check if 'read' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.READ));
+
+        assertFalse("Check if 'read_process' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.READ_PROCESS));
+
+        assertFalse("Check if 'cancel_process' permission is given to employee on Definitions",
+                helper.isAllowedToExecutor(SecuredSingleton.DEFINITIONS, employee, Permission.CANCEL_PROCESS));
 
         try {
             helper.getExecutor(GLUCH_ACTOR.getName());

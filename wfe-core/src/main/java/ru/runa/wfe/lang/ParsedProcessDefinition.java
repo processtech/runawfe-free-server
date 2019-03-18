@@ -174,14 +174,14 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
                     parentUserTypeVariableDefinition.initComponentUserTypes(this);
                 } else if (MapFormat.class.getName().equals(parentVariableDefinition.getFormatClassName())) {
                     String appendix = parentName.substring(componentStartIndex);
-                    String userTypeName;                
+                    String userTypeName;
                     if (appendix.contains(":k")) {
                         userTypeName = parentVariableDefinition.getFormatComponentClassNames()[0];
                     } else {
                         userTypeName = parentVariableDefinition.getFormatComponentClassNames()[1];
                     }
                     parentUserTypeVariableDefinition = new VariableDefinition(parentVariableDefinition.getName() + appendix,
-                        parentVariableDefinition.getScriptingName() + appendix, parentVariableDefinition.getFormat(), getUserType(userTypeName));
+                            parentVariableDefinition.getScriptingName() + appendix, parentVariableDefinition.getFormat(), getUserType(userTypeName));
                     parentUserTypeVariableDefinition.initComponentUserTypes(this);
                 }
             }

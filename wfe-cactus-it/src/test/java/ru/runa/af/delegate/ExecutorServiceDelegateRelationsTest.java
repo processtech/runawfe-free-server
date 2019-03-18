@@ -34,8 +34,7 @@ public class ExecutorServiceDelegateRelationsTest extends ServletTestCase {
     }
 
     /**
-     * Test for adding and removing relation groups. No relation pairs added; no
-     * relation pairs testing. Loading relations with
+     * Test for adding and removing relation groups. No relation pairs added; no relation pairs testing. Loading relations with
      * {@link ru.runa.wfe.presentation.BatchPresentations} test.
      */
     public void testAddRemoveRelationGroup() throws Exception {
@@ -43,11 +42,7 @@ public class ExecutorServiceDelegateRelationsTest extends ServletTestCase {
         String groupName2 = "Relation2";
         Relation relationGroup = relationService.createRelation(th.getAdminUser(), new Relation(groupName, groupName));
         Assert.assertEquals(groupName, relationGroup.getName());
-        List<Relation> groups = relationService.getRelations(th.getAdminUser(), BatchPresentationFactory.RELATIONS.createDefault()
-        /*
-         * AFProfileStrategy.RELATION_GROUPS_DEFAULT_BATCH_PRESENTATOIN_FACTORY.
-         * getDefaultBatchPresentation()
-         */);
+        List<Relation> groups = relationService.getRelations(th.getAdminUser(), BatchPresentationFactory.RELATIONS.createDefault());
         Assert.assertEquals(1, groups.size());
         Assert.assertEquals(groups.get(0).getName(), groupName);
         Relation relationGroup2 = relationService.createRelation(th.getAdminUser(), new Relation(groupName2, groupName2));
@@ -87,13 +82,13 @@ public class ExecutorServiceDelegateRelationsTest extends ServletTestCase {
         RelationPair toRemove = relations.get(0);
         relations = relationService.getRelationPairs(th.getAdminUser(), groupName2, BatchPresentationFactory.RELATION_PAIRS.createDefault());
         assertEquals(2, relations.size());
-        assertTrue(((relations.get(0).getLeft().equals(a2) && relations.get(0).getRight().equals(a3)) && (relations.get(1).getLeft().equals(a1) && relations
-                .get(1).getRight().equals(a3)))
-                || ((relations.get(1).getLeft().equals(a2) && relations.get(1).getRight().equals(a3)) && (relations.get(0).getLeft().equals(a1) && relations
-                        .get(0).getRight().equals(a3))));
+        assertTrue(((relations.get(0).getLeft().equals(a2) && relations.get(0).getRight().equals(a3))
+                && (relations.get(1).getLeft().equals(a1) && relations.get(1).getRight().equals(a3)))
+                || ((relations.get(1).getLeft().equals(a2) && relations.get(1).getRight().equals(a3))
+                        && (relations.get(0).getLeft().equals(a1) && relations.get(0).getRight().equals(a3))));
         relationService.removeRelationPair(th.getAdminUser(), toRemove.getId());
-        assertEquals(0, relationService.getRelationPairs(th.getAdminUser(), groupName, BatchPresentationFactory.RELATION_PAIRS.createDefault())
-                .size());
+        assertEquals(0,
+                relationService.getRelationPairs(th.getAdminUser(), groupName, BatchPresentationFactory.RELATION_PAIRS.createDefault()).size());
         relationService.removeRelation(th.getAdminUser(), relationGroup.getId());
         relationService.removeRelation(th.getAdminUser(), relationGroup2.getId());
     }

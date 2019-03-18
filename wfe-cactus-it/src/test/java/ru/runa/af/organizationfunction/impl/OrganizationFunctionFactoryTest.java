@@ -10,7 +10,7 @@ import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 
@@ -40,9 +40,7 @@ public class OrganizationFunctionFactoryTest extends ServletTestCase {
 
         th.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(
-                Lists.newArrayList(DefinitionPermission.READ, DefinitionPermission.START_PROCESS, DefinitionPermission.UNDEPLOY_DEFINITION),
-                WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(Lists.newArrayList(Permission.START), WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
         th.getExecutionService().startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
 

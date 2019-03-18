@@ -5,7 +5,7 @@ import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.SystemService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -31,16 +31,8 @@ public class AASystemServiceDelegateLoginTest extends ServletTestCase {
         systemService = Delegates.getSystemService();
         th = new ServiceTestHelper(testPrefix);
         th.createDefaultExecutorsMap();
-        th.setPermissionsToAuthorizedPerformerOnSystem(Lists.newArrayList(SystemPermission.LOGIN_TO_SYSTEM));
+        th.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.LOGIN));
         super.setUp();
-    }
-
-    public void testLoginWithNullUser() throws Exception {
-        try {
-            systemService.login(null);
-            fail("SystemServiceDelegate does not throw IllegalArgumentException on login(null) call.");
-        } catch (IllegalArgumentException e) {
-        }
     }
 
     public void testLoginWithUnauthorizedPerformer() throws Exception {

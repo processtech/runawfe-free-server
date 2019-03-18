@@ -8,7 +8,6 @@ import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
@@ -24,7 +23,7 @@ public class ExecutorServiceDelegateCreateGroupTest extends ServletTestCase {
 
     private static String testPrefix = ExecutorServiceDelegateCreateGroupTest.class.getName();
 
-    private final List<Permission> createPermissions = Lists.newArrayList(SystemPermission.CREATE_EXECUTOR);
+    private final List<Permission> createPermissions = Lists.newArrayList(Permission.CREATE);
 
     private Group group;
 
@@ -32,7 +31,7 @@ public class ExecutorServiceDelegateCreateGroupTest extends ServletTestCase {
     protected void setUp() throws Exception {
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
-        th.setPermissionsToAuthorizedPerformerOnSystem(createPermissions);
+        th.setPermissionsToAuthorizedPerformerOnExecutors(createPermissions);
         super.setUp();
     }
 
@@ -79,27 +78,6 @@ public class ExecutorServiceDelegateCreateGroupTest extends ServletTestCase {
         } catch (ExecutorAlreadyExistsException e) {
             // This is supposed result of operation
         }
-    }
-
-    public void testCreateNullExecutorByAuthorizedPerformer() throws Exception {
-        Group group2 = null;
-        try {
-            group = executorService.create(th.getAuthorizedPerformerUser(), group2);
-            fail("null executor created");
-        } catch (IllegalArgumentException e) {
-            // This is supposed result of operation
-        }
-    }
-
-    public void testCreateExecutorWithNullSubject() throws Exception {
-        group = new Group("ExecutorServiceDelegateCreateGroupTest_Group", "description");
-        try {
-            group = executorService.create(null, group);
-            fail("executor with null subject created");
-        } catch (IllegalArgumentException e) {
-            // This is supposed result of operation
-        }
-        assertFalse("Executor does not exists ", th.isExecutorExist(group));
     }
 
     public void testCreateExecutorWithFakeSubject() throws Exception {

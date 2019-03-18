@@ -1,21 +1,18 @@
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.task.dto.WfTask;
@@ -25,11 +22,8 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 
-import com.google.common.collect.Lists;
-
 /**
- * This test class is to check concurrent work of 2 users concerning
- * "Assign task" function.<br />
+ * This test class is to check concurrent work of 2 users concerning "Assign task" function.<br />
  * It does not take into account substitution logic.
  * 
  * @see ExecutionServiceDelegateSubstitutionAssignTaskTest
@@ -71,19 +65,19 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
         testHelper.addExecutorToGroup(actor2, group);
 
         {
-            Collection<Permission> perm = Lists.newArrayList(SystemPermission.LOGIN_TO_SYSTEM);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), group.getId(), perm, ASystem.INSTANCE);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), perm, ASystem.INSTANCE);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor2.getId(), perm, ASystem.INSTANCE);
+            Collection<Permission> perm = Lists.newArrayList(Permission.LOGIN);
+            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), group.getId(), perm, SecuredSingleton.EXECUTORS);
+            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), perm, SecuredSingleton.EXECUTORS);
+            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor2.getId(), perm, SecuredSingleton.EXECUTORS);
         }
 
         actor1User = testHelper.getAuthenticationService().authenticateByLoginPassword(nameActor1, pwdActor1);
         actor2User = testHelper.getAuthenticationService().authenticateByLoginPassword(nameActor2, pwdActor2);
 
         byte[] parBytes = WfServiceTestHelper.readBytesFromFile(PROCESS_NAME + ".par");
-        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
+        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"), null);
         WfDefinition definition = testHelper.getDefinitionService().getLatestProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME);
-        Collection<Permission> definitionPermission = Lists.newArrayList(DefinitionPermission.START_PROCESS);
+        Collection<Permission> definitionPermission = Lists.newArrayList(Permission.START);
         testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), definitionPermission, definition);
 
         batchPresentation = testHelper.getTaskBatchPresentation();

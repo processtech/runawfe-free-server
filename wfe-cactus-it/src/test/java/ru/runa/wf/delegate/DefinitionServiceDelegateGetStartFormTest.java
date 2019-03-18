@@ -1,11 +1,10 @@
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -14,8 +13,6 @@ import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 20.04.2005
@@ -36,7 +33,7 @@ public class DefinitionServiceDelegateGetStartFormTest extends ServletTestCase {
 
         helper.deployValidProcessDefinition();
 
-        definitionId = definitionService.getLatestProcessDefinition(helper.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getId();
+        definitionId = definitionService.getLatestProcessDefinition(helper.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getVersionId();
 
         super.setUp();
     }
@@ -77,14 +74,6 @@ public class DefinitionServiceDelegateGetStartFormTest extends ServletTestCase {
             definitionService.getStartInteraction(helper.getFakeUser(), definitionId);
             fail("testGetStartFormTestByFakeSubject , no AuthenticationException");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetStartFormTestByNullSubject() throws Exception {
-        try {
-            definitionService.getStartInteraction(null, definitionId);
-            fail("testGetStartFormTestByNullSubject , no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
         }
     }
 

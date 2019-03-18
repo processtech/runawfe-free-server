@@ -6,7 +6,6 @@ import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -33,7 +32,7 @@ public class DefinitionServiceDelegateGetLatestDefinitionStubTest extends Servle
 
         helper.deployValidProcessDefinition();
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.READ);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
         super.setUp();
@@ -68,14 +67,6 @@ public class DefinitionServiceDelegateGetLatestDefinitionStubTest extends Servle
             definitionService.getLatestProcessDefinition(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
             fail("testGetLatestDefinitionStubByUnauthorizedSubject, no AuthenticationException");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetLatestDefinitionStubByNullUser() throws Exception {
-        try {
-            definitionService.getLatestProcessDefinition(null, WfServiceTestHelper.VALID_PROCESS_NAME);
-            fail("testGetLatestDefinitionStubByNullSubject, no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
         }
     }
 

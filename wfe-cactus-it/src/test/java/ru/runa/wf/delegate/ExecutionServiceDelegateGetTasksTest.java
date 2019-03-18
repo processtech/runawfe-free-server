@@ -8,8 +8,6 @@ import org.apache.cactus.ServletTestCase;
 import org.hibernate.TransientObjectException;
 
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -44,7 +42,7 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
 
         th.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
         executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
@@ -77,8 +75,8 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
         tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("Tasks not returned for Authorized Subject", 1, tasks.size());
         assertEquals("state name differs from expected", "treating collegues on cake and pie", tasks.get(0).getName());
-        assertEquals("task <treating collegues on cake and pie> is not assigned after starting [requester]", th.getAuthorizedPerformerActor(), tasks
-                .get(0).getOwner());
+        assertEquals("task <treating collegues on cake and pie> is not assigned after starting [requester]", th.getAuthorizedPerformerActor(),
+                tasks.get(0).getOwner());
         th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), variables, null);
 
         tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
@@ -120,9 +118,9 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals(1, tasks.size());
 
-        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.READ),
+        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.READ),
                 executionService.getProcess(th.getAdminUser(), proc1));
-        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.READ),
+        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.READ),
                 executionService.getProcess(th.getAdminUser(), proc2));
 
         List<WfVariable> variables = executionService.getVariables(th.getAuthorizedPerformerUser(), tasks.get(0).getProcessId());
@@ -144,9 +142,9 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals(1, tasks.size());
 
-        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.READ),
+        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.READ),
                 executionService.getProcess(th.getAdminUser(), proc1));
-        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.READ),
+        th.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.READ),
                 executionService.getProcess(th.getAdminUser(), proc2));
 
         List<WfVariable> variables = executionService.getVariables(th.getAuthorizedPerformerUser(), tasks.get(0).getProcessId());
@@ -168,11 +166,4 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
         }
     }
 
-    public void testGetTasksByNullSubject() throws Exception {
-        try {
-            th.getTaskService().getMyTasks(null, batchPresentation);
-            fail("testGetTasksByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
 }

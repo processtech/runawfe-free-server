@@ -1,22 +1,17 @@
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.collect.Lists;
 
 /**
  * @author Pashkov Alexander
@@ -36,16 +31,17 @@ public class DefinitionServiceDelegateGetDeclaredVariablesNamesTest extends Serv
         helper = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
 
-        Collection<Permission> deployPermissions = Lists.newArrayList(WorkflowSystemPermission.DEPLOY_DEFINITION);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(deployPermissions);
+        Collection<Permission> deployPermissions = Lists.newArrayList(Permission.CREATE);
+        helper.setPermissionsToAuthorizedPerformerOnDefinitions(deployPermissions);
         definitionService.deployProcessDefinition(helper.getAuthorizedPerformerUser(),
-                WfServiceTestHelper.readBytesFromFile(DEFINITION_WITH_VARIABLES_XML + ".par"), Lists.newArrayList("testProcess"));
+                WfServiceTestHelper.readBytesFromFile(DEFINITION_WITH_VARIABLES_XML + ".par"), Lists.newArrayList("testProcess"), null);
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.READ);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, DEFINITION_WITH_VARIABLES_XML);
 
-        definitionWithVariablesXmlId = definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(),
-                DEFINITION_WITH_VARIABLES_XML).getId();
+        definitionWithVariablesXmlId = definitionService
+.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(),
+                DEFINITION_WITH_VARIABLES_XML).getVersionId();
 
         super.setUp();
     }
@@ -60,27 +56,6 @@ public class DefinitionServiceDelegateGetDeclaredVariablesNamesTest extends Serv
 
     public void testGetDeclaredVariablesNamesByAuthorizedSubject() {
         testImpl(helper.getAuthorizedPerformerUser(), definitionWithVariablesXmlId, Lists.newArrayList("var1", "Var2", "var3"), null);
-    }
-
-    public void testGetDeclaredVariablesNamesByUnauthorizedSubject() {
-        // testImpl(helper.getUnauthorizedPerformerUser(),
-        // definitionWithVariablesXmlId, null, AuthorizationException.class);
-        // testImpl(helper.getUnauthorizedPerformerUser(),
-        // definitionWithoutVariablesXmlId, null, AuthorizationException.class);
-    }
-
-    public void testGetDeclaredVariablesNamesByNullSubject() {
-        // testImpl(null, definitionWithVariablesXmlId, null,
-        // IllegalArgumentException.class);
-        // testImpl(null, definitionWithoutVariablesXmlId, null,
-        // IllegalArgumentException.class);
-    }
-
-    public void testGetDeclaredVariablesNamesByFakeSubject() {
-        // testImpl(helper.getFakeUser(), definitionWithVariablesXmlId, null,
-        // AuthenticationException.class);
-        // testImpl(helper.getFakeUser(), definitionWithoutVariablesXmlId,
-        // null, AuthenticationException.class);
     }
 
     public void testGetDeclaredVariablesNamesOnInvalidDefinitionId() {

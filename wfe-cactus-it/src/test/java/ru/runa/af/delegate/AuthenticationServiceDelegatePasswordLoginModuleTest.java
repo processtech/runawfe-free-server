@@ -1,7 +1,5 @@
 package ru.runa.af.delegate;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthenticationException;
@@ -48,18 +46,6 @@ public class AuthenticationServiceDelegatePasswordLoginModuleTest extends Servle
         super.tearDown();
     }
 
-    /*
-    private boolean hasActorPrincipal(Subject subject, Actor actor) {
-        Set<ActorPrincipal> principals = subject.getPrincipals(ActorPrincipal.class);
-        for (ActorPrincipal actorPrincipal : principals) {
-            if (actorPrincipal.getActor().equals(actor)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    */
-
     public void testValidPassword() throws Exception {
         User validSubject = authenticationService.authenticateByLoginPassword(validActor.getName(), ACTOR_VALID_PWD);
         assertEquals("authenticated subject doesn't contains actor principal", validSubject.getActor(), validActor);
@@ -97,17 +83,6 @@ public class AuthenticationServiceDelegatePasswordLoginModuleTest extends Servle
             fail("allowing invalid login");
         } catch (AuthenticationException e) {
             // expected
-        }
-    }
-
-    public void testNullPassword() throws Exception {
-        try {
-            authenticationService.authenticateByLoginPassword(validActor.getName(), null);
-            fail("allowing NULL password");
-        } catch (IllegalArgumentException e) {
-            // TODO
-        } catch (AuthenticationException e) {
-            fail("TODO trap");
         }
     }
 }

@@ -1,15 +1,13 @@
 package ru.runa.wf.web.action;
 
+import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
@@ -19,10 +17,9 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserTypeMap;
+import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
+import ru.runa.wfe.var.format.BooleanFormat;
 
 /**
  * Created on 24.06.2014
@@ -68,24 +65,26 @@ public class UpdateProcessVariableAction extends ActionBase {
 
     private Map<String, Object> getValues(String variableName, UserTypeMap existingUserTypeMap, UserTypeMap userTypeMap) {
         Map<String, Object> existingMap = existingUserTypeMap.expand(variableName);
-        Map<String, Object> variableMap = userTypeMap.expand(variableName);
-        for (Map.Entry<String, Object> entry : Sets.newHashSet(variableMap.entrySet())) {
-            if (isDefaultValue(existingMap.get(entry.getKey())) && isDefaultValue(entry.getValue())) {
-                variableMap.remove(entry.getKey());
+        Map<VariableDefinition, Object> variableMap = userTypeMap.expandAttributes(variableName);
+        Map<String, Object> result = new HashMap<>();
+        for (Map.Entry<VariableDefinition, Object> entry : variableMap.entrySet()) {
+            Object existingVariableValue = existingMap.get(entry.getKey().getName());
+            if (isDefaultValue(entry.getKey().getFormat(), existingVariableValue) && isDefaultValue(entry.getKey().getFormat(), entry.getValue())) {
+                continue;
             }
+            result.put(entry.getKey().getName(), entry.getValue());
         }
-        return variableMap;
+        return result;
     }
 
-    @SuppressWarnings("RedundantIfStatement")
-    private boolean isDefaultValue(Object value) {
+    private boolean isDefaultValue(String format, Object value) {
         if (value == null) {
             return true;
         }
         if (value instanceof String && String.valueOf(value).isEmpty()) {
             return true;
         }
-        if (Boolean.FALSE.equals(value)) {
+        if (Boolean.FALSE.equals(value) && BooleanFormat.class.getName().equals(format)) {
             return true;
         }
         if (TypeConversionUtil.isList(value) && TypeConversionUtil.getListSize(value) == 0) {

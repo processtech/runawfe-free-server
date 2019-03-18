@@ -11,12 +11,11 @@ import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.security.AuthenticationException;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.ExecutorPermission;
 
 public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends ServletTestCase {
     private ServiceTestHelper helper;
@@ -28,10 +27,10 @@ public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends Servl
         helper = new ServiceTestHelper(AuthorizationServiceDelegateIsAllowedTest.class.getName());
         helper.createDefaultExecutorsMap();
 
-        Collection<Permission> systemP = Lists.newArrayList(SystemPermission.CREATE_EXECUTOR);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(systemP);
+        Collection<Permission> executorsP = Lists.newArrayList(Permission.CREATE);
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(executorsP);
 
-        Collection<Permission> executorP = Lists.newArrayList(Permission.READ, ExecutorPermission.UPDATE);
+        Collection<Permission> executorP = Lists.newArrayList(Permission.READ, Permission.UPDATE_STATUS);
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getSubGroupActor());
 
@@ -47,51 +46,19 @@ public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends Servl
         super.tearDown();
     }
 
-    public void testIsAllowedNullUser() throws Exception {
-        try {
-            authorizationService.isAllowed(null, Permission.READ, Lists.newArrayList(helper.getAASystem()));
-            fail("AuthorizationDelegate.isAllowed() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testIsAllowedFakeSubject() throws Exception {
         try {
-            authorizationService.isAllowed(helper.getFakeUser(), Permission.READ, Lists.newArrayList(helper.getAASystem()));
+            authorizationService.isAllowed(helper.getFakeUser(), Permission.READ, Lists.newArrayList(SecuredSingleton.EXECUTORS));
             fail("AuthorizationDelegate.isAllowed() allows fake subject");
         } catch (AuthenticationException e) {
         }
     }
 
-    public void testIsAllowedPermissionSubject() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), null, Lists.newArrayList(helper.getAASystem()));
-            fail("AuthorizationDelegate.isAllowed() allows null permission");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testIsAllowedNullIdentifiable() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, (List<Identifiable>) null);
-            fail("AuthorizationDelegate.isAllowed() allows null identifiable");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testIsAllowedNullIdentifiables() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, Lists.newArrayList((Identifiable) null, null));
-            fail("AuthorizationDelegate.isAllowed() allows null identifiables");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testIsAllowedFakeIdentifiable() throws Exception {
+    public void testIsAllowedFakeSecuredObject() throws Exception {
         try {
             authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, Lists.newArrayList(helper.getFakeActor()));
             // TODO
-            // fail("AuthorizationDelegate.isAllowed() allows fake identifiable");
+            // fail("AuthorizationDelegate.isAllowed() allows fake SecuredObject");
         } catch (InternalApplicationException e) {
             fail("TODO trap");
         }
@@ -100,19 +67,20 @@ public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends Servl
             authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ,
                     Lists.newArrayList(helper.getBaseGroupActor(), helper.getFakeActor()));
             // TODO
-            // fail("AuthorizationDelegate.isAllowed() allows fake identifiable");
+            // fail("AuthorizationDelegate.isAllowed() allows fake SecuredObject");
         } catch (InternalApplicationException e) {
             fail("TODO trap");
         }
     }
 
     public void testIsAllowedAASystem() throws Exception {
-        boolean[] isAllowed = authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), SystemPermission.CREATE_EXECUTOR,
-                Lists.newArrayList(helper.getAASystem()));
+        boolean[] isAllowed = authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.CREATE,
+                Lists.newArrayList(SecuredSingleton.EXECUTORS));
         boolean[] expected = { true };
         ArrayAssert.assertEqualArrays("AuthorizationDelegate.isAllowed() returns wrong info", expected, isAllowed);
 
-        isAllowed = authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, Lists.newArrayList(helper.getAASystem()));
+        isAllowed = authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ,
+                Lists.newArrayList(SecuredSingleton.EXECUTORS));
         expected = new boolean[] { false };
         ArrayAssert.assertEqualArrays("AuthorizationDelegate.isAllowed() returns wrong info", expected, isAllowed);
     }
@@ -123,12 +91,12 @@ public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends Servl
         boolean[] expected = { true, true };
         ArrayAssert.assertEqualArrays("AuthorizationDelegate.isAllowed() returns wrong info", expected, isAllowed);
 
-        isAllowed = authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.UPDATE_PERMISSIONS,
+        isAllowed = authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.UPDATE,
                 Lists.newArrayList(helper.getBaseGroupActor(), helper.getSubGroupActor()));
         expected = new boolean[] { false, false };
         ArrayAssert.assertEqualArrays("AuthorizationDelegate.isAllowed() returns wrong info", expected, isAllowed);
 
-        isAllowed = authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), ExecutorPermission.UPDATE,
+        isAllowed = authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.UPDATE_STATUS,
                 Lists.newArrayList(helper.getBaseGroupActor(), helper.getSubGroupActor()));
         expected = new boolean[] { true, true };
         ArrayAssert.assertEqualArrays("AuthorizationDelegate.isAllowed() returns wrong info", expected, isAllowed);
@@ -137,10 +105,10 @@ public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends Servl
     public void testIsAllowedExecutorDifferentObjects() throws Exception {
         try {
             authorizationService.isAllowed(helper.getUnauthorizedPerformerUser(), Permission.READ,
-                    Lists.newArrayList(helper.getAASystem(), helper.getBaseGroupActor(), helper.getBaseGroup()));
-            fail("no error");
+                    Lists.newArrayList(SecuredSingleton.EXECUTORS, helper.getBaseGroupActor(), helper.getBaseGroup()));
+            fail("No Exception: Secured objects should be of the same secured object type (EXECUTORS)");
         } catch (InternalApplicationException e) {
-            assertEquals("Identifiables should be of the same secured object type (SYSTEM)", e.getMessage());
+            assertEquals("Secured objects should be of the same secured object type (EXECUTORS)", e.getMessage());
         }
     }
 

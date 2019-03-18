@@ -66,14 +66,6 @@ public class ExecutionServiceDelegateGetProcessInstanceStubTest extends ServletT
         }
     }
 
-    public void testGetProcessInstanceStubByNullSubject() throws Exception {
-        try {
-            executionService.getProcess(null, processId);
-            fail("testGetProcessInstanceStubByNullSubject, no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetProcessInstanceStubByAuthorizedSubjectWithInvalidProcessId() throws Exception {
         try {
             executionService.getProcess(helper.getAuthorizedPerformerUser(), -1l);

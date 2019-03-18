@@ -1,25 +1,18 @@
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cactus.ServletTestCase;
-
-import ru.runa.wfe.security.ASystem;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Group;
-import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
-import ru.runa.wf.service.WfServiceTestHelper;
-
-import com.google.common.collect.Lists;
+import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
 /**
@@ -66,12 +59,13 @@ public class GetTaskListTest extends ServletTestCase {
 
         parBytes = WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ORGANIZATION_FUNCTION_PAR_FILE_NAME);
 
-        Collection<Permission> p = Lists.newArrayList(SystemPermission.LOGIN_TO_SYSTEM);
-        th.getAuthorizationService().setPermissions(th.getAdminUser(), actor3.getId(), p, ASystem.INSTANCE);
+        Collection<Permission> p = Lists.newArrayList(Permission.LOGIN);
+        th.getAuthorizationService().setPermissions(th.getAdminUser(), actor3.getId(), p, SecuredSingleton.EXECUTORS);
         actor3User = Delegates.getAuthenticationService().authenticateByLoginPassword(actor3.getName(), ACTOR3_PASSWD);
-        th.setPermissionsToAuthorizedPerformerOnSystem(ASystem.INSTANCE.getSecuredObjectType().getAllPermissions());
+        th.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.ALL));
+        th.setPermissionsToAuthorizedPerformerOnDefinitions(Lists.newArrayList(Permission.ALL));
 
-        th.getDefinitionService().deployProcessDefinition(th.getAuthorizedPerformerUser(), parBytes, Lists.newArrayList("testProcess"));
+        th.getDefinitionService().deployProcessDefinition(th.getAuthorizedPerformerUser(), parBytes, Lists.newArrayList("testProcess"), null);
         batchPresentation = th.getTaskBatchPresentation();
         super.setUp();
     }

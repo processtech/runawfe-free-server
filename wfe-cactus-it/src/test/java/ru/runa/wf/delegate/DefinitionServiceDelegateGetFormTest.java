@@ -1,15 +1,13 @@
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -19,8 +17,6 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 20.04.2005
@@ -54,9 +50,9 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         executionService = Delegates.getExecutionService();
 
         definitionService.deployProcessDefinition(th.getAdminUser(),
-            WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"));
+                WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"), null);
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
 
         executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME, null);
@@ -93,15 +89,6 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         definitionService.getTaskNodeInteraction(th.getUnauthorizedPerformerUser(), task.getDefinitionId(), task.getNodeId());
     }
 
-    public void testGetFormTestByNullUser() throws Exception {
-        initTaskData();
-        try {
-            definitionService.getTaskNodeInteraction(null, task.getDefinitionId(), task.getNodeId());
-            fail("testGetFormTestByNullSubject , no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetFormTestByFakeSubject() throws Exception {
         initTaskData();
         try {
@@ -125,8 +112,8 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
         assertEquals(tasks.size() > 0, true);
 
-        Interaction interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(), tasks
-                .get(0).getNodeId());
+        Interaction interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(),
+                tasks.get(0).getNodeId());
 
         // TODO assertEquals("state name differs from expected", STATE_1_NAME,
         // interaction.getStateName());
@@ -163,8 +150,8 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
             th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
 
             tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
-            interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(), tasks.get(0)
-                    .getNodeId());
+            interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(),
+                    tasks.get(0).getNodeId());
 
             // TODO assertEquals("state name differs from expected",
             // STATE_2_NAME, interaction.getStateName());
