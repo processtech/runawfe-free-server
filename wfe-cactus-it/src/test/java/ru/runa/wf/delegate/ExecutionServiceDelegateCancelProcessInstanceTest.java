@@ -23,8 +23,8 @@ import java.util.List;
 import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthenticationException;
@@ -76,32 +76,22 @@ public class ExecutionServiceDelegateCancelProcessInstanceTest extends ServletTe
     }
 
     public void testCancelProcessInstanceByAuthorizedSubject() throws Exception {
-        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.CANCEL_PROCESS), processInstance);
+        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.CANCEL), processInstance);
         executionService.cancelProcess(helper.getAuthorizedPerformerUser(), processInstance.getId());
 
         List<WfProcess> processInstances = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
-        assertEquals("Process not cancelled", 0, processInstances.size());
+        assertEquals("Process instance does not exist", 1, processInstances.size());
+        assertEquals("Process not cancelled", ExecutionStatus.ENDED, processInstances.get(0).getExecutionStatus());
     }
 
     public void testCancelProcessInstanceByAuthorizedSubjectWithoutCANCELPermission() throws Exception {
-        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(new ArrayList<Permission>(), processInstance);
+        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(Permission.READ), processInstance);
         try {
             executionService.cancelProcess(helper.getAuthorizedPerformerUser(), processInstance.getId());
-            // TODO
-            // fail("testCancelProcessInstanceByAuthorizedSubjectWithoutCANCELPermission, no AuthorizationException");
+            List<WfProcess> processInstances = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+            assertEquals("Process instance does not exist", 1, processInstances.size());
+            assertEquals("Process was canceled without CANCEL permission", ExecutionStatus.ACTIVE, processInstances.get(0).getExecutionStatus());
         } catch (AuthorizationException e) {
-            fail("TODO trap");
-        }
-    }
-
-    public void testCancelProcessInstanceByAuthorizedSubjectWithInvalidProcessId() throws Exception {
-        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(Lists.newArrayList(ProcessPermission.CANCEL_PROCESS), processInstance);
-        try {
-            executionService.cancelProcess(helper.getAuthorizedPerformerUser(), -1l);
-            // TODO
-            // fail("testCancelProcessInstanceByAuthorizedSubjectWithInvalidProcessId, no ProcessInstanceDoesNotExistException");
-        } catch (ProcessDoesNotExistException e) {
-            fail("TODO trap");
         }
     }
 
@@ -113,19 +103,11 @@ public class ExecutionServiceDelegateCancelProcessInstanceTest extends ServletTe
         }
     }
 
-    public void testCancelProcessInstanceByNullUser() throws Exception {
-        try {
-            executionService.cancelProcess(null, processInstance.getId());
-            fail("testCancelProcessInstanceByNullSubject, no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testCancelProcessInstanceByUnauthorizedSubject() throws Exception {
         try {
             executionService.cancelProcess(helper.getUnauthorizedPerformerUser(), processInstance.getId());
             List<WfProcess> processInstances = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
-            assertEquals("Process was cancelled by unauthorized subject", 1, processInstances.size());
+            assertEquals("Process was cancelled by unauthorized subject", ExecutionStatus.ACTIVE, processInstances.get(0).getExecutionStatus());
         } catch (AuthorizationException e) {
         }
     }

@@ -24,7 +24,6 @@ import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -52,8 +51,8 @@ public class DefinitionServiceDelegateUndeployProcessDefinitionTest extends Serv
 
         helper.deployValidProcessDefinition();
 
-        Collection<Permission> undeployPermissions = Lists.newArrayList(DefinitionPermission.UNDEPLOY_DEFINITION);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(undeployPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
+        Collection<Permission> undeployPermissions = Lists.newArrayList(Permission.ALL);
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(undeployPermissions);
 
         super.setUp();
     }
@@ -111,27 +110,6 @@ public class DefinitionServiceDelegateUndeployProcessDefinitionTest extends Serv
             definitionService.undeployProcessDefinition(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
             fail("testUndeployProcessByFakePerformer, no AuthenticationException");
         } catch (AuthenticationException e1) {
-        } finally {
-            helper.undeployValidProcessDefinition();
-        }
-    }
-
-    public void testUndeployProcessByNullPerformer() throws Exception {
-        try {
-            definitionService.undeployProcessDefinition(null, WfServiceTestHelper.VALID_PROCESS_NAME, null);
-            fail("testUndeployProcessByNullPerformer, no IllegalArgumentException");
-        } catch (IllegalArgumentException e1) {
-        } finally {
-            helper.undeployValidProcessDefinition();
-        }
-
-    }
-
-    public void testUndeployProcessWithNullProcessName() throws Exception {
-        try {
-            definitionService.undeployProcessDefinition(helper.getUnauthorizedPerformerUser(), null, null);
-            fail("testUndeployProcessWithNullProcessName allows undeploy process definition with NULL name");
-        } catch (IllegalArgumentException e) {
         } finally {
             helper.undeployValidProcessDefinition();
         }

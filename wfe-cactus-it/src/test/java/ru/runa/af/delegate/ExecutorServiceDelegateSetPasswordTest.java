@@ -28,13 +28,12 @@ import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 
 import java.util.List;
 
 /**
- * Created on 27.08.2004 
+ * Created on 27.08.2004
  */
 public class ExecutorServiceDelegateSetPasswordTest extends ServletTestCase {
     private ServiceTestHelper th;
@@ -53,7 +52,7 @@ public class ExecutorServiceDelegateSetPasswordTest extends ServletTestCase {
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
         th.createDefaultExecutorsMap();
-        List<Permission> updatePermissions = Lists.newArrayList(ExecutorPermission.UPDATE);
+        List<Permission> updatePermissions = Lists.newArrayList(Permission.UPDATE);
 
         actor = th.getBaseGroupActor();
         th.setPermissionsToAuthorizedPerformer(updatePermissions, actor);
@@ -86,23 +85,4 @@ public class ExecutorServiceDelegateSetPasswordTest extends ServletTestCase {
         }
         assertFalse("Password was changed without permission.", th.isPasswordCorrect(actor.getName(), NEW_PASSWD));
     }
-
-    public void testSetPasswordToNullExecutor() throws Exception {
-        try {
-            executorService.setPassword(th.getAuthorizedPerformerUser(), null, NEW_PASSWD);
-            assertTrue("IllegalArgumentException was not thrown on setting password to null executor", false);
-        } catch (IllegalArgumentException e) {
-            //that's what we expect to see
-        }
-    }
-
-    public void testSetPasswordToFakeActor() throws Exception {
-        try {
-            executorService.setPassword(th.getAuthorizedPerformerUser(), th.getFakeActor(), NEW_PASSWD);
-            assertTrue("ExecutorOutOfDateException was not thrown on setPassword fakeActor argument.", false);
-        } catch (AuthorizationException e) {
-            //that's what we expect to see
-        }
-    }
-
 }

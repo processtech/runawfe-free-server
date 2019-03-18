@@ -29,7 +29,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
@@ -53,19 +53,17 @@ public class AuthorizationServiceDelegateGetExecutorsWithPermissionTest extends 
         helper = new ServiceTestHelper(AuthorizationServiceDelegateGetExecutorsWithPermissionTest.class.getName());
         helper.createDefaultExecutorsMap();
 
-        Collection<Permission> systemP = Lists.newArrayList(Permission.READ, SystemPermission.CREATE_EXECUTOR);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(systemP);
-
-        Collection<Permission> executorP = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
+        Collection<Permission> executorP = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
 
         authorizationService = Delegates.getAuthorizationService();
         batchPresentation = helper.getExecutorBatchPresentation();
-        
+
         authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroupActor().getId(), executorP, helper.getBaseGroupActor());
-        authorizationService.setPermissions(helper.getAdminUser(), helper.getAuthorizedPerformerActor().getId(), executorP, helper.getAuthorizedPerformerActor());
-        
+        authorizationService.setPermissions(helper.getAdminUser(), helper.getAuthorizedPerformerActor().getId(), executorP,
+                helper.getAuthorizedPerformerActor());
+
         super.setUp();
     }
 
@@ -77,34 +75,18 @@ public class AuthorizationServiceDelegateGetExecutorsWithPermissionTest extends 
         super.tearDown();
     }
 
-    public void testGetExecutorsWithPermissionNullUser() throws Exception {
-        try {
-            authorizationService.getExecutorsWithPermission(null, helper.getAASystem(), batchPresentation, true);
-            fail("AuthorizationDelegate.getExecutorsWithPermission() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetExecutorsWithPermissionFakeSubject() throws Exception {
         try {
-            authorizationService.getExecutorsWithPermission(helper.getFakeUser(), helper.getAASystem(), batchPresentation, true);
+            authorizationService.getExecutorsWithPermission(helper.getFakeUser(), SecuredSingleton.EXECUTORS, batchPresentation, true);
             fail("AuthorizationDelegate.getExecutorsWithPermission() allows fake subject");
         } catch (AuthenticationException e) {
         }
     }
 
-    public void testGetExecutorsWithPermissionNullIdentifiable() throws Exception {
-        try {
-            authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), null, batchPresentation, true);
-            fail("AuthorizationDelegate.getExecutorsWithPermission() allows null identifiable");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testGetExecutorsWithPermissionFakeIdentifiable() throws Exception {
+    public void testGetExecutorsWithPermissionFakeSecuredObject() throws Exception {
         try {
             authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), helper.getFakeActor(), batchPresentation, true);
-            fail("AuthorizationDelegate.getExecutorsWithPermission() allows fake identifiable");
+            fail("AuthorizationDelegate.getExecutorsWithPermission() allows fake SecuredObject");
         } catch (InternalApplicationException e) {
         }
     }

@@ -25,7 +25,6 @@ import org.apache.cactus.ServletTestCase;
 
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -58,10 +57,10 @@ public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends Servlet
         helper.deployValidProcessDefinition();
 
         helper.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
-        Collection<Permission> startPermissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> startPermissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
         batchPresentation = helper.getProcessInstanceBatchPresentation();
         super.setUp();
@@ -85,7 +84,7 @@ public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends Servlet
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
         variablesMap.put(name, "anothervalue");
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
-        int index = batchPresentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.PROCESS_VARIABLE);
+        int index = batchPresentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_VARIABLE);
         batchPresentation.addDynamicField(index, name);
         batchPresentation.getFilteredFields().put(0, new StringFilterCriteria(value));
         List<WfProcess> processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
@@ -99,7 +98,7 @@ public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends Servlet
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
-        int index = batchPresentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.PROCESS_VARIABLE);
+        int index = batchPresentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_VARIABLE);
         batchPresentation.addDynamicField(index, name);
         batchPresentation.getFilteredFields().put(0, new StringFilterCriteria("bad matcher"));
         List<WfProcess> processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
@@ -127,14 +126,6 @@ public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends Servlet
             executionService.getProcesses(helper.getFakeUser(), batchPresentation);
             fail("testGetAllProcessInstanceStubsByFakeSubject, no AuthenticationException");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetProcessInstanceStubsByNullSubject() throws Exception {
-        try {
-            executionService.getProcesses(null, batchPresentation);
-            fail("testGetAllProcessInstanceStubsByNullSubject, no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
         }
     }
 

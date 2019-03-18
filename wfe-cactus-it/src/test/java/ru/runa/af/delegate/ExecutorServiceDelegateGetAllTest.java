@@ -32,7 +32,6 @@ import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
@@ -56,15 +55,15 @@ public class ExecutorServiceDelegateGetAllTest extends ServletTestCase {
         executorService = Delegates.getExecutorService();
         th = new ServiceTestHelper(testPrefix);
         th.createDefaultExecutorsMap();
-        List<Permission> readUpdatePermissions = Lists.newArrayList(Permission.READ, ExecutorPermission.UPDATE);
+        List<Permission> readPermissions = Lists.newArrayList(Permission.READ);
         executorsMap = th.getDefaultExecutorsMap();
 
         actor = (Actor) executorsMap.get(ServiceTestHelper.BASE_GROUP_ACTOR_NAME);
-        th.setPermissionsToAuthorizedPerformer(readUpdatePermissions, actor);
+        th.setPermissionsToAuthorizedPerformer(readPermissions, actor);
         group = (Group) executorsMap.get(ServiceTestHelper.BASE_GROUP_NAME);
-        th.setPermissionsToAuthorizedPerformer(readUpdatePermissions, group);
-        th.setPermissionsToAuthorizedPerformer(readUpdatePermissions, executorsMap.get(ServiceTestHelper.SUB_GROUP_ACTOR_NAME));
-        th.setPermissionsToAuthorizedPerformer(readUpdatePermissions, executorsMap.get(ServiceTestHelper.SUB_GROUP_NAME));
+        th.setPermissionsToAuthorizedPerformer(readPermissions, group);
+        th.setPermissionsToAuthorizedPerformer(readPermissions, executorsMap.get(ServiceTestHelper.SUB_GROUP_ACTOR_NAME));
+        th.setPermissionsToAuthorizedPerformer(readPermissions, executorsMap.get(ServiceTestHelper.SUB_GROUP_NAME));
         super.setUp();
     }
 
@@ -77,15 +76,6 @@ public class ExecutorServiceDelegateGetAllTest extends ServletTestCase {
     public void testgetExecutorsByUnauthorizedPerformer() throws Exception {
         List<? extends Executor> executors = executorService.getExecutors(th.getUnauthorizedPerformerUser(), th.getExecutorBatchPresentation());
         assertTrue("businessDelegate.getExecutors() returns executors", executors.isEmpty());
-    }
-
-    public void testgetExecutorsWithNullSubject() throws Exception {
-        try {
-            executorService.getExecutors(null, th.getExecutorBatchPresentation());
-            fail("businessDelegate.getExecutors() with null subject throws no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // That's what we expect
-        }
     }
 
     public void testgetExecutorsWithFakeSubject() throws Exception {
