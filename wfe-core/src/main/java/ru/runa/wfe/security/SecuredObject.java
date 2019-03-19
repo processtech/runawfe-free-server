@@ -1,5 +1,6 @@
 package ru.runa.wfe.security;
 
+import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlType;
 
@@ -18,7 +19,7 @@ public abstract class SecuredObject implements Serializable {
      * 
      * @return Object identity
      */
-    public abstract Long getIdentifiableId();
+    public abstract Long getId();
 
     /**
      * Returns object type identity. Object with same id and type has same
@@ -28,4 +29,10 @@ public abstract class SecuredObject implements Serializable {
      * @return Object type identity.
      */
     public abstract SecuredObjectType getSecuredObjectType();
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("id", getId()).add("type", getSecuredObjectType()).toString();
+    }
+
 }

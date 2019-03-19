@@ -3,8 +3,8 @@ package ru.runa.wfe.security.logic;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import java.util.ArrayList;
@@ -89,7 +89,7 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
-        return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getIdentifiableId());
+        return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long identifiableId) {
@@ -204,8 +204,9 @@ public class AuthorizationLogic extends CommonLogic {
                     addPermissionsElement.addAttribute("executor", executorName);
                 }
 
-                //noinspection ConstantConditions
-                addPermissionsElement.addElement("permission", XmlUtils.RUNA_NAMESPACE).addAttribute("name", permission.getName());
+                if (addPermissionsElement != null) {
+                    addPermissionsElement.addElement("permission", XmlUtils.RUNA_NAMESPACE).addAttribute("name", permission.getName());
+                }
             }
         }
     }
@@ -282,9 +283,7 @@ public class AuthorizationLogic extends CommonLogic {
                     for (IdAndPermission ip : existing) {
                         cond.or(pm.objectId.eq(ip.id).and(pm.permission.eq(ip.permission)));
                     }
-                    if (cond != null) {
-                        queryFactory.delete(pm).where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(cond)).execute();
-                    }
+                    queryFactory.delete(pm).where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(cond)).execute();
                 }
             }
         }

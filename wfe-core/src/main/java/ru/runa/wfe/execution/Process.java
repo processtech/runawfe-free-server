@@ -7,7 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.security.SecuredObjectBase;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
 /**
@@ -17,7 +17,7 @@ import ru.runa.wfe.security.SecuredObjectType;
  */
 @MappedSuperclass
 @Access(AccessType.FIELD)
-public abstract class Process<T extends Token> extends SecuredObjectBase {
+public abstract class Process<T extends Token> extends SecuredObject {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "PARENT_ID")

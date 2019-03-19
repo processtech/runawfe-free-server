@@ -19,7 +19,7 @@ public class SecuredObjectUrlStrategy implements ItemUrlStrategy {
     @Override
     public String getUrl(String baseUrl, Object item) {
         SecuredObject definition = (SecuredObject) item;
-        Long definitionId = definition.getIdentifiableId();
+        Long definitionId = definition.getId();
         Map<String, Object> map = Maps.newHashMap();
         map.put(IdForm.ID_INPUT_NAME, definitionId);
         return Commons.getActionUrl(baseUrl, map, pageContext, PortletUrlType.Action);

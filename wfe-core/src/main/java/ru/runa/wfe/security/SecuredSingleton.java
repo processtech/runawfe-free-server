@@ -14,7 +14,7 @@ import org.springframework.util.Assert;
  *
  * @see SecuredObjectType
  */
-public final class SecuredSingleton extends SecuredObjectBase {
+public final class SecuredSingleton extends SecuredObject {
     private static final long serialVersionUID = 1L;
     private SecuredObjectType type;
 

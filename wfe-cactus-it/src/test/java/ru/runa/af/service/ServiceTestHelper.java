@@ -1,14 +1,13 @@
 package ru.runa.af.service;
 
-import java.io.Serializable;
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.security.auth.Subject;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
@@ -16,11 +15,11 @@ import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationAlreadyExistException;
 import ru.runa.wfe.relation.RelationDoesNotExistException;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.security.WeakPasswordException;
 import ru.runa.wfe.service.AuthenticationService;
 import ru.runa.wfe.service.AuthorizationService;
@@ -40,10 +39,6 @@ import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class ServiceTestHelper {
 
@@ -149,7 +144,7 @@ public class ServiceTestHelper {
     public List<Long> toIds(Collection<? extends SecuredObject> list) {
         List<Long> ids = Lists.newArrayList();
         for (SecuredObject securedObject : list) {
-            ids.add(securedObject.getIdentifiableId());
+            ids.add(securedObject.getId());
         }
         return ids;
     }

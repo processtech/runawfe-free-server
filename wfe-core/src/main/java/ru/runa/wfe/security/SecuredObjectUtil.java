@@ -1,6 +1,5 @@
 package ru.runa.wfe.security;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.val;
@@ -26,10 +25,10 @@ public class SecuredObjectUtil {
         val type = objects.get(0).getSecuredObjectType();
         for (val o : objects) {
             if (o.getSecuredObjectType() != type) {
-                throw new InternalApplicationException("Found objects of different types: (" + type + "," + objects.get(0).getIdentifiableId() +
-                        ") and (" + o.getSecuredObjectType() + "," + o.getIdentifiableId() + ")");
+                throw new InternalApplicationException("Found objects of different types: (" + type + "," + objects.get(0).getId() + ") and ("
+                        + o.getSecuredObjectType() + "," + o.getId() + ")");
             }
-            ids.add(o.getIdentifiableId());
+            ids.add(o.getId());
         }
         return new Pair<>(type, ids);
     }

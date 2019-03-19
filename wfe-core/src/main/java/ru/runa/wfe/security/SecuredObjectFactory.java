@@ -10,7 +10,6 @@ import java.util.Set;
 import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.QProcessDefinition;
 import ru.runa.wfe.execution.QArchivedProcess;
@@ -139,12 +138,8 @@ public class SecuredObjectFactory {
         List<Tuple> tt = getLoader(type).getByNames(names);
         List<Long> foundIds = new ArrayList<>(tt.size());
         Set<String> missingNames = new HashSet<>(names);
-        boolean isDef = type.equals(SecuredObjectType.DEFINITION);
         for (Tuple t : tt) {
-            if(isDef)
-                foundIds.add(ApplicationContextFactory.getProcessDefinitionDao().getNotNull(t.get(0, Long.class)).getIdentifiableId());
-            else
-                foundIds.add(t.get(0, Long.class));
+            foundIds.add(t.get(0, Long.class));
             missingNames.remove(t.get(1, String.class));
         }
         if (!missingNames.isEmpty()) {

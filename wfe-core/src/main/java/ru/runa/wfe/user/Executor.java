@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.PolymorphismType;
-import ru.runa.wfe.security.SecuredObjectBase;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.jaxb.ExecutorAdapter;
 
 /*
@@ -41,7 +41,7 @@ import ru.runa.wfe.user.jaxb.ExecutorAdapter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlJavaTypeAdapter(ExecutorAdapter.class)
-public abstract class Executor extends SecuredObjectBase implements Comparable<Executor> {
+public abstract class Executor extends SecuredObject implements Comparable<Executor> {
     private static final long serialVersionUID = 1L;
 
     public static final String UNAUTHORIZED_EXECUTOR_NAME = "__unauthorized__";

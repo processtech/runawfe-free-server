@@ -85,7 +85,7 @@ public class PermissionDao extends CommonDao {
         val pm = QPermissionMapping.permissionMapping;
         return queryFactory.select(pm.permission).from(pm)
                 .where(pm.objectType.eq(object.getSecuredObjectType())
-                        .and(pm.objectId.eq(object.getIdentifiableId()))
+.and(pm.objectId.eq(object.getId()))
                         .and(pm.executor.eq(executor)))
                 .fetch();
     }
@@ -123,7 +123,7 @@ public class PermissionDao extends CommonDao {
             val pm = QPermissionMapping.permissionMapping;
             queryFactory.delete(pm)
                     .where(pm.objectType.eq(object.getSecuredObjectType())
-                            .and(pm.objectId.eq(object.getIdentifiableId()))
+.and(pm.objectId.eq(object.getId()))
                             .and(pm.executor.eq(executor))
                             .and(pm.permission.in(toDelete)))
                     .execute();
@@ -164,7 +164,7 @@ public class PermissionDao extends CommonDao {
      * Returns true if user have permission to object.
      */
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
-        return isAllowed(user.getActor(), permission, object.getSecuredObjectType(), object.getIdentifiableId());
+        return isAllowed(user.getActor(), permission, object.getSecuredObjectType(), object.getId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
@@ -177,7 +177,7 @@ public class PermissionDao extends CommonDao {
     }
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObject object, boolean checkPrivileged) {
-        Long id = object.getIdentifiableId();
+        Long id = object.getId();
         SecuredObjectType type = object.getSecuredObjectType();
         Assert.notNull(id);
         return !filterAllowedIds(executor, permission, type, Collections.singletonList(id), checkPrivileged).isEmpty();
@@ -341,7 +341,7 @@ public class PermissionDao extends CommonDao {
      * Deletes all permissions for securedObject.
      */
     public void deleteAllPermissions(@NonNull SecuredObject obj) {
-        deleteAllPermissions(obj.getSecuredObjectType(), obj.getIdentifiableId());
+        deleteAllPermissions(obj.getSecuredObjectType(), obj.getId());
     }
 
     public void deleteAllPermissions(@NonNull SecuredObjectType type, long id) {
@@ -355,7 +355,7 @@ public class PermissionDao extends CommonDao {
     public Set<Executor> getExecutorsWithPermission(SecuredObject obj) {
         val pm = QPermissionMapping.permissionMapping;
         List<Executor> list = queryFactory.selectDistinct(pm.executor).from(pm)
-                .where(pm.objectType.eq(obj.getSecuredObjectType()).and(pm.objectId.eq(obj.getIdentifiableId())))
+                .where(pm.objectType.eq(obj.getSecuredObjectType()).and(pm.objectId.eq(obj.getId())))
                 .fetch();
         Set<Executor> result = new HashSet<>(list);
         result.addAll(getPrivilegedExecutors(obj.getSecuredObjectType()));
@@ -495,7 +495,7 @@ public class PermissionDao extends CommonDao {
         return queryFactory.select(pm.id).from(pm)
                 .where(pm.executor.eq(executor)
                         .and(pm.objectType.eq(object.getSecuredObjectType()))
-                        .and(pm.objectId.eq(object.getIdentifiableId()))
+.and(pm.objectId.eq(object.getId()))
                         .and(pm.permission.eq(permission)))
                 .fetchFirst() != null;
     }

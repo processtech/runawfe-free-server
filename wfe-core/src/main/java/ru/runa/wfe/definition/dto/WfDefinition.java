@@ -74,15 +74,11 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     }
 
     @Override
-    public Long getIdentifiableId() {
-        return (long) getName().hashCode();
-    }
-
-    @Override
     public SecuredObjectType getSecuredObjectType() {
         return SecuredObjectType.DEFINITION;
     }
 
+    @Override
     public Long getId() {
         return id;
     }

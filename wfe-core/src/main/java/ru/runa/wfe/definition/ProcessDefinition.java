@@ -41,6 +41,7 @@ public class ProcessDefinition extends SecuredObject {
      */
     private Integer secondsBeforeArchiving;
 
+    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_PROCESS_DEFINITION", allocationSize = 1)
@@ -117,12 +118,6 @@ public class ProcessDefinition extends SecuredObject {
 
     public void setSecondsBeforeArchiving(Integer endedDaysBeforeArchiving) {
         this.secondsBeforeArchiving = endedDaysBeforeArchiving;
-    }
-
-    @Transient
-    @Override
-    public Long getIdentifiableId() {
-        return getId();
     }
 
     @Transient
