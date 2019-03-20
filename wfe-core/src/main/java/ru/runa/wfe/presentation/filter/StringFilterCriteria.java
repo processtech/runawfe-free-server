@@ -70,9 +70,8 @@ public class StringFilterCriteria extends FilterCriteria {
             where += ")";
             searchValue = searchValue.toLowerCase();
         }
-        where += " ";
         where += expression.getComparisonOperator();
-        where += " :" + alias + " ";
+        where += ":" + alias + " ";
         placeholders.add(alias, searchValue);
         return where;
     }

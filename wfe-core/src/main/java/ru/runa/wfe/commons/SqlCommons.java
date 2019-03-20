@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -133,7 +132,7 @@ public final class SqlCommons {
         }
 
         public String getComparisonOperator() {
-            return likeExpression ? "like" : "=";
+            return likeExpression ? " like " : " = ";
         }
 
     }
