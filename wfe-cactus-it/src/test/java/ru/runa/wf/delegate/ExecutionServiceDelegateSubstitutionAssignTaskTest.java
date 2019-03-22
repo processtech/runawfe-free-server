@@ -158,7 +158,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         }
         assertExceptionThrownOnAssign(actor1User, actor1Tasks[0]);
         assertExceptionThrownOnAssign(actor2SUser, actor2Tasks[0]);
-        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>());
         testHelper.removeCriteriaFromSubstitution(substitution1);
     }
 
@@ -197,7 +197,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
             actor2Tasks = checkTaskList(actor2SUser, 1);
             substituteTasks = checkTaskList(substituteUser, 1);
         }
-        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>());
         {
             checkTaskList(actor1User, actor1Tasks[0]);
             checkTaskList(actor2SUser, actor2Tasks[0]);
@@ -257,7 +257,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
 
     private void assertExceptionThrownOnExecute(User user, WfTask task) throws InternalApplicationException {
         try {
-            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>(), null);
+            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>());
             throw new InternalApplicationException("Exception not thrown. Actor shouldn't see assigned/executed task by another user...");
         } catch (AuthenticationException e) {
             throw new InternalApplicationException("Auth exception thrown");

@@ -105,7 +105,7 @@ public class GetTaskListTest extends ServletTestCase {
 
         assertEquals("task assigned", group2, tasks.get(0).getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>());
 
         tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("getTasks() returns wrong tasks number", 0, tasks.size());
@@ -115,7 +115,7 @@ public class GetTaskListTest extends ServletTestCase {
 
         assertEquals("task assigned", actor3, tasks.get(0).getOwner());
 
-        th.getTaskService().completeTask(actor3User, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(actor3User, tasks.get(0).getId(), new HashMap<String, Object>());
         // same as commented higher
         actor3 = (Actor) th.getExecutor(actor3.getName());
         group2 = (Group) th.getExecutor(group2.getName());
@@ -136,6 +136,6 @@ public class GetTaskListTest extends ServletTestCase {
 
         assertEquals("task assigned", th.getAuthorizedPerformerActor(), tasks.get(0).getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>());
     }
 }

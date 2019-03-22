@@ -62,6 +62,6 @@ public class ExecutionServiceDelegateStringVariableTest extends ServletTestCase 
             variables.put(varName, varValue);
         }
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAdminUser(), BatchPresentationFactory.TASKS.createDefault());
-        th.getTaskService().completeTask(th.getAdminUser(), tasks.get(0).getId(), variables, null);
+        th.getTaskService().completeTask(th.getAdminUser(), tasks.get(0).getId(), variables);
     }
 }

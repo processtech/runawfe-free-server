@@ -146,7 +146,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -166,7 +166,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
@@ -216,7 +216,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -236,7 +236,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
@@ -286,7 +286,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -306,7 +306,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
@@ -357,7 +357,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -377,7 +377,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
@@ -429,7 +429,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -449,7 +449,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);

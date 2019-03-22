@@ -56,7 +56,7 @@ public class ExecutionServiceDelegateTimerTest extends ServletTestCase {
         Long pid = prolog();
         th.getTaskService().completeTask(th.getAuthorizedPerformerUser(),
                 th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), BatchPresentationFactory.TASKS.createDefault()).get(0).getId(),
-                new HashMap<String, Object>(), null);
+                new HashMap<String, Object>());
         epilog(pid, STATE_KOCHAB, 1, 0);
     }
 

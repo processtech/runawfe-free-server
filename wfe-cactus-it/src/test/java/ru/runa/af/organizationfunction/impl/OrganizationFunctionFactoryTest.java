@@ -73,7 +73,7 @@ public class OrganizationFunctionFactoryTest extends ServletTestCase {
         assertEquals("tasks count differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "evaluating", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(getBossActorUser(), tasks.get(0).getId(), legalVariables, null);
+        th.getTaskService().completeTask(getBossActorUser(), tasks.get(0).getId(), legalVariables);
 
         tasks = th.getTaskService().getMyTasks(getBossActorUser(), th.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 0, tasks.size());
@@ -82,13 +82,13 @@ public class OrganizationFunctionFactoryTest extends ServletTestCase {
         assertEquals("tasks count differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "updating erp asynchronously", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), tasks.get(0).getId(), legalVariables, null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), tasks.get(0).getId(), legalVariables);
 
         tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "treating collegues on cake and pie", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), legalVariables, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), legalVariables);
 
         tasks = th.getTaskService().getMyTasks(getBossActorUser(), th.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 0, tasks.size());
@@ -97,7 +97,7 @@ public class OrganizationFunctionFactoryTest extends ServletTestCase {
         assertEquals("tasks count differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "notify", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), tasks.get(0).getId(), legalVariables, null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), tasks.get(0).getId(), legalVariables);
 
         tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 0, tasks.size());

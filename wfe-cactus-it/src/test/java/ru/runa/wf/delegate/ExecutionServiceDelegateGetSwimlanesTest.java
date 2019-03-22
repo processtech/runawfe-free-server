@@ -43,7 +43,6 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
         permissions = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformer(permissions, helper.getAuthorizedPerformerActor());
 
-        // instanceId =
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
         batchPresentation = helper.getProcessInstanceBatchPresentation();
         instanceId = executionService.getProcesses(helper.getAdminUser(), batchPresentation).get(0).getId();

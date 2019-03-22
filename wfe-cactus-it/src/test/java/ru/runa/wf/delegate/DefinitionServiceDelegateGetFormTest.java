@@ -147,7 +147,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
             // assertTrue("optional variable flag was set to true",
             // var.isOptional());
 
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>());
 
             tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
             interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(),

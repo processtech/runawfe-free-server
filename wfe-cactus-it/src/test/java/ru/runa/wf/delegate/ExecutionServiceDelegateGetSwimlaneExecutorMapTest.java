@@ -39,15 +39,14 @@ public class ExecutionServiceDelegateGetSwimlaneExecutorMapTest extends ServletT
         Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
-        // instanceId =
         executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
 
         th.addExecutorToGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());
         instanceId = executionService.getProcesses(th.getAdminUser(), th.getProcessInstanceBatchPresentation()).get(0).getId();
 
         legalVariables = new HashMap<String, Object>();
-        legalVariables.put("amount.asked", new Double(200));
-        legalVariables.put("amount.granted", new Double(150));
+        legalVariables.put("amount_asked", new Double(200));
+        legalVariables.put("amount_granted", new Double(150));
         legalVariables.put("approved", "true");
 
         super.setUp();
@@ -84,80 +83,6 @@ public class ExecutionServiceDelegateGetSwimlaneExecutorMapTest extends ServletT
         } catch (ProcessDoesNotExistException e) {
         }
     }
-
-    //
-    // public void testGetSwimlaneExecutorMapByAuthorizedSubject() throws
-    // Exception {
-    // Collection<Permission> readPermissions =
-    // Lists.newArrayList(Permission.READ);
-    // helper.setPermissionsToAuthorizedPerformer(readPermissions,
-    // helper.getErpOperator());
-    //
-    // List<Swimlane> swimlanes =
-    // executionService.getSwimlanes(helper.getAuthorizedPerformerUser(),
-    // instanceId);
-    //
-    // swimlanes =
-    // executionService.getSwimlanes(helper.getAuthorizedPerformerUser(),
-    // instanceId);
-    // for (Swimlane swimlane : swimlanes) {
-    // Map<String, Executor> executorsInSwimlane =
-    // executionService.getActiveTasks(helper.getAuthorizedPerformerUser(),
-    // instanceId);
-    // for (String name : executorsInSwimlane.keySet()) {
-    // Assert.assertEquals("Executor in the swimlane differs from expected",
-    // getExpectedExecutor(swimlane), executorsInSwimlane.get(name));
-    // }
-    // }
-    //
-    // WfTask task =
-    // th.getTaskService().getMyTasks(helper.getAuthorizedPerformerUser(),
-    // helper.getTaskBatchPresentation()).get(0);
-    // th.getTaskService().completeTask(helper.getAuthorizedPerformerUser(),
-    // task.getId(), legalVariables);
-    //
-    // swimlanes =
-    // executionService.getSwimlanes(helper.getAuthorizedPerformerUser(),
-    // instanceId);
-    // for (Swimlane swimlane : swimlanes) {
-    // Map<String, Executor> executorsInSwimlane =
-    // executionService.getActiveTasks(helper.getAuthorizedPerformerUser(),
-    // instanceId,
-    // swimlane.getDefinition().getName());
-    // for (String name : executorsInSwimlane.keySet()) {
-    // Assert.assertEquals("Executor in the swimlane differs from expected",
-    // getExpectedExecutor(swimlane), executorsInSwimlane.get(name));
-    // }
-    // }
-    // }
-    //
-    // public void testGetSwimlaneExecutorMapDeletedExecutor() throws Exception
-    // {
-    // WfTask task =
-    // th.getTaskService().getMyTasks(helper.getAuthorizedPerformerUser(),
-    // helper.getTaskBatchPresentation()).get(0);
-    // th.getTaskService().completeTask(helper.getAuthorizedPerformerUser(),
-    // task.getId(), legalVariables);
-    // List<Swimlane> swimlanes =
-    // executionService.getSwimlanes(helper.getAuthorizedPerformerUser(),
-    // instanceId);
-    // Swimlane swimlane = null;
-    // for (Swimlane existing : swimlanes) {
-    // if ("erp operator".equals(existing.getDefinition().getName())) {
-    // swimlane = existing;
-    // break;
-    // }
-    // }
-    // assert (swimlane != null);
-    // helper.removeCreatedExecutor(helper.getErpOperator());
-    // helper.removeExecutorIfExists(helper.getErpOperator());
-    // try {
-    // executionService.getActiveTasks(helper.getAuthorizedPerformerUser(),
-    // instanceId, swimlane.getDefinition().getName());
-    // fail("executionDelegate.getSwimlaneExecutorMap() does not throw exception for getting swimlane for nonexisting executor");
-    // } catch (ExecutorDoesNotExistException e) {
-    // }
-    // }
 
     private Executor getExpectedExecutor(WfSwimlane WfSwimlane)
             throws AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {

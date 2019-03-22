@@ -104,7 +104,7 @@ public class ExecutionServiceDelegateGetVariablesTest extends ServletTestCase {
         variables2.put("var2", "var2Value");
         variables2.put("var3", "var3Value");
         variables2.put("approved", "true");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), taskId, variables2, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), taskId, variables2);
 
         taskId = th.getTaskService().getMyTasks(th.getErpOperatorUser(), th.getTaskBatchPresentation()).get(0).getId();
 
@@ -122,6 +122,6 @@ public class ExecutionServiceDelegateGetVariablesTest extends ServletTestCase {
         assertEquals(" variable value: <var1> differs from expected", "var1Value", vars.get("var1"));
         assertEquals(" variable value: <var2> differs from expected", "var2Value", vars.get("var2"));
         assertEquals(" variable value: <var3> differs from expected", "var3Value", vars.get("var3"));
-        assertEquals(" variable value: <approved> differs from expected", "true", vars.get("approved"));
+        assertEquals(" variable value: <approved> differs from expected", true, vars.get("approved"));
     }
 }

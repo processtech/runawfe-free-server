@@ -182,7 +182,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varMapStringUT[0:v].fieldListString.size");
                 simpleVariablesChanged.add("varMapStringUT[0:v].fieldLong");
                 simpleVariablesChanged.add("varMapStringUT.size");
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         },
@@ -208,7 +208,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varListUT[1].fieldLong");
                 simpleVariablesChanged.add("varListUT[1].fieldString");
                 simpleVariablesChanged.add("varListUT.size");
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         },
@@ -230,7 +230,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varListString.size");
                 simpleVariablesChanged.add("varUT.fieldLong");
                 simpleVariablesChanged.add("varUT.fieldString");
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         },
@@ -253,7 +253,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varUT.fieldListString.size");
                 simpleVariablesChanged.add("varUT.fieldListString[0]");
                 simpleVariablesChanged.add("varUT.fieldListString[1]");
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         },
@@ -294,7 +294,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varUT.fieldMapStringString.size");
                 simpleVariablesChanged.add("varUT.fieldMapStringString[0:k]");
                 simpleVariablesChanged.add("varUT.fieldMapStringString[0:v]");
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         },
@@ -314,7 +314,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varUT", createUserType(testInstance, 13L, "tt", null, map));
                 changedVariables.put("varListUT", Lists.newArrayList(createUserType(testInstance, 5L, "ss", Lists.newArrayList("s2"), map),
                         createUserType(testInstance, 6L, "ss", Lists.newArrayList("s4"), map)));
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         },
@@ -332,7 +332,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 map.put(createUserTypeK(testInstance, 198L, "str44"),
                         createUserType(testInstance, 1L, null, Lists.newArrayList("123", "4@34"), null));
                 changedVariables.put("varMapStringUT", map);
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         },
@@ -348,7 +348,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varListString", Lists.newArrayList("str7", "str8"));
                 changedVariables.put("varUT", null);
                 changedVariables.put("varString", "12553");
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         },
@@ -362,7 +362,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
                 changedVariables.put("varLong", 10L);
                 changedVariables.put("varListString", Lists.newArrayList("str8", "str9"));
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         },
@@ -384,7 +384,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varListUT", Lists.newArrayList(createUserType(testInstance, 5L, "ss", Lists.newArrayList("s2"), map),
                         createUserType(testInstance, 6L, "ss", Lists.newArrayList("s4"), map)));
                 changedVariables.put("varMapStringUT", null);
-                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables);
                 return taskStub.getId();
             }
         };

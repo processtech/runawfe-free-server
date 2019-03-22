@@ -76,7 +76,7 @@ public class DecisionTest extends ServletTestCase {
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_2", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), tasks.get(0).getId(), new HashMap<String, Object>());
 
         tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -105,7 +105,7 @@ public class DecisionTest extends ServletTestCase {
 
         Map<String, Object> state1Variables = new HashMap<String, Object>();
         state1Variables.put("monitoring_variable", "end");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables);
 
         tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -134,7 +134,7 @@ public class DecisionTest extends ServletTestCase {
 
         Map<String, Object> state1Variables = new HashMap<String, Object>();
         state1Variables.put("monitoring_variable", "2");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables);
 
         tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -146,7 +146,7 @@ public class DecisionTest extends ServletTestCase {
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_2", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), tasks.get(0).getId(), state1Variables, null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), tasks.get(0).getId(), state1Variables);
 
         tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -175,7 +175,7 @@ public class DecisionTest extends ServletTestCase {
 
         Map<String, Object> state1Variables = new HashMap<String, Object>();
         state1Variables.put("monitoring_variable", "3");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables);
 
         tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -187,7 +187,7 @@ public class DecisionTest extends ServletTestCase {
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_3", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), tasks.get(0).getId(), state1Variables, null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), tasks.get(0).getId(), state1Variables);
 
         tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -216,7 +216,7 @@ public class DecisionTest extends ServletTestCase {
 
         Map<String, Object> state1Variables = new HashMap<String, Object>();
         state1Variables.put("monitoring_variable", "1");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables);
 
         tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -231,7 +231,7 @@ public class DecisionTest extends ServletTestCase {
         state1Variables.clear();
         state1Variables.put("monitoring_variable", "1");
         for (int i = 0; i < 7; i++) {
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables);
             tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
             assertEquals("tasks length differs from expected", 0, tasks.size());
             tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
@@ -243,7 +243,7 @@ public class DecisionTest extends ServletTestCase {
 
         state1Variables.clear();
         state1Variables.put("monitoring_variable", "4");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables);
 
         tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -293,7 +293,7 @@ public class DecisionTest extends ServletTestCase {
         state1Variables.put("monitoring_variable", "Error_Var2");
 
         try {
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables);
             assertFalse(" Integer in decision parsed value 'Error_Var2' ", true);
         } catch (Exception e) {
             // expected

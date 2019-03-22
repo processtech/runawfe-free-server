@@ -173,9 +173,6 @@ public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends Servlet
         batchPresentation.setPageNumber(3);
 
         List<WfProcess> wrongPageProcesses = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
-        // due to
-        // ru.runa.wfe.presentation.BatchPresentation.setFilteredFieldsMap(Map<Integer,
-        // FilterCriteria>) in hibernate.update
         ArrayAssert.assertEqualArrays("Incorrect returned", firstTenProcesses, wrongPageProcesses);
     }
 

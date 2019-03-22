@@ -206,7 +206,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>());
     }
 
     private void moveAssignMoved() throws Exception {
@@ -216,7 +216,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             tasks2 = checkTaskList(actor2User, 1);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>());
         assertExceptionThrownOnAssign(actor2User, tasks2[0]);
     }
 
@@ -239,7 +239,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>());
     }
 
     private void moveExecuteExecuted() throws Exception {
@@ -249,7 +249,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             tasks2 = checkTaskList(actor2User, 1);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>());
         {
             checkTaskList(actor1User, tasks1[0]);
             checkTaskList(actor2User, tasks2[0]);
@@ -259,7 +259,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
 
     private void assertExceptionThrownOnExecute(User user, WfTask task) throws InternalApplicationException {
         try {
-            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>(), null);
+            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>());
             throw new InternalApplicationException("Exception TaskDoesNotExistException not thrown");
         } catch (AuthenticationException e) {
         } catch (AuthorizationException e) {
