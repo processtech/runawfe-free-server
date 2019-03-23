@@ -28,7 +28,8 @@ public class VariableDao extends GenericDao<Variable> {
 
     public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
         StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(variableNamePattern);
-        return sessionFactory.getCurrentSession().createQuery("from Variable where name " + expression.getComparisonOperator() + " :name and stringValue = :value")
+        return sessionFactory.getCurrentSession()
+                .createQuery("from Variable where name" + expression.getComparisonOperator() + ":name and stringValue = :value")
                 .setParameter("name", expression.getValue())
                 .setParameter("value", stringValue)
                 .list();
