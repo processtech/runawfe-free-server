@@ -27,4 +27,5 @@ public class TokenDao extends GenericDao2<Token, CurrentToken, CurrentTokenDao, 
             return dao1.findByProcessAndExecutionStatusIsNotEnded((CurrentProcess) process);
         }
     }
+
 }

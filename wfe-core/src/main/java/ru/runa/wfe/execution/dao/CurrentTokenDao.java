@@ -1,5 +1,8 @@
 package ru.runa.wfe.execution.dao;
 
+import java.util.Date;
+import ru.runa.wfe.execution.Token;
+
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
@@ -77,4 +80,12 @@ public class CurrentTokenDao extends GenericDao<CurrentToken> {
         val t = QCurrentToken.currentToken;
         return queryFactory.selectFrom(t).where(t.messageSelector.in(messageSelectors).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
     }
+    
+    public List<CurrentToken> findByProcessAndEndDateGreaterThanOrEquals(CurrentProcess process, Date endDate) {
+        QCurrentToken t = QCurrentToken.currentToken;
+        return queryFactory.selectFrom(t)
+                .where(t.process.eq(process).and(t.endDate.eq(endDate).or(t.endDate.after(endDate))))
+                .fetch();
+    }
+
 }

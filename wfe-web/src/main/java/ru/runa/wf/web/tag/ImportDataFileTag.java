@@ -8,7 +8,6 @@ import org.apache.ecs.html.Label;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesOther;
@@ -16,6 +15,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.action.ImportDataFileAction;
+import ru.runa.wfe.commons.SystemProperties;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "importDataFile")
 public class ImportDataFileTag extends TitledFormTag {
@@ -31,7 +31,9 @@ public class ImportDataFileTag extends TitledFormTag {
         getForm().setEncType(Form.ENC_UPLOAD);
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
-        createAddDataRow(table);
+        if (SystemProperties.getAdministratorName().equals(getUser().getName())) {
+            createAddDataRow(table);
+        }
         clearPasswordRow(table);
         clearPasswordForDataSourcesRow(table);
         Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true);

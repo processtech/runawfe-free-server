@@ -29,6 +29,11 @@ public class CurrentCreateTimerLog extends CurrentProcessLog implements CreateTi
         return Type.CREATE_TIMER;
     }
 
+    @Transient
+    public Date getDueDate() {
+        return CalendarUtil.convertToDate(getAttributeNotNull(ATTR_DUE_DATE), CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+    }
+
     @Override
     @Transient
     public Object[] getPatternArguments() {

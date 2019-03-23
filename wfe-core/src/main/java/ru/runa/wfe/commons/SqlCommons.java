@@ -114,7 +114,7 @@ public final class SqlCommons {
         }
 
         public String getComparisonOperator() {
-            return likeExpression ? "like" : "=";
+            return likeExpression ? " like " : " = ";
         }
 
     }

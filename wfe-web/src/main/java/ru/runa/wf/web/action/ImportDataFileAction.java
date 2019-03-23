@@ -26,6 +26,7 @@ import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -71,7 +72,7 @@ public class ImportDataFileAction extends ActionBase {
             boolean clearBeforeUpload = false;
 
             String paramType = request.getParameter(UPLOAD_PARAM);
-            if (CLEAR_BEFORE_UPLOAD.equals(paramType)) {
+            if (CLEAR_BEFORE_UPLOAD.equals(paramType) && SystemProperties.getAdministratorName().equals(getLoggedUser(request).getName())) {
                 clearBeforeUpload = true;
             }
 
@@ -87,7 +88,7 @@ public class ImportDataFileAction extends ActionBase {
             }
 
             ZipInputStream zin = new ZipInputStream(new ByteArrayInputStream(archive));
-            Map<String, byte[]> externalResources = new HashMap<String, byte[]>();
+            Map<String, byte[]> externalResources = new HashMap<>();
             ZipEntry entry;
             while ((entry = zin.getNextEntry()) != null) {
                 byte[] bytes = ByteStreams.toByteArray(zin);
@@ -146,7 +147,7 @@ public class ImportDataFileAction extends ActionBase {
 
                 List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user,
                         BatchPresentationFactory.EXECUTORS.createNonPaged());
-                List<Long> ids = new ArrayList<Long>();
+                List<Long> ids = new ArrayList<>();
                 for (Executor executor : executors) {
                     if (ApplicationContextFactory.getPermissionDao().isPrivilegedExecutor(executor)) {
                         continue;

@@ -39,6 +39,9 @@ public final class MessagesConfirmation {
     public static final StrutsMessage CONF_POPUP_REMOVE_PROCESS = new StrutsMessage("confirmpopup.remove.process");
     public static final StrutsMessage COOKIE_REMOVE_PROCESS = new StrutsMessage("remove.process.cookie");
 
+    public static final StrutsMessage CONF_POPUP_RESTORE_PROCESS = new StrutsMessage("confirmpopup.restore.process");
+    public static final StrutsMessage COOKIE_RESTORE_PROCESS = new StrutsMessage("restore.process.cookie");
+
     public static final StrutsMessage CONF_POPUP_ACCEPT_TASK = new StrutsMessage("confirmpopup.accept.task");
     public static final StrutsMessage COOKIE_ACCEPT_TASK = new StrutsMessage("accept.task.cookie");
 

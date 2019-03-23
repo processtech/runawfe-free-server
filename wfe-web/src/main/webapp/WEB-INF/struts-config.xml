@@ -266,6 +266,10 @@
 			<forward name="success" path="/manage_processes.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
+		<action path="/restoreProcess" type="ru.runa.wf.web.action.RestoreProcessAction" name="idForm" validate="false" scope="request">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
 		<action path="/upgradeProcessToDefinitionVersion" type="ru.runa.wf.web.action.UpgradeProcessToDefinitionVersionAction"
 			name="idVersionForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
 			unknown="false" validate="true">
