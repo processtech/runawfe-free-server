@@ -2,6 +2,7 @@ package ru.runa.wfe.lang.bpmn2;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ActionLog;
@@ -74,15 +75,13 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
     }
 
     @Override
-    protected void execute(ExecutionContext executionContext) throws Exception {
-        TimerJob timerJob = new TimerJob(executionContext.getToken());
-        timerJob.setName(getName());
-        timerJob.setDueDateExpression(dueDateExpression);
-        timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDateExpression));
-        timerJob.setRepeatDurationString(repeatDurationString);
-        jobDao.create(timerJob);
-        log.debug("Created " + timerJob);
-        executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
+    protected void execute(ExecutionContext executionContext) {
+        Date dueDate = ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDateExpression);
+        createTimerJob(executionContext, dueDate);
+    }
+
+    public void restore(ExecutionContext executionContext, Date dueDate) {
+        createTimerJob(executionContext, dueDate);
     }
 
     @Override
@@ -144,4 +143,16 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
             throw Throwables.propagate(th);
         }
     }
+
+    private void createTimerJob(ExecutionContext executionContext, Date dueDate) {
+        TimerJob timerJob = new TimerJob(executionContext.getToken());
+        timerJob.setName(getName());
+        timerJob.setDueDateExpression(dueDateExpression);
+        timerJob.setDueDate(dueDate);
+        timerJob.setRepeatDurationString(repeatDurationString);
+        jobDao.create(timerJob);
+        log.debug("Created " + timerJob);
+        executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
+    }
+
 }

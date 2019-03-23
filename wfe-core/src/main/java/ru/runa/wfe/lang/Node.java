@@ -189,6 +189,7 @@ public abstract class Node extends GraphElement {
                 Token eventToken = new Token(executionContext.getToken(), boundaryNode.getNodeId());
                 eventToken.setNodeId(boundaryNode.getNodeId());
                 eventToken.setNodeType(boundaryNode.getNodeType());
+                ApplicationContextFactory.getTokenDAO().create(eventToken);
                 ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
