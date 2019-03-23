@@ -617,6 +617,8 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         } else {
             queryFactory.delete(ap).where(ap.actorId.eq(executor.getId())).execute();
         }
+        // #266#note-18
+        executor = (Executor) sessionFactory.getCurrentSession().get(Executor.class, executor.getId());
         sessionFactory.getCurrentSession().delete(executor);
     }
 
