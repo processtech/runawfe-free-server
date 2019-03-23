@@ -31,7 +31,9 @@ public class ImportDataFileTag extends TitledFormTag {
         getForm().setEncType(Form.ENC_UPLOAD);
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
-        createAddDataRow(table);
+        if (SystemProperties.getAdministratorName().equals(getUser().getName())) {
+            createAddDataRow(table);
+        }
         clearPasswordRow(table);
         clearPasswordForDataSourcesRow(table);
         Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true);
@@ -51,7 +53,6 @@ public class ImportDataFileTag extends TitledFormTag {
         td.addElement(Entities.NBSP);
         Input uploadAndClearInput = new Input(Input.RADIO, ImportDataFileAction.UPLOAD_PARAM, ImportDataFileAction.CLEAR_BEFORE_UPLOAD);
         uploadAndClearInput.setID(ImportDataFileAction.CLEAR_BEFORE_UPLOAD);
-        uploadAndClearInput.setDisabled(!SystemProperties.getAdministratorName().equals(getUser().getName()));
         td.addElement(uploadAndClearInput);
         label = new Label(ImportDataFileAction.CLEAR_BEFORE_UPLOAD);
         label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_CLEARBEFOREUPLOAD.message(pageContext)));
