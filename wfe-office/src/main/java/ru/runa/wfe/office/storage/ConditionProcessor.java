@@ -17,6 +17,8 @@ import ru.runa.wfe.var.VariableProvider;
 
 public class ConditionProcessor {
 
+    public static final char UNICODE_CHARACTER_OVERLINE = '\u203E';
+
     private static final String LIKE_EXPR_END = ".toLowerCase()) >= 0";
 
     private static final String LIKE_EXPR_START = ".toLowerCase().indexOf(";
@@ -63,6 +65,7 @@ public class ConditionProcessor {
     }
 
     private static String parse(String condition, Map<String, Object> attributes, VariableProvider variableProvider) {
+        condition = hideSpacesInAttributeNames(condition);
         StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(condition);
         while (st.hasMoreTokens()) {
@@ -77,7 +80,7 @@ public class ConditionProcessor {
                 sb.append(OR_EXPR);
             } else if (token.startsWith("[") && token.endsWith("]")) {
                 sb.append(SPACE);
-                sb = appendAttribute(sb, attributes, token);
+                sb = appendAttribute(sb, attributes, token.replace(UNICODE_CHARACTER_OVERLINE, ' '));
             } else if (token.equalsIgnoreCase(LIKE_LITERAL)) {
                 previousOperator = LIKE_LITERAL;
                 sb.append(LIKE_EXPR_START);
@@ -136,6 +139,24 @@ public class ConditionProcessor {
             return "'" + ((Executor) value).getName() + "'";
         }
         return "'" + value + "'";
+    }
+
+    public static String hideSpacesInAttributeNames(String condition) {
+        char[] conditionChars = condition.toCharArray();
+        boolean attributeName = false;
+        for (int i = 0; i < conditionChars.length; i++) {
+            char c = conditionChars[i];
+            if (c == '[') {
+                attributeName = true;
+            } else if (c == ']') {
+                attributeName = false;
+            } else if (c == ' ') {
+                if (attributeName) {
+                    conditionChars[i] = UNICODE_CHARACTER_OVERLINE;
+                }
+            }
+        }
+        return new String(conditionChars);
     }
 
 }

@@ -252,13 +252,14 @@ public abstract class JdbcStoreService implements StoreService {
         if (!isConditionValid(condition)) {
             throw new WrongOperatorException(condition);
         }
+        condition = ConditionProcessor.hideSpacesInAttributeNames(condition);
         StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(condition);
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
             if (token.startsWith("[") && token.endsWith("]")) {
                 sb.append(SPACE);
-                sb.append('"').append(token.substring(1, token.length() - 1)).append('"');
+                sb.append('"').append(token.replace(ConditionProcessor.UNICODE_CHARACTER_OVERLINE, ' ').substring(1, token.length() - 1)).append('"');
             } else if (token.equalsIgnoreCase(LIKE_LITERAL)) {
                 sb.append(SPACE);
                 sb.append(LIKE_LITERAL);
