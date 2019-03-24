@@ -33,7 +33,7 @@ public class RefactorPermissionsStep4 extends DbMigration {
             session.createSQLQuery("delete from permission_mapping where object_type = 'EXECUTOR'").executeUpdate();
             session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'")
                     .executeUpdate();
-            session.createSQLQuery("delete from priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
+            // session.createSQLQuery("delete from priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
             session.createSQLQuery("delete from priveleged_mapping where type = 'GROUP'").executeUpdate();
             session.createSQLQuery("update priveleged_mapping set type = 'EXECUTOR' where type = 'ACTOR'").executeUpdate();
         }
