@@ -49,6 +49,7 @@ public class WfProcess extends SecuredObject {
         this.name = process.getDefinitionVersion().getDefinition().getName();
         this.definitionId = process.getDefinitionVersion().getId();
         this.version = process.getDefinitionVersion().getVersion().intValue();
+        this.archived = process.isArchived();
         this.startDate = process.getStartDate();
         this.endDate = process.getEndDate();
         this.hierarchyIds = process.getHierarchyIds();
