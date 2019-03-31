@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.commons.dao.GenericDao2;
+import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
@@ -23,21 +23,21 @@ import ru.runa.wfe.var.Variable;
 
 @Component
 @CommonsLog
-public class VariableDao extends GenericDao2<Variable, CurrentVariable, CurrentVariableDao, ArchivedVariable, ArchivedVariableDao> {
+public class VariableDao extends ArchiveAwareGenericDao<Variable, CurrentVariable, CurrentVariableDao, ArchivedVariable, ArchivedVariableDao> {
 
     @Autowired
     protected SessionFactory sessionFactory;
 
     @Autowired
-    VariableDao(CurrentVariableDao dao1, ArchivedVariableDao dao2) {
-        super(dao1, dao2);
+    VariableDao(CurrentVariableDao currentDao, ArchivedVariableDao archivedDao) {
+        super(currentDao, archivedDao);
     }
 
     public Variable get(Process process, String name) {
         if (process.isArchived()) {
-            return dao2.get((ArchivedProcess) process, name);
+            return archivedDao.get((ArchivedProcess) process, name);
         } else {
-            return dao1.get((CurrentProcess) process, name);
+            return currentDao.get((CurrentProcess) process, name);
         }
     }
 
@@ -47,8 +47,8 @@ public class VariableDao extends GenericDao2<Variable, CurrentVariable, CurrentV
     public Map<String, Object> getAll(Process process) {
         Map<String, Object> result = Maps.newHashMap();
         List<? extends Variable> vars = process.isArchived()
-                ? dao2.getAllImpl((ArchivedProcess) process)
-                : dao1.getAllImpl((CurrentProcess) process);
+                ? archivedDao.getAllImpl((ArchivedProcess) process)
+                : currentDao.getAllImpl((CurrentProcess) process);
         for (Variable v : vars) {
             try {
                 result.put(v.getName(), v.getValue());
@@ -110,14 +110,14 @@ public class VariableDao extends GenericDao2<Variable, CurrentVariable, CurrentV
         int databaseParametersCount = SystemProperties.getDatabaseParametersCount();
         if (!currentProcesses.isEmpty()) {
             for (val pp : Lists.partition(currentProcesses, databaseParametersCount)) {
-                for (val v : dao1.getVariablesImpl(pp, variableNamesOrNull)) {
+                for (val v : currentDao.getVariablesImpl(pp, variableNamesOrNull)) {
                     result.get(v.getProcess()).put(v.getName(), v);
                 }
             }
         }
         if (!archivedProcesses.isEmpty()) {
             for (val pp : Lists.partition(archivedProcesses, databaseParametersCount)) {
-                for (val v : dao2.getVariablesImpl(pp, variableNamesOrNull)) {
+                for (val v : archivedDao.getVariablesImpl(pp, variableNamesOrNull)) {
                     result.get(v.getProcess()).put(v.getName(), v);
                 }
             }

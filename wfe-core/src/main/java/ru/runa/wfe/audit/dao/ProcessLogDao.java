@@ -13,8 +13,9 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.ArchivedProcessLog;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.CurrentProcessLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.commons.dao.GenericDao2;
+import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
@@ -25,23 +26,23 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 @Component
 @CommonsLog
-public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog, CurrentProcessLogDao, ArchivedProcessLog, ArchivedProcessLogDao> {
+public class ProcessLogDao extends ArchiveAwareGenericDao<BaseProcessLog, CurrentProcessLog, CurrentProcessLogDao, ArchivedProcessLog, ArchivedProcessLogDao> {
 
     private ProcessDao processDao;
     private ProcessDefinitionLoader processDefinitionLoader;
 
     @Autowired
-    public ProcessLogDao(CurrentProcessLogDao dao1, ArchivedProcessLogDao dao2, ProcessDao processDao, ProcessDefinitionLoader loader) {
-        super(dao1, dao2);
+    public ProcessLogDao(CurrentProcessLogDao currentDao, ArchivedProcessLogDao archivedDao, ProcessDao processDao, ProcessDefinitionLoader loader) {
+        super(currentDao, archivedDao);
         this.processDao = processDao;
         this.processDefinitionLoader = loader;
     }
 
     public List<? extends BaseProcessLog> getAll(@NonNull Process process) {
         if (process.isArchived()) {
-            return dao2.getAll(process.getId());
+            return archivedDao.getAll(process.getId());
         } else {
-            return dao1.getAll(process.getId());
+            return currentDao.getAll(process.getId());
         }
     }
 
@@ -57,41 +58,36 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
                 ? processDao.get(filter.getProcessId())
                 : null;
         if (process == null) {
-            val current = dao1.getAll(filter);
-            val archived = dao2.getAll(filter);
+            val current = currentDao.getAll(filter);
+            val archived = archivedDao.getAll(filter);
             val result = new ArrayList<BaseProcessLog>(current.size() + archived.size());
             result.addAll(current);
             result.addAll(archived);
-            result.sort(new Comparator<BaseProcessLog>() {
-                @Override
-                public int compare(BaseProcessLog o1, BaseProcessLog o2) {
-                    return Long.compare(o1.getId(), o2.getId());
-                }
-            });
+            result.sort(Comparator.comparingLong(ProcessLog::getId));
             return result;
         } else if (!process.isArchived()) {
-            return dao1.getAll(filter);
+            return currentDao.getAll(filter);
         } else if (filter.getTokenId() != null) {
             // Archive does not have TOKEN_ID field.
             return Collections.emptyList();
         } else {
-            return dao2.getAll(filter);
+            return archivedDao.getAll(filter);
         }
     }
 
     public List<? extends BaseProcessLog> get(@NonNull Process process, ParsedProcessDefinition definition) {
         if (process.isArchived()) {
-            return dao2.get((ArchivedProcess) process, definition);
+            return archivedDao.get((ArchivedProcess) process, definition);
         } else {
-            return dao1.get((CurrentProcess) process, definition);
+            return currentDao.get((CurrentProcess) process, definition);
         }
     }
 
     public boolean isNodeEntered(@NonNull Process process, String nodeId) {
         if (process.isArchived()) {
-            return dao2.isNodeEntered((ArchivedProcess) process, nodeId);
+            return archivedDao.isNodeEntered((ArchivedProcess) process, nodeId);
         } else {
-            return dao1.isNodeEntered((CurrentProcess) process, nodeId);
+            return currentDao.isNodeEntered((CurrentProcess) process, nodeId);
         }
     }
 
@@ -106,7 +102,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
         }
         processLog.setCreateDate(new Date());
 
-        dao1.create(processLog);
+        currentDao.create(processLog);
 
         try {
             UpdateAggregatedLogVisitor op = new UpdateAggregatedLogVisitor(sessionFactory, queryFactory, processDefinitionLoader, process);
@@ -120,6 +116,6 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
      * Deletes all process logs.
      */
     public void deleteAll(CurrentProcess process) {
-        dao1.deleteAll(process);
+        currentDao.deleteAll(process);
     }
 }

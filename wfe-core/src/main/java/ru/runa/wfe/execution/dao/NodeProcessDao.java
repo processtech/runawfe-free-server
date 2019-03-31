@@ -7,7 +7,7 @@ import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDao2;
+import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
 import ru.runa.wfe.execution.ArchivedNodeProcess;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.ArchivedToken;
@@ -19,11 +19,11 @@ import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentToken;
 
 @Component
-public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess, CurrentNodeProcessDao, ArchivedNodeProcess, ArchivedNodeProcessDao> {
+public class NodeProcessDao extends ArchiveAwareGenericDao<NodeProcess, CurrentNodeProcess, CurrentNodeProcessDao, ArchivedNodeProcess, ArchivedNodeProcessDao> {
 
     @Autowired
-    protected NodeProcessDao(CurrentNodeProcessDao dao1, ArchivedNodeProcessDao dao2) {
-        super(dao1, dao2);
+    protected NodeProcessDao(CurrentNodeProcessDao currentDao, ArchivedNodeProcessDao archivedDao) {
+        super(currentDao, archivedDao);
     }
 
     /**
@@ -41,18 +41,18 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
     }
 
     public NodeProcess findBySubProcessId(Long subProcessId) {
-        NodeProcess result = dao1.findBySubProcessId(subProcessId);
+        NodeProcess result = currentDao.findBySubProcessId(subProcessId);
         if (result == null) {
-            result = dao2.findBySubProcessId(subProcessId);
+            result = archivedDao.findBySubProcessId(subProcessId);
         }
         return result;
     }
 
     public NodeProcess findBySubProcess(Process subProcess) {
         if (subProcess.isArchived()) {
-            return dao2.findBySubProcessId(subProcess.getId());
+            return archivedDao.findBySubProcessId(subProcess.getId());
         } else {
-            return dao1.findBySubProcessId(subProcess.getId());
+            return currentDao.findBySubProcessId(subProcess.getId());
         }
     }
 
@@ -62,37 +62,37 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
         Boolean isArchive = calculateIsArchive(process, parentToken);
         if (isArchive == null) {
             val result = new ArrayList<NodeProcess>();
-            result.addAll(dao1.getNodeProcesses(null, null, nodeId, finished));
-            result.addAll(dao2.getNodeProcesses(null, null, nodeId, finished));
+            result.addAll(currentDao.getNodeProcesses(null, null, nodeId, finished));
+            result.addAll(archivedDao.getNodeProcesses(null, null, nodeId, finished));
             return result;
         } else if (isArchive) {
-            return dao2.getNodeProcesses((ArchivedProcess) process, (ArchivedToken) parentToken, nodeId, finished);
+            return archivedDao.getNodeProcesses((ArchivedProcess) process, (ArchivedToken) parentToken, nodeId, finished);
         } else {
-            return dao1.getNodeProcesses((CurrentProcess) process, (CurrentToken) parentToken, nodeId, finished);
+            return currentDao.getNodeProcesses((CurrentProcess) process, (CurrentToken) parentToken, nodeId, finished);
         }
     }
 
     public List<? extends Process> getSubprocesses(@NonNull Process process) {
         if (process.isArchived()) {
-            return dao2.getSubprocesses((ArchivedProcess) process);
+            return archivedDao.getSubprocesses((ArchivedProcess) process);
         } else {
-            return dao1.getSubprocesses((CurrentProcess) process);
+            return currentDao.getSubprocesses((CurrentProcess) process);
         }
     }
 
     public List<? extends Process> getSubprocesses(@NonNull Token token) {
         if (token.isArchived()) {
-            return dao2.getSubprocesses((ArchivedToken) token);
+            return archivedDao.getSubprocesses((ArchivedToken) token);
         } else {
-            return dao1.getSubprocesses((CurrentToken) token);
+            return currentDao.getSubprocesses((CurrentToken) token);
         }
     }
 
     public List<? extends Process> getSubprocessesRecursive(@NonNull Process process) {
         if (process.isArchived()) {
-            return dao2.getSubprocessesRecursive((ArchivedProcess) process);
+            return archivedDao.getSubprocessesRecursive((ArchivedProcess) process);
         } else {
-            return dao1.getSubprocessesRecursive((CurrentProcess) process);
+            return currentDao.getSubprocessesRecursive((CurrentProcess) process);
         }
     }
 }

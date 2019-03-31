@@ -12,9 +12,9 @@ import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
  * Introduced to support process archiving.
  */
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class GenericDao2<T, T1 extends T, D1 extends GenericDao<T1>, T2 extends T, D2 extends ReadOnlyGenericDao<T2>> {
-    protected final D1 dao1;
-    protected final D2 dao2;
+public abstract class ArchiveAwareGenericDao<T, CT extends T, CD extends GenericDao<CT>, AT extends T, AD extends ReadOnlyGenericDao<AT>> {
+    protected final CD currentDao;
+    protected final AD archivedDao;
 
     @Autowired
     protected SessionFactory sessionFactory;
@@ -22,8 +22,8 @@ public abstract class GenericDao2<T, T1 extends T, D1 extends GenericDao<T1>, T2
     protected HibernateQueryFactory queryFactory;
 
     public T get(Long id) {
-        T entity = dao1.get(id);
-        return entity != null ? entity : dao2.get(id);
+        T entity = currentDao.get(id);
+        return entity != null ? entity : archivedDao.get(id);
     }
 
     public T getNotNull(Long id) {

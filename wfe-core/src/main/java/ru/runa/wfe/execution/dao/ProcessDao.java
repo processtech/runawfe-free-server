@@ -6,7 +6,7 @@ import java.util.Set;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.dao.GenericDao2;
+import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
@@ -15,11 +15,11 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.user.Executor;
 
 @Component
-public class ProcessDao extends GenericDao2<Process, CurrentProcess, CurrentProcessDao, ArchivedProcess, ArchivedProcessDao> {
+public class ProcessDao extends ArchiveAwareGenericDao<Process, CurrentProcess, CurrentProcessDao, ArchivedProcess, ArchivedProcessDao> {
 
     @Autowired
-    ProcessDao(CurrentProcessDao dao1, ArchivedProcessDao dao2) {
-        super(dao1, dao2);
+    ProcessDao(CurrentProcessDao currentDao, ArchivedProcessDao archivedDao) {
+        super(currentDao, archivedDao);
     }
 
     @Override
@@ -38,15 +38,15 @@ public class ProcessDao extends GenericDao2<Process, CurrentProcess, CurrentProc
         if (ids.isEmpty()) {
             return result;
         }
-        result.addAll(dao1.findImpl(ids));
-        result.addAll(dao2.findImpl(ids));
+        result.addAll(currentDao.findImpl(ids));
+        result.addAll(archivedDao.findImpl(ids));
         return result;
     }
 
     public Set<Long> getDependentProcessIds(Executor executor, int limit) {
-        val result = dao1.getDependentProcessIds(executor, limit);
+        val result = currentDao.getDependentProcessIds(executor, limit);
         if (result.size() < limit) {
-            result.addAll(dao2.getDependentProcessIds(executor, limit - result.size()));
+            result.addAll(archivedDao.getDependentProcessIds(executor, limit - result.size()));
         }
         return result;
     }
@@ -54,8 +54,8 @@ public class ProcessDao extends GenericDao2<Process, CurrentProcess, CurrentProc
     // TODO Unused.
     public List<Process> getProcesses(final ProcessFilter filter) {
         val result = new ArrayList<Process>();
-        result.addAll(dao1.getProcesses(filter));
-        result.addAll(dao2.getProcesses(filter));
+        result.addAll(currentDao.getProcesses(filter));
+        result.addAll(archivedDao.getProcesses(filter));
         return result;
     }
 }
