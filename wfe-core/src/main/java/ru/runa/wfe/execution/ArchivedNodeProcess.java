@@ -38,7 +38,7 @@ public class ArchivedNodeProcess extends NodeProcess<ArchivedProcess, ArchivedTo
     private ArchivedToken parentToken;
 
     @Override
-    public boolean isArchive() {
+    public boolean isArchived() {
         return true;
     }
 

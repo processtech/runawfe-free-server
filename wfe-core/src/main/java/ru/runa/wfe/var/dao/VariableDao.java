@@ -34,7 +34,7 @@ public class VariableDao extends GenericDao2<Variable, CurrentVariable, CurrentV
     }
 
     public Variable get(Process process, String name) {
-        if (process.isArchive()) {
+        if (process.isArchived()) {
             return dao2.get((ArchivedProcess) process, name);
         } else {
             return dao1.get((CurrentProcess) process, name);
@@ -46,7 +46,7 @@ public class VariableDao extends GenericDao2<Variable, CurrentVariable, CurrentV
      */
     public Map<String, Object> getAll(Process process) {
         Map<String, Object> result = Maps.newHashMap();
-        List<? extends Variable> vars = process.isArchive()
+        List<? extends Variable> vars = process.isArchived()
                 ? dao2.getAllImpl((ArchivedProcess) process)
                 : dao1.getAllImpl((CurrentProcess) process);
         for (Variable v : vars) {
@@ -93,7 +93,7 @@ public class VariableDao extends GenericDao2<Variable, CurrentVariable, CurrentV
         val currentProcesses = new ArrayList<CurrentProcess>(processes.size());
         val archivedProcesses = new ArrayList<ArchivedProcess>(processes.size());
         for (Process p : processes) {
-            if (p.isArchive()) {
+            if (p.isArchived()) {
                 archivedProcesses.add((ArchivedProcess) p);
             } else {
                 currentProcesses.add((CurrentProcess) p);

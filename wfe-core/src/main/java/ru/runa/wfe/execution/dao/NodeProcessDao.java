@@ -31,10 +31,10 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
      */
     private Boolean calculateIsArchive(Process process, Token token) {
         if (process != null) {
-            Preconditions.checkState(token == null || process.isArchive() == token.isArchive());
-            return process.isArchive();
+            Preconditions.checkState(token == null || process.isArchived() == token.isArchived());
+            return process.isArchived();
         } else if (token != null) {
-            return token.isArchive();
+            return token.isArchived();
         } else {
             return null;
         }
@@ -49,7 +49,7 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
     }
 
     public NodeProcess findBySubProcess(Process subProcess) {
-        if (subProcess.isArchive()) {
+        if (subProcess.isArchived()) {
             return dao2.findBySubProcessId(subProcess.getId());
         } else {
             return dao1.findBySubProcessId(subProcess.getId());
@@ -73,7 +73,7 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
     }
 
     public List<? extends Process> getSubprocesses(@NonNull Process process) {
-        if (process.isArchive()) {
+        if (process.isArchived()) {
             return dao2.getSubprocesses((ArchivedProcess) process);
         } else {
             return dao1.getSubprocesses((CurrentProcess) process);
@@ -81,7 +81,7 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
     }
 
     public List<? extends Process> getSubprocesses(@NonNull Token token) {
-        if (token.isArchive()) {
+        if (token.isArchived()) {
             return dao2.getSubprocesses((ArchivedToken) token);
         } else {
             return dao1.getSubprocesses((CurrentToken) token);
@@ -89,7 +89,7 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
     }
 
     public List<? extends Process> getSubprocessesRecursive(@NonNull Process process) {
-        if (process.isArchive()) {
+        if (process.isArchived()) {
             return dao2.getSubprocessesRecursive((ArchivedProcess) process);
         } else {
             return dao1.getSubprocessesRecursive((CurrentProcess) process);

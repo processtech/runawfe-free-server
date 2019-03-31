@@ -38,7 +38,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
     }
 
     public List<? extends BaseProcessLog> getAll(@NonNull Process process) {
-        if (process.isArchive()) {
+        if (process.isArchived()) {
             return dao2.getAll(process.getId());
         } else {
             return dao1.getAll(process.getId());
@@ -69,7 +69,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
                 }
             });
             return result;
-        } else if (!process.isArchive()) {
+        } else if (!process.isArchived()) {
             return dao1.getAll(filter);
         } else if (filter.getTokenId() != null) {
             // Archive does not have TOKEN_ID field.
@@ -80,7 +80,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
     }
 
     public List<? extends BaseProcessLog> get(@NonNull Process process, ParsedProcessDefinition definition) {
-        if (process.isArchive()) {
+        if (process.isArchived()) {
             return dao2.get((ArchivedProcess) process, definition);
         } else {
             return dao1.get((CurrentProcess) process, definition);
@@ -88,7 +88,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
     }
 
     public boolean isNodeEntered(@NonNull Process process, String nodeId) {
-        if (process.isArchive()) {
+        if (process.isArchived()) {
             return dao2.isNodeEntered((ArchivedProcess) process, nodeId);
         } else {
             return dao1.isNodeEntered((CurrentProcess) process, nodeId);

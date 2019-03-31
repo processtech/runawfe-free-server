@@ -28,7 +28,7 @@ public class WfProcess extends SecuredObject {
     private Date startDate;
     private Date endDate;
     private int version;
-    private boolean archive;
+    private boolean archived;
 
     /**
      * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
@@ -131,8 +131,8 @@ public class WfProcess extends SecuredObject {
         return executionStatus;
     }
 
-    public boolean isArchive() {
-        return archive;
+    public boolean isArchived() {
+        return archived;
     }
 
     @Override

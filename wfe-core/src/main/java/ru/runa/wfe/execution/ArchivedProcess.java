@@ -31,7 +31,7 @@ public class ArchivedProcess extends Process<ArchivedToken> {
     private ArchivedToken rootToken;
 
     @Override
-    public boolean isArchive() {
+    public boolean isArchived() {
         return true;
     }
 

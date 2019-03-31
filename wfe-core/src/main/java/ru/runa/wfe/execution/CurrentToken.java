@@ -86,7 +86,7 @@ public class CurrentToken extends Token implements Serializable {
     }
 
     @Override
-    public boolean isArchive() {
+    public boolean isArchived() {
         return false;
     }
 

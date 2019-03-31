@@ -43,7 +43,7 @@ public abstract class CurrentProcessLog extends BaseProcessLog {
 
     @Override
     @Transient
-    public boolean isArchive() {
+    public boolean isArchived() {
         return false;
     }
 

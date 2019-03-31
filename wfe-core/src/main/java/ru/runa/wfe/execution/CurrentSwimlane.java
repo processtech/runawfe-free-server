@@ -55,7 +55,7 @@ public class CurrentSwimlane extends Swimlane<CurrentProcess> implements Seriali
     }
 
     @Override
-    public boolean isArchive() {
+    public boolean isArchived() {
         return false;
     }
 

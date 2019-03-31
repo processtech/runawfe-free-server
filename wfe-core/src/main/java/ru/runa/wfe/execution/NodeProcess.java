@@ -25,7 +25,7 @@ public abstract class NodeProcess<P extends Process, T extends Token> {
     @Column(name = "CREATE_DATE", nullable = false)
     protected Date createDate;
 
-    public abstract boolean isArchive();
+    public abstract boolean isArchived();
     public abstract Long getId();
     public abstract P getProcess();
     public abstract P getSubProcess();

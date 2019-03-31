@@ -42,7 +42,7 @@ public abstract class Process<T extends Token> extends SecuredObject {
     @Column(name = "EXTERNAL_DATA")
     protected Long externalData;
 
-    public abstract boolean isArchive();
+    public abstract boolean isArchived();
     @Override
     public abstract Long getId();
     public abstract T getRootToken();

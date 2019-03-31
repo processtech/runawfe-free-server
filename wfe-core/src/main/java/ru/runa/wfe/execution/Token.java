@@ -55,7 +55,7 @@ public abstract class Token {
     @Column(name = "ERROR_MESSAGE", length = 1024)
     protected String errorMessage;
 
-    public abstract boolean isArchive();
+    public abstract boolean isArchived();
     public abstract Long getId();
     public abstract Process getProcess();
     public abstract Token getParent();

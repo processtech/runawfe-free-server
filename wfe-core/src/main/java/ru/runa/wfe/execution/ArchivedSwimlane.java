@@ -29,7 +29,7 @@ public class ArchivedSwimlane extends Swimlane<ArchivedProcess> {
     private Executor executor;
 
     @Override
-    public boolean isArchive() {
+    public boolean isArchived() {
         return true;
     }
 

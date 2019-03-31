@@ -21,7 +21,7 @@ public class SwimlaneDao extends GenericDao2<Swimlane, CurrentSwimlane, CurrentS
     }
 
     public Swimlane findByProcessAndName(Process process, String name) {
-        if (process.isArchive()) {
+        if (process.isArchived()) {
             return dao2.findByProcessAndName((ArchivedProcess) process, name);
         } else {
             return dao1.findByProcessAndName((CurrentProcess) process, name);

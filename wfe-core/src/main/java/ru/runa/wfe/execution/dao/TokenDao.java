@@ -20,7 +20,7 @@ public class TokenDao extends GenericDao2<Token, CurrentToken, CurrentTokenDao, 
     }
 
     public List<? extends Token> findByProcessAndExecutionStatusIsNotEnded(Process process) {
-        if (process.isArchive()) {
+        if (process.isArchived()) {
             // In archive, execution status is always ENDED.
             return Collections.emptyList();
         } else {

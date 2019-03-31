@@ -25,7 +25,7 @@ public abstract class ArchivedProcessLog extends BaseProcessLog {
 
     @Override
     @Transient
-    public boolean isArchive() {
+    public boolean isArchived() {
         return true;
     }
 

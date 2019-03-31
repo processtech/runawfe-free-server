@@ -40,7 +40,7 @@ public abstract class Variable<P extends Process, V> {
     protected Date createDate;
 
     @Transient
-    public abstract boolean isArchive();
+    public abstract boolean isArchived();
 
     @Transient
     public abstract Long getId();

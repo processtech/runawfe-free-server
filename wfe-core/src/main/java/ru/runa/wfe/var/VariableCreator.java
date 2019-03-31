@@ -61,7 +61,7 @@ public class VariableCreator {
     public Variable create(Process process, VariableDefinition variableDefinition, Object value) {
         log.debug("Creating variable '" + variableDefinition.getName() + "' in " + process + " with value '" + value + "'"
                 + (value != null ? " of " + value.getClass() : ""));
-        boolean isArchive = process.isArchive();
+        boolean isArchive = process.isArchived();
         Variable variable;
         if (value == null) {
             variable = isArchive ? new ArchivedNullVariable() : new CurrentNullVariable();

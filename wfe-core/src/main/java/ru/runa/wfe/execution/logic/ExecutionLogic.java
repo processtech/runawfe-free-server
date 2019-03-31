@@ -406,7 +406,7 @@ public class ExecutionLogic extends WfCommonLogic {
     public List<WfJob> getJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
         Process p = processDao.getNotNull(processId);
         permissionDao.checkAllowed(user, Permission.LIST, p);
-        if (p.isArchive()) {
+        if (p.isArchived()) {
             return Collections.emptyList();
         }
         val cp = (CurrentProcess) p;
@@ -432,7 +432,7 @@ public class ExecutionLogic extends WfCommonLogic {
         permissionDao.checkAllowed(user, Permission.LIST, process);
 
         // Optimization: erroneous processes don't go to archive.
-        if (toPopulateExecutionErrors && process.isArchive()) {
+        if (toPopulateExecutionErrors && process.isArchived()) {
             return Collections.emptyList();
         }
 

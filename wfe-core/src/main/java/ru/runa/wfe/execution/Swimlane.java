@@ -29,7 +29,7 @@ public abstract class Swimlane<P extends Process> {
     @Column(name = "CREATE_DATE", nullable = false)
     protected Date createDate;
 
-    public abstract boolean isArchive();
+    public abstract boolean isArchived();
     public abstract Long getId();
     public abstract P getProcess();
     public abstract Executor getExecutor();

@@ -200,7 +200,7 @@ public class ExecutionContext {
             SwimlaneDefinition swimlaneDefinition = getParsedProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
                 Swimlane swimlane = swimlaneDao.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
-                if (swimlane == null && !getProcess().isArchive() && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
+                if (swimlane == null && !getProcess().isArchived() && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
                     swimlane = currentSwimlaneDao.findOrCreateInitialized(this, swimlaneDefinition, false);
                 }
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
@@ -221,7 +221,7 @@ public class ExecutionContext {
     }
 
     public void setVariableValue(@NonNull String name, Object value) {
-        Preconditions.checkState(!token.isArchive());
+        Preconditions.checkState(!token.isArchived());
         SwimlaneDefinition swimlaneDefinition = getParsedProcessDefinition().getSwimlane(name);
         if (swimlaneDefinition != null) {
             log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
@@ -243,7 +243,7 @@ public class ExecutionContext {
      * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
      */
     public void setVariableValues(Map<String, Object> variables) {
-        Preconditions.checkState(!token.isArchive());
+        Preconditions.checkState(!token.isArchived());
         for (Map.Entry<String, Object> entry : variables.entrySet()) {
             setVariableValue(entry.getKey(), entry.getValue());
         }

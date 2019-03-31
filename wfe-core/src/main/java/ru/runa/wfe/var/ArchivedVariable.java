@@ -31,7 +31,7 @@ public abstract class ArchivedVariable<V> extends Variable<ArchivedProcess, V> {
 
     @Override
     @Transient
-    public boolean isArchive() {
+    public boolean isArchived() {
         return true;
     }
 

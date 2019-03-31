@@ -44,7 +44,7 @@ public class ArchivedToken extends Token {
     private String messageSelector;
 
     @Override
-    public boolean isArchive() {
+    public boolean isArchived() {
         return true;
     }
 

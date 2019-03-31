@@ -57,7 +57,7 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
     }
 
     @Override
-    public boolean isArchive() {
+    public boolean isArchived() {
         return false;
     }
 

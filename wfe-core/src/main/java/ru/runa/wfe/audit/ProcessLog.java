@@ -65,7 +65,7 @@ public interface ProcessLog extends Attributes, Comparable<ProcessLog>, Serializ
     @Transient
     Type getType();
     @Transient
-    boolean isArchive();
+    boolean isArchived();
 
     @Transient
     Long getId();

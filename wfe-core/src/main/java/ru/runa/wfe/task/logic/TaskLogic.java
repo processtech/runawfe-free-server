@@ -235,7 +235,7 @@ public class TaskLogic extends WfCommonLogic {
         List<WfTask> result = Lists.newArrayList();
         Process p = processDao.getNotNull(processId);
         permissionDao.checkAllowed(user, Permission.LIST, p);
-        if (p.isArchive()) {
+        if (p.isArchived()) {
             return Collections.emptyList();
         }
         val cp = (CurrentProcess) p;

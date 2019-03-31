@@ -46,7 +46,7 @@ public abstract class CurrentVariable<V> extends Variable<CurrentProcess, V> {
 
     @Override
     @Transient
-    public boolean isArchive() {
+    public boolean isArchived() {
         return false;
     }
 

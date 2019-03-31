@@ -54,7 +54,7 @@ public class CurrentProcess extends Process<CurrentToken> {
     }
 
     @Override
-    public boolean isArchive() {
+    public boolean isArchived() {
         return false;
     }
 
