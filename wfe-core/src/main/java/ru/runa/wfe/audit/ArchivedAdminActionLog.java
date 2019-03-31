@@ -35,7 +35,6 @@ public class ArchivedAdminActionLog extends ArchivedProcessLog implements AdminA
                 break;
             }
         }
-        //noinspection ToArrayCallWithZeroLengthArrayArgument
         return result.toArray(new Object[result.size()]);
     }
 

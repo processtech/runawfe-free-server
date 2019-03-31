@@ -7,7 +7,6 @@ import ru.runa.wfe.var.converter.FileVariableToByteArrayConverter;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 import ru.runa.wfe.var.converter.StringToByteArrayConverter;
 
-// TODO After migrating to java8, this can be replaced with interface VariableLog default methods.
 class CurrentAndArchiveCommons {
 
     static Object variableLog_getVariableNewValue(VariableLog l) {

@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons;
 
-import com.google.common.base.Preconditions;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -49,7 +48,6 @@ public class ManualTransactionManager {
 
     @PostConstruct
     public void init() {
-        Preconditions.checkNotNull(txManager);
         txDefinition = new DefaultTransactionDefinition();
         txDefinition.setName("WfeManual");
     }

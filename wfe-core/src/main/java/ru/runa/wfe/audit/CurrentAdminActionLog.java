@@ -51,7 +51,6 @@ public class CurrentAdminActionLog extends CurrentProcessLog implements AdminAct
                 break;
             }
         }
-        //noinspection ToArrayCallWithZeroLengthArrayArgument
         return result.toArray(new Object[result.size()]);
     }
 
