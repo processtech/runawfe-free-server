@@ -63,7 +63,13 @@ public class ProcessLogDao extends ArchiveAwareGenericDao<BaseProcessLog, Curren
             val result = new ArrayList<BaseProcessLog>(current.size() + archived.size());
             result.addAll(current);
             result.addAll(archived);
-            result.sort(Comparator.comparingLong(ProcessLog::getId));
+            result.sort(new Comparator<BaseProcessLog>() {
+                    @Override
+                    public int compare(BaseProcessLog o1, BaseProcessLog o2) {
+                        return Long.compare(o1.getId(), o2.getId());
+                    }
+                }
+            );
             return result;
         } else if (!process.isArchived()) {
             return currentDao.getAll(filter);
