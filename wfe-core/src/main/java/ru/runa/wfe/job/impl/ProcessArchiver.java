@@ -227,8 +227,8 @@ public class ProcessArchiver {
 
                 // Refernces self, plus has root_token_id field.
                 stmt.executeUpdate("insert into archived_process " +
-                        "      (id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id) " +
-                        "select id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id " +
+                        "      (id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id, external_data) " +
+                        "select id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id, external_data " +
                         "from bpm_process " +
                         "where id in " + pidsCsv
                 );
