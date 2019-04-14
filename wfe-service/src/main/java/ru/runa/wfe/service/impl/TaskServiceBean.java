@@ -125,7 +125,7 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     public void completeTaskWS(@WebParam(name = "user") @NonNull User user, @WebParam(name = "taskId") @NonNull Long taskId,
             @WebParam(name = "variables") List<Variable> variables, @WebParam(name = "swimlaneActorId") Long swimlaneActorId) {
         WfTask task = taskLogic.getTask(user, taskId);
-        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(task.getDefinitionId());
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(task.getDefinitionVersionId());
         completeTask(user, taskId, VariableConverter.unmarshal(parsedProcessDefinition, variables), swimlaneActorId);
     }
 

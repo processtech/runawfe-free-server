@@ -58,7 +58,7 @@ public class GetComponentInputServlet extends HttpServlet {
             scriptingName = variable.getDefinition().getScriptingName();
             variableIsNullString = variableIsNull.toString();
         } else {
-            Long processDefinitionVersionId = Delegates.getExecutionService().getProcess(user, processId).getDefinitionId();
+            Long processDefinitionVersionId = Delegates.getExecutionService().getProcess(user, processId).getDefinitionVersionId();
             VariableDefinition variableDefinition = Delegates.getDefinitionService().getVariableDefinition(user, processDefinitionVersionId, variableName);
             if (variableDefinition != null) {
                 scriptingName = variableDefinition.getScriptingName();

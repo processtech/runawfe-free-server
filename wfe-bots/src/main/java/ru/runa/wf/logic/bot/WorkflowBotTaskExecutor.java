@@ -202,7 +202,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             log.error("Error execution " + this, th);
             logBotError(task, th);
             executionStatus = WorkflowBotTaskExecutionStatus.FAILED;
-            WfNode node = Delegates.getDefinitionService().getNode(botExecutor.getUser(), task.getDefinitionId(), task.getNodeId());
+            WfNode node = Delegates.getDefinitionService().getNode(botExecutor.getUser(), task.getDefinitionVersionId(), task.getNodeId());
             if (node != null && node.hasErrorEventHandler() && !(th instanceof ConfigurationException)) {
                 new TransactionalExecutor(ApplicationContextFactory.getTransaction()) {
 

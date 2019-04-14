@@ -142,7 +142,7 @@ public class ErrorDetailsAction extends ActionBase {
                             try {
                                 processFiles.put(
                                         processDefinitionFileName,
-                                        Delegates.getDefinitionService().getProcessDefinitionFile(user, process.getDefinitionId(),
+                                        Delegates.getDefinitionService().getProcessDefinitionFile(user, process.getDefinitionVersionId(),
                                                 FileDataProvider.PAR_FILE));
                                 fileIncluded = true;
                             } catch (Exception e) {

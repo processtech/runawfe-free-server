@@ -52,7 +52,7 @@ public abstract class TaskFormBuilder {
     }
 
     public final String build(WfTask task) {
-        this.definitionVersionId = task.getDefinitionId();
+        this.definitionVersionId = task.getDefinitionVersionId();
         this.task = task;
         if (interaction.hasForm()) {
             VariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
@@ -61,7 +61,7 @@ public abstract class TaskFormBuilder {
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
-            return buildForm(variableProvider, task.getDefinitionId());
+            return buildForm(variableProvider, task.getDefinitionVersionId());
         } else {
             return buildEmptyForm();
         }

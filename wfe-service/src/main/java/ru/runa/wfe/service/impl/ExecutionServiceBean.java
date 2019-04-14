@@ -313,7 +313,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public void updateVariablesWS(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "variables") List<Variable> variables) {
         WfProcess process = executionLogic.getProcess(user, processId);
-        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(process.getDefinitionId());
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(process.getDefinitionVersionId());
         updateVariables(user, processId, VariableConverter.unmarshal(parsedProcessDefinition, variables));
     }
 

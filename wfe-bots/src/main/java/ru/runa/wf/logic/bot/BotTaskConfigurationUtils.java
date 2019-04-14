@@ -58,7 +58,7 @@ public class BotTaskConfigurationUtils {
                 fileName = task.getNodeId().substring(0, index) + "." + fileName;
             }
         }
-        byte[] xml = Delegates.getDefinitionService().getProcessDefinitionFile(user, task.getDefinitionId(), fileName);
+        byte[] xml = Delegates.getDefinitionService().getProcessDefinitionFile(user, task.getDefinitionVersionId(), fileName);
         if (xml == null) {
             // this is the case of simple bot task
             return null;

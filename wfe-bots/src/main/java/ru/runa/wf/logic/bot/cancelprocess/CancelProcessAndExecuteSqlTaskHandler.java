@@ -33,7 +33,7 @@ public class CancelProcessAndExecuteSqlTaskHandler extends TaskHandlerBase {
         if (processId != null && processId != 0) {
             Delegates.getExecutionService().cancelProcess(user, processId);
             WfProcess process = Delegates.getExecutionService().getProcess(user, processId);
-            WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(user, process.getDefinitionId());
+            WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(user, process.getDefinitionVersionId());
             String processDefinitionName = definition.getName();
             String configurationName = processToCancelTask.getDatabaseTaskMap().get(processDefinitionName);
             if (configurationName == null) {
