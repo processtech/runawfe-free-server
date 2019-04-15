@@ -94,14 +94,6 @@ public class WfProcess extends SecuredObject {
         return version;
     }
 
-    /**
-     * @deprecated In fact, this is processDefinitionVersionId, but I cannot change structure which is part of the API. Use getDefinitionVersionId().
-     */
-    @Deprecated
-    public Long getDefinitionId() {
-        return definitionId;
-    }
-
     public Long getDefinitionVersionId() {
         return definitionId;
     }
