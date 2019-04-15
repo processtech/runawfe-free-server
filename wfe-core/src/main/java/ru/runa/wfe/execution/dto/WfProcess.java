@@ -29,12 +29,7 @@ public class WfProcess extends SecuredObject {
     private Date endDate;
     private int version;
     private boolean archived;
-
-    /**
-     * In fact, this is processDefinitionVersionId, but I cannot change structure which is part of the API.
-     */
-    private Long definitionId;
-
+    private Long definitionVersionId;
     private String hierarchyIds;
     // map is not usable in web services
     private final List<WfVariable> variables = Lists.newArrayList();
@@ -47,7 +42,7 @@ public class WfProcess extends SecuredObject {
     public WfProcess(Process process, String errors) {
         this.id = process.getId();
         this.name = process.getDefinitionVersion().getDefinition().getName();
-        this.definitionId = process.getDefinitionVersion().getId();
+        this.definitionVersionId = process.getDefinitionVersion().getId();
         this.version = process.getDefinitionVersion().getVersion().intValue();
         this.archived = process.isArchived();
         this.startDate = process.getStartDate();
@@ -95,7 +90,7 @@ public class WfProcess extends SecuredObject {
     }
 
     public Long getDefinitionVersionId() {
-        return definitionId;
+        return definitionVersionId;
     }
 
     public String getHierarchyIds() {

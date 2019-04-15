@@ -33,12 +33,7 @@ public class WfTask implements Serializable {
     private String swimlaneName;
     private Executor owner;
     private Actor targetActor;
-
-    /**
-     * In fact, this is processDefinitionVersionId, but I cannot change structure which is part of the API.
-     */
-    private Long definitionId;
-
+    private Long definitionVersionId;
     private String definitionName;
     private Long processId;
     private String processHierarchyIds;
@@ -68,7 +63,7 @@ public class WfTask implements Serializable {
         this.processId = task.getProcess().getId();
         this.processHierarchyIds = task.getProcess().getHierarchyIds();
         this.tokenId = task.getToken().getId();
-        this.definitionId = task.getProcess().getDefinitionVersion().getId();
+        this.definitionVersionId = task.getProcess().getDefinitionVersion().getId();
         this.definitionName = task.getProcess().getDefinitionVersion().getDefinition().getName();
         this.swimlaneName = task.getSwimlane() != null ? task.getSwimlane().getName() : "";
         this.creationDate = task.getCreateDate();
@@ -119,7 +114,7 @@ public class WfTask implements Serializable {
     }
 
     public Long getDefinitionVersionId() {
-        return definitionId;
+        return definitionVersionId;
     }
 
     public String getDefinitionName() {
@@ -220,6 +215,6 @@ public class WfTask implements Serializable {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("definitionId", definitionId).add("processId", processId).add("id", id).add("name", name).toString();
+        return MoreObjects.toStringHelper(this).add("definitionVersionId", definitionVersionId).add("processId", processId).add("id", id).add("name", name).toString();
     }
 }
