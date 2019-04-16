@@ -4,6 +4,7 @@
 <%@ page import="ru.runa.wf.web.form.TaskIdForm" %>
 <%@ page import="ru.runa.wf.web.action.ShowGraphModeHelper" %>
 <%@ page import="ru.runa.common.WebResources" %>
+<%@ page import="ru.runa.wf.web.MessagesProcesses" %>
 
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -16,6 +17,66 @@
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
 <script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
+<% 
+long id = Long.parseLong(request.getParameter("id"));
+%>
+<script type="text/javascript">
+//функция свернуть/развернуть большие переменные
+$(document).ready(function() {
+	for(var i = 0;;i++){
+		//проверка на существование
+		if($('#contentStr' + i).length>0){
+			$('#contentStr' + i).click(function(){
+				//локализация
+				//развернуть
+				var expand_lang = /*"развернуть";*/ "<%=MessagesProcesses.LABEL_EXPAND.message(pageContext)%>";
+				//свернуть
+				var collapse_lang = /*"свернуть";*/ "<%=MessagesProcesses.LABEL_COLLAPSE.message(pageContext)%>";
+				if($(this).text() == expand_lang){
+					$(this).text(collapse_lang);
+					if($('#contentOptionStr' + $(this).attr('id').slice(10)).text()=='false'){
+						$('#content' + $(this).attr('id').slice(10)).show();
+						//var text = "KK!";
+						var module = this;
+						var urlString = "/wfe/ajaxcmd?command=getProcessValue&identifiableId="+<%=id%>+"&ValId="+($(module).attr('id').slice(10));
+						<%
+				        String date = request.getParameter("date");
+				        if (date != null) {
+				        	%>
+				        	urlString = urlString+"&date="+(<%= request.getParameter("date") %>);
+				        	<%
+				        }
+						%>
+						$.ajax({
+							type: "POST",
+							url: urlString,
+							dataType: "json",
+							contentType: "application/json; charset=UTF-8",
+							processData: false,
+							success: function(data) {
+								$('#content' + $(module).attr('id').slice(10)).append(data.text);
+								$('#contentOptionStr' + $(module).attr('id').slice(10)).text('true');
+							}
+						});
+					}
+					else{
+						$('#content' + $(this).attr('id').slice(10)).show();
+					}
+				}	
+				else{
+					if($(this).text() == collapse_lang){
+						$(this).text(expand_lang);
+						$('#content' + $(this).attr('id').slice(10)).hide();
+					}
+				}
+			})
+		}
+		else{
+			break;
+		}
+	}
+});
+</script>
 <% if (WebResources.getDiagramRefreshInterval() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {
@@ -85,7 +146,8 @@ function Reload() {
 
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
-<wf:processVariableMonitor identifiableId='<%= id %>' />
+
+<wf:processVariableMonitor identifiableId='<%= id %>'/>
 <% if(!graphMode) { %>
 	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
 <% } %>

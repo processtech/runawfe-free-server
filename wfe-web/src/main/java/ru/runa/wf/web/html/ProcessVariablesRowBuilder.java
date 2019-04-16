@@ -31,6 +31,7 @@ import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.html.RowBuilder;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -68,6 +69,7 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
             String className = value != null ? value.getClass().getName() : "";
             tr.addElement(new TD(className).setClass(Resources.CLASS_LIST_TABLE_TD));
         }
+        
         String formattedValue;
         if (value == null) {
             formattedValue = MessagesOther.LABEL_UNSET_EMPTY_VALUE.message(pageContext);
@@ -75,7 +77,14 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
             User user = Commons.getUser(pageContext.getSession());
             formattedValue = ViewUtil.getOutput(user, new StrutsWebHelper(pageContext), processId, variable);
         }
-        tr.addElement(new TD(formattedValue).setClass(Resources.CLASS_LIST_TABLE_TD));
+        
+        int sizeBig = WebResources.getBigValueslinesSize();
+        if((formattedValue.split("<tr>").length + formattedValue.split("\n").length) > sizeBig) {
+        	tr.addElement(new TD("<p id=\"contentStr" + index + "\">" +  MessagesProcesses.LABEL_EXPAND.message(pageContext) + "</p>" + "<p id=\"contentOptionStr" + index + "\" hidden>false</p>" + "<div id=\"content" + index + "\"></div>").setClass(Resources.CLASS_LIST_TABLE_TD));
+        }
+        else {
+        	tr.addElement(new TD(formattedValue).setClass(Resources.CLASS_LIST_TABLE_TD));
+        	}
         index++;
         return tr;
     }

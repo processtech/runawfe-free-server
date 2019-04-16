@@ -180,6 +180,10 @@ public class WebResources {
     public static boolean isUpdateProcessSwimlanesEnabled() {
         return RESOURCES.getBooleanProperty("process.swimlane.assignment.enabled", false);
     }
+    
+    public static int getBigValueslinesSize() {
+        return RESOURCES.getIntegerProperty("BigValueslines", 0);
+    }
 
     /**
      * Used from JSP page
