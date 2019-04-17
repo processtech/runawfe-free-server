@@ -5,41 +5,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import javax.json.JsonString;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.ecs.html.A;
-import org.apache.ecs.html.Map;
-import org.apache.ecs.html.TD;
-import org.apache.ecs.html.TR;
-import org.apache.ecs.html.Table;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
-import ru.runa.common.WebResources;
 import ru.runa.common.web.AjaxWebHelper;
-import ru.runa.common.web.Commons;
-import ru.runa.common.web.MessagesOther;
-import ru.runa.common.web.Resources;
-import ru.runa.common.web.StrutsWebHelper;
-import ru.runa.common.web.html.HeaderBuilder;
-import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.StringsHeaderBuilder;
-import ru.runa.common.web.html.TableBuilder;
-import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.ftl.component.ViewUtil;
-import ru.runa.wf.web.html.ProcessVariablesRowBuilder;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
-import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;

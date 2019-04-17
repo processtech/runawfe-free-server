@@ -29,14 +29,13 @@ $(document).ready(function() {
 			$('#contentStr' + i).click(function(){
 				//локализация
 				//развернуть
-				var expand_lang = /*"развернуть";*/ "<%=MessagesProcesses.LABEL_EXPAND.message(pageContext)%>";
+				var expand_lang ="<%=MessagesProcesses.LABEL_EXPAND.message(pageContext)%>";
 				//свернуть
-				var collapse_lang = /*"свернуть";*/ "<%=MessagesProcesses.LABEL_COLLAPSE.message(pageContext)%>";
+				var collapse_lang ="<%=MessagesProcesses.LABEL_COLLAPSE.message(pageContext)%>";
 				if($(this).text() == expand_lang){
 					$(this).text(collapse_lang);
 					if($('#contentOptionStr' + $(this).attr('id').slice(10)).text()=='false'){
 						$('#content' + $(this).attr('id').slice(10)).show();
-						//var text = "KK!";
 						var module = this;
 						var urlString = "/wfe/ajaxcmd?command=getProcessValue&identifiableId="+<%=id%>+"&ValId="+($(module).attr('id').slice(10));
 						<%
@@ -146,7 +145,6 @@ function Reload() {
 
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
-
 <wf:processVariableMonitor identifiableId='<%= id %>'/>
 <% if(!graphMode) { %>
 	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
