@@ -22,6 +22,7 @@ import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.MapFormat;
 import ru.runa.wfe.var.format.StringFormat;
+import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableDisplaySupport;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -162,6 +163,44 @@ public class ViewUtil {
         return generatedResult.content;
     }
 
+    public static String getOutput(User user, WebHelper webHelper, Long processId, WfVariable variable,boolean massBool) {
+        try {
+            if (variable.getValue() == null) {
+                return "";
+            }
+            VariableFormat format = variable.getDefinition().getFormatNotNull();
+            if (format instanceof HiddenFormat) {
+                // display in admin interface
+                return format.format(variable.getValue());
+            }
+            if (format instanceof VariableDisplaySupport) {
+                VariableDisplaySupport displaySupport = (VariableDisplaySupport) format;
+                //
+                //UserTypeFormat a=new UserTypeFormat();
+                //a.setBool(true);
+                if(massBool==true) {
+                	return displaySupport.formatHtml(user, webHelper, processId, variable.getDefinition().getName(), variable.getValue());
+                }
+                else {
+                	return ((UserTypeFormat)displaySupport).formatHtmlDop(user, webHelper, processId, variable.getDefinition().getName(), variable.getValue());
+                }
+            } else {
+                return format.format(variable.getValue());
+            }
+        } catch (Exception e) {
+            log.warn("Unable to format value " + variable + " in " + processId + ": " + e.getMessage());
+            if (variable.getValue() != null && variable.getValue().getClass().isArray()) {
+                return Arrays.toString((Object[]) variable.getValue());
+            } else {
+                if (variable.getDefinition().isSynthetic()) {
+                    return String.valueOf(variable.getValue());
+                } else {
+                    return " <span style=\"color: #cccccc;\">(" + variable.getValue() + ")</span>";
+                }
+            }
+        }
+    }
+    
     public static String getOutput(User user, WebHelper webHelper, Long processId, WfVariable variable) {
         try {
             if (variable.getValue() == null) {
@@ -174,7 +213,12 @@ public class ViewUtil {
             }
             if (format instanceof VariableDisplaySupport) {
                 VariableDisplaySupport displaySupport = (VariableDisplaySupport) format;
-                return displaySupport.formatHtml(user, webHelper, processId, variable.getDefinition().getName(), variable.getValue());
+                //
+                //UserTypeFormat a=new UserTypeFormat();
+                //a.setBool(true);
+                
+                	return displaySupport.formatHtml(user, webHelper, processId, variable.getDefinition().getName(), variable.getValue());
+                	
             } else {
                 return format.format(variable.getValue());
             }

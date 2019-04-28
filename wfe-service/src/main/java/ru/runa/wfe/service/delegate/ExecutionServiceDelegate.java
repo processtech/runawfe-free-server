@@ -123,6 +123,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     @Override
     public List<WfVariable> getVariables(User user, Long processId) {
         try {
+        	ExecutionService a=getExecutionService();
             return getExecutionService().getVariables(user, processId);
         } catch (Exception e) {
             throw handleException(e);

@@ -40,11 +40,16 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
     private final List<WfVariable> variables;
     private final PageContext pageContext;
     private final Long processId;
+    private boolean massBool;
 
     public ProcessVariablesRowBuilder(Long processId, List<WfVariable> variables, PageContext pageContext) {
         this.variables = variables;
         this.processId = processId;
         this.pageContext = pageContext;
+    }
+    
+    public void setMassBool(boolean massBool) {
+    	this.massBool=massBool;
     }
 
     @Override
@@ -73,7 +78,11 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
             formattedValue = MessagesOther.LABEL_UNSET_EMPTY_VALUE.message(pageContext);
         } else {
             User user = Commons.getUser(pageContext.getSession());
-            formattedValue = ViewUtil.getOutput(user, new StrutsWebHelper(pageContext), processId, variable);
+            
+            
+            
+            	formattedValue = ViewUtil.getOutput(user, new StrutsWebHelper(pageContext), processId, variable,massBool);	
+            
         }
         tr.addElement(new TD(formattedValue).setClass(Resources.CLASS_LIST_TABLE_TD));
         index++;

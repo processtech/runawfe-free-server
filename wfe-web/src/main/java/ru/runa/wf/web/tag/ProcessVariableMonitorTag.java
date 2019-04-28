@@ -56,11 +56,17 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = 161759402000861245L;
 
     private Long identifiableId;
+    private Boolean flagOpen;
 
     @Attribute(required = false, rtexprvalue = true)
     @Override
     public void setIdentifiableId(Long id) {
         identifiableId = id;
+    }
+    
+    @Attribute(required = false, rtexprvalue = true)
+    public void setFlagOpen(Boolean flagOpen) {
+    	this.flagOpen=flagOpen;
     }
 
     @Override
@@ -117,9 +123,11 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);
 
         RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext);
+        ((ProcessVariablesRowBuilder)rowBuilder).setMassBool(flagOpen);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
     }
 
+    
     @Override
     protected Permission getSubmitPermission() {
         return Permission.LIST;
