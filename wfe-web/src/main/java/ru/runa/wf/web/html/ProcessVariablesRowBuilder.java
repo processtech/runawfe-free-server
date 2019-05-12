@@ -79,12 +79,14 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
         }
         
         int sizeBig = WebResources.getBigValueslinesSize();
-        if((formattedValue.split("<tr>").length + formattedValue.split("\n").length) > sizeBig) {
-        	tr.addElement(new TD("<p id=\"contentStr" + index + "\">" +  MessagesProcesses.LABEL_EXPAND.message(pageContext) + "</p>" + "<p id=\"contentOptionStr" + index + "\" hidden>false</p>" + "<div id=\"content" + index + "\"></div>").setClass(Resources.CLASS_LIST_TABLE_TD));
+        if((formattedValue.split("<tr>").length + formattedValue.split("<br>").length + formattedValue.split("\n").length) > sizeBig) {
+            tr.addElement(new TD("<p id=\"contentStr" + index + "\" contentOption=\"false\">" + 
+                    MessagesProcesses.LABEL_EXPAND.message(pageContext) + "</p>" + 
+                    "<div id=\"content" + index + "\"></div>").setClass(Resources.CLASS_LIST_TABLE_TD));
         }
         else {
-        	tr.addElement(new TD(formattedValue).setClass(Resources.CLASS_LIST_TABLE_TD));
-        	}
+            tr.addElement(new TD(formattedValue).setClass(Resources.CLASS_LIST_TABLE_TD));
+        }
         index++;
         return tr;
     }

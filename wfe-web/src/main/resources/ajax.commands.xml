@@ -6,6 +6,6 @@
 	<command name="ajaxDefinitionVersions" class="ru.runa.wf.web.servlet.AjaxProcessDefinitionVersionsList" />
 	<command name="ajaxSwimlaneCurrentExecutor" class="ru.runa.wf.web.servlet.AjaxSwimlaneCurrentExecutor" />
 	
-	<command name="getProcessValue" class="ru.runa.wf.web.servlet.SetProcessValueAjaxCommand" />
+	<command name="getProcessVariableValue" class="ru.runa.wf.web.servlet.GetProcessVariableValueAjaxCommand" />
 
 </configuration>

@@ -21,14 +21,13 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 
-public class SetProcessValueAjaxCommand extends JsonAjaxCommand{
-	
-	@Override
-	protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
-		Long identifiableId = Long.parseLong(request.getParameter("identifiableId"));
-		Integer ValId = Integer.parseInt(request.getParameter("ValId"));
-		
-		List<WfVariable> variables;
+public class GetProcessVariableValueAjaxCommand extends JsonAjaxCommand{
+    
+    @Override
+    protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
+        Long identifiableId = Long.parseLong(request.getParameter("identifiableId"));
+        Integer ValId = Integer.parseInt(request.getParameter("ValId"));
+        List<WfVariable> variables;
         String date = request.getParameter("date");
         if (Strings.isNullOrEmpty(date)) {
         variables = Delegates.getExecutionService().getVariables(user, identifiableId);
@@ -49,9 +48,8 @@ public class SetProcessValueAjaxCommand extends JsonAjaxCommand{
         String formattedValue;
         formattedValue = ViewUtil.getOutput(user, new AjaxWebHelper(request), identifiableId, variable);
         
-		JSONObject object = new JSONObject();
-		object.put("text", formattedValue);
+        JSONObject object = new JSONObject();
+        object.put("text", formattedValue);
         return object;
-	}
-	
+    }
 }

@@ -34,10 +34,10 @@ $(document).ready(function() {
 				var collapse_lang ="<%=MessagesProcesses.LABEL_COLLAPSE.message(pageContext)%>";
 				if($(this).text() == expand_lang){
 					$(this).text(collapse_lang);
-					if($('#contentOptionStr' + $(this).attr('id').slice(10)).text()=='false'){
+					if($(this).attr('contentOption')=='false'){
 						$('#content' + $(this).attr('id').slice(10)).show();
 						var module = this;
-						var urlString = "/wfe/ajaxcmd?command=getProcessValue&identifiableId="+<%=id%>+"&ValId="+($(module).attr('id').slice(10));
+						var urlString = "/wfe/ajaxcmd?command=getProcessVariableValue&identifiableId="+<%=id%>+"&ValId="+($(module).attr('id').slice(10));
 						<%
 				        String date = request.getParameter("date");
 				        if (date != null) {
@@ -54,7 +54,7 @@ $(document).ready(function() {
 							processData: false,
 							success: function(data) {
 								$('#content' + $(module).attr('id').slice(10)).append(data.text);
-								$('#contentOptionStr' + $(module).attr('id').slice(10)).text('true');
+								$(module).attr('contentOption', 'true');
 							}
 						});
 					}
