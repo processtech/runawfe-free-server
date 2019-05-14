@@ -22,6 +22,7 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.datasource.DataSourceStorage;
+import ru.runa.wfe.datasource.JdbcDataSource;
 import ru.runa.wfe.service.decl.DataSourceServiceLocal;
 import ru.runa.wfe.service.decl.DataSourceServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -94,6 +95,20 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
         Preconditions.checkArgument(executorDAO.isAdministrator(user.getActor()), "not administrator");
         Preconditions.checkArgument(name != null, "name");
         DataSourceStorage.moveToHistory(name);
+    }
+    
+    @Override
+    @WebMethod(exclude = true)
+    public String getDBServerInfo(@WebParam(name = "id") String name) {
+        JdbcDataSource dataSource = (JdbcDataSource) DataSourceStorage.getDataSource(name);
+        try {
+            return dataSource.serverVersion();
+        } catch (Exception e) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("ERROR: ");
+            sb.append(e.getMessage());
+            return sb.toString();
+        }
     }
 
 }

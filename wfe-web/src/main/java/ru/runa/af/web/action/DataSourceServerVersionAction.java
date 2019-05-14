@@ -24,8 +24,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import ru.runa.common.web.action.ActionBase;
-import ru.runa.wfe.datasource.DataSourceStorage;
-import ru.runa.wfe.datasource.JdbcDataSource;
+import ru.runa.wfe.service.delegate.Delegates;
 
 public class DataSourceServerVersionAction extends ActionBase {
 
@@ -34,7 +33,7 @@ public class DataSourceServerVersionAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         try {
-            response.getWriter().write(((JdbcDataSource) DataSourceStorage.getDataSource(request.getParameter("dataSourceId"))).serverVersion());
+            response.getWriter().write(Delegates.getDataSourceService().getDBServerInfo(request.getParameter("dataSourceId")));
         } catch (IOException e) {
             log.error(e.getMessage());
         }

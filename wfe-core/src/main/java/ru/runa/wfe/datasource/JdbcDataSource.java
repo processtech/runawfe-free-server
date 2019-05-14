@@ -1,13 +1,16 @@
 package ru.runa.wfe.datasource;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.util.StringJoiner;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
+
+import com.google.common.base.Strings;
 
 public class JdbcDataSource extends DataSource {
 
@@ -23,11 +26,12 @@ public class JdbcDataSource extends DataSource {
     void init(Document document) {
         super.init(document);
         Element root = document.getRootElement();
-        dbType = JdbcDataSourceType.valueOf(root.elementText(ELEMENT_DB_TYPE));
-        url = root.elementText(ELEMENT_DB_URL);
-        dbName = root.elementText(ELEMENT_DB_NAME);
-        userName = root.elementText(ELEMENT_USER_NAME);
-        password = root.elementText(ELEMENT_PASSWORD);
+        String dbTypeStored = root.elementText(ELEMENT_DB_TYPE);
+        dbType = Strings.isNullOrEmpty(dbTypeStored) ? null : JdbcDataSourceType.valueOf(dbTypeStored);
+        url = Strings.emptyToNull(root.elementText(ELEMENT_DB_URL));
+        dbName = Strings.emptyToNull(root.elementText(ELEMENT_DB_NAME));
+        userName = Strings.emptyToNull(root.elementText(ELEMENT_USER_NAME));
+        password = Strings.emptyToNull(root.elementText(ELEMENT_PASSWORD));
     }
 
     public JdbcDataSourceType getDbType() {
@@ -51,29 +55,26 @@ public class JdbcDataSource extends DataSource {
     }
 
     public Connection getConnection() throws Exception {
-        return DriverManager.getConnection(DataSourceStuff.adjustUrl(this), getUserName(), getPassword());
+        return DriverManager.getConnection(getDbType() == null ? getUrl() : DataSourceStuff.adjustUrl(this), getUserName(), getPassword());
     }
 
-    public String serverVersion() {
-        //
-        // PostgreSql: select version() -> PostgreSQL 9.6.5, compiled by Visual C++ build 1800, 64-bit
-        // SQL Server: select @@version -> Microsoft SQL Server 2014 - 12.0.2000.8 (Intel X86)\nFeb 20 2014 19:20:46\nCopyright (c) Microsoft Corporation\nExpress Edition on Windows NT 6.1 <X64> (Build 7601: ) (WOW64)
-        // Oracle:     select banner from v$version (WHERE banner LIKE 'Oracle%') -> 5 rows
-        // BANNER:
-        // Oracle Database 11g Enterprise Edition Release 11.2.0.2.0 - Production
-        // PL/SQL Release 11.2.0.2.0 - Production
-        // "CORE    11.2.0.2.0  Production"
-        // TNS for Linux: Version 11.2.0.2.0 - Production
-        // NLSRTL Version 11.2.0.2.0 - Production
-        //
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(getDbType().serverVersionQuery());
-                ResultSet rs = ps.executeQuery()) {
-            rs.next();
-            return (String) rs.getObject(1);
+    /**
+     * Returns the version information of the current database server. Throws Exception if occurred.
+     * 
+     * @return Information about the current database server (String)
+     */
+    public String serverVersion() throws Exception {
+        try (Connection conn = getConnection()) {
+            DatabaseMetaData metadata = conn.getMetaData();
+            StringJoiner sj = new StringJoiner("; ");
+            sj.add("Product name: " + metadata.getDatabaseProductName());
+            sj.add("Product version: " + metadata.getDatabaseProductVersion());
+            sj.add("Driver name: " + metadata.getDriverName());
+            sj.add("Driver version: " + metadata.getDriverVersion());
+            return sj.toString();
         } catch (Exception e) {
             log.error(e);
-            return "Server not available";
+            throw e;
         }
     }
 

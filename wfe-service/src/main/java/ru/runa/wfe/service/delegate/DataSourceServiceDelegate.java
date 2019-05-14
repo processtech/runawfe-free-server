@@ -46,5 +46,10 @@ public class DataSourceServiceDelegate extends Ejb3Delegate implements DataSourc
     public void removeDataSource(User user, String name) {
         getDataSourceService().removeDataSource(user, name);
     }
+    
+    @Override
+    public String getDBServerInfo(String name) {
+        return getDataSourceService().getDBServerInfo(name);
+    }
 
 }

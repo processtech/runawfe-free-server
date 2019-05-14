@@ -13,5 +13,13 @@ public interface DataSourceService {
     byte[] exportDataSource(User user, String name);
 
     void removeDataSource(User user, String name);
+    
+    /**
+     * Returns information about the database server which is used by the certain datasource.
+     * 
+     * @param name (String) - datasource id
+     * @return (String) - information about database server or an error information if an exception has occurred on the version request had been invoked.
+     */
+    String getDBServerInfo(String name);
 
 }

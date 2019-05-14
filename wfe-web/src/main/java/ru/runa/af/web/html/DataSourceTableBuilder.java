@@ -17,6 +17,9 @@
  */
 package ru.runa.af.web.html;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.servlet.jsp.PageContext;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.Input;
@@ -138,8 +141,12 @@ public class DataSourceTableBuilder {
             break;
         default:
             JdbcDataSource jds = (JdbcDataSource) ds;
-            attributes += "dbType: " + jds.getDbType() + ", dbUrl: " + jds.getUrl() + ", dbName: " + jds.getDbName() + ", userName: "
-                    + jds.getUserName();
+            attributes += Stream.of(
+                    (jds.getDbType() == null ? "" : "dbType: " + jds.getDbType()),
+                    (jds.getUrl() == null ? "" : "dbUrl: " + jds.getUrl()),
+                    (jds.getDbName() == null ? "" : "dbName: " + jds.getDbName()),
+                    (jds.getUserName() == null ? "" : "userName: " + jds.getUserName())
+                    ).filter(f -> !f.isEmpty()).collect(Collectors.joining(", "));
             break;
         }
         return attributes;
