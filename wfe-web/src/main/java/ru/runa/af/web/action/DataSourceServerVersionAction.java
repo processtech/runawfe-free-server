@@ -33,7 +33,7 @@ public class DataSourceServerVersionAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         try {
-            response.getWriter().write(Delegates.getDataSourceService().getDBServerInfo(request.getParameter("dataSourceId")));
+            response.getWriter().write(Delegates.getDataSourceService().getDbServerInfo(request.getParameter("dataSourceId")));
         } catch (IOException e) {
             log.error(e.getMessage());
         }

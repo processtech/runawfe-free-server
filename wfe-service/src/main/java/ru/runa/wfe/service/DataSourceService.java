@@ -1,7 +1,6 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
-
 import ru.runa.wfe.user.User;
 
 public interface DataSourceService {
@@ -20,6 +19,6 @@ public interface DataSourceService {
      * @param name (String) - datasource id
      * @return (String) - information about database server or an error information if an exception has occurred on the version request had been invoked.
      */
-    String getDBServerInfo(String name);
+    String getDbServerInfo(String name);
 
 }

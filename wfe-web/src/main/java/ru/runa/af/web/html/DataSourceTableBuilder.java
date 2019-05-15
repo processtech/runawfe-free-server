@@ -19,7 +19,6 @@ package ru.runa.af.web.html;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.servlet.jsp.PageContext;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.Input;

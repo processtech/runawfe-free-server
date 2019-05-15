@@ -1,16 +1,14 @@
 package ru.runa.wfe.datasource;
 
+import com.google.common.base.Strings;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.util.StringJoiner;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
-import com.google.common.base.Strings;
 
 public class JdbcDataSource extends DataSource {
 

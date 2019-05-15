@@ -99,7 +99,7 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
     
     @Override
     @WebMethod(exclude = true)
-    public String getDBServerInfo(@WebParam(name = "id") String name) {
+    public String getDbServerInfo(@WebParam(name = "id") String name) {
         JdbcDataSource dataSource = (JdbcDataSource) DataSourceStorage.getDataSource(name);
         try {
             return dataSource.serverVersion();
