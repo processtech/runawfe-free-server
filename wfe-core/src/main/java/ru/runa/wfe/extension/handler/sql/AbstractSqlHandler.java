@@ -155,21 +155,13 @@ public abstract class AbstractSqlHandler extends CommonHandler {
             value = PropertyUtils.getProperty(value, sqlHandlerQueryParameter.getFieldName());
         }
         if (value instanceof FileVariable) {
+            // this is default path for devstudio configurer
             FileVariable fileVariable = unproxyFileVariable((FileVariable) value);
-            if ("name".equals(sqlHandlerQueryParameter.getFieldName())) {
-                value = fileVariable.getName();
-            } else if ("data".equals(sqlHandlerQueryParameter.getFieldName())) {
-                value = fileVariable.getData();
-            } else if ("contentType".equals(sqlHandlerQueryParameter.getFieldName())) {
-                value = fileVariable.getContentType();
-            } else {
-                // this is default path for devstudio configurer
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.writeObject(fileVariable);
-                oos.close();
-                value = baos.toByteArray();
-            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(fileVariable);
+            oos.close();
+            value = baos.toByteArray();
         }
         return value;
     }
