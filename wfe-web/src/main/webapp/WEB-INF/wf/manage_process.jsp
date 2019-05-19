@@ -16,6 +16,39 @@
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
 <script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
+<script type="text/javascript">
+$(document).ready(function() {
+	/
+	var hash = window.location.hash.substr(1);
+	var href = $('#nav td a').each(function(){
+		var href = $(this).attr('href');
+		if(hash==href.substr(0,href.length-5)){
+			var toLoad = hash+'.html #content';
+			$('#content').load(toLoad)
+		}											
+	});
+	/
+	
+	$('#nav td a').click(function(){
+		var toLoad = $(this).attr('href')+' #content';
+		$('#content').hide('fast',loadContent);
+		//$('#load').remove();
+		//$('#wrapper').append('<span id="load">LOADING...</span>');
+		//$('#load').fadeIn('normal');
+		
+		function loadContent() {
+			$('#content').load(toLoad,'',showNewContent())
+		}
+		function showNewContent() {
+			$('#content').show('normal',hideLoader());
+		}
+		function hideLoader() {
+			$('#load').fadeOut('normal');
+		}
+		return false;
+	});
+});
+</script>
 <% if (WebResources.getDiagramRefreshInterval() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {
@@ -49,7 +82,7 @@ function Reload() {
 	if (childProcessIdString != null && !"null".equals(childProcessIdString)) {
 		childProcessId = Long.parseLong(childProcessIdString);
 	}
-	
+	boolean flagOpen=Boolean.parseBoolean(request.getParameter("flagOpen"));
 	boolean graphMode = ShowGraphModeHelper.isShowGraphMode();
 %>
 <wf:processInfoForm buttonAlignment="right" identifiableId='<%= id %>' taskId='<%= taskId %>'>
@@ -81,11 +114,38 @@ function Reload() {
 		</td>
 	</tr>
 </table>
+   <button id="myBtn">Открыть чат</button>
+    <div id="myModal" class="modal" >
+        <div class="modal-content" style="width: 336px;position: fixed; top: auto; bottom: 0%; padding-top: 0px; margin-bottom: 0px; height: 496px; display: block; will-change: width, margin-right, right, transform, opacity, left, height; transform: translateY(0%); margin-right: 0px; margin-left: 30px; right: 60px;">
+            <div class="modal-header" style="cursor: move">
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table>
+                <tr>
+                    <td>name</td>
+                    <td>message</td>
+                    <td>time</td>
+                </tr>
+                <tr>
+                    <td>name2</td>
+                    <td>message2</td>
+                    <td>time2</td>
+                </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <input type="text" name="message"  id="message">
+                <button id="btnSend" value="Отправить" onclick="send()">Отправить</button>
+            </div>
+        </div>
+
+    </div>
 </wf:processInfoForm>
 
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
-<wf:processVariableMonitor identifiableId='<%= id %>' />
+<wf:processVariableMonitor identifiableId='<%= id %>' flagOpen='<%=flagOpen %>' />
 <% if(!graphMode) { %>
 	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
 <% } %>

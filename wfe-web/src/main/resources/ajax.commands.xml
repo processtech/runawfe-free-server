@@ -5,7 +5,9 @@
 	<command name="ajaxActorsList" class="ru.runa.wf.web.servlet.AjaxActorsList" />
 	<command name="ajaxDefinitionVersions" class="ru.runa.wf.web.servlet.AjaxProcessDefinitionVersionsList" />
 	<command name="ajaxSwimlaneCurrentExecutor" class="ru.runa.wf.web.servlet.AjaxSwimlaneCurrentExecutor" /><command
-		name="getProcessValue" class="ru.runa.wf.web.servlet.SetProcessChatAjax">
+		name="SendChatMessage" class="ru.runa.wf.web.servlet.SetProcessChatAjax">
 </command>
+	<command name="GettingChatMessage" class="ru.runa.wf.web.servlet.GettingMessageChatAjax"></command>
+	<command class="ru.runa.wf.web.servlet.CheckMessagesInChatAjax" name="CheckChatMessageIndicator"></command>
 
 </configuration>

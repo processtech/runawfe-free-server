@@ -31,8 +31,7 @@
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/trumbowyg.css" />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/delegate.dialog.css?"+Version.getHash() %>' />">
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
-<% 
+	<% 
 	for (String url : WebResources.getTaskFormExternalJsLibs()) {
 %>
 	<script type="text/javascript" src="<%= url %>"></script>
@@ -40,85 +39,33 @@
 	}
 %>
 </tiles:put>
-////////////////////////////////////////////////////////
 <tiles:put name="body" type="string" >
 <%
 	long taskId = Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME));
 	String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
 %>
+
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
+<wf:ChatTag test1='<%= new Long(999) %>' identifiableId='<%= taskId %>'/>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
+<style>
+#indicateNewMessage {
+  width: 50px;
+  height: 30px;
+  background-color: #ddd;
+}
+</style>
+<div id="indicateNewMessage">
+1 входящее сообщение
+</div>
+
+
 <% if (WebResources.isTaskDelegationEnabled()) { %>
 	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
 <% } %>
 <wf:taskForm title="<%= title %>" taskId="<%= taskId %>" action="/submitTaskForm" />
+<script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
 
-<button id="myBtn">Открыть чат</button>
-    <div id="myModal" class="modal" >
-        <div class="modal-content" style="width: 336px;position: fixed; top: auto; bottom: 0%; padding-top: 0px; margin-bottom: 0px; height: 496px; display: block; will-change: width, margin-right, right, transform, opacity, left, height; transform: translateY(0%); margin-right: 0px; margin-left: 30px; right: 60px;">
-            <div class="modal-header" style="cursor: move">
-                <span class="close">&times;</span>
-                <button id="btnOp"><img src="/wfe/images/chat_1.png" alt="open" 
-          style="vertical-align: middle; width: 12px; height: 12px"></button>
-            </div>
-            <div class="modal-body">
-                <table>
-                <tr>
-                    <td>name</td>
-                    <td>message</td>
-                    <td>time</td>
-                </tr>
-                <tr>
-                    <td>name2</td>
-                    <td>message2</td>
-                    <td>time2</td>
-                </tr>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <input type="text" name="message"  id="message">
-                <button id="btnSend" value="Отправить" onclick="send()">Отправить</button>
-            </div>
-        </div>
-        </div>
-        <script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
-   <script>
-   
-   $(document).ready(function() {
-	   
-	var btn2 = document.getElementById("btnSend");
-
-   btn2.onclick=function send() { 
-   var message = document.getElementById("message").value;
-   var urlString = "/wfe/ajaxcmd?command=getProcessValue&message="+message;
-   var today = new Date();
-   var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-   var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-   var dateTime = date+' '+time;
-   var btnOp=document.getElementById("btnOp");
-   
-		
-   $.ajax({
-		type: "POST",
-		url: urlString,
-		dataType: "json",
-		contentType: "application/json; charset=UTF-8",
-		processData: false,
-		success: function(data) {
-			 $(".modal-body").append("<table ><tr><td>"+ data.text + "</td></tr><tr><td>"+ dateTime + "</td></tr></table >");
-		}
-	});
-   }
-   btnOp.onclick=function(){
-	   
-	   	$('.modal-content').css({
-	   		height:'700px',
-	   	    width: '800px',
-	   	});
-	   	}
-	   
-   });
-   
-   </script>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 </tiles:insert>

@@ -1,0 +1,72 @@
+package ru.runa.wfe.chat; 
+
+import javax.persistence.Column; 
+import javax.persistence.DiscriminatorColumn; 
+import javax.persistence.DiscriminatorType; 
+import javax.persistence.DiscriminatorValue; 
+import javax.persistence.Entity; 
+import javax.persistence.GeneratedValue; 
+import javax.persistence.GenerationType; 
+import javax.persistence.Id; 
+import javax.persistence.Inheritance; 
+import javax.persistence.InheritanceType; 
+import javax.persistence.SequenceGenerator; 
+import javax.persistence.Table; 
+import javax.persistence.UniqueConstraint; 
+
+import org.hibernate.annotations.Cache; 
+import org.hibernate.annotations.CacheConcurrencyStrategy; 
+
+import com.google.common.base.MoreObjects; 
+
+import ru.runa.wfe.commons.SystemProperties; 
+
+//тут где-то ошибка 
+@Entity 
+name = "Chat_Message", uniqueConstraints = { @UniqueConstraint(name = "UK_Chat_Message", columnNames = { "Chat_ID", "Message_ID" } }) 
+strategy = InheritanceType.SINGLE_TABLE 
+@DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR) 
+@DiscriminatorValue(value = "V") 
+usage = CacheConcurrencyStrategy.READ_WRITE 
+public class ChatMessage { 
+
+protected Long id; 
+private String message; 
+private Long chatId; 
+
+public static int getMaxStringSize() { 
+return 999; 
+} 
+
+public ChatMessage() { 
+} 
+
+@Id 
+strategy = GenerationType.AUTO, generator = "sequence" 
+@SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_VARIABLE", allocationSize = 1) 
+name = "ID" 
+public Long getId() { 
+return id; 
+} 
+public void setId(Long id) { 
+this.id = id; 
+} 
+name = "MESSAGE" 
+public String getMessage() { 
+return message; 
+} 
+public void setMessage(String message) { 
+this.message = message; 
+} 
+name = "CHATID" 
+public Long getChatId() { 
+return chatId; 
+} 
+public void setChatId(Long chatId) { 
+this.chatId = chatId; 
+} 
+@Override 
+public String toString() { 
+return MoreObjects.toStringHelper(this).add("id", getId()).add("massage", getMessage()).toString(); 
+} 
+}

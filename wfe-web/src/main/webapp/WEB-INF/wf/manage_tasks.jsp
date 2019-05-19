@@ -65,7 +65,6 @@
 				</tr>
 			</table>
 		</div>
-	</div>	
 </wf:listTasksForm>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
