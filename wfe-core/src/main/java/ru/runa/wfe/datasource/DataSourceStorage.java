@@ -125,7 +125,7 @@ public class DataSourceStorage implements DataSourceStuff {
             } else {
                 psw.setText(password);
             }
-            save(XmlUtils.save(document, OutputFormat.createPrettyPrint()));
+            save(XmlUtils.save(document, OutputFormat.createPrettyPrint()), true, false);
         }
     }
 
@@ -161,21 +161,50 @@ public class DataSourceStorage implements DataSourceStuff {
     }
 
     public static void save(byte[] content) {
-        save(content, true);
+        save(content, true, true);
     }
 
-    public static boolean save(byte[] content, boolean force) {
+    /**
+     * Saves the data source properties to the local storage.
+     * 
+     * @param content
+     *            - the data source properties content.
+     * @param force
+     *            - force to overwrite if the data source already exists.
+     * @param preservePassword
+     *            - if true is passed then the old data source password won't be changed.
+     * @return true if the method succeed, false if the data source with the given name has existed and the force argument is false.
+     */
+    public static boolean save(byte[] content, boolean force, boolean preservePassword) {
         Document document = XmlUtils.parseWithoutValidation(content);
-        String dsName = document.getRootElement().attributeValue(ATTR_NAME);
+        Element root = document.getRootElement();
+        String dsName = root.attributeValue(ATTR_NAME);
         File dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
         if (force || !dsFile.exists()) {
+            byte[] contentTmp = content;
             if (dsFile.exists()) {
+                if (preservePassword && root.attributeValue(ATTR_TYPE).equals(DataSourceType.JDBC.name())) {
+                    String password = XmlUtils.parseWithoutValidation(restore(dsName)).getRootElement().elementText(ELEMENT_PASSWORD);
+                    Element psw = root.element(ELEMENT_PASSWORD);
+                    if (password == null) {
+                        if (psw != null) {
+                            root.remove(psw);
+                        }
+                    } else {
+                        if (psw != null) {
+                            psw.setText(password);
+                        } else {
+                            root.addElement(ELEMENT_PASSWORD).setText(password);
+                        }
+                    }
+                    contentTmp = XmlUtils.save(document, OutputFormat.createPrettyPrint());
+                }
                 if (moveToHistory(dsFile)) {
                     dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
                 }
             }
             try (FileOutputStream fos = new FileOutputStream(dsFile)) {
-                fos.write(content);
+                fos.write(contentTmp);
                 return true;
             } catch (IOException e) {
                 throw new InternalApplicationException(e);

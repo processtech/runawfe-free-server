@@ -21,6 +21,7 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.JdbcDataSource;
 import ru.runa.wfe.service.decl.DataSourceServiceLocal;
@@ -62,7 +63,7 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
                 baos.write(buf, 0, n);
             }
             zis.closeEntry();
-            DataSourceStorage.save(baos.toByteArray());
+            DataSourceStorage.save(baos.toByteArray(), true, !SystemProperties.isDatasourcePasswordExportAllowed());
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
@@ -74,7 +75,8 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(executorDAO.isAdministrator(user.getActor()), "not administrator");
         Preconditions.checkArgument(name != null, "name");
-        byte[] content = DataSourceStorage.restoreWithoutPassword(name);
+        byte[] content = SystemProperties.isDatasourcePasswordExportAllowed() ? DataSourceStorage.restore(name)
+                : DataSourceStorage.restoreWithoutPassword(name);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos, Charsets.UTF_8)) {
             ZipEntry entry = new ZipEntry(name + ".xml");
