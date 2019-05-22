@@ -92,7 +92,7 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
 
     @Override
     @WebMethod(exclude = true)
-    public void removeDataSource(@WebParam(name = "user") User user, @WebParam(name = "id") String name) {
+    public void removeDataSource(User user, String name) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(executorDAO.isAdministrator(user.getActor()), "not administrator");
         Preconditions.checkArgument(name != null, "name");
@@ -101,16 +101,9 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
     
     @Override
     @WebMethod(exclude = true)
-    public String getDbServerInfo(@WebParam(name = "id") String name) {
+    public String getDbServerInfo(String name) {
         JdbcDataSource dataSource = (JdbcDataSource) DataSourceStorage.getDataSource(name);
-        try {
-            return dataSource.serverVersion();
-        } catch (Exception e) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("ERROR: ");
-            sb.append(e.getMessage());
-            return sb.toString();
-        }
+        return dataSource.serverVersion();
     }
 
 }

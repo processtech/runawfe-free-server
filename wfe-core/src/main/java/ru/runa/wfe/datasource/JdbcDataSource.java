@@ -5,15 +5,11 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.util.StringJoiner;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.SneakyThrows;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
 public class JdbcDataSource extends DataSource {
-
-    private static final Log log = LogFactory.getLog(JdbcDataSource.class);
-
     private JdbcDataSourceType dbType;
     private String url;
     private String dbName;
@@ -61,7 +57,8 @@ public class JdbcDataSource extends DataSource {
      * 
      * @return Information about the current database server (String)
      */
-    public String serverVersion() throws Exception {
+    @SneakyThrows
+    public String serverVersion() {
         try (Connection conn = getConnection()) {
             DatabaseMetaData metadata = conn.getMetaData();
             StringJoiner sj = new StringJoiner("; ");
@@ -70,9 +67,6 @@ public class JdbcDataSource extends DataSource {
             sj.add("Driver name: " + metadata.getDriverName());
             sj.add("Driver version: " + metadata.getDriverVersion());
             return sj.toString();
-        } catch (Exception e) {
-            log.error(e);
-            throw e;
         }
     }
 

@@ -31,12 +31,14 @@ public class DataSourceServerVersionAction extends ActionBase {
     public static final String DATA_SOURCE_SERVER_VERSION_ACTION_PATH = "/data_source_server_version";
 
     @Override
-    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String dbServerInfo;
         try {
-            response.getWriter().write(Delegates.getDataSourceService().getDbServerInfo(request.getParameter("dataSourceId")));
-        } catch (IOException e) {
-            log.error(e.getMessage());
+            dbServerInfo = Delegates.getDataSourceService().getDbServerInfo(request.getParameter("dataSourceId"));
+        } catch (Exception e) {
+            dbServerInfo = "ERROR: " + e.getMessage();
         }
+        response.getWriter().write(dbServerInfo);
         return null;
     }
 
