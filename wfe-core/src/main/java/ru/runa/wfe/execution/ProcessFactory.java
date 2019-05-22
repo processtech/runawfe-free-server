@@ -96,22 +96,21 @@ public class ProcessFactory {
     }
 
     public Process createSubprocess(ExecutionContext parentExecutionContext, ProcessDefinition processDefinition, Map<String, Object> variables,
-            int index) {
+            int index, boolean validate) {
         Process parentProcess = parentExecutionContext.getProcess();
         Node subProcessNode = parentExecutionContext.getNode();
         ExecutionContext subExecutionContext = createProcessInternal(processDefinition, variables, null, parentProcess, null);
         nodeProcessDao.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index));
+        if (validate) {
+            validateVariables(subExecutionContext, new ExecutionVariableProvider(subExecutionContext), processDefinition,
+                    processDefinition.getStartStateNotNull().getNodeId(), variables);
+        }
         return subExecutionContext.getProcess();
     }
 
-    public void startSubprocess(ExecutionContext parentExecutionContext, ExecutionContext executionContext, Map<String, Object> variables) {
+    public void startSubprocess(ExecutionContext parentExecutionContext, ExecutionContext executionContext) {
         parentExecutionContext
                 .addLog(new SubprocessStartLog(parentExecutionContext.getNode(), parentExecutionContext.getToken(), executionContext.getProcess()));
-        if (variables != null) {
-            ProcessDefinition processDefinition = executionContext.getProcessDefinition();
-            validateVariables(executionContext, new ExecutionVariableProvider(executionContext), processDefinition,
-                    processDefinition.getStartStateNotNull().getNodeId(), variables);
-        }
         grantSubprocessPermissions(executionContext.getProcessDefinition(), executionContext.getProcess(), parentExecutionContext.getProcess());
         startProcessInternal(executionContext, null);
     }

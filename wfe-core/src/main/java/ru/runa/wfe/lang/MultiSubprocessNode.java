@@ -50,7 +50,6 @@ public class MultiSubprocessNode extends SubprocessNode {
         Parameters parameters = MultiinstanceUtils.parse(executionContext, this);
         List<Object> data = TypeConversionUtil.convertTo(List.class, parameters.getDiscriminatorValue());
         List<Process> subProcesses = Lists.newArrayList();
-        Map<Process, Map<String, Object>> subProcessVariables = Maps.newHashMap();
         ProcessDefinition subProcessDefinition = getSubProcessDefinition();
         List<Integer> ignoredIndexes = Lists.newArrayList();
         if (!Utils.isNullOrEmpty(discriminatorCondition)) {
@@ -113,13 +112,12 @@ public class MultiSubprocessNode extends SubprocessNode {
                     }
                 }
             }
-            Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, index);
+            Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, index, isValidateAtStart());
             subProcesses.add(subProcess);
-            subProcessVariables.put(subProcess, variables);
         }
         for (Process subprocess : subProcesses) {
             ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subprocess);
-            processFactory.startSubprocess(executionContext, subExecutionContext, isValidateAtStart() ? subProcessVariables.get(subprocess) : null);
+            processFactory.startSubprocess(executionContext, subExecutionContext);
         }
         MultiinstanceUtils.autoExtendContainerVariables(executionContext, getVariableMappings(), data.size());
         if (subProcesses.size() == 0) {

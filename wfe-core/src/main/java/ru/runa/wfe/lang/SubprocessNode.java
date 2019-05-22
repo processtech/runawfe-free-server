@@ -165,9 +165,8 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                 }
             }
         }
-        Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0);
-        processFactory.startSubprocess(executionContext, new ExecutionContext(subProcessDefinition, subProcess),
-                isValidateAtStart() ? variables : null);
+        Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0, isValidateAtStart());
+        processFactory.startSubprocess(executionContext, new ExecutionContext(subProcessDefinition, subProcess));
         if (async) {
             log.debug("continue execution in async " + this);
             leave(executionContext);
