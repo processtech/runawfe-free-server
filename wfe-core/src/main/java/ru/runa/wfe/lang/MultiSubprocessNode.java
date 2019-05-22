@@ -1,12 +1,12 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
@@ -20,17 +20,14 @@ import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils.Parameters;
-import ru.runa.wfe.var.SelectableOption;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.SelectableOption;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.Variables;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class MultiSubprocessNode extends SubprocessNode {
     private static final long serialVersionUID = 1L;
@@ -53,6 +50,7 @@ public class MultiSubprocessNode extends SubprocessNode {
         Parameters parameters = MultiinstanceUtils.parse(executionContext, this);
         List<Object> data = TypeConversionUtil.convertTo(List.class, parameters.getDiscriminatorValue());
         List<Process> subProcesses = Lists.newArrayList();
+        Map<Process, Map<String, Object>> subProcessVariables = Maps.newHashMap();
         ProcessDefinition subProcessDefinition = getSubProcessDefinition();
         List<Integer> ignoredIndexes = Lists.newArrayList();
         if (!Utils.isNullOrEmpty(discriminatorCondition)) {
@@ -117,10 +115,11 @@ public class MultiSubprocessNode extends SubprocessNode {
             }
             Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, index);
             subProcesses.add(subProcess);
+            subProcessVariables.put(subProcess, variables);
         }
         for (Process subprocess : subProcesses) {
             ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subprocess);
-            processFactory.startSubprocess(executionContext, subExecutionContext);
+            processFactory.startSubprocess(executionContext, subExecutionContext, isValidateAtStart() ? subProcessVariables.get(subprocess) : null);
         }
         MultiinstanceUtils.autoExtendContainerVariables(executionContext, getVariableMappings(), data.size());
         if (subProcesses.size() == 0) {

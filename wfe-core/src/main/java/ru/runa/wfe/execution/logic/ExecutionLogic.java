@@ -229,7 +229,7 @@ public class ExecutionLogic extends WfCommonLogic {
         if (!variables.containsKey(startTaskSwimlaneName)) {
             variables.put(startTaskSwimlaneName, user.getActor());
         }
-        validateVariables(user, null, variableProvider, processDefinition, processDefinition.getStartStateNotNull().getNodeId(), variables);
+        validateVariables(null, variableProvider, processDefinition, processDefinition.getStartStateNotNull().getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
         Process process = processFactory.startProcess(processDefinition, variables, user.getActor(), transitionName, transientVariables);

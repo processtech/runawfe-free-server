@@ -14,6 +14,7 @@ import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
+import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
@@ -25,6 +26,10 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDao;
+import ru.runa.wfe.validation.ValidationException;
+import ru.runa.wfe.validation.ValidatorContext;
+import ru.runa.wfe.validation.ValidatorManager;
+import ru.runa.wfe.var.VariableProvider;
 
 public class ProcessFactory {
     @Autowired
@@ -99,11 +104,28 @@ public class ProcessFactory {
         return subExecutionContext.getProcess();
     }
 
-    public void startSubprocess(ExecutionContext parentExecutionContext, ExecutionContext executionContext) {
+    public void startSubprocess(ExecutionContext parentExecutionContext, ExecutionContext executionContext, Map<String, Object> variables) {
         parentExecutionContext
                 .addLog(new SubprocessStartLog(parentExecutionContext.getNode(), parentExecutionContext.getToken(), executionContext.getProcess()));
+        if (variables != null) {
+            ProcessDefinition processDefinition = executionContext.getProcessDefinition();
+            validateVariables(executionContext, new ExecutionVariableProvider(executionContext), processDefinition,
+                    processDefinition.getStartStateNotNull().getNodeId(), variables);
+        }
         grantSubprocessPermissions(executionContext.getProcessDefinition(), executionContext.getProcess(), parentExecutionContext.getProcess());
         startProcessInternal(executionContext, null);
+    }
+
+    protected void validateVariables(ExecutionContext executionContext, VariableProvider variableProvider,
+            ProcessDefinition processDefinition, String nodeId, Map<String, Object> variables) throws ValidationException {
+        Interaction interaction = processDefinition.getInteractionNotNull(nodeId);
+        if (interaction.getValidationData() != null) {
+            ValidatorContext context = ValidatorManager.getInstance().validate(executionContext, variableProvider,
+                    interaction.getValidationData(), variables);
+            if (context.hasGlobalErrors() || context.hasFieldErrors()) {
+                throw new ValidationException(context.getFieldErrors(), context.getGlobalErrors());
+            }
+        }
     }
 
     private void grantSubprocessPermissions(ProcessDefinition processDefinition, Process subProcess, Process parentProcess) {
@@ -161,4 +183,5 @@ public class ProcessFactory {
         }
         startNode.leave(executionContext, transition);
     }
+
 }

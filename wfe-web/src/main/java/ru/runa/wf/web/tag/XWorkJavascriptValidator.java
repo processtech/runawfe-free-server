@@ -17,6 +17,10 @@
  */
 package ru.runa.wf.web.tag;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,19 +31,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.FieldValidator;
 import ru.runa.wfe.validation.Validator;
 import ru.runa.wfe.validation.ValidatorContext;
 import ru.runa.wfe.validation.ValidatorManager;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Throwables;
-
-import freemarker.template.Configuration;
-import freemarker.template.Template;
 
 public class XWorkJavascriptValidator {
 
@@ -59,7 +56,7 @@ public class XWorkJavascriptValidator {
             Set<String> tagNames = new HashSet<String>();
 
             ValidatorContext validatorContext = new ValidatorContext();
-            List<Validator> validators = ValidatorManager.getInstance().createValidators(user, null, null, validationXmlBytes, validatorContext,
+            List<Validator> validators = ValidatorManager.getInstance().createValidators(null, null, validationXmlBytes, validatorContext,
                     new HashMap<String, Object>());
             for (Validator validator : validators) {
                 if (validator instanceof FieldValidator) {
