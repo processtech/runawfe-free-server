@@ -24,7 +24,7 @@ public class EndAsyncTasksHandler extends ParamBasedHandlerActionHandler {
         }
         log.info("Cancelling tasks by '" + nodeId + "': " + tasks);
         for (Task task : tasks) {
-            task.end(context, taskNode, TaskCompletionInfo.createForHandler(nodeId));
+            task.end(context, taskNode, TaskCompletionInfo.createForHandler(nodeId, null));
         }
     }
 

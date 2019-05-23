@@ -30,6 +30,7 @@ import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
 import com.google.common.collect.Lists;
+import ru.runa.wfe.user.Executor;
 
 public class CatchEventNode extends BaseMessageNode implements BoundaryEventContainer, BoundaryEvent {
     private static final long serialVersionUID = 1L;
@@ -61,8 +62,8 @@ public class CatchEventNode extends BaseMessageNode implements BoundaryEventCont
     }
 
     @Override
-    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting() {
-        return TaskCompletionInfo.createForHandler(getEventType().name());
+    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting(Executor executor) {
+        return TaskCompletionInfo.createForHandler(getEventType().name(), executor);
     }
 
     @Override

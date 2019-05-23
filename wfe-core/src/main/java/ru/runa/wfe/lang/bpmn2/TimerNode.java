@@ -21,12 +21,9 @@ import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDao;
-import ru.runa.wfe.lang.BoundaryEvent;
-import ru.runa.wfe.lang.BoundaryEventContainer;
-import ru.runa.wfe.lang.Delegation;
-import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.NodeType;
+import ru.runa.wfe.lang.*;
 import ru.runa.wfe.task.TaskCompletionInfo;
+import ru.runa.wfe.user.Executor;
 
 public class TimerNode extends Node implements BoundaryEventContainer, BoundaryEvent {
     private static final long serialVersionUID = 1L;
@@ -92,7 +89,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
     }
 
     @Override
-    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting() {
+    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting(Executor executor) {
         return TaskCompletionInfo.createForTimer();
     }
 

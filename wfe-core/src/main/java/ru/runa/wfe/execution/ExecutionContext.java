@@ -246,6 +246,12 @@ public class ExecutionContext {
         setVariableValue(variableDefinition, value);
     }
 
+    public Executor getExecutor(String name, Object value, SwimlaneDefinition swimlaneDefinition) {
+        log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
+        Executor executor = (Executor) convertValueForVariableType(swimlaneDefinition.toVariableDefinition(), value);
+        return executor;
+    }
+
     /**
      * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
      */

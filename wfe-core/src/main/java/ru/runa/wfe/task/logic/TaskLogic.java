@@ -175,7 +175,7 @@ public class TaskLogic extends WfCommonLogic {
         if (node instanceof MultiTaskNode) {
             MultiTaskNode multiTaskNode = (MultiTaskNode) node;
             if (multiTaskNode.isCompletionTriggersSignal(task)) {
-                multiTaskNode.endTokenTasks(executionContext, TaskCompletionInfo.createForHandler(multiTaskNode.getSynchronizationMode().name()));
+                multiTaskNode.endTokenTasks(executionContext, TaskCompletionInfo.createForHandler(multiTaskNode.getSynchronizationMode().name(), null));
             } else {
                 log.debug("!MultiTaskNode.isCompletionTriggersSignal in " + task);
                 return;

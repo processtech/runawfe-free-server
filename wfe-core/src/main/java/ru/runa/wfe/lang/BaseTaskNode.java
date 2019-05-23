@@ -12,6 +12,7 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskFactory;
 import ru.runa.wfe.task.dao.TaskDao;
+import ru.runa.wfe.user.Executor;
 
 public abstract class BaseTaskNode extends InteractionNode implements BoundaryEventContainer, Synchronizable {
     private static final long serialVersionUID = 1L;
@@ -74,11 +75,11 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     }
 
     @Override
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
+    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent, Executor executor) {
         if (async) {
-            endTokenTasks(new ExecutionContext(processDefinition, token), boundaryEvent.getTaskCompletionInfoIfInterrupting());
+            endTokenTasks(new ExecutionContext(processDefinition, token), boundaryEvent.getTaskCompletionInfoIfInterrupting(executor));
         } else {
-            super.onBoundaryEvent(processDefinition, token, boundaryEvent);
+            super.onBoundaryEvent(processDefinition, token, boundaryEvent, executor);
         }
     }
 }

@@ -25,7 +25,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -37,6 +36,10 @@ import ru.runa.wfe.execution.logic.ProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
+import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.var.VariableMapping;
+
+import java.util.List;
 
 public abstract class Node extends GraphElement {
     private static final long serialVersionUID = 1L;
@@ -243,16 +246,9 @@ public abstract class Node extends GraphElement {
         if (endBoundaryEventTokensOnNodeLeave()) {
             endBoundaryEventTokens(executionContext);
         }
-        if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
-            Token parentToken = executionContext.getToken().getParent();
-            ((Node) getParentElement()).onBoundaryEvent(executionContext.getProcessDefinition(), parentToken, (BoundaryEvent) this);
-            for (Token token : parentToken.getActiveChildren()) {
-                if (Objects.equal(token, executionContext.getToken())) {
-                    continue;
-                }
-                token.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), true);
-            }
-        }
+
+        tokenEndForParentByBoundaryEvent(executionContext, null);
+
         Token token = executionContext.getToken();
         for (ProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
             listener.onNodeLeave(executionContext, this, transition);
@@ -267,6 +263,33 @@ public abstract class Node extends GraphElement {
         token.setNodeType(null);
         // take the transition
         transition.take(executionContext);
+    }
+
+    protected void tokenEndForParentByBoundaryEvent(ExecutionContext executionContext, Executor executor) {
+        if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
+            executor = null;
+            if (this instanceof BaseMessageNode) {
+                for(VariableMapping variableMapping : ((BaseMessageNode) this).getVariableMappings()) {
+                    String varName = variableMapping.getName();
+                    SwimlaneDefinition swimlane = getProcessDefinition().getSwimlane(varName);
+                    if (swimlane != null) {
+                        Object value = executionContext.getVariableValue(varName);
+                        if (value != null) {
+                            executor = executionContext.getExecutor(varName, value, swimlane);
+                            break;
+                        }
+                    }
+                }
+            }
+            Token parentToken = executionContext.getToken().getParent();
+            ((Node) getParentElement()).onBoundaryEvent(executionContext.getProcessDefinition(), parentToken, (BoundaryEvent) this, executor);
+            for (Token token : parentToken.getActiveChildren()) {
+                if (Objects.equal(token, executionContext.getToken())) {
+                    continue;
+                }
+                token.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executor), true);
+            }
+        }
     }
 
     protected void addLeaveLog(ExecutionContext executionContext) {
@@ -309,7 +332,7 @@ public abstract class Node extends GraphElement {
         return true;
     }
 
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
-        token.end(processDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
+    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent, Executor executor) {
+        token.end(processDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(executor), false);
     }
 }
