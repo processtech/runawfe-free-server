@@ -19,12 +19,11 @@ public class CheckMessagesInChatAjax extends JsonAjaxCommand {
 	protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
 		// TODO Auto-generated method stub
 	    JSONObject object = new JSONObject();
+	    ChatLogic chatLogic=new ChatLogic();
 	    String chatId=request.getParameter("chatId");
-		String lastMessageId=request.getParameter("allMessageCount");
-		ChatLogic chatLogic=new ChatLogic();
-	    if(chatLogic.getNewMessagesCount((Integer.parseInt(chatId)), user, Integer.parseInt(lastMessageId))>0) {
-	    }
-		return (JSONAware) object.put("newMessageCount", 0);
+		String lastMessageId=request.getParameter("lastMessageId");
+		int messageCount=chatLogic.getNewMessagesCount((Integer.parseInt(chatId)), user, Integer.parseInt(lastMessageId));
+		return (JSONAware) object.put("newMessageCount", messageCount);
 	}
 }
 

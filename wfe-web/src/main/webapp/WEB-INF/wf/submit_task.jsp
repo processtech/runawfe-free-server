@@ -65,7 +65,7 @@
 <% } %>
 <wf:taskForm title="<%= title %>" taskId="<%= taskId %>" action="/submitTaskForm" />
 <script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
-
+<script type="text/javascript" src="/wfe/js/chatDragWindow.js"></script>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 </tiles:insert>

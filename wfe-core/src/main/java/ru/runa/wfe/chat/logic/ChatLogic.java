@@ -11,17 +11,29 @@ public class ChatLogic {
 		return messages.get(messageId);
 	}
 	
-	public ArrayList<ChatMessage> getMessages(int chatId,User user,int messageId) {
+	public ArrayList<ChatMessage> getMessages(int chatId,User user) {
 		return messages;
 	}
 	
+	public ArrayList<ChatMessage> getMessages(int chatId,User user,int firstIndex) {
+		ArrayList<ChatMessage> ret=new ArrayList<ChatMessage>();
+		for(int i=firstIndex;i<messages.size();i++)
+			ret.add(messages.get(i));	
+		return ret;
+	}
+	
 	public void setMessage(int chatId,User user,ChatMessage message) {
+		message.setId(messages.size());
 		messages.add(message);
 	}
 	
+	
 	public void setMessage(int chatId,User user,ArrayList<ChatMessage> message) {
 		for(int i=0;i<message.size();i++)
-		messages.add(message.get(i));
+		{
+			message.get(i).setId(messages.size());
+			messages.add(message.get(i));
+		}
 	}
 	
 	public int getNewMessagesCount(int chatId,User user,int lastMessageId) {

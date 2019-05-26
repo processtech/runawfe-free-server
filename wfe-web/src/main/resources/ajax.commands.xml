@@ -9,5 +9,6 @@
 </command>
 	<command name="GettingChatMessage" class="ru.runa.wf.web.servlet.GettingMessageChatAjax"></command>
 	<command class="ru.runa.wf.web.servlet.CheckMessagesInChatAjax" name="CheckChatMessageIndicator"></command>
+	<command class="ru.runa.wf.web.servlet.GetHierarhyLevelAjax" name="GetHierarhyLevel"></command>
 
 </configuration>

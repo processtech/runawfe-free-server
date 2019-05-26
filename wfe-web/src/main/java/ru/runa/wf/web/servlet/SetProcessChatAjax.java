@@ -35,20 +35,29 @@ public class SetProcessChatAjax extends JsonAjaxCommand {
 	protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
 		String chatId=request.getParameter("chatId");
 		String inputMessageLine=request.getParameter("message");
+		String idHierarchyMessage=request.getParameter("idHierarchyMessage");
 	    String namePerson=user.getName().toString();
 	    JSONObject object = new JSONObject();
 		//String namePerson="test";
 	    ChatLogic chatLogic = new ChatLogic();
 	    ChatMessage chatMessage= new ChatMessage();
-	    //ArrayList<ChatMessage> allMessages= new ArrayList<ChatMessage>();
-	    //String messages[]=inputMessageLine.split("::");
+	    ArrayList<Integer> hierarchyMessagesIds= new ArrayList<Integer>();
+	    String messagesIds[]=idHierarchyMessage.split(":");
+	    for(int i=0;i<messagesIds.length;i++) {
+	    	if(!(messagesIds[i].isEmpty())) {
+	    	hierarchyMessagesIds.add(Integer.parseInt(messagesIds[i]));
+	    	}
+	    }
 	    chatMessage.setText(inputMessageLine);
+	    chatMessage.setIerarchyMessage(hierarchyMessagesIds);
+	    chatMessage.setAllMessage(inputMessageLine);
 	    chatLogic.setMessage((Integer.parseInt(chatId)), user, chatMessage);
 		//отправка
 	    if((!inputMessageLine.equals(""))) {
 		//object.put("id", info);
 		//object.put("text", namePerson+":"+message);
 	    object.put("text", 0);
+	    object.put("lengthHierarhy", hierarchyMessagesIds.size());
         return object;
 	    }else {
 	    	return (JSONAware) object.put("text", 1);
