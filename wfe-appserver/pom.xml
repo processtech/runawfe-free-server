@@ -63,12 +63,6 @@
 			<version>${project.version}</version>
 			<type>ear</type>
 		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>wfe-remotebots</artifactId>
-			<version>${project.version}</version>
-			<type>ear</type>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -130,18 +124,6 @@
 						<configuration>
 							<descriptors>
 								<descriptor>src/assembly/7/wfe-server-full.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-					<execution>
-						<id>assemble-server-remotebots</id>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<phase>package</phase>
-						<configuration>
-							<descriptors>
-								<descriptor>src/assembly/7/wfe-bots-diff.xml</descriptor>
 							</descriptors>
 						</configuration>
 					</execution>
