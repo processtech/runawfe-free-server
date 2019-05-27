@@ -129,7 +129,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
     @Override
     public void onTaskCreateLog(TaskCreateLog taskCreateLog) {
-        if (getTaskLog(taskCreateLog.getTaskId()) != null) {
+        if (taskCreateLog.getTaskId() > 0 && getTaskLog(taskCreateLog.getTaskId()) != null) {
             return;
         }
         sessionFactory.getCurrentSession().save(new TaskAggregatedLog(taskCreateLog, processDefinitionLoader, process, token));
