@@ -24,9 +24,11 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.audit.presentation.ExecutorNameValue;
+import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -50,7 +52,11 @@ public class TaskAssignLog extends TaskLog {
         if (newExecutor != null) {
             addAttribute(ATTR_NEW_VALUE, newExecutor.getName());
         }
-        setSeverity(Severity.INFO);
+    }
+
+    public TaskAssignLog(Process process, StartNode startNode, Actor actor) {
+        super(process, startNode);
+        addAttribute(ATTR_NEW_VALUE, actor.getName());
     }
 
     @Transient

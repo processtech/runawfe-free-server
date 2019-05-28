@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
-import ru.runa.wfe.audit.Attributes;
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.audit.ProcessActivateLog;
 import ru.runa.wfe.audit.ProcessCancelLog;
@@ -41,8 +39,9 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.ProcessSuspendLog;
-import ru.runa.wfe.audit.Severity;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
@@ -50,7 +49,6 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
-import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -82,6 +80,7 @@ import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
@@ -229,24 +228,16 @@ public class ExecutionLogic extends WfCommonLogic {
         Map<String, Object> extraVariablesMap = Maps.newHashMap();
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(processDefinition));
-        SwimlaneDefinition startTaskSwimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
+        StartNode startNode = processDefinition.getStartStateNotNull();
+        SwimlaneDefinition startTaskSwimlaneDefinition = startNode.getFirstTaskNotNull().getSwimlane();
         String startTaskSwimlaneName = startTaskSwimlaneDefinition.getName();
         if (!variables.containsKey(startTaskSwimlaneName)) {
             variables.put(startTaskSwimlaneName, user.getActor());
         }
-        validateVariables(user, null, variableProvider, processDefinition, processDefinition.getStartStateNotNull().getNodeId(), variables);
+        validateVariables(user, null, variableProvider, processDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
-        Actor actor = user.getActor();
-        Process process = processFactory.startProcess(processDefinition, variables, actor, transitionName, transientVariables);
-        TaskCreateLog taskCreateLog = new TaskCreateLog();
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put(Attributes.ATTR_ACTOR_NAME, actor != null ? actor.getName() : "system");
-        attributes.put(Attributes.ATTR_TASK_ID, "-1");
-        attributes.put(Attributes.ATTR_TASK_NAME, processDefinition.getNode(process.getRootToken().getNodeId()).getName());
-        taskCreateLog.setContent(XmlUtils.serialize(attributes));
-        taskCreateLog.setSeverity(Severity.INFO);
-        processLogDao.addLog(taskCreateLog, process, null);
+        Process process = processFactory.startProcess(processDefinition, variables, user.getActor(), transitionName, transientVariables);
         Object predefinedProcessStarterObject = variables.get(startTaskSwimlaneName);
         if (!Objects.equal(predefinedProcessStarterObject, user.getActor())) {
             Executor predefinedProcessStarter = TypeConversionUtil.convertTo(Executor.class, predefinedProcessStarterObject);
@@ -254,6 +245,9 @@ public class ExecutionLogic extends WfCommonLogic {
             Swimlane swimlane = swimlaneDao.findOrCreate(process, startTaskSwimlaneDefinition);
             swimlane.assignExecutor(executionContext, predefinedProcessStarter, true);
         }
+        processLogDao.addLog(new TaskCreateLog(process, startNode), process, process.getRootToken());
+        processLogDao.addLog(new TaskAssignLog(process, startNode, user.getActor()), process, process.getRootToken());
+        processLogDao.addLog(new TaskEndLog(process, startNode, user.getActor()), process, process.getRootToken());
         log.info(process + " was successfully started by " + user);
         return process.getId();
     }
