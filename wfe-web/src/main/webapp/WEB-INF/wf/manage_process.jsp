@@ -86,15 +86,14 @@ function Reload() {
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
 <wf:processVariableMonitor identifiableId='<%= id %>' />
-
-<% if(!graphMode) { %>
-	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
-	<wf:ChatTag test1='<%= new Long(999) %>' identifiableId='<%= taskId %>'/>
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
-	
-<% } %>
-</tiles:put>
+<wf:ChatTag test1='<%= new Long(999) %>' identifiableId='<%= id %>'/>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
 <script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
 <script type="text/javascript" src="/wfe/js/chatDragWindow.js"></script>
+<% if(!graphMode) { %>
+	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
+
+<% } %>
+</tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 </tiles:insert>
