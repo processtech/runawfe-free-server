@@ -87,7 +87,7 @@ $(document).ready(function() {
 	   	});
 		$('.modal-header-dragg').css({
 	   		
-	   	    width: '300px',
+	   	    width: '530px',
 	   	});
 		
 		inputH.style.width = "600px";
@@ -112,7 +112,7 @@ $(document).ready(function() {
 		   	});
 			$('.modal-header-dragg').css({
 		   		
-		   	    width: '600px',
+		   	    width: '220px',
 		   	});
 			inputH.style.width = "250px";
 			inputH.style.height = "25px";
@@ -167,7 +167,7 @@ $(document).ready(function() {
 					}//if(data.newMessage==0) конец
 				}
 				});  
-			   }else if(switchCheak==0){
+			   }else if(switchCheak==10){
 				   let urlString = "/wfe/ajaxcmd?command=CheckChatMessageIndicator";
 				  
 					//$(".modal-body").append("<table ><tr><td>"+ lastMessageId + "</td></tr><tr><td>"+ /*dateTime +*/ "</td><td><a> Ответить</a></td></tr></table >");
@@ -191,14 +191,15 @@ $(document).ready(function() {
    
    function hierarhyCheak(messageId){
 	 let urlString = "/wfe/ajaxcmd?command=GetHierarhyLevel&chatId="+$('#ChatForm').attr('chatId')+"&messageId="+messageId;
-	 var ajaxRet="";		
-	 $.ajax({
+	 //var ajaxRet="";		
+	 return $.ajax({
 			type: "POST",
 			url: urlString,
 			dataType: "json",
 			contentType: "application/json; charset=UTF-8",
 			processData: false,
 			success: function(data) {
+				let ajaxRet="";
 				if(data.newMessage==0){
 					for(let mes=0;mes<data.messages.length;mes++){
 						if(data.messages[mes].text !=null){
@@ -212,36 +213,73 @@ $(document).ready(function() {
 							messageBody+= "</table >";
 							
 							ajaxRet=ajaxRet+messageBody;
+							
 						}
 				}
+					return ajaxRet;
 			}//if(data.newMessage==0) конец
 			}
 	 });
-   return ajaxRet;
    }
    
    function addOnClickHierarchyOpen(){
 	  // let elements = document.getElementsByClassName("openHierarchy");
-	   let elements = $("#openHierarchy");
+	   let elements = $(".openHierarchy");
 	   //for(let i=0;i<elements.lenght;i++)
 	   //{
-		   elements.on( "click","a", function(event){
+		   elements.off().on( "click", function(event){
 			   if($(this).attr("openFlag")==1){
-				   $(this).next(".loadedHierarchy")[0].hide();
+				   let thisElem=$(".openHierarchy")[0];
+				   $(this).next(".loadedHierarchy")[0].style.display="none";
+					$(this).attr("openFlag","0");
+					//thisElem.innerHTML="Развернуть";
+					return 0;
 			   }
 			   else{
+				   let thisElem=$(".openHierarchy")[0];
 					if($(this).attr("loadFlag")==1){
-						$(this).next(".loadedHierarchy")[0].show();
+						$(this).next(".loadedHierarchy")[0].style.display="block";
+						$(this).attr("openFlag","1");
+						//thisElem.innerHTML="Свернуть";
+						return 0;
 					}else{
-						$(this).next(".loadedHierarchy")[0].append(hierarhyCheak($(this).attr("mesNumber")));
-						addOnClickHierarchyOpen();
-						$(this).attr("loadFlag", "1");
+						let thisElem=$(".openHierarchy")[0];
+						let element=this;
+						//$(this).next(".loadedHierarchy")[0].append(hierarhyCheak($(this).attr("mesNumber")));
+						hierarhyCheak($(element).attr("mesNumber")).then(ajaxRet=>{
+							$(this).next(".loadedHierarchy").append(getMessagesText(ajaxRet));						
+							addOnClickHierarchyOpen();
+							$(element).attr("loadFlag", "1");
+							$(this).attr("openFlag","1");
+							//thisElem.innerHTML="Свернуть";
+							return 0;
+						});
 					}
 				}
 			});
 	   //}
    }
 	chatCheckCycle();
+	function getMessagesText(data) {
+		let ajaxRet="";
+		if(data.newMessage==0){
+			for(let mes=0;mes<data.messages.length;mes++){
+				if(data.messages[mes].text !=null){
+					let messageBody="<table><tr><td>"+ data.messages[mes].text ;
+					let hierarhyMass="";
+					//тут получаем id вложенных
+					if(data.messages[mes].hierarchyMessageFlag==1){
+						hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
+					}
+					messageBody+="</td></tr>" + hierarhyMass;
+					messageBody+= "</table >";
+					ajaxRet=ajaxRet+messageBody;
+					
+				}
+		}
+			return ajaxRet;
+	}//if(data.newMessage==0) конец
+	}
    });
 
 

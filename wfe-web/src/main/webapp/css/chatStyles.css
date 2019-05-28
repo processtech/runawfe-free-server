@@ -81,7 +81,7 @@
             padding: 2px 16px;
             background-color: #e1e2e5;
             font-family: Verdana, Arial, Helvetica, sans-serif;
-            font-size: 20pt; /* Размер шрифта в пунктах */
+            font-size: 15pt; /* Размер шрифта в пунктах */
             height: 390px; /* Высота блока */
             overflow: scroll; /* Добавляем полосы прокрутки */
             border: 1px solid #333; /* Параметры рамки */
@@ -95,6 +95,8 @@
         }
       
         textarea {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12pt; /* Размер шрифта в пунктах */
         resize: none;
         }
         

@@ -84,6 +84,8 @@ closeChat.setType("button");
 TextArea messageSend=new TextArea();
 messageSend.setName("message");
 messageSend.setID("message");
+messageSend.setStyle("font-family: Verdana, Arial, Helvetica, sans-serif;\r\n" + 
+		"            font-size: 12pt; /* Размер шрифта в пунктах */");
 
 Input sendToAdress=new Input();
 sendToAdress.setType("text");
@@ -102,13 +104,14 @@ Div modalHeader=new Div();
 Div modalHeaderDragg=new Div();
 modalHeaderDragg.setClass("modal-header-dragg");
 modalHeaderDragg.setID("modal-header-dragg");
-modalHeaderDragg.setStyle("cursor: move;width: 300px;height:10px");
+modalHeaderDragg.setStyle("cursor: move;width: 220px;height:10px");
 modalHeader.setClass("modal-header");
 modalHeader.setID("modal-header");
 //modalHeader.setStyle("cursor: move");
 
 Div modalBody=new Div();
 modalBody.setClass("modal-body");
+modalBody.setStyle("height: 396px; width: 304px;");
 
 Div modalFooter=new Div();
 modalFooter.setClass("modal-footer");
@@ -140,7 +143,7 @@ Script scrFromFile=new Script();
 scrFromFile.setSrc("/wfe/js/chatPart1.js");
 scrFromFile.setType("text/javascript");
 Div box=new Div();
-box.setClass("tested");
+box.setClass("BoxContent");
 updateVariableTR.addElement(styleButton);
 updateVariableTR.addElement(buttonOpenChat);
 chatDiv.addElement(modalContetnt);
