@@ -1,7 +1,6 @@
 package ru.runa.wfe.task;
 
 import com.google.common.base.MoreObjects;
-
 import ru.runa.wfe.user.Executor;
 
 public class TaskCompletionInfo {
@@ -39,6 +38,10 @@ public class TaskCompletionInfo {
 
     public static TaskCompletionInfo createForHandler(String handlerInfo, Executor executor) {
         return new TaskCompletionInfo(TaskCompletionBy.HANDLER, executor, handlerInfo, null);
+    }
+
+    public static TaskCompletionInfo createForSignal(Executor executor) {
+        return new TaskCompletionInfo(TaskCompletionBy.SIGNAL, executor);
     }
 
     public TaskCompletionBy getCompletionBy() {

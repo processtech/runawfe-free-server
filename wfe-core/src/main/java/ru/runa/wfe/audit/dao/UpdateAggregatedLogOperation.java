@@ -180,7 +180,8 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
     @Override
     public void onTaskCancelledLog(TaskCancelledLog taskCancelledLog) {
-        onTaskEnd(taskCancelledLog, taskCancelledLog.getActorName() == null? EndReason.CANCELLED : EndReason.COMPLETED_BY_SIGNAL);
+        // TODO rm1085 introduce TaskCompletedBySignalLog?
+        onTaskEnd(taskCancelledLog, taskCancelledLog.getActorName() == null ? EndReason.CANCELLED : EndReason.COMPLETED_BY_SIGNAL);
     }
 
     @Override

@@ -6,13 +6,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskFactory;
 import ru.runa.wfe.task.dao.TaskDao;
-import ru.runa.wfe.user.Executor;
 
 public abstract class BaseTaskNode extends InteractionNode implements BoundaryEventContainer, Synchronizable {
     private static final long serialVersionUID = 1L;
@@ -75,11 +73,11 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     }
 
     @Override
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent, Executor executor) {
+    protected void onBoundaryEvent(ExecutionContext executionContext, BoundaryEvent boundaryEvent) {
         if (async) {
-            endTokenTasks(new ExecutionContext(processDefinition, token), boundaryEvent.getTaskCompletionInfoIfInterrupting(executor));
+            endTokenTasks(executionContext, boundaryEvent.getTaskCompletionInfoIfInterrupting(executionContext));
         } else {
-            super.onBoundaryEvent(processDefinition, token, boundaryEvent, executor);
+            super.onBoundaryEvent(executionContext, boundaryEvent);
         }
     }
 }

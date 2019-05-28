@@ -43,8 +43,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
@@ -310,6 +308,7 @@ public class Task implements Assignable {
             executionContext.addLog(new TaskEndByAdminLog(this, completionInfo));
             break;
         case HANDLER:
+        case SIGNAL:
             executionContext.addLog(new TaskCancelledLog(this, completionInfo));
             break;
         case PROCESS_END:
