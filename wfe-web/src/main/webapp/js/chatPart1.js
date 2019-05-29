@@ -9,7 +9,13 @@ $(document).ready(function() {
 	var flag=1;
 	var span = document.getElementById("close");
 	//var message = document.getElementById("message").value;
-
+	//тест сокет
+	var chatSocket = new WebSocket("ws://localhost:8080/wfe/actions");
+	chatSocket.onmessage = onMessage;
+	chatSocket.onclose = function(){
+		$(".modal-body").append("<table ><td>" + "потерянно соединение с чатом сервера"+ "</td></table >");
+	}
+//-----------
 	btn.onclick = function() {
 		if(chatForm!=null){
 			chatForm.style.display = "block";
@@ -30,6 +36,10 @@ $(document).ready(function() {
    inputH.style.width = "250px";
    inputH.style.height = "25px";
    btnSend.onclick=function send() { 
+	   
+	   //сокет тест
+	   chatSocket.send("startSoket");
+	   
    var message = document.getElementById("message").value;
    var idHierarchyMessage="";
    for(var i=0;i<attachedPosts.length;i++){
@@ -203,11 +213,11 @@ $(document).ready(function() {
 				if(data.newMessage==0){
 					for(let mes=0;mes<data.messages.length;mes++){
 						if(data.messages[mes].text !=null){
-							let messageBody="<table><tr><td>"+ data.messages[mes].text ;
+							let messageBody="<table><tr class=\"quote\"><td>"+ data.messages[mes].text ;
 							let hierarhyMass="";
 							//тут получаем id вложенных
 							if(data.messages[mes].hierarchyMessageFlag==1){
-								hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
+								hierarhyMass+="<tr class=\"quote\"><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
 							}
 							messageBody+="</td></tr>" + hierarhyMass;
 							messageBody+= "</table >";
@@ -265,11 +275,11 @@ $(document).ready(function() {
 		if(data.newMessage==0){
 			for(let mes=0;mes<data.messages.length;mes++){
 				if(data.messages[mes].text !=null){
-					let messageBody="<table><tr><td>"+ data.messages[mes].text ;
+					let messageBody="<table><tr class=\"quote\"><td>"+ data.messages[mes].text ;
 					let hierarhyMass="";
 					//тут получаем id вложенных
 					if(data.messages[mes].hierarchyMessageFlag==1){
-						hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
+						hierarhyMass+="<tr class=\"quote\"><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
 					}
 					messageBody+="</td></tr>" + hierarhyMass;
 					messageBody+= "</table >";
@@ -280,6 +290,12 @@ $(document).ready(function() {
 			return ajaxRet;
 	}//if(data.newMessage==0) конец
 	}
+	//тест сокет
+	function onMessage(event) {
+		//let device = JSON.parse(event.data);
+		$(".modal-body").append("<table ><td>" + "URA! SOKET RUN!"+ "</td></table >");
+	}
+	
    });
 
 
