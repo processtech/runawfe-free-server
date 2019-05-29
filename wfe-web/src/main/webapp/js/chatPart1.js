@@ -155,14 +155,14 @@ $(document).ready(function() {
 						if(data.newMessage==0){
 							for(let mes=0;mes<data.messages.length;mes++){
 								if(data.messages[mes].text !=null){
-									var messageBody="<table><tr><td>"+ data.messages[mes].text ;
+									var messageBody="<table class=\"selectionTextQuote\"><tr><td>"+data.messages[mes].author+":"+data.messages[mes].text ;
 									var hierarhyMass="";
 									//тут получаем id вложенных
 									if(data.messages[mes].hierarchyMessageFlag==1){
 										hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
 									}
 									messageBody+="</td></tr>" + hierarhyMass;
-									messageBody+= "<tr><td>"+ data.messages[mes].dateTime + "</td><td><a id=\"messReply"+(lastMessageId+mes)+"\" mesNumber=\""+data.messages[mes].id+"\"> Ответить</a></td></tr></table >";
+									messageBody+= "<tr><td>"+ data.messages[mes].dateTime + "</td><td><a class=\"addReply\" id=\"messReply"+(lastMessageId+mes)+"\" mesNumber=\""+data.messages[mes].id+"\"> Ответить</a></td></tr></table >";
 									$(".modal-body").append(messageBody);
 									document.getElementById("messReply"+(lastMessageId+mes)).onclick=function(){
 										attachedPosts.push($(this).attr("mesNumber"));
@@ -213,11 +213,11 @@ $(document).ready(function() {
 				if(data.newMessage==0){
 					for(let mes=0;mes<data.messages.length;mes++){
 						if(data.messages[mes].text !=null){
-							let messageBody="<table><tr class=\"quote\"><td>"+ data.messages[mes].text ;
+							let messageBody="<table class=\"quote\"><tr class=\"selectionTextAdditional\"><td>Цитата:"+data.messages[mes].author+"</td></tr><tr><td>"+ data.messages[mes].text ;
 							let hierarhyMass="";
 							//тут получаем id вложенных
 							if(data.messages[mes].hierarchyMessageFlag==1){
-								hierarhyMass+="<tr class=\"quote\"><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
+								hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
 							}
 							messageBody+="</td></tr>" + hierarhyMass;
 							messageBody+= "</table >";
@@ -242,7 +242,7 @@ $(document).ready(function() {
 				   let thisElem=$(".openHierarchy")[0];
 				   $(this).next(".loadedHierarchy")[0].style.display="none";
 					$(this).attr("openFlag","0");
-					//thisElem.innerHTML="Развернуть";
+					$(this).text("Развернуть");
 					return 0;
 			   }
 			   else{
@@ -250,7 +250,7 @@ $(document).ready(function() {
 					if($(this).attr("loadFlag")==1){
 						$(this).next(".loadedHierarchy")[0].style.display="block";
 						$(this).attr("openFlag","1");
-						//thisElem.innerHTML="Свернуть";
+						$(this).text("Свернуть");
 						return 0;
 					}else{
 						let thisElem=$(".openHierarchy")[0];
@@ -261,7 +261,7 @@ $(document).ready(function() {
 							addOnClickHierarchyOpen();
 							$(element).attr("loadFlag", "1");
 							$(this).attr("openFlag","1");
-							//thisElem.innerHTML="Свернуть";
+							$(this).text("Свернуть");
 							return 0;
 						});
 					}
@@ -275,11 +275,11 @@ $(document).ready(function() {
 		if(data.newMessage==0){
 			for(let mes=0;mes<data.messages.length;mes++){
 				if(data.messages[mes].text !=null){
-					let messageBody="<table><tr class=\"quote\"><td>"+ data.messages[mes].text ;
+					let messageBody="<table class=\"quote\"><tr class=\"selectionTextAdditional\"><td>Цитата:"+data.messages[mes].author+"</td></tr><tr><td>"+ data.messages[mes].text ;
 					let hierarhyMass="";
 					//тут получаем id вложенных
 					if(data.messages[mes].hierarchyMessageFlag==1){
-						hierarhyMass+="<tr class=\"quote\"><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
+						hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesNumber=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
 					}
 					messageBody+="</td></tr>" + hierarhyMass;
 					messageBody+= "</table >";

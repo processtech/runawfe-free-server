@@ -21,6 +21,7 @@ public class GetHierarhyLevelAjax  extends JsonAjaxCommand {
 	protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
 		String chatId=request.getParameter("chatId");
 		String messageId=request.getParameter("messageId");
+		String namePerson=user.getName().toString();
 	    JSONObject object = new JSONObject();
 	    ChatLogic chatLogic=new ChatLogic();
 	    ChatMessage coreMessage=chatLogic.getMessage(Integer.parseInt(chatId), user, Integer.parseInt(messageId));
@@ -34,7 +35,8 @@ public class GetHierarhyLevelAjax  extends JsonAjaxCommand {
 	    	for (ChatMessage chatMessage : messages) {
 	    		JSONObject object1 = new JSONObject();
 		    	object1.put("id", chatMessage.getId());
-				object1.put("text", chatMessage.getText());
+		    	object1.put("text", chatMessage.getText());
+		    	object1.put("author", namePerson);
 				if(chatMessage.getIerarchyMessage().size()>0) {
 					object1.put("hierarchyMessageFlag", 1);
 				}

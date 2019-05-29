@@ -8,10 +8,12 @@ $(document).ready(function() {
 	  footer.onmousedown = function(e) {
 
 	    var coords = getCoords(windowChat);
-	    var shiftX = e.pageX - coords.left;
-	    var shiftY = e.pageY - coords.top;
+	    var shiftX = e.pageX - coords.left;//позиция мыши относительно сторон документа - расстояние от правой границы элемента
+	    var shiftX2 = e.pageX - coords.left;//позиция мыши относительно сторон документа - расстояние от правой границы элемента
+	    var shiftY = e.pageY - coords.top;//позиция мыши веритикальная документа - расстояние от верхней границы элемента
+	    var shiftY2 = e.pageY - coords.top;
 
-	    windowChat[0].style.position = "absolute";
+	    windowChat[0].style.position = "relative";
 	    //document.body.appendChild(windowChat);
 	    moveAt(e);
 
@@ -20,6 +22,7 @@ $(document).ready(function() {
 	    function moveAt(e) {
 	    	windowChat[0].style.left = e.pageX - shiftX + 'px';
 	    	windowChat[0].style.top = e.pageY - shiftY + 'px';
+	    
 	    }
 
 	    document.onmousemove = function(e) {
@@ -49,4 +52,4 @@ $(document).ready(function() {
 	    };
 	  }
 	
-})
+});

@@ -43,7 +43,8 @@ public class GettingMessageChatAjax extends JsonAjaxCommand {
 		    	}
 		    	*/
 		    	object1.put("id", chatMessage.getId());
-				object1.put("text", namePerson+":"+chatMessage.getText());
+				object1.put("text", chatMessage.getText());
+				object1.put("author", namePerson);
 				object1.put("dateTime", dateNow);
 				//object1.put("hierarchyMessagesIds",hierarchyMessagesIds);
 				if(chatMessage.getIerarchyMessage().size()>0) {

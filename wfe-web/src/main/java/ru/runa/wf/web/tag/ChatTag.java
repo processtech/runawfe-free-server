@@ -136,7 +136,7 @@ modalContetnt.addElement(modalHeader);
 modalContetnt.addElement(modalBody);
 
 modalFooter.addElement(messageSend);
-modalFooter.addElement(sendToAdress);
+//modalFooter.addElement(sendToAdress);
 modalFooter.addElement(sendMessageChat);
 modalContetnt.addElement(modalFooter);
 Script scrFromFile=new Script();

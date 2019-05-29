@@ -20,14 +20,65 @@
             /*background-color: rgb(0,0,0);  Fallback color */
             /*background-color: rgba(0,0,0,0.4);  Black w/ opacity */
         }
-
- .quote{
-        background: rgba(51, 67, 73, 0.23);
+        .quote{
+        outline: 1px solid #5c5c60;
+        background: rgba(114, 120, 122, 0.15);
+        background-size:auto;
+        background-origin:padding-box;
         padding: 7px;
         border: 1px solid rgba(0, 37, 97, 0);
+        border-bottom-style: solid; /* Стиль линии внизу */
         overflow: hidden;
-    }
+        border-width: 3px 7px 7px 4px; /* Толщина границы */
+        }
+        .selectionTextAdditional{
+        background: rgba(178, 178, 181, 0.48);
+        background-size:auto;
+        padding: 7px;
+        border-bottom:solid 1px;
+        text-decoration: underline;
+        border-bottom-color: #804040; /* Цвет линии внизу */
+        overflow: hidden;
+        }
+        .openHierarchy{
+        font-weight: 600;
+        padding: 8px;
+        color: #000080;
+        text-decoration: none; /* Убираем подчеркивание у ссылок */
 
+        }
+        .openHierarchy:visited {
+        color: #804040; /* Цвет посещённой ссылки */
+        } 
+        .openHierarchy:hover {
+        color: #0080c0; /* Цвет ссылки при наведении на нее курсора мыши */  
+        text-decoration: underline; /* Добавляем подчеркивание */
+        }
+        .selectionTextQuote{
+        background: rgba(178, 178, 181, 0.35);
+        background-size:auto;
+        background-origin:padding-box;
+        padding: 7px;
+        border: 1px solid rgba(104, 22, 25, 0.27);
+        border-bottom-style: solid; /* Стиль линии внизу */
+        border-bottom-color: #515050; /* Цвет линии внизу */
+        overflow: hidden;
+        border-width: 2px 4px 2px 4px; /* Толщина границы */
+        }
+        .addReply{
+        font-weight: 600;
+        padding: 8px;
+        color: blue;
+        color: #000080; /* Цвет обычной ссылки */ 
+        text-decoration: none; /* Убираем подчеркивание у ссылок */
+        }
+        .addReply:visited {
+        color: #000080; /* Цвет посещённой ссылки */
+        } 
+        .addReply:hover {
+        color: #0080c0; /* Цвет ссылки при наведении на нее курсора мыши */  
+        text-decoration: underline; /* Добавляем подчеркивание */
+        }
         .modal-content {
             position: relative;
             background-color: #e9eaed;
@@ -59,7 +110,7 @@
         .close {
             color: white;
             float: right;
-            font-size: 28px;
+            font-size: 10pt;
             font-weight: bold;
         }
 
@@ -87,10 +138,12 @@
             padding: 2px 16px;
             background-color: #e1e2e5;
             font-family: Verdana, Arial, Helvetica, sans-serif;
-            font-size: 15pt; /* Размер шрифта в пунктах */
+            font-size: 13pt; /* Размер шрифта в пунктах */
             height: 390px; /* Высота блока */
             overflow: scroll; /* Добавляем полосы прокрутки */
             border: 1px solid #333; /* Параметры рамки */
+            font-weight: 590;
+            font-style:normal;
         }
 
         .modal-footer {
@@ -102,7 +155,7 @@
       
         textarea {
         font-family: Verdana, Arial, Helvetica, sans-serif;
-            font-size: 12pt; /* Размер шрифта в пунктах */
+            font-size: 10pt; /* Размер шрифта в пунктах */
         resize: none;
         }
         
