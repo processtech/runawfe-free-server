@@ -356,12 +356,7 @@ public class TaskAggregatedLog {
         /**
          * Task was end by admin.
          */
-        ADMIN_END(6),
-
-        /**
-         * Task was end by signal with initiated actor
-         */
-        COMPLETED_BY_SIGNAL(7);
+        ADMIN_END(6);
 
         /**
          * Value, used to store reason in database.

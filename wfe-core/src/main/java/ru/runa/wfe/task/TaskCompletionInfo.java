@@ -36,8 +36,8 @@ public class TaskCompletionInfo {
         return new TaskCompletionInfo(TaskCompletionBy.PROCESS_END, null, null, processId);
     }
 
-    public static TaskCompletionInfo createForHandler(String handlerInfo, Executor executor) {
-        return new TaskCompletionInfo(TaskCompletionBy.HANDLER, executor, handlerInfo, null);
+    public static TaskCompletionInfo createForHandler(String handlerInfo) {
+        return new TaskCompletionInfo(TaskCompletionBy.HANDLER, null, handlerInfo, null);
     }
 
     public static TaskCompletionInfo createForSignal(Executor executor) {
