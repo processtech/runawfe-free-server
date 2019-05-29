@@ -21,17 +21,22 @@
  */
 package ru.runa.wfe.audit;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Set;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
+import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
 /**
  * Logging task assignment.
- * 
+ *
  * @author Dofs
  */
 @Entity
@@ -42,14 +47,19 @@ public class TaskAssignLog extends TaskLog {
     public TaskAssignLog() {
     }
 
-    public TaskAssignLog(Task task, Executor newExecutor) {
+    public TaskAssignLog(Task task, Executor oldExecutor, Executor newExecutor, Set<Actor> actors) {
         super(task);
-        if (task.getExecutor() != null) {
-            addAttribute(ATTR_OLD_VALUE, task.getExecutor().getName());
+        if (oldExecutor != null) {
+            addAttribute(ATTR_OLD_VALUE, oldExecutor.getName());
         }
         if (newExecutor != null) {
             addAttribute(ATTR_NEW_VALUE, newExecutor.getName());
         }
+        List<Long> ids = Lists.newArrayList();
+        for (Executor executor : actors) {
+            ids.add(executor.getId());
+        }
+        addAttribute(ATTR_MESSAGE, Joiner.on(ExecutorIdsValue.DELIM).join(ids));
         setSeverity(Severity.INFO);
     }
 
@@ -63,10 +73,15 @@ public class TaskAssignLog extends TaskLog {
         return getAttribute(ATTR_NEW_VALUE);
     }
 
+    @Transient
+    public String getExecutorIds() {
+        return getAttribute(ATTR_MESSAGE);
+    }
+
     @Override
     @Transient
     public Object[] getPatternArguments() {
-        return new Object[] { getTaskName(), new ExecutorNameValue(getAttribute(ATTR_NEW_VALUE)) };
+        return new Object[] { getTaskName(), new ExecutorNameValue(getAttribute(ATTR_NEW_VALUE)), new ExecutorIdsValue(getExecutorIds()) };
     }
 
     @Override
