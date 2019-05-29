@@ -48,5 +48,4 @@ public class DocxConfigParser extends FilesSupplierConfigParser<DocxConfig> {
             config.getTypeHints().put(variableName, variableFormat);
         }
     }
-
 }

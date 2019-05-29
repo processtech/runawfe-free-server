@@ -1,25 +1,9 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.ss.dao;
 
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.ss.QSubstitution;
@@ -34,6 +18,10 @@ import ru.runa.wfe.user.Actor;
  */
 @Component
 public class SubstitutionDao extends GenericDao<Substitution> {
+
+    public SubstitutionDao() {
+        super(Substitution.class);
+    }
 
     @Override
     public Substitution create(Substitution entity) {
@@ -60,7 +48,7 @@ public class SubstitutionDao extends GenericDao<Substitution> {
         if (ids.isEmpty()) {
             return Lists.newArrayList();
         }
-        QSubstitution s = QSubstitution.substitution;
+        val s = QSubstitution.substitution;
         return queryFactory.selectFrom(s).where(s.id.in(ids)).fetch();
     }
 
@@ -74,7 +62,7 @@ public class SubstitutionDao extends GenericDao<Substitution> {
      * @return {@linkplain Substitution}'s for {@linkplain Actor}.
      */
     public List<Substitution> getByActorId(Long actorId, boolean orderByPositionAscending) {
-        QSubstitution s = QSubstitution.substitution;
+        val s = QSubstitution.substitution;
         return queryFactory.selectFrom(s)
                 .where(s.actorId.eq(actorId)).orderBy(orderByPositionAscending ? s.position.asc() : s.position.desc())
                 .fetch();
@@ -86,5 +74,4 @@ public class SubstitutionDao extends GenericDao<Substitution> {
             delete(substitution);
         }
     }
-
 }

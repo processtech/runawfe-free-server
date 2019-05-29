@@ -157,5 +157,4 @@ public abstract class FilesSupplierConfig {
             fileVariable.setData(toByteArray());
         }
     }
-
 }

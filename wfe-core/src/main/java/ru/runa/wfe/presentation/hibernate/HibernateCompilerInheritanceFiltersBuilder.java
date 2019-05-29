@@ -1,28 +1,10 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.presentation.hibernate;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.DbSource;
 import ru.runa.wfe.presentation.DbSource.AccessType;
@@ -35,9 +17,8 @@ import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
 /**
  * Builds filter SQL statements for fields with inheritance.
  */
+@CommonsLog
 public class HibernateCompilerInheritanceFiltersBuilder {
-
-    private static Log log = LogFactory.getLog(HibernateCompilerInheritanceFiltersBuilder.class);
 
     /**
      * {@link BatchPresentation}, used to build query.

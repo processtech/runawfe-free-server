@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web.html;
 
 import org.apache.ecs.ConcreteElement;
@@ -55,14 +38,14 @@ public class StartProcessTdBuilder extends BaseTdBuilder {
         String href;
         if (definition.isCanBeStarted()) {
             if (definition.hasStartImage()) {
-                href = Commons.getActionUrl(StartImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(), env.getPageContext(),
-                        PortletUrlType.Resource);
+                href = Commons.getActionUrl(StartImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getVersionId(),
+                        env.getPageContext(), PortletUrlType.Resource);
             } else {
                 href = Commons.getUrl(WebResources.START_PROCESS_IMAGE, env.getPageContext(), PortletUrlType.Resource);
             }
         } else {
             if (definition.hasDisabledImage()) {
-                href = Commons.getActionUrl(StartDisabledImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
+                href = Commons.getActionUrl(StartDisabledImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getVersionId(),
                         env.getPageContext(), PortletUrlType.Resource);
             } else {
                 href = Commons.getUrl(WebResources.START_PROCESS_DISABLED_IMAGE, env.getPageContext(), PortletUrlType.Resource);
@@ -77,7 +60,7 @@ public class StartProcessTdBuilder extends BaseTdBuilder {
             startLink = new A(url).addElement(startImg);
             if (ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_PARAMETER)
                     || ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER)) {
-                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(env.getUser(), definition.getId());
+                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(env.getUser(), definition.getVersionId());
                 if (!(interaction.hasForm() || interaction.getOutputTransitions().size() > 1)) {
                     String actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
                     startLink.addAttribute("onclick",
@@ -95,6 +78,6 @@ public class StartProcessTdBuilder extends BaseTdBuilder {
     @Override
     public String getValue(Object object, Env env) {
         WfDefinition pd = (WfDefinition) object;
-        return String.valueOf(pd.getId());
+        return String.valueOf(pd.getVersionId());
     }
 }

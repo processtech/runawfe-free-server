@@ -27,7 +27,7 @@ public class RestoreDefaultSettingAction extends ActionBase {
             PropertyResources resource = new PropertyResources(pform.getFileName());
             Long settingIdentifier = resource.getIdentifier(settingName);
             if (settingIdentifier != null) {
-                ApplicationContextFactory.getSettingDAO().delete(settingIdentifier);
+                ApplicationContextFactory.getSettingDao().delete(settingIdentifier);
             }
             resource.removeCachedProperty(settingName);
         } catch (Exception e) {

@@ -1,22 +1,6 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.common.web.html;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -26,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.jsp.PageContext;
+import lombok.val;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Entities;
@@ -53,6 +38,7 @@ import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 
@@ -330,11 +316,11 @@ public class ReflectionRowBuilder implements RowBuilder {
         }
 
         @Override
-        public String getConfirmationMessage(Long pid) {
+        public String getConfirmationMessage(Long processDefinitionVersionId) {
             if (ru.runa.common.WebResources.ACTION_MAPPING_START_PROCESS.equals(basePartOfUrlToObject)
                     && ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_PARAMETER)
                     || ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER)) {
-                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getUser(), pid);
+                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getUser(), processDefinitionVersionId);
                 if (!(interaction.hasForm() || interaction.getOutputTransitions().size() > 1)) {
                     String actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
                     return ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(actionParameter, getPageContext());
@@ -350,11 +336,20 @@ public class ReflectionRowBuilder implements RowBuilder {
                 if (extractor == null) {
                     retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, (List<SecuredObject>) getItems());
                 } else {
-                    List<SecuredObject> securedObjects = Lists.newArrayListWithExpectedSize(getItems().size());
+                    SecuredObjectType type = null;
+                    val ids = new ArrayList<Long>(getItems().size());
                     for (Object object : getItems()) {
-                        securedObjects.add(extractor.getSecuredObject(object, this));
+                        val t = extractor.getSecuredObjectType(object, this);
+                        val id = extractor.getSecuredObjectId(object, this);
+                        Preconditions.checkArgument(t != null && id != null);
+                        if (type == null) {
+                            type = t;
+                        } else {
+                            Preconditions.checkArgument(t == type);
+                        }
+                        ids.add(id);
                     }
-                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, securedObjects);
+                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, type, ids);
                 }
                 allowedCache.put(permission, retVal);
             }

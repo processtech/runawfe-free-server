@@ -1,29 +1,11 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.form.Interaction;
@@ -35,8 +17,6 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 20.04.2005
@@ -70,7 +50,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         executionService = Delegates.getExecutionService();
 
         definitionService.deployProcessDefinition(th.getAdminUser(),
-                WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"));
+                WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"), null);
 
         Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
@@ -167,7 +147,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
             // assertTrue("optional variable flag was set to true",
             // var.isOptional());
 
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>());
 
             tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
             interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(),

@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.commons;
 
 import java.lang.reflect.Array;
@@ -22,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import lombok.val;
 
 /**
  * Created on 02.12.2005
@@ -39,9 +23,9 @@ public class ArraysCommons {
     }
 
     public static List<Integer> createIntegerList(int[] array) {
-        List<Integer> list = new ArrayList<Integer>(array.length);
-        for (int i = 0; i < array.length; i++) {
-            list.add(array[i]);
+        val list = new ArrayList<Integer>(array.length);
+        for (int anArray : array) {
+            list.add(anArray);
         }
         return list;
     }
@@ -74,8 +58,6 @@ public class ArraysCommons {
     /**
      * Finds position of value in array of values.
      * 
-     * @param values
-     * @param value
      * @return position of value in array of value of -1 if position not found
      */
     public static int findPosition(int[] values, int value) {
@@ -94,9 +76,6 @@ public class ArraysCommons {
     /**
      * Insets value into values array at given position.
      * 
-     * @param values
-     * @param position
-     * @param value
      * @return new array
      */
     public static int[] insert(int[] values, int position, int value) {
@@ -109,10 +88,6 @@ public class ArraysCommons {
 
     /**
      * Removes value at possition from values array
-     * 
-     * @param values
-     * @param position
-     * @return
      */
     public static int[] remove(int[] values, int position) {
         int[] result = new int[values.length - 1];
@@ -123,11 +98,6 @@ public class ArraysCommons {
 
     /**
      * Changes position of an element in array
-     * 
-     * @param values
-     * @param oldPosition
-     * @param newPosition
-     * @return
      */
     public static int[] changePosition(int[] values, int oldPosition, int newPosition) {
         int value = values[oldPosition];
@@ -138,9 +108,6 @@ public class ArraysCommons {
     /**
      * Insets value into values array at given position.
      * 
-     * @param values
-     * @param position
-     * @param value
      * @return new array
      */
     public static boolean[] insert(boolean[] values, int position, boolean value) {
@@ -153,10 +120,6 @@ public class ArraysCommons {
 
     /**
      * Removes value at possition from values array
-     * 
-     * @param values
-     * @param position
-     * @return
      */
     public static boolean[] remove(boolean[] values, int position) {
         boolean[] result = new boolean[values.length - 1];
@@ -167,11 +130,6 @@ public class ArraysCommons {
 
     /**
      * Changes position of an element in array
-     * 
-     * @param values
-     * @param oldPosition
-     * @param newPosition
-     * @return
      */
     public static boolean[] changePosition(boolean[] values, int oldPosition, int newPosition) {
         boolean value = values[oldPosition];
@@ -182,9 +140,6 @@ public class ArraysCommons {
     /**
      * Insets value into values array at given position.
      * 
-     * @param values
-     * @param position
-     * @param value
      * @return new array
      */
     public static Object[] insert(Object[] values, int position, Object value) {
@@ -197,10 +152,6 @@ public class ArraysCommons {
 
     /**
      * Removes value at possition from values array
-     * 
-     * @param values
-     * @param position
-     * @return
      */
     public static Object[] remove(Object[] values, int position) {
         Object[] result = (Object[]) Array.newInstance(values.getClass().getComponentType(), values.length - 1);
@@ -211,10 +162,6 @@ public class ArraysCommons {
 
     /**
      * Fills array of objects with object
-     * 
-     * @param objects
-     * @param object
-     * @return
      */
     public static Object[] fillArray(Object[] objects, Object object) {
         Arrays.fill(objects, object);

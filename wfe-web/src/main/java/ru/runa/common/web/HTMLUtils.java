@@ -1,22 +1,9 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.common.web;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -25,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
@@ -34,10 +20,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Element;
 import org.apache.ecs.StringElement;
@@ -51,7 +35,6 @@ import org.apache.ecs.html.TR;
 import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.form.IdForm;
@@ -73,13 +56,8 @@ import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-
+@CommonsLog
 public class HTMLUtils {
-    private static final Log log = LogFactory.getLog(HTMLUtils.class);
 
     private HTMLUtils() {
     }
@@ -183,7 +161,7 @@ public class HTMLUtils {
         option.setValue(value == null ? "" : value);
         option.addElement(label);
         if (isSelected) {
-            option.setSelected(isSelected);
+            option.setSelected(true);
         }
         return option;
     }
@@ -193,7 +171,7 @@ public class HTMLUtils {
         option.setValue(value);
         option.addElement(label);
         if (isSelected) {
-            option.setSelected(isSelected);
+            option.setSelected(true);
         }
         return option;
     }

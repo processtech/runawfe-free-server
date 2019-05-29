@@ -25,18 +25,18 @@
        
        <bean id="taskObjectFactory" factory-bean="mockFactoryBean" factory-method="createMockWfTaskFactory" />
        
-       <bean id="executorDAO" factory-bean="mockFactoryBean" factory-method="createMockExecutorDAO" />
+       <bean id="executorDao" factory-bean="mockFactoryBean" factory-method="createMockExecutorDao" />
        
        <bean id="substitutionLogic" factory-bean="mockFactoryBean" factory-method="createMockSubstitutionLogic" />
        
        <bean id="processDefinitionLoader" factory-bean="mockFactoryBean" factory-method="createMockProcessDefinitionLoader" />
        
-       <bean id="taskDAO" factory-bean="mockFactoryBean" factory-method="createMockGenericDAO" />
+       <bean id="taskDao" factory-bean="mockFactoryBean" factory-method="createMockGenericDAO" />
        
        <bean id="executionContextFactory" factory-bean="mockFactoryBean" factory-method="createMockExecutionContextFactory" />
        
        <bean id="batchPresentationCompilerFactory" factory-bean="mockFactoryBean" factory-method="createMockBatchPresentationCompilerFactory" />
        
-       <bean id="processLogDAO" factory-bean="mockFactoryBean" factory-method="createMockProcessLogDAO" />
+       <bean id="processLogDao" factory-bean="mockFactoryBean" factory-method="createMockProcessLogDAO" />
        
 </beans>

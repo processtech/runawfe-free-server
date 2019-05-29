@@ -128,5 +128,4 @@ public class UserType implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(getClass()).add("name", name).add("attributes", attributes).toString();
     }
-
 }

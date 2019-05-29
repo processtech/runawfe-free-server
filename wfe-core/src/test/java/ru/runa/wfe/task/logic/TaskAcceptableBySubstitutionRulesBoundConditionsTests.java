@@ -4,8 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -29,9 +28,8 @@ import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
+@CommonsLog
 public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends AbstractTestNGSpringContextTests {
-
-    private static final Log log = LogFactory.getLog(TaskAcceptableBySubstitutionRulesBoundConditionsTests.class);
 
     @Autowired
     ITaskListBuilderTestProvider taskListBuilder;
@@ -99,7 +97,7 @@ public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends Abstr
         Task task = mock(Task.class);
         Actor assignedActor = mock(Actor.class);
         Actor substitutorActor = mock(Actor.class);
-        TreeMap<Substitution, Set<Long>> mapOfSubstitionRule = new TreeMap<Substitution, Set<Long>>();
+        TreeMap<Substitution, Set<Long>> mapOfSubstitionRule = new TreeMap<>();
         Map<Long, Actor> actors = Maps.newHashMap();
 
         @Override

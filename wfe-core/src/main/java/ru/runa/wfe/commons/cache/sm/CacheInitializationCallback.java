@@ -6,7 +6,7 @@ import ru.runa.wfe.commons.cache.states.CacheState;
 /**
  * Callback object to receive notification on lazy initialization complete.
  */
-public interface CacheInitializationCallback<CacheImpl extends CacheImplementation, StateContext> {
+public interface CacheInitializationCallback<CacheImpl extends CacheImplementation> {
     /**
      * Commit builded cache.
      *
@@ -15,7 +15,7 @@ public interface CacheInitializationCallback<CacheImpl extends CacheImplementati
      * @param cache
      *            Builded cache to commit.
      */
-    public void commitCache(CacheState<CacheImpl, StateContext> commitedState, CacheImpl cache);
+    void commitCache(CacheState<CacheImpl> commitedState, CacheImpl cache);
 
     /**
      * Called if cache initialization process throws exception.
@@ -25,5 +25,5 @@ public interface CacheInitializationCallback<CacheImpl extends CacheImplementati
      * @param e
      *            Exception during initialization.
      */
-    public void onError(CacheState<CacheImpl, StateContext> commitedState, Throwable e);
+    void onError(CacheState<CacheImpl> commitedState, Throwable e);
 }

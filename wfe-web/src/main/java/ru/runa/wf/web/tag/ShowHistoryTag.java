@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web.tag;
 
 import com.google.common.base.MoreObjects;
@@ -38,12 +21,12 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.HistoryHeaderBuilder;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.Severity;
@@ -84,7 +67,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
             if (filter.getSeverities().contains(severity)) {
                 filterHtml.append(" checked=\"true\"");
             }
-            filterHtml.append("> " + severity.name() + "\n");
+            filterHtml.append("> ").append(severity.name()).append("\n");
         }
         filterHtml.append("<button type=\"submit\">").append(MessagesProcesses.BUTTON_FORM.message(pageContext)).append("</button>\n");
         filterHtml.append("</td></tr></table>\n");
@@ -96,7 +79,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
         TD mergedEventDateTD = null;
         String mergedEventDateString = null;
         int mergedRowsCount = 0;
-        for (ProcessLog log : logs.getLogs()) {
+        for (BaseProcessLog log : logs.getLogs()) {
             String description;
             try {
                 String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);

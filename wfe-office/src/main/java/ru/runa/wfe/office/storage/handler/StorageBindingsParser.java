@@ -19,7 +19,7 @@ public class StorageBindingsParser extends FilesSupplierConfigParser<DataBinding
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void parseCustom(Element root, DataBindings bindings) throws Exception {
+    protected void parseCustom(Element root, DataBindings bindings) {
         List<Element> bindingElements = root.elements("binding");
 
         for (Element bindingElement : bindingElements) {

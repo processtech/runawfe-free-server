@@ -1,15 +1,13 @@
 package ru.runa.wfe.graph.history;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.NodeLog;
-import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TransitionLog;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Passed transitions data.
@@ -28,9 +26,9 @@ public class TransitionLogData {
      */
     private final List<TransitionLog> transitionLogs = Lists.newArrayList();
 
-    public TransitionLogData(List<ProcessLog> processLogs) {
+    public TransitionLogData(List<? extends BaseProcessLog> processLogs) {
         super();
-        for (ProcessLog log : processLogs) {
+        for (BaseProcessLog log : processLogs) {
             if (!(log instanceof TransitionLog)) {
                 continue;
             }
@@ -54,7 +52,7 @@ public class TransitionLogData {
     private void addToArrayMap(HashMap<String, ArrayList<TransitionLog>> nodeToTransition, String nodeId, TransitionLog transitionLog) {
         ArrayList<TransitionLog> logs = nodeToTransition.get(nodeId);
         if (logs == null) {
-            logs = new ArrayList<TransitionLog>();
+            logs = new ArrayList<>();
             nodeToTransition.put(nodeId, logs);
         }
         logs.add(transitionLog);

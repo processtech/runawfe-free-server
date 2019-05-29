@@ -13,22 +13,20 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 
@@ -41,14 +39,14 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
         @ActivationConfigProperty(propertyName = "useDLQ", propertyValue = "false") })
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
+@CommonsLog
 public class NodeAsyncExecutionBean implements MessageListener {
-    private static final Log log = LogFactory.getLog(NodeAsyncExecutionBean.class);
     @Autowired
-    private TokenDao tokenDao;
+    private CurrentTokenDao currentTokenDao;
+    @Autowired
+    private ExecutionLogic executionLogic;
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
-    private ProcessLogDao processLogDao;
     @Resource
     private MessageDrivenContext context;
 
@@ -78,8 +76,8 @@ public class NodeAsyncExecutionBean implements MessageListener {
             new TransactionalExecutor(context.getUserTransaction()) {
 
                 @Override
-                protected void doExecuteInTransaction() throws Exception {
-                    Token token = tokenDao.getNotNull(tokenId);
+                protected void doExecuteInTransaction() {
+                    CurrentToken token = currentTokenDao.getNotNull(tokenId);
                     if (token.getProcess().hasEnded()) {
                         log.debug("Ignored execution in ended " + token.getProcess());
                         return;
@@ -87,10 +85,10 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     if (!Objects.equal(nodeId, token.getNodeId())) {
                         throw new InternalApplicationException(token + " expected to be in node " + nodeId);
                     }
-                    ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
-                    Node node = processDefinition.getNodeNotNull(token.getNodeId());
+                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
+                    Node node = parsedProcessDefinition.getNodeNotNull(token.getNodeId());
                     try {
-                        ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+                        ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
                         node.handle(executionContext);
                     } catch (Throwable th) {
                         log.error(processId + ":" + tokenId, th);
@@ -109,7 +107,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
         } catch (final Throwable th) {
             // TODO does not work in case of timeout in handling transaction
             // ARJUNA016051: thread is already associated with a transaction!
-            Utils.failProcessExecution(context.getUserTransaction(), tokenId, th);
+            executionLogic.failProcessExecution(context.getUserTransaction(), tokenId, th);
             throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
         }
     }

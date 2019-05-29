@@ -89,5 +89,4 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
         }
         return result;
     }
-
 }

@@ -2,8 +2,7 @@ package ru.runa.common.web;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.common.Version;
 import ru.runa.wf.logic.bot.BotStationResources;
 import ru.runa.wfe.bot.BotStation;
@@ -12,8 +11,8 @@ import ru.runa.wfe.service.BotInvokerService;
 import ru.runa.wfe.service.delegate.BotInvokerServiceDelegate;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@CommonsLog
 public class InitializeListener implements ServletContextListener {
-    private static final Log log = LogFactory.getLog(InitializeListener.class);
 
     @Override
     public void contextInitialized(ServletContextEvent event) {

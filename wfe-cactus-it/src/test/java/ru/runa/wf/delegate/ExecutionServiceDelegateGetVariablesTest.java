@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.delegate;
 
 import java.util.ArrayList;
@@ -121,7 +104,7 @@ public class ExecutionServiceDelegateGetVariablesTest extends ServletTestCase {
         variables2.put("var2", "var2Value");
         variables2.put("var3", "var3Value");
         variables2.put("approved", "true");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), taskId, variables2, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), taskId, variables2);
 
         taskId = th.getTaskService().getMyTasks(th.getErpOperatorUser(), th.getTaskBatchPresentation()).get(0).getId();
 
@@ -139,6 +122,6 @@ public class ExecutionServiceDelegateGetVariablesTest extends ServletTestCase {
         assertEquals(" variable value: <var1> differs from expected", "var1Value", vars.get("var1"));
         assertEquals(" variable value: <var2> differs from expected", "var2Value", vars.get("var2"));
         assertEquals(" variable value: <var3> differs from expected", "var3Value", vars.get("var3"));
-        assertEquals(" variable value: <approved> differs from expected", "true", vars.get("approved"));
+        assertEquals(" variable value: <approved> differs from expected", true, vars.get("approved"));
     }
 }

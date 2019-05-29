@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.service.impl;
 
 import java.util.List;
@@ -36,7 +19,7 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.definition.logic.DefinitionLogic;
+import ru.runa.wfe.definition.logic.ProcessDefinitionLogic;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -45,7 +28,7 @@ import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.ExecutionServiceLocal;
@@ -72,7 +55,7 @@ import ru.runa.wfe.var.logic.VariableLogic;
 @SOAPBinding
 public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionServiceRemote, ExecutionWebServiceRemote {
     @Autowired
-    private DefinitionLogic definitionLogic;
+    private ProcessDefinitionLogic processDefinitionLogic;
     @Autowired
     private ExecutionLogic executionLogic;
     @Autowired
@@ -87,26 +70,28 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public Long startProcessById(@NonNull User user, @NonNull Long definitionId, Map<String, Object> variables) {
+    public Long startProcessById(@NonNull User user, @NonNull Long processDefinitionVersionId, Map<String, Object> variables) {
         FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
-        return executionLogic.startProcess(user, definitionId, variables);
+        return executionLogic.startProcess(user, processDefinitionVersionId, variables);
     }
 
     @Override
     @WebResult(name = "result")
     public Long startProcessWS(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
             @WebParam(name = "variables") List<Variable> variables) {
-        WfDefinition definition = definitionLogic.getLatestProcessDefinition(user, definitionName);
-        ProcessDefinition processDefinition = executionLogic.getDefinition(definition.getId());
-        return startProcess(user, definitionName, VariableConverter.unmarshal(processDefinition, variables));
+        WfDefinition definition = processDefinitionLogic.getLatestProcessDefinition(user, definitionName);
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(definition.getVersionId());
+        return startProcess(user, definitionName, VariableConverter.unmarshal(parsedProcessDefinition, variables));
     }
 
     @Override
     @WebResult(name = "result")
-    public int getProcessesCount(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+    public int getProcessesCount(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation
+    ) {
         if (batchPresentation == null) {
-            batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
+            batchPresentation = BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged();
         }
         return executionLogic.getProcessesCount(user, batchPresentation);
     }
@@ -116,7 +101,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public List<WfProcess> getProcesses(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         if (batchPresentation == null) {
-            batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
+            batchPresentation = BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged();
         }
         return executionLogic.getProcesses(user, batchPresentation);
     }
@@ -302,7 +287,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public void removeProcesses(@WebParam(name = "user") @NonNull User user, @WebParam(name = "") @NonNull ProcessFilter filter) {
+    public void removeProcesses(@WebParam(name = "user") @NonNull User user, @WebParam @NonNull ProcessFilter filter) {
         executionLogic.deleteProcesses(user, filter);
     }
 
@@ -315,9 +300,12 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public int upgradeProcessesToDefinitionVersion(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "version") @NonNull Long newVersion) {
-        return executionLogic.upgradeProcessesToDefinitionVersion(user, definitionId, newVersion);
+    public int upgradeProcessesToDefinitionVersion(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
+            @WebParam(name = "version") @NonNull Long newVersion
+    ) {
+        return executionLogic.upgradeProcessesToDefinitionVersion(user, processDefinitionVersionId, newVersion);
     }
 
     @Override
@@ -325,8 +313,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public void updateVariablesWS(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "variables") List<Variable> variables) {
         WfProcess process = executionLogic.getProcess(user, processId);
-        ProcessDefinition processDefinition = executionLogic.getDefinition(process.getDefinitionId());
-        updateVariables(user, processId, VariableConverter.unmarshal(processDefinition, variables));
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(process.getDefinitionVersionId());
+        updateVariables(user, processId, VariableConverter.unmarshal(parsedProcessDefinition, variables));
     }
 
     @Override
@@ -340,7 +328,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @WebResult(name = "result")
     public List<WfToken> getProcessTokens(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "recursive") boolean recursive) {
-        return executionLogic.getTokens(user, processId, recursive);
+        return executionLogic.getTokens(user, processId, recursive, false);
     }
 
     @Override

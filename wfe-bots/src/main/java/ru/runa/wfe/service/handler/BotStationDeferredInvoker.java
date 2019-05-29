@@ -41,5 +41,4 @@ public class BotStationDeferredInvoker extends DeferredTransactionListener {
     public String toString() {
         return MoreObjects.toStringHelper(getClass()).add("botStation", botStation).toString();
     }
-
 }

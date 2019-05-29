@@ -1,14 +1,11 @@
 package ru.runa.wfe.script.common;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
-
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.batch.ReplicateBatchPresentationOperation;
 import ru.runa.wfe.script.botstation.AddConfigurationsToBotOperation;
@@ -84,7 +81,8 @@ public abstract class OperationsListContainer {
             @XmlElement(name = AddPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = AddPermissionsOperation.class),
             @XmlElement(name = RemovePermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemovePermissionsOperation.class),
             @XmlElement(name = RemoveAllPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemoveAllPermissionsOperation.class),
-            @XmlElement(name = SetPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOperation.class) })
+            @XmlElement(name = SetPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOperation.class),
+    })
     public List<ScriptOperation> operations = Lists.newArrayList();
 
     /**

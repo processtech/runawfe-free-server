@@ -1,27 +1,9 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -32,8 +14,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 20.04.2005
@@ -55,7 +35,8 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
 
         helper.deployValidProcessDefinition();
 
-        processDefinitionId = definitionService.getLatestProcessDefinition(helper.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getId();
+        processDefinitionId = definitionService.getLatestProcessDefinition(helper.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME)
+                .getVersionId();
 
         Collection<Permission> redeployPermissions = Lists.newArrayList(Permission.UPDATE);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(redeployPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
@@ -74,7 +55,7 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
 
     public void testRedeployProcessByAuthorizedPerformer() throws Exception {
         definitionService.redeployProcessDefinition(helper.getAuthorizedPerformerUser(), processDefinitionId, helper.getValidProcessDefinition(),
-                Lists.newArrayList("testProcess"));
+                Lists.newArrayList("testProcess"), null);
         List<WfDefinition> deployedProcesses = definitionService.getProcessDefinitions(helper.getAuthorizedPerformerUser(),
                 helper.getProcessDefinitionBatchPresentation(), false);
         if (deployedProcesses.size() != 1) {
@@ -91,7 +72,7 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
 
         try {
             definitionService.redeployProcessDefinition(helper.getAuthorizedPerformerUser(), processDefinitionId, helper.getValidProcessDefinition(),
-                    Lists.newArrayList("testProcess"));
+                    Lists.newArrayList("testProcess"), null);
             assertTrue("definitionDelegate.redeployProcessByAuthorizedPerformer() no AuthorizationException", false);
         } catch (AuthorizationException e) {
         }
@@ -100,7 +81,7 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
     public void testRedeployProcessByUnauthorizedPerformer() throws Exception {
         try {
             definitionService.redeployProcessDefinition(helper.getUnauthorizedPerformerUser(), processDefinitionId,
-                    helper.getValidProcessDefinition(), Lists.newArrayList("testProcess"));
+                    helper.getValidProcessDefinition(), Lists.newArrayList("testProcess"), null);
             assertTrue("definitionDelegate.redeployProcessByUnauthorizedPerformer() no AuthorizationException", false);
         } catch (AuthorizationException e) {
         }
@@ -110,7 +91,7 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
         try {
             User fakeUser = helper.getFakeUser();
             definitionService.redeployProcessDefinition(fakeUser, processDefinitionId, helper.getValidProcessDefinition(),
-                    Lists.newArrayList("testProcess"));
+                    Lists.newArrayList("testProcess"), null);
             assertTrue("testRedeployProcessWithFakeSubject no AuthenticationException", false);
         } catch (AuthenticationException e) {
         }
@@ -119,7 +100,7 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
     public void testRedeployInvalidProcessByAuthorizedPerformer() throws Exception {
         try {
             definitionService.redeployProcessDefinition(helper.getAuthorizedPerformerUser(), processDefinitionId,
-                    helper.getInValidProcessDefinition(), Lists.newArrayList("testProcess"));
+                    helper.getInValidProcessDefinition(), Lists.newArrayList("testProcess"), null);
             assertTrue("definitionDelegate.deployProcessByAuthorizedPerformer() no DefinitionParsingException", false);
         } catch (DefinitionArchiveFormatException e) {
         }
@@ -128,7 +109,7 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
     public void testRedeployWithInvalidProcessId() throws Exception {
         try {
             definitionService.redeployProcessDefinition(helper.getAuthorizedPerformerUser(), -1l, helper.getValidProcessDefinition(),
-                    Lists.newArrayList("testProcess"));
+                    Lists.newArrayList("testProcess"), null);
             fail("testRedeployWithInvalidProcessId() no Exception");
         } catch (DefinitionDoesNotExistException e) {
         }
@@ -137,7 +118,7 @@ public class DefinitionServiceDelegateRedeployProcessDefinitionTest extends Serv
     public void testRedeployInvalidProcess() throws Exception {
         try {
             definitionService.redeployProcessDefinition(helper.getAuthorizedPerformerUser(), processDefinitionId,
-                    helper.getInValidProcessDefinition(), Lists.newArrayList("testProcess"));
+                    helper.getInValidProcessDefinition(), Lists.newArrayList("testProcess"), null);
             fail("testRedeployInvalidProcess() no Exception");
         } catch (DefinitionArchiveFormatException e) {
         }

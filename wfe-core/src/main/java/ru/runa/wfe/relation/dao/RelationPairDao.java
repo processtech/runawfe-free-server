@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.relation.dao;
 
 import com.google.common.collect.Lists;
@@ -22,6 +5,7 @@ import com.querydsl.jpa.JPQLQuery;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -43,6 +27,10 @@ import ru.runa.wfe.user.Executor;
  */
 @Component
 public class RelationPairDao extends GenericDao<RelationPair> {
+
+    public RelationPairDao() {
+        super(RelationPair.class);
+    }
 
     @Override
     protected void checkNotNull(RelationPair entity, Object identity) {
@@ -107,12 +95,12 @@ public class RelationPairDao extends GenericDao<RelationPair> {
      * Deleted all relation pairs for executor.
      */
     public void removeAllRelationPairs(Executor executor) {
-        QRelationPair rp = QRelationPair.relationPair;
+        val rp = QRelationPair.relationPair;
         queryFactory.delete(rp).where(rp.left.eq(executor).or(rp.right.eq(executor))).execute();
     }
 
     private List<RelationPair> getRelationPairs(Relation relation, Collection<? extends Executor> left, Collection<? extends Executor> right) {
-        QRelationPair rp = QRelationPair.relationPair;
+        val rp = QRelationPair.relationPair;
         JPQLQuery<RelationPair> q = queryFactory.selectFrom(rp);
         if (relation != null) {
             q.where(rp.relation.eq(relation));

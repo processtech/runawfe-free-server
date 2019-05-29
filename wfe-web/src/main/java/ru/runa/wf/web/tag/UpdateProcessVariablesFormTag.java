@@ -42,7 +42,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getProcessId());
-        List<VariableDefinition> variables = Delegates.getDefinitionService().getVariableDefinitions(getUser(), process.getDefinitionId());
+        List<VariableDefinition> variables = Delegates.getDefinitionService().getVariableDefinitions(getUser(), process.getDefinitionVersionId());
         if (!variables.isEmpty()) {
             if (SystemProperties.isUpdateProcessVariablesInAPIEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
                 getForm().setEncType(Form.ENC_UPLOAD);

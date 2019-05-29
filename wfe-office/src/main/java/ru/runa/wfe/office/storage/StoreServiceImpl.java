@@ -6,7 +6,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -45,45 +43,33 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+@CommonsLog
 public class StoreServiceImpl implements StoreService {
 
     private static final int START_ROW_INDEX = 0;
 
-    private static final Log log = LogFactory.getLog(StoreServiceImpl.class);
-
     private ExcelConstraints constraints;
     private VariableFormat format;
     private String fullPath;
-    VariableProvider variableProvider;
+    private VariableProvider variableProvider;
 
     public StoreServiceImpl(VariableProvider variableProvider) {
         this.variableProvider = variableProvider;
     }
 
     @Override
-    public void createFileIfNotExist(String path) throws Exception {
+    public void createFileIfNotExist(String path) {
         File f = new File(path);
         if (f.exists() && f.isFile()) {
             return;
         }
-        Workbook workbook = null;
-        if (path.endsWith(".xls")) {
-            workbook = new HSSFWorkbook();
-        } else {
-            workbook = new XSSFWorkbook();
-        }
+        Workbook workbook = path.endsWith(".xls") ? new HSSFWorkbook() : new XSSFWorkbook();
         workbook.createSheet();
-        OutputStream os = null;
-        try {
-            os = new FileOutputStream(path);
+        try (OutputStream os = new FileOutputStream(path)) {
             workbook.write(os);
         } catch (Exception e) {
             log.error("", e);
             Throwables.propagate(e);
-        } finally {
-            if (os != null) {
-                os.close();
-            }
         }
     }
 
@@ -105,15 +91,11 @@ public class StoreServiceImpl implements StoreService {
         initParams(properties);
         Workbook wb = getWorkbook(fullPath);
         update(wb, constraints, variable.getValue(), format, condition, false);
-        OutputStream os = null;
-        try {
-            os = new FileOutputStream(fullPath);
+        try (OutputStream os = new FileOutputStream(fullPath)) {
             wb.write(os);
         } catch (IOException e) {
             log.error("", e);
             throw new BlockedFileException(fullPath);
-        } finally {
-            os.close();
         }
     }
 
@@ -122,17 +104,11 @@ public class StoreServiceImpl implements StoreService {
         initParams(properties);
         Workbook wb = getWorkbook(fullPath);
         update(wb, constraints, variable.getValue(), format, condition, true);
-        OutputStream os = null;
-        try {
-            os = new FileOutputStream(fullPath);
+        try (OutputStream os = new FileOutputStream(fullPath)) {
             wb.write(os);
         } catch (IOException e) {
             log.error("", e);
             throw new BlockedFileException(fullPath);
-        } finally {
-            if (os != null) {
-                os.close();
-            }
         }
     }
 
@@ -141,27 +117,21 @@ public class StoreServiceImpl implements StoreService {
         initParams(properties);
         Workbook wb = getWorkbook(fullPath);
         save(wb, constraints, format, variable, appendTo);
-        OutputStream os = null;
-        try {
-            os = new FileOutputStream(fullPath);
+        try (OutputStream os = new FileOutputStream(fullPath)) {
             wb.write(os);
         } catch (IOException e) {
             log.error("", e);
             throw new BlockedFileException(fullPath);
-        } finally {
-            if (os != null) {
-                os.close();
-            }
         }
     }
 
-    private void initParams(Properties properties) throws Exception {
+    private void initParams(Properties properties) {
         Preconditions.checkNotNull(properties);
         constraints = (ExcelConstraints) properties.get(PROP_CONSTRAINTS);
         format = (VariableFormat) properties.get(PROP_FORMAT);
         fullPath = properties.getProperty(PROP_PATH);
         if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) || fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
-            String dsName = null;
+            String dsName;
             if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)) {
                 dsName = fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE.length());
             } else {
@@ -260,7 +230,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @SuppressWarnings("resource")
-    private Workbook getWorkbook(String fullPath) throws IOException, FileNotFoundException {
+    private Workbook getWorkbook(String fullPath) throws IOException {
         Workbook wb = null;
         InputStream is = new FileInputStream(fullPath);
         if (fullPath.endsWith(".xls")) {
@@ -460,13 +430,9 @@ public class StoreServiceImpl implements StoreService {
     }
 
     private VariableFormat getVariableFormat(VariableFormat variableFormat) {
-        VariableFormat format = null;
-        if (variableFormat instanceof ListFormat) {
-            format = FormatCommons.createComponent((VariableFormatContainer) variableFormat, 0);
-        } else {
-            format = variableFormat;
-        }
-        return format;
+        return variableFormat instanceof ListFormat
+                ? FormatCommons.createComponent((VariableFormatContainer) variableFormat, 0)
+                : variableFormat;
     }
 
     private boolean existOutputParamByVariableName(WfVariable variable) {

@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web.action;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,19 +36,20 @@ public class StartProcessAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         StartProcessForm startProcessForm = (StartProcessForm) form;
-        Long definitionId = startProcessForm.getId();
+        Long definitionVersionId = startProcessForm.getId();
         if (startProcessForm.getName() != null) {
             WfDefinition definition = Delegates.getDefinitionService().getLatestProcessDefinition(getLoggedUser(request), startProcessForm.getName());
-            definitionId = definition.getId();
+            definitionVersionId = definition.getVersionId();
         }
         try {
             ActionForward forward;
             saveToken(request);
-            Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getLoggedUser(request), definitionId);
+            Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getLoggedUser(request), definitionVersionId);
             if (interaction.hasForm() || interaction.getOutputTransitions().size() > 1) {
-                forward = Commons.forward(mapping.findForward(WebResources.FORWARD_SUCCESS_DISPLAY_START_FORM), IdForm.ID_INPUT_NAME, definitionId);
+                forward = Commons.forward(mapping.findForward(WebResources.FORWARD_SUCCESS_DISPLAY_START_FORM), IdForm.ID_INPUT_NAME,
+                        definitionVersionId);
             } else {
-                WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);
+                WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionVersionId);
                 Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null);
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
                 forward = mapping.findForward(Resources.FORWARD_SUCCESS);

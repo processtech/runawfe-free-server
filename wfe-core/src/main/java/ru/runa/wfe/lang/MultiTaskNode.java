@@ -1,24 +1,3 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2005, JBoss Inc., and individual contributors as indicated
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
 package ru.runa.wfe.lang;
 
 import java.util.HashMap;
@@ -28,9 +7,9 @@ import java.util.List;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
@@ -171,7 +150,7 @@ public class MultiTaskNode extends BaseTaskNode {
             log.debug("Ignored indexes: " + ignoredIndexes);
         }
         int tasksCounter = 0;
-        Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
+        CurrentSwimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
         Executor executor = swimlane.getExecutor();
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
@@ -195,7 +174,7 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     private boolean isLastTaskToComplete(Task task) {
-        Token token = task.getToken();
+        CurrentToken token = task.getToken();
         boolean lastToComplete = true;
         for (Task other : taskDao.findByToken(token)) {
             if (!other.equals(task)) {

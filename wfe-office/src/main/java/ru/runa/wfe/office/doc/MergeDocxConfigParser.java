@@ -23,5 +23,4 @@ public class MergeDocxConfigParser extends FilesSupplierConfigParser<MergeDocxCo
             config.getInputFileInfos().add(info);
         }
     }
-
 }

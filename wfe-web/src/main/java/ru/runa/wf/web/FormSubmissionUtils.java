@@ -1,16 +1,17 @@
 package ru.runa.wf.web;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.action.ActionForm;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.RequestWebHelper;
 import ru.runa.wf.web.servlet.UploadedFile;
@@ -21,22 +22,16 @@ import ru.runa.wfe.commons.ftl.FreemarkerProcessor;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-
 @SuppressWarnings("unchecked")
+@CommonsLog
 public class FormSubmissionUtils {
     public static final Object IGNORED_VALUE = new Object();
     public static final String INDEXES_SUFFIX = ".indexes";
-    private static final Log log = LogFactory.getLog(FormSubmissionUtils.class);
     private static final String USER_DEFINED_VARIABLES = "UserInputVariables";
     private static final String USER_INPUT_ERRORS = "UserInputErrors";
     private static final String USER_INPUT_FILES = "UserInputFiles";
@@ -82,8 +77,7 @@ public class FormSubmissionUtils {
         getUserInputFiles(request).clear();
     }
 
-    public static Map<String, Object> getPreviousUserInputVariables(HttpServletRequest request, Interaction interaction,
-            VariableProvider variableProvider) {
+    public static Map<String, Object> getPreviousUserInputVariables(HttpServletRequest request) {
         return (Map<String, Object>) request.getAttribute(USER_DEFINED_VARIABLES);
     }
 
@@ -105,7 +99,7 @@ public class FormSubmissionUtils {
         return variables;
     }
 
-    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, VariableDefinition variableDefinition) throws Exception {
+    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, VariableDefinition variableDefinition) {
         Map<String, String> formatErrorsForFields = Maps.newHashMap();
         Map<String, Object> inputs = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
         inputs.putAll(getUserInputFiles(request, request.getParameter("id")));
@@ -120,7 +114,7 @@ public class FormSubmissionUtils {
     }
 
     private static Map<String, Object> extractVariables(HttpServletRequest request, Interaction interaction, VariableProvider variableProvider,
-            Map<String, ? extends Object> userInput, Map<String, String> errors) {
+            Map<String, ?> userInput, Map<String, String> errors) {
         try {
             User user = Commons.getUser(request.getSession());
             FormComponentExtractionModel model = new FormComponentExtractionModel(variableProvider, user, new RequestWebHelper(request));
@@ -156,8 +150,8 @@ public class FormSubmissionUtils {
         }
     }
 
-    private static Object extractVariable(HttpServletRequest request, Map<String, ? extends Object> userInput, VariableDefinition variableDefinition,
-            Map<String, String> errors) throws Exception {
+    private static Object extractVariable(HttpServletRequest request, Map<String, ?> userInput, VariableDefinition variableDefinition,
+            Map<String, String> errors) {
         VariableFormat format = FormatCommons.create(variableDefinition);
         HttpFormToVariableValue httpFormToVariableValue = new HttpFormToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request
                 .getSession())));

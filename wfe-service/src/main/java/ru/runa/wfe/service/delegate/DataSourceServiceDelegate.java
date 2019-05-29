@@ -1,7 +1,6 @@
 package ru.runa.wfe.service.delegate;
 
 import java.util.List;
-
 import ru.runa.wfe.service.DataSourceService;
 import ru.runa.wfe.user.User;
 
@@ -46,5 +45,4 @@ public class DataSourceServiceDelegate extends Ejb3Delegate implements DataSourc
     public void removeDataSource(User user, String name) {
         getDataSourceService().removeDataSource(user, name);
     }
-
 }

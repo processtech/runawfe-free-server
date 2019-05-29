@@ -1,25 +1,21 @@
 package ru.runa.wfe.commons.ftl;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
-
 import freemarker.core.Environment;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import lombok.extern.apachecommons.CommonsLog;
 
+@CommonsLog
 public class FreemarkerProcessor {
-    private static final Log log = LogFactory.getLog(FreemarkerProcessor.class);
 
     private final static Configuration cfg = new Configuration();
     static {

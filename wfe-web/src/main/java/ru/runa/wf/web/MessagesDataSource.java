@@ -11,5 +11,4 @@ public final class MessagesDataSource {
     public static final StrutsMessage LABEL_DATA_SOURCE_CHANGE_PASSWORD = new StrutsMessage("label.data_source_change_password");
     public static final StrutsMessage LABEL_DATA_SOURCE_NEW_PASSWORD = new StrutsMessage("label.data_source_new_password");
     public static final StrutsMessage LABEL_DATA_SOURCE_SERVER_VERSION = new StrutsMessage("label.data_source_info");
-
 }

@@ -2,7 +2,7 @@ package ru.runa.wfe.service.client;
 
 import com.google.common.base.MoreObjects;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -23,9 +23,9 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     protected final DefinitionService definitionService;
     protected final User user;
     protected final Long processId;
-    protected Long processDefinitionId;
+    protected Long processDefinitionVersionId;
     protected String processDefinitionName;
-    protected ProcessDefinition processDefinition;
+    protected ParsedProcessDefinition parsedProcessDefinition;
 
     public DelegateProcessVariableProvider(ExecutionService executionService, DefinitionService definitionService, User user, Long processId) {
         this.executionService = executionService;
@@ -44,12 +44,12 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public Long getProcessDefinitionId() {
-        if (processDefinitionId == null) {
+    public Long getProcessDefinitionVersionId() {
+        if (processDefinitionVersionId == null) {
             WfProcess process = executionService.getProcess(user, processId);
-            processDefinitionId = process.getDefinitionId();
+            processDefinitionVersionId = process.getDefinitionVersionId();
         }
-        return processDefinitionId;
+        return processDefinitionVersionId;
     }
 
     @Override
@@ -61,11 +61,11 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
-        if (processDefinition == null) {
-            processDefinition = definitionService.getParsedProcessDefinition(user, getProcessDefinitionId());
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        if (parsedProcessDefinition == null) {
+            parsedProcessDefinition = definitionService.getParsedProcessDefinition(user, getProcessDefinitionVersionId());
         }
-        return processDefinition;
+        return parsedProcessDefinition;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
 
     @Override
     public UserType getUserType(String name) {
-        return definitionService.getUserType(user, getProcessDefinitionId(), name);
+        return definitionService.getUserType(user, getProcessDefinitionVersionId(), name);
     }
 
     @Override
@@ -101,5 +101,4 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("processId", processId).toString();
     }
-
 }

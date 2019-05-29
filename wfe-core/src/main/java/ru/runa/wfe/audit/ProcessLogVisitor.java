@@ -1,62 +1,63 @@
 package ru.runa.wfe.audit;
 
-public interface ProcessLogVisitor {
+@SuppressWarnings({"unused", "WeakerAccess"})
+public abstract class ProcessLogVisitor {
 
-    void onProcessStartLog(ProcessStartLog processStartLog);
+    public void onProcessStartLog(ProcessStartLog processStartLog) {}
 
-    void onProcessActivateLog(ProcessActivateLog processActivateLog);
+    public void onProcessActivateLog(ProcessActivateLog processActivateLog) {}
 
-    void onProcessSuspendLog(ProcessSuspendLog processSuspendLog);
+    public void onProcessSuspendLog(ProcessSuspendLog processSuspendLog) {}
 
-    void onProcessEndLog(ProcessEndLog processEndLog);
+    public void onProcessEndLog(ProcessEndLog processEndLog) {}
 
-    void onProcessCancelLog(ProcessCancelLog processCancelLog);
+    public void onProcessCancelLog(ProcessCancelLog processCancelLog) {}
 
-    void onNodeEnterLog(NodeEnterLog nodeEnterLog);
+    public void onNodeEnterLog(NodeEnterLog nodeEnterLog) {}
 
-    void onNodeLeaveLog(NodeLeaveLog nodeLeaveLog);
+    public void onNodeLeaveLog(NodeLeaveLog nodeLeaveLog) {}
 
-    void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog);
+    public void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog) {}
 
-    void onSendMessageLog(SendMessageLog sendMessageLog);
+    public void onSendMessageLog(SendMessageLog sendMessageLog) {}
 
-    void onSubprocessStartLog(SubprocessStartLog subprocessStartLog);
+    public void onSubprocessStartLog(SubprocessStartLog subprocessStartLog) {}
 
-    void onSubprocessEndLog(SubprocessEndLog subprocessEndLog);
+    public void onSubprocessEndLog(SubprocessEndLog subprocessEndLog) {}
 
-    void onActionLog(ActionLog actionLog);
+    public void onActionLog(ActionLog actionLog) {}
 
-    void onCreateTimerLog(CreateTimerLog createTimerLog);
+    public void onCreateTimerLog(CreateTimerLog createTimerLog) {}
 
-    void onTaskCreateLog(TaskCreateLog taskCreateLog);
+    public void onTaskCreateLog(TaskCreateLog taskCreateLog) {}
 
-    void onTaskAssignLog(TaskAssignLog taskAssignLog);
+    public void onTaskAssignLog(TaskAssignLog taskAssignLog) {}
 
-    void onTaskEndLog(TaskEndLog taskEndLog);
+    public void onTaskEndLog(TaskEndLog taskEndLog) {}
 
-    void onTaskEscalationLog(TaskEscalationLog taskEscalationLog);
+    public void onTaskEscalationLog(TaskEscalationLog taskEscalationLog) {}
 
-    void onTaskDelegaionLog(TaskDelegationLog taskDelegationLog);
+    public void onTaskDelegaionLog(TaskDelegationLog taskDelegationLog) {}
 
-    void onTaskRemovedOnProcessEndLog(TaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog);
+    public void onTaskRemovedOnProcessEndLog(TaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog) {}
 
-    void onTaskExpiredLog(TaskExpiredLog taskExpiredLog);
+    public void onTaskExpiredLog(TaskExpiredLog taskExpiredLog) {}
 
-    void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog);
+    public void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog) {}
 
-    void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog);
+    public void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog) {}
 
-    void onTaskCancelledLog(TaskCancelledLog taskCancelledLog);
+    public void onTaskCancelledLog(TaskCancelledLog taskCancelledLog) {}
 
-    void onSwimlaneAssignLog(SwimlaneAssignLog swimlaneAssignLog);
+    public void onSwimlaneAssignLog(SwimlaneAssignLog swimlaneAssignLog) {}
 
-    void onTransitionLog(TransitionLog transitionLog);
+    public void onTransitionLog(TransitionLog transitionLog) {}
 
-    void onVariableCreateLog(VariableCreateLog variableCreateLog);
+    public void onVariableCreateLog(VariableCreateLog variableCreateLog) {}
 
-    void onVariableDeleteLog(VariableDeleteLog variableDeleteLog);
+    public void onVariableDeleteLog(VariableDeleteLog variableDeleteLog) {}
 
-    void onVariableUpdateLog(VariableUpdateLog variableUpdateLog);
+    public void onVariableUpdateLog(VariableUpdateLog variableUpdateLog) {}
 
-    void onAdminActionLog(AdminActionLog adminActionLog);
+    public void onAdminActionLog(AdminActionLog adminActionLog) {}
 }

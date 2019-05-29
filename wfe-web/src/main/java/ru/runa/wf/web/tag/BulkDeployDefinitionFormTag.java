@@ -1,7 +1,6 @@
 package ru.runa.wf.web.tag;
 
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.BR;
 import org.apache.ecs.html.Form;
@@ -11,23 +10,25 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-
+import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.form.FileForm;
-import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.DefinitionCategoriesIterator;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.RedeployProcessDefinitionAction;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
+import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
+
+import static ru.runa.wf.web.tag.RedeployDefinitionFormTag.TYPE_DAYS_BEFORE_ARCHIVING;
 
 /**
  * Created 26.05.2014 bulkDeployDefinitionControlForm
@@ -40,14 +41,14 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
     public static final String TYPE_APPLYIES_TO_NEW_PROCESSES = "newProcesses";
     public static final String TYPE_APPLYIES_TO_ALL_PROCESSES = "allProcesses";
 
-    public static void fillTD(TD tdFormElement, Form form, String[] definitionTypes, User user, PageContext pageContext, WebHelper strutsWebHelper) {
+    public static void fillTD(TD tdFormElement, Form form, WfDefinition def, User user, PageContext pageContext, WebHelper strutsWebHelper) {
         form.setEncType(Form.ENC_UPLOAD);
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
         table.addElement(createFileInputRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), FileForm.FILE_INPUT_NAME, "", true,
                 true, Input.FILE, strutsWebHelper));
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
-        TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, definitionTypes, pageContext);
+        TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, def == null ? null : def.getCategories(), pageContext);
         table.addElement(HTMLUtils.createRow(Messages.getMessage(DefinitionClassPresentation.TYPE, pageContext), hierarchyType));
         tdFormElement.addElement(table);
 
@@ -55,6 +56,13 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         TD labelTd = new TD(MessagesProcesses.LABEL_DEPLOY_APPLY_TYPE.message(pageContext));
         labelTd.setClass(Resources.CLASS_LIST_TABLE_TD);
         applicationTypeTr.addElement(labelTd);
+
+        Integer secondsBeforeArchiving = def == null ? null : def.getSecondsBeforeArchiving();
+        String daysBeforeArchiving = secondsBeforeArchiving == null ? "" : Integer.toString(secondsBeforeArchiving / 86400);
+        table.addElement(HTMLUtils.createRow(
+                MessagesProcesses.LABEL_DEFINITIONS_DAYS_BEFORE_ARCHIVING.message(pageContext),
+                new Input(Input.TEXT, TYPE_DAYS_BEFORE_ARCHIVING, daysBeforeArchiving).setStyle("width:100px")
+        ));
 
         TD td = new TD();
         Input applyingNewProcessInput = new Input(Input.RADIO, RedeployDefinitionFormTag.TYPE_UPDATE_CURRENT_VERSION, TYPE_APPLYIES_TO_NEW_PROCESSES);
@@ -78,7 +86,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        fillTD(tdFormElement, getForm(), getDefinition().getCategories(), getUser(), pageContext, new StrutsWebHelper(pageContext));
+        fillTD(tdFormElement, getForm(), getDefinition(), getUser(), pageContext, new StrutsWebHelper(pageContext));
     }
 
     @Override

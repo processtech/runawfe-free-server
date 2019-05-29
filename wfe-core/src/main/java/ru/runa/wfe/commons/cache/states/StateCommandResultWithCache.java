@@ -5,13 +5,13 @@ import ru.runa.wfe.commons.cache.CacheImplementation;
 /**
  * Command result on state machine state method call.
  */
-public class StateCommandResultWithCache<CacheImpl extends CacheImplementation, StateContext> extends StateCommandResult<CacheImpl, StateContext> {
+public class StateCommandResultWithCache<CacheImpl extends CacheImplementation> extends StateCommandResult<CacheImpl> {
     /**
      * Cache instance.
      */
     private final CacheImpl cache;
 
-    private StateCommandResultWithCache(CacheState<CacheImpl, StateContext> nextState, CacheImpl cache) {
+    private StateCommandResultWithCache(CacheState<CacheImpl> nextState, CacheImpl cache) {
         super(nextState);
         this.cache = cache;
     }
@@ -32,9 +32,10 @@ public class StateCommandResultWithCache<CacheImpl extends CacheImplementation, 
      *            Cache instance.
      * @return Returns command result.
      */
-    public static <CacheImpl extends CacheImplementation, StateContext> StateCommandResultWithCache<CacheImpl, StateContext> create(
-            CacheState<CacheImpl, StateContext> nextState, CacheImpl cache) {
-        return new StateCommandResultWithCache<CacheImpl, StateContext>(nextState, cache);
+    public static <CacheImpl extends CacheImplementation> StateCommandResultWithCache<CacheImpl> create(
+            CacheState<CacheImpl> nextState, CacheImpl cache
+    ) {
+        return new StateCommandResultWithCache<>(nextState, cache);
     }
 
     /**
@@ -44,8 +45,7 @@ public class StateCommandResultWithCache<CacheImpl extends CacheImplementation, 
      *            Cache instance.
      * @return Returns command result.
      */
-    public static <CacheImpl extends CacheImplementation, StateContext> StateCommandResultWithCache<CacheImpl, StateContext> createNoStateSwitch(
-            CacheImpl cache) {
+    public static <CacheImpl extends CacheImplementation> StateCommandResultWithCache<CacheImpl> createNoStateSwitch(CacheImpl cache) {
         return create(null, cache);
     }
 }

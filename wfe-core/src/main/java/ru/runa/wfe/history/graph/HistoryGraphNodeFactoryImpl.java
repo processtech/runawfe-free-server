@@ -2,7 +2,6 @@ package ru.runa.wfe.history.graph;
 
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 import ru.runa.wfe.lang.Node;

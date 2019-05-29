@@ -1,10 +1,7 @@
 package ru.runa.wfe.commons.cache;
 
-import org.hibernate.type.Type;
-
-import ru.runa.wfe.InternalApplicationException;
-
 import com.google.common.base.Objects;
+import ru.runa.wfe.InternalApplicationException;
 
 /**
  * Changed object state. 
@@ -35,18 +32,12 @@ public class ChangedObjectParameter {
      */
     private final String[] propertyNames;
     
-    /**
-     * Object property types.
-     */
-    private final Type[] types;
-
-    public ChangedObjectParameter(Object object, Change change, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types) {
+    public ChangedObjectParameter(Object object, Change change, Object[] currentState, Object[] previousState, String[] propertyNames) {
         this.object = object;
         this.changeType = change;
         this.currentState = currentState;
         this.previousState = previousState;
         this.propertyNames = propertyNames;
-        this.types = types;
     }
 
     /**

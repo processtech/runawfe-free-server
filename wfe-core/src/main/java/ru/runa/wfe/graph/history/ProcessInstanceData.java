@@ -1,30 +1,24 @@
 package ru.runa.wfe.graph.history;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
-
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
-import ru.runa.wfe.lang.SubprocessDefinition;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class ProcessInstanceData {
     /**
-     * Process instance.
-     */
-    private final Process processInstance;
-    /**
      * Process definition.
      */
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
     /**
      * Maps from node id to node model.
      */
@@ -42,11 +36,10 @@ public class ProcessInstanceData {
      */
     private final HashMap<Long, Token> processTokens = Maps.newHashMap();
 
-    public ProcessInstanceData(Process processInstance, ProcessDefinition processDefinition) {
-        this.processInstance = processInstance;
-        addToken(processInstance.getRootToken());
-        this.processDefinition = processDefinition;
-        for (Node node : processDefinition.getNodes(true)) {
+    public ProcessInstanceData(Process instance, ParsedProcessDefinition parsedProcessDefinition) {
+        addToken(instance.getRootToken());
+        this.parsedProcessDefinition = parsedProcessDefinition;
+        for (Node node : parsedProcessDefinition.getNodes(true)) {
             this.processDefinitionNodes.put(node.getNodeId(), node);
             if (node.getNodeType() == NodeType.FORK || node.getNodeType() == NodeType.PARALLEL_GATEWAY) {
                 getCreateTokenNodes().add(node.getNodeId());
@@ -59,17 +52,17 @@ public class ProcessInstanceData {
 
     private void addToken(Token token) {
         processTokens.put(token.getId(), token);
-        Set<Token> childrens = token.getChildren();
-        if (childrens == null) {
+        val children = token.getChildren();
+        if (children == null) {
             return;
         }
-        for (Token child : childrens) {
+        for (val child : children) {
             addToken(child);
         }
     }
 
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        return parsedProcessDefinition;
     }
 
     public Node getNode(String nodeId) {
@@ -84,8 +77,8 @@ public class ProcessInstanceData {
         return node;
     }
 
-    public SubprocessDefinition getEmbeddedSubprocess(String subProcessName) {
-        return processDefinition.getEmbeddedSubprocessByNameNotNull(subProcessName);
+    public ParsedSubprocessDefinition getEmbeddedSubprocess(String subProcessName) {
+        return parsedProcessDefinition.getEmbeddedSubprocessByNameNotNull(subProcessName);
     }
 
     public HashSet<String> getCreateTokenNodes() {

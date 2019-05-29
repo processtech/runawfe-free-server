@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web.html;
 
 import com.google.common.collect.Maps;
@@ -31,9 +14,10 @@ import ru.runa.common.web.html.TdBuilder.Env.SecuredObjectExtractor;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.dto.WfTask;
 
 /**
@@ -52,23 +36,31 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
     public TD build(Object object, Env env) {
         WfTask task = (WfTask) object;
         Long processId = task.getProcessId();
-        ConcreteElement link = new StringElement(processId.toString());
-        boolean isAllowed = false;
+        boolean isAllowed;
         try {
             isAllowed = env.isAllowed(Permission.LIST, new SecuredObjectExtractor() {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                public SecuredObject getSecuredObject(final Object o, final Env env) {
-                    Process securedObject = new Process();
-                    securedObject.setId(((WfTask) o).getProcessId());
-                    return securedObject;
+                public SecuredObject getSecuredObject(Object o, Env env) {
+                    throw new IllegalAccessError();
                 }
 
+                @Override
+                public SecuredObjectType getSecuredObjectType(Object o, Env env) {
+                    return SecuredObjectType.PROCESS;
+                }
+
+                @Override
+                public Long getSecuredObjectId(Object o, Env env) {
+                    return ((WfTask) o).getProcessId();
+                }
             });
         } catch (Exception e) {
-            // Do nothing.
+            isAllowed = false;
         }
+
+        ConcreteElement link = new StringElement(processId.toString());
         if (isAllowed) {
             Map<String, Object> params = Maps.newHashMap();
             if (task.getProcessId() == null) {
@@ -81,6 +73,7 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
             String url = Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, env.getPageContext(), PortletUrlType.Render);
             link = new A(url, link);
         }
+
         TD td = new TD(link);
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         return td;

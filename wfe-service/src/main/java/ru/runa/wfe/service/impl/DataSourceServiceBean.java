@@ -95,5 +95,4 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
         Preconditions.checkArgument(name != null, "name");
         DataSourceStorage.moveToHistory(name);
     }
-
 }

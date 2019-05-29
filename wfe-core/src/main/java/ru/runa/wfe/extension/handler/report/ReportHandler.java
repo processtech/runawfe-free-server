@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.naming.InitialContext;
+import lombok.val;
 import net.sf.jasperreports.engine.JRAbstractExporter;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -35,7 +36,7 @@ import ru.runa.wfe.datasource.JndiDataSource;
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
 import ru.runa.wfe.report.ReportFormatterImpl;
-import ru.runa.wfe.report.dao.ReportDao;
+import ru.runa.wfe.report.dao.ReportDefinitionDao;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.impl.ReportBuildResult;
@@ -58,7 +59,7 @@ public class ReportHandler extends CommonParamBasedHandler {
     private String dataSource;
 
     @Autowired
-    protected ReportDao reportDao;
+    protected ReportDefinitionDao reportDefinitionDao;
 
     @Override
     protected void executeAction(HandlerData handlerData) throws Exception {
@@ -67,9 +68,9 @@ public class ReportHandler extends CommonParamBasedHandler {
         format = handlerData.getInputParamValueNotNull(INPUT_PARAM_FORMAT);
         dataSource = handlerData.getInputParamValue(INPUT_PARAM_DATASOURCE);
 
-        WfReport report = new WfReport(reportDao.getReportDefinition(name));
+        WfReport report = new WfReport(reportDefinitionDao.getReportDefinition(name));
 
-        Map<String, Object> params = new HashMap<String, Object>();
+        val params = new HashMap<String, Object>();
         for (WfReportParameter parameter : report.getParameters()) {
             params.put(parameter.getInternalName(), parameters.get(parameter.getInternalName()));
         }
@@ -105,7 +106,7 @@ public class ReportHandler extends CommonParamBasedHandler {
         }
     }
 
-    private static enum ReportGenerationType {
+    private enum ReportGenerationType {
 
         EXCEL {
 

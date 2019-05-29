@@ -93,5 +93,4 @@ public class WfJob implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("processId", processId).add("id", id).add("name", name).toString();
     }
-
 }

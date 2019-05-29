@@ -2,8 +2,7 @@ package ru.runa.wfe.task.logic;
 
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -13,7 +12,8 @@ import org.testng.annotations.Test;
 import org.testng.collections.Sets;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dto.WfTask;
@@ -27,9 +27,8 @@ import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
+@CommonsLog
 public class GetAcceptableTaskBoundConditionsTests extends AbstractTestNGSpringContextTests {
-
-    private static final Log log = LogFactory.getLog(GetAcceptableTaskBoundConditionsTests.class);
 
     @Autowired
     ITaskListBuilderTestProvider taskListBuilder;
@@ -66,8 +65,8 @@ public class GetAcceptableTaskBoundConditionsTests extends AbstractTestNGSpringC
     public static class GetAcceptableTaskTestCaseDataSet extends TestCaseDataSet {
         protected Task task = mock(Task.class);
         protected Executor taskExecutor = mock(Executor.class);
-        protected ru.runa.wfe.execution.Process process = mock(ru.runa.wfe.execution.Process.class);
-        protected ProcessDefinition definition = mock(ProcessDefinition.class);
+        protected CurrentProcess process = mock(CurrentProcess.class);
+        protected ParsedProcessDefinition definition = mock(ParsedProcessDefinition.class);
         protected Actor actor = mock(Actor.class);
         protected BatchPresentation batchPresentation = mock(BatchPresentation.class);
         protected Set<Executor> executorsToGetTasksByMembership = Sets.newHashSet();

@@ -89,8 +89,8 @@
 		<forward name="show_definitions_history" path="/show_definitions_history.do" />
 		<forward name="definitions_history" path="/definitions_history.do" />
 		<forward name="validate_definition" path="/validate_process_definition.do" />
-		<forward name="manage_processes"
-			path="/manage_processes.do?tabForwardName=manage_processes" />
+		<forward name="manage_processes" path="/manage_processes.do?tabForwardName=manage_processes" />
+		<forward name="manage_archived_processes" path="/manage_archived_processes.do?tabForwardName=manage_archived_processes" />
 		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
 		<forward name="manage_observable_tasks" path="/manage_observable_tasks.do?tabForwardName=manage_observable_tasks" />
 		<forward name="configure_bot_station"
@@ -713,6 +713,9 @@
 
 		<action path="/manage_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/manage_processes.jsp" />
+
+		<action path="/manage_archived_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/wf/manage_archived_processes.jsp" />
 
 		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction"
 			parameter="/WEB-INF/wf/manage_process.jsp" />

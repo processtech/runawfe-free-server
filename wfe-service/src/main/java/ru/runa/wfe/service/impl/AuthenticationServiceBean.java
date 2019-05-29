@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.service.impl;
 
 import javax.annotation.Resource;
@@ -28,8 +11,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.security.logic.AuthenticationLogic;
@@ -48,8 +30,8 @@ import ru.runa.wfe.user.User;
 @Interceptors({ EjbExceptionSupport.class, PerformanceSimpleObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "AuthenticationAPI", serviceName = "AuthenticationWebService")
 @SOAPBinding
+@CommonsLog
 public class AuthenticationServiceBean implements AuthenticationServiceLocal, AuthenticationServiceRemote {
-    private static final Log log = LogFactory.getLog(AuthenticationServiceBean.class);
     @Autowired
     private AuthenticationLogic authenticationLogic;
     @Resource

@@ -15,7 +15,7 @@ public class DefinitionSubprocessBindingDateTdBuilder extends BaseDateTdBuilder<
 
     @Override
     protected Long getId(WfDefinition definition) {
-        return definition.getId();
+        return definition.getVersionId();
     }
 
     @Override

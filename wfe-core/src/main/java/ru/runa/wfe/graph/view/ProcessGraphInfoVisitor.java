@@ -1,19 +1,17 @@
 package ru.runa.wfe.graph.view;
 
+import com.google.common.base.Objects;
 import java.util.List;
-
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Objects;
 
 /**
  * Operation to add identities of started subprocesses to graph elements.
@@ -28,20 +26,20 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
     /**
      * Instances of subprocesses, which must be added to graph elements.
      */
-    private final List<NodeProcess> nodeProcesses;
-    private final ProcessDefinition definition;
+    private final List<? extends NodeProcess> nodeProcesses;
+    private final ParsedProcessDefinition definition;
     private final Process process;
     private final ProcessLogs processLogs;
 
     /**
      * Create instance of operation to set starting process readable flag.
-     * 
-     * @param subprocessesInstanstances
-     *            Instances of subprocesses, which must be added to graph elements.
-     * @param subject
-     *            Current subject.
+     *
+     * @param nodeProcesses
+     *            Subprocesses which must be added to graph elements.
      */
-    public ProcessGraphInfoVisitor(User user, ProcessDefinition definition, Process process, ProcessLogs processLogs, List<NodeProcess> nodeProcesses) {
+    public ProcessGraphInfoVisitor(User user, ParsedProcessDefinition definition, Process process, ProcessLogs processLogs,
+            List<? extends NodeProcess> nodeProcesses
+    ) {
         this.user = user;
         this.definition = definition;
         this.process = process;
@@ -53,7 +51,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
     public void visit(NodeGraphElement element) {
         super.visit(element);
         if (processLogs != null) {
-            List<ProcessLog> logs = processLogs.getLogs(element.getNodeId());
+            List<BaseProcessLog> logs = processLogs.getLogs(element.getNodeId());
             if (logs.size() > 0) {
                 element.setData(logs);
             }
@@ -73,10 +71,10 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
     @Override
     protected void onSubprocessNode(SubprocessNodeGraphElement element) {
         if (element.isEmbedded()) {
-            boolean b = ApplicationContextFactory.getProcessLogDAO().isNodeEntered(process, element.getNodeId());
+            boolean b = ApplicationContextFactory.getProcessLogDao().isNodeEntered(process, element.getNodeId());
             element.setSubprocessAccessible(b);
             element.setSubprocessId(process.getId());
-            SubprocessDefinition subprocessDefinition = definition.getEmbeddedSubprocessByNameNotNull(element.getSubprocessName());
+            ParsedSubprocessDefinition subprocessDefinition = definition.getEmbeddedSubprocessByNameNotNull(element.getSubprocessName());
             element.setEmbeddedSubprocessId(subprocessDefinition.getNodeId());
             element.setEmbeddedSubprocessGraphWidth(subprocessDefinition.getGraphConstraints()[2]);
             element.setEmbeddedSubprocessGraphHeight(subprocessDefinition.getGraphConstraints()[3]);
@@ -104,8 +102,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
      * @return true, if current actor can read process definition and false otherwise.
      */
     private boolean hasReadPermission(Process process) {
-        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDAO();
+        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDao();
         return permissionDao.isAllowed(user, Permission.LIST, process);
     }
-
 }

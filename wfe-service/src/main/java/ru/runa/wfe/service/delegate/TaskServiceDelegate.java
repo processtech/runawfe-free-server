@@ -131,5 +131,4 @@ public class TaskServiceDelegate extends Ejb3Delegate implements TaskService {
             throw handleException(e);
         }
     }
-
 }

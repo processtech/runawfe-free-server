@@ -1,7 +1,6 @@
 package ru.runa.wfe.execution;
 
 import org.apache.commons.logging.Log;
-
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 

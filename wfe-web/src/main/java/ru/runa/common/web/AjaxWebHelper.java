@@ -1,13 +1,10 @@
 package ru.runa.common.web;
 
-import java.util.Iterator;
+import com.google.common.collect.Maps;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.ModuleConfig;
@@ -16,10 +13,8 @@ import org.apache.struts.util.MessageResources;
 import org.apache.struts.util.ModuleUtils;
 import org.apache.struts.util.RequestUtils;
 
-import com.google.common.collect.Maps;
-
+@CommonsLog
 public class AjaxWebHelper extends RequestWebHelper {
-    private final Log log = LogFactory.getLog(AjaxWebHelper.class);
     private final TagUtils tagUtils = TagUtils.getInstance();
 
     public AjaxWebHelper(HttpServletRequest request) {
@@ -46,7 +41,7 @@ public class AjaxWebHelper extends RequestWebHelper {
     }
 
     @Override
-    public String getActionUrl(String relativeUrl, Map<String, ? extends Object> params) {
+    public String getActionUrl(String relativeUrl, Map<String, ?> params) {
         if (ACTION_DOWNLOAD_PROCESS_FILE.equals(relativeUrl)) {
             return getUrl(null, "/variableDownloader", params);
         }
@@ -58,7 +53,7 @@ public class AjaxWebHelper extends RequestWebHelper {
         return getUrl(null, relativeUrl, params);
     }
 
-    private String getUrl(String href, String action, Map<String, ? extends Object> params) {
+    private String getUrl(String href, String action, Map<String, ?> params) {
         String charEncoding = "UTF-8";
         ModuleConfig moduleConfig = ModuleUtils.getInstance().getModuleConfig(null, request, request.getServletContext());
         StringBuilder url = new StringBuilder();
@@ -81,7 +76,6 @@ public class AjaxWebHelper extends RequestWebHelper {
             ActionServlet servlet = (ActionServlet) request.getServletContext().getAttribute("org.apache.struts.action.ACTION_SERVLET");
             String actionIdPath = RequestUtils.actionIdURL(action, moduleConfig, servlet);
             if (actionIdPath != null) {
-                action = actionIdPath;
                 url.append(request.getContextPath());
                 url.append(actionIdPath);
             } else {
@@ -100,7 +94,7 @@ public class AjaxWebHelper extends RequestWebHelper {
             String separator = "&";
 
             boolean question = temp.indexOf(63) >= 0;
-            for(Map.Entry<String, ? extends Object> entry : params.entrySet()) {
+            for(Map.Entry<String, ?> entry : params.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
 
@@ -126,9 +120,7 @@ public class AjaxWebHelper extends RequestWebHelper {
                     url.append('=');
                     url.append(tagUtils.encodeURL((String) value, charEncoding));
                 } else if (value instanceof String[]) {
-                    String[] values = (String[]) value;
-
-                    for (int i = 0; i < values.length; ++i) {
+                    for (String v : (String[]) value) {
                         if (!question) {
                             url.append('?');
                             question = true;
@@ -138,7 +130,7 @@ public class AjaxWebHelper extends RequestWebHelper {
 
                         url.append(tagUtils.encodeURL(key, charEncoding));
                         url.append('=');
-                        url.append(tagUtils.encodeURL(values[i], charEncoding));
+                        url.append(tagUtils.encodeURL(v, charEncoding));
                     }
                 } else {
                     if (!question) {
@@ -160,7 +152,7 @@ public class AjaxWebHelper extends RequestWebHelper {
     private String getActionMappingURL(String url) {
 
         String contextPath = request.getContextPath();
-        StringBuffer value = new StringBuffer();
+        StringBuilder value = new StringBuilder();
 
         if (contextPath.length() > 1) {
             value.append(contextPath);
@@ -188,8 +180,7 @@ public class AjaxWebHelper extends RequestWebHelper {
                 value.append(actionMapping);
                 value.append(servletMapping.substring(1));
             } else if (servletMapping.endsWith("/*")) {
-                value.append(servletMapping.substring(0, servletMapping.length() - 2));
-
+                value.append(servletMapping, 0, servletMapping.length() - 2);
                 value.append(actionMapping);
             } else if (servletMapping.equals("/")) {
                 value.append(actionMapping);

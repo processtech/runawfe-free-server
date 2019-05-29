@@ -56,7 +56,7 @@ import static ru.runa.wfe.security.SecuredObjectType.SYSTEM;
  * Substitution relations are transitive; e.g. if ALL on EXECUTORS assumes UPDATE on EXECUTORS which in turn assumes UPDATE on any ACTOR,
  * then ALL on EXECUTORS assumes UPDATE on any ACTOR.
  * <p>
- * Used by PermissionDAO.isAllowed() methods. Also may be used by permission editor forms: e.g. if admin checks ALL permission on EXECUTORS,
+ * Used by PermissionDao.isAllowed() methods. Also may be used by permission editor forms: e.g. if admin checks ALL permission on EXECUTORS,
  * then UPDATE and UPDATE_STATUS checkboxes should be disabled.
  *
  * @see SecuredObjectType
@@ -330,15 +330,17 @@ public class PermissionSubstitutions {
         add(PROCESS, ALL).list();
         add(PROCESS, CANCEL).self(ALL).list();
         add(PROCESS, LIST).self(ALL, READ, CANCEL).list();
-        add(PROCESS, READ).self(ALL).list();
+        add(PROCESS, READ).self(ALL, UPDATE).list();
         add(PROCESS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS).list();
-        add(PROCESS, UPDATE_PERMISSIONS).self(ALL).list();
+        add(PROCESS, UPDATE).self(ALL).list();
+        add(PROCESS, UPDATE_PERMISSIONS).self(ALL, UPDATE).list();
 
         add(PROCESSES, CANCEL).self(ALL);
         add(PROCESSES, LIST).self(ALL, READ, CANCEL);
-        add(PROCESSES, READ).self(ALL);
+        add(PROCESSES, READ).self(ALL, UPDATE);
         add(PROCESSES, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
-        add(PROCESSES, UPDATE_PERMISSIONS).self(ALL);
+        add(PROCESSES, UPDATE).self(ALL);
+        add(PROCESSES, UPDATE_PERMISSIONS).self(ALL, UPDATE);
 
         // System singleton:
         add(RELATIONS, LIST).self(ALL);

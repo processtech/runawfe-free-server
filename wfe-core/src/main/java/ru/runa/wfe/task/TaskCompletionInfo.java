@@ -1,7 +1,6 @@
 package ru.runa.wfe.task;
 
 import com.google.common.base.MoreObjects;
-
 import ru.runa.wfe.user.Executor;
 
 public class TaskCompletionInfo {
@@ -61,5 +60,4 @@ public class TaskCompletionInfo {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("by", completionBy).add("executor", executor).add("processId", processId).toString();
     }
-
 }

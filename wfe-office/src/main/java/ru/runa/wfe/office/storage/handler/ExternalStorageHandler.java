@@ -2,6 +2,7 @@ package ru.runa.wfe.office.storage.handler;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.DataSourceStorage;
@@ -33,8 +34,8 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
 
     @Override
     protected Map<String, Object> executeAction(VariableProvider variableProvider, FileDataProvider fileDataProvider) throws Exception {
-        Map<String, Object> result = new HashMap<String, Object>();
-        StoreService storeService = null;
+        val result = new HashMap<String, Object>();
+        StoreService storeService;
         String dsName = config.getInputFilePath();
         if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) || dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
             if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)) {
@@ -77,5 +78,4 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
         }
         return result;
     }
-
 }

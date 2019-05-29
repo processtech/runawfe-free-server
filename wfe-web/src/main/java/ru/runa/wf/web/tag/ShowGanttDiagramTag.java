@@ -1,29 +1,26 @@
 package ru.runa.wf.web.tag;
 
+import com.google.common.base.Objects;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.Script;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
-import com.google.common.base.Objects;
-
 import ru.runa.common.web.MessagesOther;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
-import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.SubprocessStartLog;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
@@ -50,7 +47,7 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
         List<String> barList = new ArrayList<>();
         barList.add(getBar(process.getId(), process.getName(), new Date(), new Date(), "process", null, true, "0", null));
         TaskService taskService = Delegates.getTaskService();
-        for (ProcessLog log : logs.getLogs()) {
+        for (BaseProcessLog log : logs.getLogs()) {
             if (log instanceof ProcessStartLog) {
                 TaskCreateLog createLog = null;
                 for (TaskCreateLog key : taskLogs.keySet()) {

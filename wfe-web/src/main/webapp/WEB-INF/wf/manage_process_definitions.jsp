@@ -1,5 +1,5 @@
-<%@page import="ru.runa.common.Version"%>
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
+<%@ page import="ru.runa.common.Version"%>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>

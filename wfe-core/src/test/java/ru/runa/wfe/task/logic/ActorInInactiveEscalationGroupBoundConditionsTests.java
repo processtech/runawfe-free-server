@@ -3,8 +3,8 @@ package ru.runa.wfe.task.logic;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,8 +13,9 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
-import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.TaskEscalationLog;
+import ru.runa.wfe.audit.BaseProcessLog;
+import ru.runa.wfe.audit.CurrentProcessLog;
+import ru.runa.wfe.audit.CurrentTaskEscalationLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.user.Actor;
@@ -30,9 +31,8 @@ import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
+@CommonsLog
 public class ActorInInactiveEscalationGroupBoundConditionsTests extends AbstractTestNGSpringContextTests {
-
-    private static final Log log = LogFactory.getLog(ActorInInactiveEscalationGroupBoundConditionsTests.class);
 
     @Autowired
     ITaskListBuilderTestProvider taskListBuilder;
@@ -91,7 +91,7 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         protected EscalationGroup group = mock(EscalationGroup.class);
         protected Executor originalExecutor = mock(Executor.class);
         protected Set<Actor> groupActors = Sets.newHashSet();
-        protected List<ProcessLog> pLogs = Lists.newArrayList();
+        protected List<BaseProcessLog> pLogs = Lists.newArrayList();
         protected Throwable getAllLogsException = null;
 
         public ActorInInactiveEscalationGroupTestCaseDataSet() {
@@ -117,7 +117,7 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
             if (getAllLogsException != null) {
                 when(processLogDao.getAll(group.getProcessId())).thenThrow(getAllLogsException);
             } else {
-                when(processLogDao.getAll(group.getProcessId())).thenReturn(pLogs);
+                Mockito.<List<? extends BaseProcessLog>>when(processLogDao.getAll(group.getProcessId())).thenReturn(pLogs);
             }
         }
 
@@ -164,11 +164,11 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         }
 
         public void addProcessLog() {
-            pLogs.add(mock(ProcessLog.class));
+            pLogs.add(mock(CurrentProcessLog.class));
         }
 
         public void addTaskEscalationLog(String taskName, String nid, Throwable exc, Long... ids) {
-            TaskEscalationLog mockLog = mock(TaskEscalationLog.class);
+            CurrentTaskEscalationLog mockLog = mock(CurrentTaskEscalationLog.class);
             when(mockLog.getNodeId()).thenReturn(nid);
             if (exc != null) {
                 when(mockLog.getPatternArguments()).thenThrow(exc);

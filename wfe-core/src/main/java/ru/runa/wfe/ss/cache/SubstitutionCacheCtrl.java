@@ -1,72 +1,116 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.ss.cache;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import ru.runa.wfe.commons.cache.BaseCacheCtrl;
-import ru.runa.wfe.commons.cache.CachingLogic;
-import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.SubstitutionChangeListener;
+import org.springframework.stereotype.Component;
+import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
+import ru.runa.wfe.commons.cache.sm.CachingLogic;
+import ru.runa.wfe.commons.cache.sm.DefaultCacheTransactionalExecutor;
+import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.ss.Substitution;
+import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.ExecutorGroupMembership;
 
-class SubstitutionCacheCtrl extends BaseCacheCtrl<SubstitutionCacheImpl> implements SubstitutionChangeListener, SubstitutionCache {
+/**
+ * Cache control object for substitutions.
+ */
+@Component
+public class SubstitutionCacheCtrl extends BaseCacheCtrl<SubstitutionCacheImpl> {
 
-    SubstitutionCacheCtrl() {
-        CachingLogic.registerChangeListener(this);
+    public SubstitutionCacheCtrl() {
+        super(SystemProperties.useStaleableSubstitutionCache() ? new StaleableSubstitutionCacheFactory() : new SubstitutionCacheFactory(),
+                createListenObjectTypes());
     }
 
-    @Override
-    public SubstitutionCacheImpl buildCache() {
-        return new SubstitutionCacheImpl();
-    }
-
-    @Override
+    /**
+     * Returns for specified inactive {@link Actor} {@link Map} from substitution rule to {@link Set} of substitutors. If {@link Actor} is active then
+     * empty result is returned.
+     *
+     * @param actor
+     *            Actor, which substitution rules will be returned.
+     * @param loadIfRequired
+     *            Flag, equals true if substitution rules may be loaded from database if cache is empty and false to return null in this case.
+     * @return {@link Map} from substitution rule to {@link Set} of substitutor id's.
+     */
     public TreeMap<Substitution, Set<Long>> getSubstitutors(Actor actor, boolean loadIfRequired) {
-        SubstitutionCacheImpl cache = CachingLogic.getCacheImpl(this);
+        SubstitutionCacheImpl cache = CachingLogic.getCacheImpl(stateMachine);
         return cache.getSubstitutors(actor, loadIfRequired);
     }
 
-    @Override
-    public Set<Long> getSubstituted(Actor actor) {
-        SubstitutionCacheImpl cache = CachingLogic.getCacheImpl(this);
-        return cache.getSubstituted(actor);
-    }
-
-    @Override
+    /**
+     * Try to get substitutors for actor. If cache is not initialized or substitutors not found this method will not query database - it returns null
+     * instead.
+     *
+     * @param actor
+     *            Actor, to get substitutors.
+     * @return Substitutors for actor or null, if substitutors not initialized for actor.
+     */
     public TreeMap<Substitution, Set<Long>> tryToGetSubstitutors(Actor actor) {
-        SubstitutionCacheImpl cache = getCache();
-        if (cache == null) {
-            return null;
-        }
+        SubstitutionCacheImpl cache = CachingLogic.getCacheImpl(stateMachine);
         return cache.getSubstitutors(actor, false);
     }
 
-    @Override
-    public void doOnChange(ChangedObjectParameter changedObject) {
-        SubstitutionCacheImpl cache = getCache();
-        if (cache == null) {
-            return;
+    /**
+     * Returns all inactive {@link Actor}'s, which has at least one substitution rule with specified actor as substitutor.
+     *
+     * @param actor
+     *            {@link Actor}, which substituted actors will be returned.
+     * @return All inactive {@link Actor} id's, which has at least one substitution rule with specified actor as substitutor.
+     */
+    public Set<Long> getSubstituted(Actor actor) {
+        SubstitutionCacheImpl cache = CachingLogic.getCacheImpl(stateMachine);
+        return cache.getSubstituted(actor);
+    }
+
+    private static List<ListenObjectDefinition> createListenObjectTypes() {
+        ArrayList<ListenObjectDefinition> result = new ArrayList<>();
+        result.add(new ListenObjectDefinition(Substitution.class, ListenObjectLogType.BECOME_DIRTY));
+        result.add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
+        result.add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
+        result.add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.BECOME_DIRTY));
+        return result;
+    }
+
+    /**
+     * Static factory. It creates on the fly by demand and it state is always equals to database state. May leads to high delay if many executors and
+     * substitutions is used. It's recommend to use {@link StaleableSubstitutionCacheFactory}.
+     */
+    private static class SubstitutionCacheFactory extends SMCacheFactory<SubstitutionCacheImpl> {
+
+        SubstitutionCacheFactory() {
+            super(Type.EAGER, null);
         }
-        if (!cache.onChange(changedObject)) {
-            uninitialize(changedObject);
+
+        @Override
+        protected SubstitutionCacheImpl createCacheImpl(CacheInitializationProcessContext context) {
+            return new SubstitutionCacheImpl(true, false, null);
+        }
+    }
+
+    /**
+     * Non runtime factory. It creates on background and cache state may differs from database state for some time.
+     */
+    private static class StaleableSubstitutionCacheFactory extends SMCacheFactory<SubstitutionCacheImpl> {
+
+        StaleableSubstitutionCacheFactory() {
+            super(Type.LAZY_STALEABLE, new DefaultCacheTransactionalExecutor());
+        }
+
+        @Override
+        protected SubstitutionCacheImpl createCacheStubImpl() {
+            return new SubstitutionCacheImpl(false, true, null);
+        }
+
+        @Override
+        protected SubstitutionCacheImpl createCacheImpl(CacheInitializationProcessContext context) {
+            return new SubstitutionCacheImpl(true, true, context);
         }
     }
 }

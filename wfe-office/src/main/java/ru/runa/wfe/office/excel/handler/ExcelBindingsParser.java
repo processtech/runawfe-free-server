@@ -33,5 +33,4 @@ public class ExcelBindingsParser extends FilesSupplierConfigParser<ExcelBindings
             bindings.getBindings().add(binding);
         }
     }
-
 }

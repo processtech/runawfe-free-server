@@ -1,7 +1,6 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
-
 import ru.runa.wfe.user.User;
 
 public interface DataSourceService {
@@ -13,5 +12,4 @@ public interface DataSourceService {
     byte[] exportDataSource(User user, String name);
 
     void removeDataSource(User user, String name);
-
 }

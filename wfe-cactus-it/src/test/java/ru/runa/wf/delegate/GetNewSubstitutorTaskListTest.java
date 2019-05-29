@@ -1,31 +1,10 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
-
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
-import com.google.common.collect.Lists;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -104,7 +83,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         substitutionCriteria_no_requester = testHelper.createSubstitutionCriteria(substitutionCriteria_no_requester);
 
         byte[] parBytes = WfServiceTestHelper.readBytesFromFile(PROCESS_FILE_URL);
-        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
+        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"), null);
         WfDefinition definition = testHelper.getDefinitionService().getLatestProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME);
         Collection<Permission> definitionPermission = Lists.newArrayList(Permission.START);
         testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutedActor.getId(), definitionPermission, definition);
@@ -167,7 +146,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -187,7 +166,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
@@ -237,7 +216,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -257,7 +236,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
@@ -307,7 +286,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -327,7 +306,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
@@ -378,7 +357,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -398,7 +377,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
@@ -450,7 +429,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         List<WfTask> tasks;
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -470,7 +449,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         }
         setStatus(substitutor, true);
         tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>());
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);

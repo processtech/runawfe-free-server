@@ -1,7 +1,6 @@
 package ru.runa.wfe.commons.cache.states.audit;
 
 import javax.transaction.Transaction;
-
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.states.CacheState;
@@ -12,70 +11,69 @@ import ru.runa.wfe.commons.cache.states.CacheState;
  * @param <CacheImpl>
  *            Cache implementation.
  */
-public class DefaultCacheStateMachineAudit<CacheImpl extends CacheImplementation, StateContext>
-        implements CacheStateMachineAudit<CacheImpl, StateContext> {
+public class DefaultCacheStateMachineAudit<CacheImpl extends CacheImplementation> implements CacheStateMachineAudit<CacheImpl> {
 
-    private final GetCacheAudit<CacheImpl, StateContext> auditGetCache = new DefaultGetCacheAudit();
+    private final GetCacheAudit<CacheImpl> auditGetCache = new DefaultGetCacheAudit();
 
-    private final OnChangeAudit<CacheImpl, StateContext> auditOnChange = new DefaultOnChangeAudit();
+    private final OnChangeAudit<CacheImpl> auditOnChange = new DefaultOnChangeAudit();
 
-    private final CompleteTransactionAudit<CacheImpl, StateContext> auditCompleteTransaction = new DefaultCompleteTransactionAudit();
+    private final CompleteTransactionAudit<CacheImpl> auditCompleteTransaction = new DefaultCompleteTransactionAudit();
 
-    private final CommitCacheAudit<CacheImpl, StateContext> auditCommitCache = new DefaultCommitCacheAudit();
+    private final CommitCacheAudit<CacheImpl> auditCommitCache = new DefaultCommitCacheAudit();
 
-    private final InitializationErrorAudit<CacheImpl, StateContext> auditInitializationError = new DefaultInitializationErrorAudit();
+    private final InitializationErrorAudit<CacheImpl> auditInitializationError = new DefaultInitializationErrorAudit();
 
-    private final StageSwitchAudit<CacheImpl, StateContext> auditUninitialize = new DefaultStageSwitchAudit();
+    private final StageSwitchAudit<CacheImpl> auditDropCache = new DefaultStageSwitchAudit();
 
-    private final BeforeTransactionCompleteAudit<CacheImpl, StateContext> auditBeforeTransactionCommit = new DefaultBeforeTransactionCompleteAudit();
+    private final BeforeTransactionCompleteAudit<CacheImpl> auditBeforeTransactionCommit = new DefaultBeforeTransactionCompleteAudit();
 
     @Override
-    public GetCacheAudit<CacheImpl, StateContext> auditGetCache() {
+    public GetCacheAudit<CacheImpl> auditGetCache() {
         return auditGetCache;
     }
 
     @Override
-    public OnChangeAudit<CacheImpl, StateContext> auditOnChange() {
+    public OnChangeAudit<CacheImpl> auditOnChange() {
         return auditOnChange;
     }
 
     @Override
-    public CompleteTransactionAudit<CacheImpl, StateContext> auditCompleteTransaction() {
+    public CompleteTransactionAudit<CacheImpl> auditCompleteTransaction() {
         return auditCompleteTransaction;
     }
 
     @Override
-    public CommitCacheAudit<CacheImpl, StateContext> auditCommitCache() {
+    public CommitCacheAudit<CacheImpl> auditCommitCache() {
         return auditCommitCache;
     }
 
     @Override
-    public InitializationErrorAudit<CacheImpl, StateContext> auditInitializationError() {
+    public InitializationErrorAudit<CacheImpl> auditInitializationError() {
         return auditInitializationError;
     }
 
     @Override
-    public StageSwitchAudit<CacheImpl, StateContext> auditUninitialize() {
-        return auditUninitialize;
+    public StageSwitchAudit<CacheImpl> auditDropCache() {
+        return auditDropCache;
     }
 
     @Override
-    public BeforeTransactionCompleteAudit<CacheImpl, StateContext> auditBeforeTransactionComplete() {
+    public BeforeTransactionCompleteAudit<CacheImpl> auditBeforeTransactionComplete() {
         return auditBeforeTransactionCommit;
     }
 
-    class DefaultStageSwitchAudit implements StageSwitchAudit<CacheImpl, StateContext> {
+    class DefaultStageSwitchAudit implements StageSwitchAudit<CacheImpl> {
 
         @Override
         public void stayStage() {
         }
 
         @Override
-        public void stageSwitched(CacheState<CacheImpl, StateContext> from, CacheState<CacheImpl, StateContext> to) {
+        public void stageSwitched(CacheState<CacheImpl> from, CacheState<CacheImpl> to) {
         }
 
         @Override
-        public void stageSwitchFailed(CacheState<CacheImpl, StateContext> from, CacheState<CacheImpl, StateContext> to) {
+        public void stageSwitchFailed(CacheState<CacheImpl> from, CacheState<CacheImpl> to) {
         }
 
         @Override
@@ -83,7 +81,7 @@ public class DefaultCacheStateMachineAudit<CacheImpl extends CacheImplementation
         }
     }
 
-    class DefaultGetCacheAudit extends DefaultStageSwitchAudit implements GetCacheAudit<CacheImpl, StateContext> {
+    class DefaultGetCacheAudit extends DefaultStageSwitchAudit implements GetCacheAudit<CacheImpl> {
 
         @Override
         public void quickResult(Transaction transaction, CacheImpl cache) {
@@ -98,7 +96,7 @@ public class DefaultCacheStateMachineAudit<CacheImpl extends CacheImplementation
         }
     }
 
-    class DefaultOnChangeAudit extends DefaultStageSwitchAudit implements OnChangeAudit<CacheImpl, StateContext> {
+    class DefaultOnChangeAudit extends DefaultStageSwitchAudit implements OnChangeAudit<CacheImpl> {
 
         @Override
         public void beforeOnChange(Transaction transaction, ChangedObjectParameter changedObject) {
@@ -109,7 +107,7 @@ public class DefaultCacheStateMachineAudit<CacheImpl extends CacheImplementation
         }
     }
 
-    class DefaultCompleteTransactionAudit extends DefaultStageSwitchAudit implements CompleteTransactionAudit<CacheImpl, StateContext> {
+    class DefaultCompleteTransactionAudit extends DefaultStageSwitchAudit implements CompleteTransactionAudit<CacheImpl> {
 
         @Override
         public void beforeCompleteTransaction(Transaction transaction) {
@@ -124,7 +122,7 @@ public class DefaultCacheStateMachineAudit<CacheImpl extends CacheImplementation
         }
     }
 
-    class DefaultCommitCacheAudit extends DefaultStageSwitchAudit implements CommitCacheAudit<CacheImpl, StateContext> {
+    class DefaultCommitCacheAudit extends DefaultStageSwitchAudit implements CommitCacheAudit<CacheImpl> {
 
         @Override
         public void stageIsNotCommitStage(CacheImpl cache) {
@@ -139,13 +137,13 @@ public class DefaultCacheStateMachineAudit<CacheImpl extends CacheImplementation
         }
     }
 
-    class DefaultInitializationErrorAudit extends DefaultStageSwitchAudit implements InitializationErrorAudit<CacheImpl, StateContext> {
+    class DefaultInitializationErrorAudit extends DefaultStageSwitchAudit implements InitializationErrorAudit<CacheImpl> {
 
         @Override
         public void onInitializationError(Throwable e) {
         }
     }
 
-    class DefaultBeforeTransactionCompleteAudit extends DefaultStageSwitchAudit implements BeforeTransactionCompleteAudit<CacheImpl, StateContext> {
+    class DefaultBeforeTransactionCompleteAudit extends DefaultStageSwitchAudit implements BeforeTransactionCompleteAudit<CacheImpl> {
     }
 }

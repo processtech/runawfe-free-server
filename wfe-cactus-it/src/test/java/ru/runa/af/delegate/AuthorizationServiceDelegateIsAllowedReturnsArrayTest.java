@@ -1,21 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
-
 package ru.runa.af.delegate;
 
 import java.util.Collection;
@@ -126,7 +108,8 @@ public class AuthorizationServiceDelegateIsAllowedReturnsArrayTest extends Servl
                     Lists.newArrayList(SecuredSingleton.EXECUTORS, helper.getBaseGroupActor(), helper.getBaseGroup()));
             fail("No Exception: Secured objects should be of the same secured object type (EXECUTORS)");
         } catch (InternalApplicationException e) {
-            assertEquals("Secured objects should be of the same secured object type (EXECUTORS)", e.getMessage());
+            assertEquals("Found objects of different types: (EXECUTORS," + SecuredSingleton.EXECUTORS.getId() + ") and (EXECUTOR,"
+                    + helper.getBaseGroupActor().getId() + ")", e.getMessage());
         }
     }
 

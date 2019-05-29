@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.service;
 
 import java.util.Collection;
@@ -48,7 +31,7 @@ public interface AuthorizationService {
     /**
      * Checks whether user has permission on object.
      */
-    boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId);
+    boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long id);
 
     /**
      * Checks whether user has permission on secured objects of the same secured object type.
@@ -56,9 +39,14 @@ public interface AuthorizationService {
     <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects);
 
     /**
+     * Generally same as {@link #isAllowed(User, Permission, List)}, introduced to prevent creation of fake entities.
+     */
+    boolean[] isAllowed(User user, Permission permission, SecuredObjectType type, List<Long> ids);
+
+    /**
      * Checks if user has parmission on any object of specified type.
      */
-    boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType);
+    boolean isAllowedForAny(User user, Permission permission, SecuredObjectType type);
 
     /**
      * Special case to check UPDATE and/or UPDATE_SELF permissions.

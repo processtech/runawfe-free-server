@@ -28,5 +28,4 @@ public abstract class FilesSupplierConfigParser<T extends FilesSupplierConfig> {
         parseCustom(root, config);
         return config;
     }
-
 }

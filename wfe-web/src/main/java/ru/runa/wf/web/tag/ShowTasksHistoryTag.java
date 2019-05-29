@@ -1,33 +1,30 @@
 package ru.runa.wf.web.tag;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
-import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Display tasks history for process.
@@ -53,7 +50,7 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
     public List<TR> processLogs(ProcessLogs logs) {
         List<TR> result = Lists.newArrayList();
         Map<TaskCreateLog, TaskEndLog> taskLogs = logs.getTaskLogs();
-        for (ProcessLog log : logs.getLogs()) {
+        for (BaseProcessLog log : logs.getLogs()) {
             if (log instanceof ProcessStartLog) {
                 TaskCreateLog createLog = null;
                 for (TaskCreateLog key : taskLogs.keySet()) {

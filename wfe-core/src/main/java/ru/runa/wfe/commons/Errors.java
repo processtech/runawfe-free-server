@@ -9,8 +9,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
@@ -20,8 +19,8 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.VariableProvider;
 
+@CommonsLog
 public class Errors {
-    private static final Log LOG = LogFactory.getLog(Errors.class);
     private static Set<SystemError> systemErrors = Sets.newConcurrentHashSet();
     private static Map<Long, List<ProcessError>> processErrors = Maps.newConcurrentMap();
     private static byte[] emailNotificationConfigBytes;
@@ -34,10 +33,10 @@ public class Errors {
                     emailNotificationConfigBytes = ByteStreams.toByteArray(in);
                     EmailConfigParser.parse(emailNotificationConfigBytes);
                 } else {
-                    LOG.error("Email notification configuration file not found: " + SystemProperties.getErrorEmailNotificationConfiguration());
+                    log.error("Email notification configuration file not found: " + SystemProperties.getErrorEmailNotificationConfiguration());
                 }
             } catch (Exception e) {
-                LOG.error("Email notification configuration error", e);
+                log.error("Email notification configuration error", e);
                 emailNotificationConfigBytes = null;
             }
         }
@@ -107,7 +106,7 @@ public class Errors {
             if (error.getStackTrace() != null) {
                 for (String filterExcludes : SystemProperties.getErrorEmailNotificationFilterExcludes()) {
                     if (error.getStackTrace().contains(filterExcludes)) {
-                        LOG.debug("Ignored (filtered) email notification about " + error.getMessage());
+                        log.debug("Ignored (filtered) email notification about " + error.getMessage());
                         return;
                     }
                 }
@@ -128,11 +127,10 @@ public class Errors {
                         // does not work EmailUtils.sendMessageRequest(config);
                         EmailUtils.sendMessage(config);
                     } catch (Exception e) {
-                        LOG.error("Unable to send email notification about error", e);
+                        log.error("Unable to send email notification about error", e);
                     }
                 };
             }.start();
         }
     }
-
 }

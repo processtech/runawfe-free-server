@@ -1,30 +1,11 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.extension.orgfunction;
 
+import com.google.common.base.Objects;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import ru.runa.wfe.extension.OrgFunctionException;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.user.Actor;
@@ -32,16 +13,13 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
-import com.google.common.base.Objects;
-
 /**
  * <p>
  * Created on 20.03.2006 18:00:44
  * </p>
  */
+@CommonsLog
 public class DemoSubordinateRecursive {
-
-    private final Log log = LogFactory.getLog(DemoSubordinateRecursive.class);
 
     /**
      * @param parameters
@@ -53,8 +31,8 @@ public class DemoSubordinateRecursive {
             throw new OrgFunctionException("Wrong parameters array: " + Arrays.asList(parameters) + ", expected 1 parameter.");
         }
         try {
-            LinkedList<Actor> list = new LinkedList<Actor>();
-            LinkedList<Actor> subordinatesList = new LinkedList<Actor>();
+            val list = new LinkedList<Actor>();
+            val subordinatesList = new LinkedList<Actor>();
             Actor actor = executorDao.getActorByCode(Long.parseLong((String) parameters[0]));
             List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
             DemoChiefFunction demoChiefFunction = new DemoChiefFunction();
@@ -81,13 +59,6 @@ public class DemoSubordinateRecursive {
         }
     }
 
-    /**
-     * @param list
-     * @param subordinatesList
-     * @param actor
-     * @param demoChiefFunction
-     * @throws OrgFunctionException
-     */
     private int findDirectSubordinates(LinkedList<Actor> list, LinkedList<Actor> subordinatesList, Actor actor, DemoChiefFunction demoChiefFunction)
             throws OrgFunctionException {
         int result = 0;
@@ -102,40 +73,26 @@ public class DemoSubordinateRecursive {
         return result;
     }
 
-    /**
-     * @param list
-     * @param subordinatesList
-     * @param demoChiefFunction
-     * @throws OrgFunctionException
-     */
     private void findIndirectSubordinates(LinkedList<Actor> list, LinkedList<Actor> subordinatesList, DemoChiefFunction demoChiefFunction)
             throws OrgFunctionException {
         int flag = -1;
         while (flag != 0) {
-            LinkedList<Actor> newGeneratedSubordinates = new LinkedList<Actor>();
-            for (ListIterator<Actor> iter = subordinatesList.listIterator(); iter.hasNext();) {
-                findDirectSubordinates(list, newGeneratedSubordinates, iter.next(), demoChiefFunction);
+            LinkedList<Actor> newGeneratedSubordinates = new LinkedList<>();
+            for (Actor actor : subordinatesList) {
+                findDirectSubordinates(list, newGeneratedSubordinates, actor, demoChiefFunction);
             }
             flag = addNotContainedElements(subordinatesList, newGeneratedSubordinates);
         }
     }
 
-    /**
-     * @param subordinatesList
-     * @param flag
-     * @param newSubordinates
-     * @return
-     */
     private int addNotContainedElements(LinkedList<Actor> subordinatesList, LinkedList<Actor> newGeneratedSubordinates) {
         int flag = 0;
-        for (ListIterator<Actor> iter = newGeneratedSubordinates.listIterator(); iter.hasNext();) {
-            Actor acurr = iter.next();
-            if (!subordinatesList.contains(acurr)) {
-                subordinatesList.add(acurr);
+        for (Actor actor : newGeneratedSubordinates) {
+            if (!subordinatesList.contains(actor)) {
+                subordinatesList.add(actor);
                 flag = -1;
             }
         }
-
         return flag;
     }
 }

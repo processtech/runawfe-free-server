@@ -319,5 +319,4 @@ public abstract class JdbcStoreService implements StoreService {
             executeSql(MessageFormat.format(SQL_INSERT, tableName(), columns, values));
         }
     }
-
 }

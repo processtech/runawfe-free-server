@@ -1,12 +1,13 @@
 package ru.runa.wfe.commons;
 
-import ru.runa.wfe.commons.dbpatch.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
- * Enumeration contains databases for preliminary {@link DbPatch} support.
+ * Enumeration contains databases for preliminary {@link DbMigration} support.
  * 
  * @author Dofs
  */
 public enum DbType {
-    GENERIC, HSQL, ORACLE, POSTGRESQL, MSSQL, MYSQL, H2
+    // TODO Delete MYSQL in WFE 5. BTW it does not work in WFE 4 anyway, see comment inside JbpmRefactoringPatch.
+    HSQL, ORACLE, POSTGRESQL, MSSQL, MYSQL, H2
 }

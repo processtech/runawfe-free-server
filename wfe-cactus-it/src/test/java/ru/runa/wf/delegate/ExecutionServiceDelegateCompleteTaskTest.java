@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.delegate;
 
 import java.util.Collection;
@@ -64,13 +47,10 @@ public class ExecutionServiceDelegateCompleteTaskTest extends ServletTestCase {
         executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
 
         th.addExecutorToGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());
-        // task =
-        // executionDelegate.getTasks(helper.getAuthorizedPerformerUser(),
-        // helper.getTaskBatchPresentation())[0];
 
         legalVariables = new HashMap<String, Object>();
-        legalVariables.put("amount.asked", (double) 200);
-        legalVariables.put("amount.granted", (double) 150);
+        legalVariables.put("amount_asked", (double) 200);
+        legalVariables.put("amount_granted", (double) 150);
         legalVariables.put("approved", "true");
 
         super.setUp();
@@ -97,13 +77,13 @@ public class ExecutionServiceDelegateCompleteTaskTest extends ServletTestCase {
         assertEquals("state name differs from expected", "evaluating", task.getName());
         assertEquals("task <evaluating> is assigned before completeTask()", th.getBossGroup(), task.getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), legalVariables, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), legalVariables);
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
 
         assertEquals("Tasks not returned for Authorized Subject", 1, tasks.size());
         assertEquals("state name differs from expected", "treating collegues on cake and pie", tasks.get(0).getName());
         assertEquals("task <treating collegues on cake and pie> is not assigned after starting [requester]", th.getBossGroup(), task.getOwner());
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), legalVariables, null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), legalVariables);
 
         tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), th.getTaskBatchPresentation());
 
@@ -116,7 +96,7 @@ public class ExecutionServiceDelegateCompleteTaskTest extends ServletTestCase {
         initTask();
         try {
             th.removeExecutorFromGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), legalVariables, null);
+            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), legalVariables);
             fail("testCompleteTaskByNullSubject(), no Exception");
         } catch (AuthorizationException e) {
         }
@@ -125,7 +105,7 @@ public class ExecutionServiceDelegateCompleteTaskTest extends ServletTestCase {
     public void testCompleteTaskByUnauthorizedSubject() throws Exception {
         initTask();
         try {
-            th.getTaskService().completeTask(th.getUnauthorizedPerformerUser(), task.getId(), legalVariables, null);
+            th.getTaskService().completeTask(th.getUnauthorizedPerformerUser(), task.getId(), legalVariables);
             fail("testCompleteTaskByNullSubject(), no AuthorizationException");
         } catch (AuthorizationException e) {
         }
@@ -134,7 +114,7 @@ public class ExecutionServiceDelegateCompleteTaskTest extends ServletTestCase {
     public void testCompleteTaskByFakeSubject() throws Exception {
         initTask();
         try {
-            th.getTaskService().completeTask(th.getFakeUser(), task.getId(), legalVariables, null);
+            th.getTaskService().completeTask(th.getFakeUser(), task.getId(), legalVariables);
             fail("testCompleteTaskByFakeSubject(), no AuthenticationException");
         } catch (AuthorizationException e) {
             fail("testCompleteTaskByFakeSubject(), no AuthenticationException");
@@ -145,7 +125,7 @@ public class ExecutionServiceDelegateCompleteTaskTest extends ServletTestCase {
     public void testCompleteTaskByAuthorizedSubjectWithInvalidTaskId() throws Exception {
         initTask();
         try {
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), -1l, legalVariables, null);
+            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), -1l, legalVariables);
             fail("testCompleteTaskByAuthorizedSubjectWithInvalidTaskId(), no TaskDoesNotExistException");
         } catch (TaskDoesNotExistException e) {
         }

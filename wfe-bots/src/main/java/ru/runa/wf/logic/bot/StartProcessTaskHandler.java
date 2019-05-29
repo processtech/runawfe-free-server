@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.logic.bot;
 
 import java.util.Date;
@@ -22,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wf.logic.bot.startprocess.StartProcessTask;
@@ -47,6 +31,7 @@ import com.google.common.collect.Maps;
  *
  *         added 9.06.2009 by gavrusev_sergei from version 2
  */
+@CommonsLog
 public class StartProcessTaskHandler extends TaskHandlerBase {
     private List<StartProcessTask> startProcessTasks;
 
@@ -97,7 +82,7 @@ public class StartProcessTaskHandler extends TaskHandlerBase {
                     }
                 }
             } catch (Throwable th) {
-                LogFactory.getLog(getClass()).error("Error in permission copy to new subprocess (step is ignored).", th);
+                log.error("Error in permission copy to new subprocess (step is ignored).", th);
             }
         }
         return outputVariables;

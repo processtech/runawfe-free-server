@@ -1,33 +1,28 @@
 package ru.runa.wfe.task;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.PostConstruct;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Required;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.task.logic.TaskNotifier;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
-
+@CommonsLog
 public class EmailTaskNotifier implements TaskNotifier {
-    private static final Log log = LogFactory.getLog(EmailTaskNotifier.class);
     private boolean enabled = true;
     private boolean onlyIfTaskActorEmailDefined = false;
     private String configPath;
@@ -80,13 +75,13 @@ public class EmailTaskNotifier implements TaskNotifier {
     }
 
     @Override
-    public void onTaskAssigned(ProcessDefinition processDefinition, VariableProvider variableProvider, Task task, Executor previousExecutor) {
+    public void onTaskAssigned(ParsedProcessDefinition parsedProcessDefinition, VariableProvider variableProvider, Task task, Executor previousExecutor) {
         if (!enabled || configBytes == null) {
             return;
         }
         try {
             log.debug("About " + task + " assigned to " + task.getExecutor() + ", previous: " + previousExecutor);
-            final String processName = task.getProcess().getDeployment().getName();
+            final String processName = task.getProcess().getDefinitionVersion().getDefinition().getName();
             if (!EmailUtils.isProcessNameMatching(processName, includeProcessNameFilter, excludeProcessNameFilter)) {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;
@@ -105,7 +100,7 @@ public class EmailTaskNotifier implements TaskNotifier {
                 return;
             }
             String emails = EmailUtils.concatenateEmails(emailsToSend);
-            Interaction interaction = processDefinition.getInteractionNotNull(task.getNodeId());
+            Interaction interaction = parsedProcessDefinition.getInteractionNotNull(task.getNodeId());
             Map<String, Object> map = Maps.newHashMap();
             map.put("interaction", interaction);
             map.put("task", task);

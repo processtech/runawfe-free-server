@@ -1,11 +1,10 @@
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -24,8 +23,6 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
-
-import com.google.common.collect.Lists;
 
 /**
  * This test class is to check substitution logic concerning "Assign task"
@@ -99,7 +96,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         substitutionCriteria_always = testHelper.createSubstitutionCriteria(substitutionCriteria_always);
 
         byte[] parBytes = WfServiceTestHelper.readBytesFromFile(PROCESS_NAME + ".par");
-        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
+        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"), null);
         WfDefinition definition = testHelper.getDefinitionService().getLatestProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME);
         Collection<Permission> definitionPermission = Lists.newArrayList(Permission.START);
         testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), definitionPermission, definition);
@@ -161,7 +158,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         }
         assertExceptionThrownOnAssign(actor1User, actor1Tasks[0]);
         assertExceptionThrownOnAssign(actor2SUser, actor2Tasks[0]);
-        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>());
         testHelper.removeCriteriaFromSubstitution(substitution1);
     }
 
@@ -200,7 +197,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
             actor2Tasks = checkTaskList(actor2SUser, 1);
             substituteTasks = checkTaskList(substituteUser, 1);
         }
-        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>());
         {
             checkTaskList(actor1User, actor1Tasks[0]);
             checkTaskList(actor2SUser, actor2Tasks[0]);
@@ -260,7 +257,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
 
     private void assertExceptionThrownOnExecute(User user, WfTask task) throws InternalApplicationException {
         try {
-            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>(), null);
+            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>());
             throw new InternalApplicationException("Exception not thrown. Actor shouldn't see assigned/executed task by another user...");
         } catch (AuthenticationException e) {
             throw new InternalApplicationException("Auth exception thrown");

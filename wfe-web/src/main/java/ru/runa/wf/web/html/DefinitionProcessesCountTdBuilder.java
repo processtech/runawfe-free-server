@@ -4,7 +4,7 @@ import org.apache.ecs.html.TD;
 
 import ru.runa.common.web.html.BaseTdBuilder;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.execution.ProcessClassPresentation;
+import ru.runa.wfe.execution.CurrentProcessClassPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.DateFilterCriteria;
@@ -28,10 +28,10 @@ public class DefinitionProcessesCountTdBuilder extends BaseTdBuilder {
     @Override
     public String getValue(Object object, Env env) {
         WfDefinition definition = (WfDefinition) object;
-        BatchPresentation presentation = BatchPresentationFactory.PROCESSES.createDefault();
-        int definitionNameFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_NAME);
-        int definitionVersionFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_VERSION);
-        int processEndDateFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_END_DATE);
+        BatchPresentation presentation = BatchPresentationFactory.CURRENT_PROCESSES.createDefault();
+        int definitionNameFieldIndex = presentation.getType().getFieldIndex(CurrentProcessClassPresentation.DEFINITION_NAME);
+        int definitionVersionFieldIndex = presentation.getType().getFieldIndex(CurrentProcessClassPresentation.DEFINITION_VERSION);
+        int processEndDateFieldIndex = presentation.getType().getFieldIndex(CurrentProcessClassPresentation.PROCESS_END_DATE);
         presentation.getFilteredFields().put(definitionNameFieldIndex, new StringFilterCriteria(definition.getName()));
         presentation.getFilteredFields().put(definitionVersionFieldIndex, new LongFilterCriteria(definition.getVersion()));
         int allCount = Delegates.getExecutionService().getProcessesCount(env.getUser(), presentation);

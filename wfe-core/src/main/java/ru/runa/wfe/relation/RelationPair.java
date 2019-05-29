@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.relation;
 
 import com.google.common.base.MoreObjects;
@@ -32,8 +15,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -93,7 +74,7 @@ public class RelationPair implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_EXECUTOR_RELATION", allocationSize = 1)
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_EXECUTOR_RELATION_PAIR", allocationSize = 1)
     @Column(name = "ID", nullable = false)
     public Long getId() {
         return id;
@@ -110,8 +91,6 @@ public class RelationPair implements Serializable {
      */
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "EXECUTOR_FROM", nullable = false, insertable = true, updatable = false)
-    @ForeignKey(name = "FK_ERP_EXECUTOR_FROM")
-    @Index(name = "IX_ERP_EXECUTOR_FROM")
     public Executor getLeft() {
         return left;
     }
@@ -127,8 +106,6 @@ public class RelationPair implements Serializable {
      */
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "EXECUTOR_TO", nullable = false, insertable = true, updatable = false)
-    @ForeignKey(name = "FK_ERP_EXECUTOR_TO")
-    @Index(name = "IX_ERP_EXECUTOR_TO")
     public Executor getRight() {
         return right;
     }
@@ -144,8 +121,6 @@ public class RelationPair implements Serializable {
      */
     @ManyToOne(targetEntity = Relation.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "RELATION_ID", nullable = false, insertable = true, updatable = false)
-    @ForeignKey(name = "FK_ERP_RELATION")
-    @Index(name = "IX_ERP_RELATION")
     public Relation getRelation() {
         return relation;
     }

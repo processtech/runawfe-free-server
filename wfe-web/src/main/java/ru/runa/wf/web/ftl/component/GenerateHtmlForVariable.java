@@ -1,19 +1,20 @@
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.apache.ecs.html.TextArea;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.FormSubmissionUtils;
@@ -56,10 +57,6 @@ import ru.runa.wfe.var.format.VariableDisplaySupport;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 import ru.runa.wfe.var.format.VariableInputSupport;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 /**
  * Component for generation HTML code for displaying variable or get inputs from usr for variable.

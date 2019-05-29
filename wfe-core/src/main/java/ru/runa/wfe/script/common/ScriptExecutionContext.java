@@ -1,16 +1,13 @@
 package ru.runa.wfe.script.common;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.bot.logic.BotLogic;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.definition.logic.DefinitionLogic;
+import ru.runa.wfe.definition.logic.ProcessDefinitionLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.relation.logic.RelationLogic;
 import ru.runa.wfe.report.logic.ReportLogic;
@@ -31,7 +28,7 @@ public class ScriptExecutionContext {
     @Autowired
     private AuthorizationLogic authorizationLogic;
     @Autowired
-    private DefinitionLogic definitionLogic;
+    private ProcessDefinitionLogic processDefinitionLogic;
     @Autowired
     private ExecutionLogic executionLogic;
     @Autowired
@@ -87,8 +84,8 @@ public class ScriptExecutionContext {
         return authorizationLogic;
     }
 
-    public DefinitionLogic getDefinitionLogic() {
-        return definitionLogic;
+    public ProcessDefinitionLogic getProcessDefinitionLogic() {
+        return processDefinitionLogic;
     }
 
     public ExecutionLogic getExecutionLogic() {
@@ -160,5 +157,4 @@ public class ScriptExecutionContext {
         context.setExternalResources(externalResources);
         return context;
     }
-
 }

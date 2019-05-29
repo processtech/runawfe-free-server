@@ -1,23 +1,5 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.service.impl;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,8 +13,8 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.audit.logic.AuditLogic;
@@ -60,8 +42,9 @@ import ru.runa.wfe.user.User;
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "SystemAPI", serviceName = "SystemWebService")
 @SOAPBinding
+@CommonsLog
 public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemote {
-    private static final Log log = LogFactory.getLog(SystemServiceBean.class);
+
     @Autowired
     private AuditLogic auditLogic;
     @Autowired
@@ -119,9 +102,9 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @Override
     @WebMethod(exclude = true)
     public List<ProcessError> getAllProcessErrors(@NonNull User user) {
-        List<ProcessError> result = Lists.newArrayList();
-        for (List<ProcessError> list : Errors.getProcessErrors().values()) {
-            result.addAll(list);
+        val result = new ArrayList<ProcessError>();
+        for (List<ProcessError> cached : Errors.getProcessErrors().values()) {
+            result.addAll(cached);
         }
         List<WfProcess> processes = executionLogic.getFailedProcesses(user);
         for (WfProcess process : processes) {
@@ -134,27 +117,27 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @Override
     @WebResult(name = "result")
     public List<ProcessError> getProcessErrors(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
-        List<ProcessError> list = new ArrayList<>();
+        val result = new ArrayList<ProcessError>();
         List<ProcessError> cached = Errors.getProcessErrors(processId);
         if (cached != null) {
-            list.addAll(cached);
+            result.addAll(cached);
         }
-        populateExecutionErrors(user, list, processId);
-        Collections.sort(list);
-        return list;
+        populateExecutionErrors(user, result, processId);
+        Collections.sort(result);
+        return result;
     }
 
     @Override
     @WebResult(name = "result")
     public List<SystemError> getSystemErrors(@WebParam(name = "user") @NonNull User user) {
-        List<SystemError> list = Lists.newArrayList(Errors.getSystemErrors());
-        Collections.sort(list);
-        return list;
+        val result = new ArrayList<SystemError>(Errors.getSystemErrors());
+        Collections.sort(result);
+        return result;
     }
 
     private void populateExecutionErrors(User user, List<ProcessError> list, Long processId) {
         try {
-            for (WfToken token : executionLogic.getTokens(user, processId, false)) {
+            for (WfToken token : executionLogic.getTokens(user, processId, false, true)) {
                 if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
                     continue;
                 }

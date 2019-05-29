@@ -11,9 +11,9 @@ import ru.runa.wfe.var.dto.WfVariable;
 
 public interface StoreService {
 
-    public static final String PROP_CONSTRAINTS = "constraints";
-    public static final String PROP_PATH = "path";
-    public static final String PROP_FORMAT = "format";
+    String PROP_CONSTRAINTS = "constraints";
+    String PROP_PATH = "path";
+    String PROP_FORMAT = "format";
 
     void createFileIfNotExist(String path) throws Exception;
 

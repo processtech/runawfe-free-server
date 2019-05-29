@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.jpdl;
 
 import java.util.Collection;
@@ -95,7 +78,7 @@ public class Fork2Test extends ServletTestCase {
         List<WfTask> performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -110,7 +93,7 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -123,7 +106,7 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -141,8 +124,8 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>(), null);
-        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(1).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>());
+        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(1).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -155,7 +138,7 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -168,7 +151,7 @@ public class Fork2Test extends ServletTestCase {
         assertEquals("task name differs from expected", "state_6", performerTasks.get(0).getName());
         assertEquals("task is not assigned", th.getAuthorizedPerformerActor(), performerTasks.get(0).getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -181,7 +164,7 @@ public class Fork2Test extends ServletTestCase {
         assertEquals("task name differs from expected", "state_8", performerTasks.get(0).getName());
         assertEquals("task is not assigned", th.getAuthorizedPerformerActor(), performerTasks.get(0).getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -211,7 +194,7 @@ public class Fork2Test extends ServletTestCase {
         List<WfTask> performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -229,7 +212,7 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -254,7 +237,7 @@ public class Fork2Test extends ServletTestCase {
             }
         }
         assert (task != null);
-        th.getTaskService().completeTask(th.getErpOperatorUser(), task.getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), task.getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -278,7 +261,7 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -306,8 +289,8 @@ public class Fork2Test extends ServletTestCase {
         }
         assert (task != null);
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>(), null);
-        th.getTaskService().completeTask(th.getErpOperatorUser(), task.getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>());
+        th.getTaskService().completeTask(th.getErpOperatorUser(), task.getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -320,7 +303,7 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -333,14 +316,14 @@ public class Fork2Test extends ServletTestCase {
         assertEquals("task name differs from expected", "state_6", performerTasks.get(0).getName());
         assertEquals("task is not assigned", th.getAuthorizedPerformerActor(), performerTasks.get(0).getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>());
 
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, performerTasks.size());
         assertEquals("task name differs from expected", "state_8", performerTasks.get(0).getName());
         assertEquals("task is not assigned", th.getAuthorizedPerformerActor(), performerTasks.get(0).getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -370,7 +353,7 @@ public class Fork2Test extends ServletTestCase {
         List<WfTask> performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -388,7 +371,7 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -414,7 +397,7 @@ public class Fork2Test extends ServletTestCase {
         }
         assert (task != null);
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), task.getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), task.getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -427,7 +410,7 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -455,8 +438,8 @@ public class Fork2Test extends ServletTestCase {
         }
         assert (task != null);
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>(), null);
-        th.getTaskService().completeTask(th.getErpOperatorUser(), task.getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getHrOperatorUser(), hrTasks.get(0).getId(), new HashMap<String, Object>());
+        th.getTaskService().completeTask(th.getErpOperatorUser(), task.getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -469,7 +452,7 @@ public class Fork2Test extends ServletTestCase {
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, performerTasks.size());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getErpOperatorUser(), erpTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());
@@ -482,14 +465,14 @@ public class Fork2Test extends ServletTestCase {
         assertEquals("task name differs from expected", "state_6", performerTasks.get(0).getName());
         assertEquals("task is not assigned", th.getAuthorizedPerformerActor(), performerTasks.get(0).getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>());
 
         performerTasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, performerTasks.size());
         assertEquals("task name differs from expected", "state_8", performerTasks.get(0).getName());
         assertEquals("task is not assigned", th.getAuthorizedPerformerActor(), performerTasks.get(0).getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>(), null);
+        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), performerTasks.get(0).getId(), new HashMap<String, Object>());
 
         hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, hrTasks.size());

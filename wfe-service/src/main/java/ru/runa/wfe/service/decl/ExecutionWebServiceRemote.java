@@ -10,12 +10,11 @@ import ru.runa.wfe.user.User;
 @Remote
 public interface ExecutionWebServiceRemote {
 
-    public Variable getVariableWS(User user, Long processId, String variableName);
+    Variable getVariableWS(User user, Long processId, String variableName);
 
-    public List<Variable> getVariablesWS(User user, Long processId);
+    List<Variable> getVariablesWS(User user, Long processId);
 
-    public Long startProcessWS(User user, String definitionName, List<Variable> variables);
+    Long startProcessWS(User user, String definitionName, List<Variable> variables);
 
-    public void updateVariablesWS(User user, Long processId, List<Variable> variables);
-
+    void updateVariablesWS(User user, Long processId, List<Variable> variables);
 }

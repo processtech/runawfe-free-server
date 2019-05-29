@@ -1,28 +1,10 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -39,8 +21,6 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
-
-import com.google.common.collect.Lists;
 
 /**
  * This test class is to check concurrent work of 2 users concerning "Assign task" function.<br />
@@ -95,7 +75,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
         actor2User = testHelper.getAuthenticationService().authenticateByLoginPassword(nameActor2, pwdActor2);
 
         byte[] parBytes = WfServiceTestHelper.readBytesFromFile(PROCESS_NAME + ".par");
-        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
+        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"), null);
         WfDefinition definition = testHelper.getDefinitionService().getLatestProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME);
         Collection<Permission> definitionPermission = Lists.newArrayList(Permission.START);
         testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), definitionPermission, definition);
@@ -226,7 +206,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>());
     }
 
     private void moveAssignMoved() throws Exception {
@@ -236,7 +216,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             tasks2 = checkTaskList(actor2User, 1);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>());
         assertExceptionThrownOnAssign(actor2User, tasks2[0]);
     }
 
@@ -259,7 +239,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>());
     }
 
     private void moveExecuteExecuted() throws Exception {
@@ -269,7 +249,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             tasks2 = checkTaskList(actor2User, 1);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>());
         {
             checkTaskList(actor1User, tasks1[0]);
             checkTaskList(actor2User, tasks2[0]);
@@ -279,7 +259,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
 
     private void assertExceptionThrownOnExecute(User user, WfTask task) throws InternalApplicationException {
         try {
-            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>(), null);
+            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>());
             throw new InternalApplicationException("Exception TaskDoesNotExistException not thrown");
         } catch (AuthenticationException e) {
         } catch (AuthorizationException e) {

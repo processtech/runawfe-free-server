@@ -12,7 +12,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
@@ -28,7 +27,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 
 @Entity
-@Table(name = "REPORT", indexes = { @Index(name = "IX_REPORT_NAME", unique = true, columnList = "NAME") })
+@Table(name = "REPORT")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ReportDefinition {
     private Long id;

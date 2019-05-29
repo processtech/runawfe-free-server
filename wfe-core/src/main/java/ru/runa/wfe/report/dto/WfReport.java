@@ -53,6 +53,7 @@ public class WfReport extends SecuredObject implements Comparable<WfReport>, Ent
                 }));
     }
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -104,11 +105,6 @@ public class WfReport extends SecuredObject implements Comparable<WfReport>, Ent
     @Override
     public int compareTo(WfReport arg0) {
         return name.compareTo(arg0.getName());
-    }
-
-    @Override
-    public Long getIdentifiableId() {
-        return getId();
     }
 
     @Override

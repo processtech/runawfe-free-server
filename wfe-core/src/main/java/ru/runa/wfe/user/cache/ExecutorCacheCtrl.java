@@ -1,144 +1,198 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.user.cache;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import ru.runa.wfe.commons.cache.BaseCacheCtrl;
-import ru.runa.wfe.commons.cache.CachingLogic;
-import ru.runa.wfe.commons.cache.Change;
-import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.ExecutorChangeListener;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
+import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
+import ru.runa.wfe.commons.cache.sm.CachingLogic;
+import ru.runa.wfe.commons.cache.sm.DefaultCacheTransactionalExecutor;
+import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.user.Group;
 
-class ExecutorCacheCtrl extends BaseCacheCtrl<ExecutorCacheImpl> implements ExecutorChangeListener, ExecutorCache {
+@Component
+public class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> {
 
     ExecutorCacheCtrl() {
-        CachingLogic.registerChangeListener(this);
+        super(
+                new ExecutorCacheFactory(),
+                new ArrayList<ListenObjectDefinition>() {{
+                    add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.ALL));
+                    add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
+                }}
+        );
     }
 
-    @Override
-    public ExecutorCacheImpl buildCache() {
-        return new ExecutorCacheImpl();
-    }
-
-    @Override
-    public void doOnChange(ChangedObjectParameter changedObject) {
-        ExecutorCacheImpl cache = getCache();
-        if (cache == null) {
-            return;
-        }
-        if (!cache.onChange(changedObject)) {
-            uninitialize(changedObject);
-        }
-    }
-
-    @Override
-    protected void doMarkTransactionComplete() {
-        if (!isLocked()) {
-            uninitialize(this, Change.REFRESH);
-        }
-    }
-
-    @Override
+    /**
+     * Return {@link Actor} with specified code, or null, if such actor not exists or cache is not valid.
+     *
+     * @param code
+     *            Actor code.
+     * @return {@link Actor} with specified code.
+     */
     public Actor getActor(Long code) {
-        ExecutorCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(this);
+        ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
             return null;
         }
         return cache.getActor(code);
     }
 
-    @Override
+    /**
+     * Return {@link Executor} with specified name, or null, if such executor not exists or cache is not valid.
+     *
+     * @param name
+     *            Executor name.
+     * @return {@link Executor} with specified name.
+     */
     public Executor getExecutor(String name) {
-        ExecutorCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(this);
+        ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
             return null;
         }
         return cache.getExecutor(name);
     }
 
-    @Override
+    /**
+     * Return {@link Executor} with specified id, or null, if such executor not exists or cache is not valid.
+     *
+     * @param id
+     *            Executor identity.
+     * @return {@link Executor} with specified identity.
+     */
     public Executor getExecutor(Long id) {
-        ExecutorCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(this);
+        ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
             return null;
         }
         return cache.getExecutor(id);
     }
 
-    @Override
+    /**
+     * Return first level {@link Group} members. Only {@link Executor}, which directly contains in {@link Group} is returning. No recursive group
+     * search performs. May return null, if cache is not valid.
+     *
+     * @param group
+     *            {@link Group}, which members will be returned.
+     * @return First level {@link Group} members.
+     */
     public Set<Executor> getGroupMembers(Group group) {
-        ExecutorCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(this);
+        ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
             return null;
         }
         return cache.getGroupMembers(group);
     }
 
-    @Override
+    /**
+     * Return all {@link Actor} members of specified {@link Group} and all her subgroups. {@link Actor} members searching recursive and all actors
+     * from subgroups is also contains in result set. May return null, if cache is not valid.
+     *
+     * @param group
+     *            {@link Group}, which actor members will be returned.
+     * @return All {@link Actor} members of specified {@link Group} and all her subgroups.
+     */
     public Set<Actor> getGroupActorsAll(Group group) {
-        ExecutorCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(this);
+        ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
             return null;
         }
         return cache.getGroupActorsAll(group);
     }
 
-    @Override
+    /**
+     * Return all {@link Group}, which contains specified {@link Executor} as first level member. May return null, if cache is not valid.
+     *
+     * @param executor
+     *            {@link Executor}, which parents will be returned.
+     * @return All {@link Group}, which contains specified {@link Executor} as first level member.
+     */
     public Set<Group> getExecutorParents(Executor executor) {
-        ExecutorCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(this);
+        ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
             return null;
         }
         return cache.getExecutorParents(executor);
     }
 
-    @Override
+    /**
+     * Return all {@link Group}, which contains specified {@link Executor} as member (direct or recursive by subgroups). May return null, if cache is
+     * not valid.
+     *
+     * @param executor
+     *            {@link Executor}, which parents will be returned.
+     * @return All {@link Group}, which contains specified {@link Executor} as member.
+     */
     public Set<Group> getExecutorParentsAll(Executor executor) {
-        ExecutorCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(this);
+        ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
             return null;
         }
         return cache.getExecutorParentsAll(executor);
     }
 
-    @Override
+    /**
+     * Return all {@link Executor} of specified class according to {@link BatchPresentation}. May return null, if executor list for specified class
+     * and presentation wasn't set yet (with addAllExecutor()). May return null, if cache is not valid.
+     *
+     * @param <T>
+     *            Type of returned objects. Must be {@link Executor} or it subclass.
+     * @param clazz
+     *            Type of returned objects. Must be {@link Executor} or it subclass.
+     * @param batch
+     *            {@link BatchPresentation} to sort/filter result.
+     * @return All {@link Executor} of specified class according to {@link BatchPresentation}.
+     */
     public <T extends Executor> VersionedCacheData<List<T>> getAllExecutor(Class<T> clazz, BatchPresentation batch) {
-        ExecutorCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(this);
+        ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
             return null;
         }
         return cache.getAllExecutor(clazz, batch);
     }
 
-    @Override
+    /**
+     * Set {@link Executor} list for specified class and {@link BatchPresentation}.
+     *
+     * @param oldCachedData
+     *            Old state for caching data.
+     * @param clazz
+     *            Type of executors. Must be {@link Executor} or it subclass.
+     * @param batch
+     *            Presentation for executors.
+     * @param executors
+     *            Executor list for specified class and presentation. Will be returned on next {@link #getAllExecutor(Class, BatchPresentation)} call
+     *            with specified class and presentation.
+     */
     public <T extends Executor> void addAllExecutor(VersionedCacheData<List<T>> oldCachedData, Class<?> clazz, BatchPresentation batch,
             List<T> executors) {
-        ExecutorCacheImpl cache = CachingLogic.getCacheImplIfNotLocked(this);
+        ManageableExecutorCache cache = CachingLogic.getCacheImplIfNotLocked(stateMachine);
         if (cache == null) {
             return;
         }
         cache.addAllExecutor(oldCachedData, clazz, batch, executors);
+    }
+
+    private static class ExecutorCacheFactory extends SMCacheFactory<ManageableExecutorCache> {
+
+        ExecutorCacheFactory() {
+            super(Type.LAZY, new DefaultCacheTransactionalExecutor());
+        }
+
+        @Override
+        protected ManageableExecutorCache createCacheStubImpl() {
+            return new ExecutorCacheStub();
+        }
+
+        @Override
+        protected ManageableExecutorCache createCacheImpl(CacheInitializationProcessContext context) {
+            return new ExecutorCacheImpl(context);
+        }
     }
 }
