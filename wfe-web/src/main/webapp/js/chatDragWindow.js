@@ -13,11 +13,11 @@ $(document).ready(function() {
 	    var shiftY = e.pageY - coords.top;//позиция мыши веритикальная документа - расстояние от верхней границы элемента
 	    var shiftY2 = e.pageY - coords.top;
 
-	    windowChat[0].style.position = "relative";
-	    //document.body.appendChild(windowChat);
-	    //moveAt(e);
+	    windowChat[0].style.position = "fixed";
+	    //document.body.appendChild(windowChat[0]);
+	    moveAt(e);
 
-	    //windowChat[0].style.zIndex = 1000; // над другими элементами
+	    windowChat[0].style.zIndex = 1000; // над другими элементами
 
 	    function moveAt(e) {
 	    	windowChat[0].style.left = e.pageX - shiftX + 'px';

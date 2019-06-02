@@ -131,9 +131,7 @@ $(document).ready(function() {
 	   }
 	   	}
    //btnCl.onclick=function(){}
-   $( function() {
-	    $( ".modal-content" ).resizable();
-	  } );
+  
    function chatCheckCycle(){
 	   var promise = new Promise(function(resolve, reject) {
 		   //var urlString = "/wfe/ajaxcmd?command=GettingChatMessage&chatId="+$('#ChatForm').attr('chatId')+"&lastMessageId="+0;

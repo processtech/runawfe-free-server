@@ -8,7 +8,7 @@
         }
         .modal {
             display: none; /* скрыто по умолчанию */
-            position: fixed;  /*Stay in place */
+            position: absolute;  /*Stay in place */
             /*z-index: 1;  Sit on top */
             padding-top: 480px; /* Location of the box */
             left: 0;
@@ -80,7 +80,7 @@
         text-decoration: underline; /* Добавляем подчеркивание */
         }
         .modal-content {
-            position: relative;
+            position: absolute;
             background-color: #e9eaed;
             margin: auto;
             padding: 0;
@@ -95,44 +95,37 @@
             animation-duration: 0.4s
         }
 
-
-        @-webkit-keyframes animatetop {
-            from {top:-300px; opacity:0}
-            to {top:0; opacity:1}
-        }
-
-        @keyframes animatetop {
-            from {top:-300px; opacity:0}
-            to {top:0; opacity:1}
-        }
-
-
-        .close {
-            color: white;
+        #close {
             float: right;
-            font-size: 10pt;
             font-weight: bold;
+            font-size: larger;
+        color: rgb(68,68,68);
+        border: 1px solid rgba(0,0,0,.1); 
+    height: 22px;
         }
 
-        .close:hover,
-        .close:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
+     #close:hover{
+	 color: rgb(24,24,24);
+  border: 1px solid rgb(198,198,198);
+  background: #f7f7f7 linear-gradient(#f7f7f7, #f1f1f1);
+  box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
 
         .modal-header {
             padding: 2px 16px;
             background-color: #e9eaed;
             color: white;
-            height: 40px;
+            height: 25px;
             font-size: 11pt;
+            resize: horizontal;
         }
         .modal-header-dragg {
         padding: 5px 50px;
-            background-color: #e9eaed;
-            color: white;
-            height: 30px;
+            position: fixed;
+            background-color: #ffffff00;
+            left: 40px;
+            cursor: move;width: 250px;height: 20px;padding-right: 10px;padding-left: 20px;
+            resize: horizontal;
         }
         .modal-body {
             padding: 2px 16px;
@@ -151,17 +144,19 @@
             padding: 2px 16px;
             background-color: #e9eaed;
             color: white;
+            resize: horizontal;
         }
       
         textarea {
         font-family: Verdana, Arial, Helvetica, sans-serif;
             font-size: 10pt; /* Размер шрифта в пунктах */
-        resize: none;
+        resize: horizontal;
         }
         #btnOp {
-        float:right;
+        float:left;
         color: rgb(68,68,68);
-        border: 1px solid rgba(0,0,0,.1);
+        border: 1px solid rgba(0,0,0,.1);       
+        height: 22px;
         }
         #btnOp:hover {
   color: rgb(24,24,24);
@@ -169,59 +164,6 @@
   background: #f7f7f7 linear-gradient(#f7f7f7, #f1f1f1);
   box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
-        
-        
-        
-        
-        
-        .ui-resizable-handle {
-	position: absolute;
-	font-size: 0.1px;
-	z-index: 99999;
-	display: block;
-}
-.ui-resizable-disabled .ui-resizable-handle,
-.ui-resizable-autohide .ui-resizable-handle {
-	display: none;
-}
-.ui-resizable-n { /* верхняя граница */
-	cursor: n-resize;
-	display: none;
-}
-.ui-resizable-s { /* нижняя граница */
-	cursor: s-resize;
-	display: none;
-}
-.ui-resizable-e { /* правая граница */
-	cursor: e-resize;
-	display: none;
-}
-.ui-resizable-w { /* левая граница */
-	cursor: w-resize;
-	display: none;
-}
-.ui-resizable-se { /* правый нижний уголок */
-	cursor: se-resize;
-	width: 7px;
-	height: 7px;
-	right: 1px;
-	bottom: 1px;
-	background: url(path-to/resize-rb.gif); /* углам и границам можно задать любой фон */
-}
-.ui-resizable-sw { /* левый нижний уголок */
-	cursor: sw-resize;
-	width: 7px;
-	height: 7px;
-	left: 1px;
-	bottom: 1px;
-	background: url(path-to/resize-lb.gif);
-}
-.ui-resizable-nw { /* левый верхний уголок */
-	cursor: nw-resize;
-	display: none;
-}
-.ui-resizable-ne { /* правый верхний уголок */
-	cursor: ne-resize;
-	display: none;
-}
+
+
         
