@@ -15,9 +15,9 @@ $(document).ready(function() {
 
 	    windowChat[0].style.position = "relative";
 	    //document.body.appendChild(windowChat);
-	    moveAt(e);
+	    //moveAt(e);
 
-	    windowChat[0].style.zIndex = 1000; // над другими элементами
+	    //windowChat[0].style.zIndex = 1000; // над другими элементами
 
 	    function moveAt(e) {
 	    	windowChat[0].style.left = e.pageX - shiftX + 'px';

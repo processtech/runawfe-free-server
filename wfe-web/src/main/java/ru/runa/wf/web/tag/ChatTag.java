@@ -63,12 +63,7 @@ Button upScaleChat=new Button();
 upScaleChat.addElement(imageOpenChat);
 upScaleChat.setID("btnOp");
 upScaleChat.setType("button");
-upScaleChat.setStyle("float:right");
-
-Button downScaleChat=new Button();
-
-downScaleChat.setID("btnCl");
-downScaleChat.setType("button");
+//upScaleChat.setStyle("");
 
 Button sendMessageChat=new Button();
 sendMessageChat.addElement("Отправить");
@@ -129,7 +124,6 @@ styleButton.addElement("#myBtn{width: 100px;float:right;} #btnOp{background-colo
 modalHeader.addElement(modalHeaderDragg);
 modalHeader.addElement(closeChat);
 modalHeader.addElement(upScaleChat);
-modalHeader.addElement(downScaleChat);
 
 modalContetnt.addElement(modalHeader);
 
