@@ -23,7 +23,16 @@ public class ChatSessionHandler {
     	try {
 			session.getBasicRemote().sendText(message.toString());
 		} catch (IOException e) {
-			sessions.remove(session);
+			//sessions.remove(session);
+		}
+    }
+    public void sendToAll(JSONObject message) {
+    	try {
+    		for(Session session : sessions){
+    			session.getBasicRemote().sendText(message.toString());
+    		}
+		} catch (IOException e) {
+			//sessions.remove(session);
 		}
     }
 }

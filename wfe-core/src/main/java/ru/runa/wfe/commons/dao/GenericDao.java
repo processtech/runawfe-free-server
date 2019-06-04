@@ -1,11 +1,14 @@
 package ru.runa.wfe.commons.dao;
 
 import com.google.common.base.Preconditions;
+
+import java.io.Console;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
 
 /**
  * General DAO implementation (type-safe generic DAO pattern).

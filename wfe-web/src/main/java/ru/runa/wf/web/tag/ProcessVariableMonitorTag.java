@@ -123,7 +123,6 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);
 
         RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext);
-        ((ProcessVariablesRowBuilder)rowBuilder).setMassBool(flagOpen);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
     }
 
