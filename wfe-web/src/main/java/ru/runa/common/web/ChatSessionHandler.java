@@ -4,14 +4,15 @@ import javax.enterprise.context.ApplicationScoped;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Set;
+//import java.util.Set;
 import javax.websocket.Session;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.json.simple.JSONObject;
 
 @ApplicationScoped
 public class ChatSessionHandler {
-    private final Set<Session> sessions = new HashSet<>();
+    private final CopyOnWriteArraySet<Session> sessions = new CopyOnWriteArraySet<Session>();
     
     public void addSession(Session session) {
         sessions.add(session);
