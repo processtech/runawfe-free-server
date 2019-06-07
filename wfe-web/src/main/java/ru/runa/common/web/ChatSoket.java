@@ -12,11 +12,14 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+import javax.xml.bind.JAXBContext;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.logic.ChatLogic;
@@ -24,7 +27,11 @@ import ru.runa.wfe.user.User;
 
 @ApplicationScoped
 @ServerEndpoint("/actions")
+@Component
 public class ChatSoket {
+	
+@Autowired
+private ChatLogic chatLogic;
 
 @Inject
 private ChatSessionHandler sessionHandler;
@@ -60,7 +67,8 @@ private ChatSessionHandler sessionHandler;
 	 String type1 = (String) object0.get("type");
 	 if(((String)object0.get("type")).equals("newMessage")) {
 		 //добавить сообщение
-		 ChatLogic chatLogic = new ChatLogic();
+		 
+		 //ChatLogic chatLogic = new ChatLogic();
 		 ChatMessage newMessage = new ChatMessage();
 		 newMessage.setText((String) object0.get("message"));
 		 newMessage.setAllMessage((String) object0.get("message"));
@@ -95,6 +103,7 @@ private ChatSessionHandler sessionHandler;
 		 messagesArray.add(object1);
 		 sendObject.put("newMessage", 0);
 		 sendObject.put("messages",messagesArray);
+		 
 		 //
 		 sessionHandler.sendToAll(sendObject);
 	 }

@@ -3,10 +3,13 @@ package ru.runa.wfe.chat.logic;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.user.User;
 
+@Component
 public class ChatLogic extends WfCommonLogic {
 
 	public ChatMessage getMessage(int chatId,User user,int messageId) {
