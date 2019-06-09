@@ -17,9 +17,11 @@
  */
 package ru.runa.wfe.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -44,6 +46,16 @@ import ru.runa.wfe.var.file.FileVariableImpl;
  * @since 4.0
  */
 public interface ExecutionService {
+	
+	//код Румянцева чат
+	public ArrayList<ChatMessage> getMessages(int chatId);
+	
+	public ChatMessage getMessage(int chatId,int messageId);
+	
+	public ArrayList<ChatMessage> getMessages(int chatId,int firstIndex);
+	//возвращает id нового сообщения в БД
+	public int setMessage(int chatId, ChatMessage message);
+	//
 
     /**
      * Starts new process by definition.

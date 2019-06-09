@@ -2,6 +2,8 @@ package ru.runa.wfe.chat.dao;
 
 import java.util.List;
 
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.stereotype.Component;
 
 import ru.runa.wfe.chat.ChatMessage;
@@ -9,7 +11,9 @@ import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.commons.dao.GenericDao;
 
 @Component
+@ComponentScan(basePackages="ru.runa.*")
 @SuppressWarnings({ "unchecked", "rawtypes" })
+@ImportResource({"classpath:system.context.xml"})
 public class ChatDao extends GenericDao<ChatMessage> {
 
     public List<ChatMessage> getAll(int chatId) {

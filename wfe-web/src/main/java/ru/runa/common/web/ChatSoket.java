@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.websocket.OnClose;
@@ -14,24 +15,40 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import javax.xml.bind.JAXBContext;
 
+import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.stereotype.Component;
+//import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.logic.ChatLogic;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 @ApplicationScoped
+//@ServerEndpoint(value = "/actions", configurator = SpringConfigurator.class)
 @ServerEndpoint("/actions")
-@Component
+//@Component
+//@ComponentScan(basePackages= {"ru.runa.*"})
+//@ImportResource({"classpath:system.context.xml"})
 public class ChatSoket {
-	
-@Autowired
-private ChatLogic chatLogic;
+//@Autowired
+//private ChatLogic chatLogic;
+/*
+@PostConstruct
+public void init() {
+    SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);    
+}
+*/
+
+Logger logger = Logger.getLogger(ChatSoket.class);
 
 @Inject
 private ChatSessionHandler sessionHandler;
@@ -55,6 +72,7 @@ private ChatSessionHandler sessionHandler;
 
  @OnMessage
  public void handleMessage(String message, Session session) {
+	//Delegates.getExecutionService().getMessage(0, 0);
 	 JSONObject object0 = new JSONObject();
 	 JSONParser parser = new JSONParser();
 	 try {
@@ -68,7 +86,6 @@ private ChatSessionHandler sessionHandler;
 	 if(((String)object0.get("type")).equals("newMessage")) {
 		 //добавить сообщение
 		 
-		 //ChatLogic chatLogic = new ChatLogic();
 		 ChatMessage newMessage = new ChatMessage();
 		 newMessage.setText((String) object0.get("message"));
 		 newMessage.setAllMessage((String) object0.get("message"));
@@ -80,7 +97,7 @@ private ChatSessionHandler sessionHandler;
 		 	}
 		 }
 		 newMessage.setIerarchyMessage(hierarchyMessagesIds);
-		 int newMessId = chatLogic.setMessage(Integer.parseInt((String) object0.get("chatId")), newMessage);
+		 int newMessId = Delegates.getExecutionService().setMessage(Integer.parseInt((String) object0.get("chatId")), newMessage);
 		 newMessage.setId(newMessId);
 		 //отправка по чату всем:
 		 JSONObject sendObject = new JSONObject();

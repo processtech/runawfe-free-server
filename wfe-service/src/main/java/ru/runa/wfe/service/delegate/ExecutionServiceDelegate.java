@@ -17,9 +17,14 @@
  */
 package ru.runa.wfe.service.delegate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.jws.WebMethod;
+
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -39,7 +44,28 @@ import ru.runa.wfe.var.file.FileVariableImpl;
  * Created on 28.09.2004
  */
 public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionService {
-
+	//
+    @Override
+    public ArrayList<ChatMessage> getMessages(int chatId) {
+    	 return getExecutionService().getMessages(chatId);
+	}
+    
+    @Override
+	public ChatMessage getMessage(int chatId,int messageId) {
+    	return getExecutionService().getMessage(chatId, messageId);
+	}
+    
+    @Override
+	public ArrayList<ChatMessage> getMessages(int chatId,int firstIndex) {
+    	return getExecutionService().getMessages(chatId, firstIndex);
+	}
+    
+	//возвращает id нового сообщения в БД
+    @Override
+	public int setMessage(int chatId, ChatMessage message) {
+    	return getExecutionService().setMessage(chatId, message);
+	}
+    //
     public ExecutionServiceDelegate() {
         super(ExecutionService.class);
     }

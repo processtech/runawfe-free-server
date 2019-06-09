@@ -19,6 +19,8 @@ package ru.runa.wfe.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.ejb.Stateless;
@@ -35,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -81,6 +85,34 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     private ExecutionLogic executionLogic;
     @Autowired
     private VariableLogic variableLogic;
+    
+    //test!!
+    @Autowired
+    private ChatLogic chatLogic;
+    
+    @WebMethod(exclude = true)
+    @Override
+    public ArrayList<ChatMessage> getMessages(int chatId) {
+    	 return chatLogic.getMessages(chatId);
+	}
+    @WebMethod(exclude = true)
+    @Override
+	public ChatMessage getMessage(int chatId,int messageId) {
+    	return chatLogic.getMessage(chatId, messageId);
+	}
+    @WebMethod(exclude = true)
+    @Override
+	public ArrayList<ChatMessage> getMessages(int chatId,int firstIndex) {
+    	return chatLogic.getMessages(chatId, firstIndex);
+	}
+    
+	//возвращает id нового сообщения в БД
+    @WebMethod(exclude = true)
+    @Override
+	public int setMessage(int chatId, ChatMessage message) {
+    	return chatLogic.setMessage(chatId, message);
+	}
+    //
 
     @WebMethod(exclude = true)
     @Override

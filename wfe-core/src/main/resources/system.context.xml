@@ -267,6 +267,7 @@
 	<bean id="reportLogic" class="ru.runa.wfe.report.logic.ReportLogic" />
 	<bean id="adminScriptLogic" class="ru.runa.wfe.script.logic.AdminScriptLogic" />
 	<bean id="chatLogic" class="ru.runa.wfe.chat.logic.ChatLogic" />
+	<bean id="chatDao" class="ru.runa.wfe.chat.dao.ChatDao" />
 
 	<bean id="dbTransactionalInitializer" class="ru.runa.wfe.commons.dbpatch.DbTransactionalInitializer" />
 	<bean id="initializerLogic" class="ru.runa.wfe.commons.dbpatch.InitializerLogic" />
