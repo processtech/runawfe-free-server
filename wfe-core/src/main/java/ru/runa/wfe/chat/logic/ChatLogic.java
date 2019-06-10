@@ -40,10 +40,16 @@ public class ChatLogic extends WfCommonLogic {
 		//message.setId(messages.size());
 		//messages.add(message);
 		//ChatMessage newMessage=chatDao.create(message);
-		ChatMessage newMessage=chatDao.save(message);
+		int newId=-1;
+		try {
+			newId = chatDao.save(message);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//return (messages.size()-1);
 		//переделать - временно - вернуть новый id сообщения
-		return newMessage.getId();
+		return newId;
 	}
 	
 	//
