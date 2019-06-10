@@ -105,7 +105,7 @@
 				--%>
 				<%= WebResources.getAdditionalLinks() %>
 				<div style="padding: 3px; color: #aaa;">
-					<bean:message key="title.version"/> <b><%= Version.get() %></b>
+					<bean:message key="title.version"/> <b><%= Version.get() %> Free</b>
 				</div>
 				<div style="padding: 3px; color: #ccc;">
 					<bean:message key="title.build"/>
