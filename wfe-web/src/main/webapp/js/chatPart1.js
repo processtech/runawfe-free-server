@@ -191,6 +191,7 @@ $(document).ready(function() {
 	
 	//функция приёма сообщения
 	function addMessages(data){
+		var flagAttach=0;
 		if(data.newMessage==0){
 			for(let mes=0;mes<data.messages.length;mes++){
 				if(data.messages[mes].text !=null){
@@ -203,8 +204,18 @@ $(document).ready(function() {
 					messageBody+="</td></tr>" + hierarhyMass;
 					messageBody+= "<tr><td>"+ data.messages[mes].dateTime + "</td><td><a class=\"addReply\" id=\"messReply"+(lastMessageId)+"\" mesNumber=\""+data.messages[mes].id+"\"> Ответить</a></td></tr></table >";
 					$(".modal-body").append(messageBody);
+					if(flagAttach==0){
 					document.getElementById("messReply"+(lastMessageId+mes)).onclick=function(){
 						attachedPosts.push($(this).attr("mesNumber"));
+						$(this).text("Ответить");
+						flagAttach=1;}
+					}
+					else if(flagAttach==1){
+						document.getElementById("messReply"+(lastMessageId+mes)).onclick=function(){
+							attachedPosts.push($(this).attr("mesNumber"));
+							$(this).text("Отменить");
+							flagAttach=0;
+						}
 					}
 					addOnClickHierarchyOpen();
 					lastMessageId+=1;
@@ -212,7 +223,7 @@ $(document).ready(function() {
 			}
 		}//if(data.newMessage==0) конец
 	}
-	//бновление свернутого чата, пока не работает (30,05,20019)
+	//бновление свернутого чата, пока не работает (30,05,2019)
 	function addNewMessagesCount(data){
 		if(data.newMessageCount>0){
 			 document.getElementById("indicateNewMessage").append("<td>ok</td>");
