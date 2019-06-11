@@ -49,7 +49,7 @@ $(document).ready(function() {
    newMessage.chatId=$('#ChatForm').attr('chatId');
    newMessage.idHierarchyMessage = idHierarchyMessage;
    newMessage.type="newMessage";
-   newMessage.author=nameAuthor;
+   newMessage.author=nameAuthor.responseText;
    chatSocket.send(JSON.stringify(newMessage));
    attachedPosts=[];
    }
