@@ -1,4 +1,5 @@
 $(document).ready(function() {
+	var nameAuthor=authorDataCheak()
 	var attachedPosts=[];
 	var switchCheak=0;
 	var chatForm=document.getElementById('ChatForm');
@@ -48,6 +49,7 @@ $(document).ready(function() {
    newMessage.chatId=$('#ChatForm').attr('chatId');
    newMessage.idHierarchyMessage = idHierarchyMessage;
    newMessage.type="newMessage";
+   newMessage.author=nameAuthor;
    chatSocket.send(JSON.stringify(newMessage));
    attachedPosts=[];
    }
@@ -133,6 +135,22 @@ $(document).ready(function() {
 			}
 	 });
    }
+   
+   function authorDataCheak(){
+		 let urlString = "/wfe/ajaxcmd?command=GetAuthorData&chatId="+$('#ChatForm').attr('chatId');
+		 return $.ajax({
+				type: "POST",
+				url: urlString,
+				dataType: "json",
+				contentType: "application/json; charset=UTF-8",
+				processData: false,
+				success: function(data) {
+					let ajaxRet="";
+					ajaxRet=data.author;
+						return ajaxRet;
+				}//if(data.newMessage==0) конец
+		 });
+	   }
    
    function addOnClickHierarchyOpen(){
 	   let elements = $(".openHierarchy");
