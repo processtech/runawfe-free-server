@@ -15,15 +15,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.wfe.extension.handler;
+package ru.runa.wf.logic.bot;
 
 import ru.runa.wfe.extension.handler.sql.AbstractSqlHandler;
+import ru.runa.wfe.service.client.FileVariableProxy;
+import ru.runa.wfe.var.file.FileVariable;
 
 /**
- * Executes SQL.
- *
- * @author dofs[197@gmail.com]
+ * @created on 01.04.2005 as DatabaseTaskHandler
  */
-public class SqlActionHandler extends AbstractSqlHandler {
+public class SqlTaskHandler extends AbstractSqlHandler {
+
+    @Override
+    protected FileVariable unproxyFileVariable(FileVariable fileVariable) {
+        if (fileVariable instanceof FileVariableProxy) {
+            return ((FileVariableProxy) fileVariable).getUnproxiedFileVariable();
+        }
+        return super.unproxyFileVariable(fileVariable);
+    }
 
 }
