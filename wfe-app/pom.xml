@@ -21,14 +21,15 @@
 		<downloadJavadocs>true</downloadJavadocs>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.organization.name>runawfe.org</project.organization.name>
-		<spring.version>3.1.2.RELEASE</spring.version>
-		<!--spring.version>4.3.17.RELEASE</spring.version-->
-		<!--spring.version>5.0.6.RELEASE</spring.version-->
+		<!-- <spring.version>3.1.2.RELEASE</spring.version> -->
+		<spring.version>4.3.17.RELEASE</spring.version>
+		<!-- <spring.version>5.0.6.RELEASE</spring.version> -->
 		<querydsl.version>4.2.1</querydsl.version>
 		<project.build.cactus>false</project.build.cactus>
 		<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
 		<maven.profile.hibernate.datasource>java:jboss/datasources/ExampleDS</maven.profile.hibernate.datasource>
 		<maven.profile.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.profile.hibernate.dialect>
+		<!-- <maven.profile.hibernate.dialect>org.hibernate.dialect.MySQLDialect</maven.profile.hibernate.dialect> -->
 		<maven.profile.user.transaction.jndi.name>java:jboss/UserTransaction</maven.profile.user.transaction.jndi.name>
 		<maven.profile.javamelody.disabled>false</maven.profile.javamelody.disabled>
 		<maven.build.timestamp.format>dd.MM.yyyy</maven.build.timestamp.format>
@@ -161,49 +162,19 @@
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate</artifactId>
-				<version>3.2.4.sp1</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>ehcache</artifactId>
-						<groupId>net.sf.ehcache</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>asm</artifactId>
-						<groupId>asm</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>asm-attrs</artifactId>
-						<groupId>asm</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>cglib</artifactId>
-						<groupId>cglib</groupId>
-					</exclusion>
-				</exclusions>
+				<artifactId>hibernate-core</artifactId>
+				<version>4.3.11.Final</version>
+			</dependency>
+ 			<dependency>
+				<groupId>net.sf.ehcache</groupId>
+				<artifactId>ehcache-core</artifactId>
+				<version>2.6.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-annotations</artifactId>
-				<version>3.2.1.ga</version>
+				<artifactId>hibernate-ehcache</artifactId>
+				<version>4.3.11.Final</version>
 			</dependency>
-			<dependency>
-				<groupId>net.sf.ehcache</groupId>
-				<artifactId>ehcache-core</artifactId>
-				<version>2.4.3</version>
-			</dependency>
-			<dependency>
-				<groupId>cglib</groupId>
-				<artifactId>cglib</artifactId>
-				<version>3.0</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>asm</artifactId>
-						<groupId>asm</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-
 			<dependency>
 				<groupId>jcifs</groupId>
 				<artifactId>jcifs</artifactId>

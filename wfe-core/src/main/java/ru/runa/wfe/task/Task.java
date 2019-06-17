@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import java.util.Date;
 import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -21,7 +22,6 @@ import javax.persistence.Version;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.CollectionOfElements;
 import ru.runa.wfe.audit.CurrentTaskAssignLog;
 import ru.runa.wfe.audit.CurrentTaskCancelledLog;
 import ru.runa.wfe.audit.CurrentTaskEndByAdminLog;
@@ -169,7 +169,7 @@ public class Task implements Assignable {
         this.deadlineDateExpression = deadlineDateExpression;
     }
 
-    @CollectionOfElements
+    @ElementCollection
     @JoinTable(name = "BPM_TASK_OPENED", joinColumns = { @JoinColumn(name = "TASK_ID", nullable = false, updatable = false) })
     @Column(name = "EXECUTOR_ID", updatable = false)
     public Set<Long> getOpenedByExecutorIds() {

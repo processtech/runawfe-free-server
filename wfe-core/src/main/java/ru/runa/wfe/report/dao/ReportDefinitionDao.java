@@ -2,7 +2,7 @@ package ru.runa.wfe.report.dao;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.presentation.BatchPresentation;

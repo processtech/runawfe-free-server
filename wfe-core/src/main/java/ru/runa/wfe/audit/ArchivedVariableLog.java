@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 @Entity
-@DiscriminatorValue(value = "0")
+@DiscriminatorValue(value = "P")
 public abstract class ArchivedVariableLog extends ArchivedProcessLog implements VariableLog {
 
     @Override
@@ -44,6 +44,7 @@ public abstract class ArchivedVariableLog extends ArchivedProcessLog implements 
         return CurrentAndArchiveCommons.variableLog_getVariableNewValue(this);
     }
 
+    @Override
     @Transient
     public Object getVariableNewValueForPattern() {
         return CurrentAndArchiveCommons.variableLog_getVariableNewValueForPattern(this);

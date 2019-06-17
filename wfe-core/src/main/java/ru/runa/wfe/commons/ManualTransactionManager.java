@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.annotation.PostConstruct;
+import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -57,7 +58,13 @@ public class ManualTransactionManager {
         R result;
         TransactionStatus txStatus = txManager.getTransaction(txDefinition);
         try {
-            result = callable.call(sessionFactory.getCurrentSession().connection());
+            result = sessionFactory.getCurrentSession().doReturningWork(connection -> {
+                try {
+                    return callable.call(connection);
+                } catch (Exception e) {
+                    throw new HibernateException(e);
+                }
+            });
         } catch (Throwable e) {
             txManager.rollback(txStatus);
             throw e;
@@ -67,12 +74,19 @@ public class ManualTransactionManager {
     }
 
     public void runInTransaction(TxRunnable runnable) throws Exception {
-        callInTransaction(new TxCallable<Object>() {
-            @Override
-            public Object call(Connection conn) throws Exception {
-                runnable.run(conn);
-                return null;
-            }
-        });
+        TransactionStatus txStatus = txManager.getTransaction(txDefinition);
+        try {
+            sessionFactory.getCurrentSession().doWork(connection -> {
+                try {
+                    runnable.run(connection);
+                } catch (Exception e) {
+                    throw new HibernateException(e);
+                }
+            });
+        } catch (Throwable e) {
+            txManager.rollback(txStatus);
+            throw e;
+        }
+        txManager.commit(txStatus);
     }
 }

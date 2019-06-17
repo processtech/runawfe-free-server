@@ -5,8 +5,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -206,9 +206,17 @@ public class DbMigrationManager {
                         stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
                         stmt.executeUpdate();
                     }
-
+                }
+            });
+            txManager.runInTransaction(new TxRunnable() {
+                @Override
+                public void run(Connection conn) throws Exception {
                     migration.execute();
-
+                }
+            });
+            txManager.runInTransaction(new TxRunnable() {
+                @Override
+                public void run(Connection conn) throws Exception {
                     try (val stmt = conn.prepareStatement("update db_migration set when_finished = ? where name = ?")) {
                         stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
                         stmt.setString(2, name);

@@ -2,7 +2,6 @@ package ru.runa.wfe.commons.dbmigration.impl;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import lombok.val;
 import lombok.var;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
@@ -18,29 +17,30 @@ public class SupportProcessArchivingBefore extends DbMigration {
     protected void executeDDLBefore() throws Exception {
 
         // Sanity check.
-        val conn = sessionFactory.getCurrentSession().connection();
-        try (Statement stmt = conn.createStatement()) {
-            var rs = stmt.executeQuery("select count(*) from bpm_agglog_tasks where end_reason is not null and end_reason not between -1 and 6");
-            rs.next();
-            long n = rs.getLong(1);
-            if (n > 0) {
-                throw new RuntimeException("Column bpm_agglog_tasks.end_reason contains " + n + " invalid value(s). Migration aborted.");
-            }
+        sessionFactory.getCurrentSession().doWork(conn -> {
+            try (Statement stmt = conn.createStatement()) {
+                var rs = stmt.executeQuery("select count(*) from bpm_agglog_tasks where end_reason is not null and end_reason not between -1 and 6");
+                rs.next();
+                long n = rs.getLong(1);
+                if (n > 0) {
+                    throw new RuntimeException("Column bpm_agglog_tasks.end_reason contains " + n + " invalid value(s). Migration aborted.");
+                }
 
-            rs = stmt.executeQuery("select count(*) from bpm_agglog_assignments where discriminator <> 'T'");
-            rs.next();
-            n = rs.getLong(1);
-            if (n > 0) {
-                throw new RuntimeException("Column bpm_agglog_assignments.discriminator contains " + n + " non-'T' values. Migration aborted.");
-            }
+                rs = stmt.executeQuery("select count(*) from bpm_agglog_assignments where discriminator <> 'T'");
+                rs.next();
+                n = rs.getLong(1);
+                if (n > 0) {
+                    throw new RuntimeException("Column bpm_agglog_assignments.discriminator contains " + n + " non-'T' values. Migration aborted.");
+                }
 
-            rs = stmt.executeQuery("select count(*) from bpm_agglog_assignments where assignment_object_id is null");
-            rs.next();
-            n = rs.getLong(1);
-            if (n > 0) {
-                throw new RuntimeException("Column bpm_agglog_assignments.assignment_object_id contains " + n + " null(s). Migration aborted.");
+                rs = stmt.executeQuery("select count(*) from bpm_agglog_assignments where assignment_object_id is null");
+                rs.next();
+                n = rs.getLong(1);
+                if (n > 0) {
+                    throw new RuntimeException("Column bpm_agglog_assignments.assignment_object_id contains " + n + " null(s). Migration aborted.");
+                }
             }
-        }
+        });
 
         executeUpdates(
                 getDDLDropTable("bpm_agglog_process"),

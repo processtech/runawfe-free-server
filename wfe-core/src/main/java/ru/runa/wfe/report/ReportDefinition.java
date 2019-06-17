@@ -15,7 +15,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -117,7 +116,7 @@ public class ReportDefinition {
 
     @OneToMany(targetEntity = ReportParameter.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "REPORT_ID", nullable = false)
-    @OrderColumn(name = "IDX")
+    // @OrderColumn(name = "IDX")
     public List<ReportParameter> getParameters() {
         return parameters;
     }

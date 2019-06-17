@@ -5,10 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.var.Converter;
 
@@ -65,13 +64,14 @@ public class ConverterEnumType implements UserType {
     }
 
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner) throws HibernateException, SQLException {
+    public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor session, Object owner) throws HibernateException, SQLException {
         String converterDatabaseId = resultSet.getString(names[0]);
         return ApplicationContextFactory.getConverters().getConverterByDatabaseId(converterDatabaseId);
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index) throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index, SessionImplementor session)
+            throws HibernateException, SQLException {
         String converterDatabaseId = ApplicationContextFactory.getConverters().getConverterId((Converter) value);
         preparedStatement.setString(index, converterDatabaseId);
     }

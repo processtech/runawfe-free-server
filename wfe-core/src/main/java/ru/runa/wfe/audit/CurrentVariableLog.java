@@ -4,14 +4,9 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.presentation.ExecutorNameValue;
-import ru.runa.wfe.audit.presentation.FileValue;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableDefinition;
-import ru.runa.wfe.var.converter.FileVariableToByteArrayConverter;
-import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
-import ru.runa.wfe.var.converter.StringToByteArrayConverter;
 import ru.runa.wfe.var.file.FileVariable;
 
 /**
@@ -20,7 +15,7 @@ import ru.runa.wfe.var.file.FileVariable;
  * @author Dofs
  */
 @Entity
-@DiscriminatorValue(value = "0")
+@DiscriminatorValue(value = "+")
 public abstract class CurrentVariableLog extends CurrentProcessLog implements VariableLog {
     private static final long serialVersionUID = 1L;
 
@@ -88,6 +83,7 @@ public abstract class CurrentVariableLog extends CurrentProcessLog implements Va
         return CurrentAndArchiveCommons.variableLog_getVariableNewValue(this);
     }
 
+    @Override
     @Transient
     public Object getVariableNewValueForPattern() {
         return CurrentAndArchiveCommons.variableLog_getVariableNewValueForPattern(this);

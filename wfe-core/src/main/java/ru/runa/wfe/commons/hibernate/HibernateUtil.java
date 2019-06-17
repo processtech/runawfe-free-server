@@ -33,12 +33,11 @@ public class HibernateUtil {
     public static void clearSecondLevelCaches(Class<?>... onlyClasses) {
         val sf = ApplicationContextFactory.getSessionFactory();
 
-        @SuppressWarnings("unchecked")
         Map<String, ClassMetadata> classMetadata = sf.getAllClassMetadata();
         for (val cm : classMetadata.values()) {
             val aep = (AbstractEntityPersister) cm;
             if (aep.hasCache() && clearSecondLevelCaches_shouldDoForClass(aep.getEntityType().getReturnedClass(), onlyClasses)) {
-                sf.evictEntity(aep.getCache().getRegionName());
+                sf.getCache().evictEntityRegion(aep.getEntityType().getReturnedClass());
             }
         }
 
@@ -47,7 +46,7 @@ public class HibernateUtil {
         for (val cm : collMetadata.values()) {
             val acp = (AbstractCollectionPersister) cm;
             if (acp.hasCache() && clearSecondLevelCaches_shouldDoForClass(acp.getElementType().getReturnedClass(), onlyClasses)) {
-                sf.evictCollection(acp.getCache().getRegionName());
+                sf.getCache().evictCollectionRegion(acp.getRole());
             }
         }
     }

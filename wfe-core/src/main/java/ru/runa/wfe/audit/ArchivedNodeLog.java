@@ -6,7 +6,7 @@ import javax.persistence.Transient;
 import ru.runa.wfe.lang.NodeType;
 
 @Entity
-@DiscriminatorValue(value = "0")
+@DiscriminatorValue(value = "H")
 public abstract class ArchivedNodeLog extends ArchivedProcessLog implements NodeLog {
 
     @Override

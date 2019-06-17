@@ -2,9 +2,6 @@ package ru.runa.wfe.commons.hibernate;
 
 import com.google.common.base.Preconditions;
 import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import lombok.val;
@@ -84,28 +81,5 @@ public abstract class DbAwareEnumType<T, E extends DbAwareEnum<T>> implements Us
     @Override
     public Class<?> returnedClass() {
         return enumClass;
-    }
-
-    @Override
-    public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
-        val o = rs.getObject(names[0], sqlClass);
-        if (o == null) {
-            return null;
-        }
-        val ei = registry.get(o);
-        if (ei == null) {
-            throw new RuntimeException("Unknown DB value '" + o + "' for enum " + enumClass.getCanonicalName());
-        }
-        return ei;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
-        if (value == null) {
-            st.setNull(index, types[0]);
-        } else {
-            st.setObject(index, ((E)value).getDbValue(), types[0]);
-        }
     }
 }
