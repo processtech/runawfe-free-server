@@ -67,10 +67,10 @@ public abstract class AbstractSqlHandler extends CommonHandler {
                 connection = jdbcDataSource.getConnection();
             } else { // jndi
                 Context context = new InitialContext();
-                if (dsValue.startsWith(DataSourceStuff.PATH_PREFIX_JNDI_NAME) || colonIndex == -1) {
-                    dsName = dsValueId;
-                } else {
+                if (dsValue.startsWith(DataSourceStuff.PATH_PREFIX_JNDI_NAME_VARIABLE)) {
                     dsName = (String) variableProvider.getValue(dsValueId);
+                } else {
+                    dsName = dsValueId;
                 }
                 connection = ((DataSource) context.lookup(dsName)).getConnection();
             }
