@@ -22,14 +22,16 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.organization.name>runawfe.org</project.organization.name>
 		<!-- <spring.version>3.1.2.RELEASE</spring.version> -->
-		<spring.version>4.3.17.RELEASE</spring.version>
-		<!-- <spring.version>5.0.6.RELEASE</spring.version> -->
+		<!-- <spring.version>4.3.17.RELEASE</spring.version> -->
+		<spring.version>5.1.8.RELEASE</spring.version>
+		<!-- <hibernate.version>4.3.11.Final</hibernate.version> -->
+		<hibernate.version>5.1.17.Final</hibernate.version>
+		<!-- <hibernate.version>5.4.3.Final</hibernate.version> -->
 		<querydsl.version>4.2.1</querydsl.version>
 		<project.build.cactus>false</project.build.cactus>
 		<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
 		<maven.profile.hibernate.datasource>java:jboss/datasources/ExampleDS</maven.profile.hibernate.datasource>
 		<maven.profile.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.profile.hibernate.dialect>
-		<!-- <maven.profile.hibernate.dialect>org.hibernate.dialect.MySQLDialect</maven.profile.hibernate.dialect> -->
 		<maven.profile.user.transaction.jndi.name>java:jboss/UserTransaction</maven.profile.user.transaction.jndi.name>
 		<maven.profile.javamelody.disabled>false</maven.profile.javamelody.disabled>
 		<maven.build.timestamp.format>dd.MM.yyyy</maven.build.timestamp.format>
@@ -122,6 +124,11 @@
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-tx</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.freemarker</groupId>
 				<artifactId>freemarker</artifactId>
 				<version>2.3.23</version>
@@ -163,7 +170,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>4.3.11.Final</version>
+				<version>${hibernate.version}</version>
 			</dependency>
  			<dependency>
 				<groupId>net.sf.ehcache</groupId>
@@ -173,7 +180,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-ehcache</artifactId>
-				<version>4.3.11.Final</version>
+				<version>${hibernate.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jcifs</groupId>

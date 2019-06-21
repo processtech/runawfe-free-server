@@ -195,44 +195,52 @@ public abstract class DbMigration {
     protected final List<String> getDDLCreateSequence(String sequenceName) {
         checkIndentifierLength(sequenceName);
         switch (dbType) {
-            case ORACLE:
-            case POSTGRESQL:
-                return list("create sequence " + sequenceName);
-            default:
-                return null;
+        case ORACLE:
+        case POSTGRESQL:
+        case H2:
+        case MYSQL:
+            return list("create sequence " + sequenceName);
+        default:
+            return null;
         }
     }
 
     protected final List<String> getDDLCreateSequence(String sequenceName, long nextValue) {
         checkIndentifierLength(sequenceName);
         switch (dbType) {
-            case ORACLE:
-            case POSTGRESQL:
-                return list("create sequence " + sequenceName + " start with " + nextValue);
-            default:
-                return null;
+        case ORACLE:
+        case POSTGRESQL:
+        case H2:
+        case MYSQL:
+            return list("create sequence " + sequenceName + " start with " + nextValue);
+        default:
+            return null;
         }
     }
 
     protected final List<String> getDDLDropSequence(String sequenceName) {
         switch (dbType) {
-            case ORACLE:
-            case POSTGRESQL:
-                return list("drop sequence " + sequenceName);
-            default:
-                return null;
+        case ORACLE:
+        case POSTGRESQL:
+        case H2:
+        case MYSQL:
+            return list("drop sequence " + sequenceName);
+        default:
+            return null;
         }
     }
 
     protected final List<String> getDDLRenameSequence(String sequenceName, String newName) {
         checkIndentifierLength(newName);
         switch (dbType) {
-            case ORACLE:
-                return list("rename " + sequenceName + " to " + newName);
-            case POSTGRESQL:
-                return list("alter sequence " + sequenceName + " rename to " + newName);
-            default:
-                return null;
+        case ORACLE:
+            return list("rename " + sequenceName + " to " + newName);
+        case POSTGRESQL:
+            return list("alter sequence " + sequenceName + " rename to " + newName);
+        case H2:
+            return list("drop sequence " + sequenceName, "create sequence " + newName);
+        default:
+            return null;
         }
     }
 

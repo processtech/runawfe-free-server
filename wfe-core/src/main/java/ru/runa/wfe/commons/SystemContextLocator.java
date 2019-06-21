@@ -2,9 +2,9 @@ package ru.runa.wfe.commons;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.access.BeanFactoryLocator;
-import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 import org.springframework.context.ConfigurableApplicationContext;
+import ru.runa.wfe.springframework4.beans.factory.access.BeanFactoryLocator;
+import ru.runa.wfe.springframework4.beans.factory.access.SingletonBeanFactoryLocator;
 
 /**
  * Code copied from
