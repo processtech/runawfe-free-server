@@ -39,9 +39,6 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.ProcessSuspendLog;
-import ru.runa.wfe.audit.TaskAssignLog;
-import ru.runa.wfe.audit.TaskCreateLog;
-import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
@@ -245,9 +242,6 @@ public class ExecutionLogic extends WfCommonLogic {
             Swimlane swimlane = swimlaneDao.findOrCreate(process, startTaskSwimlaneDefinition);
             swimlane.assignExecutor(executionContext, predefinedProcessStarter, true);
         }
-        processLogDao.addLog(new TaskCreateLog(process, startNode), process, process.getRootToken());
-        processLogDao.addLog(new TaskAssignLog(process, startNode, user.getActor()), process, process.getRootToken());
-        processLogDao.addLog(new TaskEndLog(process, startNode, user.getActor()), process, process.getRootToken());
         log.info(process + " was successfully started by " + user);
         return process.getId();
     }
