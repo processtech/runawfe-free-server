@@ -18,20 +18,21 @@
 
 package ru.runa.wf.web;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
@@ -42,11 +43,6 @@ import ru.runa.wf.web.action.LoadProcessDefinitionHtmlFileAction;
 import ru.runa.wf.web.form.DefinitionFileForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * 
@@ -270,6 +266,7 @@ public class FormPresentationUtils {
                 }
                 addClassAttribute(node, Resources.CLASS_INVALID);
             }
+            node.setAttribute("invalid", "true");
             // avoiding multiple error labels
             errors.remove(inputName);
         }
