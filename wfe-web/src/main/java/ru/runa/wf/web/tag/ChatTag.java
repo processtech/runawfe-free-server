@@ -133,6 +133,16 @@ chatDiv.addElement(modalContetnt);
 
 box.addElement(updateVariableTR);
 box.addElement(chatDiv);
+Div newMessagesIndicator = new Div();
+Div countNewMessages = new Div();
+countNewMessages.setID("countNewMessages");
+countNewMessages.setClass("countNewMessages");
+newMessagesIndicator.addElement("У вас ");
+newMessagesIndicator.addElement(countNewMessages);
+newMessagesIndicator.addElement(" пропущеных сообщений");
+newMessagesIndicator.setID("newMessagesIndicator");
+newMessagesIndicator.setClass("newMessagesIndicator");
+tdFormElement.addElement(newMessagesIndicator);
 tdFormElement.addElement(box);
 }
 

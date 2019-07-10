@@ -7,7 +7,6 @@ $(document).ready(function() {
 	var btnOpenChat = document.getElementById("openChatButton");
 	
 	var btnLoadNewMessage=document.getElementById("loadNewBessageButton");
-	var btn2 = document.getElementById("btnSend");
 	var btnOp=document.getElementById("btnOp");
 	var imgButton=document.getElementById("imgButton");
 	//флаг обозначающий состояние(развернут или свернут)ли чат
@@ -36,8 +35,17 @@ $(document).ready(function() {
 		   chatSocket.send(firstMessages);
 	}
 	//функция пишущая кол-во непрочитанных сообщений = numberNewMessages
-	function updatenumberNewMessages(numberNewMessages0){ //доделать в конец функции вывод numberNewMessages!
+	function updatenumberNewMessages(numberNewMessages0){
 		numberNewMessages = numberNewMessages0;
+		document.getElementById("countNewMessages").innerHTML=""+numberNewMessages+"";
+	}
+	function updateLastReadMessage(){
+		let newSend0={};
+		newSend0.chatId=$('#ChatForm').attr('chatId');
+		newSend0.type="setChatUserInfo";
+		newSend0.currentMessageId=currentMessageId;
+		let sendObject0 = JSON.stringify(newSend0);
+		chatSocket.send(sendObject0);
 	}
 	chatSocket.onopen=function(){
 		//запрос 20 последних сообщений
@@ -55,6 +63,7 @@ $(document).ready(function() {
 //-----------
 	btnLoadNewMessage.onclick=function(){
 		if(blocOldMes==0){
+		   
 		   blocOldMes=1;
 		//запрос 20 сообщений старых
 		   newxtMessages(20);
@@ -67,13 +76,8 @@ $(document).ready(function() {
 			switchCheak=1;
 			//"в прочитанные все"
 			currentMessageId = maxMassageId;
-			numberNewMessages=0;
-			let newSend0={};
-			newSend0.chatId=$('#ChatForm').attr('chatId');
-			newSend0.type="setChatUserInfo";
-			newSend0.currentMessageId=currentMessageId;
-			let sendObject0 = JSON.stringify(newSend0);
-			chatSocket.send(sendObject0);
+			updatenumberNewMessages(0);
+			updateLastReadMessage();
 		}
 	}
 	//закрытие (сворачивание) чата
@@ -87,14 +91,6 @@ $(document).ready(function() {
    var heightModalC=$('.modal-content').height();
    var widthModalC=$('.modal-content').width();
    
-   /*
-	$('textarea').keypress(function(e) {
-	    if (e.which == 13){
-	    var text = $(this).val();
-		$(this).val(text + '\n ');
-	    return false;
-	    }
-	});*/
    btnSend.onclick=function send() {
    let message = document.getElementById("message").value;
    message = message.replace(/\n/g, "<br/>");
@@ -140,7 +136,7 @@ $(document).ready(function() {
 	   	});
 		$('.modal-header-dragg').css({
 	   		
-	   	    width: '530px',
+	   	    width: '515px',
 	   	});
 		$('.modal-footer').css({
 	   		
@@ -214,7 +210,7 @@ $(document).ready(function() {
 				   let thisElem=$(".openHierarchy")[0];
 				   $(this).next(".loadedHierarchy")[0].style.display="none";
 					$(this).attr("openFlag","0");
-					$(this).text("Развернуть");
+					$(this).text("Развернуть вложенные сообщения");
 					return 0;
 			   }
 			   else{
@@ -275,11 +271,11 @@ $(document).ready(function() {
 					
 					let text0 = data.messages[mes].text;
 					text0.replace(/([\s*$])\n/ig,"<br/>");
-					var messageBody="<table class=\"selectionTextQuote\"><tr><td><div class=\"author\" class=\"author\">"+data.messages[mes].author+"</div> :"+text0 ;
+					var messageBody="<table class=\"selectionTextQuote\"><tr><td><div class=\"author\" class=\"author\">"+data.messages[mes].author+":</div>"+text0 ;
 					var hierarhyMass="";
 					//тут получаем id вложенных
 					if(data.messages[mes].hierarchyMessageFlag==1){
-						hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesId=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
+						hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesId=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть вложенные сообщения</a><div class=\"loadedHierarchy\"></div></td></tr>";
 					}
 					//"развернуть"
 					messageBody+="</td></tr>" + hierarhyMass;
@@ -296,6 +292,10 @@ $(document).ready(function() {
 						$(".modal-body").append(messageBody);
 						if(switchCheak==0){//+1 непрочитанное сообщение
 							updatenumberNewMessages(numberNewMessages+1);
+						}
+						else{
+							currentMessageId = maxMassageId;
+							updateLastReadMessage();
 						}
 					}
 					else{
@@ -321,12 +321,6 @@ $(document).ready(function() {
 				}
 			}
 		}//if(data.newMessage==0) конец
-	}
-	//бновление свернутого чата, пока не работает (30,05,20019)
-	function addNewMessagesCount(data){
-		if(data.newMessageCount>0){
-			 document.getElementById("indicateNewMessage").append("<td>ok</td>");
-		}
 	}
 	//удаление сообщений
 	function deleteMessage(){
