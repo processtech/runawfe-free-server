@@ -274,7 +274,7 @@ $(document).ready(function() {
 					}
 					
 					let text0 = data.messages[mes].text;
-					text0.replace(/(?[^\.*])\n/ig,"<br/>");
+					text0.replace(/([\s*$])\n/ig,"<br/>");
 					var messageBody="<table class=\"selectionTextQuote\"><tr><td><div class=\"author\" class=\"author\">"+data.messages[mes].author+"</div> :"+text0 ;
 					var hierarhyMass="";
 					//тут получаем id вложенных
