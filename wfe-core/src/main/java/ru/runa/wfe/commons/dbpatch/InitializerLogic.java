@@ -19,6 +19,7 @@ package ru.runa.wfe.commons.dbpatch;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -57,6 +58,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddTransactionalBotSupport;
 import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
+import ru.runa.wfe.commons.dbpatch.impl.CreateChatDB;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandVarcharPatch;
@@ -156,6 +158,8 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
         patches.add(AddProcessExternalData.class);
+        //chat
+        patches.add(CreateChatDB.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 
@@ -189,6 +193,9 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
      * Apply patches to initialized database.
      */
     private void applyPatches(int databaseVersion) {
+        
+        //databaseVersion--;//для патча чата, временно!
+
         log.info("Database version: " + databaseVersion + ", code version: " + dbPatches.size());
         while (databaseVersion < dbPatches.size()) {
             DbPatch patch = null;

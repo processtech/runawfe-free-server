@@ -38,6 +38,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
@@ -92,26 +93,62 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     
     @WebMethod(exclude = true)
     @Override
-    public ArrayList<ChatMessage> getMessages(int chatId) {
-    	 return chatLogic.getMessages(chatId);
-	}
+    public ArrayList<ChatMessage> getChatMessages(int chatId) {
+         return chatLogic.getMessages(chatId);
+    }
     @WebMethod(exclude = true)
     @Override
-	public ChatMessage getMessage(int chatId,int messageId) {
-    	return chatLogic.getMessage(chatId, messageId);
-	}
+    public ChatMessage getChatMessage(int chatId,long messageId) {
+        return chatLogic.getMessage(chatId, messageId);
+    }
     @WebMethod(exclude = true)
     @Override
-	public ArrayList<ChatMessage> getMessages(int chatId,int firstIndex) {
-    	return chatLogic.getMessages(chatId, firstIndex);
-	}
+    public ArrayList<ChatMessage> getChatMessages(int chatId,int firstIndex, int count) {
+        return chatLogic.getMessages(chatId, firstIndex, count);
+    }
+    @WebMethod(exclude = true)
+    @Override
+    public long getChatAllMessagesCount(int chatId) {
+        return chatLogic.getAllMessagesCount(chatId);
+    }
     
-	//возвращает id нового сообщения в БД
     @WebMethod(exclude = true)
     @Override
-	public int setMessage(int chatId, ChatMessage message) {
-    	return chatLogic.setMessage(chatId, message);
-	}
+    public ArrayList<ChatMessage> getChatFirstMessages(int chatId, int count){
+        return chatLogic.getFirstMessages(chatId, count);
+    }
+    @WebMethod(exclude = true)
+    @Override
+    public void deleteChatMessage(long messId) {
+        chatLogic.deleteMessage(messId);
+    }
+    @WebMethod(exclude = true)
+    @Override
+    public ArrayList<Integer> getChatAllConnectedChatId(int chatId){
+        return chatLogic.getAllConnectedChatId(chatId);
+    }
+    @WebMethod(exclude = true)
+    @Override
+    public ChatsUserInfo getChatUserInfo(long userId,String userName, int chatId){
+        return chatLogic.getUserInfo(userId, userName, chatId);
+    }
+    @WebMethod(exclude = true)
+    @Override
+    public long getChatNewMessagesCount(long lastMessageId, int chatId) {
+        return chatLogic.getNewMessagesCount(lastMessageId, chatId);
+    }
+    @WebMethod(exclude = true)
+    @Override
+    public void updateChatUserInfo(long userId,String userName, int chatId, long lastMessageId) {
+        chatLogic.updateUserInfo(userId, userName, chatId, lastMessageId);
+    }
+    
+    //возвращает id нового сообщения в БД
+    @WebMethod(exclude = true)
+    @Override
+    public int setChatMessage(int chatId, ChatMessage message) {
+        return chatLogic.setMessage(chatId, message);
+    }
     //
 
     @WebMethod(exclude = true)

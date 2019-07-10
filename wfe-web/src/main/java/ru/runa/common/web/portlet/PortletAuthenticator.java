@@ -23,4 +23,5 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface PortletAuthenticator {
     public boolean authenticate(HttpServletRequest request, HttpServletResponse response, PortletSession session);
+    
 }

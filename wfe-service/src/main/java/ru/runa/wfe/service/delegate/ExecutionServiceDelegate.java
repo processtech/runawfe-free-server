@@ -21,10 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.jws.WebMethod;
-
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -44,27 +43,58 @@ import ru.runa.wfe.var.file.FileVariableImpl;
  * Created on 28.09.2004
  */
 public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionService {
-	//
+    //
     @Override
-    public ArrayList<ChatMessage> getMessages(int chatId) {
-    	 return getExecutionService().getMessages(chatId);
-	}
+    public ArrayList<ChatMessage> getChatMessages(int chatId) {
+         return getExecutionService().getChatMessages(chatId);
+    }
     
     @Override
-	public ChatMessage getMessage(int chatId,int messageId) {
-    	return getExecutionService().getMessage(chatId, messageId);
-	}
+    public ChatMessage getChatMessage(int chatId,long messageId) {
+        return getExecutionService().getChatMessage(chatId, messageId);
+    }
     
     @Override
-	public ArrayList<ChatMessage> getMessages(int chatId,int firstIndex) {
-    	return getExecutionService().getMessages(chatId, firstIndex);
-	}
+    public ArrayList<ChatMessage> getChatMessages(int chatId,int firstId, int count) {
+        return getExecutionService().getChatMessages(chatId, firstId, count);
+    }
     
-	//возвращает id нового сообщения в БД
     @Override
-	public int setMessage(int chatId, ChatMessage message) {
-    	return getExecutionService().setMessage(chatId, message);
-	}
+    public ArrayList<ChatMessage> getChatFirstMessages(int chatId, int count){
+        return getExecutionService().getChatFirstMessages(chatId, count);
+    }
+    
+    @Override
+    public void deleteChatMessage(long messId) {
+        getExecutionService().deleteChatMessage(messId);
+    }
+    @Override
+    public ChatsUserInfo getChatUserInfo(long userId,String userName, int chatId){
+        return getExecutionService().getChatUserInfo(userId, userName, chatId);
+    }
+    @Override
+    public long getChatNewMessagesCount(long lastMessageId, int chatId) {
+        return getExecutionService().getChatNewMessagesCount(lastMessageId, chatId);
+    }
+    @Override
+    public void updateChatUserInfo(long userId,String userName, int chatId, long lastMessageId) {
+        getExecutionService().updateChatUserInfo(userId, userName, chatId, lastMessageId);
+    }
+    
+    @Override
+    public long getChatAllMessagesCount(int chatId) {
+        return getExecutionService().getChatAllMessagesCount(chatId);
+    }
+    @Override
+    public ArrayList<Integer> getChatAllConnectedChatId(int chatId){
+        return getExecutionService().getChatAllConnectedChatId(chatId);
+    }
+    
+    //возвращает id нового сообщения в БД
+    @Override
+    public int setChatMessage(int chatId, ChatMessage message) {
+        return getExecutionService().setChatMessage(chatId, message);
+    }
     //
     public ExecutionServiceDelegate() {
         super(ExecutionService.class);
@@ -149,7 +179,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     @Override
     public List<WfVariable> getVariables(User user, Long processId) {
         try {
-        	ExecutionService a=getExecutionService();
+            ExecutionService a=getExecutionService();
             return getExecutionService().getVariables(user, processId);
         } catch (Exception e) {
             throw handleException(e);

@@ -1,120 +1,120 @@
 package ru.runa.wfe.chat;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.hibernate.annotations.Type;
-
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.VariableCreateLog;
-import ru.runa.wfe.audit.VariableDeleteLog;
-import ru.runa.wfe.audit.VariableLog;
-import ru.runa.wfe.audit.VariableUpdateLog;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.Converter;
-import ru.runa.wfe.var.VariableDefinition;
-import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
-
-import com.google.common.base.MoreObjects;
-
-import ru.runa.wfe.user.User;
 
 @Entity
-@Table(name = "ChatMessage")
+@Table(name = "CHAT_MESSAGE")
 public class ChatMessage {
 
-	@Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name="message_id")
-	private int id;
-	@Column(name="text")
-	private String text;
-	@Column(name="ierarchy_message")
-	private ArrayList<Integer> ierarchyMessage=new ArrayList<Integer>();
-	@Column(name="all_message")
-	private ArrayList<String> allMessage=new ArrayList<String>();
-	
-	//private User user;
-	@Column(name="chat_id")
-	private int chatId;
-	
-	public String getText() {
-		return text;
-	}
+    private long id;
+    private long userId;
+    private String userName;
+    private String text;
+    private String ierarchyMessage;
+    private int chatId;
+    //
+    private Timestamp date;
+    //
+    @Column(name="TEXT")
+    public String getText() {
+        return text;
+    }
 
-	public void setText(String text) {
-		this.text = text;
-	}
+    public void setText(String text) {
+        this.text = text;
+    }
+    
+    @Transient
+    public ArrayList<Integer> getIerarchyMessageArray() {
+        ArrayList<Integer> ierarchyMessage0=new ArrayList<Integer>();
+        
+         String messagesIds[]=ierarchyMessage.split(":");
+         for(int i=0;i<messagesIds.length;i++) {
+               if(!(messagesIds[i].isEmpty())) {
+                   ierarchyMessage0.add(Integer.parseInt(messagesIds[i]));
+             }
+         }
+         
+        return ierarchyMessage0;
+    }
+    @Transient
+    public void setIerarchyMessageArray(ArrayList<Integer> ierarchyMessage) {
+        String newierarchyMessage="";
+        if(ierarchyMessage.size()>0)
+        {
+            for(int i=0; i<ierarchyMessage.size()-1; i++) {
+                newierarchyMessage+=ierarchyMessage.get(i).toString()+":";
+            }
+            newierarchyMessage+=ierarchyMessage.get(ierarchyMessage.size()-1).toString();
+        }
+        this.ierarchyMessage = newierarchyMessage;
+    }
+    //
+    @Column(name="IERARCHY_MESSAGE")
+    public String getIerarchyMessage() {
+        return ierarchyMessage;
+    }
 
-	public ArrayList<Integer> getIerarchyMessage() {
-		return ierarchyMessage;
-	}
+    public void setIerarchyMessage(String ierarchyMessage) {
+        this.ierarchyMessage = ierarchyMessage;
+    }
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE", allocationSize = 1)
+    @Column(name="MESSAGE_ID")
+    public long getId() {
+        return id;
+    }
 
-	public void setIerarchyMessage(ArrayList<Integer> ierarchyMessage) {
-		this.ierarchyMessage = ierarchyMessage;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
+    
+    @Column(name="CHAT_ID")
+    public int getChatId() {
+        return chatId;
+    }
 
-	public ArrayList<String> getAllMessage() {
-		return allMessage;
-	}
-	
-	public void setAllMessage(ArrayList<String> allMessage) {
-		this.allMessage = allMessage;
-	}
-	public void setAllMessage(String allMessage) {
-		this.allMessage.add(allMessage);
-	}
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
+    }
 
-	public int getId() {
-		return id;
-	}
+    @Column(name="Message_Date")
+    public Timestamp getDate() {
+        return date;
+    }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public void setDate(Timestamp date) {
+        this.date = date;
+    }
 
-	public int getChatId() {
-		return chatId;
-	}
+    @Column(name="USER_ID")
+    public long getUserId() {
+        return userId;
+    }
 
-	public void setChatId(int chatId) {
-		this.chatId = chatId;
-	}
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
 
-	/*
-	public User getUser() {
-		return user;
-	}
+    @Column(name="USER_NAME")
+    public String getUserName() {
+        return userName;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-	*/
-	
-	
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+    
 }

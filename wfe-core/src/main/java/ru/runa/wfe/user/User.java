@@ -38,7 +38,7 @@ public class User implements Principal, Serializable {
     private Actor actor;
     private byte[] securedKey;
 
-    protected User() {
+    public User() {
     }
 
     /**
