@@ -17,15 +17,15 @@ public class ChatSoketConfigurator extends ServerEndpointConfig.Configurator {
         String paramStrings[] = request.getRequestURI().getQuery().split("=");
         int chatId = -1;
         for(int i=0; i<paramStrings.length; i++) {
-        	if(paramStrings[i].equals("chatId")) {
-        		i++;
-        		if(i<paramStrings.length)
-        			chatId=Integer.parseInt(paramStrings[i]);
-        	}
+            if(paramStrings[i].equals("chatId")) {
+                i++;
+                if(i<paramStrings.length)
+                    chatId=Integer.parseInt(paramStrings[i]);
+            }
         }
         config.getUserProperties().put(HttpSession.class.getName(),httpSession);
         config.getUserProperties().put("chatId",chatId);
-   	    User user = Commons.getUser(httpSession);
-   	    config.getUserProperties().put("user", user);
+        User user = Commons.getUser(httpSession);
+        config.getUserProperties().put("user", user);
     }
 }
