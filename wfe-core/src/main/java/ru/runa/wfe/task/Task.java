@@ -65,7 +65,9 @@ import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.task.logic.TaskNotifier;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 
 /**
  * is one task that can be assigned to an actor (read: put in someone's task list) and that can trigger the continuation of execution of the token
@@ -270,9 +272,13 @@ public class Task implements Assignable {
         if (!Objects.equal(getExecutor(), executor)) {
             log.debug("assigning " + this + " to " + executor);
             Executor previousExecutor = getExecutor();
-            // log this assignment
-            executionContext.addLog(new TaskAssignLog(this, executor));
-            // do the actual assignment
+            Set<Actor> assignedActors;
+            if (executor instanceof Group) {
+                assignedActors = Sets.newHashSet(ApplicationContextFactory.getExecutorDAO().getGroupActors((Group) executor));
+            } else {
+                assignedActors = Sets.newHashSet((Actor) executor);
+            }
+            executionContext.addLog(new TaskAssignLog(this, previousExecutor, executor, assignedActors));
             setExecutor(executor);
             setAssignDate(new Date());
             InteractionNode node = (InteractionNode) executionContext.getProcessDefinition().getNodeNotNull(nodeId);

@@ -247,12 +247,17 @@ public abstract class Node extends GraphElement {
             Token parentToken = executionContext.getToken().getParent();
             ((Node) getParentElement()).onBoundaryEvent(new ExecutionContext(executionContext.getProcessDefinition(), parentToken),
                     (BoundaryEvent) this);
-            for (Token token : parentToken.getActiveChildren()) {
+            for (Token token : parentToken.getChildren()) {
                 if (Objects.equal(token, executionContext.getToken())) {
                     continue;
                 }
-                token.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executionContext),
-                        true);
+                if (token.hasEnded()) {
+                    // inactive ParallelGateway behaviour
+                    token.setAbleToReactivateParent(false);
+                } else {
+                    token.end(executionContext.getProcessDefinition(), null,
+                            ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executionContext), true);
+                }
             }
         }
 
