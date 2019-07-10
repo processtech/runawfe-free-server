@@ -33,16 +33,11 @@ return test;
 
 @Override
 protected void fillFormData(TD tdFormElement) {
-
-IMG imageOpenChat=new IMG();
-imageOpenChat.setSrc("/wfe/images/chat_expand.png");
-imageOpenChat.setID("imgButton");
-imageOpenChat.setAlt("open");
-imageOpenChat.setStyle("vertical-align: middle; width: 12px;  height: 12px;padding-bottom: 2px;");
-IMG imageCloseChat=new IMG();
-imageCloseChat.setSrc("/wfe/images/chat_roll_up.png");
-imageCloseChat.setAlt("close");
-imageCloseChat.setStyle("vertical-align: middle; width: 12px;  height: 12px;padding-bottom: 2px;");
+IMG imageChatExpand=new IMG();
+imageChatExpand.setSrc("/wfe/images/chat_roll_up.png");
+imageChatExpand.setAlt("close");
+imageChatExpand.setID("imgButton");
+imageChatExpand.setStyle("vertical-align: middle; width: 12px;  height: 12px;padding-bottom: 2px;");
 Div  chatDiv=new Div();
 chatDiv.setStyle("display: none");
 chatDiv.setID("ChatForm");
@@ -58,7 +53,7 @@ buttonOpenChat.addElement("Открыть чат");
 
 
 Button upScaleChat=new Button();
-upScaleChat.addElement(imageCloseChat);
+upScaleChat.addElement(imageChatExpand);
 upScaleChat.setID("btnOp");
 upScaleChat.setType("button");
 
@@ -75,6 +70,7 @@ closeChat.setType("button");
 TextArea messageSend=new TextArea();
 messageSend.setName("message");
 messageSend.setID("message");
+messageSend.addAttribute("placeholder", "Введите текст сообщения");
 
 Input sendToAdress=new Input();
 sendToAdress.setType("text");

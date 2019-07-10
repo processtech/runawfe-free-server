@@ -87,14 +87,14 @@ $(document).ready(function() {
    var heightModalC=$('.modal-content').height();
    var widthModalC=$('.modal-content').width();
    
-   //
+   /*
 	$('textarea').keypress(function(e) {
 	    if (e.which == 13){
 	    var text = $(this).val();
 		$(this).val(text + '\n ');
 	    return false;
 	    }
-	});
+	});*/
    btnSend.onclick=function send() {
    let message = document.getElementById("message").value;
    message = message.replace(/\n/g, "<br/>");
@@ -274,7 +274,7 @@ $(document).ready(function() {
 					}
 					
 					let text0 = data.messages[mes].text;
-					text0.replace(/\n/ig,"<br/>");
+					text0.replace(/(?[^\.*])\n/ig,"<br/>");
 					var messageBody="<table class=\"selectionTextQuote\"><tr><td><div class=\"author\" class=\"author\">"+data.messages[mes].author+"</div> :"+text0 ;
 					var hierarhyMass="";
 					//тут получаем id вложенных
@@ -284,10 +284,10 @@ $(document).ready(function() {
 					//"развернуть"
 					messageBody+="</td></tr>" + hierarhyMass;
 					//"ответить"
-					messageBody+= "<tr><td><hr class=\"hr-dashed\">"+ data.messages[mes].dateTime + "</td><td><div class=\"hr-dashed-vertical\"><a class=\"addReply\" id=\"messReply"+(lastMessageIndex)+"\" mesId=\""+data.messages[mes].id+"\" flagAttach=\"false\"> Ответить</a></div></td></tr>";
+					messageBody+= "<tr><td><hr class=\"hr-dashed\">"+ data.messages[mes].dateTime + "<hr class=\"hr-dashed\"></td><td><div class=\"hr-dashed-vertical\"><a class=\"addReply\" id=\"messReply"+(lastMessageIndex)+"\" mesId=\""+data.messages[mes].id+"\" flagAttach=\"false\"> Ответить</a></div></td></tr>";
 					//админ
 					if($(".modal-body").attr("admin")=="true"){
-						messageBody+="<tr><td>"+"<hr class=\"hr-dashed\"><a class=\"deleterMessage\" id=\"messDeleter"+(lastMessageIndex)+"\" mesId=\""+data.messages[mes].id+"\">удалить</a>"+"</td></tr>";
+						messageBody+="<tr><td>"+"<a class=\"deleterMessage\" id=\"messDeleter"+(lastMessageIndex)+"\" mesId=\""+data.messages[mes].id+"\">удалить</a>"+"</td></tr>";
 					}
 					//конец
 					messageBody+="</table >";
@@ -315,7 +315,7 @@ $(document).ready(function() {
 							attachedPosts.splice(pos0, 1);
 						}
 					}
-					document.getElementById("messDeleter"+(lastMessageIndex/*+mes*/)).onclick=deleteMessage;
+					document.getElementById("messDeleter"+(lastMessageIndex/*+mes*/)).onclick=deleteMessage;			
 					addOnClickHierarchyOpen();
 					lastMessageIndex+=1;
 				}
@@ -331,12 +331,14 @@ $(document).ready(function() {
 	//удаление сообщений
 	function deleteMessage(){
 		   //сокет
+		if(confirm("Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно")){
 		   let newMessage={};
 		   newMessage.messageId=$(this).attr("mesId");
 		   newMessage.chatId=$('#ChatForm').attr('chatId');
 		   newMessage.type="deleteMessage";
 		   chatSocket.send(JSON.stringify(newMessage));
 		   $(this).parent().parent().parent().parent().remove();
+		}
 	}
 	//тест сокет
 	//приём с сервера
