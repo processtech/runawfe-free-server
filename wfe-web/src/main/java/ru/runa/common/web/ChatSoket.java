@@ -30,7 +30,7 @@ configurator = ChatSoketConfigurator.class)
 public class ChatSoket {
 @Inject
 private ChatSessionHandler sessionHandler;
-    
+
  @OnOpen
  public void open(Session session, EndpointConfig config) {
      sessionHandler.addSession(session);

@@ -49,17 +49,17 @@ public class ChatMessage {
     }
     @Transient
     public void setIerarchyMessageArray(ArrayList<Integer> ierarchyMessage) {
-        String newierarchyMessage="";
+        StringBuilder newierarchyMessage=new StringBuilder(ierarchyMessage.size()*4);
         if(ierarchyMessage.size()>0)
         {
             for(int i=0; i<ierarchyMessage.size()-1; i++) {
-                newierarchyMessage+=ierarchyMessage.get(i).toString()+":";
+                newierarchyMessage.append(ierarchyMessage.get(i).toString()).append(':');
             }
-            newierarchyMessage+=ierarchyMessage.get(ierarchyMessage.size()-1).toString();
+            newierarchyMessage.append(ierarchyMessage.size()-1);
         }
-        this.ierarchyMessage = newierarchyMessage;
+        this.ierarchyMessage = newierarchyMessage.toString();
     }
-    //
+
     @Column(name="IERARCHY_MESSAGE")
     public String getIerarchyMessage() {
         return ierarchyMessage;
