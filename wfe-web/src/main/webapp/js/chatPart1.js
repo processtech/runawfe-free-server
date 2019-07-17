@@ -180,10 +180,13 @@ $(document).ready(function() {
 			contentType: "application/json; charset=UTF-8",
 			processData: false,
 			success: function(data) {
+				/*
 				let ajaxRet="";
 				if(data.newMessage==0){
 					for(let mes=0;mes<data.messages.length;mes++){
 						if(data.messages[mes].text !=null){
+							//
+							
 							let messageBody="<table class=\"quote\"><tr class=\"selectionTextAdditional\"><td>Цитата:"+data.messages[mes].author+"</td></tr><tr><td>"+ data.messages[mes].text ;
 							let hierarhyMass="";
 							//тут получаем id вложенных
@@ -196,10 +199,11 @@ $(document).ready(function() {
 							ajaxRet=ajaxRet+messageBody;
 							
 						}
-				}
+					}
 					return ajaxRet;
 			}//if(data.newMessage==0) конец
-			}
+			*/
+		}
 	 });
    }
    
@@ -224,7 +228,11 @@ $(document).ready(function() {
 						let thisElem=$(".openHierarchy")[0];
 						let element=this;
 						hierarhyCheak($(element).attr("mesId")).then(ajaxRet=>{
-							$(this).next(".loadedHierarchy").append(getMessagesText(ajaxRet));						
+							
+							messagesRetMass = getMessagesText(ajaxRet);
+							for(let i=0; i<messagesRetMass.length; i++)
+								$(this).next(".loadedHierarchy").append(messagesRetMass[i]);
+							//$(this).next(".loadedHierarchy").append(getMessagesText(ajaxRet));						
 							addOnClickHierarchyOpen();
 							$(element).attr("loadFlag", "1");
 							$(this).attr("openFlag","1");
@@ -236,24 +244,40 @@ $(document).ready(function() {
 			});
    }
 	function getMessagesText(data) {
-		let ajaxRet="";
+		let ajaxRet=[];
+		//let ajaxRet="";
 		if(data.newMessage==0){
 			for(let mes=0;mes<data.messages.length;mes++){
 				if(data.messages[mes].text !=null){
+					
+					let messageBody = $('<table></table>').addClass('quote');
+					messageBody.append($('<tr></tr>').addClass('selectionTextAdditional').append($('<td></td>').text("Цитата: "+data.messages[mes].author)));
+					messageBody.append($('<tr></tr>').append($('<td></td>').text(data.messages[mes].text)));
+					if(data.messages[mes].hierarchyMessageFlag==1){
+						let openHierarchy0 = $('<a></a>').addClass('openHierarchy');
+						openHierarchy0.attr('mesId', data.messages[mes].id);
+						openHierarchy0.attr('loadFlag', 0);
+						openHierarchy0.attr('openFlag', 0);
+						openHierarchy0.text('Развернуть вложенные сообщения');
+						messageBody.append($('<tr></tr>').append($('<td></td>').append(openHierarchy0).append($('<div></div>').addClass('loadedHierarchy'))));
+					}
+					
+					/*
 					let messageBody="<table class=\"quote\"><tr class=\"selectionTextAdditional\"><td>Цитата:"+data.messages[mes].author+"</td></tr><tr><td>"+ data.messages[mes].text ;
 					let hierarhyMass="";
 					//тут получаем id вложенных
 					if(data.messages[mes].hierarchyMessageFlag==1){
-						hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesId=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
+						hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesId=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть вложенные сообщения</a><div class=\"loadedHierarchy\"></div></td></tr>";
 					}
 					messageBody+="</td></tr>" + hierarhyMass;
 					messageBody+= "</table >";
 					ajaxRet=ajaxRet+messageBody;
-					
+					*/
+					ajaxRet.push(messageBody);
 				}
-		}
+			}
 			return ajaxRet;
-	}//if(data.newMessage==0) конец
+		}//if(data.newMessage==0) конец
 	}
 	
 	//функция приёма сообщения
