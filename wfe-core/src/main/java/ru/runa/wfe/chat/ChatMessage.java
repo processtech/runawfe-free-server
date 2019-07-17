@@ -55,7 +55,7 @@ public class ChatMessage {
             for(int i=0; i<ierarchyMessage.size()-1; i++) {
                 newierarchyMessage.append(ierarchyMessage.get(i).toString()).append(':');
             }
-            newierarchyMessage.append(ierarchyMessage.size()-1);
+            newierarchyMessage.append(ierarchyMessage.get(ierarchyMessage.size()-1).toString());
         }
         this.ierarchyMessage = newierarchyMessage.toString();
     }
