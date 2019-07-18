@@ -4,13 +4,12 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "CHATS_USER_INFO")
-//@IdClass(ChatUser.class)
 public class ChatsUserInfo {
     ChatsUserInfo(){}
-    public ChatsUserInfo(ChatUser chatUser){
-        setUserId(chatUser.getUserId());
-        setUserName(chatUser.getUserName());
-        setChatId(chatUser.getChatId());
+    public ChatsUserInfo(int chatId0, String userName0, long userId0){
+    	chatId=chatId0;
+    	userName=userName0;
+    	userId=userId0;
     }
     @Column(name="LAST_MESSAGE_NAME")
     public long getLastMessageId() {
@@ -19,10 +18,6 @@ public class ChatsUserInfo {
     public void setLastMessageId(long lastMessageId) {
         this.lastMessageId = lastMessageId;
     }
-    
-    //
-    
-    //@Id
     @Column(name="USER_ID")
     public long getUserId() {
         return userId;
@@ -54,23 +49,10 @@ public class ChatsUserInfo {
     public void setId(long id) {
         this.id = id;
     }
-    //остаток от попытки сделать класс ChatUser первичным ключом
-    /*
-    @Id
-    @AttributeOverrides({
-    @AttributeOverride(name = "userId",
-    column = @Column(name="USER_ID")),
-    @AttributeOverride(name = "userName",
-    column = @Column(name="USER_NAME")),
-    @AttributeOverride(name = "chatId",
-    column = @Column(name="CHAT_ID"))
-    })
-    */
     private long userId;
     private String userName;
     private int chatId;
     private long lastMessageId;
     //
     private long id;
-    
 }

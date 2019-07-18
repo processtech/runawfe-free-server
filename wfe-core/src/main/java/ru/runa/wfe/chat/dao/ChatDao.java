@@ -5,7 +5,6 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.stereotype.Component;
 
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatUser;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatsUserInfo;
@@ -20,7 +19,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         QChatsUserInfo cui = QChatsUserInfo.chatsUserInfo;
         ChatsUserInfo chatUser = queryFactory.selectFrom(cui).where(cui.chatId.eq(chatId).and(cui.userId.eq(userId).and(cui.userName.eq(userName)))).fetchFirst();
         if(chatUser == null) {//добавление новой записи
-            chatUser=new ChatsUserInfo(new ChatUser(userId,userName,chatId));
+            chatUser=new ChatsUserInfo(chatId, userName, userId);
             //последнее сообщение
             QChatMessage m = QChatMessage.chatMessage;
             chatUser.setLastMessageId(queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.asc()).fetchFirst().getId());
