@@ -46,7 +46,7 @@
 %>
 
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
-<wf:ChatTag test1='<%= new Long(999) %>' identifiableId='<%= taskId %>'/>
+<wf:ChatTag identifiableId='<%= taskId %>'/>
 <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
 
 

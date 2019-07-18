@@ -21,7 +21,8 @@ public class ChatTag extends ProcessBaseFormTag {
 
 private static final long serialVersionUID = -4722799699002222875L;
 
-private Long test;
+//private Long test;
+/*
 @Attribute(required = false, rtexprvalue = true)
 public void setTest1(Long test) {
 this.test = test;
@@ -30,6 +31,7 @@ this.test = test;
 public Long getTest1() {
 return test;
 }
+*/
 
 @Override
 protected void fillFormData(TD tdFormElement) {

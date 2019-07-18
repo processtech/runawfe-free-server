@@ -43,7 +43,7 @@ public class ChatLogic extends WfCommonLogic {
     }
     //возвращает id нового сообщения в БД
     public int setMessage(int chatId, ChatMessage message) {
-        Long newId=new Long(-1);
+        Long newId=-1L;
         newId = chatDao.save(message);
         return newId.intValue();
     }

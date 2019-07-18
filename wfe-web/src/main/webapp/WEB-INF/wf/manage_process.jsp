@@ -86,7 +86,7 @@ function Reload() {
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
 <wf:processVariableMonitor identifiableId='<%= id %>' />
-<wf:ChatTag test1='<%= new Long(999) %>' identifiableId='<%= id %>'/>
+<wf:ChatTag identifiableId='<%= id %>'/>
 <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
 <script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
 <script type="text/javascript" src="/wfe/js/chatDragWindow.js"></script>
