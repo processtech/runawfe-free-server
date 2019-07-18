@@ -43,7 +43,6 @@ public class ChatLogic extends WfCommonLogic {
         return messages;
     }
 
-    // возвращает id нового сообщения в БД
     public long setMessage(int chatId, ChatMessage message) {
         long newId = -1L;
         newId = chatDao.save(message);
@@ -58,10 +57,7 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteMessage(messId);
     }
 
-    // функция для связи чатов, добавить сюда подгрузку связей чатов - возвращает связанные id для перенаправления сообщений
     public List<Integer> getAllConnectedChatId(int chatId) {
-        ArrayList<Integer> chatIds = new ArrayList<Integer>();
-        chatIds.add(chatId);
-        return chatIds;
+        return chatDao.getAllConnectedChatId(chatId);
     }
 }

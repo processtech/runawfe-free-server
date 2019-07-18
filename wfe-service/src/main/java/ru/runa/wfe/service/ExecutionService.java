@@ -19,6 +19,7 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 import java.util.Map;
+
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatsUserInfo;
@@ -47,28 +48,124 @@ import ru.runa.wfe.var.file.FileVariableImpl;
  */
 public interface ExecutionService {
 
-    // код Румянцева чат
+    /**
+     * Get List array of all ChatMessage in chat.
+     *
+     * @param chatId
+     *            chat Id
+     * @return not <code>null</code>
+     */
     public List<ChatMessage> getChatMessages(int chatId);
 
+    /**
+     * Gets ChatMessage.
+     *
+     * @param chatId
+     *            chat Id
+     * @param messageId
+     *            message Id
+     * @return ChatMessage or <code>null</code>
+     */
     public ChatMessage getChatMessage(int chatId, long messageId);
 
+    /**
+     * Get List array of ChatMessage, where all "message Id" < firstId.
+     *
+     * @param chatId
+     *            chat Id
+     * @param firstId
+     *            message Id, all returned message id < firstId
+     * @param count
+     *            number of messages in the returned array
+     * @return not <code>null</code>
+     */
     public List<ChatMessage> getChatMessages(int chatId, int firstId, int count);
 
+    /**
+     * Get List array of last ChatMessage (first in the array of all messages).
+     *
+     * @param chatId
+     *            chat Id
+     * @param count
+     *            number of messages in the returned array
+     * @return not <code>null</code>
+     */
     public List<ChatMessage> getChatFirstMessages(int chatId, int count);
 
-    // возвращает id нового сообщения в БД
+    /**
+     * Save ChatMessage in DB.
+     *
+     * @param chatId
+     *            chat Id
+     * @param message
+     *            new message to save
+     * @return new message id
+     */
     public long setChatMessage(int chatId, ChatMessage message);
 
+    /**
+     * Get number of chat messages.
+     *
+     * @param chatId
+     *            chat Id
+     * @return number of chat messages
+     */
     long getChatAllMessagesCount(int chatId);
 
+    /**
+     * Delete ChatMessage in DB.
+     *
+     * @param messId
+     *            message Id
+     */
     public void deleteChatMessage(long messId);
 
+    /**
+     * Get List array of all chat Id Connected with "chatId" (and "chatId"). To combine chats.
+     *
+     * @param chatId
+     *            chat Id
+     * @return List array of Connected chat Id and chatId (Integer), not <code>null</code>
+     */
     public List<Integer> getChatAllConnectedChatId(int chatId);
 
+    /**
+     * Get ChatsUserInfo with information about the user in this chat or create new ChatsUserInfo with lastMessageId = max message Id in chat with
+     * chatId.
+     *
+     * @param chatId
+     *            chat Id
+     * @param userName
+     *            user name
+     * @param userId
+     *            user Id
+     * @return ChatsUserInfo with information about the user in this chat, not <code>null</code>
+     */
     public ChatsUserInfo getChatUserInfo(long userId, String userName, int chatId);
 
+    /**
+     * Get number of chat messages with id > lastMessageId.
+     *
+     * @param chatId
+     *            chat Id
+     * @param lastMessageId
+     *            last message Id
+     * @return number of chat messages with id > lastMessageId
+     */
     public long getChatNewMessagesCount(long lastMessageId, int chatId);
 
+    /**
+     * update lastMessageId in ChatsUserInfo with userId, userName, chatId.
+     *
+     * @param userId
+     *            user Id
+     * @param userName
+     *            user name
+     * @param chatId
+     *            chat Id
+     * @param lastMessageId
+     *            new lastMessageId in ChatsUserInfo
+     */
     public void updateChatUserInfo(long userId, String userName, int chatId, long lastMessageId);
     //
 

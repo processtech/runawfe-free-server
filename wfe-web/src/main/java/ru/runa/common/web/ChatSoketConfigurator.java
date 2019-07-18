@@ -1,9 +1,5 @@
 package ru.runa.common.web;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
 import javax.servlet.http.HttpSession;
 import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;
@@ -20,8 +16,9 @@ public class ChatSoketConfigurator extends ServerEndpointConfig.Configurator {
         for (int i = 0; i < paramStrings.length; i++) {
             if (paramStrings[i].equals("chatId")) {
                 i++;
-                if (i < paramStrings.length)
+                if (i < paramStrings.length) {
                     chatId = Integer.parseInt(paramStrings[i]);
+                }
             }
         }
         config.getUserProperties().put(HttpSession.class.getName(), httpSession);

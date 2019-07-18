@@ -17,12 +17,9 @@
  */
 package ru.runa.wfe.service.impl;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -32,9 +29,14 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-import lombok.NonNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import lombok.NonNull;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.chat.ChatMessage;
@@ -87,7 +89,6 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @Autowired
     private VariableLogic variableLogic;
 
-    //
     @Autowired
     private ChatLogic chatLogic;
 
@@ -156,7 +157,6 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public long setChatMessage(int chatId, ChatMessage message) {
         return chatLogic.setMessage(chatId, message);
     }
-    //
 
     @WebMethod(exclude = true)
     @Override

@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.service.delegate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ import ru.runa.wfe.var.file.FileVariableImpl;
  * Created on 28.09.2004
  */
 public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionService {
-    //
+
     @Override
     public List<ChatMessage> getChatMessages(int chatId) {
         return getExecutionService().getChatMessages(chatId);
@@ -99,7 +98,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
         return getExecutionService().setChatMessage(chatId, message);
     }
 
-    //
+
     public ExecutionServiceDelegate() {
         super(ExecutionService.class);
     }

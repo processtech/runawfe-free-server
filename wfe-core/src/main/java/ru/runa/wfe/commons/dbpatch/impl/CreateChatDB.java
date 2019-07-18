@@ -43,9 +43,4 @@ public class CreateChatDB extends DbPatch {
         sql.add(getDDLCreateSequence("SEQ_CHAT_USER_INFO"));
         return sql;
     }
-
-    public void test() {
-        getDDLQueriesBefore();
-    }
-
 }

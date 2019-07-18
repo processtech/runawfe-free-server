@@ -1,6 +1,8 @@
 package ru.runa.wfe.chat.dao;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.stereotype.Component;
 
@@ -83,5 +85,12 @@ public class ChatDao extends GenericDao<ChatMessage> {
 
     public void deleteMessage(long messId) {
         delete(messId);
+    }
+
+    // TODO функция для связи чатов, добавить сюда подгрузку связей чатов - возвращает связанные id для перенаправления сообщений
+    public List<Integer> getAllConnectedChatId(int chatId) {
+        ArrayList<Integer> chatIds = new ArrayList<Integer>();
+        chatIds.add(chatId);
+        return chatIds;
     }
 }
