@@ -16,26 +16,30 @@ import ru.runa.wfe.service.delegate.Delegates;
 @ApplicationScoped
 public class ChatSessionHandler {
     private final CopyOnWriteArraySet<Session> sessions = new CopyOnWriteArraySet<Session>();
-    
+
     public void addSession(Session session) {
         sessions.add(session);
     }
+
     public void removeSession(Session session) {
         sessions.remove(session);
     }
+
     public void sendToSession(Session session, JSONObject message) throws IOException {
         session.getBasicRemote().sendText(message.toString());
     }
+
     public void sendToAll(JSONObject message) throws IOException {
-        for(Session session : sessions){
+        for (Session session : sessions) {
             session.getBasicRemote().sendText(message.toString());
         }
     }
+
     public void sendToChats(JSONObject message, int chatId) throws IOException {
         List<Integer> chatIds = Delegates.getExecutionService().getChatAllConnectedChatId(chatId);
-        for(Session session : sessions){
-            int thisId=(int) session.getUserProperties().get("chatId");
-            if(chatIds.contains(thisId))
+        for (Session session : sessions) {
+            int thisId = (int) session.getUserProperties().get("chatId");
+            if (chatIds.contains(thisId))
                 session.getBasicRemote().sendText(message.toString());
         }
     }

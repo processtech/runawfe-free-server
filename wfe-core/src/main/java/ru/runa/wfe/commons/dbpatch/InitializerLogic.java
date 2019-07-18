@@ -158,7 +158,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
         patches.add(AddProcessExternalData.class);
-        //chat
+        // chat
         patches.add(CreateChatDB.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
@@ -193,8 +193,8 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
      * Apply patches to initialized database.
      */
     private void applyPatches(int databaseVersion) {
-        
-        //databaseVersion--;//для патча чата, временно!
+
+        // databaseVersion--;//для патча чата, временно!
 
         log.info("Database version: " + databaseVersion + ", code version: " + dbPatches.size());
         while (databaseVersion < dbPatches.size()) {

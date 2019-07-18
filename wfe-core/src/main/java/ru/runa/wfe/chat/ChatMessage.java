@@ -24,8 +24,8 @@ public class ChatMessage {
     private String ierarchyMessage;
     private int chatId;
     private Timestamp date;
-    
-    @Column(name="TEXT")
+
+    @Column(name = "TEXT")
     public String getText() {
         return text;
     }
@@ -33,34 +33,34 @@ public class ChatMessage {
     public void setText(String text) {
         this.text = text;
     }
-    
+
     @Transient
     public List<Integer> getIerarchyMessageArray() {
-        ArrayList<Integer> ierarchyMessage0=new ArrayList<Integer>();
-        
-         String messagesIds[]=ierarchyMessage.split(":");
-         for(int i=0;i<messagesIds.length;i++) {
-               if(!(messagesIds[i].isEmpty())) {
-                   ierarchyMessage0.add(Integer.parseInt(messagesIds[i]));
-             }
-         }
-         
+        ArrayList<Integer> ierarchyMessage0 = new ArrayList<Integer>();
+
+        String messagesIds[] = ierarchyMessage.split(":");
+        for (int i = 0; i < messagesIds.length; i++) {
+            if (!(messagesIds[i].isEmpty())) {
+                ierarchyMessage0.add(Integer.parseInt(messagesIds[i]));
+            }
+        }
+
         return ierarchyMessage0;
     }
+
     @Transient
     public void setIerarchyMessageArray(List<Integer> ierarchyMessage) {
-        StringBuilder newierarchyMessage=new StringBuilder(ierarchyMessage.size()*4);
-        if(ierarchyMessage.size()>0)
-        {
-            for(int i=0; i<ierarchyMessage.size()-1; i++) {
+        StringBuilder newierarchyMessage = new StringBuilder(ierarchyMessage.size() * 4);
+        if (ierarchyMessage.size() > 0) {
+            for (int i = 0; i < ierarchyMessage.size() - 1; i++) {
                 newierarchyMessage.append(ierarchyMessage.get(i).toString()).append(':');
             }
-            newierarchyMessage.append(ierarchyMessage.get(ierarchyMessage.size()-1).toString());
+            newierarchyMessage.append(ierarchyMessage.get(ierarchyMessage.size() - 1).toString());
         }
         this.ierarchyMessage = newierarchyMessage.toString();
     }
 
-    @Column(name="IERARCHY_MESSAGE")
+    @Column(name = "IERARCHY_MESSAGE")
     public String getIerarchyMessage() {
         return ierarchyMessage;
     }
@@ -68,11 +68,11 @@ public class ChatMessage {
     public void setIerarchyMessage(String ierarchyMessage) {
         this.ierarchyMessage = ierarchyMessage;
     }
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE", allocationSize = 1)
-    @Column(name="MESSAGE_ID")
+    @Column(name = "MESSAGE_ID")
     public long getId() {
         return id;
     }
@@ -80,8 +80,8 @@ public class ChatMessage {
     public void setId(long id) {
         this.id = id;
     }
-    
-    @Column(name="CHAT_ID")
+
+    @Column(name = "CHAT_ID")
     public int getChatId() {
         return chatId;
     }
@@ -90,7 +90,7 @@ public class ChatMessage {
         this.chatId = chatId;
     }
 
-    @Column(name="Message_Date")
+    @Column(name = "Message_Date")
     public Timestamp getDate() {
         return date;
     }
@@ -99,7 +99,7 @@ public class ChatMessage {
         this.date = date;
     }
 
-    @Column(name="USER_ID")
+    @Column(name = "USER_ID")
     public long getUserId() {
         return userId;
     }
@@ -108,7 +108,7 @@ public class ChatMessage {
         this.userId = userId;
     }
 
-    @Column(name="USER_NAME")
+    @Column(name = "USER_NAME")
     public String getUserName() {
         return userName;
     }
@@ -116,5 +116,5 @@ public class ChatMessage {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-    
+
 }

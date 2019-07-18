@@ -86,67 +86,74 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     private ExecutionLogic executionLogic;
     @Autowired
     private VariableLogic variableLogic;
-    
+
     //
     @Autowired
     private ChatLogic chatLogic;
-    
+
     @WebMethod(exclude = true)
     @Override
     public List<ChatMessage> getChatMessages(int chatId) {
-         return chatLogic.getMessages(chatId);
+        return chatLogic.getMessages(chatId);
     }
+
     @WebMethod(exclude = true)
     @Override
-    public ChatMessage getChatMessage(int chatId,long messageId) {
+    public ChatMessage getChatMessage(int chatId, long messageId) {
         return chatLogic.getMessage(chatId, messageId);
     }
+
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatMessages(int chatId,int firstIndex, int count) {
+    public List<ChatMessage> getChatMessages(int chatId, int firstIndex, int count) {
         return chatLogic.getMessages(chatId, firstIndex, count);
     }
+
     @WebMethod(exclude = true)
     @Override
     public long getChatAllMessagesCount(int chatId) {
         return chatLogic.getAllMessagesCount(chatId);
     }
-    
+
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatFirstMessages(int chatId, int count){
+    public List<ChatMessage> getChatFirstMessages(int chatId, int count) {
         return chatLogic.getFirstMessages(chatId, count);
     }
+
     @WebMethod(exclude = true)
     @Override
     public void deleteChatMessage(long messId) {
         chatLogic.deleteMessage(messId);
     }
+
     @WebMethod(exclude = true)
     @Override
-    public List<Integer> getChatAllConnectedChatId(int chatId){
+    public List<Integer> getChatAllConnectedChatId(int chatId) {
         return chatLogic.getAllConnectedChatId(chatId);
     }
+
     @WebMethod(exclude = true)
     @Override
-    public ChatsUserInfo getChatUserInfo(long userId,String userName, int chatId){
+    public ChatsUserInfo getChatUserInfo(long userId, String userName, int chatId) {
         return chatLogic.getUserInfo(userId, userName, chatId);
     }
+
     @WebMethod(exclude = true)
     @Override
     public long getChatNewMessagesCount(long lastMessageId, int chatId) {
         return chatLogic.getNewMessagesCount(lastMessageId, chatId);
     }
+
     @WebMethod(exclude = true)
     @Override
-    public void updateChatUserInfo(long userId,String userName, int chatId, long lastMessageId) {
+    public void updateChatUserInfo(long userId, String userName, int chatId, long lastMessageId) {
         chatLogic.updateUserInfo(userId, userName, chatId, lastMessageId);
     }
-    
-    //возвращает id нового сообщения в БД
+
     @WebMethod(exclude = true)
     @Override
-    public int setChatMessage(int chatId, ChatMessage message) {
+    public long setChatMessage(int chatId, ChatMessage message) {
         return chatLogic.setMessage(chatId, message);
     }
     //
@@ -324,14 +331,14 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public List<WfSwimlane> getProcessSwimlanes(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         return executionLogic.getProcessSwimlanes(user, processId);
     }
-    
+
     @Override
     @WebResult(name = "result")
     public List<WfSwimlane> getActiveProcessesSwimlanes(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "namePattern") @NonNull String namePattern) {
         return executionLogic.getActiveProcessesSwimlanes(user, namePattern);
     }
-    
+
     @Override
     @WebResult(name = "result")
     public boolean reassignSwimlane(@WebParam(name = "user") User user, @WebParam(name = "id") @NonNull Long id) {
@@ -424,7 +431,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebMethod(exclude = true)
-    public void sendSignal(@NonNull User user, @NonNull Map<String, String> routingData, @NonNull Map<String, Object> payloadData, long ttlInSeconds) {
+    public void sendSignal(@NonNull User user, @NonNull Map<String, String> routingData, @NonNull Map<String, Object> payloadData,
+            long ttlInSeconds) {
         Map<String, Object> variables = Maps.newHashMap();
         List<VariableMapping> variableMappings = Lists.newArrayList();
         for (Map.Entry<String, String> entry : routingData.entrySet()) {

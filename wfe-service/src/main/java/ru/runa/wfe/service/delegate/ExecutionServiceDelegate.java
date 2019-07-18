@@ -46,55 +46,59 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     //
     @Override
     public List<ChatMessage> getChatMessages(int chatId) {
-         return getExecutionService().getChatMessages(chatId);
+        return getExecutionService().getChatMessages(chatId);
     }
-    
+
     @Override
-    public ChatMessage getChatMessage(int chatId,long messageId) {
+    public ChatMessage getChatMessage(int chatId, long messageId) {
         return getExecutionService().getChatMessage(chatId, messageId);
     }
-    
+
     @Override
-    public List<ChatMessage> getChatMessages(int chatId,int firstId, int count) {
+    public List<ChatMessage> getChatMessages(int chatId, int firstId, int count) {
         return getExecutionService().getChatMessages(chatId, firstId, count);
     }
-    
+
     @Override
-    public List<ChatMessage> getChatFirstMessages(int chatId, int count){
+    public List<ChatMessage> getChatFirstMessages(int chatId, int count) {
         return getExecutionService().getChatFirstMessages(chatId, count);
     }
-    
+
     @Override
     public void deleteChatMessage(long messId) {
         getExecutionService().deleteChatMessage(messId);
     }
+
     @Override
-    public ChatsUserInfo getChatUserInfo(long userId,String userName, int chatId){
+    public ChatsUserInfo getChatUserInfo(long userId, String userName, int chatId) {
         return getExecutionService().getChatUserInfo(userId, userName, chatId);
     }
+
     @Override
     public long getChatNewMessagesCount(long lastMessageId, int chatId) {
         return getExecutionService().getChatNewMessagesCount(lastMessageId, chatId);
     }
+
     @Override
-    public void updateChatUserInfo(long userId,String userName, int chatId, long lastMessageId) {
+    public void updateChatUserInfo(long userId, String userName, int chatId, long lastMessageId) {
         getExecutionService().updateChatUserInfo(userId, userName, chatId, lastMessageId);
     }
-    
+
     @Override
     public long getChatAllMessagesCount(int chatId) {
         return getExecutionService().getChatAllMessagesCount(chatId);
     }
+
     @Override
-    public List<Integer> getChatAllConnectedChatId(int chatId){
+    public List<Integer> getChatAllConnectedChatId(int chatId) {
         return getExecutionService().getChatAllConnectedChatId(chatId);
     }
-    
-    //возвращает id нового сообщения в БД
+
     @Override
-    public int setChatMessage(int chatId, ChatMessage message) {
+    public long setChatMessage(int chatId, ChatMessage message) {
         return getExecutionService().setChatMessage(chatId, message);
     }
+
     //
     public ExecutionServiceDelegate() {
         super(ExecutionService.class);
@@ -179,7 +183,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     @Override
     public List<WfVariable> getVariables(User user, Long processId) {
         try {
-            ExecutionService a=getExecutionService();
+            ExecutionService a = getExecutionService();
             return getExecutionService().getVariables(user, processId);
         } catch (Exception e) {
             throw handleException(e);
@@ -316,12 +320,12 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern) {
         return getExecutionService().getActiveProcessesSwimlanes(user, namePattern);
     }
-    
+
     @Override
     public boolean reassignSwimlane(User user, Long id) {
         return getExecutionService().reassignSwimlane(user, id);
     }
-    
+
     @Override
     public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) throws ProcessDoesNotExistException {
         try {
