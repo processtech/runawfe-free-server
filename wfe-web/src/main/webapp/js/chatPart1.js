@@ -180,29 +180,6 @@ $(document).ready(function() {
 			contentType: "application/json; charset=UTF-8",
 			processData: false,
 			success: function(data) {
-				/*
-				let ajaxRet="";
-				if(data.newMessage==0){
-					for(let mes=0;mes<data.messages.length;mes++){
-						if(data.messages[mes].text !=null){
-							//
-							
-							let messageBody="<table class=\"quote\"><tr class=\"selectionTextAdditional\"><td>Цитата:"+data.messages[mes].author+"</td></tr><tr><td>"+ data.messages[mes].text ;
-							let hierarhyMass="";
-							//тут получаем id вложенных
-							if(data.messages[mes].hierarchyMessageFlag==1){
-								hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesId=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть</a><div class=\"loadedHierarchy\"></div></td></tr>";
-							}
-							messageBody+="</td></tr>" + hierarhyMass;
-							messageBody+= "</table >";
-							
-							ajaxRet=ajaxRet+messageBody;
-							
-						}
-					}
-					return ajaxRet;
-			}//if(data.newMessage==0) конец
-			*/
 		}
 	 });
    }
@@ -261,18 +238,6 @@ $(document).ready(function() {
 						openHierarchy0.text('Развернуть вложенные сообщения');
 						messageBody.append($('<tr></tr>').append($('<td></td>').append(openHierarchy0).append($('<div></div>').addClass('loadedHierarchy'))));
 					}
-					
-					/*
-					let messageBody="<table class=\"quote\"><tr class=\"selectionTextAdditional\"><td>Цитата:"+data.messages[mes].author+"</td></tr><tr><td>"+ data.messages[mes].text ;
-					let hierarhyMass="";
-					//тут получаем id вложенных
-					if(data.messages[mes].hierarchyMessageFlag==1){
-						hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesId=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть вложенные сообщения</a><div class=\"loadedHierarchy\"></div></td></tr>";
-					}
-					messageBody+="</td></tr>" + hierarhyMass;
-					messageBody+= "</table >";
-					ajaxRet=ajaxRet+messageBody;
-					*/
 					ajaxRet.push(messageBody);
 				}
 			}

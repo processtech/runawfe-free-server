@@ -87,13 +87,13 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @Autowired
     private VariableLogic variableLogic;
     
-    //test!!
+    //
     @Autowired
     private ChatLogic chatLogic;
     
     @WebMethod(exclude = true)
     @Override
-    public ArrayList<ChatMessage> getChatMessages(int chatId) {
+    public List<ChatMessage> getChatMessages(int chatId) {
          return chatLogic.getMessages(chatId);
     }
     @WebMethod(exclude = true)
@@ -103,7 +103,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     }
     @WebMethod(exclude = true)
     @Override
-    public ArrayList<ChatMessage> getChatMessages(int chatId,int firstIndex, int count) {
+    public List<ChatMessage> getChatMessages(int chatId,int firstIndex, int count) {
         return chatLogic.getMessages(chatId, firstIndex, count);
     }
     @WebMethod(exclude = true)
@@ -114,7 +114,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     
     @WebMethod(exclude = true)
     @Override
-    public ArrayList<ChatMessage> getChatFirstMessages(int chatId, int count){
+    public List<ChatMessage> getChatFirstMessages(int chatId, int count){
         return chatLogic.getFirstMessages(chatId, count);
     }
     @WebMethod(exclude = true)
@@ -124,7 +124,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     }
     @WebMethod(exclude = true)
     @Override
-    public ArrayList<Integer> getChatAllConnectedChatId(int chatId){
+    public List<Integer> getChatAllConnectedChatId(int chatId){
         return chatLogic.getAllConnectedChatId(chatId);
     }
     @WebMethod(exclude = true)

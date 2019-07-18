@@ -45,7 +45,7 @@ import ru.runa.wfe.var.file.FileVariableImpl;
 public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionService {
     //
     @Override
-    public ArrayList<ChatMessage> getChatMessages(int chatId) {
+    public List<ChatMessage> getChatMessages(int chatId) {
          return getExecutionService().getChatMessages(chatId);
     }
     
@@ -55,12 +55,12 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
     
     @Override
-    public ArrayList<ChatMessage> getChatMessages(int chatId,int firstId, int count) {
+    public List<ChatMessage> getChatMessages(int chatId,int firstId, int count) {
         return getExecutionService().getChatMessages(chatId, firstId, count);
     }
     
     @Override
-    public ArrayList<ChatMessage> getChatFirstMessages(int chatId, int count){
+    public List<ChatMessage> getChatFirstMessages(int chatId, int count){
         return getExecutionService().getChatFirstMessages(chatId, count);
     }
     
@@ -86,7 +86,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
         return getExecutionService().getChatAllMessagesCount(chatId);
     }
     @Override
-    public ArrayList<Integer> getChatAllConnectedChatId(int chatId){
+    public List<Integer> getChatAllConnectedChatId(int chatId){
         return getExecutionService().getChatAllConnectedChatId(chatId);
     }
     

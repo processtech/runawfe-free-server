@@ -4,6 +4,8 @@ import javax.enterprise.context.ApplicationScoped;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.websocket.Session;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -21,32 +23,20 @@ public class ChatSessionHandler {
     public void removeSession(Session session) {
         sessions.remove(session);
     }
-    public void sendToSession(Session session, JSONObject message) {
-        try {
+    public void sendToSession(Session session, JSONObject message) throws IOException {
+        session.getBasicRemote().sendText(message.toString());
+    }
+    public void sendToAll(JSONObject message) throws IOException {
+        for(Session session : sessions){
             session.getBasicRemote().sendText(message.toString());
-        } catch (IOException e) {
-            //sessions.remove(session);
         }
     }
-    public void sendToAll(JSONObject message) {
-        try {
-            for(Session session : sessions){
+    public void sendToChats(JSONObject message, int chatId) throws IOException {
+        List<Integer> chatIds = Delegates.getExecutionService().getChatAllConnectedChatId(chatId);
+        for(Session session : sessions){
+            int thisId=(int) session.getUserProperties().get("chatId");
+            if(chatIds.contains(thisId))
                 session.getBasicRemote().sendText(message.toString());
-            }
-        } catch (IOException e) {
-            //sessions.remove(session);
-        }
-    }
-    public void sendToChats(JSONObject message, int chatId) {
-        try {
-            ArrayList<Integer> chatIds = Delegates.getExecutionService().getChatAllConnectedChatId(chatId);
-            for(Session session : sessions){
-                int thisId=(int) session.getUserProperties().get("chatId");
-                if(chatIds.contains(thisId))
-                    session.getBasicRemote().sendText(message.toString());
-            }
-        } catch (IOException e) {
-            //sessions.remove(session);
         }
     }
 }

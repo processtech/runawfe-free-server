@@ -69,7 +69,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return mes;
     }
     
-    public long save(ChatMessage message) throws Exception {
+    public long save(ChatMessage message) {
         long id = create(message).getId();
         return id;
     }
@@ -80,11 +80,6 @@ public class ChatDao extends GenericDao<ChatMessage> {
     }
     
     public void deleteMessage(long messId) {
-        try {
         delete(messId);
-        }
-        catch(Exception e) {
-            e.getMessage();
-        }
     }
 }

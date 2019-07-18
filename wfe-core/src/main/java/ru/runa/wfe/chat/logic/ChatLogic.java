@@ -12,7 +12,6 @@ import ru.runa.wfe.commons.logic.WfCommonLogic;
 
 @Component
 public class ChatLogic extends WfCommonLogic {
-    //test
     public ChatsUserInfo getUserInfo(long userId,String userName, int chatId) {
         ChatsUserInfo chatUser = chatDao.getUserInfo(userId, userName, chatId);
         return chatUser;
@@ -24,33 +23,28 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.updateUserInfo(userId, userName, chatId, lastMessageId);
     }
     
-    public ArrayList<ChatMessage> getMessages(int chatId) {
+    public List<ChatMessage> getMessages(int chatId) {
         List<ChatMessage> messages = chatDao.getAll(chatId);
-        return new ArrayList<ChatMessage>(messages);
+        return messages;
     }
     
     public ChatMessage getMessage(int chatId, long messageId) {
         return chatDao.getMessage(chatId, messageId);
     }
     
-    public ArrayList<ChatMessage> getMessages(int chatId,int firstId, int count) {
+    public List<ChatMessage> getMessages(int chatId,int firstId, int count) {
         List<ChatMessage> messages = chatDao.getMessages(chatId, firstId, count);
         return new ArrayList<ChatMessage>(messages);
     }
     
-    public ArrayList<ChatMessage> getFirstMessages(int chatId, int count) {
+    public List<ChatMessage> getFirstMessages(int chatId, int count) {
         List<ChatMessage> messages = chatDao.getFirstMessages(chatId,count);
-        return new ArrayList<ChatMessage>(messages);
+        return messages;
     }
     //возвращает id нового сообщения в БД
     public int setMessage(int chatId, ChatMessage message) {
         Long newId=new Long(-1);
-        try {
-            newId = chatDao.save(message);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        newId = chatDao.save(message);
         return newId.intValue();
     }
     
@@ -61,7 +55,7 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteMessage(messId);
     }
     //функция для связи чатов, добавить сюда подгрузку связей чатов - возвращает связанные id для перенаправления сообщений
-    public ArrayList<Integer> getAllConnectedChatId(int chatId){
+    public List<Integer> getAllConnectedChatId(int chatId){
         ArrayList<Integer> chatIds = new ArrayList<Integer>();
         chatIds.add(chatId);
         return chatIds;

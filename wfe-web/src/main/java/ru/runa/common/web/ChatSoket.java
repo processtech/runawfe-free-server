@@ -1,8 +1,10 @@
 package ru.runa.common.web;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -32,7 +34,7 @@ public class ChatSoket {
 private ChatSessionHandler sessionHandler;
 
  @OnOpen
- public void open(Session session, EndpointConfig config) {
+ public void open(Session session, EndpointConfig config) throws IOException {
      sessionHandler.addSession(session);
      //тестовое сообщение
      JSONObject firstMess= new JSONObject();
@@ -50,15 +52,10 @@ private ChatSessionHandler sessionHandler;
  }
 
  @OnMessage
- public void handleMessage(String message, Session session) {
+ public void handleMessage(String message, Session session) throws IOException, ParseException {
      JSONObject object0 = new JSONObject();
      JSONParser parser = new JSONParser();
-     try {
-         object0 = (JSONObject) parser.parse(message);
-    } catch (ParseException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    }
+     object0 = (JSONObject) parser.parse(message);
      String type1 = (String) object0.get("type");
      if(type1.equals("newMessage")) {//добавить сообщение
          ChatMessage newMessage = new ChatMessage();
@@ -94,7 +91,7 @@ private ChatSessionHandler sessionHandler;
          int count0 = ((Long)object0.get("Count")).intValue();
          int lastMessageId = ((Long)object0.get("lastMessageId")).intValue();
          int chatId0=Integer.parseInt((String) object0.get("chatId"));
-         ArrayList<ChatMessage> messages;
+         List<ChatMessage> messages;
          if(lastMessageId!=-1) {
              messages = Delegates.getExecutionService().getChatMessages(chatId0, lastMessageId, count0);
          }
@@ -141,7 +138,7 @@ private ChatSessionHandler sessionHandler;
      object1.put("text", newMessage.getText());
      object1.put("author", newMessage.getUserName());
      @SuppressWarnings("deprecation")
-    String dateNow=newMessage.getDate().toGMTString();
+     String dateNow=newMessage.getDate().toGMTString();
      object1.put("dateTime", dateNow);
      if(newMessage.getIerarchyMessageArray().size()>0) {
          object1.put("hierarchyMessageFlag", 1);

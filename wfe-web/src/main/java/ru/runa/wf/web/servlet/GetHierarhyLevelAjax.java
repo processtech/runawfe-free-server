@@ -1,6 +1,7 @@
 package ru.runa.wf.web.servlet;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,9 +22,9 @@ public class GetHierarhyLevelAjax  extends JsonAjaxCommand {
         String messageId=request.getParameter("messageId");
         JSONObject object = new JSONObject();
         ChatMessage coreMessage=Delegates.getExecutionService().getChatMessage(Integer.parseInt(chatId), Long.parseLong(messageId));
-        ArrayList<Integer> coreMessageHierarhy = coreMessage.getIerarchyMessageArray();
+        List<Integer> coreMessageHierarhy = coreMessage.getIerarchyMessageArray();
         if(coreMessageHierarhy.size()>0) {
-            ArrayList<ChatMessage> messages = new ArrayList<ChatMessage>();
+            List<ChatMessage> messages = new ArrayList<ChatMessage>();
             for(int i=0;i<coreMessageHierarhy.size();i++){
                 ChatMessage message0 = Delegates.getExecutionService().getChatMessage(Integer.parseInt(chatId), coreMessageHierarhy.get(i));
                 if(message0 != null) {

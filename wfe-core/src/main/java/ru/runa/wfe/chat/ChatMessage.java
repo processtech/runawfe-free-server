@@ -2,6 +2,7 @@ package ru.runa.wfe.chat;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,9 +23,8 @@ public class ChatMessage {
     private String text;
     private String ierarchyMessage;
     private int chatId;
-    //
     private Timestamp date;
-    //
+    
     @Column(name="TEXT")
     public String getText() {
         return text;
@@ -35,7 +35,7 @@ public class ChatMessage {
     }
     
     @Transient
-    public ArrayList<Integer> getIerarchyMessageArray() {
+    public List<Integer> getIerarchyMessageArray() {
         ArrayList<Integer> ierarchyMessage0=new ArrayList<Integer>();
         
          String messagesIds[]=ierarchyMessage.split(":");
@@ -48,7 +48,7 @@ public class ChatMessage {
         return ierarchyMessage0;
     }
     @Transient
-    public void setIerarchyMessageArray(ArrayList<Integer> ierarchyMessage) {
+    public void setIerarchyMessageArray(List<Integer> ierarchyMessage) {
         StringBuilder newierarchyMessage=new StringBuilder(ierarchyMessage.size()*4);
         if(ierarchyMessage.size()>0)
         {

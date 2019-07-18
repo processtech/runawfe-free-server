@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -49,18 +48,18 @@ import ru.runa.wfe.var.file.FileVariableImpl;
 public interface ExecutionService {
     
     //код Румянцева чат
-    public ArrayList<ChatMessage> getChatMessages(int chatId);
+    public List<ChatMessage> getChatMessages(int chatId);
     public ChatMessage getChatMessage(int chatId,long messageId);
-    public ArrayList<ChatMessage> getChatMessages(int chatId,int firstId, int count);
-    public ArrayList<ChatMessage> getChatFirstMessages(int chatId, int count);
+    public List<ChatMessage> getChatMessages(int chatId,int firstId, int count);
+    public List<ChatMessage> getChatFirstMessages(int chatId, int count);
     //возвращает id нового сообщения в БД
     public int setChatMessage(int chatId, ChatMessage message);
     long getChatAllMessagesCount(int chatId);
     public void deleteChatMessage(long messId);
-    public ArrayList<Integer> getChatAllConnectedChatId(int chatId);
+    public List<Integer> getChatAllConnectedChatId(int chatId);
     public ChatsUserInfo getChatUserInfo(long userId,String userName, int chatId);
     public long getChatNewMessagesCount(long lastMessageId, int chatId);
-    public void updateChatUserInfo(long userId,String userName, int chatId, long lastMessageId);
+    public void updateChatUserInfo(long userId, String userName, int chatId, long lastMessageId);
     //
 
     /**
