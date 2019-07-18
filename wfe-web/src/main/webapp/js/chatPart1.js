@@ -3,7 +3,7 @@ var attachedPosts=[];
 
 // флаг развернутого чата (0 - свернут, 1 - развернут)
 var switchCheak=0;
-var chatForm=document.getElementById('ChatForm');
+var chatForm=document.getElementById("ChatForm");
 
 // кнопка открытия чата
 var btnOpenChat = document.getElementById("openChatButton");
@@ -25,18 +25,18 @@ var currentMessageId = -1;
 var numberNewMessages = 0;
 var blocOldMes=0;
 var inputH=document.getElementById("message");
-var heightModalC=$('.modal-content').height();
-var widthModalC=$('.modal-content').width();
+var heightModalC=$(".modal-content").height();
+var widthModalC=$(".modal-content").width();
 
-var chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?chatId="+$('#ChatForm').attr('chatId');
+var chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?chatId=" + $("#ChatForm").attr("chatId");
 var chatSocket = new WebSocket(chatSocketURL);
 chatSocket.onmessage = onMessage;
-$('#btnCl').hide();
+$("#btnCl").hide();
 
 //фунцкия отправляет запрос на выдачу count старых сообщений
 function newxtMessages(count){
 	let newMessage={};
-	newMessage.chatId=$('#ChatForm').attr('chatId');
+	newMessage.chatId=$("#ChatForm").attr("chatId");
 	newMessage.type="getMessages";
 	newMessage.lastMessageId=minMassageId;
 	newMessage.Count = count; // количество начальных сообщений
@@ -47,13 +47,13 @@ function newxtMessages(count){
 // функция пишущая кол-во непрочитанных сообщений = numberNewMessages
 function updatenumberNewMessages(numberNewMessages0){
 	numberNewMessages = numberNewMessages0;
-	document.getElementById("countNewMessages").innerHTML=""+numberNewMessages+"";
+	document.getElementById("countNewMessages").innerHTML="" + numberNewMessages + "";
 }
 
 //функция отправляет по сокету id последнего прочитонного сообщния
 function updateLastReadMessage(){
 	let newSend0={};
-	newSend0.chatId=$('#ChatForm').attr('chatId');
+	newSend0.chatId=$("#ChatForm").attr("chatId");
 	newSend0.type="setChatUserInfo";
 	newSend0.currentMessageId=currentMessageId;
 	let sendObject0 = JSON.stringify(newSend0);
@@ -66,7 +66,7 @@ chatSocket.onopen=function(){
 	newxtMessages(20);
 	// запрос текущей информации по юзеру
 	let newMessage2={};
-	newMessage2.chatId=$('#ChatForm').attr('chatId');
+	newMessage2.chatId=$("#ChatForm").attr("chatId");
 	newMessage2.type="getChatUserInfo";
 	let sendObject0 = JSON.stringify(newMessage2);
 	chatSocket.send(sendObject0);
@@ -74,7 +74,7 @@ chatSocket.onopen=function(){
 
 //действия при закрытии сокета
 chatSocket.onclose = function(){
-	$(".modal-body").append("<table ><td>" + "потерянно соединение с чатом сервера"+ "</td></table >");
+	$(".modal-body").append("<table ><td>" + "потерянно соединение с чатом сервера" + "</td></table >");
 }
 
 // -----------onClick функции:
@@ -112,20 +112,20 @@ btnSend.onclick=function send() {
 	message = message.replace(/\n/g, "<br/>");
 	let idHierarchyMessage="";
 	for(var i=0;i<attachedPosts.length;i++){
-		idHierarchyMessage+=attachedPosts[i]+":";
+		idHierarchyMessage += attachedPosts[ i ] + ":";
 	}
 	// сокет
 	let newMessage={};
 	newMessage.message=message;
-	newMessage.chatId=$('#ChatForm').attr('chatId');
+	newMessage.chatId=$("#ChatForm").attr("chatId");
 	newMessage.idHierarchyMessage = idHierarchyMessage;
 	newMessage.type="newMessage";
 	chatSocket.send(JSON.stringify(newMessage));
 	// чистим "ответы"
 	let addReplys0 = document.getElementsByClassName("addReply");
 	for(let i=0; i<addReplys0.length; i++){
-		$(addReplys0[i]).text("Ответить");
-		$(addReplys0[i]).attr("flagAttach", "false");
+		$(addReplys0[ i ]).text("Ответить");
+		$(addReplys0[ i ]).attr("flagAttach", "false");
 	}
 	attachedPosts=[];
 }
@@ -134,51 +134,51 @@ btnSend.onclick=function send() {
 btnOp.onclick=function(){
 	if(flagRollExpandChat == 0){
 		flagRollExpandChat=1;
-		$('.modal-content').css({
-			width: widthModalC+300,
-			height: heightModalC+300,
+		$(".modal-content").css({
+			width: widthModalC + 300,
+			height: heightModalC + 300,
 		});
 			
-		$('.modal-body').css({
-			height:'630px',
-			width: '590px',
+		$(".modal-body").css({
+			height:"630px",
+			width: "590px",
 		});
 
-		$('.modal-header').css({
-			width: '600px',
+		$(".modal-header").css({
+			width: "600px",
 		});
 
-		$('.modal-header-dragg').css({
-			width: '515px',
+		$(".modal-header-dragg").css({
+			width: "515px",
 		});
 
-		$('.modal-footer').css({
-			height: '80px',
+		$(".modal-footer").css({
+			height: "80px",
 		});
 
 		imgButton.src="/wfe/images/chat_expand.png";
 	}else if(flagRollExpandChat == 1){
 		flagRollExpandChat=0;
-		$('.modal-content').css({
-			width: '346px',
-			height: '506px',
+		$(".modal-content").css({
+			width: "346px",
+			height: "506px",
 		});
 
-		$('.modal-body').css({
-			width: '304px',
-			height: '396px',
+		$(".modal-body").css({
+			width: "304px",
+			height: "396px",
 		});
 
-		$('.modal-header').css({
-			width: '316px',
+		$(".modal-header").css({
+			width: "316px",
 		});
 
-		$('.modal-header-dragg').css({
-			width: '220px',
+		$(".modal-header-dragg").css({
+			width: "220px",
 		});
 
-		$('.modal-footer').css({
-			height: '53px',
+		$(".modal-footer").css({
+			height: "53px",
 		});
 		imgButton.src="/wfe/images/chat_roll_up.png";
 	}
@@ -188,7 +188,7 @@ btnOp.onclick=function(){
 
 // ajax запрос иерархии сообщений, вернет Promise ajax запроса
 function hierarhyCheak(messageId){
-	let urlString = "/wfe/ajaxcmd?command=GetHierarhyLevel&chatId="+$('#ChatForm').attr('chatId')+"&messageId="+messageId;	
+	let urlString = "/wfe/ajaxcmd?command=GetHierarhyLevel&chatId=" + $("#ChatForm").attr("chatId") + "&messageId=" + messageId;	
 	return $.ajax({
 		type: "POST",
 		url: urlString,
@@ -204,26 +204,26 @@ function addOnClickHierarchyOpen(){
 	let elements = $(".openHierarchy");
 	elements.off().on( "click", function(event){
 		if($(this).attr("openFlag") == 1){
-			let thisElem=$(".openHierarchy")[0];
-			$(this).next(".loadedHierarchy")[0].style.display="none";
+			let thisElem=$(".openHierarchy")[ 0 ];
+			$(this).next(".loadedHierarchy")[ 0 ].style.display="none";
 			$(this).attr("openFlag","0");
 			$(this).text("Развернуть вложенные сообщения");
 			return 0;
 		}
 		else{
-			let thisElem=$(".openHierarchy")[0];
+			let thisElem=$(".openHierarchy")[ 0 ];
 			if($(this).attr("loadFlag") == 1){
-				$(this).next(".loadedHierarchy")[0].style.display="block";
+				$(this).next(".loadedHierarchy")[ 0 ].style.display="block";
 				$(this).attr("openFlag","1");
 				$(this).text("Свернуть");
 				return 0;
 			}else{
-				let thisElem=$(".openHierarchy")[0];
+				let thisElem=$(".openHierarchy")[ 0 ];
 				let element=this;
 				hierarhyCheak($(element).attr("mesId")).then(ajaxRet=>{
 					messagesRetMass = getAttachedMessagesArray(ajaxRet);
 					for(let i=0; i<messagesRetMass.length; i++){
-						$(this).next(".loadedHierarchy").append(messagesRetMass[i]);
+						$(this).next(".loadedHierarchy").append(messagesRetMass[ i ]);
 					}
 					addOnClickHierarchyOpen();
 					$(element).attr("loadFlag", "1");
@@ -241,17 +241,17 @@ function getAttachedMessagesArray(data) {
 	let outputArray=[];
 	if(data.newMessage == 0){
 		for(let mes=0;mes<data.messages.length;mes++){
-			if(data.messages[mes].text != null){
-				let messageBody = $('<table></table>').addClass('quote');
-				messageBody.append($('<tr></tr>').addClass('selectionTextAdditional').append($('<td></td>').text("Цитата: "+data.messages[mes].author)));
-				messageBody.append($('<tr></tr>').append($('<td></td>').text(data.messages[mes].text)));
-				if(data.messages[mes].hierarchyMessageFlag == 1){
-					let openHierarchy0 = $('<a></a>').addClass('openHierarchy');
-					openHierarchy0.attr('mesId', data.messages[mes].id);
-					openHierarchy0.attr('loadFlag', 0);
-					openHierarchy0.attr('openFlag', 0);
-					openHierarchy0.text('Развернуть вложенные сообщения');
-					messageBody.append($('<tr></tr>').append($('<td></td>').append(openHierarchy0).append($('<div></div>').addClass('loadedHierarchy'))));
+			if(data.messages[ mes ].text != null){
+				let messageBody = $("<table></table>").addClass("quote");
+				messageBody.append($("<tr></tr>").addClass("selectionTextAdditional").append($("<td></td>").text("Цитата: " + data.messages[ mes ].author)));
+				messageBody.append($("<tr></tr>").append($("<td></td>").text(data.messages[ mes ].text)));
+				if(data.messages[ mes ].hierarchyMessageFlag == 1){
+					let openHierarchy0 = $("<a></a>").addClass("openHierarchy");
+					openHierarchy0.attr("mesId", data.messages[ mes ].id);
+					openHierarchy0.attr("loadFlag", 0);
+					openHierarchy0.attr("openFlag", 0);
+					openHierarchy0.text("Развернуть вложенные сообщения");
+					messageBody.append($("<tr></tr>").append($("<td></td>").append(openHierarchy0).append($("<div></div>").addClass("loadedHierarchy"))));
 				}
 				outputArray.push(messageBody);
 			}
@@ -264,36 +264,41 @@ function getAttachedMessagesArray(data) {
 function addMessages(data){
 	if(data.newMessage == 0){
 		for(let mes=0;mes<data.messages.length;mes++){
-			if(data.messages[mes].text != null){
-				if((minMassageId>data.messages[mes].id) || (minMassageId == -1)){
-					minMassageId=data.messages[mes].id;
+			if(data.messages[ mes ].text != null){
+				if((minMassageId>data.messages[ mes ].id) || (minMassageId == -1)){
+					minMassageId=data.messages[ mes ].id;
 				}
-				if((maxMassageId<data.messages[mes].id)){
-					maxMassageId=data.messages[mes].id;
+				if((maxMassageId<data.messages[ mes ].id)){
+					maxMassageId=data.messages[ mes ].id;
 				}
-				let text0 = data.messages[mes].text;
+				let text0 = data.messages[ mes ].text;
 				text0.replace(/([\s*$])\n/ig,"<br/>");
-				var messageBody="<table class=\"selectionTextQuote\"><tr><td><div class=\"author\" class=\"author\">"+data.messages[mes].author+":</div>"+text0;
+				var messageBody="<table class='selectionTextQuote'><tr><td><div class='author' class='author'>" +
+					data.messages[ mes ].author + ":</div>" + text0;
 				var hierarhyMass="";
 				// тут получаем id вложенных
-				if(data.messages[mes].hierarchyMessageFlag == 1){
-					hierarhyMass+="<tr><td><a class=\"openHierarchy\" mesId=\""+data.messages[mes].id+"\" loadFlag=\"0\" openFlag=\"0\">Развернуть вложенные сообщения</a><div class=\"loadedHierarchy\"></div></td></tr>";
+				if(data.messages[ mes ].hierarchyMessageFlag == 1){
+					hierarhyMass += "<tr><td><a class='openHierarchy' mesId='" + data.messages[ mes ].id +
+						"' loadFlag='0' openFlag='0'>Развернуть вложенные сообщения</a><div class='loadedHierarchy'></div></td></tr>";
 				}
 				// "развернуть"
-				messageBody+="</td></tr>" + hierarhyMass;
+				messageBody += "</td></tr>" + hierarhyMass;
 				// "ответить"
-				messageBody+= "<tr><td><hr class=\"hr-dashed\">"+ data.messages[mes].dateTime + "<hr class=\"hr-dashed\"></td><td><div class=\"hr-dashed-vertical\"><a class=\"addReply\" id=\"messReply"+(lastMessageIndex)+"\" mesId=\""+data.messages[mes].id+"\" flagAttach=\"false\"> Ответить</a></div></td></tr>";
+				messageBody += "<tr><td><hr class='hr-dashed'>" + data.messages[ mes ].dateTime + 
+					"<hr class='hr-dashed'></td><td><div class='hr-dashed-vertical'><a class='addReply' id='messReply" + (lastMessageIndex) +
+					"' mesId='" + data.messages[ mes ].id + "' flagAttach='false'> Ответить</a></div></td></tr>";
 				// админ
 				if($(".modal-body").attr("admin") == "true"){
-					messageBody+="<tr><td>"+"<a class=\"deleterMessage\" id=\"messDeleter"+(lastMessageIndex)+"\" mesId=\""+data.messages[mes].id+"\">удалить</a>"+"</td></tr>";
+					messageBody += "<tr><td>" + "<a class='deleterMessage' id='messDeleter" + (lastMessageIndex) + "' mesId='" +
+						data.messages[ mes ].id + "'>удалить</a>" + "</td></tr>";
 				}
 				// конец
-				messageBody+="</table >";
+				messageBody += "</table >";
 				// установка сообщения
 				if(data.old == false){
 					$(".modal-body").append(messageBody);
 					if(switchCheak == 0){// +1 непрочитанное сообщение
-						updatenumberNewMessages(numberNewMessages+1);
+						updatenumberNewMessages(numberNewMessages + 1);
 					}
 					else{
 						currentMessageId = maxMassageId;
@@ -303,7 +308,7 @@ function addMessages(data){
 				else{
 					$(".modal-body").children().first().after(messageBody);
 				}
-				document.getElementById("messReply"+(lastMessageIndex)).onclick=function(){
+				document.getElementById("messReply" + (lastMessageIndex)).onclick=function(){
 					if($(this).attr("flagAttach") == "false"){
 						attachedPosts.push($(this).attr("mesId"));
 						$(this).attr("flagAttach", "true");
@@ -316,9 +321,9 @@ function addMessages(data){
 						attachedPosts.splice(pos0, 1);
 					}
 				}
-				document.getElementById("messDeleter"+(lastMessageIndex)).onclick=deleteMessage;			
+				document.getElementById("messDeleter" + (lastMessageIndex)).onclick=deleteMessage;			
 				addOnClickHierarchyOpen();
-				lastMessageIndex+=1;
+				lastMessageIndex += 1;
 			}
 		}
 	}
@@ -329,7 +334,7 @@ function deleteMessage(){
 	if(confirm("Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно")){
 		let newMessage={};
 		newMessage.messageId=$(this).attr("mesId");
-		newMessage.chatId=$('#ChatForm').attr('chatId');
+		newMessage.chatId=$("#ChatForm").attr("chatId");
 		newMessage.type="deleteMessage";
 		chatSocket.send(JSON.stringify(newMessage));
 		$(this).parent().parent().parent().parent().remove();
