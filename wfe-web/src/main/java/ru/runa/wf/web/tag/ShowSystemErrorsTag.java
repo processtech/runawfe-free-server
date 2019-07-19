@@ -1,7 +1,7 @@
 package ru.runa.wf.web.tag;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
@@ -9,19 +9,16 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.MessagesError;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Lists;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "viewSystemErrors")
 public class ShowSystemErrorsTag extends VisibleTag {
@@ -44,6 +41,9 @@ public class ShowSystemErrorsTag extends VisibleTag {
             deleteLink.setOnClick("deleteSystemError(this, '" + systemError.getMessage() + "')");
             tr.addElement(new TD(deleteLink).setClass(Resources.CLASS_LIST_TABLE_TD));
             rows.add(tr);
+        }
+        if (rows.size() > 0) {
+            this.pageContext.getRequest().setAttribute("errorsExist", true);
         }
         ErrorsHeaderBuilder tasksHistoryHeaderBuilder = new ErrorsHeaderBuilder();
         RowBuilder rowBuilder = new TrRowBuilder(rows);

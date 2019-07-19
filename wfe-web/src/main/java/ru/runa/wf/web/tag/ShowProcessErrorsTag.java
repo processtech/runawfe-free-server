@@ -1,8 +1,10 @@
 package ru.runa.wf.web.tag;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.html.HtmlEscapers;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
@@ -12,15 +14,14 @@ import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.MessagesError;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
@@ -29,10 +30,6 @@ import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.html.HtmlEscapers;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "viewProcessErrors")
 public class ShowProcessErrorsTag extends VisibleTag {
@@ -75,6 +72,9 @@ public class ShowProcessErrorsTag extends VisibleTag {
             }
             tr.addElement(deleteTd.setClass(Resources.CLASS_LIST_TABLE_TD));
             rows.add(tr);
+        }
+        if (rows.size() > 0) {
+            this.pageContext.getRequest().setAttribute("errorsExist", true);
         }
         Div resultElement = new Div();
         StringBuilder filters = new StringBuilder();
