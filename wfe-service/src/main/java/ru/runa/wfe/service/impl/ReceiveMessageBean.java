@@ -54,6 +54,7 @@ import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.BaseMessageNode;
+import ru.runa.wfe.lang.BaseReceiveMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -105,7 +106,7 @@ public class ReceiveMessageBean implements MessageListener {
             for (Token token : tokens) {
                 try {
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
-                    BaseMessageNode receiveMessageNode = (BaseMessageNode) token.getNodeNotNull(processDefinition);
+                    BaseReceiveMessageNode receiveMessageNode = (BaseReceiveMessageNode) token.getNodeNotNull(processDefinition);
                     ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
                     if (errorEventData != null) {
                         if (receiveMessageNode.getEventType() == MessageEventType.error && receiveMessageNode.getParentElement() instanceof Node) {
@@ -188,17 +189,7 @@ public class ReceiveMessageBean implements MessageListener {
                     executionContext.activateTokenIfHasPreviousError();
                     executionContext.addLog(new ReceiveMessageLog(data.node, Utils.toString(message, true)));
                     Map<String, Object> map = (Map<String, Object>) message.getObject();
-                    for (VariableMapping variableMapping : data.node.getVariableMappings()) {
-                        if (!variableMapping.isPropertySelector()) {
-                            if (map.containsKey(variableMapping.getMappedName())) {
-                                Object value = map.get(variableMapping.getMappedName());
-                                executionContext.setVariableValue(variableMapping.getName(), value);
-                            } else {
-                                log.warn("message does not contain value for '" + variableMapping.getMappedName() + "'");
-                            }
-                        }
-                    }
-                    data.node.leave(executionContext);
+                    data.node.leave(executionContext, map);
                 }
             }.executeInTransaction(true);
         } catch (final Throwable th) {
@@ -210,9 +201,9 @@ public class ReceiveMessageBean implements MessageListener {
     private static class ReceiveMessageData {
         private Long processId;
         private Long tokenId;
-        private BaseMessageNode node;
+        private BaseReceiveMessageNode node;
 
-        public ReceiveMessageData(ExecutionContext executionContext, BaseMessageNode node) {
+        public ReceiveMessageData(ExecutionContext executionContext, BaseReceiveMessageNode node) {
             this.processId = executionContext.getProcess().getId();
             this.tokenId = executionContext.getToken().getId();
             this.node = node;

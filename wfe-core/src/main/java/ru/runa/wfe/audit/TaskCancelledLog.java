@@ -3,7 +3,6 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
@@ -12,6 +11,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  * 
  * @author Dofs
  */
+// TODO rm1085 divide to TaskCompletedByHandlerLog, TaskCompletedBySignalLog?
 @Entity
 @DiscriminatorValue(value = "O")
 public class TaskCancelledLog extends TaskEndLog {

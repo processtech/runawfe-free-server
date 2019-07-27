@@ -314,6 +314,7 @@ public class Task implements Assignable {
             executionContext.addLog(new TaskEndByAdminLog(this, completionInfo));
             break;
         case HANDLER:
+        case SIGNAL:
             executionContext.addLog(new TaskCancelledLog(this, completionInfo));
             break;
         case PROCESS_END:
