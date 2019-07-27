@@ -1,5 +1,6 @@
 package ru.runa.wf.logic.bot;
 
+import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -7,11 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wf.logic.bot.startprocess.StartProcessTask;
 import ru.runa.wf.logic.bot.startprocess.StartProcessVariableMapping;
 import ru.runa.wf.logic.bot.startprocess.StartProcessXmlParser;
-import ru.runa.wfe.commons.sqltask.DatabaseTask;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -22,8 +21,6 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableProvider;
-
-import com.google.common.collect.Maps;
 
 /**
  * @author Martin Gaido
@@ -52,10 +49,10 @@ public class StartProcessTaskHandler extends TaskHandlerBase {
                 String from = startProcessVariableMapping.getFromName();
                 String to = startProcessVariableMapping.getToName();
                 Object value = variableProvider.getValue(from);
-                if (DatabaseTask.INSTANCE_ID_VARIABLE_NAME.equals(from)) {
+                if ("instanceId".equals(from)) {
                     value = task.getProcessId();
                 }
-                if (DatabaseTask.CURRENT_DATE_VARIABLE_NAME.equals(from)) {
+                if ("currentDate".equals(from)) {
                     value = new Date();
                 }
                 variables.put(to, value);

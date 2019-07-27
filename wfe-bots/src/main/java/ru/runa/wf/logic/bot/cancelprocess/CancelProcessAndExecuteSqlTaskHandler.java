@@ -3,7 +3,7 @@ package ru.runa.wf.logic.bot.cancelprocess;
 import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.util.Map;
-import ru.runa.wf.logic.bot.DatabaseTaskHandler;
+import ru.runa.wf.logic.bot.SqlTaskHandler;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -39,11 +39,11 @@ public class CancelProcessAndExecuteSqlTaskHandler extends TaskHandlerBase {
             if (configurationName == null) {
                 throw new Exception("Record for '" + processDefinitionName + " missed in task handler configuration");
             }
-            InputStream inputStream = ClassLoaderUtil.getAsStreamNotNull(configurationName, DatabaseTaskHandler.class);
+            InputStream inputStream = ClassLoaderUtil.getAsStreamNotNull(configurationName, SqlTaskHandler.class);
             byte[] configuration = ByteStreams.toByteArray(inputStream);
-            DatabaseTaskHandler databaseTaskHandler = new DatabaseTaskHandler();
-            databaseTaskHandler.setConfiguration(configuration, null);
-            databaseTaskHandler.handle(user, variableProvider, task);
+            SqlTaskHandler sqlTaskHandler = new SqlTaskHandler();
+            sqlTaskHandler.setConfiguration(configuration, null);
+            sqlTaskHandler.handle(user, variableProvider, task);
         }
         return null;
     }

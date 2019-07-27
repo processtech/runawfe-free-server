@@ -270,6 +270,7 @@ public class ExecutionLogic extends WfCommonLogic {
         for (String processEndHandlerClassName : SystemProperties.getProcessEndHandlers()) {
             try {
                 ProcessEndHandler handler = ClassLoaderUtil.instantiate(processEndHandlerClassName);
+                ApplicationContextFactory.autowireBean(handler);
                 handler.execute(executionContext);
             } catch (Throwable th) {
                 Throwables.propagate(th);

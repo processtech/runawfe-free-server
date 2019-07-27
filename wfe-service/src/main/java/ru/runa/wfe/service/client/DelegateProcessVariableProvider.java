@@ -39,7 +39,7 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    protected ExecutorLoader getExecutorLoader() {
+    public ExecutorLoader getExecutorLoader() {
         return new DelegateExecutorLoader(user);
     }
 
