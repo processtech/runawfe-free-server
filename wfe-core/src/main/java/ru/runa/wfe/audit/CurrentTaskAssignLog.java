@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.audit.presentation.ExecutorNameValue;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -39,7 +41,11 @@ public class CurrentTaskAssignLog extends CurrentTaskLog implements TaskAssignLo
             ids.add(executor.getId());
         }
         addAttribute(ATTR_MESSAGE, Joiner.on(ExecutorIdsValue.DELIM).join(ids));
-        setSeverity(Severity.INFO);
+    }
+
+    public CurrentTaskAssignLog(CurrentProcess process, StartNode startNode, Actor actor) {
+        super(process, startNode);
+        addAttribute(ATTR_NEW_VALUE, actor.getName());
     }
 
     @Override

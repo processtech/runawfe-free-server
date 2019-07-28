@@ -226,7 +226,8 @@ public abstract class Node extends GraphElement {
         if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
             ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
             CurrentToken parentToken = executionContext.getCurrentToken().getParent();
-            ((Node) getParentElement()).onBoundaryEvent(executionContext.getParsedProcessDefinition(), parentToken, (BoundaryEvent) this);
+            ((Node) getParentElement()).onBoundaryEvent(new ExecutionContext(executionContext.getParsedProcessDefinition(), parentToken),
+                    (BoundaryEvent) this);
             for (CurrentToken token : parentToken.getActiveChildren()) {
                 if (Objects.equal(token, executionContext.getToken())) {
                     continue;
@@ -236,7 +237,7 @@ public abstract class Node extends GraphElement {
                     token.setAbleToReactivateParent(false);
                 } else {
                     executionLogic.endToken(token, executionContext.getParsedProcessDefinition(), null,
-                            ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), true);
+                            ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executionContext), true);
                 }
             }
         }
@@ -297,8 +298,9 @@ public abstract class Node extends GraphElement {
         return true;
     }
 
-    protected void onBoundaryEvent(ParsedProcessDefinition parsedProcessDefinition, CurrentToken token, BoundaryEvent boundaryEvent) {
+    protected void onBoundaryEvent(ExecutionContext executionContext, BoundaryEvent boundaryEvent) {
         ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
-        executionLogic.endToken(token, parsedProcessDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
+        executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getParsedProcessDefinition(), null,
+                boundaryEvent.getTaskCompletionInfoIfInterrupting(executionContext), false);
     }
 }

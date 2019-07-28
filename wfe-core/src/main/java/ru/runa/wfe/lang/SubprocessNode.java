@@ -16,7 +16,6 @@ import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
@@ -207,10 +206,10 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     @Override
-    protected void onBoundaryEvent(ParsedProcessDefinition parsedProcessDefinition, CurrentToken token, BoundaryEvent boundaryEvent) {
-        super.onBoundaryEvent(parsedProcessDefinition, token, boundaryEvent);
+    protected void onBoundaryEvent(ExecutionContext executionContext, BoundaryEvent boundaryEvent) {
+        super.onBoundaryEvent(executionContext, boundaryEvent);
         if (async) {
-            List<CurrentProcess> processes = new ExecutionContext(parsedProcessDefinition, token).getCurrentTokenSubprocesses();
+            List<CurrentProcess> processes = executionContext.getCurrentTokenSubprocesses();
             for (CurrentProcess process : processes) {
                 if (process.hasEnded()) {
                     continue;

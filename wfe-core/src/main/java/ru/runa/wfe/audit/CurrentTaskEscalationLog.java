@@ -31,7 +31,6 @@ public class CurrentTaskEscalationLog extends CurrentTaskLog implements TaskEsca
             ids.add(executor.getId());
         }
         addAttribute(ATTR_MESSAGE, Joiner.on(ExecutorIdsValue.DELIM).join(ids));
-        setSeverity(Severity.INFO);
     }
 
     @Override

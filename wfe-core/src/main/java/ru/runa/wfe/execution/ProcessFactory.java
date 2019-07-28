@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.CurrentProcessStartLog;
 import ru.runa.wfe.audit.CurrentSubprocessStartLog;
+import ru.runa.wfe.audit.CurrentTaskAssignLog;
+import ru.runa.wfe.audit.CurrentTaskCreateLog;
+import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
@@ -141,6 +144,8 @@ public class ProcessFactory {
         ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, rootToken);
         if (actor != null) {
             executionContext.addLog(new CurrentProcessStartLog(actor));
+            executionContext.addLog(new CurrentTaskCreateLog(process, parsedProcessDefinition.getStartStateNotNull()));
+            executionContext.addLog(new CurrentTaskAssignLog(process, parsedProcessDefinition.getStartStateNotNull(), actor));
         }
         if (transientVariables != null) {
             for (Map.Entry<String, Object> entry : transientVariables.entrySet()) {
@@ -152,6 +157,7 @@ public class ProcessFactory {
             SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
             CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, swimlaneDefinition);
             swimlane.assignExecutor(executionContext, actor, false);
+            executionContext.addLog(new CurrentTaskEndLog(process, parsedProcessDefinition.getStartStateNotNull(), actor));
         }
         return executionContext;
     }
