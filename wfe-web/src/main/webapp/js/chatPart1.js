@@ -27,6 +27,8 @@ var blocOldMes=0;
 var inputH=document.getElementById("message");
 var heightModalC=$(".modal-content").height();
 var widthModalC=$(".modal-content").width();
+//шаг - по сколько сообщений подгружается
+var messagesStep = 20;
 
 var chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?chatId=" + $("#ChatForm").attr("chatId");
 var chatSocket = new WebSocket(chatSocketURL);
@@ -63,7 +65,7 @@ function updateLastReadMessage(){
 //действия при открытии сокета
 chatSocket.onopen=function(){
 	// запрос 20 последних сообщений
-	newxtMessages(20);
+	newxtMessages(messagesStep);
 	// запрос текущей информации по юзеру
 	let newMessage2={};
 	newMessage2.chatId=$("#ChatForm").attr("chatId");
@@ -84,7 +86,7 @@ btnLoadNewMessage.onclick=function(){
 	if(blocOldMes == 0){
 	blocOldMes=1;
 	// запрос 20 сообщений старых
-	newxtMessages(20);
+	newxtMessages(messagesStep);
 	}
 }
 
@@ -242,16 +244,16 @@ function getAttachedMessagesArray(data) {
 	if(data.newMessage == 0){
 		for(let mes=0;mes<data.messages.length;mes++){
 			if(data.messages[ mes ].text != null){
-				let messageBody = $("<table></table>").addClass("quote");
-				messageBody.append($("<tr></tr>").addClass("selectionTextAdditional").append($("<td></td>").text("Цитата: " + data.messages[ mes ].author)));
-				messageBody.append($("<tr></tr>").append($("<td></td>").text(data.messages[ mes ].text)));
+				let messageBody = $("<table/>").addClass("quote");
+				messageBody.append($("<tr/>").addClass("selectionTextAdditional").append($("<td/>").text("Цитата: " + data.messages[ mes ].author)));
+				messageBody.append($("<tr/>").append($("<td/>").text(data.messages[ mes ].text)));
 				if(data.messages[ mes ].hierarchyMessageFlag == 1){
-					let openHierarchy0 = $("<a></a>").addClass("openHierarchy");
+					let openHierarchy0 = $("<a/>").addClass("openHierarchy");
 					openHierarchy0.attr("mesId", data.messages[ mes ].id);
 					openHierarchy0.attr("loadFlag", 0);
 					openHierarchy0.attr("openFlag", 0);
 					openHierarchy0.text("Развернуть вложенные сообщения");
-					messageBody.append($("<tr></tr>").append($("<td></td>").append(openHierarchy0).append($("<div></div>").addClass("loadedHierarchy"))));
+					messageBody.append($("<tr/>").append($("<td/>").append(openHierarchy0).append($("<div/>").addClass("loadedHierarchy"))));
 				}
 				outputArray.push(messageBody);
 			}
@@ -263,37 +265,50 @@ function getAttachedMessagesArray(data) {
 // функция установки нового сообщения пришедшего с сервера в чат
 function addMessages(data){
 	if(data.newMessage == 0){
-		for(let mes=0;mes<data.messages.length;mes++){
+		for(let mes=0; mes < data.messages.length; mes++){
 			if(data.messages[ mes ].text != null){
-				if((minMassageId>data.messages[ mes ].id) || (minMassageId == -1)){
-					minMassageId=data.messages[ mes ].id;
+				if((minMassageId > data.messages[ mes ].id) || (minMassageId == -1)){
+					minMassageId = data.messages[ mes ].id;
 				}
-				if((maxMassageId<data.messages[ mes ].id)){
-					maxMassageId=data.messages[ mes ].id;
+				if((maxMassageId < data.messages[ mes ].id)){
+					maxMassageId = data.messages[ mes ].id;
 				}
 				let text0 = data.messages[ mes ].text;
 				text0.replace(/([\s*$])\n/ig,"<br/>");
-				var messageBody="<table class='selectionTextQuote'><tr><td><div class='author' class='author'>" +
-					data.messages[ mes ].author + ":</div>" + text0;
-				var hierarhyMass="";
-				// тут получаем id вложенных
-				if(data.messages[ mes ].hierarchyMessageFlag == 1){
-					hierarhyMass += "<tr><td><a class='openHierarchy' mesId='" + data.messages[ mes ].id +
-						"' loadFlag='0' openFlag='0'>Развернуть вложенные сообщения</a><div class='loadedHierarchy'></div></td></tr>";
-				}
+				let messageBody=$("<table/>").addClass("selectionTextQuote");
+				messageBody.append($("<tr/>").append($("<td/>").append($("<div/>").addClass("author").text(data.messages[ mes ].author + ":")).append(text0)));
 				// "развернуть"
-				messageBody += "</td></tr>" + hierarhyMass;
+				if(data.messages[ mes ].hierarchyMessageFlag == 1){
+					let openHierarchyA0 = $("<a/>");
+					openHierarchyA0.addClass("openHierarchy");
+					openHierarchyA0.attr("mesId", data.messages[ mes ].id);
+					openHierarchyA0.attr("loadFlag", 0);
+					openHierarchyA0.attr("openFlag", 0);
+					openHierarchyA0.text("Развернуть вложенные сообщения");
+					messageBody.append($("<tr/>").append($("<td/>").append(openHierarchyA0).append($("<div/>").addClass("loadedHierarchy"))));
+				}
 				// "ответить"
-				messageBody += "<tr><td><hr class='hr-dashed'>" + data.messages[ mes ].dateTime + 
-					"<hr class='hr-dashed'></td><td><div class='hr-dashed-vertical'><a class='addReply' id='messReply" + (lastMessageIndex) +
-					"' mesId='" + data.messages[ mes ].id + "' flagAttach='false'> Ответить</a></div></td></tr>";
+				let addReplyA0 = $("<a/>");
+				addReplyA0.addClass("addReply");
+				addReplyA0.attr("id", "messReply"+(lastMessageIndex));
+				addReplyA0.attr("mesId", data.messages[ mes ].id);
+				addReplyA0.attr("flagAttach", "false");
+				addReplyA0.text(" Ответить");
+				
+				let dateTr0=$("<tr/>");
+				dateTr0.append($("<td/>").append("<hr class='hr-dashed'>").append(data.messages[ mes ].dateTime).append("<hr class='hr-dashed'>"));
+				dateTr0.append($("<td/>").append($("<div/>").addClass("hr-dashed-vertical").append(addReplyA0)));
+				messageBody.append(dateTr0);
 				// админ
 				if($(".modal-body").attr("admin") == "true"){
-					messageBody += "<tr><td>" + "<a class='deleterMessage' id='messDeleter" + (lastMessageIndex) + "' mesId='" +
-						data.messages[ mes ].id + "'>удалить</a>" + "</td></tr>";
+					let deleterMessageA0 = $("<a/>");
+					deleterMessageA0.addClass("deleterMessage");
+					deleterMessageA0.attr("id", "messDeleter"+(lastMessageIndex));
+					deleterMessageA0.attr("mesId", data.messages[ mes ].id);
+					deleterMessageA0.text("удалить");
+					messageBody.append($("<tr/>").append($("<td/>").append(deleterMessageA0)));
 				}
 				// конец
-				messageBody += "</table >";
 				// установка сообщения
 				if(data.old == false){
 					$(".modal-body").append(messageBody);

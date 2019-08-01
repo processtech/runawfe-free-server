@@ -35,10 +35,6 @@ public class ChatSoket {
     @OnOpen
     public void open(Session session, EndpointConfig config) throws IOException {
         sessionHandler.addSession(session);
-        // тестовое сообщение
-        JSONObject firstMess = new JSONObject();
-        firstMess.put("text", "Start soket");
-        sessionHandler.sendToSession(session, firstMess);
     }
 
     @OnClose
