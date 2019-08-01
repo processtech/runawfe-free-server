@@ -7,7 +7,8 @@ import java.util.List;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 /**
- * Add tables CHAT_MESSAGE() and CHATS_USER_INFO() and Sequences SEQ_CHAT_USER_INFO, SEQ_CHAT_MESSAGE.
+ * Add tables CHAT_MESSAGE(MESSAGE_ID, TEXT, USER_ID, IERARCHY_MESSAGE, CHAT_ID, Message_Date) and CHATS_USER_INFO(ID, USER_ID, CHAT_ID,
+ * LAST_MESSAGE_ID) and Sequences SEQ_CHAT_USER_INFO, SEQ_CHAT_MESSAGE.
  *
  * @since -----
  * @author misharum
