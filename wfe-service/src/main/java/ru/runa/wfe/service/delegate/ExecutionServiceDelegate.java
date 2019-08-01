@@ -32,6 +32,7 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.ExecutionService;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -69,8 +70,8 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public ChatsUserInfo getChatUserInfo(long userId, String userName, int chatId) {
-        return getExecutionService().getChatUserInfo(userId, userName, chatId);
+    public ChatsUserInfo getChatUserInfo(/* long userId, String userName */Actor actor, int chatId) {
+        return getExecutionService().getChatUserInfo(/* userId, userName */actor, chatId);
     }
 
     @Override
@@ -79,8 +80,8 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public void updateChatUserInfo(long userId, String userName, int chatId, long lastMessageId) {
-        getExecutionService().updateChatUserInfo(userId, userName, chatId, lastMessageId);
+    public void updateChatUserInfo(Actor actor, int chatId, long lastMessageId) {
+        getExecutionService().updateChatUserInfo(actor, chatId, lastMessageId);
     }
 
     @Override

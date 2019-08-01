@@ -59,11 +59,7 @@ public class ChatSoket {
         if (typeMessage.equals("newMessage")) {// добавить сообщение
             ChatMessage newMessage = new ChatMessage();
             // юзер
-            User user = (User) session.getUserProperties().get("user");
-            String userName = user.getName();
-            Long userId = user.getActor().getId();
-            newMessage.setUserId(userId);
-            newMessage.setUserName(userName);
+            newMessage.setActor(((User) session.getUserProperties().get("user")).getActor());
             // текст
             newMessage.setText((String) objectMessage.get("message"));
             // иерархия сообщений
@@ -109,8 +105,7 @@ public class ChatSoket {
             }
         } else if (typeMessage.equals("getChatUserInfo")) {// userInfo, последнее прочитанное сообщение
             int chatId0 = Integer.parseInt((String) objectMessage.get("chatId"));
-            ChatsUserInfo userInfo = Delegates.getExecutionService().getChatUserInfo(
-                    ((User) session.getUserProperties().get("user")).getActor().getId(), ((User) session.getUserProperties().get("user")).getName(),
+            ChatsUserInfo userInfo = Delegates.getExecutionService().getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
                     chatId0);
             JSONObject sendObject0 = new JSONObject();
             sendObject0.put("messType", "ChatUserInfo");
@@ -120,8 +115,8 @@ public class ChatSoket {
         } else if (typeMessage.equals("setChatUserInfo")) {// обновление userInfo
             int chatId0 = Integer.parseInt((String) objectMessage.get("chatId"));
             long currentMessageId = (Long) objectMessage.get("currentMessageId");
-            Delegates.getExecutionService().updateChatUserInfo(((User) session.getUserProperties().get("user")).getActor().getId(),
-                    ((User) session.getUserProperties().get("user")).getName(), chatId0, currentMessageId);
+            Delegates.getExecutionService().updateChatUserInfo(((User) session.getUserProperties().get("user")).getActor(), chatId0,
+                    currentMessageId);
         }
     }
 

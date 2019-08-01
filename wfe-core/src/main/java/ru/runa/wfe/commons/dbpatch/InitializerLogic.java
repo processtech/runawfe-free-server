@@ -17,17 +17,19 @@
  */
 package ru.runa.wfe.commons.dbpatch;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DatabaseProperties;
@@ -194,7 +196,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
      */
     private void applyPatches(int databaseVersion) {
 
-        // databaseVersion--;//для патча чата, временно!
+        // databaseVersion--;// для патча чата, временно!
 
         log.info("Database version: " + databaseVersion + ", code version: " + dbPatches.size());
         while (databaseVersion < dbPatches.size()) {

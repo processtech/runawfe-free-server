@@ -26,20 +26,20 @@ public class GetHierarhyLevelAjax extends JsonAjaxCommand {
             JSONArray messagesArrayObject = new JSONArray();
             for (int i = 0; i < coreMessageHierarhy.size(); i++) {
                 ChatMessage attachedMessage = Delegates.getExecutionService().getChatMessage(Integer.parseInt(chatId), coreMessageHierarhy.get(i));
-                if (attachedMessage == null) {
-                    attachedMessage = new ChatMessage();
-                    attachedMessage.setText("message deleted");
-                    attachedMessage.setUserName("deleted");
-                    attachedMessage.setId(-1);
-                    attachedMessage.setIerarchyMessage("");
-                }
                 JSONObject attachedMesObject = new JSONObject();
-                attachedMesObject.put("id", attachedMessage.getId());
-                attachedMesObject.put("text", attachedMessage.getText());
-                attachedMesObject.put("author", attachedMessage.getUserName());
-                if (attachedMessage.getIerarchyMessageArray().size() > 0) {
-                    attachedMesObject.put("hierarchyMessageFlag", 1);
+                if (attachedMessage != null) {
+                    attachedMesObject.put("id", attachedMessage.getId());
+                    attachedMesObject.put("text", attachedMessage.getText());
+                    attachedMesObject.put("author", attachedMessage.getUserName());
+                    if (attachedMessage.getIerarchyMessageArray().size() > 0) {
+                        attachedMesObject.put("hierarchyMessageFlag", 1);
+                    } else {
+                        attachedMesObject.put("hierarchyMessageFlag", 0);
+                    }
                 } else {
+                    attachedMesObject.put("id", -1);
+                    attachedMesObject.put("text", "message deleted");
+                    attachedMesObject.put("author", "deleted");
                     attachedMesObject.put("hierarchyMessageFlag", 0);
                 }
                 messagesArrayObject.add(attachedMesObject);

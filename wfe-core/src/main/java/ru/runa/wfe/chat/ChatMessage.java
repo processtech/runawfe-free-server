@@ -9,21 +9,26 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.ForeignKey;
+
+import ru.runa.wfe.user.Actor;
 
 @Entity
 @Table(name = "CHAT_MESSAGE")
 public class ChatMessage {
 
     private long id;
-    private long userId;
-    private String userName;
     private String text;
     private String ierarchyMessage;
     private int chatId;
     private Timestamp date;
+    private Actor actor;
 
     @Column(name = "TEXT")
     public String getText() {
@@ -99,22 +104,27 @@ public class ChatMessage {
         this.date = date;
     }
 
-    @Column(name = "USER_ID")
+    // @Column(name = "USER_ID")
+    @Transient
     public long getUserId() {
-        return userId;
+        return actor.getId();
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    @Column(name = "USER_NAME")
+    // @Column(name = "USER_NAME")
+    @Transient
     public String getUserName() {
-        return userName;
+        return actor.getName();
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    @ForeignKey(name = "FK_CHAT_MESSAGE_USER")
+    public Actor getActor() {
+        return actor;
+    }
+
+    public void setActor(Actor actor) {
+        this.actor = actor;
     }
 
 }

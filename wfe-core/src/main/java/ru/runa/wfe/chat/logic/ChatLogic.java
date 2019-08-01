@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
+import ru.runa.wfe.user.Actor;
 
 @Component
 public class ChatLogic extends WfCommonLogic {
-    public ChatsUserInfo getUserInfo(long userId, String userName, int chatId) {
-        ChatsUserInfo chatUser = chatDao.getUserInfo(userId, userName, chatId);
+    public ChatsUserInfo getUserInfo(Actor actor, int chatId) {
+        ChatsUserInfo chatUser = chatDao.getUserInfo(actor, chatId);
         return chatUser;
     }
 
@@ -20,8 +21,8 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessagesCount(lastMessageId, chatId);
     }
 
-    public void updateUserInfo(long userId, String userName, int chatId, long lastMessageId) {
-        chatDao.updateUserInfo(userId, userName, chatId, lastMessageId);
+    public void updateUserInfo(Actor actor, int chatId, long lastMessageId) {
+        chatDao.updateUserInfo(actor, chatId, lastMessageId);
     }
 
     public List<ChatMessage> getMessages(int chatId) {

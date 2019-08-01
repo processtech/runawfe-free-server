@@ -11,18 +11,19 @@ import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatsUserInfo;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.user.Actor;
 
 @Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @ImportResource({ "classpath:system.context.xml" })
 public class ChatDao extends GenericDao<ChatMessage> {
 
-    public ChatsUserInfo getUserInfo(long userId, String userName, int chatId) {
+    public ChatsUserInfo getUserInfo(Actor actor, int chatId) {
         QChatsUserInfo cui = QChatsUserInfo.chatsUserInfo;
-        ChatsUserInfo chatUser = queryFactory.selectFrom(cui).where(cui.chatId.eq(chatId).and(cui.userId.eq(userId).and(cui.userName.eq(userName))))
+        ChatsUserInfo chatUser = queryFactory.selectFrom(cui).where(cui.chatId.eq(chatId).and(cui.actor.eq(actor)))
                 .fetchFirst();
         if (chatUser == null) {// добавление новой записи
-            chatUser = new ChatsUserInfo(chatId, userName, userId);
+            chatUser = new ChatsUserInfo(chatId, actor);
             // последнее сообщение
             QChatMessage m = QChatMessage.chatMessage;
             chatUser.setLastMessageId(queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.asc()).fetchFirst().getId());
@@ -36,10 +37,9 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.id.gt(lastMessageId))).fetchCount();
     }
 
-    public void updateUserInfo(long userId, String userName, int chatId, long lastMessageId) {
+    public void updateUserInfo(Actor actor, int chatId, long lastMessageId) {
         QChatsUserInfo cui = QChatsUserInfo.chatsUserInfo;
-        ChatsUserInfo userInfo = queryFactory.selectFrom(cui).where(cui.chatId.eq(chatId).and(cui.userId.eq(userId).and(cui.userName.eq(userName))))
-                .fetchFirst();
+        ChatsUserInfo userInfo = queryFactory.selectFrom(cui).where(cui.chatId.eq(chatId).and(cui.actor.eq(actor))).fetchFirst();
         if (userInfo != null) {
             userInfo.setLastMessageId(lastMessageId);
             sessionFactory.getCurrentSession().merge(userInfo);

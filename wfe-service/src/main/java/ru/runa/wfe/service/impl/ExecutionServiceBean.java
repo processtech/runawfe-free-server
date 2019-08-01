@@ -65,6 +65,7 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.service.jaxb.Variable;
 import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.MapVariableProvider;
@@ -136,8 +137,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public ChatsUserInfo getChatUserInfo(long userId, String userName, int chatId) {
-        return chatLogic.getUserInfo(userId, userName, chatId);
+    public ChatsUserInfo getChatUserInfo(Actor actor, int chatId) {
+        return chatLogic.getUserInfo(actor, chatId);
     }
 
     @WebMethod(exclude = true)
@@ -148,8 +149,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public void updateChatUserInfo(long userId, String userName, int chatId, long lastMessageId) {
-        chatLogic.updateUserInfo(userId, userName, chatId, lastMessageId);
+    public void updateChatUserInfo(Actor actor, int chatId, long lastMessageId) {
+        chatLogic.updateUserInfo(actor, chatId, lastMessageId);
     }
 
     @WebMethod(exclude = true)

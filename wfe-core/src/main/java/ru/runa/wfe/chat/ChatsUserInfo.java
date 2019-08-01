@@ -1,20 +1,38 @@
 package ru.runa.wfe.chat;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.ForeignKey;
+
+import ru.runa.wfe.user.Actor;
 
 @Entity
 @Table(name = "CHATS_USER_INFO")
 public class ChatsUserInfo {
+
+    private int chatId;
+    private long lastMessageId;
+    private Actor actor;
+    private long id;
+
     ChatsUserInfo() {
     }
 
-    public ChatsUserInfo(int chatId0, String userName0, long userId0) {
+    public ChatsUserInfo(int chatId0, Actor actor0) {
         chatId = chatId0;
-        userName = userName0;
-        userId = userId0;
+        actor = actor0;
     }
 
-    @Column(name = "LAST_MESSAGE_NAME")
+    @Column(name = "LAST_MESSAGE_ID")
     public long getLastMessageId() {
         return lastMessageId;
     }
@@ -23,22 +41,37 @@ public class ChatsUserInfo {
         this.lastMessageId = lastMessageId;
     }
 
-    @Column(name = "USER_ID")
+    // @Column(name = "USER_ID")
+    @Transient
     public long getUserId() {
-        return userId;
+        return actor.getId();
     }
 
+    @Transient
     public void setUserId(long userId) {
-        this.userId = userId;
+        this.actor.setId(userId);
     }
 
-    @Column(name = "USER_NAME")
+    // @Column(name = "USER_NAME")
+    @Transient
     public String getUserName() {
-        return userName;
+        return actor.getName();
     }
 
+    @Transient
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.actor.setName(userName);
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    @ForeignKey(name = "FK_CHATS_USER_INFO_USER")
+    public Actor getActor() {
+        return actor;
+    }
+
+    public void setActor(Actor actor) {
+        this.actor = actor;
     }
 
     @Column(name = "CHAT_ID")
@@ -61,11 +94,4 @@ public class ChatsUserInfo {
     public void setId(long id) {
         this.id = id;
     }
-
-    private long userId;
-    private String userName;
-    private int chatId;
-    private long lastMessageId;
-    //
-    private long id;
 }

@@ -33,6 +33,7 @@ import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
@@ -135,13 +136,11 @@ public interface ExecutionService {
      *
      * @param chatId
      *            chat Id
-     * @param userName
-     *            user name
-     * @param userId
-     *            user Id
+     * @param actor
+     *            user Actor
      * @return ChatsUserInfo with information about the user in this chat, not <code>null</code>
      */
-    public ChatsUserInfo getChatUserInfo(long userId, String userName, int chatId);
+    public ChatsUserInfo getChatUserInfo(Actor actor, int chatId);
 
     /**
      * Get number of chat messages with id > lastMessageId.
@@ -157,17 +156,14 @@ public interface ExecutionService {
     /**
      * update lastMessageId in ChatsUserInfo with userId, userName, chatId.
      *
-     * @param userId
-     *            user Id
-     * @param userName
-     *            user name
+     * @param actor
+     *            user Actor
      * @param chatId
      *            chat Id
      * @param lastMessageId
      *            new lastMessageId in ChatsUserInfo
      */
-    public void updateChatUserInfo(long userId, String userName, int chatId, long lastMessageId);
-    //
+    public void updateChatUserInfo(Actor actor, int chatId, long lastMessageId);
 
     /**
      * Starts new process by definition.
