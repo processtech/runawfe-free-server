@@ -1,6 +1,5 @@
 package ru.runa.wfe.chat.logic;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -13,8 +12,7 @@ import ru.runa.wfe.user.Actor;
 @Component
 public class ChatLogic extends WfCommonLogic {
     public ChatsUserInfo getUserInfo(Actor actor, int chatId) {
-        ChatsUserInfo chatUser = chatDao.getUserInfo(actor, chatId);
-        return chatUser;
+        return chatDao.getUserInfo(actor, chatId);
     }
 
     public long getNewMessagesCount(long lastMessageId, int chatId) {
@@ -26,8 +24,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<ChatMessage> getMessages(int chatId) {
-        List<ChatMessage> messages = chatDao.getAll(chatId);
-        return messages;
+        return chatDao.getAll(chatId);
     }
 
     public ChatMessage getMessage(int chatId, long messageId) {
@@ -35,19 +32,15 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<ChatMessage> getMessages(int chatId, int firstId, int count) {
-        List<ChatMessage> messages = chatDao.getMessages(chatId, firstId, count);
-        return new ArrayList<ChatMessage>(messages);
+        return chatDao.getMessages(chatId, firstId, count);
     }
 
     public List<ChatMessage> getFirstMessages(int chatId, int count) {
-        List<ChatMessage> messages = chatDao.getFirstMessages(chatId, count);
-        return messages;
+        return chatDao.getFirstMessages(chatId, count);
     }
 
     public long setMessage(int chatId, ChatMessage message) {
-        long newId = -1L;
-        newId = chatDao.save(message);
-        return newId;
+        return chatDao.save(message);
     }
 
     public long getAllMessagesCount(int chatId) {

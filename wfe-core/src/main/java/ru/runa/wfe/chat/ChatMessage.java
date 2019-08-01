@@ -104,13 +104,11 @@ public class ChatMessage {
         this.date = date;
     }
 
-    // @Column(name = "USER_ID")
     @Transient
     public long getUserId() {
         return actor.getId();
     }
 
-    // @Column(name = "USER_NAME")
     @Transient
     public String getUserName() {
         return actor.getName();

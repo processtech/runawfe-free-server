@@ -84,12 +84,13 @@ public class ChatSoket {
         } else if (typeMessage.equals("getMessages")) { // отправка N сообщений
             int countMessages = ((Long) objectMessage.get("Count")).intValue();
             int lastMessageId = ((Long) objectMessage.get("lastMessageId")).intValue();
-            int chatId0 = Integer.parseInt((String) objectMessage.get("chatId"));
             List<ChatMessage> messages;
             if (lastMessageId != -1) {
-                messages = Delegates.getExecutionService().getChatMessages(chatId0, lastMessageId, countMessages);
+                messages = Delegates.getExecutionService().getChatMessages(Integer.parseInt((String) objectMessage.get("chatId")), lastMessageId,
+                        countMessages);
             } else {
-                messages = Delegates.getExecutionService().getChatFirstMessages(chatId0, countMessages);
+                messages = Delegates.getExecutionService().getChatFirstMessages(Integer.parseInt((String) objectMessage.get("chatId")),
+                        countMessages);
             }
             for (ChatMessage newMessage : messages) {
                 JSONObject sendObject = convertMessage(newMessage, true);
@@ -100,39 +101,38 @@ public class ChatSoket {
             sessionHandler.sendToSession(session, sendDeblocOldMes);
         } else if (typeMessage.equals("deleteMessage")) {// удаление сообщения
             if (Delegates.getExecutorService().isAdministrator((User) session.getUserProperties().get("user"))) {
-                Long messageId0 = Long.parseLong((String) objectMessage.get("messageId"));
-                Delegates.getExecutionService().deleteChatMessage(messageId0);
+                Delegates.getExecutionService().deleteChatMessage(Long.parseLong((String) objectMessage.get("messageId")));
             }
         } else if (typeMessage.equals("getChatUserInfo")) {// userInfo, последнее прочитанное сообщение
-            int chatId0 = Integer.parseInt((String) objectMessage.get("chatId"));
+            int chatId = Integer.parseInt((String) objectMessage.get("chatId"));
             ChatsUserInfo userInfo = Delegates.getExecutionService().getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
-                    chatId0);
-            JSONObject sendObject0 = new JSONObject();
-            sendObject0.put("messType", "ChatUserInfo");
-            sendObject0.put("numberNewMessages", Delegates.getExecutionService().getChatNewMessagesCount(userInfo.getLastMessageId(), chatId0));
-            sendObject0.put("lastMessageId", userInfo.getLastMessageId());
-            sessionHandler.sendToSession(session, sendObject0);
+                    chatId);
+            JSONObject sendObject = new JSONObject();
+            sendObject.put("messType", "ChatUserInfo");
+            sendObject.put("numberNewMessages", Delegates.getExecutionService().getChatNewMessagesCount(userInfo.getLastMessageId(), chatId));
+            sendObject.put("lastMessageId", userInfo.getLastMessageId());
+            sessionHandler.sendToSession(session, sendObject);
         } else if (typeMessage.equals("setChatUserInfo")) {// обновление userInfo
-            int chatId0 = Integer.parseInt((String) objectMessage.get("chatId"));
             long currentMessageId = (Long) objectMessage.get("currentMessageId");
-            Delegates.getExecutionService().updateChatUserInfo(((User) session.getUserProperties().get("user")).getActor(), chatId0,
+            Delegates.getExecutionService().updateChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
+                    Integer.parseInt((String) objectMessage.get("chatId")),
                     currentMessageId);
         }
     }
 
     // отправка сообщения, old - старые сообщения, которые отобразятся сверху
-    public JSONObject convertMessage(ChatMessage message0, Boolean old) {
+    public JSONObject convertMessage(ChatMessage message, Boolean old) {
         JSONObject sendObject = new JSONObject();
         sendObject.put("messType", "newMessages");
         JSONArray messagesArrayObject = new JSONArray();
         JSONObject messageObject = new JSONObject();
-        messageObject.put("id", message0.getId());
-        messageObject.put("text", message0.getText());
-        messageObject.put("author", message0.getUserName());
+        messageObject.put("id", message.getId());
+        messageObject.put("text", message.getText());
+        messageObject.put("author", message.getUserName());
         @SuppressWarnings("deprecation")
-        String dateNow = message0.getDate().toGMTString();
+        String dateNow = message.getDate().toGMTString();
         messageObject.put("dateTime", dateNow);
-        if (message0.getIerarchyMessageArray().size() > 0) {
+        if (message.getIerarchyMessageArray().size() > 0) {
             messageObject.put("hierarchyMessageFlag", 1);
         } else {
             messageObject.put("hierarchyMessageFlag", 0);

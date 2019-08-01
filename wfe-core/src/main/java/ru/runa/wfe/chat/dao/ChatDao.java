@@ -47,35 +47,27 @@ public class ChatDao extends GenericDao<ChatMessage> {
     }
 
     public List<ChatMessage> getAll(int chatId) {
-        List<ChatMessage> messages;
         QChatMessage m = QChatMessage.chatMessage;
-        messages = queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.desc()).fetch();
-        return messages;
+        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.desc()).fetch();
     }
 
     public List<ChatMessage> getFirstMessages(int chatId, int count) {
-        List<ChatMessage> messages;
         QChatMessage m = QChatMessage.chatMessage;
-        messages = queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.desc()).limit(count).fetch();
-        return messages;
+        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.desc()).limit(count).fetch();
     }
 
     public List<ChatMessage> getMessages(int chatId, int firstId, int count) {
-        List<ChatMessage> messages;
         QChatMessage m = QChatMessage.chatMessage;
-        messages = queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.id.lt(firstId))).orderBy(m.date.desc()).limit(count).fetch();
-        return messages;
+        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.id.lt(firstId))).orderBy(m.date.desc()).limit(count).fetch();
     }
 
     public ChatMessage getMessage(int chatId, long messageId) {
         QChatMessage m = QChatMessage.chatMessage;
-        ChatMessage mes = queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
-        return mes;
+        return queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
     }
 
     public long save(ChatMessage message) {
-        long id = create(message).getId();
-        return id;
+        return create(message).getId();
     }
 
     public long getMessagesCount(int chatId) {

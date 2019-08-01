@@ -41,7 +41,6 @@ public class ChatsUserInfo {
         this.lastMessageId = lastMessageId;
     }
 
-    // @Column(name = "USER_ID")
     @Transient
     public long getUserId() {
         return actor.getId();
@@ -52,7 +51,6 @@ public class ChatsUserInfo {
         this.actor.setId(userId);
     }
 
-    // @Column(name = "USER_NAME")
     @Transient
     public String getUserName() {
         return actor.getName();
