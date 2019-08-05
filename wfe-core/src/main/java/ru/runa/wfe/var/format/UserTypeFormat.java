@@ -1,14 +1,17 @@
 package ru.runa.wfe.var.format;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
@@ -20,12 +23,6 @@ import ru.runa.wfe.var.VariableDefinition;
 public class UserTypeFormat extends VariableFormat implements VariableDisplaySupport {
     private static final Log log = LogFactory.getLog(UserTypeFormat.class);
     private final UserType userType;
-    
-    private boolean massBool;
-    
-    public void setBool(boolean massBool) {
-    	this.massBool=massBool;
-    }
 
     public UserTypeFormat(UserType userType) {
         Preconditions.checkNotNull(userType);
@@ -103,92 +100,36 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
 
     @Override
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object) {
-    	UserTypeMap userTypeMap = (UserTypeMap) object;
-    	StringBuffer b = new StringBuffer();
-    	b.append("<table class=\"list usertype\" id =\"nav\">");
-    	//копируемый контент
-    	b.append("<div id=\"content\">");
-    	for (VariableDefinition attributeDefinition : userType.getAttributes()) {
-    	b.append("<tr>");
-    	b.append("<td class=\"list\">");
-    	//переменная1
-    	String attributeDefName = attributeDefinition.getName();
-    	//проверка является ли "большей переменной"
-    	
-    	b.append("<a href=/wfe/manage_process.do?id=1&flagOpen=false> \n Развернуть</a>");
-    	
-    	
-    	b.append("</td>");
-    	VariableFormat attributeFormat = FormatCommons.create(attributeDefinition);
-    	Object attributeValue = userTypeMap.get(attributeDefinition.getName());
-    	b.append("<td class=\"list\">");
-    	if (attributeValue != null) {
-    	Object value;
-    	if (attributeFormat instanceof VariableDisplaySupport) {
-    	String childName = name + UserType.DELIM + attributeDefinition.getName();
-    	try {
-    	value = ((VariableDisplaySupport) attributeFormat).formatHtml(user, webHelper, processId, childName, attributeValue);
-    	} catch (Exception e) {
-    	throw new InternalApplicationException(attributeDefinition.getName(), e);
-    	}
-    	} else {
-    	value = attributeFormat.format(attributeValue);
-    	}
-    	b.append(value);
-    	}
-    	b.append("</td>");
-    	b.append("</tr>");
-    	}
-    	//конец копируемого контента
-    	b.append("</div>");
-    	b.append("</table>");
-    	return b.toString();
+        UserTypeMap userTypeMap = (UserTypeMap) object;
+        StringBuffer b = new StringBuffer();
+        b.append("<table class=\"list usertype\">");
+        for (VariableDefinition attributeDefinition : userType.getAttributes()) {
+            b.append("<tr>");
+            b.append("<td class=\"list\">").append(attributeDefinition.getName()).append("</td>");
+            VariableFormat attributeFormat = FormatCommons.create(attributeDefinition);
+            Object attributeValue = userTypeMap.get(attributeDefinition.getName());
+            b.append("<td class=\"list\">");
+            if (attributeValue != null) {
+                Object value;
+                if (attributeFormat instanceof VariableDisplaySupport) {
+                    String childName = name + UserType.DELIM + attributeDefinition.getName();
+                    try {
+                        value = ((VariableDisplaySupport) attributeFormat).formatHtml(user, webHelper, processId, childName, attributeValue);
+                    } catch (Exception e) {
+                        throw new InternalApplicationException(attributeDefinition.getName(), e);
+                    }
+                } else {
+                    value = attributeFormat.format(attributeValue);
+                }
+                b.append(value);
+            }
+            b.append("</td>");
+            b.append("</tr>");
+        }
+        b.append("</table>");
+        return b.toString();
     }
 
-    public String formatHtmlDop(User user, WebHelper webHelper, Long processId, String name, Object object) {
-    	UserTypeMap userTypeMap = (UserTypeMap) object;
-    	StringBuffer b = new StringBuffer();
-    	b.append("<table class=\"list usertype\" id =\"nav\">");
-    	//копируемый контент
-    	b.append("<div id=\"content\">");
-    	for (VariableDefinition attributeDefinition : userType.getAttributes()) {
-    	b.append("<tr>");
-    	b.append("<td class=\"list\">");
-    	//переменная1
-    	String attributeDefName = attributeDefinition.getName();
-    	//проверка является ли "большей переменной"
-        //переменная развернута
-    	
-    	b.append(attributeDefName);
-    	
-    	b.append("<a href=/wfe/manage_process.do?id=1&flagOpen=true> \n свернуть</a>");
-    	
-    	b.append("</td>");
-    	VariableFormat attributeFormat = FormatCommons.create(attributeDefinition);
-    	Object attributeValue = userTypeMap.get(attributeDefinition.getName());
-    	b.append("<td class=\"list\">");
-    	if (attributeValue != null) {
-    	Object value;
-    	if (attributeFormat instanceof VariableDisplaySupport) {
-    	String childName = name + UserType.DELIM + attributeDefinition.getName();
-    	try {
-    	value = ((VariableDisplaySupport) attributeFormat).formatHtml(user, webHelper, processId, childName, attributeValue);
-    	} catch (Exception e) {
-    	throw new InternalApplicationException(attributeDefinition.getName(), e);
-    	}
-    	} else {
-    	value = attributeFormat.format(attributeValue);
-    	}
-    	b.append(value);
-    	}
-    	b.append("</td>");
-    	b.append("</tr>");
-    	}
-    	//конец копируемого контента
-    	b.append("</div>");
-    	b.append("</table>");
-    	return b.toString();
-    }
     public UserType getUserType() {
         return userType;
     }

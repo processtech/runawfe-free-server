@@ -29,6 +29,10 @@ import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.html.HeaderBuilder;
@@ -46,27 +50,17 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processVariableMonitor")
 public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
     private static final long serialVersionUID = 161759402000861245L;
 
     private Long identifiableId;
-    private Boolean flagOpen;
 
     @Attribute(required = false, rtexprvalue = true)
     @Override
     public void setIdentifiableId(Long id) {
         identifiableId = id;
-    }
-    
-    @Attribute(required = false, rtexprvalue = true)
-    public void setFlagOpen(Boolean flagOpen) {
-    	this.flagOpen=flagOpen;
     }
 
     @Override
@@ -126,7 +120,6 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
     }
 
-    
     @Override
     protected Permission getSubmitPermission() {
         return Permission.LIST;
