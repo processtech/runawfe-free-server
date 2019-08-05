@@ -336,7 +336,9 @@ function addMessages(data){
 						attachedPosts.splice(pos0, 1);
 					}
 				}
-				document.getElementById("messDeleter" + (lastMessageIndex)).onclick=deleteMessage;			
+				if($(".modal-body").attr("admin") == "true"){
+					document.getElementById("messDeleter" + (lastMessageIndex)).onclick=deleteMessage;
+				}
 				addOnClickHierarchyOpen();
 				lastMessageIndex += 1;
 			}
