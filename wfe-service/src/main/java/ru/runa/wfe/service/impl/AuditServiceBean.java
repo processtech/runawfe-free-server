@@ -10,12 +10,14 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
 import ru.runa.wfe.audit.logic.AuditLogic;
+import ru.runa.wfe.commons.ClassLoaderUtil.ExtensionObjectInputStream;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -26,6 +28,8 @@ import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 @Stateless(name = "AuditServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -60,10 +64,21 @@ public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
         return auditLogic.getProcessLogs(user, filter);
     }
 
+    @SneakyThrows
     @Override
     @WebResult(name = "result")
     public Object getProcessLogValue(@WebParam(name = "user") @NonNull User user, @WebParam(name = "logId") Long logId) {
-        return auditLogic.getProcessLogValue(user, logId);
+        Object value = auditLogic.getProcessLogValue(user, logId);
+        if (value instanceof byte[]) {
+            try (ExtensionObjectInputStream objectInputStream = new ExtensionObjectInputStream((byte[]) value)) {
+                value = objectInputStream.readObject();
+            }
+            if (value instanceof FileVariable) {
+                FileVariable fileVariable = (FileVariable) value;
+                return new FileVariableImpl(fileVariable);
+            }
+        }
+        return value;
     }
 
     @Override

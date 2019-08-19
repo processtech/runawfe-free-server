@@ -1,8 +1,6 @@
 package ru.runa.wf.web.action;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,12 +45,11 @@ public class VariableDownloaderAction extends ActionBase {
     private FileVariable getVariable(ActionForm actionForm, HttpServletRequest request) throws IOException, ClassNotFoundException {
         VariableForm form = (VariableForm) actionForm;
         if (form.getLogId() != null) {
-            byte[] serializedVariable = (byte[]) Delegates.getAuditService().getProcessLogValue(getLoggedUser(request), form.getLogId());
-            ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(serializedVariable));
-            return (FileVariable) objectInputStream.readObject();
+            return (FileVariable) Delegates.getAuditService().getProcessLogValue(getLoggedUser(request), form.getLogId());
         } else {
             return Delegates.getExecutionService().getFileVariableValue(getLoggedUser(request), form.getId(), form.getVariableName());
         }
     }
+
 
 }

@@ -6,10 +6,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -305,6 +308,23 @@ public class ClassLoaderUtil {
             throw Throwables.propagate(e);
         }
         return properties;
+    }
+
+    public static class ExtensionObjectInputStream extends ObjectInputStream {
+
+        public ExtensionObjectInputStream(byte[] bs) throws IOException {
+            super(new ByteArrayInputStream(bs));
+        }
+
+        @Override
+        protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+            try {
+                return super.resolveClass(desc);
+            } catch (ClassNotFoundException ex) {
+                return ClassLoaderUtil.loadClass(desc.getName());
+            }
+        }
+
     }
 
 }
