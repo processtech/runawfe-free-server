@@ -60,6 +60,7 @@
 										<wsdl>http://localhost:8080/wfe-service-${project.version}/AuthenticationWebService/AuthenticationAPI?wsdl</wsdl>
 										<wsdl>http://localhost:8080/wfe-service-${project.version}/AuthorizationWebService/AuthorizationAPI?wsdl</wsdl>
 										<wsdl>http://localhost:8080/wfe-service-${project.version}/BotWebService/BotAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/DataSourceWebService/DataSourceAPI?wsdl</wsdl>
 										<wsdl>http://localhost:8080/wfe-service-${project.version}/DefinitionWebService/DefinitionAPI?wsdl</wsdl>
 										<wsdl>http://localhost:8080/wfe-service-${project.version}/ExecutionWebService/ExecutionAPI?wsdl</wsdl>
 										<wsdl>http://localhost:8080/wfe-service-${project.version}/TaskWebService/TaskAPI?wsdl</wsdl>

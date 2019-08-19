@@ -97,14 +97,6 @@ public class DefinitionServiceDelegateGetStartFormTest extends ServletTestCase {
         }
     }
 
-    public void testGetStartFormTestByNullSubject() throws Exception {
-        try {
-            definitionService.getStartInteraction(null, definitionId);
-            fail("testGetStartFormTestByNullSubject , no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetStartFormTestByAuthorizedSubjectWithInvalidDefinitionId() throws Exception {
         try {
             definitionService.getStartInteraction(helper.getAuthorizedPerformerUser(), -1l);

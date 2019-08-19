@@ -19,15 +19,12 @@
 package ru.runa.af.delegate;
 
 import com.google.common.collect.Lists;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
@@ -74,13 +71,13 @@ public class ExecutorServiceDelegateGetGroupTest extends ServletTestCase {
             executorService.getExecutorByName(th.getUnauthorizedPerformerUser(), testPrefix + ServiceTestHelper.BASE_GROUP_NAME);
             fail("businessDelegate allow to getExecutorByName()");
         } catch (AuthorizationException e) {
-            //That's what we expect
+            // That's what we expect
         }
         try {
             executorService.getExecutorByName(th.getUnauthorizedPerformerUser(), testPrefix + ServiceTestHelper.SUB_GROUP_NAME);
             fail("businessDelegate allow to getExecutorByName()");
         } catch (AuthorizationException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 
@@ -89,34 +86,17 @@ public class ExecutorServiceDelegateGetGroupTest extends ServletTestCase {
             executorService.getExecutorByName(th.getAuthorizedPerformerUser(), testPrefix + "unexistent group name");
             fail("businessDelegate does not throw Exception to getExecutorByName() in testGetUnexistedGroupByAuthorizedPerformer");
         } catch (ExecutorDoesNotExistException e) {
-            //That's what we expect
-        }
-    }
-
-    public void testGetNullGroupByAuthorizedPerformer() throws Exception {
-        try {
-            executorService.getExecutorByName(th.getAuthorizedPerformerUser(), null);
-            fail("businessDelegate allow to getExecutorByName()with null group.");
-        } catch (IllegalArgumentException e) {
-            //That's what we expect
-        }
-    }
-
-    public void testGetExecutorByNameByNullPerformer() throws Exception {
-        try {
-            executorService.getExecutorByName(null, testPrefix + ServiceTestHelper.BASE_GROUP_NAME);
-            fail("businessDelegate allow to getExecutorByName() to performer with null subject.");
-        } catch (IllegalArgumentException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 
     public void testGetActorInsteadOfGroup() throws Exception {
         try {
-            Group group = executorService.<Group>getExecutorByName(th.getAuthorizedPerformerUser(), testPrefix + ServiceTestHelper.BASE_GROUP_ACTOR_NAME);
+            Group group = executorService.<Group>getExecutorByName(th.getAuthorizedPerformerUser(),
+                    testPrefix + ServiceTestHelper.BASE_GROUP_ACTOR_NAME);
             fail("businessDelegate allow to getExecutorByName() where the actor really is returned.");
         } catch (ClassCastException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 

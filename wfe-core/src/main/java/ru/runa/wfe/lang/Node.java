@@ -195,6 +195,7 @@ public abstract class Node extends GraphElement {
                 Token eventToken = new Token(executionContext.getToken(), boundaryNode.getNodeId());
                 eventToken.setNodeId(boundaryNode.getNodeId());
                 eventToken.setNodeType(boundaryNode.getNodeType());
+                ApplicationContextFactory.getTokenDAO().create(eventToken);
                 ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
@@ -244,14 +245,22 @@ public abstract class Node extends GraphElement {
         }
         if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
             Token parentToken = executionContext.getToken().getParent();
-            ((Node) getParentElement()).onBoundaryEvent(executionContext.getProcessDefinition(), parentToken, (BoundaryEvent) this);
-            for (Token token : parentToken.getActiveChildren()) {
+            ((Node) getParentElement()).onBoundaryEvent(new ExecutionContext(executionContext.getProcessDefinition(), parentToken),
+                    (BoundaryEvent) this);
+            for (Token token : parentToken.getChildren()) {
                 if (Objects.equal(token, executionContext.getToken())) {
                     continue;
                 }
-                token.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), true);
+                if (token.hasEnded()) {
+                    // inactive ParallelGateway behaviour
+                    token.setAbleToReactivateParent(false);
+                } else {
+                    token.end(executionContext.getProcessDefinition(), null,
+                            ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executionContext), true);
+                }
             }
         }
+
         Token token = executionContext.getToken();
         for (ProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
             listener.onNodeLeave(executionContext, this, transition);
@@ -308,7 +317,8 @@ public abstract class Node extends GraphElement {
         return true;
     }
 
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
-        token.end(processDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
+    protected void onBoundaryEvent(ExecutionContext executionContext, BoundaryEvent boundaryEvent) {
+        executionContext.getToken().end(executionContext.getProcessDefinition(), null,
+                boundaryEvent.getTaskCompletionInfoIfInterrupting(executionContext), false);
     }
 }

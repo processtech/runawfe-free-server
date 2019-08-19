@@ -209,10 +209,6 @@ public final class ApplicablePermissions {
     // ATTENTION!!! Lists of visible permissions are duplicated in RefactorPermissionsStep3 migration.
     static {
 
-        // Same setup for EXECUTOR, ACTOR & GROUP:
-        add(SecuredObjectType.ACTOR, LIST, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
-
         // System singleton:
         add(SecuredObjectType.BOTSTATIONS, ALL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
@@ -233,16 +229,11 @@ public final class ApplicablePermissions {
         add(SecuredObjectType.ERRORS, ALL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
 
-        // Same setup for EXECUTOR, ACTOR & GROUP:
         add(SecuredObjectType.EXECUTOR, LIST, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         add(SecuredObjectType.EXECUTORS, ALL, LOGIN, LIST, READ, VIEW_TASKS, CREATE, UPDATE, UPDATE_STATUS, UPDATE_SELF, DELETE)
                 .defaults(LOGIN)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
-
-        // Same setup for EXECUTOR, ACTOR & GROUP:
-        add(SecuredObjectType.GROUP, LIST, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         // System singleton:

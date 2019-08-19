@@ -25,6 +25,10 @@ public class SystemProperties {
 
     private static volatile List<ProcessExecutionListener> processExecutionListeners = null;
 
+    static {
+        setSystemProperties("javamelody.disabled", "javamelody.datasources");
+    }
+
     public static PropertyResources getResources() {
         return RESOURCES;
     }
@@ -34,6 +38,17 @@ public class SystemProperties {
      */
     public static boolean isDevMode() {
         return developmentMode;
+    }
+
+    /**
+     * Sets system properties
+     * @param props
+     *             system properties names.
+     */
+    public static void setSystemProperties(String ... props) {
+        for (String prop: props) {
+            System.setProperty(prop, RESOURCES.getStringProperty(prop));
+        }
     }
 
     /**

@@ -19,14 +19,12 @@
 package ru.runa.af.delegate;
 
 import com.google.common.collect.Lists;
-import junit.framework.TestSuite;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
@@ -73,13 +71,13 @@ public class ExecutorServiceDelegateGetGroupByIdTest extends ServletTestCase {
             executorService.getExecutor(th.getUnauthorizedPerformerUser(), group.getId());
             fail("businessDelegate allow to getExecutor()");
         } catch (AuthorizationException e) {
-            //That's what we expect
+            // That's what we expect
         }
         try {
             executorService.getExecutor(th.getUnauthorizedPerformerUser(), th.getSubGroup().getId());
             fail("businessDelegate allow to getSubGroup()");
         } catch (AuthorizationException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 
@@ -88,25 +86,7 @@ public class ExecutorServiceDelegateGetGroupByIdTest extends ServletTestCase {
             executorService.getExecutor(th.getAuthorizedPerformerUser(), -1l);
             fail("businessDelegate does not throw Exception to getExecutor() in testGetUnexistedGroupByAuthorizedPerformer");
         } catch (ExecutorDoesNotExistException e) {
-            //That's what we expect
-        }
-    }
-
-    public void testGetNullGroupByAuthorizedPerformer() throws Exception {
-        try {
-            executorService.getExecutor(th.getAuthorizedPerformerUser(), null);
-            fail("businessDelegate allow to getExecutor()with null group.");
-        } catch (IllegalArgumentException e) {
-            //That's what we expect
-        }
-    }
-
-    public void testGetExecutorByNullPerformer() throws Exception {
-        try {
-            executorService.getExecutor(null, group.getId());
-            fail("businessDelegate allow to getExecutor() to performer with null subject.");
-        } catch (IllegalArgumentException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 
@@ -115,7 +95,7 @@ public class ExecutorServiceDelegateGetGroupByIdTest extends ServletTestCase {
             Group actor = executorService.<Group>getExecutor(th.getAuthorizedPerformerUser(), th.getBaseGroupActor().getId());
             fail("businessDelegate allow to getExecutor() where the actor really is returned.");
         } catch (ClassCastException e) {
-            //That's what we expect
+            // That's what we expect
         }
     }
 

@@ -1,18 +1,15 @@
 package ru.runa.wfe.audit;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 /**
  * Logging task escalation.
@@ -34,7 +31,6 @@ public class TaskEscalationLog extends TaskLog {
             ids.add(executor.getId());
         }
         addAttribute(ATTR_MESSAGE, Joiner.on(ExecutorIdsValue.DELIM).join(ids));
-        setSeverity(Severity.INFO);
     }
 
     @Override

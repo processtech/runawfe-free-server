@@ -24,14 +24,13 @@ import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.UPDATE_SELF;
 import static ru.runa.wfe.security.Permission.UPDATE_STATUS;
 import static ru.runa.wfe.security.Permission.VIEW_TASKS;
-import static ru.runa.wfe.security.SecuredObjectType.ACTOR;
 import static ru.runa.wfe.security.SecuredObjectType.BOTSTATIONS;
 import static ru.runa.wfe.security.SecuredObjectType.DATAFILE;
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITIONS;
 import static ru.runa.wfe.security.SecuredObjectType.ERRORS;
 import static ru.runa.wfe.security.SecuredObjectType.EXECUTORS;
-import static ru.runa.wfe.security.SecuredObjectType.GROUP;
+import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 import static ru.runa.wfe.security.SecuredObjectType.LOGS;
 import static ru.runa.wfe.security.SecuredObjectType.PROCESS;
 import static ru.runa.wfe.security.SecuredObjectType.PROCESSES;
@@ -268,15 +267,6 @@ public class PermissionSubstitutions {
     // In alphabetic order, please:
     static {
 
-        // Same setup for ACTOR & GROUP:
-        add(ACTOR, DELETE).list();
-        add(ACTOR, LIST).self(READ, UPDATE_STATUS, DELETE).list();
-        add(ACTOR, READ).self(UPDATE).list();
-        add(ACTOR, READ_PERMISSIONS).self(UPDATE_PERMISSIONS, READ).list();
-        add(ACTOR, UPDATE).list();
-        add(ACTOR, UPDATE_STATUS).self(UPDATE).list();
-        add(ACTOR, UPDATE_PERMISSIONS).self(UPDATE).list();
-
         // System singleton:
         add(BOTSTATIONS, LIST).self(ALL);
         add(BOTSTATIONS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
@@ -312,6 +302,14 @@ public class PermissionSubstitutions {
         add(ERRORS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
         add(ERRORS, UPDATE_PERMISSIONS).self(ALL);
 
+        add(EXECUTOR, DELETE).list();
+        add(EXECUTOR, LIST).self(READ, UPDATE_STATUS, DELETE).list();
+        add(EXECUTOR, READ).self(UPDATE).list();
+        add(EXECUTOR, READ_PERMISSIONS).self(UPDATE_PERMISSIONS, READ).list();
+        add(EXECUTOR, UPDATE).list();
+        add(EXECUTOR, UPDATE_STATUS).self(UPDATE).list();
+        add(EXECUTOR, UPDATE_PERMISSIONS).self(UPDATE).list();
+
         add(EXECUTORS, CREATE).self(ALL);
         add(EXECUTORS, DELETE).self(ALL);
         add(EXECUTORS, LOGIN).self(ALL);
@@ -323,15 +321,6 @@ public class PermissionSubstitutions {
         add(EXECUTORS, UPDATE_PERMISSIONS).self(ALL, UPDATE);
         add(EXECUTORS, UPDATE_SELF).self(ALL, UPDATE);
         add(EXECUTORS, UPDATE_STATUS).self(ALL, UPDATE);
-
-        // Same setup for ACTOR & GROUP:
-        add(GROUP, DELETE).list();
-        add(GROUP, LIST).self(READ, UPDATE_STATUS, DELETE).list();
-        add(GROUP, READ).self(UPDATE).list();
-        add(GROUP, READ_PERMISSIONS).self(UPDATE_PERMISSIONS, READ).list();
-        add(GROUP, UPDATE).list();
-        add(GROUP, UPDATE_STATUS).self(UPDATE).list();
-        add(GROUP, UPDATE_PERMISSIONS).self(UPDATE).list();
 
         // System singleton:
         add(LOGS, LIST).self(ALL);

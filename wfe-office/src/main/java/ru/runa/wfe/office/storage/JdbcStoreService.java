@@ -206,7 +206,7 @@ public abstract class JdbcStoreService implements StoreService {
     @Override
     public ExecutionResult findByFilter(Properties properties, WfVariable variable, String condition) throws Exception {
         if (!existOutputParamByVariableName(variable)) {
-            return ExecutionResult.EMPTY;
+            throw new WrongParameterException(variable.getDefinition().getName());
         }
         initParams(properties, variable);
         String columns = "";
@@ -249,13 +249,17 @@ public abstract class JdbcStoreService implements StoreService {
         if (Strings.isNullOrEmpty(condition)) {
             return SQL_TRUE_SEARCH_CONDITION;
         }
+        if (!isConditionValid(condition)) {
+            throw new WrongOperatorException(condition);
+        }
+        condition = ConditionProcessor.hideSpacesInAttributeNames(condition);
         StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(condition);
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
             if (token.startsWith("[") && token.endsWith("]")) {
                 sb.append(SPACE);
-                sb.append('"').append(token.substring(1, token.length() - 1)).append('"');
+                sb.append('"').append(token.replace(ConditionProcessor.UNICODE_CHARACTER_OVERLINE, ' ').substring(1, token.length() - 1)).append('"');
             } else if (token.equalsIgnoreCase(LIKE_LITERAL)) {
                 sb.append(SPACE);
                 sb.append(LIKE_LITERAL);

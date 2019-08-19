@@ -25,16 +25,18 @@ import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.SystemLog;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 
 import com.google.common.collect.Lists;
+import com.itextpdf.text.log.SysoLogger;
 
 /**
  * Created on 20.08.2004
@@ -50,14 +52,12 @@ public class AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest exten
         helper = new ServiceTestHelper(AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest.class.getName());
         helper.createDefaultExecutorsMap();
 
-        Collection<Permission> systemP = Lists.newArrayList(Permission.READ, SystemPermission.CREATE_EXECUTOR);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(systemP);
-
-        Collection<Permission> executorP = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
+        Collection<Permission> executorP = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
 
         authorizationService = Delegates.getAuthorizationService();
+        authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroupActor().getId(), executorP, helper.getBaseGroupActor());
         super.setUp();
     }
 
@@ -68,35 +68,19 @@ public class AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest exten
         super.tearDown();
     }
 
-    public void testGetExecutorsWithoutPermissionNullUser() throws Exception {
-        try {
-            authorizationService.getExecutorsWithPermission(null, helper.getAASystem(), helper.getExecutorBatchPresentation(), false);
-            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testGetExecutorsWithoutPermissionFakeSubject() throws Exception {
         try {
-            authorizationService.getExecutorsWithPermission(helper.getFakeUser(), helper.getAASystem(), helper.getExecutorBatchPresentation(), false);
+            authorizationService.getExecutorsWithPermission(helper.getFakeUser(), SecuredSingleton.EXECUTORS, helper.getExecutorBatchPresentation(), false);
             fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows fake subject");
         } catch (AuthenticationException e) {
         }
     }
 
-    public void testGetExecutorsWithoutPermissionNullIdentifiable() throws Exception {
-        try {
-            authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), null, helper.getExecutorBatchPresentation(), false);
-            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows null identifiable");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testGetExecutorsWithoutPermissionFakeIdentifiable() throws Exception {
+    public void testGetExecutorsWithoutPermissionFakeSecuredObject() throws Exception {
         try {
             authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), helper.getFakeActor(),
                     helper.getExecutorBatchPresentation(), false);
-            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows fake identifiable");
+            fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows fake SecuredObject");
         } catch (InternalApplicationException e) {
         }
     }

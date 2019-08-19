@@ -313,16 +313,16 @@ public class ArrayAssert extends Assert {
         assertNotNull(formatted + "expected array: <null> but was <not null>", expected);
 
         assertEquals(formatted + "[array length] ", expected.size(), actual.size());
-        
+
         List<Object> tmp = Lists.newArrayList(actual);
         tmp.removeAll(expected);
         if (tmp.size() > 0) {
-            assertEquals(formatted + "expected array: <" + expected + "> but was <" + actual + ">", expected.size(), expected.size()-tmp.size());
+            assertEquals(formatted + "expected array: <" + expected + "> but was <" + actual + ">", expected.size(), expected.size() - tmp.size());
         }
         tmp = Lists.newArrayList(expected);
         tmp.removeAll(actual);
         if (tmp.size() > 0) {
-            assertEquals(formatted + "expected array: <" + expected + "> but was <" + actual + ">", expected.size(), expected.size()-tmp.size());
+            assertEquals(formatted + "expected array: <" + expected + "> but was <" + actual + ">", expected.size(), expected.size() - tmp.size());
         }
     }
 

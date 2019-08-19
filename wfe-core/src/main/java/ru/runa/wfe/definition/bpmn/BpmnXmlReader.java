@@ -12,7 +12,6 @@ import org.dom4j.QName;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
@@ -305,7 +304,7 @@ public class BpmnXmlReader {
             SubprocessNode subprocessNode = (SubprocessNode) node;
             subprocessNode.setSubProcessName(element.attributeValue(QName.get(PROCESS, RUNA_NAMESPACE)));
             if (properties.containsKey(TRANSACTIONAL)) {
-                subprocessNode.setTransactional((Boolean.parseBoolean(properties.get(TRANSACTIONAL))));
+                subprocessNode.setTransactional(Boolean.parseBoolean(properties.get(TRANSACTIONAL)));
             }
             if (properties.containsKey(EMBEDDED)) {
                 subprocessNode.setEmbedded(Boolean.parseBoolean(properties.get(EMBEDDED)));
@@ -477,7 +476,6 @@ public class BpmnXmlReader {
             }
             return null;
         }
-        ClassLoaderUtil.instantiate(className);
         String configuration = properties.get(CONFIG);
         return new Delegation(className, configuration);
     }

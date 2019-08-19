@@ -21,8 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import java.util.ArrayList;
@@ -55,9 +54,8 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.QExecutor;
 import ru.runa.wfe.user.User;
 
-import static ru.runa.wfe.security.SecuredObjectType.ACTOR;
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
-import static ru.runa.wfe.security.SecuredObjectType.GROUP;
+import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 
 /**
  * Created on 14.03.2005
@@ -166,7 +164,7 @@ public class AuthorizationLogic extends CommonLogic {
             QExecutor e2 = new QExecutor("e2");  // same table as `e`, but different alias
             exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, e2.name)
                     .from(pm, e, e2)
-                    .where(pm.objectType.in(ACTOR, GROUP).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
+                    .where(pm.objectType.eq(EXECUTOR).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
                     .orderBy(pm.objectType.asc(), e2.name.asc(), e.name.asc(), pm.permission.asc()));
         }
 
@@ -175,7 +173,7 @@ public class AuthorizationLogic extends CommonLogic {
             QDeployment d = QDeployment.deployment;
             exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, d.name)
                     .from(pm, e, d)
-                    .where(pm.objectType.eq(DEFINITION).and(pm.objectId.eq(d.id)).and(pm.executor.eq(e)))
+                    .where(pm.objectType.eq(DEFINITION).and(pm.executor.eq(e)))
                     .orderBy(d.name.asc(), e.name.asc(), pm.permission.asc()));
         }
     }
@@ -268,8 +266,7 @@ public class AuthorizationLogic extends CommonLogic {
                         .from(pm)
                         .where(pm.executor.eq(executor)
                                 .and(pm.objectType.eq(type))
-                                .and(pm.objectId.in(objectIds))
-                                .and(pm.permission.in(permissions)))
+                                .and(pm.objectId.in(objectIds)))
                         .iterate()
                 ) {
                     while (i.hasNext()) {
@@ -289,11 +286,13 @@ public class AuthorizationLogic extends CommonLogic {
 
                 if (deleteExisting && !existing.isEmpty()) {
                     // Delete in single statement; getDatabaseNameParametersCount() is much less than getDatabaseParametersCount(), so should be OK.
-                    BooleanExpression cond = Expressions.FALSE;
+                    BooleanBuilder cond = new BooleanBuilder();
                     for (IdAndPermission ip : existing) {
-                        cond = cond.or(pm.objectId.eq(ip.id).and(pm.permission.eq(ip.permission)));
+                        cond.or(pm.objectId.eq(ip.id).and(pm.permission.eq(ip.permission)));
                     }
-                    queryFactory.delete(pm).where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(cond)).execute();
+                    if (cond != null) {
+                        queryFactory.delete(pm).where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(cond)).execute();
+                    }
                 }
             }
         }
@@ -397,18 +396,17 @@ public class AuthorizationLogic extends CommonLogic {
         permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createExecutorWithPermissionCompiler(user, securedObject,
                 batchPresentation, hasPermission);
-        if (hasPermission) {
-            List<Executor> executors = compiler.getBatch();
-            for (Executor privelegedExecutor : permissionDao.getPrivilegedExecutors(securedObject.getSecuredObjectType())) {
-                if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
-                        && permissionDao.isAllowed(user, Permission.LIST, privelegedExecutor)) {
-                    executors.add(0, privelegedExecutor);
-                }
+        List<Executor> executors = compiler.getBatch();
+        for (Executor privelegedExecutor : permissionDao.getPrivilegedExecutors(securedObject.getSecuredObjectType())) {
+            if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
+                    && permissionDao.isAllowed(user, Permission.LIST, privelegedExecutor)) {
+                if (hasPermission)
+                  executors.add(0, privelegedExecutor);
+                else
+                  executors.remove(privelegedExecutor);
             }
-            return executors;
-        } else {
-            return compiler.getBatch();
         }
+        return executors;
     }
 
     /**

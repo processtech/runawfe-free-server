@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<config xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml soapHandlerConfig.xsd" url="http://localhost:8080/af.webservice/AuthenticationBean?wsdl" object="AuthenticationWebService" method="authenticateDB" service_wsdl="http://runa.ru/workflow/webservices">
-	<request>
-		<variable wfe_name="actorName" service_name="name" />
-		<variable wfe_name="actorPassword" service_name="password" />
-	</request>
-	<response>
-	</response>
-</config>

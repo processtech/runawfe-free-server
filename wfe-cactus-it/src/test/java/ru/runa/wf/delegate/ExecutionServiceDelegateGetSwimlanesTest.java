@@ -17,14 +17,12 @@
  */
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -33,8 +31,6 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 02.05.2005
@@ -58,9 +54,11 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
 
         helper.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ,
-                DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+
+        permissions = Lists.newArrayList(Permission.READ);
+        helper.setPermissionsToAuthorizedPerformer(permissions, helper.getAuthorizedPerformerActor());
 
         // instanceId =
         executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
@@ -94,14 +92,6 @@ public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
             executionService.getProcessSwimlanes(helper.getFakeUser(), instanceId);
             fail("testGetSwimlanesByFakeSubject(), no AuthenticationException");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testGetSwimlanesByNullSubject() throws Exception {
-        try {
-            executionService.getProcessSwimlanes(null, instanceId);
-            fail("testGetSwimlanesByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
         }
     }
 

@@ -28,17 +28,14 @@ import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.var.dto.WfVariable;
 
 import com.google.common.collect.Lists;
@@ -63,11 +60,12 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
 
         helper.deployValidProcessDefinition();
 
-        Collection<Permission> startPermissions = Lists.newArrayList(DefinitionPermission.READ, DefinitionPermission.UPDATE_PERMISSIONS,
-                DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> startPermissions = Lists.newArrayList(Permission.UPDATE, Permission.START, Permission.READ_PROCESS);
         helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
-        Collection<Permission> executorPermission = Lists.newArrayList(ExecutorPermission.READ);
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.UPDATE));
+
+        Collection<Permission> executorPermission = Lists.newArrayList(Permission.READ);
         helper.setPermissionsToAuthorizedPerformer(executorPermission, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorPermission, helper.getSubGroupActor());
 
@@ -98,14 +96,6 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
             executionService.startProcess(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
             fail("testStartProcessInstanceWithMapByFakeSubject(), no AuthenticationException");
         } catch (AuthenticationException e) {
-        }
-    }
-
-    public void testStartProcessInstanceWithMapByNullSubject() throws Exception {
-        try {
-            executionService.startProcess(null, WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
-            fail("testStartProcessInstanceWithMapByNullSubject(), no IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
         }
     }
 
@@ -147,10 +137,10 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
     public void testStartProcessInstanceWithMapInstancePermissions() throws Exception {
         WfDefinition defintiion = helper.getDefinitionService().getLatestProcessDefinition(helper.getAuthorizedPerformerUser(),
                 WfServiceTestHelper.VALID_PROCESS_NAME);
-        Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.READ_STARTED_PROCESS);
+        Collection<Permission> permissions = Lists.newArrayList(Permission.READ_PROCESS);
         helper.getAuthorizationService().setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), permissions,
                 defintiion);
-        permissions = Lists.newArrayList(DefinitionPermission.READ_STARTED_PROCESS, DefinitionPermission.CANCEL_STARTED_PROCESS);
+        permissions = Lists.newArrayList(Permission.READ_PROCESS, Permission.CANCEL_PROCESS);
         helper.getAuthorizationService().setPermissions(helper.getAuthorizedPerformerUser(), helper.getSubGroupActor().getId(), permissions,
                 defintiion);
 
@@ -161,10 +151,10 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
         WfProcess instance = getInstance(WfServiceTestHelper.VALID_PROCESS_NAME);
         Collection<Permission> actual = helper.getAuthorizationService().getIssuedPermissions(helper.getAuthorizedPerformerUser(),
                 helper.getBaseGroupActor(), instance);
-        Collection<Permission> expected = Lists.newArrayList(ProcessPermission.READ);
+        Collection<Permission> expected = Lists.newArrayList(Permission.READ);
         ArrayAssert.assertWeakEqualArrays("startProcessInstance() does not grant permissions on instance", expected, actual);
         actual = helper.getAuthorizationService().getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getSubGroupActor(), instance);
-        expected = Lists.newArrayList(ProcessPermission.READ, ProcessPermission.CANCEL_PROCESS);
+        expected = Lists.newArrayList(Permission.READ, Permission.CANCEL);
         ArrayAssert.assertWeakEqualArrays("startProcessInstance() does not grant permissions on instance", expected, actual);
     }
 

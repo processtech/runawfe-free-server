@@ -85,12 +85,4 @@ public class DefinitionServiceDelegateGetLatestProcessDefinitionsStubsTest exten
         } catch (AuthenticationException e) {
         }
     }
-
-    public void testGetLatestProcessDefinitionsStubsByNullSubject() throws Exception {
-        try {
-            definitionService.getProcessDefinitions(null, batchPresentation, false);
-            assertTrue("testGetLatestProcessDefinitionsStubsByNullSubject, no IllegalArgumentException", false);
-        } catch (IllegalArgumentException e) {
-        }
-    }
 }

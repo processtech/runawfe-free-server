@@ -17,15 +17,13 @@
  */
 package ru.runa.wf.web.action;
 
+import java.io.IOException;
 import java.io.OutputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.form.VariableForm;
@@ -61,7 +59,7 @@ public class VariableDownloaderAction extends ActionBase {
         return null;
     }
 
-    private FileVariable getVariable(ActionForm actionForm, HttpServletRequest request) {
+    private FileVariable getVariable(ActionForm actionForm, HttpServletRequest request) throws IOException, ClassNotFoundException {
         VariableForm form = (VariableForm) actionForm;
         if (form.getLogId() != null) {
             return (FileVariable) Delegates.getAuditService().getProcessLogValue(getLoggedUser(request), form.getLogId());
@@ -69,5 +67,6 @@ public class VariableDownloaderAction extends ActionBase {
             return Delegates.getExecutionService().getFileVariableValue(getLoggedUser(request), form.getId(), form.getVariableName());
         }
     }
+
 
 }

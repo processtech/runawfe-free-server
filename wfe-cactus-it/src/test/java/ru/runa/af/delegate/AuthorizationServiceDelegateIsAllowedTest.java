@@ -17,6 +17,7 @@
  */
 package ru.runa.af.delegate;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.cactus.ServletTestCase;
@@ -24,12 +25,11 @@ import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.security.AuthenticationException;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.ExecutorPermission;
 
 import com.google.common.collect.Lists;
 
@@ -47,10 +47,10 @@ public class AuthorizationServiceDelegateIsAllowedTest extends ServletTestCase {
         helper = new ServiceTestHelper(AuthorizationServiceDelegateIsAllowedTest.class.getName());
         helper.createDefaultExecutorsMap();
 
-        List<Permission> systemP = Lists.newArrayList(SystemPermission.CREATE_EXECUTOR);
-        helper.setPermissionsToAuthorizedPerformerOnSystem(systemP);
+        Collection<Permission> executorsP = Lists.newArrayList(Permission.CREATE);
+        helper.setPermissionsToAuthorizedPerformerOnExecutors(executorsP);
 
-        List<Permission> executorP = Lists.newArrayList(Permission.READ, ExecutorPermission.UPDATE);
+        List<Permission> executorP = Lists.newArrayList(Permission.READ, Permission.UPDATE_STATUS);
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
         helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
 
@@ -65,54 +65,20 @@ public class AuthorizationServiceDelegateIsAllowedTest extends ServletTestCase {
         super.tearDown();
     }
 
-    public void testIsAllowedNullUser() throws Exception {
-        try {
-            authorizationService.isAllowed(null, Permission.READ, helper.getAASystem());
-            fail("AuthorizationDelegate.isAllowed() allows null subject");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void testIsAllowedFakeSubject() throws Exception {
         try {
-            authorizationService.isAllowed(helper.getFakeUser(), Permission.READ, helper.getAASystem());
+            authorizationService.isAllowed(helper.getFakeUser(), Permission.READ, SecuredSingleton.EXECUTORS);
             fail("AuthorizationDelegate.isAllowed() allows fake subject");
         } catch (AuthenticationException e) {
         }
     }
 
-    public void testIsAllowedPermissionUser() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), null, helper.getAASystem());
-            fail("AuthorizationDelegate.isAllowed() allows null permission");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testIsAllowedNullIdentifiable() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, (Identifiable) null);
-            fail("AuthorizationDelegate.isAllowed() allows null identifiable");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    public void testIsAllowedFakeIdentifiable() throws Exception {
-        try {
-            authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, helper.getFakeActor());
-            // TODO
-            // fail("AuthorizationDelegate.isAllowed() allows fake identifiable");
-        } catch (InternalApplicationException e) {
-            fail("TODO trap");
-        }
-    }
-
     public void testIsAllowedAASystem() throws Exception {
         assertTrue("AuthorizationDelegate.isAllowed() returns wrong info",
-                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), SystemPermission.CREATE_EXECUTOR, helper.getAASystem()));
+                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.CREATE, SecuredSingleton.EXECUTORS));
 
         assertFalse("AuthorizationDelegate.isAllowed() returns wrong info",
-                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, helper.getAASystem()));
+                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, SecuredSingleton.EXECUTORS));
     }
 
     public void testIsAllowedExecutor() throws Exception {
@@ -120,23 +86,23 @@ public class AuthorizationServiceDelegateIsAllowedTest extends ServletTestCase {
                 authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, helper.getBaseGroupActor()));
 
         assertTrue("AuthorizationDelegate.isAllowed() returns wrong info",
-                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), ExecutorPermission.UPDATE, helper.getBaseGroupActor()));
+                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.UPDATE_STATUS, helper.getBaseGroupActor()));
 
         assertFalse("AuthorizationDelegate.isAllowed() returns wrong info",
-                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.UPDATE_PERMISSIONS, helper.getBaseGroupActor()));
+                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.UPDATE, helper.getBaseGroupActor()));
 
         assertTrue("AuthorizationDelegate.isAllowed() returns wrong info",
                 authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.READ, helper.getBaseGroup()));
 
         assertTrue("AuthorizationDelegate.isAllowed() returns wrong info",
-                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), ExecutorPermission.UPDATE, helper.getBaseGroup()));
+                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.UPDATE_STATUS, helper.getBaseGroup()));
 
         assertFalse("AuthorizationDelegate.isAllowed() returns wrong info",
-                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.UPDATE_PERMISSIONS, helper.getBaseGroup()));
+                authorizationService.isAllowed(helper.getAuthorizedPerformerUser(), Permission.UPDATE, helper.getBaseGroup()));
     }
 
     public void testIsAllowedExecutorUnauthorized() throws Exception {
-        assertFalse(authorizationService.isAllowed(helper.getUnauthorizedPerformerUser(), Permission.READ, helper.getAASystem()));
+        assertFalse(authorizationService.isAllowed(helper.getUnauthorizedPerformerUser(), Permission.READ, SecuredSingleton.EXECUTORS));
 
         assertFalse(authorizationService.isAllowed(helper.getUnauthorizedPerformerUser(), Permission.READ, helper.getBaseGroupActor()));
 

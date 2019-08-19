@@ -88,11 +88,12 @@ public class Signal implements Serializable {
         this.messageSelectorsMap = (byte[]) new SerializableToByteArrayConverter().convert(null, null, getMessageSelectorsMap(message));
         this.messageDataMap = (byte[]) new SerializableToByteArrayConverter().convert(null, null, message.getObject());
         if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
+            Map<String, String> routingData = getRoutingData(message);
             if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
-                this.messageSelectorsValue = Utils.getObjectMessageStrictSelector(message);
+                this.messageSelectorsValue = Utils.getObjectMessageStrictSelector(routingData);
             } else {
                 // skipNulls
-                this.messageSelectorsValue = Joiner.on("; ").join(Utils.getObjectMessageCombinationSelectors(message));
+                this.messageSelectorsValue = Joiner.on("; ").join(Utils.getObjectMessageCombinationSelectors(routingData));
             }
             if (STRING_LENGTH / 2 < this.messageSelectorsValue.length()) {
                 this.messageSelectorsValue = null;
@@ -124,6 +125,18 @@ public class Signal implements Serializable {
             }
         }
         return result;
+    }
+
+    private Map<String, String> getRoutingData(ObjectMessage message) throws JMSException {
+        Map<String, String> map = new HashMap<>();
+        Enumeration<String> propertyNames = message.getPropertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String propertyName = propertyNames.nextElement();
+            if (!propertyName.startsWith("JMS")) {
+                map.put(propertyName, message.getStringProperty(propertyName));
+            }
+        }
+        return map;
     }
 
 }

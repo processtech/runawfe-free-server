@@ -8,21 +8,18 @@ import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
@@ -83,14 +80,14 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         testHelper.getExecutorService().setPassword(testHelper.getAdminUser(), substitute, pwdSubstitute);
 
         {
-            Collection<Permission> perm = Lists.newArrayList(SystemPermission.LOGIN_TO_SYSTEM);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), group.getId(), perm, ASystem.INSTANCE);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), perm, ASystem.INSTANCE);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor2.getId(), perm, ASystem.INSTANCE);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitute.getId(), perm, ASystem.INSTANCE);
+            Collection<Permission> perm = Lists.newArrayList(Permission.LOGIN);
+            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), group.getId(), perm, SecuredSingleton.EXECUTORS);
+            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), perm, SecuredSingleton.EXECUTORS);
+            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor2.getId(), perm, SecuredSingleton.EXECUTORS);
+            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitute.getId(), perm, SecuredSingleton.EXECUTORS);
         }
         {
-            Collection<Permission> perm = Lists.newArrayList(ActorPermission.READ);
+            Collection<Permission> perm = Lists.newArrayList(Permission.READ);
             testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), perm, substitute);
             testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitute.getId(), perm, actor1);
         }
@@ -104,7 +101,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         byte[] parBytes = WfServiceTestHelper.readBytesFromFile(PROCESS_NAME + ".par");
         testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
         WfDefinition definition = testHelper.getDefinitionService().getLatestProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME);
-        Collection<Permission> definitionPermission = Lists.newArrayList(DefinitionPermission.START_PROCESS);
+        Collection<Permission> definitionPermission = Lists.newArrayList(Permission.START);
         testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), definitionPermission, definition);
 
         batchPresentation = testHelper.getTaskBatchPresentation();

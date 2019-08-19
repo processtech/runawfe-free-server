@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service.impl;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import javax.ejb.Stateless;
@@ -40,6 +38,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.dto.RestoreProcessStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
@@ -60,9 +59,6 @@ import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.MapVariableProvider;
-import ru.runa.wfe.var.VariableMapping;
-import ru.runa.wfe.var.dto.Variables;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.file.FileVariable;
@@ -252,6 +248,12 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
+    public RestoreProcessStatus restoreProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
+        return executionLogic.restoreProcess(user, processId);
+    }
+
+    @Override
+    @WebResult(name = "result")
     public List<WfSwimlane> getProcessSwimlanes(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         return executionLogic.getProcessSwimlanes(user, processId);
     }
@@ -356,17 +358,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @Override
     @WebMethod(exclude = true)
     public void sendSignal(@NonNull User user, @NonNull Map<String, String> routingData, @NonNull Map<String, Object> payloadData, long ttlInSeconds) {
-        Map<String, Object> variables = Maps.newHashMap();
-        List<VariableMapping> variableMappings = Lists.newArrayList();
-        for (Map.Entry<String, String> entry : routingData.entrySet()) {
-            variables.put(entry.getKey(), entry.getValue());
-            variableMappings.add(new VariableMapping(entry.getKey(), Variables.wrap(entry.getKey()), VariableMapping.USAGE_SELECTOR));
-        }
-        for (Map.Entry<String, Object> entry : payloadData.entrySet()) {
-            variables.put(entry.getKey(), entry.getValue());
-            variableMappings.add(new VariableMapping(entry.getKey(), entry.getKey(), VariableMapping.USAGE_READ));
-        }
-        Utils.sendBpmnMessage(variableMappings, new MapVariableProvider(variables), ttlInSeconds * 1000);
+        Utils.sendBpmnMessage(routingData, payloadData, ttlInSeconds * 1000);
     }
 
     @Override

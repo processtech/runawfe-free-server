@@ -10,14 +10,13 @@ import java.util.Set;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.QDeployment;
 import ru.runa.wfe.execution.QProcess;
 import ru.runa.wfe.report.QReportDefinition;
 import ru.runa.wfe.report.dto.WfReport;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.QExecutor;
 
 /**
@@ -140,8 +139,12 @@ public class SecuredObjectFactory {
         List<Tuple> tt = getLoader(type).getByNames(names);
         List<Long> foundIds = new ArrayList<>(tt.size());
         Set<String> missingNames = new HashSet<>(names);
+        boolean isDef = type.equals(SecuredObjectType.DEFINITION);
         for (Tuple t : tt) {
-            foundIds.add(t.get(0, Long.class));
+            if(isDef)
+                foundIds.add(ApplicationContextFactory.getDeploymentDAO().getNotNull(t.get(0, Long.class)).getIdentifiableId());
+            else
+                foundIds.add(t.get(0, Long.class));
             missingNames.remove(t.get(1, String.class));
         }
         if (!missingNames.isEmpty()) {
@@ -163,25 +166,6 @@ public class SecuredObjectFactory {
     }
 
     static {
-        add(SecuredObjectType.ACTOR, new Loader(SecuredObjectType.ACTOR) {
-            @Override
-            public SecuredObject findById(Long id) {
-                QExecutor e = QExecutor.executor;
-                Executor o = getQueryFactory().selectFrom(e).where(e.id.eq(id)).fetchFirst();
-                Assert.isTrue(o == null || o instanceof Actor);
-                return o;
-            }
-//            @Override
-//            SecuredObject getByName(String name) {
-//                Executor o = instance.executorLogic.getExecutor(user, name);
-//                Assert.isTrue(o == null || o instanceof Actor);
-//                return o;
-//            }
-            @Override
-            List<Tuple> getByNames(Set<String> names) {
-                throw new UnsupportedOperationException("Called for ACTOR, but applicable only to fake EXECUTOR type: no subtype checks are done");
-            }
-        });
 
         add(SecuredSingleton.BOTSTATIONS);
         add(SecuredSingleton.DATAFILE);
@@ -226,26 +210,6 @@ public class SecuredObjectFactory {
         });
 
         add(SecuredSingleton.EXECUTORS);
-
-        add(SecuredObjectType.GROUP, new Loader(SecuredObjectType.GROUP) {
-            @Override
-            public SecuredObject findById(Long id) {
-                QExecutor e = QExecutor.executor;
-                Executor o = getQueryFactory().selectFrom(e).where(e.id.eq(id)).fetchFirst();
-                Assert.isTrue(o == null || o instanceof Group);
-                return o;
-            }
-//            @Override
-//            SecuredObject getByName(User user, String name) {
-//                Executor o = getInstance().executorLogic.getExecutor(user, name);
-//                Assert.isTrue(o == null || o instanceof Group);
-//                return o;
-//            }
-            @Override
-            List<Tuple> getByNames(Set<String> names) {
-                throw new UnsupportedOperationException("Called for GROUP, but applicable only to fake EXECUTOR type: no subtype checks are done");
-            }
-        });
 
         add(SecuredSingleton.LOGS);
 

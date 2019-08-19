@@ -18,7 +18,7 @@ public abstract class CommonParamBasedHandler extends TaskHandlerBase implements
     private ParamsDef paramsDef;
 
     @Override
-    public void setConfiguration(String configuration) {
+    public void setConfiguration(String configuration) throws Exception {
         paramsDef = ParamsDef.parse(configuration);
     }
 
@@ -39,7 +39,7 @@ public abstract class CommonParamBasedHandler extends TaskHandlerBase implements
     }
 
     @Override
-    public Map<String, Object> handle(final User user, final VariableProvider variableProvider, final WfTask task) {
+    public Map<String, Object> handle(final User user, final VariableProvider variableProvider, final WfTask task) throws Exception {
         HandlerData handlerData = new HandlerData(paramsDef, user, variableProvider, task);
         TimeMeasurer timeMeasurer = new TimeMeasurer(log);
         try {

@@ -17,13 +17,17 @@
  */
 package ru.runa.wfe.lang.dto;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
+import lombok.Getter;
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.lang.BoundaryEvent;
+import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -31,13 +35,10 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.Transition;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-
 /**
  * @since 4.3.0
  */
+@Getter
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfNode implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -46,10 +47,11 @@ public class WfNode implements Serializable {
     private NodeType type;
     private String name;
     private String description;
-    private final List<WfTransition> arrivingTransitionIds = Lists.newArrayList();
-    private final List<WfTransition> leavingTransitionIds = Lists.newArrayList();
+    private final List<WfTransition> arrivingTransitionIds = new ArrayList<>();
+    private final List<WfTransition> leavingTransitionIds = new ArrayList<>();
     private boolean hasErrorEventHandler;
     private String swimlaneName;
+    private final List<WfNode> boundaryEvents = new ArrayList<>();
 
     public WfNode() {
     }
@@ -73,34 +75,13 @@ public class WfNode implements Serializable {
                 this.swimlaneName = taskDefinition.getSwimlane().getName();
             }
         }
-    }
-
-    public String getParentId() {
-        return parentId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public NodeType getType() {
-        return type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public List<WfTransition> getArrivingTransitionIds() {
-        return arrivingTransitionIds;
-    }
-
-    public List<WfTransition> getLeavingTransitionIds() {
-        return leavingTransitionIds;
+        if (node instanceof BoundaryEventContainer) {
+            for (BoundaryEvent event : ((BoundaryEventContainer) node).getBoundaryEvents()) {
+                if (event instanceof Node) {
+                    boundaryEvents.add(new WfNode((Node) event));
+                }
+            }
+        }
     }
 
     @Override
@@ -118,10 +99,6 @@ public class WfNode implements Serializable {
 
     public boolean hasErrorEventHandler() {
         return hasErrorEventHandler;
-    }
-
-    public String getSwimlaneName() {
-        return swimlaneName;
     }
 
     @Override
