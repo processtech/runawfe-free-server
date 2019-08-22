@@ -165,7 +165,7 @@ public class AuthorizationLogic extends CommonLogic {
             val d = QProcessDefinition.processDefinition;
             exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, d.name)
                     .from(pm, e, d)
-                    .where(pm.objectType.eq(DEFINITION).and(pm.executor.eq(e)))
+                    .where(pm.objectType.eq(DEFINITION).and(pm.objectId.eq(d.id)).and(pm.executor.eq(e)))
                     .orderBy(d.name.asc(), e.name.asc(), pm.permission.asc()));
         }
     }
