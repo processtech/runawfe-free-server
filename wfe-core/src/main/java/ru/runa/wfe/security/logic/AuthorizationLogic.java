@@ -203,6 +203,9 @@ public class AuthorizationLogic extends CommonLogic {
         }
     }
 
+    // ********************************************************************************************************************************
+    // ***** !!!!! DON'T MERGE THIS INTO develop !!!!! This is temporary solution, before table BPM_PROCESS_DEFINITION_VER was created.
+    // ********************************************************************************************************************************
     private static class ExportDataFilePermissionRow {
         final Permission permission;
         final String executorName;
@@ -225,6 +228,9 @@ public class AuthorizationLogic extends CommonLogic {
      * @param parentElement  Parent for "addPermissions" elements.
      * @param query  Must return fields in order: permission, executorName, objectType, [objectName].
      */
+    // ********************************************************************************************************************************
+    // ***** !!!!! DON'T MERGE THIS INTO develop !!!!! This is temporary solution, before table BPM_PROCESS_DEFINITION_VER was created.
+    // ********************************************************************************************************************************
     private void exportDataFilePermissions(Element parentElement, JPQLQuery<Tuple> query) {
         try (final CloseableIterator<Tuple> it = query.iterate()) {
             exportDataFilePermissionsImpl(parentElement, new CloseableIterator<ExportDataFilePermissionRow>() {
@@ -246,6 +252,9 @@ public class AuthorizationLogic extends CommonLogic {
         }
     }
 
+    // ********************************************************************************************************************************
+    // ***** !!!!! DON'T MERGE THIS INTO develop !!!!! This is temporary solution, before table BPM_PROCESS_DEFINITION_VER was created.
+    // ********************************************************************************************************************************
     private void exportDataFilePermissions(Element parentElement, ArrayList<ExportDataFilePermissionRow> rows) {
         val it = rows.iterator();
         exportDataFilePermissionsImpl(parentElement, new CloseableIterator<ExportDataFilePermissionRow>() {
