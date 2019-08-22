@@ -145,7 +145,7 @@ public class AuthorizationLogic extends CommonLogic {
                     singletonTypes.add(t);
                 }
             }
-            exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType)
+            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType)
                     .from(pm, e)
                     .where(pm.objectType.in(singletonTypes).and(pm.objectId.eq(0L)).and(pm.executor.eq(e)))
                     .orderBy(pm.objectType.asc(), e.name.asc(), pm.permission.asc()));
@@ -154,7 +154,7 @@ public class AuthorizationLogic extends CommonLogic {
         // Export ACTOR and GROUP permissions.
         {
             QExecutor e2 = new QExecutor("e2");  // same table as `e`, but different alias
-            exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, e2.name)
+            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, e2.name)
                     .from(pm, e, e2)
                     .where(pm.objectType.eq(EXECUTOR).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
                     .orderBy(pm.objectType.asc(), e2.name.asc(), e.name.asc(), pm.permission.asc()));
@@ -163,7 +163,7 @@ public class AuthorizationLogic extends CommonLogic {
         // Export DEFINITION permissions.
         {
             val d = QProcessDefinition.processDefinition;
-            exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, d.name)
+            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, d.name)
                     .from(pm, e, d)
                     .where(pm.objectType.eq(DEFINITION).and(pm.objectId.eq(d.id)).and(pm.executor.eq(e)))
                     .orderBy(d.name.asc(), e.name.asc(), pm.permission.asc()));
@@ -175,7 +175,7 @@ public class AuthorizationLogic extends CommonLogic {
      * @param parentElement  Parent for "addPermissions" elements.
      * @param query  Must return fields in order: permission, executorName, objectType, [objectName].
      */
-    private void exportDataFileImpl(Element parentElement, JPQLQuery<Tuple> query) {
+    private void exportDataFilePermissions(Element parentElement, JPQLQuery<Tuple> query) {
         SecuredObjectType lastObjectType = null;
         String lastObjectName = null;
         String lastExecutorName = null;
