@@ -173,7 +173,7 @@ public class AuthorizationLogic extends CommonLogic {
     /**
      *
      * @param parentElement  Parent for "addPermissions" elements.
-     * @param query  Rows must be ordered by objectType, objectName, executorName, LAST by permission, because rows are grouped by permission.
+     * @param query  Rows must be ordered by objectType, objectName, executorName, LAST by permission, because of rows grouping algorithm.
      *               Fields in tuple must go in this order: permission, executorName, objectType, [objectName].
      */
     private void exportDataFilePermissions(Element parentElement, JPQLQuery<Tuple> query) {
