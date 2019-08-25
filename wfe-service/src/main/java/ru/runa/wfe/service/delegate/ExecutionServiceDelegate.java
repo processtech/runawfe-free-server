@@ -22,6 +22,7 @@ import java.util.Map;
 
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFiles;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -45,13 +46,28 @@ import ru.runa.wfe.var.file.FileVariableImpl;
 public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionService {
 
     @Override
+    public List<ChatMessageFiles> getChatMessageFiles(ChatMessage message) {
+        return getExecutionService().getChatMessageFiles(message);
+    }
+
+    @Override
+    public ChatMessageFiles getChatMessageFile(long fileId) {
+        return getExecutionService().getChatMessageFile(fileId);
+    }
+
+    @Override
+    public ChatMessageFiles saveChatMessageFile(ChatMessageFiles file) {
+        return getExecutionService().saveChatMessageFile(file);
+    }
+
+    @Override
     public List<ChatMessage> getChatMessages(int chatId) {
         return getExecutionService().getChatMessages(chatId);
     }
 
     @Override
-    public ChatMessage getChatMessage(int chatId, long messageId) {
-        return getExecutionService().getChatMessage(chatId, messageId);
+    public ChatMessage getChatMessage(long messageId) {
+        return getExecutionService().getChatMessage(messageId);
     }
 
     @Override

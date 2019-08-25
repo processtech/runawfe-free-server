@@ -1,3 +1,66 @@
+              	
+       	.tableModalNameSetMessage{
+       		background-color: white;
+       		position: absolute;
+       		margin-bottom: 20px;
+       		padding: 10px 20px;
+       	}
+       	.tableModalNameSetMessage tr{
+       	border-bottom: 1px solid gray;
+       	}
+       
+       	.modalSetting{
+       	display:none;
+		    position: absolute;
+		    background-color: white;
+    margin: -350px 350px;
+		    padding: 5px;
+		    
+    border: 1px solid darkgray;
+       	}
+       	
+       	.modalHeaderSetting{
+		    padding: 0 3px;
+    width: 520px;
+		    height: 40px;
+		    
+    border-bottom: 1px solid darkgray;
+       	}
+       	
+       	.modalBodySetting{ 	
+		    padding-top: 10px;
+		    
+    border-bottom: 1px solid darkgray;
+    border-left: 1px solid darkgray;
+    border-right: 1px solid darkgray;
+		    width: 520px;
+		    height: 460px;
+       	}
+       	
+       	.modalBodySetting table{
+    width: inherit;
+       	}
+       	.modalBodySetting table tbody{
+    width: 100%;
+       	}
+       	.modalBodySetting table tr{ 	
+       	
+    	border: 1px solid darkgray;
+       	}
+       	.modalBodySetting table tr td{ 	
+       	
+    	border: 1px solid darkgray;
+       	}
+       	
+       	
+       	.modalFooterSetting{
+       	
+       	padding:0 3px;
+       	padding-top:10px;
+       	 width: 120px;
+       	 height: 20px;
+       	}
+       	
        	#message{
             font-weight: bold;
             border: none;
@@ -159,7 +222,7 @@
             background-color: #ffffff00;
             left: 40px;
             cursor: move;
-            width: 220px;
+    		width: 150px;
             height: 20px;
             padding-right: 10px;
             padding-left: 20px;
@@ -240,5 +303,22 @@
     		visibility: visible;
     		transform: scale(1.0);
     		transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+		}
+		#attachedArea{
+		margin-top: 25px;
+		
+		height:70px;
+    	margin-left: 15px;
+    	
+    overflow: scroll;
+   	border: 1px solid black;
+		}
+		.btnFileChat{
+		padding-left: 5px;
+		}
+		#attachedArea #filesTable tbody tr td{
+		 	white-space: nowrap; /* Отменяем перенос текста */
+    		overflow: hidden; /* Обрезаем содержимое */
+    		width: 380px;
 		}
 		

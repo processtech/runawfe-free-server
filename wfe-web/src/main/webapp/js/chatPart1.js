@@ -1,5 +1,17 @@
 $(document).ready(function() {
 var attachedPosts=[];
+//флаг - блок чата
+var lockFlag = false;
+//зона для дропа файлов
+var dropZone=$("#modalFooter");
+//зона прикрепленных файлов
+var filesTable=$("<table/>");
+filesTable.attr("id", "filesTable");
+$("#attachedArea").append(filesTable);
+
+var attachedFiles=[];
+//максимальный размер файла
+var maxFileSize=1000000000; //около 1 гб
 
 // флаг развернутого чата (0 - свернут, 1 - развернут)
 var switchCheak=0;
@@ -25,8 +37,6 @@ var currentMessageId = -1;
 var numberNewMessages = 0;
 var blocOldMes=0;
 var inputH=document.getElementById("message");
-var heightModalC=$(".modal-content").height();
-var widthModalC=$(".modal-content").width();
 //шаг - по сколько сообщений подгружается
 var messagesStep = 20;
 
@@ -97,6 +107,8 @@ btnOpenChat.onclick = function() {
 		switchCheak=1;
 		// "в прочитанные все"
 		currentMessageId = maxMassageId;
+		//прокрутка
+		$("#messReply"+(lastMessageIndex - numberNewMessages)).scrollView();
 		updatenumberNewMessages(0);
 		updateLastReadMessage();
 	}
@@ -108,28 +120,62 @@ span.onclick = function() {
 	switchCheak=0;
 }
 
+//открыти настроек чата
+$(".modalSettings").click(function() {
+	$(".modalSetting").css({"display":"block"});
+});
+
+//закрытие настроек  чата 
+$(".closeButtonModalSetting").click(function(){
+
+	$(".modalSetting").css({"display":"none"});
+});
+
+//принять изменения в настроках из чата
+$(".acceptSettingsModal").click(function(){
+	
+});
+
+//
+$("#message").keyup(function(){
+	let value=$(this).val();
+	if(value=="@"){
+		$(this).append("<table class=\"tableModalNameSetMessage\"><tr><td>Игорь</td></tr><table>")
+	}
+});
+
 // кнопка "отправить"
 btnSend.onclick=function send() {
-	let message = document.getElementById("message").value;
-	message = message.replace(/\n/g, "<br/>");
-	let idHierarchyMessage="";
-	for(var i=0;i<attachedPosts.length;i++){
-		idHierarchyMessage += attachedPosts[ i ] + ":";
+	if(lockFlag == false){
+		let message = document.getElementById("message").value;
+		message = message.replace(/\n/g, "<br/>");
+		let idHierarchyMessage="";
+		for(var i=0;i<attachedPosts.length;i++){
+			idHierarchyMessage += attachedPosts[ i ] + ":";
+		}
+		// сокет
+		let newMessage={};
+		newMessage.message=message;
+		newMessage.chatId=$("#ChatForm").attr("chatId");
+		newMessage.idHierarchyMessage = idHierarchyMessage;
+		newMessage.type="newMessage";
+		if(attachedFiles.length > 0){
+			newMessage.haveFile=true;
+			lockFlag = true;
+		}
+		else{
+			newMessage.haveFile=false;
+		}
+		//отправка
+		chatSocket.send(JSON.stringify(newMessage));
+		// чистим "ответы"
+		let addReplys0 = document.getElementsByClassName("addReply");
+		for(let i=0; i<addReplys0.length; i++){
+			$(addReplys0[ i ]).text("Ответить");
+			$(addReplys0[ i ]).attr("flagAttach", "false");
+		}
+		attachedPosts=[];
 	}
-	// сокет
-	let newMessage={};
-	newMessage.message=message;
-	newMessage.chatId=$("#ChatForm").attr("chatId");
-	newMessage.idHierarchyMessage = idHierarchyMessage;
-	newMessage.type="newMessage";
-	chatSocket.send(JSON.stringify(newMessage));
-	// чистим "ответы"
-	let addReplys0 = document.getElementsByClassName("addReply");
-	for(let i=0; i<addReplys0.length; i++){
-		$(addReplys0[ i ]).text("Ответить");
-		$(addReplys0[ i ]).attr("flagAttach", "false");
-	}
-	attachedPosts=[];
 }
  
 // кнопка развернуть/свернуть чат
@@ -137,53 +183,110 @@ btnOp.onclick=function(){
 	if(flagRollExpandChat == 0){
 		flagRollExpandChat=1;
 		$(".modal-content").css({
-			width: widthModalC + 300,
-			height: heightModalC + 300,
+			width: $(".modal-content").width() + 300,
+			height: $(".modal-content").height() + 400,
 		});
-			
+
 		$(".modal-body").css({
-			height:"630px",
-			width: "590px",
+			width: $(".modal-body").width() + 300,
+			height: $(".modal-body").height() + 250,
 		});
 
-		$(".modal-header").css({
-			width: "600px",
+		$("#attachedArea").css({
+			height: $("#attachedArea").height() + 50,
 		});
-
+		
 		$(".modal-header-dragg").css({
-			width: "515px",
+			width: $(".modal-header-dragg").width() + 300,
 		});
+		
 
 		$(".modal-footer").css({
-			height: "80px",
+			height: $(".modal-footer").height() + 30,
 		});
 
 		imgButton.src="/wfe/images/chat_expand.png";
 	}else if(flagRollExpandChat == 1){
 		flagRollExpandChat=0;
 		$(".modal-content").css({
-			width: "346px",
-			height: "506px",
+			width: $(".modal-content").width() - 300,
+			height: $(".modal-content").height() - 400,
 		});
 
 		$(".modal-body").css({
-			width: "304px",
-			height: "396px",
+			width: $(".modal-body").width() - 300,
+			height: $(".modal-body").height() - 250,
 		});
 
-		$(".modal-header").css({
-			width: "316px",
+		$("#attachedArea").css({
+			height: $("#attachedArea").height() - 50,
 		});
-
+		
 		$(".modal-header-dragg").css({
-			width: "220px",
+			width: $(".modal-header-dragg").width() - 300,
 		});
+		
 
 		$(".modal-footer").css({
-			height: "53px",
+			height: $(".modal-footer").height() - 30,
 		});
 		imgButton.src="/wfe/images/chat_roll_up.png";
 	}
+}
+
+$.fn.scrollView = function () {
+	return this.each(function () {
+			$('html, body').animate({
+					scrollTop: $(this).offset().top
+			}, 3000);
+	});
+}
+
+// -----------приём файлов
+//проверка браузера
+if (typeof(window.FileReader) != 'undefined') {
+    //поддерживает
+	dropZone[0].ondragover = function() {
+		//тут смена класса
+	    //dropZone.addClass('hover');
+	    return false;
+	};
+	dropZone[0].ondragleave = function() {
+		//тут обратная смена класса/его удаление
+	    //dropZone.removeClass('hover');
+	    return false;
+	};
+	dropZone[0].ondrop = function(event) {
+	    event.preventDefault();
+	    //смена классов
+	    //dropZone.removeClass('hover');
+	    //dropZone.addClass('drop');
+	    let files = event.dataTransfer.files;
+	    for(let i =0; i<files.length ;i++){
+	    	attachedFiles.push(files[i]);
+		    //создаем отметку о прикреплении
+		    let newFile=$("<tr/>");
+		    newFile.append($("<td/>").text(attachedFiles[attachedFiles.length - 1].name));
+		    let deleteFileButton = $("<button/>");
+		    deleteFileButton.text("X");
+		    deleteFileButton.addClass("btnFileChat");
+		    deleteFileButton.attr("fileNumber", attachedFiles.length - 1);
+		    deleteFileButton.attr("type", "button");
+		    deleteFileButton.click(deleteAttachedFile);
+		    newFile.append($("<td/>").append(deleteFileButton));
+		    $("#filesTable").append(newFile);
+	    }
+	};
+}
+else{
+	
+}
+
+//удаление прикрепленных к сообщению файлов (для не отправленных сообщений)
+function deleteAttachedFile(){
+	attachedFiles.splice($(this).attr("fileNumber"));
+	$(this).parent().parent().remove();
+	return false;
 }
 
 // -----------функции реализующие механники чата:
@@ -299,6 +402,18 @@ function addMessages(data){
 				dateTr0.append($("<td/>").append("<hr class='hr-dashed'>").append(data.messages[ mes ].dateTime).append("<hr class='hr-dashed'>"));
 				dateTr0.append($("<td/>").append($("<div/>").addClass("hr-dashed-vertical").append(addReplyA0)));
 				messageBody.append(dateTr0);
+				//файлы
+				if(data.messages[ mes ].haveFile == true){
+					let fileTr0 = $("<tr/>");
+					let fileTable = $("<table/>");
+					for(let i = 0; i < data.messages[ mes ].fileIdArray.length; i++){
+						let fileIdTr = $("<tr/>");
+						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.messages[ mes ].fileIdArray[i].id + "' download='" + data.messages[ mes ].fileIdArray[i].name + "'>" + data.messages[ mes ].fileIdArray[i].name + "</a>"));
+						fileTable.append(fileIdTr);
+					}
+					fileTr0.append($("<td/>").append(fileTable).append("<hr class='hr-dashed'>"));
+					messageBody.append(fileTr0);
+				}
 				// админ
 				if($(".modal-body").attr("admin") == "true"){
 					let deleterMessageA0 = $("<a/>");
@@ -324,16 +439,18 @@ function addMessages(data){
 					$(".modal-body").children().first().after(messageBody);
 				}
 				document.getElementById("messReply" + (lastMessageIndex)).onclick=function(){
-					if($(this).attr("flagAttach") == "false"){
-						attachedPosts.push($(this).attr("mesId"));
-						$(this).attr("flagAttach", "true");
-						$(this).text("Отменить");
-					}
-					else{
-						$(this).text("Ответить");
-						$(this).attr("flagAttach", "false");
-						let pos0 = attachedPosts.indexOf($(this).attr("mesId"), 0);
-						attachedPosts.splice(pos0, 1);
+					if(lockFlag == false){
+						if($(this).attr("flagAttach") == "false"){
+							attachedPosts.push($(this).attr("mesId"));
+							$(this).attr("flagAttach", "true");
+							$(this).text("Отменить");
+						}
+						else{
+							$(this).text("Ответить");
+							$(this).attr("flagAttach", "false");
+							let pos0 = attachedPosts.indexOf($(this).attr("mesId"), 0);
+							attachedPosts.splice(pos0, 1);
+						}
 					}
 				}
 				if($(".modal-body").attr("admin") == "true"){
@@ -358,28 +475,61 @@ function deleteMessage(){
 	}
 }
 
+function nextStepLoadFile(messageId, FileIndex){
+	// Создаем форму с несколькими значениями
+	let form0 = new FormData();
+	form0.append("file", attachedFiles[0]);
+	// отправляем через xhr
+	let xhr = new XMLHttpRequest();
+	let endFlag = false;
+	if(attachedFiles.length == FileIndex+1){
+		xhr.onload = function() {
+			attachedFiles=[];
+			$("#filesTable").html("");
+			lockFlag=false;
+		};
+		xhr.open("post", "/wfe/chatFileInput" + "?fileName=" + attachedFiles[FileIndex].name + "&messageId=" +messageId + "&endFlag=true", false);
+		xhr.send(form0);
+	}
+	else{
+		xhr.onload = function() {
+			FileIndex++;
+			nextStepLoadFile(messageId, FileIndex);
+		};
+		xhr.open("post", "/wfe/chatFileInput" + "?fileName=" + attachedFiles[FileIndex].name + "&messageId=" +messageId + "&endFlag=false", false);
+		xhr.send(form0);
+	}
+}
+
 // приём с сервера
 function onMessage(event) {
-	let messsage0 = JSON.parse(event.data);
-	if(messsage0.messType == "newMessages"){
-		addMessages(messsage0);
+	let message0 = JSON.parse(event.data);
+	if(message0.messType == "newMessages"){
+		addMessages(message0);
 	}
-	else if(messsage0.messType == "deblocOldMes"){
+	else if(message0.messType == "deblocOldMes"){
 		blocOldMes=0;
 	}
-	else if(messsage0.messType == "ChatUserInfo"){
+	else if(message0.messType == "ChatUserInfo"){
 		if(switchCheak == 0){
-			if(currentMessageId<messsage0.lastMessageId){
-				currentMessageId = messsage0.lastMessageId;
+			if(currentMessageId<message0.lastMessageId){
+				currentMessageId = message0.lastMessageId;
 			}
-			updatenumberNewMessages(messsage0.numberNewMessages);
+			updatenumberNewMessages(message0.numberNewMessages);
 			// дозапрос всех непрочитанных сообщений
 			if(numberNewMessages>lastMessageIndex){
 				newxtMessages(numberNewMessages-lastMessageIndex);
 			}
 		}
 	}
+	else if(message0.messType == "nextStepLoadFile"){
+		nextStepLoadFile(message0.messageId, 0);
+		let newMessage={};
+		newMessage.messageId=message0.messageId;
+		newMessage.chatId=$("#ChatForm").attr("chatId");
+		newMessage.type="sendToChat";
+		chatSocket.send(JSON.stringify(newMessage));
+	}
 }
-
 // конец
 });

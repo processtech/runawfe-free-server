@@ -7,8 +7,10 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.stereotype.Component;
 
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFiles;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.chat.QChatMessage;
+import ru.runa.wfe.chat.QChatMessageFiles;
 import ru.runa.wfe.chat.QChatsUserInfo;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
@@ -61,7 +63,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.id.lt(firstId))).orderBy(m.date.desc()).limit(count).fetch();
     }
 
-    public ChatMessage getMessage(int chatId, long messageId) {
+    public ChatMessage getMessage(long messageId) {
         QChatMessage m = QChatMessage.chatMessage;
         return queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
     }
@@ -77,6 +79,21 @@ public class ChatDao extends GenericDao<ChatMessage> {
 
     public void deleteMessage(long messId) {
         delete(messId);
+    }
+
+    public ChatMessageFiles saveFile(ChatMessageFiles file) {
+        sessionFactory.getCurrentSession().save(file);
+        return file;
+    }
+
+    public List<ChatMessageFiles> getMessageFiles(ChatMessage message) {
+        QChatMessageFiles mf = QChatMessageFiles.chatMessageFiles;
+        return queryFactory.selectFrom(mf).where(mf.messageId.eq(message)).fetch();
+    }
+
+    public ChatMessageFiles getFile(long fileId) {
+        QChatMessageFiles mf = QChatMessageFiles.chatMessageFiles;
+        return queryFactory.selectFrom(mf).where(mf.id.eq(fileId)).fetchFirst();
     }
 
     // TODO функция для связи чатов, добавить сюда подгрузку связей чатов - возвращает связанные id для перенаправления сообщений

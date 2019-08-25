@@ -29,6 +29,7 @@ public class CreateChatDB extends DbPatch {
         columns.add(new ColumnDef("IERARCHY_MESSAGE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("CHAT_ID", Types.INTEGER, false));
         columns.add(new ColumnDef("Message_Date", Types.TIMESTAMP, false));
+        columns.add(new ColumnDef("HAVE_FILES", Types.BOOLEAN, false));
 
         sql.add(getDDLCreateTable("CHAT_MESSAGE", columns, null));
         sql.add(getDDLCreateSequence("SEQ_CHAT_MESSAGE"));
@@ -45,6 +46,19 @@ public class CreateChatDB extends DbPatch {
 
         sql.add(getDDLCreateTable("CHATS_USER_INFO", columns2, null));
         sql.add(getDDLCreateSequence("SEQ_CHAT_USER_INFO"));
+        // message - files
+
+        List<ColumnDef> columns3 = new LinkedList<DbPatch.ColumnDef>();
+        ColumnDef id3 = new ColumnDef("FILE_ID", Types.BIGINT, false);
+        id3.setPrimaryKey();
+        columns3.add(new ColumnDef("MESSAGE_ID", dialect.getTypeName(Types.BIGINT), true));
+        columns3.add(new ColumnDef("FILE", dialect.getTypeName(Types.BLOB), true));
+        columns3.add(new ColumnDef("FILE_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
+        columns3.add(id3);
+
+        sql.add(getDDLCreateTable("CHAT_MESSAGE_FILES", columns3, null));
+        sql.add(getDDLCreateSequence("SEQ_CHAT_MESSAGE_FILES"));
+
         return sql;
     }
 
@@ -53,6 +67,7 @@ public class CreateChatDB extends DbPatch {
         List<String> sql = super.getDDLQueriesAfter();
         sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_CHAT_MESSAGE_USER", "USER_ID", "EXECUTOR", "ID"));
         sql.add(getDDLCreateForeignKey("CHATS_USER_INFO", "FK_CHATS_USER_INFO_USER", "USER_ID", "EXECUTOR", "ID"));
+        sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_FILES", "FK_FILE_CHAT_MESSAGE", "MESSAGE_ID", "CHAT_MESSAGE", "MESSAGE_ID"));
         return sql;
     }
 }

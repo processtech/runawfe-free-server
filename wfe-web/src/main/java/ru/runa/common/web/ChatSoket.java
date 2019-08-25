@@ -22,6 +22,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFiles;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -47,7 +48,7 @@ public class ChatSoket {
     }
 
     @OnMessage
-    public void handleMessage(String message, Session session) throws IOException, ParseException {
+    public void handleMessage(String message, Session session) throws IOException, ParseException, ClassNotFoundException {
         JSONObject objectMessage = new JSONObject();
         JSONParser parser = new JSONParser();
         objectMessage = (JSONObject) parser.parse(message);
@@ -67,6 +68,10 @@ public class ChatSoket {
                 }
             }
             newMessage.setIerarchyMessageArray(hierarchyMessagesIds);
+            // файлы
+            if (((boolean) objectMessage.get("haveFile")) == true) {
+                newMessage.setHaveFiles(true);
+            }
             // чатID
             newMessage.setChatId(Integer.parseInt((String) objectMessage.get("chatId")));
             // дата
@@ -75,8 +80,16 @@ public class ChatSoket {
             long newMessId = Delegates.getExecutionService().setChatMessage(newMessage.getChatId(), newMessage);
             newMessage.setId(newMessId);
             // отправка по чату всем:
-            JSONObject sendObject = convertMessage(newMessage, false);
-            sessionHandler.sendToChats(sendObject, newMessage.getChatId());
+            if (newMessage.getHaveFiles() == false) {// если есть файлы, то откладываем отправку до их дозагрузки
+                JSONObject sendObject = convertMessage(newMessage, false);
+                sessionHandler.sendToChats(sendObject, newMessage.getChatId());
+            }
+            else {
+                JSONObject sendObject = new JSONObject();
+                sendObject.put("messType", "nextStepLoadFile");
+                sendObject.put("messageId", newMessage.getId());
+                sessionHandler.sendToSession(session, sendObject);
+            }
         } else if (typeMessage.equals("getMessages")) { // отправка N сообщений
             int countMessages = ((Long) objectMessage.get("Count")).intValue();
             int lastMessageId = ((Long) objectMessage.get("lastMessageId")).intValue();
@@ -114,6 +127,10 @@ public class ChatSoket {
                     Integer.parseInt((String) objectMessage.get("chatId")),
                     currentMessageId);
         }
+        else if (typeMessage.equals("sendToChat")) {
+            ChatMessage message0 = Delegates.getExecutionService().getChatMessage((Long) objectMessage.get("messageId"));
+            sessionHandler.sendToChats(convertMessage(message0, false), Integer.parseInt((String) objectMessage.get("chatId")));
+        }
     }
 
     // отправка сообщения, old - старые сообщения, которые отобразятся сверху
@@ -125,6 +142,25 @@ public class ChatSoket {
         messageObject.put("id", message.getId());
         messageObject.put("text", message.getText());
         messageObject.put("author", message.getUserName());
+        if (message.getHaveFiles() == true) {
+            // индексы файлов
+            List<ChatMessageFiles> filesArray = Delegates.getExecutionService().getChatMessageFiles(message);
+            if (filesArray.size() > 0) {
+                messageObject.put("haveFile", true);
+                JSONArray filesArrayObject = new JSONArray();
+                for (int i = 0; i < filesArray.size(); i++) {
+                    JSONObject fileObject = new JSONObject();
+                    fileObject.put("id", filesArray.get(i).getId());
+                    fileObject.put("name", filesArray.get(i).getFileName());
+                    filesArrayObject.add(fileObject);
+                }
+                messageObject.put("fileIdArray", filesArrayObject);
+            } else {
+                messageObject.put("haveFile", false);
+            }
+        } else {
+            messageObject.put("haveFile", false);
+        }
         @SuppressWarnings("deprecation")
         String dateNow = message.getDate().toGMTString();
         messageObject.put("dateTime", dateNow);

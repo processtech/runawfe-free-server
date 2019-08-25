@@ -1,16 +1,15 @@
 package ru.runa.wf.web.tag;
 
-import org.apache.ecs.html.TD;
-import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Button;
-import org.apache.ecs.html.Input;
-import org.apache.ecs.html.Script;
-import org.apache.ecs.html.Style;
-import org.apache.ecs.html.TextArea;
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.IMG;
-
-import org.tldgen.annotations.Attribute;
+import org.apache.ecs.html.Input;
+import org.apache.ecs.html.P;
+import org.apache.ecs.html.Style;
+import org.apache.ecs.html.TD;
+import org.apache.ecs.html.TR;
+import org.apache.ecs.html.Table;
+import org.apache.ecs.html.TextArea;
 import org.tldgen.annotations.BodyContent;
 
 import ru.runa.wfe.security.Permission;
@@ -91,11 +90,14 @@ public class ChatTag extends ProcessBaseFormTag {
         Div modalBody = new Div();
         modalBody.setClass("modal-body");
         if (Delegates.getExecutorService().isAdministrator(getUser()))
+         {
             modalBody.addAttribute("admin", "true");// !
+        }
         modalBody.setStyle("height: 396px; width: 304px;");
 
         Div modalFooter = new Div();
         modalFooter.setClass("modal-footer");
+        modalFooter.setID("modalFooter");
 
         Style styleButton = new Style();
 
@@ -104,6 +106,13 @@ public class ChatTag extends ProcessBaseFormTag {
         modalHeader.addElement(modalHeaderDragg);
         modalHeader.addElement(closeChat);
         modalHeader.addElement(upScaleChat);
+        Button modalSettings = new Button();
+        modalSettings.setClass("modalSettings");
+        modalSettings.setStyle("float:right");
+        modalSettings.addElement("Настройки");
+        modalSettings.setType("button");
+
+        modalHeader.addElement(modalSettings);
 
         modalContetnt.addElement(modalHeader);
         modalBody.addElement(loadNewMessage);
@@ -111,10 +120,17 @@ public class ChatTag extends ProcessBaseFormTag {
 
         modalFooter.addElement(messageSend);
         modalFooter.addElement(sendMessageChat);
+
         modalContetnt.addElement(modalFooter);
-        Script scrFromFile = new Script();
-        scrFromFile.setSrc("/wfe/js/chatPart1.js");
-        scrFromFile.setType("text/javascript");
+
+        // Table fileTable = new Table();
+        // fileTable.setID("filesTable");
+        Div attachedArea = new Div();
+        attachedArea.setID("attachedArea");
+        // attachedArea.addElement(fileTable);
+
+        modalContetnt.addElement(attachedArea);
+
         Div box = new Div();
         box.setClass("BoxContent");
         updateVariableTR.addElement(styleButton);
@@ -132,6 +148,77 @@ public class ChatTag extends ProcessBaseFormTag {
         newMessagesIndicator.addElement(" пропущеных сообщений");
         newMessagesIndicator.setID("newMessagesIndicator");
         newMessagesIndicator.setClass("newMessagesIndicator");
+
+        Div modalSetting = new Div();
+        modalSetting.setClass("modalSetting");
+
+        Div modalHeaderSetting = new Div();
+        modalHeaderSetting.setClass("modalHeaderSetting");
+
+        Button closeButtonModalSetting = new Button();
+        closeButtonModalSetting.setType("button");
+        closeButtonModalSetting.setClass("closeButtonModalSetting");
+        closeButtonModalSetting.addElement("X");
+        closeButtonModalSetting.setStyle("float:right;");
+        modalHeaderSetting.addElement(closeButtonModalSetting);
+        P headName = new P();
+        headName.addElement("Настройки");
+        headName.setStyle("float:left;");
+        modalHeaderSetting.addElement(closeButtonModalSetting);
+        modalHeaderSetting.addElement(headName);
+
+        Div modalBodySetting = new Div();
+        modalBodySetting.setClass("modalBodySetting");
+        Table tableSettingWin = new Table();
+        tableSettingWin.setID("userTableSetting");// таблица настроек
+        TR trowMain = new TR();
+        trowMain.setClass("throwMain");
+        // TD tflag = new TD();
+        Input check = new Input();
+        check.addAttribute("type", "checkbox");
+        // tflag.addElement(check);
+        TD tname = new TD();
+        tname.addElement("Имя");
+        TD tcheck = new TD();
+        tcheck.addElement("Выделение");
+
+        trowMain.addElement(tcheck);
+        trowMain.addElement(tname);
+        // trow.addElement(tflag);
+        TR contentThrow = new TR();
+        contentThrow.setClass("contentThrow");
+        TD testName = new TD();
+        testName.addElement("Петя");
+
+        TD testCheck = new TD();
+        testCheck.addElement(check);
+
+        contentThrow.addElement(testName);
+
+        contentThrow.addElement(testCheck);
+
+        tableSettingWin.addElement(trowMain);
+
+        tableSettingWin.addElement(contentThrow);
+
+        modalBodySetting.addElement(tableSettingWin);
+
+        Div modalFooterSetting = new Div();
+        modalFooterSetting.setClass("modalFooterSetting");;
+
+        Button sendSetting = new Button();
+        sendSetting.setType("button");
+        sendSetting.setClass("acceptSettingsModal");
+        sendSetting.setID("acceptSettingsModal");
+        sendSetting.addElement("Принять");
+        sendSetting.setStyle("float:right");
+        modalFooterSetting.addElement(sendSetting);
+
+        modalSetting.addElement(modalHeaderSetting);
+        modalSetting.addElement(modalBodySetting);
+        modalSetting.addElement(modalFooterSetting);
+        // newMessagesIndicator.addElement(modalSetting);
+        tdFormElement.addElement(modalSetting);
         tdFormElement.addElement(newMessagesIndicator);
         tdFormElement.addElement(box);
     }

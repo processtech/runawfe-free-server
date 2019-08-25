@@ -40,6 +40,7 @@ import lombok.NonNull;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFiles;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.commons.SystemProperties;
@@ -95,14 +96,32 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
+    public List<ChatMessageFiles> getChatMessageFiles(ChatMessage message) {
+        return chatLogic.getMessageFiles(message);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public ChatMessageFiles getChatMessageFile(long fileId) {
+        return chatLogic.getFile(fileId);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public ChatMessageFiles saveChatMessageFile(ChatMessageFiles file) {
+        return chatLogic.saveFile(file);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public List<ChatMessage> getChatMessages(int chatId) {
         return chatLogic.getMessages(chatId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public ChatMessage getChatMessage(int chatId, long messageId) {
-        return chatLogic.getMessage(chatId, messageId);
+    public ChatMessage getChatMessage(long messageId) {
+        return chatLogic.getMessage(messageId);
     }
 
     @WebMethod(exclude = true)

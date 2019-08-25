@@ -22,6 +22,7 @@ import java.util.Map;
 
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFiles;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
@@ -50,6 +51,32 @@ import ru.runa.wfe.var.file.FileVariableImpl;
 public interface ExecutionService {
 
     /**
+     * Get List array of all ChatMessageFiles in chat message.
+     *
+     * @param message
+     *            chat message associated files
+     * @return not <code>null</code>
+     */
+    public List<ChatMessageFiles> getChatMessageFiles(ChatMessage message);
+    
+    /**
+     * Get ChatMessageFiles by id.
+     *
+     * @param fileId
+     *            file Id
+     * @return ChatMessageFiles or <code>null</code>
+     */
+    public ChatMessageFiles getChatMessageFile(long fileId);
+
+    /**
+     * Save ChatMessageFiles.
+     *
+     * @param file
+     *            new file to save (associated message in ChatMessageFiles)
+     * @return not <code>null</code>
+     */
+    public ChatMessageFiles saveChatMessageFile(ChatMessageFiles file);
+    /**
      * Get List array of all ChatMessage in chat.
      *
      * @param chatId
@@ -61,13 +88,11 @@ public interface ExecutionService {
     /**
      * Gets ChatMessage.
      *
-     * @param chatId
-     *            chat Id
      * @param messageId
      *            message Id
      * @return ChatMessage or <code>null</code>
      */
-    public ChatMessage getChatMessage(int chatId, long messageId);
+    public ChatMessage getChatMessage(long messageId);
 
     /**
      * Get List array of ChatMessage, where all "message Id" < firstId.

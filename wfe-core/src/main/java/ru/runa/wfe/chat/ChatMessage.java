@@ -29,6 +29,7 @@ public class ChatMessage {
     private int chatId;
     private Timestamp date;
     private Actor actor;
+    private boolean haveFiles = false;
 
     @Column(name = "TEXT")
     public String getText() {
@@ -123,6 +124,15 @@ public class ChatMessage {
 
     public void setActor(Actor actor) {
         this.actor = actor;
+    }
+
+    @Column(name = "HAVE_FILES")
+    public boolean getHaveFiles() {
+        return haveFiles;
+    }
+
+    public void setHaveFiles(boolean haveFiles) {
+        this.haveFiles = haveFiles;
     }
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFiles;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.user.Actor;
@@ -27,8 +28,8 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getAll(chatId);
     }
 
-    public ChatMessage getMessage(int chatId, long messageId) {
-        return chatDao.getMessage(chatId, messageId);
+    public ChatMessage getMessage(long messageId) {
+        return chatDao.getMessage(messageId);
     }
 
     public List<ChatMessage> getMessages(int chatId, int firstId, int count) {
@@ -54,4 +55,17 @@ public class ChatLogic extends WfCommonLogic {
     public List<Integer> getAllConnectedChatId(int chatId) {
         return chatDao.getAllConnectedChatId(chatId);
     }
+
+    public List<ChatMessageFiles> getMessageFiles(ChatMessage message) {
+        return chatDao.getMessageFiles(message);
+    }
+
+    public ChatMessageFiles saveFile(ChatMessageFiles file) {
+        return chatDao.saveFile(file);
+    }
+
+    public ChatMessageFiles getFile(long fileId) {
+        return chatDao.getFile(fileId);
+    }
+
 }
