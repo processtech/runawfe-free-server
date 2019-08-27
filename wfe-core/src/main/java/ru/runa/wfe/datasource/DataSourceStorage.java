@@ -64,7 +64,7 @@ public class DataSourceStorage implements DataSourceStuff {
             JdbcDataSourceType[] dsTypes = JdbcDataSourceType.values();
             for (JdbcDataSourceType dsType : dsTypes) {
                 if (!registeredDsTypes.contains(dsType)) {
-                    String driverClassName = dsType.driverClassName();
+                    String driverClassName = dsType.getDriverClassName();
                     try {
                         Driver driver = (Driver) Class.forName(driverClassName, true, urlClassLoader).newInstance();
                         DriverManager.registerDriver(new DriverWrapper(driver));

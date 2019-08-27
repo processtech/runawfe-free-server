@@ -35,7 +35,7 @@ public interface DataSourceStuff {
         if (url.contains(DATABASE_NAME_MARKER)) {
             url = url.replace(DATABASE_NAME_MARKER, dbName);
         } else {
-            url = url + (jds.getDbType() == JdbcDataSourceType.Oracle ? ':' : '/') + dbName;
+            url = url + jds.getDbType().getDatabaseDelimiter() + dbName;
         }
         return url;
     }
