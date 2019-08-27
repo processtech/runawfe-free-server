@@ -281,16 +281,10 @@ public class Process extends SecuredObjectBase {
                 swimlane.setExecutor(null);
             }
         }
-        for (Process subProcess : executionContext.getSubprocessesRecursively()) {
-            for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDAO().findByProcess(subProcess)) {
-                if (swimlane.getExecutor() instanceof TemporaryGroup) {
-                    swimlane.setExecutor(null);
-                }
-            }
-        }
         for (String processEndHandlerClassName : SystemProperties.getProcessEndHandlers()) {
             try {
                 ProcessEndHandler handler = ClassLoaderUtil.instantiate(processEndHandlerClassName);
+                ApplicationContextFactory.autowireBean(handler);
                 handler.execute(executionContext);
             } catch (Throwable th) {
                 Throwables.propagate(th);

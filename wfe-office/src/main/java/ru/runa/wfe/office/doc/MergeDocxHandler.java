@@ -9,8 +9,12 @@ import org.apache.poi.xwpf.converter.pdf.PdfConverter;
 import org.apache.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFHyperlinkRun;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRelation;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHyperlink;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.office.doc.MergeDocxConfig.DocxInfo;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
@@ -43,14 +47,32 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
                 for (IBodyElement bodyElement : mergingDocument.getBodyElements()) {
                     if (bodyElement instanceof XWPFParagraph) {
                         XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
-                        document.createParagraph();
+                        List<XWPFRun> runs = paragraph.getRuns();
+                        XWPFParagraph newParagraph = document.createParagraph();
+                        XWPFRun newRun = null;
+                        for (XWPFRun run : runs) {
+                            if (run instanceof XWPFHyperlinkRun) {
+                                XWPFHyperlinkRun hlRun = (XWPFHyperlinkRun) run;
+                                String rId = newParagraph
+                                        .getPart()
+                                        .getPackagePart()
+                                        .addExternalRelationship(hlRun.getCTHyperlink().getRArray(0).getTArray(0).getStringValue(),
+                                                XWPFRelation.HYPERLINK.getRelation()).getId();
+                                CTHyperlink newHyperlink = newParagraph.getCTP().addNewHyperlink();
+                                newHyperlink.set(hlRun.getCTHyperlink());
+                                newHyperlink.setId(rId);
+                                newRun = new XWPFHyperlinkRun(newHyperlink, newHyperlink.getRArray(0), newParagraph);
+                                newParagraph.addRun(newRun);
+                            } else {
+                                newRun = newParagraph.createRun();
+                                newRun.getCTR().set(run.getCTR());
+                            }
+                        }
                         if (docxInfo.addBreak) {
-                            paragraph.setPageBreak(true);
+                            newParagraph.setPageBreak(true);
                             docxInfo.addBreak = false;
                         }
-                        document.setParagraph(paragraph, document.getParagraphs().size() - 1);
-                    }
-                    if (bodyElement instanceof XWPFTable) {
+                    } else if (bodyElement instanceof XWPFTable) {
                         XWPFTable table = (XWPFTable) bodyElement;
                         document.createTable();
                         document.setTable(document.getTables().size() - 1, table);
