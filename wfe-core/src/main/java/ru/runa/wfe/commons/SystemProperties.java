@@ -388,4 +388,13 @@ public class SystemProperties {
         return RESOURCES.getDateProperty("variables.invalid.default.values.allowed.before", new Date());
     }
 
+    /**
+     * Returns datasource password import/export policy (true - import/export allowed, false - otherwise)
+     * 
+     * @return boolean; default true
+     */
+    public static boolean isDatasourcePasswordExportAllowed() {
+        return RESOURCES.getBooleanProperty("datasource.password.export", true);
+    }
+
 }
