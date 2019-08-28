@@ -97,7 +97,9 @@ public class GraphImageBuilder {
                 TransitionFigure transitionFigure = factory.createTransitionFigure();
                 transitionFigure.init(transition, nodeFigure, figureTo, smoothTransitions);
                 if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
-                    transitionFigure.setExclusive(node.getNodeType() != NodeType.PARALLEL_GATEWAY && leavingTransitionsCount > 1);
+                    NodeType nodeType = node.getNodeType();
+                    transitionFigure.setExclusive(
+                            nodeType != NodeType.EXCLUSIVE_GATEWAY && nodeType != NodeType.PARALLEL_GATEWAY && leavingTransitionsCount > 1);
                 }
                 nodeFigure.addTransition(transitionFigure);
                 if (!DrawProperties.useEdgingOnly()) {
