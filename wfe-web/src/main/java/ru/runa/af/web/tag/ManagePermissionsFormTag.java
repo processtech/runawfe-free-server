@@ -26,7 +26,6 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.common.web.tag.SecuredObjectFormTag2;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "managePermissionsForm")
