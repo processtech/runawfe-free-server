@@ -2,7 +2,10 @@ package ru.runa.wfe.execution.dao;
 
 import java.util.List;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
@@ -10,6 +13,8 @@ import ru.runa.wfe.execution.QSwimlane;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentException;
+import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 
 /**
@@ -49,13 +54,25 @@ public class SwimlaneDao extends GenericDao<Swimlane> {
     public Swimlane findOrCreateInitialized(ExecutionContext executionContext, SwimlaneDefinition swimlaneDefinition, boolean reassign) {
         Swimlane swimlane = findOrCreate(executionContext.getProcess(), swimlaneDefinition);
         if (reassign || swimlane.getExecutor() == null) {
+            Node node = executionContext.getNode();
+            ProcessError processError = new ProcessError(ProcessErrorType.assignment, executionContext.getProcess().getId(), node.getNodeId());
             try {
                 AssignmentHandler assignmentHandler = swimlaneDefinition.getDelegation().getInstance();
                 assignmentHandler.assign(executionContext, swimlane);
-            } catch (AssignmentException e) {
-                log.warn("Unable to assign in " + swimlane + " due to " + e);
+                if (swimlane.getExecutor() != null) {
+                    Errors.removeProcessError(processError);
+                } else {
+                    Errors.addProcessError(processError, node.getName(), new NoExecutorAssignedException());
+                }
             } catch (Exception e) {
-                log.warn("Unable to assign in " + swimlane, e);
+                if (Errors.addProcessError(processError, node.getName(), e)) {
+                    if (e instanceof AssignmentException) {
+                        log.warn("Unable to assign in " + swimlane + " due to " + e);
+                    } else {
+                        log.warn("Unable to assign in " + swimlane, e);
+                    }
+                    swimlane.assignExecutor(executionContext, null, true);
+                }
             }
         }
         return swimlane;
