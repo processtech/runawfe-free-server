@@ -28,15 +28,15 @@ public class BaseReceiveMessageNode extends BaseMessageNode implements BoundaryE
         SignalDao signalDao = ApplicationContextFactory.getSignalDao();
         List<Signal> signals = signalDao.findByMessageSelectorsContainsOrEmpty(executionContext.getToken().getMessageSelector());
         for (Signal signal : signals) {
-            Map<String, String> messageSelectorsMap = signal.getMessageSelectorsMap();
+            Map<String, String> routingData = signal.getRoutingData();
             boolean suitable = true;
             VariableProvider variableProvider = executionContext.getVariableProvider();
             for (VariableMapping mapping : getVariableMappings()) {
                 if (mapping.isPropertySelector()) {
-                    String selectorValue = messageSelectorsMap.get(mapping.getName());
+                    String selectorValue = routingData.get(mapping.getName());
                     String expectedValue = Utils.getMessageSelectorValue(variableProvider, this, mapping);
                     if (!Objects.equals(expectedValue, selectorValue)) {
-                        log.debug(messageSelectorsMap + " rejected in " + executionContext.getTask() + " due to diff in " + mapping.getName() + " ("
+                        log.debug(routingData + " rejected in " + executionContext.getTask() + " due to diff in " + mapping.getName() + " ("
                                 + expectedValue + "!=" + selectorValue + ")");
                         suitable = false;
                         break;
@@ -47,11 +47,11 @@ public class BaseReceiveMessageNode extends BaseMessageNode implements BoundaryE
             if (suitable) {
                 signalDao.delete(signal);
                 executionContext.addLog(new ReceiveMessageLog(this, signal.toString()));
-                Map<String, Object> map = signal.getMessageData();
+                Map<String, Object> payloadData = signal.getPayloadData();
                 for (VariableMapping variableMapping : getVariableMappings()) {
                     if (!variableMapping.isPropertySelector()) {
-                        if (map.containsKey(variableMapping.getMappedName())) {
-                            Object value = map.get(variableMapping.getMappedName());
+                        if (payloadData.containsKey(variableMapping.getMappedName())) {
+                            Object value = payloadData.get(variableMapping.getMappedName());
                             executionContext.setVariableValue(variableMapping.getName(), value);
                         } else {
                             log.warn("message does not contain value for '" + variableMapping.getMappedName() + "'");

@@ -21,6 +21,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -159,7 +160,9 @@ public class ReceiveMessageBean implements MessageListener {
             } else {
                 try {
                     transaction.begin();
-                    Signal signal = new Signal(message);
+                    Date createDate = message.getJMSTimestamp() != 0 ? new Date(message.getJMSTimestamp()) : new Date();
+                    Date expiryDate = message.getJMSExpiration() != 0 ? new Date(message.getJMSExpiration()) : null;
+                    Signal signal = new Signal(createDate, getRoutingData(message), (Map<String, Object>) message.getObject(), expiryDate);
                     log.debug("Rejecting message request " + messageString + ", persisting to " + signal);
                     signalDao.create(signal);
                     transaction.commit();

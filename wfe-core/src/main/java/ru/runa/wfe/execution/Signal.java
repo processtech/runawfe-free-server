@@ -25,11 +25,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -79,16 +76,11 @@ public class Signal implements Serializable {
     public Signal() {
     }
 
-    public Signal(ObjectMessage message) throws JMSException {
-        this.createDate = new Date();
-        if (message.getJMSExpiration() != 0) {
-            this.expiryDate = new Date(message.getJMSExpiration());
-        }
-        // TODO testing
-        this.messageSelectorsMap = (byte[]) new SerializableToByteArrayConverter().convert(null, null, getMessageSelectorsMap(message));
-        this.messageDataMap = (byte[]) new SerializableToByteArrayConverter().convert(null, null, message.getObject());
+    public Signal(Date createDate, Map<String, String> routingData, Map<String, Object> payloadData, Date expiryDate) throws JMSException {
+        this.createDate = createDate;
+        this.messageSelectorsMap = (byte[]) new SerializableToByteArrayConverter().convert(null, null, routingData);
+        this.messageDataMap = (byte[]) new SerializableToByteArrayConverter().convert(null, null, payloadData);
         if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
-            Map<String, String> routingData = getRoutingData(message);
             if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
                 this.messageSelectorsValue = Utils.getObjectMessageStrictSelector(routingData);
             } else {
@@ -99,44 +91,21 @@ public class Signal implements Serializable {
                 this.messageSelectorsValue = null;
             }
         }
-        this.messageDataValue = Utils.getCuttedString(message.getObject().toString(), STRING_LENGTH / 2);
+        this.messageDataValue = Utils.getCuttedString(payloadData.toString(), STRING_LENGTH / 2);
+        this.expiryDate = expiryDate;
     }
 
-    public Map<String, String> getMessageSelectorsMap() {
+    public Map<String, String> getRoutingData() {
         return (Map<String, String>) new SerializableToByteArrayConverter().revert(messageSelectorsMap);
     }
 
-    public Map<String, Object> getMessageData() {
+    public Map<String, Object> getPayloadData() {
         return (Map<String, Object>) new SerializableToByteArrayConverter().revert(messageDataMap);
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", id).add("selectors", messageSelectorsValue).add("data", messageDataValue).toString();
-    }
-
-    private Map<String, String> getMessageSelectorsMap(ObjectMessage message) throws JMSException {
-        Map<String, String> result = new HashMap<>();
-        Enumeration<String> propertyNames = message.getPropertyNames();
-        while (propertyNames.hasMoreElements()) {
-            String propertyName = propertyNames.nextElement();
-            if (!propertyName.startsWith("JMS")) {
-                result.put(propertyName, message.getStringProperty(propertyName));
-            }
-        }
-        return result;
-    }
-
-    private Map<String, String> getRoutingData(ObjectMessage message) throws JMSException {
-        Map<String, String> map = new HashMap<>();
-        Enumeration<String> propertyNames = message.getPropertyNames();
-        while (propertyNames.hasMoreElements()) {
-            String propertyName = propertyNames.nextElement();
-            if (!propertyName.startsWith("JMS")) {
-                map.put(propertyName, message.getStringProperty(propertyName));
-            }
-        }
-        return map;
     }
 
 }

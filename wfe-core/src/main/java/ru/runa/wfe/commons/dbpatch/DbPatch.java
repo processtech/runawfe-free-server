@@ -370,8 +370,8 @@ public abstract class DbPatch {
         }
     }
 
-    public class DateColumnDef extends ColumnDef {
-        public DateColumnDef(String name, boolean allowNulls) {
+    public class TimestampColumnDef extends ColumnDef {
+        public TimestampColumnDef(String name, boolean allowNulls) {
             super(name, Types.TIMESTAMP, allowNulls);
         }
     }
