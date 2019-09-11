@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.val;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -138,12 +139,12 @@ public class WorkflowBotExecutor {
             if (isEmbeddedSubprocessEndedToWhichBotIsBound()) {
                 log.debug("Unbinding bot from " + bot.getBoundProcessId() + ":" + bot.getBoundSubprocessId());
                 bot.unbindFromEmbeddedSubprocess();
-                Delegates.getBotService().updateBot(user, bot, false);
+                getNewTasks_updateBot();
             } else if (isBotTransactionalBindingExpired()) {
                 log.debug("Sending timeout error from " + bot.getBoundProcessId() + ":" + bot.getBoundSubprocessId());
                 sendErrorToTransactionalEmbeddedSubprocessNode();
                 bot.unbindFromEmbeddedSubprocess();
-                Delegates.getBotService().updateBot(user, bot, false);
+                getNewTasks_updateBot();
             }
 
             for (WfTask task : currentTasks) {
@@ -170,7 +171,7 @@ public class WorkflowBotExecutor {
                         if (subprocessNode.isTransactional()) {
                             bot.bindToEmbeddedSubprocess(task.getProcessId(), subprocessDefinition.getNodeId());
                             log.debug("Binding bot to " + bot.getBoundProcessId() + ":" + bot.getBoundSubprocessId());
-                            Delegates.getBotService().updateBot(user, bot, false);
+                            getNewTasks_updateBot();
                         }
                     }
                 }
@@ -183,6 +184,11 @@ public class WorkflowBotExecutor {
         }
 
         return result;
+    }
+
+    private void getNewTasks_updateBot() {
+        val newVersion = Delegates.getBotService().updateBot(user, bot, false).getVersion();
+        bot.setVersion(newVersion);
     }
 
     @Override
