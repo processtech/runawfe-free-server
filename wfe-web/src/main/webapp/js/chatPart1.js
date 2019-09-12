@@ -3,11 +3,15 @@ var attachedPosts=[];
 //флаг - блок чата
 var lockFlag = false;
 //зона для дропа файлов
-var dropZone=$("#modalFooter");
+var dropZone=$("#dropZ");
 //зона прикрепленных файлов
 var filesTable=$("<table/>");
 filesTable.attr("id", "filesTable");
 $("#attachedArea").append(filesTable);
+//зона прикрепленных сообщений
+var messReplyTable=$("<table/>");
+messReplyTable.attr("id", "messReplyTable");
+$("#attachedArea").append(messReplyTable);
 
 var attachedFiles=[];
 //максимальный размер файла
@@ -148,6 +152,10 @@ $("#message").keyup(function(){
 btnSend.onclick=function send() {
 	if(lockFlag == false){
 		let message = document.getElementById("message").value;
+		//ищем ссылки
+		message=message.replace(/(^|[^\/\"\'\>\w])(http\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
+		message=message.replace(/(^|[^\/\"\'\>\w])(https\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
+		message=message.replace(/(^|[^\/\"\'\>\w])(www\.)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='http://$2$3$4'>$2$3$4</a>");
 		message = message.replace(/\n/g, "<br/>");
 		let idHierarchyMessage="";
 		for(var i=0;i<attachedPosts.length;i++){
@@ -175,6 +183,7 @@ btnSend.onclick=function send() {
 			$(addReplys0[ i ]).attr("flagAttach", "false");
 		}
 		attachedPosts=[];
+		$("#messReplyTable").html("");
 	}
 }
  
@@ -184,7 +193,7 @@ btnOp.onclick=function(){
 		flagRollExpandChat=1;
 		$(".modal-content").css({
 			width: $(".modal-content").width() + 300,
-			height: $(".modal-content").height() + 400,
+			height: $(".modal-content").height() + 350,
 		});
 
 		$(".modal-body").css({
@@ -204,13 +213,17 @@ btnOp.onclick=function(){
 		$(".modal-footer").css({
 			height: $(".modal-footer").height() + 30,
 		});
+		
+		dropZone.css({
+			height: $(".modal-footer").height() + 30,
+		});
 
 		imgButton.src="/wfe/images/chat_expand.png";
 	}else if(flagRollExpandChat == 1){
 		flagRollExpandChat=0;
 		$(".modal-content").css({
 			width: $(".modal-content").width() - 300,
-			height: $(".modal-content").height() - 400,
+			height: $(".modal-content").height() - 350,
 		});
 
 		$(".modal-body").css({
@@ -230,15 +243,20 @@ btnOp.onclick=function(){
 		$(".modal-footer").css({
 			height: $(".modal-footer").height() - 30,
 		});
+		
+		dropZone.css({
+			height: $(".modal-footer").height() - 30,
+		});
+		
 		imgButton.src="/wfe/images/chat_roll_up.png";
 	}
 }
 
 $.fn.scrollView = function () {
 	return this.each(function () {
-			$('html, body').animate({
+			$(".modal-body").animate({
 					scrollTop: $(this).offset().top
-			}, 3000);
+			}, 1);
 	});
 }
 
@@ -246,23 +264,34 @@ $.fn.scrollView = function () {
 //проверка браузера
 if (typeof(window.FileReader) != 'undefined') {
     //поддерживает
+	$("html").bind("dragover", function(){
+		dropZone.show();
+		dropZone.addClass("dropZActive");
+		return false;
+	});
+	
+	$("html").bind("dragleave", function(event){
+		if(event.relatedTarget == null){
+			dropZone.hide();
+			dropZone.removeClass("dropZActive");
+		}
+		return false;
+	});
 	dropZone[0].ondragover = function() {
 		//тут смена класса
-	    //dropZone.addClass('hover');
+		dropZone.addClass("dropZActiveFocus");
 	    return false;
 	};
 	dropZone[0].ondragleave = function() {
 		//тут обратная смена класса/его удаление
-	    //dropZone.removeClass('hover');
+		dropZone.removeClass("dropZActiveFocus");
 	    return false;
 	};
+	
 	dropZone[0].ondrop = function(event) {
 	    event.preventDefault();
-	    //смена классов
-	    //dropZone.removeClass('hover');
-	    //dropZone.addClass('drop');
 	    let files = event.dataTransfer.files;
-	    for(let i =0; i<files.length ;i++){
+	    for(let i = 0; i<files.length ;i++){
 	    	attachedFiles.push(files[i]);
 		    //создаем отметку о прикреплении
 		    let newFile=$("<tr/>");
@@ -276,12 +305,32 @@ if (typeof(window.FileReader) != 'undefined') {
 		    newFile.append($("<td/>").append(deleteFileButton));
 		    $("#filesTable").append(newFile);
 	    }
+	    dropZone.hide();
+		dropZone.removeClass("dropZActive");
+		dropZone.removeClass("dropZActiveFocus");
 	};
 }
 else{
-	
+	//если drag - drop не оддерживается
 }
-
+//альтернатива - fileInput
+$("#fileInput").change(function() {
+	let files = 	$(this)[0].files;
+    for(let i = 0; i<files.length ;i++){
+    	attachedFiles.push(files[i]);
+	    //создаем отметку о прикреплении
+	    let newFile=$("<tr/>");
+	    newFile.append($("<td/>").text(attachedFiles[attachedFiles.length - 1].name));
+	    let deleteFileButton = $("<button/>");
+	    deleteFileButton.text("X");
+	    deleteFileButton.addClass("btnFileChat");
+	    deleteFileButton.attr("fileNumber", attachedFiles.length - 1);
+	    deleteFileButton.attr("type", "button");
+	    deleteFileButton.click(deleteAttachedFile);
+	    newFile.append($("<td/>").append(deleteFileButton));
+	    $("#filesTable").append(newFile);
+    }
+});
 //удаление прикрепленных к сообщению файлов (для не отправленных сообщений)
 function deleteAttachedFile(){
 	attachedFiles.splice($(this).attr("fileNumber"));
@@ -304,41 +353,37 @@ function hierarhyCheak(messageId){
 	});
 }
 
-// функция проставляющая функцию кнопкам "развернуть вложенные сообщения"
-function addOnClickHierarchyOpen(){
-	let elements = $(".openHierarchy");
-	elements.off().on( "click", function(event){
-		if($(this).attr("openFlag") == 1){
-			let thisElem=$(".openHierarchy")[ 0 ];
-			$(this).next(".loadedHierarchy")[ 0 ].style.display="none";
-			$(this).attr("openFlag","0");
-			$(this).text("Развернуть вложенные сообщения");
+//функция для разворачивания вложенных сообщений
+function hierarchyOpen(){
+	if($(this).attr("openFlag") == 1){
+		let thisElem=$(".openHierarchy")[ 0 ];
+		$(this).next(".loadedHierarchy")[ 0 ].style.display="none";
+		$(this).attr("openFlag","0");
+		$(this).text("Развернуть вложенные сообщения");
+		return 0;
+	}
+	else{
+		let thisElem=$(".openHierarchy")[ 0 ];
+		if($(this).attr("loadFlag") == 1){
+			$(this).next(".loadedHierarchy")[ 0 ].style.display="block";
+			$(this).attr("openFlag","1");
+			$(this).text("Свернуть");
 			return 0;
-		}
-		else{
+		}else{
 			let thisElem=$(".openHierarchy")[ 0 ];
-			if($(this).attr("loadFlag") == 1){
-				$(this).next(".loadedHierarchy")[ 0 ].style.display="block";
+			let element=this;
+			hierarhyCheak($(element).attr("mesId")).then(ajaxRet=>{
+				messagesRetMass = getAttachedMessagesArray(ajaxRet);
+				for(let i=0; i<messagesRetMass.length; i++){
+					$(this).next(".loadedHierarchy").append(messagesRetMass[ i ]);
+				}
+				$(element).attr("loadFlag", "1");
 				$(this).attr("openFlag","1");
 				$(this).text("Свернуть");
 				return 0;
-			}else{
-				let thisElem=$(".openHierarchy")[ 0 ];
-				let element=this;
-				hierarhyCheak($(element).attr("mesId")).then(ajaxRet=>{
-					messagesRetMass = getAttachedMessagesArray(ajaxRet);
-					for(let i=0; i<messagesRetMass.length; i++){
-						$(this).next(".loadedHierarchy").append(messagesRetMass[ i ]);
-					}
-					addOnClickHierarchyOpen();
-					$(element).attr("loadFlag", "1");
-					$(this).attr("openFlag","1");
-					$(this).text("Свернуть");
-					return 0;
-				});
-			}
+			});
 		}
-	});
+	}
 }
 
 // функция возвращающая массив блоков вложенных сообщений
@@ -352,10 +397,12 @@ function getAttachedMessagesArray(data) {
 				messageBody.append($("<tr/>").append($("<td/>").text(data.messages[ mes ].text)));
 				if(data.messages[ mes ].hierarchyMessageFlag == 1){
 					let openHierarchy0 = $("<a/>").addClass("openHierarchy");
+					openHierarchy0.attr("type", "button");
 					openHierarchy0.attr("mesId", data.messages[ mes ].id);
 					openHierarchy0.attr("loadFlag", 0);
 					openHierarchy0.attr("openFlag", 0);
 					openHierarchy0.text("Развернуть вложенные сообщения");
+					openHierarchy0.click(hierarchyOpen);
 					messageBody.append($("<tr/>").append($("<td/>").append(openHierarchy0).append($("<div/>").addClass("loadedHierarchy"))));
 				}
 				outputArray.push(messageBody);
@@ -377,9 +424,9 @@ function addMessages(data){
 					maxMassageId = data.messages[ mes ].id;
 				}
 				let text0 = data.messages[ mes ].text;
-				text0.replace(/([\s*$])\n/ig,"<br/>");
+				//создаем сообщение
 				let messageBody=$("<table/>").addClass("selectionTextQuote");
-				messageBody.append($("<tr/>").append($("<td/>").append($("<div/>").addClass("author").text(data.messages[ mes ].author + ":")).append(text0)));
+				messageBody.append($("<tr/>").append($("<td/>").append($("<div/>").addClass("author").text(data.messages[ mes ].author + ":")).append($("<div/>").addClass("messageText").attr("id","messageText"+lastMessageIndex).append(text0))));
 				// "развернуть"
 				if(data.messages[ mes ].hierarchyMessageFlag == 1){
 					let openHierarchyA0 = $("<a/>");
@@ -388,15 +435,18 @@ function addMessages(data){
 					openHierarchyA0.attr("loadFlag", 0);
 					openHierarchyA0.attr("openFlag", 0);
 					openHierarchyA0.text("Развернуть вложенные сообщения");
+					openHierarchyA0.click(hierarchyOpen);
 					messageBody.append($("<tr/>").append($("<td/>").append(openHierarchyA0).append($("<div/>").addClass("loadedHierarchy"))));
 				}
 				// "ответить"
 				let addReplyA0 = $("<a/>");
 				addReplyA0.addClass("addReply");
-				addReplyA0.attr("id", "messReply"+(lastMessageIndex));
+				addReplyA0.attr("id", "messReply"+lastMessageIndex);
+				addReplyA0.attr("messageIndex", lastMessageIndex)
 				addReplyA0.attr("mesId", data.messages[ mes ].id);
 				addReplyA0.attr("flagAttach", "false");
 				addReplyA0.text(" Ответить");
+				addReplyA0.click(messReplyClickFunction);
 				
 				let dateTr0=$("<tr/>");
 				dateTr0.append($("<td/>").append("<hr class='hr-dashed'>").append(data.messages[ mes ].dateTime).append("<hr class='hr-dashed'>"));
@@ -406,6 +456,7 @@ function addMessages(data){
 				if(data.messages[ mes ].haveFile == true){
 					let fileTr0 = $("<tr/>");
 					let fileTable = $("<table/>");
+					fileTable.addClass("fileHolder");
 					for(let i = 0; i < data.messages[ mes ].fileIdArray.length; i++){
 						let fileIdTr = $("<tr/>");
 						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.messages[ mes ].fileIdArray[i].id + "' download='" + data.messages[ mes ].fileIdArray[i].name + "'>" + data.messages[ mes ].fileIdArray[i].name + "</a>"));
@@ -438,29 +489,52 @@ function addMessages(data){
 				else{
 					$(".modal-body").children().first().after(messageBody);
 				}
-				document.getElementById("messReply" + (lastMessageIndex)).onclick=function(){
-					if(lockFlag == false){
-						if($(this).attr("flagAttach") == "false"){
-							attachedPosts.push($(this).attr("mesId"));
-							$(this).attr("flagAttach", "true");
-							$(this).text("Отменить");
-						}
-						else{
-							$(this).text("Ответить");
-							$(this).attr("flagAttach", "false");
-							let pos0 = attachedPosts.indexOf($(this).attr("mesId"), 0);
-							attachedPosts.splice(pos0, 1);
-						}
-					}
-				}
 				if($(".modal-body").attr("admin") == "true"){
 					document.getElementById("messDeleter" + (lastMessageIndex)).onclick=deleteMessage;
 				}
-				addOnClickHierarchyOpen();
 				lastMessageIndex += 1;
 			}
 		}
 	}
+}
+
+//функция для кнопки "ответить" (прикрепляет сообщение)
+function messReplyClickFunction(){
+	if(lockFlag == false){
+		if($(this).attr("flagAttach") == "false"){
+			attachedPosts.push($(this).attr("mesId"));
+			$(this).attr("flagAttach", "true");
+			$(this).text("Отменить");
+		    //создаем отметку о прикреплении
+		    let newMessReply=$("<tr/>");
+		    newMessReply.append($("<td/>").css({"max-width": $("#attachedArea").width()-30, "white-space": "nowrap"}).text("прикрепленное сообщение:" + $("#messageText" + $(this).attr("messageIndex")).text()));
+		    let deleteMessReplyButton = $("<button/>");
+		    deleteMessReplyButton.text("X");
+		    //deleteMessReplyButton.addClass("");
+		    deleteMessReplyButton.attr("id", "deleteMessReply" + $(this).attr("messageIndex"));
+		    deleteMessReplyButton.attr("mesIndex", $(this).attr("messageIndex"));
+		    deleteMessReplyButton.attr("type", "button");
+		    deleteMessReplyButton.click(deleteAttachedMessage);
+		    newMessReply.append($("<td/>").append(deleteMessReplyButton));
+		    $("#messReplyTable").append(newMessReply);
+		}
+		else{
+			$(this).text("Ответить");
+			$(this).attr("flagAttach", "false");
+			let pos0 = attachedPosts.indexOf($(this).attr("mesId"), 0);
+			attachedPosts.splice(pos0, 1);
+			$("#deleteMessReply" + $(this).attr("messageIndex")).parent().parent().remove();
+		}
+	}
+}
+
+//функция открепления сообщений
+function deleteAttachedMessage(){
+	let pos0 = attachedPosts.indexOf($("#messReply"+$(this).attr("mesIndex")).attr("mesId"), 0);
+	attachedPosts.splice(pos0, 1);
+	$("#messReply" + $(this).attr("mesIndex")).text("Ответить");
+	$("#messReply" + $(this).attr("mesIndex")).attr("flagAttach", "false");
+	$(this).parent().parent().remove();
 }
 
 // удаление сообщений

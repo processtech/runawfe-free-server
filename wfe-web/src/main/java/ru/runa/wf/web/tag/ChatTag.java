@@ -72,7 +72,7 @@ public class ChatTag extends ProcessBaseFormTag {
         Div modalContetnt = new Div();
         modalContetnt.setClass("modal-content");
         modalContetnt.setStyle(
-                "width: 346px; position: fixed; top: auto; bottom: 0%; padding-top: 0px; margin-bottom: 0px; height: 506px; display: block; will-change: width, margin-right, right, transform, opacity, left, height; transform: translateY(0%); margin-right: 0px; margin-left: 30px; right: 60px;");
+                "width: 346px; position: fixed; top: auto; bottom: 0%; padding-top: 0px; margin-bottom: 0px;height: 585px; display: block; will-change: width, margin-right, right, transform, opacity, left, height; transform: translateY(0%); margin-right: 0px; margin-left: 30px; right: 60px;");
 
         Div modalHeader = new Div();
         Div modalHeaderDragg = new Div();
@@ -99,6 +99,10 @@ public class ChatTag extends ProcessBaseFormTag {
         modalFooter.setClass("modal-footer");
         modalFooter.setID("modalFooter");
 
+
+
+
+
         Style styleButton = new Style();
 
         styleButton.addElement(
@@ -118,16 +122,26 @@ public class ChatTag extends ProcessBaseFormTag {
         modalBody.addElement(loadNewMessage);
         modalContetnt.addElement(modalBody);
 
+        Input fileInput = new Input();
+        fileInput.setType("file");
+        fileInput.setSize(0);
+        fileInput.setID("fileInput");
+        fileInput.addAttribute("multiple", "true");
+
         modalFooter.addElement(messageSend);
         modalFooter.addElement(sendMessageChat);
+        modalFooter.addElement(fileInput);
 
         modalContetnt.addElement(modalFooter);
+        Div dropZ = new Div();
+        dropZ.setClass("dropZ");
+        dropZ.setID("dropZ");
+        dropZ.addAttribute("hidden", "true");
+        dropZ.addElement("Перетащите сюда файл");
+        modalContetnt.addElement(dropZ);
 
-        // Table fileTable = new Table();
-        // fileTable.setID("filesTable");
         Div attachedArea = new Div();
         attachedArea.setID("attachedArea");
-        // attachedArea.addElement(fileTable);
 
         modalContetnt.addElement(attachedArea);
 
@@ -173,10 +187,6 @@ public class ChatTag extends ProcessBaseFormTag {
         tableSettingWin.setID("userTableSetting");// таблица настроек
         TR trowMain = new TR();
         trowMain.setClass("throwMain");
-        // TD tflag = new TD();
-        Input check = new Input();
-        check.addAttribute("type", "checkbox");
-        // tflag.addElement(check);
         TD tname = new TD();
         tname.addElement("Имя");
         TD tcheck = new TD();
@@ -184,18 +194,8 @@ public class ChatTag extends ProcessBaseFormTag {
 
         trowMain.addElement(tcheck);
         trowMain.addElement(tname);
-        // trow.addElement(tflag);
         TR contentThrow = new TR();
         contentThrow.setClass("contentThrow");
-        TD testName = new TD();
-        testName.addElement("Петя");
-
-        TD testCheck = new TD();
-        testCheck.addElement(check);
-
-        contentThrow.addElement(testName);
-
-        contentThrow.addElement(testCheck);
 
         tableSettingWin.addElement(trowMain);
 
@@ -217,7 +217,6 @@ public class ChatTag extends ProcessBaseFormTag {
         modalSetting.addElement(modalHeaderSetting);
         modalSetting.addElement(modalBodySetting);
         modalSetting.addElement(modalFooterSetting);
-        // newMessagesIndicator.addElement(modalSetting);
         tdFormElement.addElement(modalSetting);
         tdFormElement.addElement(newMessagesIndicator);
         tdFormElement.addElement(box);

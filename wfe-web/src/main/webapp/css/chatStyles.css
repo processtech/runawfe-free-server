@@ -322,3 +322,44 @@
     		width: 380px;
 		}
 		
+		.selectionTextQuote .fileHolder tr td table tbody tr td a{
+			color: brown;
+			padding: 1px 6px;
+		}
+		
+		
+		.selectionTextQuote .fileHolder tr td table tbody tr td{		
+			max-width: 90%;
+		    white-space: nowrap;
+		    overflow: hidden;		
+		}
+		.dropZ{
+		position: absolute;
+		width: 100%;
+		z-index: -10000;
+		display: none;		}
+		.dropZActive{
+		position: absolute;
+		width: 55%;
+		height: 55%;
+		background-color:gray;
+		color:black;
+		z-index: 10000;
+		display: block;		}
+		.dropZActiveFocus{
+		position: absolute;
+		width: 55%;
+		height: 55%;
+		background-color:green;
+		color:black;
+		z-index: 10000;
+		display: block;		}
+		
+		
+		.messageText a:link{
+			color: #497DDD; 
+  
+		}
+		.messageText a:visited{
+			color: #ff0000; 
+		}
