@@ -45,6 +45,17 @@ import ru.runa.wfe.var.file.FileVariableImpl;
  */
 public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionService {
 
+
+    @Override
+    public void updateChatMessage(ChatMessage message) {
+        getExecutionService().updateChatMessage(message);
+    }
+
+    @Override
+    public boolean canEditChatMessage(Actor user) {
+        return getExecutionService().canEditChatMessage(user);
+    }
+
     @Override
     public List<ChatMessageFiles> getChatMessageFiles(ChatMessage message) {
         return getExecutionService().getChatMessageFiles(message);

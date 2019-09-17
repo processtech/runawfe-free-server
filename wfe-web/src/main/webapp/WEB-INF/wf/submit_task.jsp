@@ -55,6 +55,7 @@
 	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
 <% } %>
 <wf:taskForm title="<%= title %>" taskId="<%= taskId %>" action="/submitTaskForm" />
+<script type="text/javascript" src="/wfe/js/jquery.viewportchecker.js"></script>
 <script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
 <script type="text/javascript" src="/wfe/js/chatDragWindow.js"></script>
 </tiles:put>

@@ -1,5 +1,8 @@
 $(document).ready(function() {
 var attachedPosts=[];
+//переменные редактирования сообщения
+var editMessageFlag=false;
+var editMessageId = -1;
 //флаг - блок чата
 var lockFlag = false;
 //зона для дропа файлов
@@ -115,6 +118,15 @@ btnOpenChat.onclick = function() {
 		$("#messReply"+(lastMessageIndex - numberNewMessages)).scrollView();
 		updatenumberNewMessages(0);
 		updateLastReadMessage();
+		jQuery(".selectionTextQuote").viewportChecker({
+			classToAdd: 'InViewport',
+			offset: 50,
+			repeat: true,
+			callbackFunction: function(elem, action){
+				let i=0;
+				i++;
+			}
+		});
 	}
 }
 
@@ -151,39 +163,66 @@ $("#message").keyup(function(){
 // кнопка "отправить"
 btnSend.onclick=function send() {
 	if(lockFlag == false){
-		let message = document.getElementById("message").value;
-		//ищем ссылки
-		message=message.replace(/(^|[^\/\"\'\>\w])(http\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
-		message=message.replace(/(^|[^\/\"\'\>\w])(https\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
-		message=message.replace(/(^|[^\/\"\'\>\w])(www\.)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='http://$2$3$4'>$2$3$4</a>");
-		message = message.replace(/\n/g, "<br/>");
-		let idHierarchyMessage="";
-		for(var i=0;i<attachedPosts.length;i++){
-			idHierarchyMessage += attachedPosts[ i ] + ":";
+		if(editMessageFlag == false){
+			let message = document.getElementById("message").value;
+			//ищем ссылки
+			message=message.replace(/(^|[^\/\"\'\>\w])(http\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
+			message=message.replace(/(^|[^\/\"\'\>\w])(https\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
+			message=message.replace(/(^|[^\/\"\'\>\w])(www\.)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='http://$2$3$4'>$2$3$4</a>");
+			message = message.replace(/\n/g, "<br/>");
+			let idHierarchyMessage="";
+			for(var i=0;i<attachedPosts.length;i++){
+				idHierarchyMessage += attachedPosts[ i ] + ":";
+			}
+			// сокет
+			let newMessage={};
+			newMessage.message=message;
+			newMessage.chatId=$("#ChatForm").attr("chatId");
+			newMessage.idHierarchyMessage = idHierarchyMessage;
+			newMessage.type="newMessage";
+			if(attachedFiles.length > 0){
+				newMessage.haveFile=true;
+				lockFlag = true;
+			}
+			else{
+				newMessage.haveFile=false;
+			}
+			//отправка
+			chatSocket.send(JSON.stringify(newMessage));
+			$("#message").val("");
+			// чистим "ответы"
+			let addReplys0 = document.getElementsByClassName("addReply");
+			for(let i=0; i<addReplys0.length; i++){
+				$(addReplys0[ i ]).text("Ответить");
+				$(addReplys0[ i ]).attr("flagAttach", "false");
+			}
+			attachedPosts=[];
+			$("#messReplyTable").html("");
 		}
-		// сокет
-		let newMessage={};
-		newMessage.message=message;
-		newMessage.chatId=$("#ChatForm").attr("chatId");
-		newMessage.idHierarchyMessage = idHierarchyMessage;
-		newMessage.type="newMessage";
-		if(attachedFiles.length > 0){
-			newMessage.haveFile=true;
-			lockFlag = true;
+		else{//редактирование сообщения
+			if(confirm("Вы действительно хотите отредактировать сообщение? Отменить это действие будет невозможно")){
+				let message = document.getElementById("message").value;
+				//ищем ссылки
+				message=message.replace(/(^|[^\/\"\'\>\w])(http\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
+				message=message.replace(/(^|[^\/\"\'\>\w])(https\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
+				message=message.replace(/(^|[^\/\"\'\>\w])(www\.)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='http://$2$3$4'>$2$3$4</a>");
+				message = message.replace(/\n/g, "<br/>");
+				let newMessage={};
+				newMessage.message=message;
+				newMessage.chatId=$("#ChatForm").attr("chatId");
+				newMessage.type="editMessage";
+				newMessage.editMessageId = editMessageId;
+				$("#message").val(""); 
+				chatSocket.send(JSON.stringify(newMessage));
+				editMessageId=-1;
+				editMessageFlag=false;
+			}
+			else{
+				$("#message").val("");
+				editMessageId=-1;
+				editMessageFlag=false;
+			}
 		}
-		else{
-			newMessage.haveFile=false;
-		}
-		//отправка
-		chatSocket.send(JSON.stringify(newMessage));
-		// чистим "ответы"
-		let addReplys0 = document.getElementsByClassName("addReply");
-		for(let i=0; i<addReplys0.length; i++){
-			$(addReplys0[ i ]).text("Ответить");
-			$(addReplys0[ i ]).attr("flagAttach", "false");
-		}
-		attachedPosts=[];
-		$("#messReplyTable").html("");
 	}
 }
  
@@ -251,7 +290,7 @@ btnOp.onclick=function(){
 		imgButton.src="/wfe/images/chat_roll_up.png";
 	}
 }
-
+//----
 $.fn.scrollView = function () {
 	return this.each(function () {
 			$(".modal-body").animate({
@@ -259,6 +298,9 @@ $.fn.scrollView = function () {
 			}, 1);
 	});
 }
+
+//-----
+
 
 // -----------приём файлов
 //проверка браузера
@@ -426,7 +468,8 @@ function addMessages(data){
 				let text0 = data.messages[ mes ].text;
 				//создаем сообщение
 				let messageBody=$("<table/>").addClass("selectionTextQuote");
-				messageBody.append($("<tr/>").append($("<td/>").append($("<div/>").addClass("author").text(data.messages[ mes ].author + ":")).append($("<div/>").addClass("messageText").attr("id","messageText"+lastMessageIndex).append(text0))));
+				messageBody.attr("id", "messBody"+lastMessageIndex);
+				messageBody.append($("<tr/>").append($("<td/>").append($("<div/>").addClass("author").text(data.messages[ mes ].author + ":")).append($("<div/>").addClass("messageText").attr("textMessagId", data.messages[ mes ].id).attr("id","messageText"+lastMessageIndex).append(text0))));
 				// "развернуть"
 				if(data.messages[ mes ].hierarchyMessageFlag == 1){
 					let openHierarchyA0 = $("<a/>");
@@ -472,12 +515,34 @@ function addMessages(data){
 					deleterMessageA0.attr("id", "messDeleter"+(lastMessageIndex));
 					deleterMessageA0.attr("mesId", data.messages[ mes ].id);
 					deleterMessageA0.text("удалить");
+					deleterMessageA0.click(deleteMessage);
 					messageBody.append($("<tr/>").append($("<td/>").append(deleterMessageA0)));
+				}
+				//редактирование сообщения кнопка
+				if(data.coreUser == true){ //исправить в сокете, что бы давалось сообщениям???
+					let editMessage0 = $("<a/>");
+					editMessage0.attr("id", "messEdit"+(lastMessageIndex));
+					editMessage0.attr("mesId", data.messages[ mes ].id);
+					editMessage0.attr("mesIndex", lastMessageIndex);
+					editMessage0.text("редактировать");
+					editMessage0.click(editMessage);
+					messageBody.append($("<tr/>").append($("<td/>").append(editMessage0)));
 				}
 				// конец
 				// установка сообщения
 				if(data.old == false){
 					$(".modal-body").append(messageBody);
+					//
+					jQuery("#messBody"+lastMessageIndex).viewportChecker({
+						classToAdd: 'InViewport',
+						offset: 50,
+						repeat: true,
+						callbackFunction: function(elem, action){
+							let i=0;
+							i++;
+						}
+					});
+					//
 					if(switchCheak == 0){// +1 непрочитанное сообщение
 						updatenumberNewMessages(numberNewMessages + 1);
 					}
@@ -489,14 +554,12 @@ function addMessages(data){
 				else{
 					$(".modal-body").children().first().after(messageBody);
 				}
-				if($(".modal-body").attr("admin") == "true"){
-					document.getElementById("messDeleter" + (lastMessageIndex)).onclick=deleteMessage;
-				}
 				lastMessageIndex += 1;
 			}
 		}
 	}
 }
+
 
 //функция для кнопки "ответить" (прикрепляет сообщение)
 function messReplyClickFunction(){
@@ -547,6 +610,13 @@ function deleteMessage(){
 		chatSocket.send(JSON.stringify(newMessage));
 		$(this).parent().parent().parent().parent().remove();
 	}
+}
+
+//редактирование сообщений
+function editMessage(){
+	editMessageId = $(this).attr("mesId");
+	editMessageFlag=true;
+	$("#message").val($("#messageText"+$(this).attr("mesIndex")).text());
 }
 
 function nextStepLoadFile(messageId, FileIndex){
@@ -603,6 +673,12 @@ function onMessage(event) {
 		newMessage.chatId=$("#ChatForm").attr("chatId");
 		newMessage.type="sendToChat";
 		chatSocket.send(JSON.stringify(newMessage));
+	}
+	else if(message0.messType == "editMessage"){
+		let mesSelector = $("[textMessagId='"+message0.mesId+"']");
+		if((mesSelector != null) && (mesSelector != undefined)){
+			mesSelector.text(message0.newText);
+		}
 	}
 }
 // конец

@@ -51,6 +51,23 @@ import ru.runa.wfe.var.file.FileVariableImpl;
 public interface ExecutionService {
 
     /**
+     * validates the user (can edit message)
+     *
+     * @param message
+     *            message to merge
+     */
+    public void updateChatMessage(ChatMessage message);
+
+    /**
+     * validates the user (can edit message)
+     *
+     * @param user
+     *            validated user (actor)
+     * @return not <code>null</code>
+     */
+    public boolean canEditChatMessage(Actor user);
+
+    /**
      * Get List array of all ChatMessageFiles in chat message.
      *
      * @param message

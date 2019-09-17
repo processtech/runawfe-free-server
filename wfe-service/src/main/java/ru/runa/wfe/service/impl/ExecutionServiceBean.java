@@ -96,6 +96,18 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
+    public void updateChatMessage(ChatMessage message) {
+        chatLogic.updateMessage(message);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public boolean canEditChatMessage(Actor user) {
+        return chatLogic.canEditMessage(user);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public List<ChatMessageFiles> getChatMessageFiles(ChatMessage message) {
         return chatLogic.getMessageFiles(message);
     }

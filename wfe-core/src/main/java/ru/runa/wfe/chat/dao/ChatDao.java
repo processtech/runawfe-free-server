@@ -96,6 +96,11 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return queryFactory.selectFrom(mf).where(mf.id.eq(fileId)).fetchFirst();
     }
 
+    public void updateMessage(ChatMessage message) {
+        QChatMessage mes = QChatMessage.chatMessage;
+        sessionFactory.getCurrentSession().merge(message);
+    }
+
     // TODO функция для связи чатов, добавить сюда подгрузку связей чатов - возвращает связанные id для перенаправления сообщений
     public List<Integer> getAllConnectedChatId(int chatId) {
         ArrayList<Integer> chatIds = new ArrayList<Integer>();

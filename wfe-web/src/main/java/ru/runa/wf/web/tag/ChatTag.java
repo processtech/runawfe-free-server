@@ -91,7 +91,7 @@ public class ChatTag extends ProcessBaseFormTag {
         modalBody.setClass("modal-body");
         if (Delegates.getExecutorService().isAdministrator(getUser()))
          {
-            modalBody.addAttribute("admin", "true");// !
+            modalBody.addAttribute("admin", "true");
         }
         modalBody.setStyle("height: 396px; width: 304px;");
 

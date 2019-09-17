@@ -68,4 +68,12 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getFile(fileId);
     }
 
+    public void updateMessage(ChatMessage message) {
+        chatDao.updateMessage(message);
+    }
+
+    public boolean canEditMessage(Actor user) {
+        return true;
+    }
+
 }

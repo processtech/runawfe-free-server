@@ -80,11 +80,15 @@ public class ChatSoket {
             long newMessId = Delegates.getExecutionService().setChatMessage(newMessage.getChatId(), newMessage);
             newMessage.setId(newMessId);
             // отправка по чату всем:
-            if (newMessage.getHaveFiles() == false) {// если есть файлы, то откладываем отправку до их дозагрузки
+            if (newMessage.getHaveFiles() == false) {
                 JSONObject sendObject = convertMessage(newMessage, false);
-                sessionHandler.sendToChats(sendObject, newMessage.getChatId());
+                if (Delegates.getExecutionService().canEditChatMessage(((User) session.getUserProperties().get("user")).getActor())) {
+                    sessionHandler.sendToChats(sendObject, newMessage.getChatId(), newMessage.getActor());
+                } else {
+                    sessionHandler.sendToChats(sendObject, newMessage.getChatId());
+                }
             }
-            else {
+            else {// если есть файлы, то откладываем отправку до их дозагрузки
                 JSONObject sendObject = new JSONObject();
                 sendObject.put("messType", "nextStepLoadFile");
                 sendObject.put("messageId", newMessage.getId());
@@ -101,9 +105,19 @@ public class ChatSoket {
                 messages = Delegates.getExecutionService().getChatFirstMessages(Integer.parseInt((String) objectMessage.get("chatId")),
                         countMessages);
             }
-            for (ChatMessage newMessage : messages) {
-                JSONObject sendObject = convertMessage(newMessage, true);
-                sessionHandler.sendToSession(session, sendObject);
+            if (Delegates.getExecutionService().canEditChatMessage(((User) session.getUserProperties().get("user")).getActor())) {
+                for (ChatMessage newMessage : messages) {
+                    JSONObject sendObject = convertMessage(newMessage, true);
+                    if (newMessage.getActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
+                        sendObject.put("coreUser", true);
+                    }
+                    sessionHandler.sendToSession(session, sendObject);
+                }
+            } else {
+                for (ChatMessage newMessage : messages) {
+                    JSONObject sendObject = convertMessage(newMessage, true);
+                    sessionHandler.sendToSession(session, sendObject);
+                }
             }
             JSONObject sendDeblocOldMes = new JSONObject();
             sendDeblocOldMes.put("messType", "deblocOldMes");
@@ -129,7 +143,32 @@ public class ChatSoket {
         }
         else if (typeMessage.equals("sendToChat")) {
             ChatMessage message0 = Delegates.getExecutionService().getChatMessage((Long) objectMessage.get("messageId"));
-            sessionHandler.sendToChats(convertMessage(message0, false), Integer.parseInt((String) objectMessage.get("chatId")));
+            if (Delegates.getExecutionService().canEditChatMessage(message0.getActor())) {
+                sessionHandler.sendToChats(convertMessage(message0, false), Integer.parseInt((String) objectMessage.get("chatId")),
+                        message0.getActor());
+            } else {
+                sessionHandler.sendToChats(convertMessage(message0, false), Integer.parseInt((String) objectMessage.get("chatId")));
+            }
+        }
+        else if (typeMessage.equals("editMessage")) {
+            if (Delegates.getExecutionService().canEditChatMessage(((User) session.getUserProperties().get("user")).getActor())) {
+                int chatId = Integer.parseInt((String) objectMessage.get("chatId"));
+                Long editMessageId = Long.parseLong((String) objectMessage.get("editMessageId"));
+                String newText = (String) objectMessage.get("message");
+                ChatMessage newMessage = Delegates.getExecutionService().getChatMessage(editMessageId);
+                if ((newMessage != null)) {
+                    if (newMessage.getActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
+                        newMessage.setText(newText);
+                        Delegates.getExecutionService().updateChatMessage(newMessage);
+                        // рассылка обновления сообщения
+                        JSONObject message0 = new JSONObject();
+                        message0.put("messType", "editMessage");
+                        message0.put("mesId", newMessage.getId());
+                        message0.put("newText", newMessage.getText());
+                        sessionHandler.sendToChats(message0, Integer.parseInt((String) objectMessage.get("chatId")));
+                    }
+                }
+            }
         }
     }
 

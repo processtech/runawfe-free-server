@@ -88,6 +88,7 @@ function Reload() {
 <wf:processVariableMonitor identifiableId='<%= id %>' />
 <wf:ChatTag identifiableId='<%= id %>'/>
 <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
+<script type="text/javascript" src="/wfe/js/jquery.viewportchecker.js"></script>
 <script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
 <script type="text/javascript" src="/wfe/js/chatDragWindow.js"></script>
 <% if(!graphMode) { %>
