@@ -25,6 +25,7 @@ import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFiles;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 @ApplicationScoped
@@ -79,6 +80,30 @@ public class ChatSoket {
             // сейв в БД
             long newMessId = Delegates.getExecutionService().setChatMessage(newMessage.getChatId(), newMessage);
             newMessage.setId(newMessId);
+            // разссылка пользователям @user
+            int dogIndex = 0;
+            int spaceIndex = -1;
+            String login;
+            String serchText = newMessage.getText();
+            Actor actor0;
+            while (true) {
+                dogIndex = serchText.indexOf('@', dogIndex);
+                if (dogIndex != -1) {
+                    spaceIndex = serchText.indexOf(' ', dogIndex);
+                    if (spaceIndex != -1) {
+                        login = serchText.substring(dogIndex + 1, spaceIndex);
+                    } else {
+                        login = serchText.substring(dogIndex + 1);
+                    }
+                    actor0 = Delegates.getExecutorService().getActorCaseInsensitive(login);
+                    if (actor0 != null) {
+                        // отправка по почте вам сообщение в чате RunaWFE от (автор): (текст)
+                        // actor0.getEmail() - почта (в теории, реально там что угодно может быть)
+                    }
+                } else {
+                    break;
+                }
+            }
             // отправка по чату всем:
             if (newMessage.getHaveFiles() == false) {
                 JSONObject sendObject = convertMessage(newMessage, false);

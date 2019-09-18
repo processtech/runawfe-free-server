@@ -51,7 +51,16 @@ import ru.runa.wfe.var.file.FileVariableImpl;
 public interface ExecutionService {
 
     /**
-     * validates the user (can edit message)
+     * get all users names for this chat
+     *
+     * @param chatId
+     *            chat id
+     * @return List<Actor> or <code>null</code>
+     */
+    public List<Actor> getAllUsersNamesForChat(int chatId);
+    
+    /**
+     * merge message in DB
      *
      * @param message
      *            message to merge

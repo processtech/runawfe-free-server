@@ -76,4 +76,8 @@ public class ChatLogic extends WfCommonLogic {
         return true;
     }
 
+    public List<Actor> getAllUsersNames(int chatId) {
+        return chatDao.getAllUsersNames(chatId);
+    }
+
 }

@@ -3,6 +3,11 @@ var attachedPosts=[];
 //переменные редактирования сообщения
 var editMessageFlag=false;
 var editMessageId = -1;
+//переменные отслеживания @user
+var userNamePosition = -1;
+var userNamePositionFlag = false;
+var userLoadFlag = false;
+var userList = [];
 //флаг - блок чата
 var lockFlag = false;
 //зона для дропа файлов
@@ -152,11 +157,76 @@ $(".acceptSettingsModal").click(function(){
 	
 });
 
-//
-$("#message").keyup(function(){
-	let value=$(this).val();
-	if(value=="@"){
-		$(this).append("<table class=\"tableModalNameSetMessage\"><tr><td>Игорь</td></tr><table>")
+//вставка юзеров
+//ajax запрос иерархии сообщений, вернет Promise ajax запроса
+function getUsersNames(){
+	let urlString = "/wfe/ajaxcmd?command=GetUsersNamesForChat&chatId=" + $("#ChatForm").attr("chatId");
+	return $.ajax({
+		type: "POST",
+		url: urlString,
+		dataType: "json",
+		contentType: "application/json; charset=UTF-8",
+		processData: false,
+		success: function(data) {}
+	});
+}
+
+$("#message").keyup(function keyupUserNames(event){
+	if(this.value[this.selectionStart-1] == "@"){
+		if(userNamePositionFlag == true){
+			//предчистка
+			$("#userNameTable").remove();
+		}
+		userNamePosition = this.selectionStart-1;
+		userNamePositionFlag = true;
+		userNameTable = $("<table/>");
+		userNameTable.addClass("tableModalNameSetMessage");
+		userNameTable.attr("id", "userNameTable");
+		//заполнение таблицы
+		if(userLoadFlag == false){
+			getUsersNames().then(function(data){
+				userLoadFlag = true;
+				userList = data.names;
+			})
+		}
+		userNameTable.append("<tr><td>ololol<td></tr>");
+		//
+		$(this).parent().append(userNameTable);
+	}
+	else if(event.key == "Backspace"){
+		if(userNamePositionFlag == true){
+			if(this.selectionStart == userNamePosition){
+				userNamePositionFlag = false;
+				//отмена
+				$("#userNameTable").remove();
+			}
+			else{
+				if(this.selectionStart < userNamePosition){
+					userNamePosition--;
+				}
+			}
+		}
+	}
+	else if(event.key == "Delete"){
+		if(userNamePositionFlag == true){
+			if(this.selectionStart == userNamePosition){
+				userNamePositionFlag = false;
+				//отмена
+				$("#userNameTable").remove();
+			}
+			else{
+				if(this.selectionStart < userNamePosition){
+					userNamePosition--;
+				}
+			}
+		}
+	}
+	else if (event.key == " "){
+		if(userNamePositionFlag == true){
+			userNamePositionFlag = false;
+			//отмена
+			$("#userNameTable").remove();
+		}
 	}
 });
 
@@ -290,7 +360,7 @@ btnOp.onclick=function(){
 		imgButton.src="/wfe/images/chat_roll_up.png";
 	}
 }
-//----
+//-----скролл
 $.fn.scrollView = function () {
 	return this.each(function () {
 			$(".modal-body").animate({
@@ -299,7 +369,6 @@ $.fn.scrollView = function () {
 	});
 }
 
-//-----
 
 
 // -----------приём файлов

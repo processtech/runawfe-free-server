@@ -96,6 +96,12 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
+    public List<Actor> getAllUsersNamesForChat(int chatId) {
+        return chatLogic.getAllUsersNames(chatId);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public void updateChatMessage(ChatMessage message) {
         chatLogic.updateMessage(message);
     }

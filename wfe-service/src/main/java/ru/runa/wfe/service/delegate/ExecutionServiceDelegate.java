@@ -45,6 +45,10 @@ import ru.runa.wfe.var.file.FileVariableImpl;
  */
 public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionService {
 
+    @Override
+    public List<Actor> getAllUsersNamesForChat(int chatId) {
+        return getExecutionService().getAllUsersNamesForChat(chatId);
+    }
 
     @Override
     public void updateChatMessage(ChatMessage message) {

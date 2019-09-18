@@ -14,6 +14,7 @@ import ru.runa.wfe.chat.QChatMessageFiles;
 import ru.runa.wfe.chat.QChatsUserInfo;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.QActor;
 
 @Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -106,5 +107,10 @@ public class ChatDao extends GenericDao<ChatMessage> {
         ArrayList<Integer> chatIds = new ArrayList<Integer>();
         chatIds.add(chatId);
         return chatIds;
+    }
+
+    public List<Actor> getAllUsersNames(int chatId) {
+        QActor a = QActor.actor;
+        return queryFactory.selectFrom(a).fetch();
     }
 }
