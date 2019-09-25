@@ -8,6 +8,10 @@ var userNamePosition = -1;
 var userNamePositionFlag = false;
 var userLoadFlag = false;
 var userList = [];
+var userNameLength=0;
+var userNameTable = $("<table/>");
+userNameTable.addClass("tableModalNameSetMessage");
+userNameTable.attr("id", "userNameTable");
 //флаг - блок чата
 var lockFlag = false;
 //зона для дропа файлов
@@ -80,6 +84,7 @@ function updateLastReadMessage(){
 	newSend0.chatId=$("#ChatForm").attr("chatId");
 	newSend0.type="setChatUserInfo";
 	newSend0.currentMessageId=currentMessageId;
+	
 	let sendObject0 = JSON.stringify(newSend0);
 	chatSocket.send(sendObject0);
 }
@@ -123,15 +128,21 @@ btnOpenChat.onclick = function() {
 		$("#messReply"+(lastMessageIndex - numberNewMessages)).scrollView();
 		updatenumberNewMessages(0);
 		updateLastReadMessage();
+		$(".modal-body").on("viewportChecker",".selectionTextQuote",function(){
+			
+		});
 		jQuery(".selectionTextQuote").viewportChecker({
-			classToAdd: 'InViewport',
-			offset: 50,
-			repeat: true,
+			classToAdd: "AddedClass",
+			repeat: false,
 			callbackFunction: function(elem, action){
-				let i=0;
-				i++;
+				if (action === 'add') { // Если класс добавлен
+				$(elem).addClass("InViewport");
+				}
+				else{
+				}
 			}
 		});
+		
 	}
 }
 
@@ -148,7 +159,6 @@ $(".modalSettings").click(function() {
 
 //закрытие настроек  чата 
 $(".closeButtonModalSetting").click(function(){
-
 	$(".modalSetting").css({"display":"none"});
 });
 
@@ -157,81 +167,9 @@ $(".acceptSettingsModal").click(function(){
 	
 });
 
-//вставка юзеров
-//ajax запрос иерархии сообщений, вернет Promise ajax запроса
-function getUsersNames(){
-	let urlString = "/wfe/ajaxcmd?command=GetUsersNamesForChat&chatId=" + $("#ChatForm").attr("chatId");
-	return $.ajax({
-		type: "POST",
-		url: urlString,
-		dataType: "json",
-		contentType: "application/json; charset=UTF-8",
-		processData: false,
-		success: function(data) {}
-	});
-}
-
-$("#message").keyup(function keyupUserNames(event){
-	if(this.value[this.selectionStart-1] == "@"){
-		if(userNamePositionFlag == true){
-			//предчистка
-			$("#userNameTable").remove();
-		}
-		userNamePosition = this.selectionStart-1;
-		userNamePositionFlag = true;
-		userNameTable = $("<table/>");
-		userNameTable.addClass("tableModalNameSetMessage");
-		userNameTable.attr("id", "userNameTable");
-		//заполнение таблицы
-		if(userLoadFlag == false){
-			getUsersNames().then(function(data){
-				userLoadFlag = true;
-				userList = data.names;
-			})
-		}
-		userNameTable.append("<tr><td>ololol<td></tr>");
-		//
-		$(this).parent().append(userNameTable);
-	}
-	else if(event.key == "Backspace"){
-		if(userNamePositionFlag == true){
-			if(this.selectionStart == userNamePosition){
-				userNamePositionFlag = false;
-				//отмена
-				$("#userNameTable").remove();
-			}
-			else{
-				if(this.selectionStart < userNamePosition){
-					userNamePosition--;
-				}
-			}
-		}
-	}
-	else if(event.key == "Delete"){
-		if(userNamePositionFlag == true){
-			if(this.selectionStart == userNamePosition){
-				userNamePositionFlag = false;
-				//отмена
-				$("#userNameTable").remove();
-			}
-			else{
-				if(this.selectionStart < userNamePosition){
-					userNamePosition--;
-				}
-			}
-		}
-	}
-	else if (event.key == " "){
-		if(userNamePositionFlag == true){
-			userNamePositionFlag = false;
-			//отмена
-			$("#userNameTable").remove();
-		}
-	}
-});
-
 // кнопка "отправить"
-btnSend.onclick=function send() {
+ function sendMessage() {
+	deleteUserNameTable();
 	if(lockFlag == false){
 		if(editMessageFlag == false){
 			let message = document.getElementById("message").value;
@@ -294,20 +232,29 @@ btnSend.onclick=function send() {
 			}
 		}
 	}
+	return 0;
 }
+btnSend.onclick=sendMessage;
  
-// кнопка развернуть/свернуть чат
+$("#message").keydown(function(e){
+	if(e.ctrlKey && e.keyCode == 13){
+		sendMessage();
+	}
+});
+
+//кнопка развернуть/свернуть чат
+var heightModalContent=($(window).height()-$(".modal-content").height())*0.8;
 btnOp.onclick=function(){
 	if(flagRollExpandChat == 0){
 		flagRollExpandChat=1;
 		$(".modal-content").css({
 			width: $(".modal-content").width() + 300,
-			height: $(".modal-content").height() + 350,
+			height: $(".modal-content").height() + heightModalContent,
 		});
 
 		$(".modal-body").css({
 			width: $(".modal-body").width() + 300,
-			height: $(".modal-body").height() + 250,
+			height: ($(".modal-content").height() + heightModalContent)*0.50,
 		});
 
 		$("#attachedArea").css({
@@ -322,6 +269,13 @@ btnOp.onclick=function(){
 		$(".modal-footer").css({
 			height: $(".modal-footer").height() + 30,
 		});
+		$('.messageUserMention').css({
+			"margin-top" : (-1)*$('#message').height()-29+"px",
+			height: 90+"px",
+			
+			width: 212+"px",
+		})
+
 		
 		dropZone.css({
 			height: $(".modal-footer").height() + 30,
@@ -332,12 +286,12 @@ btnOp.onclick=function(){
 		flagRollExpandChat=0;
 		$(".modal-content").css({
 			width: $(".modal-content").width() - 300,
-			height: $(".modal-content").height() - 350,
+			height: $(".modal-content").height() - heightModalContent,
 		});
 
 		$(".modal-body").css({
 			width: $(".modal-body").width() - 300,
-			height: $(".modal-body").height() - 250,
+			height: ($(".modal-content").height())*0.65,
 		});
 
 		$("#attachedArea").css({
@@ -352,14 +306,17 @@ btnOp.onclick=function(){
 		$(".modal-footer").css({
 			height: $(".modal-footer").height() - 30,
 		});
-		
+		$('.messageUserMention').css({
+			"margin-top" : (-1) * $('#message').height()-17+"px",
+		});
+
 		dropZone.css({
-			height: $(".modal-footer").height() - 30,
 		});
 		
 		imgButton.src="/wfe/images/chat_roll_up.png";
 	}
 }
+
 //-----скролл
 $.fn.scrollView = function () {
 	return this.each(function () {
@@ -369,12 +326,152 @@ $.fn.scrollView = function () {
 	});
 }
 
+//------------------вставка юзеров
+//ajax запрос иерархии сообщений, вернет Promise ajax запроса
+function getUsersNames(){
+	let urlString = "/wfe/ajaxcmd?command=GetUsersNamesForChat&chatId=" + $("#ChatForm").attr("chatId");
+	return $.ajax({
+		type: "POST",
+		url: urlString,
+		dataType: "json",
+		contentType: "application/json; charset=UTF-8",
+		processData: false,
+		success: function(data) {}
+	});
+}
 
+//@
+function enterClickUserNames(event){
+	let userNameText = $(this).text().slice(userNameLength+1) + " ";
+	$("#message").val($("#message").val().slice(0, userNamePosition+userNameLength+1) + userNameText + $("#message").val().slice(userNamePosition+userNameLength+1));
+	deleteUserNameTable();
+}
+
+//полная очистка таблицы вставки userNameTable и её переменных
+function deleteUserNameTable(){
+	userNameTable.detach();
+	userNameTable.html("");
+	$(".messageUserMention").css({"display":"none"});
+	userNameLength=0;
+	userNamePositionFlag = false;
+}
+
+//обновить таблицу userNameTable
+function updateUserNameTable(enterUserName){
+	userNameTable.html("");
+	for(let i=0;i<userList.length;i++){
+		let partName = userList[i].slice(0,userNameLength);
+		if(partName==enterUserName){
+			let userNameBlockList=$("<div/>");
+			userNameBlockList.addClass("list");
+			userNameBlockList.click(enterClickUserNames);
+			userNameTable.append(userNameBlockList.text("@"+userList[i]));
+		}
+	}
+}
+
+$("#message").keydown(function keyupUserNames(event){//не забыть оптимизировать if на проверки (userNamePositionFlag == true) !!!
+	if(event.key == "Backspace"){
+		if(userNamePositionFlag == true){
+			if(this.selectionStart == userNamePosition+1){
+				//отмена
+				deleteUserNameTable();
+			}
+			else{
+				if(this.selectionStart <= userNamePosition){
+					userNamePosition--;
+				}
+				else{//this.selectionStart > userNamePosition
+					if(this.selectionStart <= userNamePosition+userNameLength+1){
+						userNameLength--;
+						//обновляем таблицу
+						updateUserNameTable(this.value.slice(userNamePosition+1, this.selectionStart-1) + this.value.slice(this.selectionStart,userNamePosition+userNameLength+2));
+					}
+				}
+			}
+		}
+	}
+	else if(event.key == "Delete"){
+		if(userNamePositionFlag == true){
+			if(this.selectionStart == userNamePosition){
+				userNamePositionFlag = false;
+				//отмена
+				deleteUserNameTable();
+			}
+			else{
+				if(this.selectionStart < userNamePosition){
+					userNamePosition--;
+				}
+				else{//this.selectionStart >= userNamePosition
+					if(this.selectionStart < userNamePosition+userNameLength+1){
+						userNameLength--;
+						//обновляем таблицу
+						updateUserNameTable(this.value.slice(userNamePosition+1, this.selectionStart) + this.value.slice(this.selectionStart+1,userNamePosition+userNameLength+2));
+					}
+				}
+			}
+		}
+	}
+	else if ((event.key == " ") || (event.key == "Enter")){
+		if(userNamePositionFlag == true){
+			//отмена
+			deleteUserNameTable();
+		}
+	}
+	else if(event.key == "@"){
+		userNamePosition = this.selectionStart;
+		//заполнение таблицы
+		if(userLoadFlag == false){
+			getUsersNames().then(function(data){
+				userLoadFlag = true;
+				userList = data.names;
+				userList.sort();
+				if(userNamePositionFlag == true){
+					userNameTable.html("");
+				}
+				else{
+					$(".messageUserMention").append(userNameTable);
+					userNamePositionFlag = true;
+				}
+				for(let i=0;i<userList.length;i++){
+					let userNameBlockList=$("<div/>");
+					userNameBlockList.addClass("list");
+					userNameBlockList.click(enterClickUserNames);
+					userNameBlockList.text("@"+userList[i]);
+					userNameTable.append(userNameBlockList);
+				}
+				$(".messageUserMention").css({"display":"block"});
+			});
+		}
+		else{
+			if(userNamePositionFlag == true){
+				userNameTable.html("");
+			}
+			else{
+				$(".messageUserMention").append(userNameTable);
+				userNamePositionFlag = true;
+			}
+			for(let i=0;i<userList.length;i++){
+				let userNameBlockList=$("<div/>");
+				userNameBlockList.addClass("list");
+				userNameBlockList.click(enterClickUserNames);
+				userNameBlockList.text("@"+userList[i]);
+				userNameTable.append(userNameBlockList);
+			}
+			$(".messageUserMention").css({"display":"block"});
+		}
+	}
+	else if((userNamePositionFlag == true)&&( (this.selectionStart) > (userNamePosition) )&&( (this.selectionStart) < (userNameLength+2+userNamePosition) )&&(event.key.length==1)&&(/^[A-Za-z0-9]+$/.test(event.key))){
+		userNameLength++;
+		//обновляем таблицу
+		updateUserNameTable(this.value.slice(userNamePosition+1, this.selectionStart) + event.key + this.value.slice(this.selectionStart,userNamePosition+userNameLength+1));
+	}
+});
 
 // -----------приём файлов
 //проверка браузера
 if (typeof(window.FileReader) != 'undefined') {
-    //поддерживает
+		//поддерживает
 	$("html").bind("dragover", function(){
 		dropZone.show();
 		dropZone.addClass("dropZActive");
@@ -389,34 +486,32 @@ if (typeof(window.FileReader) != 'undefined') {
 		return false;
 	});
 	dropZone[0].ondragover = function() {
-		//тут смена класса
 		dropZone.addClass("dropZActiveFocus");
-	    return false;
+			return false;
 	};
 	dropZone[0].ondragleave = function() {
-		//тут обратная смена класса/его удаление
 		dropZone.removeClass("dropZActiveFocus");
-	    return false;
+			return false;
 	};
 	
 	dropZone[0].ondrop = function(event) {
-	    event.preventDefault();
-	    let files = event.dataTransfer.files;
-	    for(let i = 0; i<files.length ;i++){
-	    	attachedFiles.push(files[i]);
-		    //создаем отметку о прикреплении
-		    let newFile=$("<tr/>");
-		    newFile.append($("<td/>").text(attachedFiles[attachedFiles.length - 1].name));
-		    let deleteFileButton = $("<button/>");
-		    deleteFileButton.text("X");
-		    deleteFileButton.addClass("btnFileChat");
-		    deleteFileButton.attr("fileNumber", attachedFiles.length - 1);
-		    deleteFileButton.attr("type", "button");
-		    deleteFileButton.click(deleteAttachedFile);
-		    newFile.append($("<td/>").append(deleteFileButton));
-		    $("#filesTable").append(newFile);
-	    }
-	    dropZone.hide();
+		event.preventDefault();
+		let files = event.dataTransfer.files;
+		for(let i = 0; i<files.length ;i++){
+			attachedFiles.push(files[i]);
+			//создаем отметку о прикреплении
+			let newFile=$("<tr/>");
+			newFile.append($("<td/>").text(attachedFiles[attachedFiles.length - 1].name));
+			let deleteFileButton = $("<button/>");
+			deleteFileButton.text("X");
+			deleteFileButton.addClass("btnFileChat");
+			deleteFileButton.attr("fileNumber", attachedFiles.length - 1);
+			deleteFileButton.attr("type", "button");
+			deleteFileButton.click(deleteAttachedFile);
+			newFile.append($("<td/>").append(deleteFileButton));
+			$("#filesTable").append(newFile);
+		}
+		dropZone.hide();
 		dropZone.removeClass("dropZActive");
 		dropZone.removeClass("dropZActiveFocus");
 	};
@@ -427,20 +522,20 @@ else{
 //альтернатива - fileInput
 $("#fileInput").change(function() {
 	let files = 	$(this)[0].files;
-    for(let i = 0; i<files.length ;i++){
-    	attachedFiles.push(files[i]);
-	    //создаем отметку о прикреплении
-	    let newFile=$("<tr/>");
-	    newFile.append($("<td/>").text(attachedFiles[attachedFiles.length - 1].name));
-	    let deleteFileButton = $("<button/>");
-	    deleteFileButton.text("X");
-	    deleteFileButton.addClass("btnFileChat");
-	    deleteFileButton.attr("fileNumber", attachedFiles.length - 1);
-	    deleteFileButton.attr("type", "button");
-	    deleteFileButton.click(deleteAttachedFile);
-	    newFile.append($("<td/>").append(deleteFileButton));
-	    $("#filesTable").append(newFile);
-    }
+		for(let i = 0; i<files.length ;i++){
+			attachedFiles.push(files[i]);
+			//создаем отметку о прикреплении
+			let newFile=$("<tr/>");
+			newFile.append($("<td/>").text(attachedFiles[attachedFiles.length - 1].name));
+			let deleteFileButton = $("<button/>");
+			deleteFileButton.text("X");
+			deleteFileButton.addClass("btnFileChat");
+			deleteFileButton.attr("fileNumber", attachedFiles.length - 1);
+			deleteFileButton.attr("type", "button");
+			deleteFileButton.click(deleteAttachedFile);
+			newFile.append($("<td/>").append(deleteFileButton));
+			$("#filesTable").append(newFile);
+		}
 });
 //удаление прикрепленных к сообщению файлов (для не отправленных сообщений)
 function deleteAttachedFile(){
@@ -602,7 +697,23 @@ function addMessages(data){
 				if(data.old == false){
 					$(".modal-body").append(messageBody);
 					//
-					jQuery("#messBody"+lastMessageIndex).viewportChecker({
+					$(".modal-body").on("viewportChecker",".selectionTextQuote",function(){
+					
+					});
+					jQuery(".selectionTextQuote").viewportChecker({
+						classToAdd: "AddedClass",
+						repeat: false,
+						callbackFunction: function(elem, action){
+							if (action === 'add') { // Если класс добавлен
+							$(elem).addClass("InViewport");
+							//textMessagId
+							//$(this).
+							}
+							else{
+							}
+						}
+					});
+					/*jQuery("#messBody").viewportChecker({
 						classToAdd: 'InViewport',
 						offset: 50,
 						repeat: true,
@@ -610,7 +721,7 @@ function addMessages(data){
 							let i=0;
 							i++;
 						}
-					});
+					});*/
 					//
 					if(switchCheak == 0){// +1 непрочитанное сообщение
 						updatenumberNewMessages(numberNewMessages + 1);
@@ -629,7 +740,6 @@ function addMessages(data){
 	}
 }
 
-
 //функция для кнопки "ответить" (прикрепляет сообщение)
 function messReplyClickFunction(){
 	if(lockFlag == false){
@@ -637,18 +747,18 @@ function messReplyClickFunction(){
 			attachedPosts.push($(this).attr("mesId"));
 			$(this).attr("flagAttach", "true");
 			$(this).text("Отменить");
-		    //создаем отметку о прикреплении
-		    let newMessReply=$("<tr/>");
-		    newMessReply.append($("<td/>").css({"max-width": $("#attachedArea").width()-30, "white-space": "nowrap"}).text("прикрепленное сообщение:" + $("#messageText" + $(this).attr("messageIndex")).text()));
-		    let deleteMessReplyButton = $("<button/>");
-		    deleteMessReplyButton.text("X");
-		    //deleteMessReplyButton.addClass("");
-		    deleteMessReplyButton.attr("id", "deleteMessReply" + $(this).attr("messageIndex"));
-		    deleteMessReplyButton.attr("mesIndex", $(this).attr("messageIndex"));
-		    deleteMessReplyButton.attr("type", "button");
-		    deleteMessReplyButton.click(deleteAttachedMessage);
-		    newMessReply.append($("<td/>").append(deleteMessReplyButton));
-		    $("#messReplyTable").append(newMessReply);
+				//создаем отметку о прикреплении
+				let newMessReply=$("<tr/>");
+				newMessReply.append($("<td/>").css({"max-width": $("#attachedArea").width()-30, "white-space": "nowrap"}).text("прикрепленное сообщение:" + $("#messageText" + $(this).attr("messageIndex")).text()));
+				let deleteMessReplyButton = $("<button/>");
+				deleteMessReplyButton.text("X");
+				//deleteMessReplyButton.addClass("");
+				deleteMessReplyButton.attr("id", "deleteMessReply" + $(this).attr("messageIndex"));
+				deleteMessReplyButton.attr("mesIndex", $(this).attr("messageIndex"));
+				deleteMessReplyButton.attr("type", "button");
+				deleteMessReplyButton.click(deleteAttachedMessage);
+				newMessReply.append($("<td/>").append(deleteMessReplyButton));
+				$("#messReplyTable").append(newMessReply);
 		}
 		else{
 			$(this).text("Ответить");

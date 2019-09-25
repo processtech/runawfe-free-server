@@ -96,6 +96,12 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
+    public boolean chatSendMessageToEmail(String title, String message, String Emaile) {
+        return chatLogic.sendMessageToEmail(title, message, Emaile);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public List<Actor> getAllUsersNamesForChat(int chatId) {
         return chatLogic.getAllUsersNames(chatId);
     }

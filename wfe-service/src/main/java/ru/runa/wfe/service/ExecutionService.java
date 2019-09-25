@@ -51,6 +51,20 @@ import ru.runa.wfe.var.file.FileVariableImpl;
 public interface ExecutionService {
 
     /**
+     * get PasswordAuthentication for chat-bot
+     * 
+     * @param title
+     *            message subject
+     * @param message
+     *            message
+     * @param Emaile
+     *            email address (full)
+     *
+     * @return sends an email (chat emaile - chat.properties)
+     */
+    public boolean chatSendMessageToEmail(String title, String message, String Emaile);
+
+    /**
      * get all users names for this chat
      *
      * @param chatId

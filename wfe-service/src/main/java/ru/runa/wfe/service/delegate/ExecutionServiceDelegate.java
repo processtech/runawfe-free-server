@@ -46,6 +46,11 @@ import ru.runa.wfe.var.file.FileVariableImpl;
 public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionService {
 
     @Override
+    public boolean chatSendMessageToEmail(String title, String message, String Emaile) {
+        return getExecutionService().chatSendMessageToEmail(title, message, Emaile);
+    }
+
+    @Override
     public List<Actor> getAllUsersNamesForChat(int chatId) {
         return getExecutionService().getAllUsersNamesForChat(chatId);
     }

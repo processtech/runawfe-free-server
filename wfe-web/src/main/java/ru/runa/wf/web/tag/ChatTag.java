@@ -128,6 +128,10 @@ public class ChatTag extends ProcessBaseFormTag {
         fileInput.setID("fileInput");
         fileInput.addAttribute("multiple", "true");
 
+        Div messageUserMention = new Div();
+        messageUserMention.setClass("messageUserMention");
+
+        modalFooter.addElement(messageUserMention);
         modalFooter.addElement(messageSend);
         modalFooter.addElement(sendMessageChat);
         modalFooter.addElement(fileInput);

@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -49,7 +50,8 @@ public class ChatSoket {
     }
 
     @OnMessage
-    public void handleMessage(String message, Session session) throws IOException, ParseException, ClassNotFoundException {
+    public void handleMessage(String message, Session session) throws IOException, ParseException, ClassNotFoundException, MessagingException {
+
         JSONObject objectMessage = new JSONObject();
         JSONParser parser = new JSONParser();
         objectMessage = (JSONObject) parser.parse(message);
@@ -81,13 +83,13 @@ public class ChatSoket {
             long newMessId = Delegates.getExecutionService().setChatMessage(newMessage.getChatId(), newMessage);
             newMessage.setId(newMessId);
             // разссылка пользователям @user
-            int dogIndex = 0;
+            int dogIndex = -1;
             int spaceIndex = -1;
             String login;
             String serchText = newMessage.getText();
             Actor actor0;
             while (true) {
-                dogIndex = serchText.indexOf('@', dogIndex);
+                dogIndex = serchText.indexOf('@', dogIndex + 1);
                 if (dogIndex != -1) {
                     spaceIndex = serchText.indexOf(' ', dogIndex);
                     if (spaceIndex != -1) {
@@ -95,10 +97,16 @@ public class ChatSoket {
                     } else {
                         login = serchText.substring(dogIndex + 1);
                     }
-                    actor0 = Delegates.getExecutorService().getActorCaseInsensitive(login);
+                    try {
+                        actor0 = Delegates.getExecutorService().getActorCaseInsensitive(login);
+                    } catch (Exception e) {
+                        actor0 = null;
+                    }
                     if (actor0 != null) {
-                        // отправка по почте вам сообщение в чате RunaWFE от (автор): (текст)
-                        // actor0.getEmail() - почта (в теории, реально там что угодно может быть)
+                        // отправка по почте
+                        Delegates.getExecutionService().chatSendMessageToEmail(
+                                "вам сообщение от " + newMessage.getActor().getName() + " в чате №" + newMessage.getChatId() + " в RunaWFE",
+                                newMessage.getText() + "\n это автоматическое сообщение, на него отвечать не нужно", actor0.getEmail());
                     }
                 } else {
                     break;

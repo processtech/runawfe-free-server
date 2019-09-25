@@ -1,10 +1,3 @@
-              	
-       	.tableModalNameSetMessage{
-       		background-color: white;
-       		position: absolute;
-       		margin-bottom: 20px;
-       		padding: 10px 20px;
-       	}
        	.tableModalNameSetMessage tr{
        	border-bottom: 1px solid gray;
        	}
@@ -66,13 +59,15 @@
             border: none;
             cursor: pointer;
             font-family: Verdana, Arial, Helvetica, sans-serif;
-            font-size: 8pt; /* –азмер шрифта в пунктах */
+            font-size: 8pt; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         	resize: none;
         	display: block;
         	width: 95%;
-        	height: 95%;
+					height: 95%;
+					
+    			min-height: 50px;
         }
-        .countNewMessages{/* кол-во вход€щих сообщений*/
+        .countNewMessages{/* ¬Ш¬Ш¬Ш-¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш*/
         	width: max-content;
     		background: #5aff7f;
     		text-decoration: underline;
@@ -82,7 +77,7 @@
     		font-size: 10pt;
         }
         
-        .newMessagesIndicator{/*сам блок уведомлени€ о непрочитанных сообщений */
+        .newMessagesIndicator{/*¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         
   			border: 1px solid #990000;
     		width: max-content;
@@ -90,7 +85,7 @@
     		background: #d4ebff;
         }
         .modal {
-            display: none; /* скрыто по умолчанию */
+            display: none; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
             position: absolute;  /*Stay in place */
             /*z-index: 1;  Sit on top */
             padding-top: 480px; /* Location of the box */
@@ -110,9 +105,9 @@
         	background-origin:padding-box;
         	padding: 7px;
         	border: 1px solid rgba(0, 37, 97, 0);
-        	border-bottom-style: solid; /* —тиль линии внизу */
+        	border-bottom-style: solid; /* ¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш */
        	 	overflow: hidden;
-        	border-width: 3px 7px 7px 4px; /* “олщина границы */
+        	border-width: 3px 7px 7px 4px; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         	width:max-content;
         }
         .author{
@@ -133,21 +128,21 @@
         	padding: 7px;
         	border-bottom:solid 1px;
         	text-decoration: underline;
-        	border-bottom-color: #804040; /* ÷вет линии внизу */
+        	border-bottom-color: #804040; /* ¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш */
         	overflow: hidden;
         }
         .openHierarchy{
         	font-weight: 600;
         	padding: 8px;
         	color: #000080;
-        	text-decoration: none; /* убрано подчеркивание у ссылок */
+        	text-decoration: none; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         }
         .openHierarchy:visited {
-        	color: #804040; /* ÷вет посещЄнной ссылки */
+        	color: #804040; /* ¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         } 
         .openHierarchy:hover {
-        	color: #0080c0; /* ÷вет ссылки при наведении на нее курсора мыши */  
-        	text-decoration: underline; /* добавлено подчеркивание */
+        	color: #0080c0; /* ¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш ¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш */  
+        	text-decoration: underline; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         }
         .selectionTextQuote{
         	background: rgba(178, 178, 194, 0.35);
@@ -155,25 +150,25 @@
         	background-origin:padding-box;
         	padding: 7px;
         	border: 1px solid rgba(104, 22, 25, 0.27);
-        	border-bottom-style: solid; /* —тиль линии внизу */
-        	border-bottom-color: #515050; /* ÷вет линии внизу */
+        	border-bottom-style: solid; /* ¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш */
+        	border-bottom-color: #515050; /* ¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш */
         	overflow: hidden;
-        	border-width: 2px 4px 2px 4px; /* “олщина границы */
+        	border-width: 2px 4px 2px 4px; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         	margin-bottom: 5px;
         }
         .addReply , .deleterMessage{
         	font-weight: 600;
         	padding: 8px;
         	color: blue;
-        	color: #000080; /* ÷вет обычной ссылки */ 
-        	text-decoration: none; /* ”бираем подчеркивание у ссылок */
+        	color: #000080; /* ¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */ 
+        	text-decoration: none; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         }
         .addReply , .deleterMessage:visited {
-        	color: #000080; /* ÷вет посещЄнной ссылки */
+        	color: #000080; /* ¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         } 
         .addReply , .deleterMessage:hover {
-        	color: #0080c0; /* ÷вет ссылки при наведении на нее курсора мыши */  
-        	text-decoration: underline; /* ƒобавл€ем подчеркивание */
+        	color: #0080c0; /* ¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш ¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш */  
+        	text-decoration: underline; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
         }
         .modal-content {
             position: absolute;
@@ -237,13 +232,13 @@
             padding: 2px 16px;
             background-color: #e1e2e5;
             font-family: Verdana, Arial, Helvetica, sans-serif;
-            font-size: 0.67rem; /* –азмер шрифта в пунктах */
-            height: 390px; /* ¬ысота блока */
-            overflow: scroll; /* ƒобавл€ем полосы прокрутки */
-            border: 1px solid #333; /* ѕараметры рамки */
+            font-size: 0.67rem; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
+            height: 390px; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш */
+            overflow: scroll; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
+            border: 1px solid #333; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш */
             font-weight: 590;
             font-style:normal;
-            word-break: break-word;/*перенос на другую строку длинного слова*/
+            word-break: break-word;/*¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш*/
             scroll-behavior: smooth;     
         }
          @media (min-width:500px){
@@ -305,11 +300,11 @@
     		transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 		}
 		#attachedArea{
-		margin-top: 25px;
+			margin-top: 22px;
 		
 		height:70px;
     	margin-left: 15px;
-    	
+    	width: 95%;
     overflow: scroll;
    	border: 1px solid black;
 		}
@@ -317,8 +312,8 @@
 		padding-left: 5px;
 		}
 		#attachedArea #filesTable tbody tr td{
-		 	white-space: nowrap; /* ќтмен€ем перенос текста */
-    		overflow: hidden; /* ќбрезаем содержимое */
+		 	white-space: nowrap; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
+    		overflow: hidden; /* ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш ¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш¬Ш */
     		width: 380px;
 		}
 		
@@ -337,18 +332,27 @@
 		position: absolute;
 		width: 100%;
 		z-index: -10000;
-		display: none;		}
+		display: none;		
+		
+    margin-left: 16px;
+	}
 		.dropZActive{
 		position: absolute;
-		width: 55%;
+    width: 95%;
 		height: 55%;
-		background-color:gray;
+    background-color: #80808082;
 		color:black;
+		
+    margin-top: 22px;
 		z-index: 10000;
-		display: block;		}
+		display: block;	
+		
+    font-size: 20px;
+    text-align: center;
+    	}
 		.dropZActiveFocus{
 		position: absolute;
-		width: 55%;
+		width: 95%;
 		height: 55%;
 		background-color:green;
 		color:black;
@@ -363,3 +367,39 @@
 		.messageText a:visited{
 			color: #ff0000; 
 		}
+	.modal-footer input[type="file" i]{
+		display: none;
+	}
+	.modal-footer .messageUserMention {
+    position: absolute;
+    margin-bottom: 20px;
+    margin-top: -18.1%;
+    padding: 5px 20px 5px 5px;
+    width: 212px;
+		height: 50px;
+    overflow-y: scroll;
+    background-color: #dcdcdcf0;
+		display: none;
+		
+    border: 2px solid brown;
+}
+	.tableModalNameSetMessage{
+	
+    padding: 0px 0px;
+	}
+	.tableModalNameSetMessage .list{
+	color: #482b2b;
+	background-color: #ff9999;
+	padding: 7px 80px 7px 5px;
+	overflow: hidden;
+	width: 120px;
+	border-bottom: 1px solid red;
+	border-top: 1px solid red;
+	margin-bottom: 10px;
+	font-weight: 800;
+}
+.tableModalNameSetMessage .list:hover{
+	color: #482b2b;
+	background-color: #fdaeae;
+	cursor: pointer;
+}
