@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.val;
-import lombok.var;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -36,7 +35,7 @@ public class FileVariablesUtil {
         if (variableValue instanceof List) {
             @SuppressWarnings("unchecked")
             val list = (List<Object>) variableValue;
-            var i = 0;
+            int i = 0;
             for (val object : list) {
                 if (object instanceof FileVariable || object instanceof List || object instanceof Map) {
                     String proxyName = variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + i +
@@ -97,7 +96,7 @@ public class FileVariablesUtil {
         if (variableValue instanceof List) {
             @SuppressWarnings("unchecked")
             val list = (List<Object>) variableValue;
-            var i = 0;
+            int i = 0;
             for (val object : list) {
                 if (object instanceof FileVariableProxy || object instanceof List || object instanceof Map) {
                     Object unproxied = unproxyFileVariableValues(user, processId, taskId, object);
