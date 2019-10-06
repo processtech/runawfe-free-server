@@ -5,6 +5,8 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.task.Task;
 
 /**
@@ -25,7 +27,10 @@ public class CurrentTaskCreateLog extends CurrentTaskLog implements TaskCreateLo
         if (task.getDeadlineDate() != null) {
             addAttribute(ATTR_DUE_DATE, CalendarUtil.formatDateTime(task.getDeadlineDate()));
         }
-        setSeverity(Severity.INFO);
+    }
+
+    public CurrentTaskCreateLog(CurrentProcess process, StartNode startNode) {
+        super(process, startNode);
     }
 
     @Override

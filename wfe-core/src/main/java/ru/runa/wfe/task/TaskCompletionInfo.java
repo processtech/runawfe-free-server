@@ -9,18 +9,18 @@ public class TaskCompletionInfo {
     private final String handlerInfo;
     private final Long processId;
 
-    public TaskCompletionInfo(TaskCompletionBy completionBy, Executor executor, String handlerInfo, Long processId) {
+    private TaskCompletionInfo(TaskCompletionBy completionBy, Executor executor, String handlerInfo, Long processId) {
         this.completionBy = completionBy;
         this.executor = executor;
         this.handlerInfo = handlerInfo;
         this.processId = processId;
     }
 
-    public TaskCompletionInfo(TaskCompletionBy completionBy, Executor executor) {
+    private TaskCompletionInfo(TaskCompletionBy completionBy, Executor executor) {
         this(completionBy, executor, null, null);
     }
 
-    public TaskCompletionInfo(TaskCompletionBy completionBy, String handlerInfo) {
+    private TaskCompletionInfo(TaskCompletionBy completionBy, String handlerInfo) {
         this(completionBy, null, handlerInfo, null);
     }
 
@@ -38,6 +38,10 @@ public class TaskCompletionInfo {
 
     public static TaskCompletionInfo createForHandler(String handlerInfo) {
         return new TaskCompletionInfo(TaskCompletionBy.HANDLER, null, handlerInfo, null);
+    }
+
+    public static TaskCompletionInfo createForSignal(Executor executor) {
+        return new TaskCompletionInfo(TaskCompletionBy.SIGNAL, executor);
     }
 
     public TaskCompletionBy getCompletionBy() {

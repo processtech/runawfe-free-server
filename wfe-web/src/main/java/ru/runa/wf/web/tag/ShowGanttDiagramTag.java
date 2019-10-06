@@ -1,6 +1,5 @@
 package ru.runa.wf.web.tag;
 
-import com.google.common.base.Objects;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,13 +13,11 @@ import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
-import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.ProcessStartLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SubprocessStartLog;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
@@ -47,37 +44,20 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
         List<String> barList = new ArrayList<>();
         barList.add(getBar(process.getId(), process.getName(), new Date(), new Date(), "process", null, true, "0", null));
         TaskService taskService = Delegates.getTaskService();
-        for (BaseProcessLog log : logs.getLogs()) {
-            if (log instanceof ProcessStartLog) {
-                TaskCreateLog createLog = null;
-                for (TaskCreateLog key : taskLogs.keySet()) {
-                    if (Objects.equal(key.getId(), log.getId()) && Objects.equal(key.getProcessId(), log.getProcessId())) {
-                        createLog = key;
-                        break;
-                    }
-                }
-                if (createLog != null) {
-                    TaskEndLog endLog = taskLogs.get(createLog);
-                    barList.add(getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), endLog.getCreateDate(), "task1",
-                            endLog.getActorName(), false, createLog.getProcessId(), null));
+        for (TaskCreateLog createLog : logs.getLogs(TaskCreateLog.class)) {
+            TaskEndLog endLog = taskLogs.get(createLog);
+            Date end = (endLog != null) ? endLog.getCreateDate() : new Date();
+            String executorName = MessagesOther.LABEL_RESOURCE_NOT_ASSIGNED.message(pageContext);
+            if (endLog != null) {
+                executorName = endLog.getActorName();
+            } else {
+                Executor owner = taskService.getTask(getUser(), createLog.getTaskId()).getOwner();
+                if (owner != null) {
+                    executorName = owner.getName();
                 }
             }
-            if (log instanceof TaskCreateLog) {
-                TaskCreateLog createLog = (TaskCreateLog) log;
-                TaskEndLog endLog = taskLogs.get(createLog);
-                Date end = (endLog != null) ? endLog.getCreateDate() : new Date();
-                String executorName = MessagesOther.LABEL_RESOURCE_NOT_ASSIGNED.message(pageContext);
-                if (endLog != null) {
-                    executorName = endLog.getActorName();
-                } else {
-                    Executor owner = taskService.getTask(getUser(), createLog.getTaskId()).getOwner();
-                    if (owner != null) {
-                        executorName = owner.getName();
-                    }
-                }
-                barList.add(getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), end, "task2", executorName, false,
-                        createLog.getProcessId(), null));
-            }
+            barList.add(getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), end, "task2", executorName, false,
+                    createLog.getProcessId(), null));
             if (log instanceof SubprocessStartLog) {
                 WfProcess subProcess = executionService.getProcess(getUser(), ((SubprocessStartLog) log).getSubprocessId());
                 barList.add(getBar(subProcess.getId(), subProcess.getName(), null, null, "subprocess", null, true, process.getId(), null));

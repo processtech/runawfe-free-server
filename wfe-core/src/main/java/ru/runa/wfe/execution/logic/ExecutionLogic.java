@@ -85,6 +85,7 @@ import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Synchronizable;
@@ -260,16 +261,10 @@ public class ExecutionLogic extends WfCommonLogic {
                 swimlane.setExecutor(null);
             }
         }
-        for (CurrentProcess subProcess : executionContext.getCurrentSubprocessesRecursively()) {
-            for (CurrentSwimlane swimlane : ApplicationContextFactory.getCurrentSwimlaneDao().findByProcess(subProcess)) {
-                if (swimlane.getExecutor() instanceof TemporaryGroup) {
-                    swimlane.setExecutor(null);
-                }
-            }
-        }
         for (String processEndHandlerClassName : SystemProperties.getProcessEndHandlers()) {
             try {
                 ProcessEndHandler handler = ClassLoaderUtil.instantiate(processEndHandlerClassName);
+                ApplicationContextFactory.autowireBean(handler);
                 handler.execute(executionContext);
             } catch (Throwable th) {
                 Throwables.propagate(th);
@@ -465,12 +460,13 @@ public class ExecutionLogic extends WfCommonLogic {
         val extraVariablesMap = new HashMap<String, Object>();
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(parsedProcessDefinition));
+        StartNode startNode = parsedProcessDefinition.getStartStateNotNull();
         SwimlaneDefinition startTaskSwimlaneDefinition = parsedProcessDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
         String startTaskSwimlaneName = startTaskSwimlaneDefinition.getName();
         if (!variables.containsKey(startTaskSwimlaneName)) {
             variables.put(startTaskSwimlaneName, user.getActor());
         }
-        validateVariables(user, null, variableProvider, parsedProcessDefinition, parsedProcessDefinition.getStartStateNotNull().getNodeId(), variables);
+        validateVariables(user, null, variableProvider, parsedProcessDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
         CurrentProcess process = processFactory.startProcess(parsedProcessDefinition, variables, user.getActor(), transitionName, transientVariables);

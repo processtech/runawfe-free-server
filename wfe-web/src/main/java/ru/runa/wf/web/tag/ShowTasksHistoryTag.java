@@ -1,6 +1,5 @@
 package ru.runa.wf.web.tag;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import java.util.Calendar;
 import java.util.List;
@@ -16,12 +15,10 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
-import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.ProcessStartLog;
-import ru.runa.wfe.audit.TaskCreateLog;
-import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -50,25 +47,9 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
     public List<TR> processLogs(ProcessLogs logs) {
         List<TR> result = Lists.newArrayList();
         Map<TaskCreateLog, TaskEndLog> taskLogs = logs.getTaskLogs();
-        for (BaseProcessLog log : logs.getLogs()) {
-            if (log instanceof ProcessStartLog) {
-                TaskCreateLog createLog = null;
-                for (TaskCreateLog key : taskLogs.keySet()) {
-                    if (Objects.equal(key.getId(), log.getId())) {
-                        createLog = key;
-                        break;
-                    }
-                }
-                if (createLog != null) {
-                    TaskEndLog endLog = taskLogs.get(createLog);
-                    result.add(populateTaskRow(createLog, endLog));
-                }
-            }
-            if (log instanceof TaskCreateLog) {
-                TaskCreateLog createLog = (TaskCreateLog) log;
-                TaskEndLog endLog = taskLogs.get(createLog);
-                result.add(populateTaskRow(createLog, endLog));
-            }
+        for (TaskCreateLog createLog : logs.getLogs(TaskCreateLog.class)) {
+            TaskEndLog endLog = taskLogs.get(createLog);
+            result.add(populateTaskRow(createLog, endLog));
         }
         return result;
     }

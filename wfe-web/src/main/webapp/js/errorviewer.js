@@ -114,12 +114,14 @@ function showSupportFiles() {
 }
 
 function displayFiles(tab, element) {
-	$.each(tab.files, function(i, file) {
-		var fileInfo = "<input type='checkbox' disabled='true'";
-		if (file.included) {
-			fileInfo += " checked='true'";
-		}
-		fileInfo += ">" + file.name + "<br />";
-		element.append(fileInfo);
-	});
+	if (typeof tab !== "undefined" && typeof tab.files !== "undefined") {
+		$.each(tab.files, function(i, file) {
+			var fileInfo = "<input type='checkbox' disabled='true'";
+			if (file.included) {
+				fileInfo += " checked='true'";
+			}
+			fileInfo += ">" + file.name + "<br />";
+			element.append(fileInfo);
+		});
+	}
 }

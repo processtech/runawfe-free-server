@@ -3,6 +3,8 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.task.Task;
 
 /**
@@ -25,6 +27,14 @@ public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLo
         if (task.getIndex() != null) {
             addAttribute(ATTR_INDEX, task.getIndex().toString());
         }
+        setSeverity(Severity.INFO);
+    }
+
+    public CurrentTaskLog(CurrentProcess process, StartNode startNode) {
+        setNodeId(startNode.getNodeId());
+        addAttribute(ATTR_TASK_ID, String.valueOf(-1 * process.getId()));
+        addAttribute(ATTR_TASK_NAME, startNode.getName());
+        setSeverity(Severity.INFO);
     }
 
     @Override

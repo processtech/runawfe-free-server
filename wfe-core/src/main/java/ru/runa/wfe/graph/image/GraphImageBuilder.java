@@ -5,8 +5,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.awt.Color;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import lombok.val;
+import ru.runa.wfe.audit.BaseProcessLog;
+import ru.runa.wfe.audit.NodeEnterLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
@@ -86,6 +90,14 @@ public class GraphImageBuilder {
                 }
             }
         }
+        String lastNodeId = null;
+        List<BaseProcessLog> processLogs = logs.getLogs();
+        if (!processLogs.isEmpty()) {
+            ProcessLog lastLog = processLogs.get(processLogs.size() - 1);
+            if (lastLog instanceof NodeEnterLog) {
+                lastNodeId = lastLog.getNodeId();
+            }
+        }
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(parsedProcessDefinition);
             if (transition != null) {
@@ -95,6 +107,9 @@ public class GraphImageBuilder {
                 nodeFigures.put(nodeModelFrom, renderHits);
                 // Mark 'to' block as PASSED
                 AbstractFigure nodeModelTo = allNodeFigures.get(transition.getTo().getTransitionNodeId(true));
+                if (lastNodeId != null && lastNodeId.equals(nodeModelTo.getNode().getNodeId())) {
+                    renderHits = new RenderHits(DrawProperties.getHighlightColor(), true, true);
+                }
                 nodeFigures.put(nodeModelTo, renderHits);
                 if (nodeModelTo.getNode() instanceof BoundaryEventContainer) {
                     for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) nodeModelTo.getNode()).getBoundaryEvents()) {

@@ -94,7 +94,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
     }
 
     @Override
-    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting() {
+    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting(ExecutionContext executionContext) {
         return TaskCompletionInfo.createForTimer();
     }
 

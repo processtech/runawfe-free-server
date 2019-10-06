@@ -118,7 +118,7 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
 
     @Override
     public void onTaskCancelledLog(TaskCancelledLog taskCancelledLog) {
-        onTaskEnd(taskCancelledLog, TaskEndReason.CANCELLED);
+        onTaskEnd(taskCancelledLog, taskCancelledLog.getActorName() == null ? TaskEndReason.CANCELLED : TaskEndReason.COMPLETED);
     }
 
     private TaskAggregatedLog getTaskLog(long taskId) {

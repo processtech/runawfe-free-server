@@ -1,33 +1,42 @@
 package ru.runa.wfe.job.impl;
 
-import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.user.dao.ExecutorDao;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 
 @CommonsLog
 public class UnusedTemporaryGroupsCleaner {
-
     @Autowired
-    private ExecutorLogic executorLogic;
-    @Autowired
-    private ExecutorDao executorDao;
+    protected SessionFactory sessionFactory;
 
     @Transactional
     public void execute() {
-        if (!ApplicationContextFactory.getInitializerLogic().isInitialized()) {
-            // Do not interfere with migrations.
-            return;
-        }
-
-        List<TemporaryGroup> groups = executorDao.getUnusedTemporaryGroups();
-        log.debug("Removing " + groups.size() + " groups");
-        for (TemporaryGroup group : groups) {
-            executorLogic.remove(group);
-        }
+        log.debug("Cleaning unused temporary groups");
+        // TODO seems like bug in generated query: Column "TEMPORARYG0_.PROCESS_ID" not found
+        // QTemporaryGroup tg = QTemporaryGroup.temporaryGroup;
+        // QSwimlane s = QSwimlane.swimlane;
+        // QTask t = QTask.task;
+        // queryFactory
+        // .delete(tg)
+        // .where(tg.processId.notIn(JPAExpressions.selectDistinct(s.process.id).from(s)).and(
+        // tg.processId.notIn(JPAExpressions.selectDistinct(t.process.id).from(t)))).execute();
+        //
+        // This is not working with same error
+        // sessionFactory.getCurrentSession()
+        // .createQuery("delete from TemporaryGroup where processId not in (select process.id from Swimlane union select process.id from Task)")
+        // .executeUpdate();
+        //
+        sessionFactory
+                .getCurrentSession()
+                .createSQLQuery(
+                        "DELETE FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR = 'T' AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM BPM_TASK WHERE EXECUTOR_ID IS NOT NULL))")
+                .executeUpdate();
+        sessionFactory
+                .getCurrentSession()
+                .createSQLQuery(
+                        "DELETE FROM EXECUTOR WHERE DISCRIMINATOR = 'T' AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM BPM_TASK WHERE EXECUTOR_ID IS NOT NULL)")
+                .executeUpdate();
     }
+
 }

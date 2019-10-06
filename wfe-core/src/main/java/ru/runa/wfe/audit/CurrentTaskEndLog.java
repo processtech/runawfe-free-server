@@ -4,8 +4,11 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import ru.runa.wfe.audit.presentation.ExecutorNameValue;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
+import ru.runa.wfe.user.Actor;
 
 /**
  * Logging task completion.
@@ -25,7 +28,11 @@ public class CurrentTaskEndLog extends CurrentTaskLog implements TaskEndLog {
         if (completionInfo.getExecutor() != null) {
             addAttribute(ATTR_ACTOR_NAME, completionInfo.getExecutor().getName());
         }
-        setSeverity(Severity.INFO);
+    }
+
+    public CurrentTaskEndLog(CurrentProcess process, StartNode startNode, Actor actor) {
+        super(process, startNode);
+        addAttribute(ATTR_ACTOR_NAME, actor.getName());
     }
 
     @Override

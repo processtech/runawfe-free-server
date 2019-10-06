@@ -1,6 +1,7 @@
 package ru.runa.wfe.lang;
 
 import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
 public interface BoundaryEvent {
@@ -14,5 +15,6 @@ public interface BoundaryEvent {
 
     void cancelBoundaryEvent(CurrentToken token);
 
-    TaskCompletionInfo getTaskCompletionInfoIfInterrupting();
+    TaskCompletionInfo getTaskCompletionInfoIfInterrupting(ExecutionContext executionContext);
+
 }

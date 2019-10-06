@@ -242,6 +242,7 @@ public class FormPresentationUtils {
                 }
                 addClassAttribute(node, Resources.CLASS_INVALID);
             }
+            node.setAttribute("invalid", "true");
             // avoiding multiple error labels
             errors.remove(inputName);
         }

@@ -17,7 +17,7 @@ import ru.runa.wfe.var.dto.WfVariable;
 public abstract class AbstractVariableProvider implements VariableProvider {
     protected final Log log = LogFactory.getLog(getClass());
 
-    protected ExecutorLoader getExecutorLoader() {
+    public ExecutorLoader getExecutorLoader() {
         return ApplicationContextFactory.getExecutorDao();
     }
 

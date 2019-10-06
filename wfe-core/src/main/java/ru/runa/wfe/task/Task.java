@@ -283,6 +283,7 @@ public class Task implements Assignable {
             executionContext.addLog(new CurrentTaskEndByAdminLog(this, completionInfo));
             break;
         case HANDLER:
+        case SIGNAL:
             executionContext.addLog(new CurrentTaskCancelledLog(this, completionInfo));
             break;
         case PROCESS_END:

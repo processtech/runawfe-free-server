@@ -1,10 +1,9 @@
 package ru.runa.wfe.service.client;
 
+import com.google.common.base.Objects;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.file.FileVariable;
-
-import com.google.common.base.Objects;
 
 /**
  * This class eliminates byte[] data transferring without usage. Case 2 added since v4.3.0: used for uploading custom FileVariable implementation
@@ -28,11 +27,11 @@ public class FileVariableProxy implements FileVariable {
     }
 
     public FileVariableProxy(User user, Long processId, String variableName, FileVariable fileVariable) {
-        this.name = fileVariable.getName();
-        this.contentType = fileVariable.getContentType();
         this.user = user;
         this.processId = processId;
         this.variableName = variableName;
+        this.name = fileVariable.getName();
+        this.contentType = fileVariable.getContentType();
         this.stringValue = fileVariable.getStringValue();
     }
 
@@ -62,10 +61,14 @@ public class FileVariableProxy implements FileVariable {
     @Override
     public byte[] getData() {
         if (data == null) {
-            FileVariable fileVariable = Delegates.getExecutionService().getFileVariableValue(user, processId, variableName);
+            FileVariable fileVariable = getUnproxiedFileVariable();
             data = fileVariable != null ? fileVariable.getData() : new byte[0];
         }
         return data;
+    }
+
+    public FileVariable getUnproxiedFileVariable() {
+        return Delegates.getExecutionService().getFileVariableValue(user, processId, variableName);
     }
 
     public String getUnproxiedClassName() {
