@@ -1,15 +1,13 @@
 package ru.runa.wfe.validation.impl;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.ScriptExecutor;
 import ru.runa.wfe.validation.Validator;
 import ru.runa.wfe.validation.ValidatorException;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
-
-import com.google.common.collect.Maps;
+import ru.runa.wfe.var.VariableProvider;
 
 public class GroovyExpressionValidator extends Validator {
 
@@ -34,7 +32,7 @@ public class GroovyExpressionValidator extends Validator {
             addError(e.getMessage());
         } catch (Exception e) {
             log.error("Groovy", e);
-            addError();
+            addError(e.getMessage());
             // This is because calling side has not Groovy generated classes and
             // will unable to show exception
         }
