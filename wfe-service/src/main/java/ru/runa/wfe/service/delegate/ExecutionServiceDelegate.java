@@ -86,12 +86,17 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
+    public List<ChatMessage> getChatNewMessages(int chatId, Long lastId) {
+        return getExecutionService().getChatNewMessages(chatId, lastId);
+    }
+
+    @Override
     public ChatMessage getChatMessage(long messageId) {
         return getExecutionService().getChatMessage(messageId);
     }
 
     @Override
-    public List<ChatMessage> getChatMessages(int chatId, int firstId, int count) {
+    public List<ChatMessage> getChatMessages(int chatId, Long firstId, int count) {
         return getExecutionService().getChatMessages(chatId, firstId, count);
     }
 

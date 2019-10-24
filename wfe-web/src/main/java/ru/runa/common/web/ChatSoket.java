@@ -82,6 +82,20 @@ public class ChatSoket {
             // сейв в БД
             long newMessId = Delegates.getExecutionService().setChatMessage(newMessage.getChatId(), newMessage);
             newMessage.setId(newMessId);
+            // отправка по чату всем:
+            if (newMessage.getHaveFiles() == false) {
+                JSONObject sendObject = convertMessage(newMessage, false);
+                if (Delegates.getExecutionService().canEditChatMessage(((User) session.getUserProperties().get("user")).getActor())) {
+                    sessionHandler.sendToChats(sendObject, newMessage.getChatId(), newMessage.getActor());
+                } else {
+                    sessionHandler.sendToChats(sendObject, newMessage.getChatId());
+                }
+            } else {// если есть файлы, то откладываем отправку до их дозагрузки
+                JSONObject sendObject = new JSONObject();
+                sendObject.put("messType", "nextStepLoadFile");
+                sendObject.put("messageId", newMessage.getId());
+                sessionHandler.sendToSession(session, sendObject);
+            }
             // разссылка пользователям @user
             int dogIndex = -1;
             int spaceIndex = -1;
@@ -112,31 +126,18 @@ public class ChatSoket {
                     break;
                 }
             }
-            // отправка по чату всем:
-            if (newMessage.getHaveFiles() == false) {
-                JSONObject sendObject = convertMessage(newMessage, false);
-                if (Delegates.getExecutionService().canEditChatMessage(((User) session.getUserProperties().get("user")).getActor())) {
-                    sessionHandler.sendToChats(sendObject, newMessage.getChatId(), newMessage.getActor());
-                } else {
-                    sessionHandler.sendToChats(sendObject, newMessage.getChatId());
-                }
-            }
-            else {// если есть файлы, то откладываем отправку до их дозагрузки
-                JSONObject sendObject = new JSONObject();
-                sendObject.put("messType", "nextStepLoadFile");
-                sendObject.put("messageId", newMessage.getId());
-                sessionHandler.sendToSession(session, sendObject);
-            }
         } else if (typeMessage.equals("getMessages")) { // отправка N сообщений
             int countMessages = ((Long) objectMessage.get("Count")).intValue();
-            int lastMessageId = ((Long) objectMessage.get("lastMessageId")).intValue();
+            Long lastMessageId = ((Long) objectMessage.get("lastMessageId"));
             List<ChatMessage> messages;
             if (lastMessageId != -1) {
                 messages = Delegates.getExecutionService().getChatMessages(Integer.parseInt((String) objectMessage.get("chatId")), lastMessageId,
                         countMessages);
-            } else {
-                messages = Delegates.getExecutionService().getChatFirstMessages(Integer.parseInt((String) objectMessage.get("chatId")),
-                        countMessages);
+            } else {// если это первые сообщения после открытия чата/чат оказался пуст
+                int chatId = Integer.parseInt((String) objectMessage.get("chatId"));
+                ChatsUserInfo chatUserInfo = Delegates.getExecutionService().getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(), chatId);
+                messages = Delegates.getExecutionService().getChatMessages(Integer.parseInt((String) objectMessage.get("chatId")),
+                        chatUserInfo.getLastMessageId(), Integer.MAX_VALUE);
             }
             if (Delegates.getExecutionService().canEditChatMessage(((User) session.getUserProperties().get("user")).getActor())) {
                 for (ChatMessage newMessage : messages) {
@@ -169,7 +170,7 @@ public class ChatSoket {
             sendObject.put("lastMessageId", userInfo.getLastMessageId());
             sessionHandler.sendToSession(session, sendObject);
         } else if (typeMessage.equals("setChatUserInfo")) {// обновление userInfo
-            long currentMessageId = (Long) objectMessage.get("currentMessageId");
+            long currentMessageId = Long.parseLong((String) objectMessage.get("currentMessageId"));
             Delegates.getExecutionService().updateChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
                     Integer.parseInt((String) objectMessage.get("chatId")),
                     currentMessageId);
@@ -206,7 +207,7 @@ public class ChatSoket {
     }
 
     // отправка сообщения, old - старые сообщения, которые отобразятся сверху
-    public JSONObject convertMessage(ChatMessage message, Boolean old) {
+    static public JSONObject convertMessage(ChatMessage message, Boolean old) {
         JSONObject sendObject = new JSONObject();
         sendObject.put("messType", "newMessages");
         JSONArray messagesArrayObject = new JSONArray();

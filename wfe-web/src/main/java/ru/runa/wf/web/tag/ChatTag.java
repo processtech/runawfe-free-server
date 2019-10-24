@@ -10,6 +10,7 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.apache.ecs.html.TextArea;
+import org.apache.ecs.html.UL;
 import org.tldgen.annotations.BodyContent;
 
 import ru.runa.wfe.security.Permission;
@@ -89,6 +90,7 @@ public class ChatTag extends ProcessBaseFormTag {
 
         Div modalBody = new Div();
         modalBody.setClass("modal-body");
+        modalBody.setID("modal-body");
         if (Delegates.getExecutorService().isAdministrator(getUser()))
          {
             modalBody.addAttribute("admin", "true");
@@ -128,13 +130,17 @@ public class ChatTag extends ProcessBaseFormTag {
         fileInput.setID("fileInput");
         fileInput.addAttribute("multiple", "true");
 
-        Div messageUserMention = new Div();
+        Div boxButton = new Div();
+        boxButton.setStyle("display:flex;padding-top: 5px;");
+        boxButton.addElement(sendMessageChat);
+        boxButton.addElement(fileInput);
+
+        UL messageUserMention = new UL();
         messageUserMention.setClass("messageUserMention");
 
         modalFooter.addElement(messageUserMention);
         modalFooter.addElement(messageSend);
-        modalFooter.addElement(sendMessageChat);
-        modalFooter.addElement(fileInput);
+        modalFooter.addElement(boxButton);
 
         modalContetnt.addElement(modalFooter);
         Div dropZ = new Div();

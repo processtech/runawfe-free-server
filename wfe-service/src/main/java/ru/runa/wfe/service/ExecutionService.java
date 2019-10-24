@@ -143,9 +143,20 @@ public interface ExecutionService {
      *            message Id, all returned message id < firstId
      * @param count
      *            number of messages in the returned array
-     * @return not <code>null</code>
+     * @return not <code>null</code> order by date desc
      */
-    public List<ChatMessage> getChatMessages(int chatId, int firstId, int count);
+    public List<ChatMessage> getChatMessages(int chatId, Long firstId, int count);
+
+    /**
+     * Get List array of ChatMessage, where all "message Id" >= lastId.
+     *
+     * @param chatId
+     *            chat Id
+     * @param lastId
+     *            message Id, all returned message id >= lastId
+     * @return not <code>null</code> order by date asc
+     */
+    public List<ChatMessage> getChatNewMessages(int chatId, Long lastId);
 
     /**
      * Get List array of last ChatMessage (first in the array of all messages).

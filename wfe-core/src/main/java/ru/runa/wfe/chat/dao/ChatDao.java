@@ -29,7 +29,12 @@ public class ChatDao extends GenericDao<ChatMessage> {
             chatUser = new ChatsUserInfo(chatId, actor);
             // последнее сообщение
             QChatMessage m = QChatMessage.chatMessage;
-            chatUser.setLastMessageId(queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.asc()).fetchFirst().getId());
+            ChatMessage firstMes = queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.asc()).fetchFirst();
+            if (firstMes == null) {
+                chatUser.setLastMessageId(-1);
+            } else {
+                chatUser.setLastMessageId(firstMes.getId());
+            }
             sessionFactory.getCurrentSession().save(chatUser);
         }
         return chatUser;
@@ -59,7 +64,12 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.desc()).limit(count).fetch();
     }
 
-    public List<ChatMessage> getMessages(int chatId, int firstId, int count) {
+    public List<ChatMessage> getNewMessages(int chatId, Long lastId) {
+        QChatMessage m = QChatMessage.chatMessage;
+        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.id.goe(lastId))).orderBy(m.date.asc()).fetch();
+    }
+
+    public List<ChatMessage> getMessages(int chatId, Long firstId, int count) {
         QChatMessage m = QChatMessage.chatMessage;
         return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.id.lt(firstId))).orderBy(m.date.desc()).limit(count).fetch();
     }
@@ -113,4 +123,5 @@ public class ChatDao extends GenericDao<ChatMessage> {
         QActor a = QActor.actor;
         return queryFactory.selectFrom(a).fetch();
     }
+
 }

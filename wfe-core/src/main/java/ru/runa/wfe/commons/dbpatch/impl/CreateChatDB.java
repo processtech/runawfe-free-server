@@ -58,6 +58,8 @@ public class CreateChatDB extends DbPatch {
 
         sql.add(getDDLCreateTable("CHAT_MESSAGE_FILES", columns3, null));
         sql.add(getDDLCreateSequence("SEQ_CHAT_MESSAGE_FILES"));
+        // user flag
+        // sql.add(getDDLCreateColumn("EXECUTOR", new ColumnDef("IS_CHAT_MESSAGE_TO_EMAILE", Types.BOOLEAN)));
 
         return sql;
     }

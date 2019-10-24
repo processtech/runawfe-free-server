@@ -300,13 +300,13 @@
     		transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 		}
 		#attachedArea{
-			margin-top: 22px;
 		
 		height:70px;
     	margin-left: 15px;
-    	width: 95%;
+    	width: 87.5%;
     overflow: scroll;
    	border: 1px solid black;
+   	margin-top: 5px;
 		}
 		.btnFileChat{
 		padding-left: 5px;
@@ -367,9 +367,7 @@
 		.messageText a:visited{
 			color: #ff0000; 
 		}
-	.modal-footer input[type="file" i]{
-		display: none;
-	}
+
 	.modal-footer .messageUserMention {
     position: absolute;
     margin-bottom: 20px;
@@ -390,7 +388,7 @@
 	.tableModalNameSetMessage .list{
 	color: #482b2b;
 	background-color: #ff9999;
-	padding: 7px 80px 7px 5px;
+	padding: 4px 80px 5px 5px;
 	overflow: hidden;
 	width: 120px;
 	border-bottom: 1px solid red;
@@ -402,4 +400,73 @@
 	color: #482b2b;
 	background-color: #fdaeae;
 	cursor: pointer;
+}
+.tableModalNameSetMessage li.selected{
+	color: #482b2b;
+	background-color: #fdaeae;
+	
+}
+input[type=file] {
+ cursor: pointer;
+    width: 150px;
+    height: 22px;
+    overflow: hidden;
+    display: block;
+    margin-left:10px;
+}
+
+input[type=file]:before {
+width: 119px;
+    height: 20px;
+    font-size: 12px;
+    line-height: 25px;
+    content: 'Выбрать файлы';
+    display: inline-block;
+    background: white;
+    border: 1px solid #000;
+    padding: 0 10px;
+    text-align: center;
+    font-family: Helvetica, Arial, sans-serif;
+    color: black;
+}
+
+input[type=file]::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+.tableModalNameSetMessage .selected {
+    color: #482b2b;
+    background-color: #ffb8b8;
+	padding: 4px 80px 5px 5px;
+    overflow: hidden;
+    width: 120px;
+    border-bottom: 1px solid red;
+    border-top: 1px solid red;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+#progressBar{
+	top: 0;
+    height: 100%;
+    position: absolute;
+    width: 88%;
+    background: gray;
+    text-align: center;
+    font-size: 15pt;
+}
+
+
+/*ToDo*/
+#messReplyTable {
+	position: absolute;
+	display: block;
+	/*background: #555 url('http://katushka.in.ua/templates/katushka2/images/ajax-loader.gif') center center no-repeat;*/
+	opacity: 0.7;
+	width: 100%;
+	height: 100%;
+}
+
+.image {
+    width: 300px;
+    height: 200px;
 }

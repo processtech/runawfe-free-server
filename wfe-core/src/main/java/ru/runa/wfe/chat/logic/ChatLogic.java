@@ -46,12 +46,16 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getMessage(messageId);
     }
 
-    public List<ChatMessage> getMessages(int chatId, int firstId, int count) {
+    public List<ChatMessage> getMessages(int chatId, Long firstId, int count) {
         return chatDao.getMessages(chatId, firstId, count);
     }
 
     public List<ChatMessage> getFirstMessages(int chatId, int count) {
         return chatDao.getFirstMessages(chatId, count);
+    }
+
+    public List<ChatMessage> getNewMessages(int chatId, Long lastId) {
+        return chatDao.getNewMessages(chatId, lastId);
     }
 
     public long setMessage(int chatId, ChatMessage message) {

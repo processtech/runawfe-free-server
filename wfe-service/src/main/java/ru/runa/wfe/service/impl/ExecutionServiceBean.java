@@ -144,13 +144,19 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
+    public List<ChatMessage> getChatNewMessages(int chatId, Long lastId) {
+        return chatLogic.getNewMessages(chatId, lastId);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public ChatMessage getChatMessage(long messageId) {
         return chatLogic.getMessage(messageId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatMessages(int chatId, int firstIndex, int count) {
+    public List<ChatMessage> getChatMessages(int chatId, Long firstIndex, int count) {
         return chatLogic.getMessages(chatId, firstIndex, count);
     }
 

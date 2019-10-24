@@ -13,9 +13,9 @@ import javax.servlet.http.Part;
 import ru.runa.wfe.chat.ChatMessageFiles;
 import ru.runa.wfe.service.delegate.Delegates;
 
-@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 6, // 6 MB
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 1024, // 1 гб
         maxFileSize = 1024 * 1024 * 1024, // 1 гб
-        maxRequestSize = 1024 * 1024 * 1024 * 2) // 50 MB
+        maxRequestSize = 1024 * 1024 * 1024) // 1 гб
 public class ChatFileInputServlet extends HttpServlet {
 
     private static final long serialVersionUID = 5028849216708724335L;

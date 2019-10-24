@@ -44,6 +44,7 @@ public class Actor extends Executor {
     private String phone;
     private String title;
     private String department;
+    private boolean chatMessageToEmailFlag;
 
     protected Actor() {
     }
@@ -186,5 +187,10 @@ public class Actor extends Executor {
         }
         return "";
     }
+    /*
+     * @Column(name = "IS_CHAT_MESSAGE_TO_EMAILE") public boolean isChatMessageToEmailFlag() { return chatMessageToEmailFlag; }
+     * 
+     * public void setChatMessageToEmailFlag(boolean chatMessageToEmailFlag) { this.chatMessageToEmailFlag = chatMessageToEmailFlag; }
+     */
 
 }

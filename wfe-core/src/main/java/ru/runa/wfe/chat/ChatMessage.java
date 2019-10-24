@@ -134,5 +134,4 @@ public class ChatMessage {
     public void setHaveFiles(boolean haveFiles) {
         this.haveFiles = haveFiles;
     }
-
 }
