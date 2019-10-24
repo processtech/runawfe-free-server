@@ -22,10 +22,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.awt.Color;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.audit.NodeEnterLog;
-import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
@@ -107,14 +105,8 @@ public class GraphImageBuilder {
                 }
             }
         }
-        String lastNodeId = null;
-        List<ProcessLog> processLogs = logs.getLogs();
-        if (!processLogs.isEmpty()) {
-            ProcessLog lastLog = processLogs.get(processLogs.size() - 1);
-            if (lastLog instanceof NodeEnterLog) {
-                lastNodeId = lastLog.getNodeId();
-            }
-        }
+        NodeEnterLog lastNodeEnterLog = logs.getLastOrNull(NodeEnterLog.class);
+        String lastNodeId = lastNodeEnterLog == null ? null : lastNodeEnterLog.getNodeId();
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(processDefinition);
             if (transition != null) {
