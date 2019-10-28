@@ -139,8 +139,10 @@ public class TaskLogic extends WfCommonLogic {
             Errors.removeProcessError(processError);
             List<Task> tokenTasks = taskDao.findByToken(executionContext.getToken());
             if (tokenTasks.size() == 1) {
-                if (getTaskParticipationRole(user.getActor(), task) != null) {
-                    return taskObjectFactory.create(tokenTasks.get(0), user.getActor(), false, null);
+                Task nextTask = tokenTasks.get(0);
+                TaskCompletionBy nextTaskCompletionBy = getTaskParticipationRole(user.getActor(), nextTask);
+                if (nextTaskCompletionBy != null && nextTaskCompletionBy != TaskCompletionBy.ADMIN) {
+                    return taskObjectFactory.create(nextTask, user.getActor(), false, null);
                 }
             }
             return null;
