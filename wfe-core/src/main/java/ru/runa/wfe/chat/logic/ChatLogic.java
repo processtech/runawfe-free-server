@@ -67,6 +67,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void deleteMessage(long messId) {
+        chatDao.deleteMessageFiles(messId);
         chatDao.deleteMessage(messId);
     }
 

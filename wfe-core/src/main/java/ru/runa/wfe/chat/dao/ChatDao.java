@@ -92,6 +92,11 @@ public class ChatDao extends GenericDao<ChatMessage> {
         delete(messId);
     }
 
+    public void deleteMessageFiles(long messId) {
+        QChatMessageFiles f = QChatMessageFiles.chatMessageFiles;
+        queryFactory.delete(f).where(f.messageId.id.eq(messId));
+    }
+
     public ChatMessageFiles saveFile(ChatMessageFiles file) {
         sessionFactory.getCurrentSession().save(file);
         return file;

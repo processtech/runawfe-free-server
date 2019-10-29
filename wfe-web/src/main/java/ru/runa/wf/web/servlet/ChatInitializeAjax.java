@@ -26,9 +26,11 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         JSONArray messagesArrayObject = new JSONArray();
         outputObject.put("lastMessageId", chatUserInfo.getLastMessageId());
         messages = Delegates.getExecutionService().getChatNewMessages(chatId, chatUserInfo.getLastMessageId());
-        for (int i = 0; i < messages.size(); i++) {
-            JSONObject messageObject = ChatSoket.convertMessage(messages.get(i), false);
-            messagesArrayObject.add(messageObject);
+        if (messages.size() > 0) {
+            messagesArrayObject.add(ChatSoket.convertMessage(messages.get(0), true));
+            for (int i = 1; i < messages.size(); i++) {
+                messagesArrayObject.add(ChatSoket.convertMessage(messages.get(i), false));
+            }
         }
         if (messages.size() < countMessages) {// дополняем старыми
             messages = Delegates.getExecutionService().getChatMessages(chatId, chatUserInfo.getLastMessageId(), countMessages - messages.size());

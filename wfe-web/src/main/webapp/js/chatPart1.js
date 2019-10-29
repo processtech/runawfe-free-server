@@ -81,7 +81,10 @@ $.ajax({
 			addMessages(data.messages[i]);
 		}
 		if(numberNewMessages == 0)
-			newMessagesHeight = $("#modal-body").height();
+			{
+			newMessagesHeight = $("#modal-body")[0].scrollHeight - - $("#modal-body").height();
+			updatenumberNewMessages(0);
+			}
 		chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?chatId=" + $("#ChatForm").attr("chatId");
 		chatSocket = new WebSocket(chatSocketURL);
 		chatSocket.onmessage = onMessage;
@@ -98,17 +101,22 @@ $.ajax({
 });
 $("#btnCl").hide();
 
+//реальный размер элемента
+function getElmHeight(node) {
+   return node.outerHeight(true);
+}
+
 //скрол-функция отслеживания непрочитанных
 function scrollNewMessages(){
-	if($("#modal-body").scrollTop() > newMessagesHeight){
-		//пересекли черту
-		let scrollTop0 = $("#modal-body").scrollTop();
+	let modalBody = $("#modal-body");
+	if(modalBody.scrollTop() > newMessagesHeight){
+		let scrollTop0 = modalBody.scrollTop() + modalBody.height();
 		let newIndex = newMessageIndex - numberNewMessages;
 		let i = newIndex;
-		for(; i<numberNewMessages; i++){
+		for(; i<newMessageIndex; i++){
 			let message0 = $("#messBody" + i);
-			if(message0.offset().top < scrollTop0){
-				newMessagesHeight += $("#messBody" + i).height();
+			if(message0[0].offsetTop < scrollTop0){
+				newMessagesHeight += getElmHeight($("#messBody" + i));
 				message0.addClass("InViewport");
 				message0.removeClass("newMessageClass");
 			}
@@ -129,6 +137,10 @@ function scrollNewMessages(){
 		updateLastReadMessage();
 	}
 }
+
+$("#modal-body").resize(function(){
+	newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - $("#modal-body").height();
+});
 
 //фунцкия отправляет запрос на выдачу count старых сообщений
 function newxtMessages(count){
@@ -173,6 +185,8 @@ btnOpenChat.onclick = function() {
 	if(chatForm != null){
 		chatForm.style.display = "block";
 		switchCheak=1;
+		//установка границы скролла непрочитанных
+		newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - $("#modal-body").height();
 		//прокрутка
 		$("#messReply"+(newMessageIndex - numberNewMessages)).scrollView(".modal-body");
 	}
@@ -310,6 +324,7 @@ btnOp.onclick=function(){
 			height: $(".modal-footer").height() + 30,
 		});
 		imgButton.src="/wfe/images/chat_expand.png";
+		newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - $("#modal-body").height();
 	}else if(flagRollExpandChat == 1){
 		flagRollExpandChat=0;
 		$(".modal-content").css({
@@ -343,6 +358,7 @@ btnOp.onclick=function(){
 			width: 87.5+"%",
 		});
 		imgButton.src="/wfe/images/chat_roll_up.png";
+		newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - $("#modal-body").height();
 	}
 }
 
@@ -781,25 +797,6 @@ function addMessages(data){
 						updatenumberNewMessages(numberNewMessages + 1);
 						messageBody.addClass("newMessageClass");
 						$(".modal-body").append(messageBody);
-						//
-						//newMesViewChacker(messageBody);
-						/*
-						messageBody.viewportChecker({
-							classToAdd: "AddedClass",
-							classToRemove: "newMessageClass",
-							repeat: false,
-							callbackFunction: function(elem, action){
-								if (action === 'add') { // Если класс добавлен
-									$(elem).addClass("InViewport");
-									$(elem).removeClass("newMessageClass");
-									currentMessageId = $(elem).attr("mesId");
-									updatenumberNewMessages(newMessageIndex -1 - $(elem).attr("messageIndex"));
-									updateLastReadMessage();
-									$(elem).unbind("viewportChecker");
-								}
-							}
-						});
-						*/
 					}
 					else{
 						if($(".modal-body").scrollTop() >= $(".modal-body")[0].scrollHeight - $(".modal-body")[0].clientHeight){
@@ -807,53 +804,23 @@ function addMessages(data){
 							updatenumberNewMessages(0);
 							currentMessageId = maxMassageId;
 							updateLastReadMessage();
+							newMessagesHeight += getElmHeight(messageBody);
 						}
 						else{
 							messageBody.addClass("newMessageClass");
 							$(".modal-body").append(messageBody);
 							updatenumberNewMessages(numberNewMessages + 1);
-							
-							//
-							//newMesViewChacker(messageBody);
-							/*
-							messageBody.viewportChecker({
-								classToAdd: "AddedClass",
-								classToRemove: "newMessageClass",
-								repeat: false,
-								callbackFunction: function(elem, action){
-									if (action === 'add') { // Если класс добавлен
-										$(elem).addClass("InViewport");
-										$(elem).removeClass("newMessageClass");
-										currentMessageId = $(elem).attr("mesId");
-										updatenumberNewMessages(newMessageIndex -1 - $(elem).attr("messageIndex"));
-										updateLastReadMessage();
-										$(elem).unbind("viewportChecker");
-									}
-								}
-							});
-							*/
-							
-							// 
 						}
 					}
 				}
 				else{
 					$(".modal-body").children().first().after(messageBody);
-					newMessagesHeight += messageBody.height();
+					newMessagesHeight += getElmHeight(messageBody);
 				}
 			}
 		}
 	}
 }
-
-//функция подключения непрочитанных
-/*
-function newMesViewChacker(mesBody){
-	if(newMessagesHeight < mesBody.offset().top){
-		newMessagesHeight = mesBody.offset().top;
-	}
-}
-*/
 
 //функция для кнопки "ответить" (прикрепляет сообщение) 
 function messReplyClickFunction(){
