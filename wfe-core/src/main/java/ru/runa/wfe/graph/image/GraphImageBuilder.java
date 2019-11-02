@@ -5,12 +5,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.awt.Color;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import lombok.val;
-import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.NodeEnterLog;
-import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
@@ -82,7 +78,9 @@ public class GraphImageBuilder {
                 TransitionFigure transitionFigure = factory.createTransitionFigure();
                 transitionFigure.init(transition, nodeFigure, figureTo, smoothTransitions);
                 if (parsedProcessDefinition.getProcessDefinition().getLanguage() == Language.BPMN2) {
-                    transitionFigure.setExclusive(node.getNodeType() != NodeType.PARALLEL_GATEWAY && leavingTransitionsCount > 1);
+                    NodeType nodeType = node.getNodeType();
+                    transitionFigure.setExclusive(nodeType != NodeType.EXCLUSIVE_GATEWAY && node.getNodeType() != NodeType.PARALLEL_GATEWAY
+                            && leavingTransitionsCount > 1);
                 }
                 nodeFigure.addTransition(transitionFigure);
                 if (!DrawProperties.useEdgingOnly()) {
@@ -90,14 +88,8 @@ public class GraphImageBuilder {
                 }
             }
         }
-        String lastNodeId = null;
-        List<BaseProcessLog> processLogs = logs.getLogs();
-        if (!processLogs.isEmpty()) {
-            ProcessLog lastLog = processLogs.get(processLogs.size() - 1);
-            if (lastLog instanceof NodeEnterLog) {
-                lastNodeId = lastLog.getNodeId();
-            }
-        }
+        NodeEnterLog lastNodeEnterLog = logs.getLastOrNull(NodeEnterLog.class);
+        String lastNodeId = lastNodeEnterLog == null ? null : lastNodeEnterLog.getNodeId();
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(parsedProcessDefinition);
             if (transition != null) {
@@ -151,7 +143,7 @@ public class GraphImageBuilder {
     }
 
     private void fillTasks(ProcessLogs logs) {
-        for (val entry : logs.getTaskLogs().entrySet()) {
+        for (Map.Entry<TaskCreateLog, TaskEndLog> entry : logs.getTaskLogs().entrySet()) {
             TaskCreateLog taskCreateLog = entry.getKey();
             TaskEndLog taskEndLog = entry.getValue();
 
