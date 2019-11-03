@@ -17,6 +17,10 @@
  */
 package ru.runa.common.web;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -25,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
@@ -34,7 +37,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +53,6 @@ import org.apache.ecs.html.TR;
 import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.form.IdForm;
@@ -72,11 +73,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 
 public class HTMLUtils {
     private static final Log log = LogFactory.getLog(HTMLUtils.class);
@@ -306,7 +302,7 @@ public class HTMLUtils {
                 for (Long id : ids) {
                     try {
                         Executor executor = Delegates.getExecutorService().getExecutor(user, id);
-                        executors.append(pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString()).append("&nbsp;");
+                        executors.append(pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString()).append(" ");
                     } catch (Exception e) {
                         log.debug("could not get executor by " + id + ": " + e.getMessage());
                         executors.append(id).append("&nbsp;");
