@@ -5,5 +5,8 @@
 	<command name="ajaxActorsList" class="ru.runa.wf.web.servlet.AjaxActorsList" />
 	<command name="ajaxDefinitionVersions" class="ru.runa.wf.web.servlet.AjaxProcessDefinitionVersionsList" />
 	<command name="ajaxSwimlaneCurrentExecutor" class="ru.runa.wf.web.servlet.AjaxSwimlaneCurrentExecutor" />
+	<command class="ru.runa.wf.web.servlet.GetHierarhyLevelAjax" name="GetHierarhyLevel"></command>
+	<command class="ru.runa.wf.web.servlet.GetUsersNamesForChatAjax" name="GetUsersNamesForChat"></command>
+	<command class="ru.runa.wf.web.servlet.ChatInitializeAjax" name="ChatInitialize"></command>
 
 </configuration>

@@ -46,11 +46,15 @@
 	String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
 %>
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
+
+<wf:ChatTag identifiableId='<%= 0L %>' type="TaskInProcess" chatId = '<%= taskId %>'/>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
+<script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
+
 <% if (WebResources.isTaskDelegationEnabled()) { %>
 	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
 <% } %>
 <wf:taskForm title="<%= title %>" taskId="<%= taskId %>" action="/submitTaskForm" />
-
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 </tiles:insert>

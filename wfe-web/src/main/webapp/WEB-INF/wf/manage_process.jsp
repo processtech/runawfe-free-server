@@ -91,6 +91,9 @@ function Reload() {
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
 <wf:processVariableMonitor identifiableId='<%= id %>' />
+<wf:ChatTag identifiableId='<%= 0L %>' type="Process" chatId = '<%= id %>'/>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
+<script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
 <% if(!graphMode) { %>
 	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
 <% } %>

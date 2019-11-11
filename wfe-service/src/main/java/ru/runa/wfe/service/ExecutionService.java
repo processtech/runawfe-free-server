@@ -19,7 +19,11 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 import java.util.Map;
+
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFiles;
+import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -31,6 +35,7 @@ import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
@@ -45,7 +50,6 @@ import ru.runa.wfe.var.file.FileVariableImpl;
  * @since 4.0
  */
 public interface ExecutionService {
-
     /**
      * Starts new process by definition.
      *
