@@ -401,4 +401,8 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("SendEmailActionHandler.ignore.errors", false);
     }
 
+    public static boolean showErrorsInGroovyExpressionValidator() {
+        return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
+    }
+
 }

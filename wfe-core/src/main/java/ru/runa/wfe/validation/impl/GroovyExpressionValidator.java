@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.ScriptExecutor;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.validation.Validator;
 import ru.runa.wfe.validation.ValidatorException;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
@@ -32,9 +33,11 @@ public class GroovyExpressionValidator extends Validator {
             addError(e.getMessage());
         } catch (Exception e) {
             log.error("Groovy", e);
-            addError(e.getMessage());
-            // This is because calling side has not Groovy generated classes and
-            // will unable to show exception
+            if (SystemProperties.showErrorsInGroovyExpressionValidator()) {
+                addError(e.getMessage());
+            } else {
+                addError();
+            }
         }
     }
 
