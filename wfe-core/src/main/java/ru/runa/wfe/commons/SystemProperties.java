@@ -397,4 +397,8 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("datasource.password.export", true);
     }
 
+    public static boolean ignoreErrorsInSendEmailActionHandler() {
+        return RESOURCES.getBooleanProperty("SendEmailActionHandler.ignore.errors", false);
+    }
+
 }
