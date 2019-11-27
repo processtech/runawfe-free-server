@@ -23,10 +23,11 @@ import org.tldgen.annotations.BodyContent;
 import ru.runa.af.web.action.UpdatePermissionsAction;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
+import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.common.web.tag.SecuredObjectFormTag2;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredSingleton;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "managePermissionsForm")
@@ -62,6 +63,10 @@ public class ManagePermissionsFormTag extends SecuredObjectFormTag2 {
 
     @Override
     protected String getTitle() {
-        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
+        StrutsMessage messagesCommon = securedObjectType == SecuredObjectType.EXECUTORS ?
+            MessagesCommon.TITLE_EXECUTORS_PERMISSIONS :
+            MessagesCommon.TITLE_PERMISSION_OWNERS;
+
+        return messagesCommon.message(pageContext);
     }
 }
