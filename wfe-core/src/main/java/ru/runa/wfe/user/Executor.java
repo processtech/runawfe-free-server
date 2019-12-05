@@ -51,7 +51,7 @@ public abstract class Executor extends SecuredObject implements Comparable<Execu
     private Long version;
     private String name;
     private String description;
-    protected String fullName;
+    private String fullName;
     private Date createDate;
 
     protected Executor() {
