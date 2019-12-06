@@ -184,7 +184,7 @@ public class GraphImageBuilder {
                 color = DrawProperties.getLightAlarmColor();
             }
             if (color != null) {
-                nodeFigures.put(figure, new RenderHits(color, true, true));
+                nodeFigures.put(figure, new RenderHits(color, true, activeTask));
             }
         }
     }
