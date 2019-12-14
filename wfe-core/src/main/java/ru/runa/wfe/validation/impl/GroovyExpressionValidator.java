@@ -34,7 +34,7 @@ public class GroovyExpressionValidator extends Validator {
         } catch (Exception e) {
             log.error("Groovy", e);
             if (SystemProperties.showErrorsInGroovyExpressionValidator()) {
-                addError(e.getMessage());
+                addError(e.toString());
             } else {
                 addError();
             }
