@@ -21,10 +21,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.commons.SystemProperties;
@@ -141,7 +143,7 @@ public class ExecutorLogic extends CommonLogic {
     public <T extends Executor> T create(User user, T executor) {
         permissionDao.checkAllowed(user, Permission.CREATE, SecuredSingleton.EXECUTORS);
         executorDao.create(executor);
-        Collection<Permission> selfPermissions = SystemProperties.getDefaultPermissions(executor.getSecuredObjectType());
+        val selfPermissions = Collections.singletonList(executor instanceof Group ? Permission.READ : Permission.LIST);
         permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(executor), executor);
         permissionDao.setPermissions(executor, selfPermissions, executor);
         return executor;
