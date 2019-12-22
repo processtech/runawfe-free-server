@@ -80,6 +80,7 @@ public final class MessagesCommon {
     public static final StrutsMessage LABEL_GROUP_BY_ID = new StrutsMessage("batch_presentation.process.group_by_id");
 
     public static final StrutsMessage TITLE_PERMISSION_OWNERS = new StrutsMessage("title.permission_owners");
+    public static final StrutsMessage TITLE_EXECUTORS_PERMISSIONS = new StrutsMessage("title.executors_permissions");
 
     public static final StrutsMessage HEADER_PARAMETER_NAME = new StrutsMessage("header.parameter.name");
     public static final StrutsMessage HEADER_PARAMETER_VALUE = new StrutsMessage("header.parameter.value");

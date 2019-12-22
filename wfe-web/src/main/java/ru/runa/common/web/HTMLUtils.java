@@ -284,7 +284,7 @@ public class HTMLUtils {
                 for (Long id : ids) {
                     try {
                         Executor executor = Delegates.getExecutorService().getExecutor(user, id);
-                        executors.append(pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString()).append("&nbsp;");
+                        executors.append(pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString()).append(" ");
                     } catch (Exception e) {
                         log.debug("could not get executor by " + id + ": " + e.getMessage());
                         executors.append(id).append("&nbsp;");

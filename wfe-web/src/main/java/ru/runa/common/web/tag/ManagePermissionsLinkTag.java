@@ -1,11 +1,11 @@
 package ru.runa.common.web.tag;
 
-import java.util.LinkedHashMap;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.PermissionWebUtils;
+import ru.runa.common.web.StrutsMessage;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -37,7 +37,11 @@ public class ManagePermissionsLinkTag extends BaseLinkTag {
 
     @Override
     protected String getLinkText() {
-        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
+        StrutsMessage messagesCommon = securedObjectType == SecuredObjectType.EXECUTORS ?
+            MessagesCommon.TITLE_EXECUTORS_PERMISSIONS :
+            MessagesCommon.TITLE_PERMISSION_OWNERS;
+
+        return messagesCommon.message(pageContext);
     }
 
     @Override
