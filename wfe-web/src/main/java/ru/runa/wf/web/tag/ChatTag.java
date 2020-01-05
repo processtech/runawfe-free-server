@@ -4,7 +4,6 @@ import org.apache.ecs.html.Button;
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.Input;
-import org.apache.ecs.html.P;
 import org.apache.ecs.html.Style;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
@@ -13,10 +12,7 @@ import org.apache.ecs.html.TextArea;
 import org.apache.ecs.html.UL;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
-import groovy.lang.Delegate;
 import ru.runa.common.web.tag.SecuredObjectFormTag;
-import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -234,7 +230,7 @@ public class ChatTag extends SecuredObjectFormTag {
 
         Div modalFooterSetting = new Div();
         modalFooterSetting.setClass("modalFooterSetting");
-        ;
+
 
         Button sendSetting = new Button();
         sendSetting.setType("button");
