@@ -9,7 +9,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import org.hibernate.annotations.ForeignKey;
 import ru.runa.wfe.user.Actor;
 
@@ -17,9 +16,9 @@ import ru.runa.wfe.user.Actor;
 @Table(name = "CHAT_USER_INFO")
 public class ChatsUserInfo {
 
-    private long id;
-    private int chatId;
-    private long lastMessageId;
+    private Long id;
+    private Integer chatId;
+    private Long lastMessageId;
     private Actor actor;
 
     ChatsUserInfo() {
@@ -34,29 +33,29 @@ public class ChatsUserInfo {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_USER_INFO", allocationSize = 1)
     @Column(name = "ID")
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
     @Column(name = "CHAT_ID")
-    public int getChatId() {
+    public Integer getChatId() {
         return chatId;
     }
 
-    public void setChatId(int chatId) {
+    public void setChatId(Integer chatId) {
         this.chatId = chatId;
     }
 
     @Column(name = "LAST_MESSAGE_ID")
-    public long getLastMessageId() {
+    public Long getLastMessageId() {
         return lastMessageId;
     }
 
-    public void setLastMessageId(long lastMessageId) {
+    public void setLastMessageId(Long lastMessageId) {
         this.lastMessageId = lastMessageId;
     }
 
@@ -69,25 +68,5 @@ public class ChatsUserInfo {
 
     public void setActor(Actor actor) {
         this.actor = actor;
-    }
-
-    @Transient
-    public long getUserId() {
-        return actor.getId();
-    }
-
-    @Transient
-    public void setUserId(long userId) {
-        this.actor.setId(userId);
-    }
-
-    @Transient
-    public String getUserName() {
-        return actor.getName();
-    }
-
-    @Transient
-    public void setUserName(String userName) {
-        this.actor.setName(userName);
     }
 }

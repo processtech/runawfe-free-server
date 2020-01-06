@@ -16,20 +16,20 @@ import org.hibernate.annotations.ForeignKey;
 @Table(name = "CHAT_MESSAGE_FILE")
 public class ChatMessageFile {
 
-    private long id;
+    private Long id;
     private ChatMessage messageId;
-    private byte[] file;
+    private Byte[] file;
     private String fileName;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE_FILE", allocationSize = 1)
     @Column(name = "ID")
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -46,11 +46,11 @@ public class ChatMessageFile {
 
     @Column(name = "FILE")
     @Lob
-    public byte[] getFile() {
+    public Byte[] getFile() {
         return file;
     }
 
-    public void setFile(byte[] file) {
+    public void setFile(Byte[] file) {
         this.file = file;
     }
 

@@ -15,13 +15,13 @@ public class ChatFileOutputServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Long fileId = Long.parseLong(request.getParameter("fileId"));
         ChatMessageFile file = Delegates.getChatService().getChatMessageFile(fileId);
-        response.getOutputStream().write(file.getFile());
+        response.getOutputStream().write(org.apache.commons.lang.ArrayUtils.toPrimitive(file.getFile()));
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Long fileId = Long.parseLong(request.getParameter("fileId"));
         ChatMessageFile file = Delegates.getChatService().getChatMessageFile(fileId);
-        response.getOutputStream().write(file.getFile());
+        response.getOutputStream().write(org.apache.commons.lang.ArrayUtils.toPrimitive(file.getFile()));
     }
 }

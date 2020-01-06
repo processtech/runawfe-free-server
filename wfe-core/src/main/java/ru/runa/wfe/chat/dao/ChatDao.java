@@ -26,7 +26,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
             QChatMessage m = QChatMessage.chatMessage;
             ChatMessage firstMes = queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.asc()).fetchFirst();
             if (firstMes == null) {
-                chatUser.setLastMessageId(-1);
+                chatUser.setLastMessageId(-1L);
             } else {
                 chatUser.setLastMessageId(firstMes.getId());
             }

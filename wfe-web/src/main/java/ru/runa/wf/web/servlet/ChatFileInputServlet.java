@@ -22,7 +22,6 @@ public class ChatFileInputServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Long mesId = Long.parseLong(request.getParameter("messageId"));
         String fileName = request.getParameter("fileName");
-        String endFlag = request.getParameter("endFlag");
         Part file = request.getPart("file");
         ChatMessageFile chatFile = new ChatMessageFile();
         chatFile.setFileName(fileName);
@@ -31,8 +30,7 @@ public class ChatFileInputServlet extends HttpServlet {
         byte[] FileMass = new byte[(int) file.getSize()];
         InputStreamReader reader = new InputStreamReader(file.getInputStream());
         file.getInputStream().read(FileMass);
-        chatFile.setFile(FileMass);
+        chatFile.setFile(org.apache.commons.lang.ArrayUtils.toObject(FileMass));
         Delegates.getChatService().saveChatMessageFile(chatFile);
     }
-
 }

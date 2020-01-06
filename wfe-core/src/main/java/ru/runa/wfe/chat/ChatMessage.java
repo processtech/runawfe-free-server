@@ -20,24 +20,24 @@ import ru.runa.wfe.user.Actor;
 @Table(name = "CHAT_MESSAGE")
 public class ChatMessage {
 
-    private long id;
+    private Long id;
     private String text;
     private String ierarchyMessage;
-    private int chatId;
+    private Integer chatId;
     private Timestamp date;
     private Actor actor;
-    private boolean haveFiles = false;
-    private boolean active = true;
+    private Boolean haveFiles = false;
+    private Boolean active = true;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE", allocationSize = 1)
     @Column(name = "ID")
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -86,11 +86,11 @@ public class ChatMessage {
     }
 
     @Column(name = "CHAT_ID")
-    public int getChatId() {
+    public Integer getChatId() {
         return chatId;
     }
 
-    public void setChatId(int chatId) {
+    public void setChatId(Integer chatId) {
         this.chatId = chatId;
     }
 
@@ -125,20 +125,20 @@ public class ChatMessage {
     }
 
     @Column(name = "HAVE_FILES")
-    public boolean getHaveFiles() {
+    public Boolean getHaveFiles() {
         return haveFiles;
     }
 
-    public void setHaveFiles(boolean haveFiles) {
+    public void setHaveFiles(Boolean haveFiles) {
         this.haveFiles = haveFiles;
     }
 
     @Column(name = "IS_ACTIVE")
-    public boolean getActive() {
+    public Boolean getActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
     }
 }
