@@ -30,11 +30,11 @@ public interface ChatService {
     /**
      * get all users names for this chat
      *
-     * @param chatId
+     * @param processId
      *            chat id
      * @return List<Actor> or <code>null</code>
      */
-    public List<Actor> getAllUsersNamesForChat(int chatId);
+    public List<Actor> getAllUsersNamesForChat(Long processId);
 
     /**
      * merge message in DB
@@ -69,7 +69,7 @@ public interface ChatService {
      *            file Id
      * @return ChatMessageFiles or <code>null</code>
      */
-    public ChatMessageFile getChatMessageFile(long fileId);
+    public ChatMessageFile getChatMessageFile(Long fileId);
 
     /**
      * Save ChatMessageFiles.
@@ -83,11 +83,11 @@ public interface ChatService {
     /**
      * Get List array of all ChatMessage in chat.
      *
-     * @param chatId
+     * @param processId
      *            chat Id
      * @return not <code>null</code>
      */
-    public List<ChatMessage> getChatMessages(int chatId);
+    public List<ChatMessage> getChatMessages(Long processId);
 
     /**
      * Gets ChatMessage.
@@ -96,12 +96,12 @@ public interface ChatService {
      *            message Id
      * @return ChatMessage or <code>null</code>
      */
-    public ChatMessage getChatMessage(long messageId);
+    public ChatMessage getChatMessage(Long messageId);
 
     /**
      * Get List array of ChatMessage, where all "message Id" < firstId.
      *
-     * @param chatId
+     * @param processId
      *            chat Id
      * @param firstId
      *            message Id, all returned message id < firstId
@@ -109,49 +109,49 @@ public interface ChatService {
      *            number of messages in the returned array
      * @return not <code>null</code> order by date desc
      */
-    public List<ChatMessage> getChatMessages(int chatId, Long firstId, int count);
+    public List<ChatMessage> getChatMessages(Long processId, Long firstId, int count);
 
     /**
      * Get List array of ChatMessage, where all "message Id" >= lastId.
      *
-     * @param chatId
+     * @param processId
      *            chat Id
      * @param lastId
      *            message Id, all returned message id >= lastId
      * @return not <code>null</code> order by date asc
      */
-    public List<ChatMessage> getNewChatMessages(int chatId, Long lastId);
+    public List<ChatMessage> getNewChatMessages(Long processId, Long lastId);
 
     /**
      * Get List array of last ChatMessage (first in the array of all messages).
      *
-     * @param chatId
+     * @param processId
      *            chat Id
      * @param count
      *            number of messages in the returned array
      * @return not <code>null</code>
      */
-    public List<ChatMessage> getFirstChatMessages(int chatId, int count);
+    public List<ChatMessage> getFirstChatMessages(Long processId, int count);
 
     /**
      * Save ChatMessage in DB.
      *
-     * @param chatId
+     * @param processId
      *            chat Id
      * @param message
      *            new message to save
      * @return new message id
      */
-    public long saveChatMessage(int chatId, ChatMessage message);
+    public long saveChatMessage(Long processId, ChatMessage message);
 
     /**
      * Get number of chat messages.
      *
-     * @param chatId
+     * @param processId
      *            chat Id
      * @return number of chat messages
      */
-    long getAllChatMessagesCount(int chatId);
+    long getAllChatMessagesCount(Long processId);
 
     /**
      * Delete ChatMessage in DB.
@@ -159,49 +159,40 @@ public interface ChatService {
      * @param messId
      *            message Id
      */
-    public void deleteChatMessage(long messId);
-
-    /**
-     * Get List array of all chat Id Connected with "chatId" (and "chatId"). To combine chats.
-     *
-     * @param chatId
-     *            chat Id
-     * @return List array of Connected chat Id and chatId (Integer), not <code>null</code>
-     */
-    public List<Integer> getAllConnectedChatId(int chatId);
+    public void deleteChatMessage(Long messId);
 
     /**
      * Get ChatsUserInfo with information about the user in this chat or create new ChatsUserInfo with lastMessageId = max message Id in chat with
-     * chatId.
+     * processId.
      *
-     * @param chatId
+     * @param processId
      *            chat Id
      * @param actor
      *            user Actor
      * @return ChatsUserInfo with information about the user in this chat, not <code>null</code>
      */
-    public ChatsUserInfo getChatUserInfo(Actor actor, int chatId);
+    public ChatsUserInfo getChatUserInfo(Actor actor, Long processId);
 
     /**
      * Get number of chat messages with id > lastMessageId.
      *
-     * @param chatId
+     * @param processId
      *            chat Id
      * @param lastMessageId
      *            last message Id
      * @return number of chat messages with id > lastMessageId
      */
-    public long getNewChatMessagesCount(long lastMessageId, int chatId);
+    public long getNewChatMessagesCount(Long lastMessageId, Long processId);
 
     /**
-     * update lastMessageId in ChatsUserInfo with userId, userName, chatId.
+     * update lastMessageId in ChatsUserInfo with userId, userName, processId.
      *
      * @param actor
      *            user Actor
-     * @param chatId
+     * @param processId
      *            chat Id
      * @param lastMessageId
      *            new lastMessageId in ChatsUserInfo
      */
-    public void updateChatUserInfo(Actor actor, int chatId, long lastMessageId);
+    public void updateChatUserInfo(Actor actor, Long processId, Long lastMessageId);
 }

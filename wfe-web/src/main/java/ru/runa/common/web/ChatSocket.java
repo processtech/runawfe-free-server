@@ -60,11 +60,11 @@ public class ChatSocket {
             // текст
             newMessage.setText((String) objectMessage.get("message"));
             // иерархия сообщений
-            ArrayList<Integer> hierarchyMessagesIds = new ArrayList<Integer>();
+            ArrayList<Long> hierarchyMessagesIds = new ArrayList<Long>();
             String messagesIds[] = ((String) objectMessage.get("idHierarchyMessage")).split(":");
             for (int i = 0; i < messagesIds.length; i++) {
                 if (!(messagesIds[i].isEmpty())) {
-                    hierarchyMessagesIds.add(Integer.parseInt(messagesIds[i]));
+                    hierarchyMessagesIds.add(Long.parseLong(messagesIds[i]));
                 }
             }
             newMessage.setIerarchyMessageArray(hierarchyMessagesIds);
@@ -73,7 +73,7 @@ public class ChatSocket {
                 newMessage.setHaveFiles(true);
             }
             // чатID
-            newMessage.setChatId(Integer.parseInt((String) objectMessage.get("chatId")));
+            newMessage.setProcessId(Long.parseLong((String) objectMessage.get("processId")));
             // дата
             newMessage.setDate(new Timestamp(Calendar.getInstance().getTime().getTime()));
             //проверка на файлы
@@ -81,15 +81,15 @@ public class ChatSocket {
             	newMessage.setActive(false);
             }
             // сейв в БД
-            long newMessId = Delegates.getChatService().saveChatMessage(newMessage.getChatId(), newMessage);
+            long newMessId = Delegates.getChatService().saveChatMessage(newMessage.getProcessId(), newMessage);
             newMessage.setId(newMessId);
             // отправка по чату всем:
             if (newMessage.getHaveFiles() == false) {
                 JSONObject sendObject = convertMessage(newMessage, false);
                 if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
-                    sessionHandler.sendToChats(sendObject, newMessage.getChatId(), newMessage.getActor());
+                    sessionHandler.sendToChats(sendObject, newMessage.getProcessId(), newMessage.getActor());
                 } else {
-                    sessionHandler.sendToChats(sendObject, newMessage.getChatId());
+                    sessionHandler.sendToChats(sendObject, newMessage.getProcessId());
                 }
             } else {// если есть файлы, то откладываем отправку до их дозагрузки
                 JSONObject sendObject = new JSONObject();
@@ -120,7 +120,7 @@ public class ChatSocket {
                     if (actor != null) {
                         // отправка по почте
                         Delegates.getChatService().sendMessageToEmail(
-                                "вам сообщение от " + newMessage.getActor().getName() + " в чате №" + newMessage.getChatId() + " в RunaWFE",
+                                "вам сообщение от " + newMessage.getActor().getName() + " в чате №" + newMessage.getProcessId() + " в RunaWFE",
                                 newMessage.getText() + "\n это автоматическое сообщение, на него отвечать не нужно", actor.getEmail());
                     }
                 } else {
@@ -132,13 +132,13 @@ public class ChatSocket {
             Long lastMessageId = ((Long) objectMessage.get("lastMessageId"));
             List<ChatMessage> messages;
             if (lastMessageId != -1) {
-                messages = Delegates.getChatService().getChatMessages(Integer.parseInt((String) objectMessage.get("chatId")), lastMessageId,
+                messages = Delegates.getChatService().getChatMessages(Long.parseLong((String) objectMessage.get("processId")), lastMessageId,
                         countMessages);
             } else {// если это первые сообщения после открытия чата/чат оказался пуст
-                int chatId = Integer.parseInt((String) objectMessage.get("chatId"));
+                Long processId = Long.parseLong((String) objectMessage.get("processId"));
                 ChatsUserInfo chatUserInfo = Delegates.getChatService()
-                        .getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(), chatId);
-                messages = Delegates.getChatService().getChatMessages(Integer.parseInt((String) objectMessage.get("chatId")),
+                        .getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(), processId);
+                messages = Delegates.getChatService().getChatMessages(Long.parseLong((String) objectMessage.get("processId")),
                         chatUserInfo.getLastMessageId(), Integer.MAX_VALUE);
             }
             if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
@@ -163,18 +163,18 @@ public class ChatSocket {
                 Delegates.getChatService().deleteChatMessage(Long.parseLong((String) objectMessage.get("messageId")));
             }
         } else if (typeMessage.equals("getChatUserInfo")) {// userInfo, последнее прочитанное сообщение
-            int chatId = Integer.parseInt((String) objectMessage.get("chatId"));
+            Long processId = Long.parseLong((String) objectMessage.get("processId"));
             ChatsUserInfo userInfo = Delegates.getChatService().getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
-                    chatId);
+                    processId);
             JSONObject sendObject = new JSONObject();
             sendObject.put("messType", "ChatUserInfo");
-            sendObject.put("numberNewMessages", Delegates.getChatService().getNewChatMessagesCount(userInfo.getLastMessageId(), chatId));
+            sendObject.put("numberNewMessages", Delegates.getChatService().getNewChatMessagesCount(userInfo.getLastMessageId(), processId));
             sendObject.put("lastMessageId", userInfo.getLastMessageId());
             sessionHandler.sendToSession(session, sendObject);
         } else if (typeMessage.equals("setChatUserInfo")) {// обновление userInfo
             long currentMessageId = Long.parseLong((String) objectMessage.get("currentMessageId"));
             Delegates.getChatService().updateChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
-                    Integer.parseInt((String) objectMessage.get("chatId")), currentMessageId);
+                    Long.parseLong((String) objectMessage.get("processId")), currentMessageId);
         } else if (typeMessage.equals("sendToChat")) {
             ChatMessage message0 = Delegates.getChatService().getChatMessage((Long) objectMessage.get("messageId"));
             if(message0.getActive() == false) {
@@ -182,14 +182,14 @@ public class ChatSocket {
             	Delegates.getChatService().updateChatMessage(message0);
             }
             if (Delegates.getChatService().canEditMessage(message0.getActor())) {
-                sessionHandler.sendToChats(convertMessage(message0, false), Integer.parseInt((String) objectMessage.get("chatId")),
+                sessionHandler.sendToChats(convertMessage(message0, false), Long.parseLong((String) objectMessage.get("processId")),
                         message0.getActor());
             } else {
-                sessionHandler.sendToChats(convertMessage(message0, false), Integer.parseInt((String) objectMessage.get("chatId")));
+                sessionHandler.sendToChats(convertMessage(message0, false), Long.parseLong((String) objectMessage.get("processId")));
             }
         } else if (typeMessage.equals("editMessage")) {
             if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
-                int chatId = Integer.parseInt((String) objectMessage.get("chatId"));
+                int processId = Integer.parseInt((String) objectMessage.get("processId"));
                 Long editMessageId = Long.parseLong((String) objectMessage.get("editMessageId"));
                 String newText = (String) objectMessage.get("message");
                 ChatMessage newMessage = Delegates.getChatService().getChatMessage(editMessageId);
@@ -202,7 +202,7 @@ public class ChatSocket {
                         responseMessage.put("messType", "editMessage");
                         responseMessage.put("mesId", newMessage.getId());
                         responseMessage.put("newText", newMessage.getText());
-                        sessionHandler.sendToChats(responseMessage, Integer.parseInt((String) objectMessage.get("chatId")));
+                        sessionHandler.sendToChats(responseMessage, Long.parseLong((String) objectMessage.get("processId")));
                     }
                 }
             }

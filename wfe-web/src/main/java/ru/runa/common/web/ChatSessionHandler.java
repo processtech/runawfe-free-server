@@ -1,12 +1,10 @@
 package ru.runa.common.web;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.Session;
 import org.json.simple.JSONObject;
-import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
@@ -32,21 +30,19 @@ public class ChatSessionHandler {
         }
     }
 
-    public void sendToChats(JSONObject message, int chatId) throws IOException {
-        List<Integer> chatIds = Delegates.getChatService().getAllConnectedChatId(chatId);
+    public void sendToChats(JSONObject message, Long processId) throws IOException {
         for (Session session : sessions) {
-            int thisId = (int) session.getUserProperties().get("chatId");
-            if (chatIds.contains(thisId)) {
+            Long thisId = (Long) session.getUserProperties().get("processId");
+            if (processId.equals(thisId)) {
                 session.getBasicRemote().sendText(message.toString());
             }
         }
     }
 
-    public void sendToChats(JSONObject message, int chatId, Actor coreUser) throws IOException {
-        List<Integer> chatIds = Delegates.getChatService().getAllConnectedChatId(chatId);
+    public void sendToChats(JSONObject message, Long processId, Actor coreUser) throws IOException {
         for (Session session : sessions) {
-            int thisId = (int) session.getUserProperties().get("chatId");
-            if (chatIds.contains(thisId)) {
+            Long thisId = (Long) session.getUserProperties().get("processId");
+            if (processId.equals(thisId)) {
                 if (((User) session.getUserProperties().get("user")).getActor().equals(coreUser)) {
                     message.put("coreUser", true);
                 }

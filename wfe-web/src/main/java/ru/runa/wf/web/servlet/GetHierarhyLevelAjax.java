@@ -1,13 +1,10 @@
 package ru.runa.wf.web.servlet;
 
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
-
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -17,11 +14,11 @@ public class GetHierarhyLevelAjax extends JsonAjaxCommand {
 
     @Override
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
-        String chatId = request.getParameter("chatId");
+        String processId = request.getParameter("processId");
         String messageId = request.getParameter("messageId");
         JSONObject outputObject = new JSONObject();
         ChatMessage coreMessage = Delegates.getChatService().getChatMessage(Long.parseLong(messageId));
-        List<Integer> coreMessageHierarhy = coreMessage.getIerarchyMessageArray();
+        List<Long> coreMessageHierarhy = coreMessage.getIerarchyMessageArray();
         if (coreMessageHierarhy.size() > 0) {
             JSONArray messagesArrayObject = new JSONArray();
             for (int i = 0; i < coreMessageHierarhy.size(); i++) {

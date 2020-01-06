@@ -15,14 +15,14 @@ import ru.runa.wfe.user.User;
 public class ChatInitializeAjax extends JsonAjaxCommand {
     @Override
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
-        Integer chatId = Integer.parseInt(request.getParameter("chatId"));
+        Long processId = Long.parseLong(request.getParameter("processId"));
         Integer countMessages = Integer.parseInt(request.getParameter("messageCount"));
         JSONObject outputObject = new JSONObject();
-        ChatsUserInfo chatUserInfo = Delegates.getChatService().getChatUserInfo(user.getActor(), chatId);
+        ChatsUserInfo chatUserInfo = Delegates.getChatService().getChatUserInfo(user.getActor(), processId);
         List<ChatMessage> messages;
         JSONArray messagesArrayObject = new JSONArray();
         outputObject.put("lastMessageId", chatUserInfo.getLastMessageId());
-        messages = Delegates.getChatService().getNewChatMessages(chatId, chatUserInfo.getLastMessageId());
+        messages = Delegates.getChatService().getNewChatMessages(processId, chatUserInfo.getLastMessageId());
         if (messages.size() > 0) {
             messagesArrayObject.add(ChatSocket.convertMessage(messages.get(0), true));
             for (int i = 1; i < messages.size(); i++) {
@@ -30,7 +30,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
             }
         }
         if (messages.size() < countMessages) {// дополняем старыми
-            messages = Delegates.getChatService().getChatMessages(chatId, chatUserInfo.getLastMessageId(), countMessages - messages.size());
+            messages = Delegates.getChatService().getChatMessages(processId, chatUserInfo.getLastMessageId(), countMessages - messages.size());
             for (int i = 0; i < messages.size(); i++) {
                 JSONObject messageObject = ChatSocket.convertMessage(messages.get(i), true);
                 messagesArrayObject.add(messageObject);

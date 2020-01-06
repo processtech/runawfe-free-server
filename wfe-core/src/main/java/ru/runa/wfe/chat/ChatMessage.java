@@ -23,7 +23,7 @@ public class ChatMessage {
     private Long id;
     private String text;
     private String ierarchyMessage;
-    private Integer chatId;
+    private Long processId;
     private Timestamp date;
     private Actor actor;
     private Boolean haveFiles = false;
@@ -60,13 +60,13 @@ public class ChatMessage {
     }
 
     @Transient
-    public List<Integer> getIerarchyMessageArray() {
-        ArrayList<Integer> ierarchyMessage0 = new ArrayList<Integer>();
+    public List<Long> getIerarchyMessageArray() {
+        ArrayList<Long> ierarchyMessage0 = new ArrayList<Long>();
 
         String messagesIds[] = ierarchyMessage.split(":");
         for (int i = 0; i < messagesIds.length; i++) {
             if (!(messagesIds[i].isEmpty())) {
-                ierarchyMessage0.add(Integer.parseInt(messagesIds[i]));
+                ierarchyMessage0.add(Long.parseLong(messagesIds[i]));
             }
         }
 
@@ -74,7 +74,7 @@ public class ChatMessage {
     }
 
     @Transient
-    public void setIerarchyMessageArray(List<Integer> ierarchyMessage) {
+    public void setIerarchyMessageArray(List<Long> ierarchyMessage) {
         StringBuilder newierarchyMessage = new StringBuilder(ierarchyMessage.size() * 4);
         if (ierarchyMessage.size() > 0) {
             for (int i = 0; i < ierarchyMessage.size() - 1; i++) {
@@ -85,13 +85,16 @@ public class ChatMessage {
         this.ierarchyMessage = newierarchyMessage.toString();
     }
 
-    @Column(name = "CHAT_ID")
-    public Integer getChatId() {
-        return chatId;
+    // @ManyToOne
+    // @JoinColumn(name = "PROCESS_ID")
+    // @ForeignKey(name = "FK_BPM_PROCESS_ID")
+    @Column(name = "PROCESS_ID")
+    public Long getProcessId() {
+        return processId;
     }
 
-    public void setChatId(Integer chatId) {
-        this.chatId = chatId;
+    public void setProcessId(Long processId) {
+        this.processId = processId;
     }
 
     @Column(name = "MESSAGE_DATE")

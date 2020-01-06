@@ -17,16 +17,16 @@ import ru.runa.wfe.user.Actor;
 public class ChatsUserInfo {
 
     private Long id;
-    private Integer chatId;
+    private Long processId;
     private Long lastMessageId;
     private Actor actor;
 
     ChatsUserInfo() {
     }
 
-    public ChatsUserInfo(int chatId0, Actor actor0) {
-        chatId = chatId0;
-        actor = actor0;
+    public ChatsUserInfo(Long processId, Actor actor) {
+        this.processId = processId;
+        this.actor = actor;
     }
 
     @Id
@@ -41,13 +41,16 @@ public class ChatsUserInfo {
         this.id = id;
     }
 
-    @Column(name = "CHAT_ID")
-    public Integer getChatId() {
-        return chatId;
+    // @ManyToOne
+    // @JoinColumn(name = "PROCESS_ID")
+    // @ForeignKey(name = "FK_BPM_PROCESS_ID")
+    @Column(name = "PROCESS_ID")
+    public Long getProcessId() {
+        return processId;
     }
 
-    public void setChatId(Integer chatId) {
-        this.chatId = chatId;
+    public void setProcessId(Long processId) {
+        this.processId = processId;
     }
 
     @Column(name = "LAST_MESSAGE_ID")

@@ -23,7 +23,7 @@ public class ChatTag extends SecuredObjectFormTag {
 
     private static final long serialVersionUID = -4722799699002222875L;
     private String type="default";
-    private Long chatId = 0L;
+    private Long processId = 0L;
     
     private String getType() {
         return type;
@@ -34,20 +34,20 @@ public class ChatTag extends SecuredObjectFormTag {
         this.type = type;
     }
     
-	public Long getChatId() {
-		return chatId;
+    public Long getProcessId() {
+		return processId;
 	}
 
 	@Attribute(required = false, rtexprvalue = true)
-	public void setChatId(Long chatId) {
-		this.chatId = chatId;
+    public void setProcessId(Long processId) {
+		this.processId = processId;
 	}
 
     @Override
     protected void fillFormData(TD tdFormElement) {
     	if(getType() == "TaskInProcess") {
-    		WfTask task = Delegates.getTaskService().getTask(getUser(), getChatId());
-    		setChatId(task.getProcessId());
+            WfTask task = Delegates.getTaskService().getTask(getUser(), getProcessId());
+            setProcessId(task.getProcessId());
     	}
         IMG imageChatExpand = new IMG();
         imageChatExpand.setSrc("/wfe/images/chat_roll_up.png");
@@ -57,7 +57,7 @@ public class ChatTag extends SecuredObjectFormTag {
         chatDiv.setStyle("display: none");
         chatDiv.setID("ChatForm");
         // устанавливается id чата
-        chatDiv.addAttribute("chatId", getChatId());
+        chatDiv.addAttribute("processId", getProcessId());
         TR updateVariableTR = new TR();
         Button buttonOpenChat = new Button();
 
@@ -257,10 +257,10 @@ public class ChatTag extends SecuredObjectFormTag {
 	protected SecuredObject getSecuredObject() {
 		switch (getType()) {
 		case "TaskInProcess":
-			WfTask task = Delegates.getTaskService().getTask(getUser(), getChatId());
+            WfTask task = Delegates.getTaskService().getTask(getUser(), getProcessId());
 			return Delegates.getExecutionService().getProcess(getUser(), task.getProcessId());
 		case "Process":
-			return Delegates.getExecutionService().getProcess(getUser(), getChatId());
+            return Delegates.getExecutionService().getProcess(getUser(), getProcessId());
 		default:
 			return null;
 		}

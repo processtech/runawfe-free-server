@@ -4,7 +4,6 @@ import javax.servlet.http.HttpSession;
 import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
-
 import ru.runa.wfe.user.User;
 
 public class ChatSocketConfigurator extends ServerEndpointConfig.Configurator {
@@ -12,17 +11,17 @@ public class ChatSocketConfigurator extends ServerEndpointConfig.Configurator {
     public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response) {
         HttpSession httpSession = (HttpSession) request.getHttpSession();
         String paramStrings[] = request.getRequestURI().getQuery().split("=");
-        int chatId = -1;
+        Long processId = -1L;
         for (int i = 0; i < paramStrings.length; i++) {
-            if (paramStrings[i].equals("chatId")) {
+            if (paramStrings[i].equals("processId")) {
                 i++;
                 if (i < paramStrings.length) {
-                    chatId = Integer.parseInt(paramStrings[i]);
+                    processId = Long.parseLong(paramStrings[i]);
                 }
             }
         }
         config.getUserProperties().put(HttpSession.class.getName(), httpSession);
-        config.getUserProperties().put("chatId", chatId);
+        config.getUserProperties().put("processId", processId);
         User user = Commons.getUser(httpSession);
         config.getUserProperties().put("user", user);
     }

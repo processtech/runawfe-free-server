@@ -39,8 +39,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public List<Actor> getAllUsersNamesForChat(int chatId) {
-        return chatLogic.getAllUsersNames(chatId);
+    public List<Actor> getAllUsersNamesForChat(Long processId) {
+        return chatLogic.getAllUsersNames(processId);
     }
 
     @WebMethod(exclude = true)
@@ -63,7 +63,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public ChatMessageFile getChatMessageFile(long fileId) {
+    public ChatMessageFile getChatMessageFile(Long fileId) {
         return chatLogic.getFile(fileId);
     }
 
@@ -75,73 +75,67 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatMessages(int chatId) {
-        return chatLogic.getMessages(chatId);
+    public List<ChatMessage> getChatMessages(Long processId) {
+        return chatLogic.getMessages(processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getNewChatMessages(int chatId, Long lastId) {
-        return chatLogic.getNewMessages(chatId, lastId);
+    public List<ChatMessage> getNewChatMessages(Long processId, Long lastId) {
+        return chatLogic.getNewMessages(processId, lastId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public ChatMessage getChatMessage(long messageId) {
+    public ChatMessage getChatMessage(Long messageId) {
         return chatLogic.getMessage(messageId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatMessages(int chatId, Long firstIndex, int count) {
-        return chatLogic.getMessages(chatId, firstIndex, count);
+    public List<ChatMessage> getChatMessages(Long processId, Long firstIndex, int count) {
+        return chatLogic.getMessages(processId, firstIndex, count);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public long getAllChatMessagesCount(int chatId) {
-        return chatLogic.getAllMessagesCount(chatId);
+    public long getAllChatMessagesCount(Long processId) {
+        return chatLogic.getAllMessagesCount(processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getFirstChatMessages(int chatId, int count) {
-        return chatLogic.getFirstMessages(chatId, count);
+    public List<ChatMessage> getFirstChatMessages(Long processId, int count) {
+        return chatLogic.getFirstMessages(processId, count);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void deleteChatMessage(long messId) {
+    public void deleteChatMessage(Long messId) {
         chatLogic.deleteMessage(messId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<Integer> getAllConnectedChatId(int chatId) {
-        return chatLogic.getAllConnectedChatId(chatId);
+    public ChatsUserInfo getChatUserInfo(Actor actor, Long processId) {
+        return chatLogic.getUserInfo(actor, processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public ChatsUserInfo getChatUserInfo(Actor actor, int chatId) {
-        return chatLogic.getUserInfo(actor, chatId);
+    public long getNewChatMessagesCount(Long lastMessageId, Long processId) {
+        return chatLogic.getNewMessagesCount(lastMessageId, processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public long getNewChatMessagesCount(long lastMessageId, int chatId) {
-        return chatLogic.getNewMessagesCount(lastMessageId, chatId);
+    public void updateChatUserInfo(Actor actor, Long processId, Long lastMessageId) {
+        chatLogic.updateUserInfo(actor, processId, lastMessageId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void updateChatUserInfo(Actor actor, int chatId, long lastMessageId) {
-        chatLogic.updateUserInfo(actor, chatId, lastMessageId);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public long saveChatMessage(int chatId, ChatMessage message) {
-        return chatLogic.setMessage(chatId, message);
+    public long saveChatMessage(Long processId, ChatMessage message) {
+        return chatLogic.setMessage(processId, message);
     }
 }

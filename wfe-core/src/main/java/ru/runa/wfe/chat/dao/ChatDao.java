@@ -1,6 +1,5 @@
 package ru.runa.wfe.chat.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
@@ -17,14 +16,14 @@ import ru.runa.wfe.user.QActor;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ChatDao extends GenericDao<ChatMessage> {
 
-    public ChatsUserInfo getUserInfo(Actor actor, int chatId) {
+    public ChatsUserInfo getUserInfo(Actor actor, Long processId) {
         QChatsUserInfo cui = QChatsUserInfo.chatsUserInfo;
-        ChatsUserInfo chatUser = queryFactory.selectFrom(cui).where(cui.chatId.eq(chatId).and(cui.actor.eq(actor))).fetchFirst();
+        ChatsUserInfo chatUser = queryFactory.selectFrom(cui).where(cui.processId.eq(processId).and(cui.actor.eq(actor))).fetchFirst();
         if (chatUser == null) {// добавление новой записи
-            chatUser = new ChatsUserInfo(chatId, actor);
+            chatUser = new ChatsUserInfo(processId, actor);
             // последнее сообщение
             QChatMessage m = QChatMessage.chatMessage;
-            ChatMessage firstMes = queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.asc()).fetchFirst();
+            ChatMessage firstMes = queryFactory.selectFrom(m).where(m.processId.eq(processId)).orderBy(m.date.asc()).fetchFirst();
             if (firstMes == null) {
                 chatUser.setLastMessageId(-1L);
             } else {
@@ -35,41 +34,42 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return chatUser;
     }
 
-    public long getNewMessagesCount(long lastMessageId, int chatId) {
+    public long getNewMessagesCount(Long lastMessageId, Long processId) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.active.eq(true)).and(m.id.gt(lastMessageId))).fetchCount();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true)).and(m.id.gt(lastMessageId))).fetchCount();
     }
 
-    public void updateUserInfo(Actor actor, int chatId, long lastMessageId) {
+    public void updateUserInfo(Actor actor, Long processId, Long lastMessageId) {
         QChatsUserInfo cui = QChatsUserInfo.chatsUserInfo;
-        ChatsUserInfo userInfo = queryFactory.selectFrom(cui).where(cui.chatId.eq(chatId).and(cui.actor.eq(actor))).fetchFirst();
+        ChatsUserInfo userInfo = queryFactory.selectFrom(cui).where(cui.processId.eq(processId).and(cui.actor.eq(actor))).fetchFirst();
         if (userInfo != null) {
             userInfo.setLastMessageId(lastMessageId);
             sessionFactory.getCurrentSession().merge(userInfo);
         }
     }
 
-    public List<ChatMessage> getAll(int chatId) {
+    public List<ChatMessage> getAll(Long processId) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId)).orderBy(m.date.desc()).fetch();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId)).orderBy(m.date.desc()).fetch();
     }
 
-    public List<ChatMessage> getFirstMessages(int chatId, int count) {
+    public List<ChatMessage> getFirstMessages(Long processId, int count) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.active.eq(true))).orderBy(m.date.desc()).limit(count).fetch();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true))).orderBy(m.date.desc()).limit(count).fetch();
     }
 
-    public List<ChatMessage> getNewMessages(int chatId, Long lastId) {
+    public List<ChatMessage> getNewMessages(Long processId, Long lastId) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.active.eq(true)).and(m.id.goe(lastId))).orderBy(m.date.asc()).fetch();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true)).and(m.id.goe(lastId))).orderBy(m.date.asc()).fetch();
     }
 
-    public List<ChatMessage> getMessages(int chatId, Long firstId, int count) {
+    public List<ChatMessage> getMessages(Long processId, Long firstId, int count) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.active.eq(true)).and(m.id.lt(firstId))).orderBy(m.date.desc()).limit(count).fetch();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true)).and(m.id.lt(firstId))).orderBy(m.date.desc())
+                .limit(count).fetch();
     }
 
-    public ChatMessage getMessage(long messageId) {
+    public ChatMessage getMessage(Long messageId) {
         QChatMessage m = QChatMessage.chatMessage;
         return queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
     }
@@ -78,16 +78,16 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return create(message).getId();
     }
 
-    public long getMessagesCount(int chatId) {
+    public long getMessagesCount(Long processId) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.chatId.eq(chatId).and(m.active.eq(true))).fetchCount();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true))).fetchCount();
     }
 
-    public void deleteMessage(long messId) {
+    public void deleteMessage(Long messId) {
         delete(messId);
     }
 
-    public void deleteMessageFiles(long messId) {
+    public void deleteMessageFiles(Long messId) {
         QChatMessageFile f = QChatMessageFile.chatMessageFile;
         queryFactory.delete(f).where(f.messageId.id.eq(messId));
     }
@@ -102,7 +102,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return queryFactory.selectFrom(mf).where(mf.messageId.eq(message)).fetch();
     }
 
-    public ChatMessageFile getFile(long fileId) {
+    public ChatMessageFile getFile(Long fileId) {
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         return queryFactory.selectFrom(mf).where(mf.id.eq(fileId)).fetchFirst();
     }
@@ -112,14 +112,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         sessionFactory.getCurrentSession().merge(message);
     }
 
-    // TODO функция для связи чатов, добавить сюда подгрузку связей чатов - возвращает связанные id для перенаправления сообщений
-    public List<Integer> getAllConnectedChatId(int chatId) {
-        ArrayList<Integer> chatIds = new ArrayList<Integer>();
-        chatIds.add(chatId);
-        return chatIds;
-    }
-
-    public List<Actor> getAllUsersNames(int chatId) {
+    public List<Actor> getAllUsersNames(Long processId) {
         QActor a = QActor.actor;
         return queryFactory.selectFrom(a).fetch();
     }

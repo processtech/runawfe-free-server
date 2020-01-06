@@ -21,53 +21,49 @@ public class ChatLogic extends WfCommonLogic {
 
     private Properties properties = ClassLoaderUtil.getProperties("chat.properties", true);
 
-    public ChatsUserInfo getUserInfo(Actor actor, int chatId) {
-        return chatDao.getUserInfo(actor, chatId);
+    public ChatsUserInfo getUserInfo(Actor actor, Long processId) {
+        return chatDao.getUserInfo(actor, processId);
     }
 
-    public long getNewMessagesCount(long lastMessageId, int chatId) {
-        return chatDao.getNewMessagesCount(lastMessageId, chatId);
+    public long getNewMessagesCount(Long lastMessageId, Long processId) {
+        return chatDao.getNewMessagesCount(lastMessageId, processId);
     }
 
-    public void updateUserInfo(Actor actor, int chatId, long lastMessageId) {
-        chatDao.updateUserInfo(actor, chatId, lastMessageId);
+    public void updateUserInfo(Actor actor, Long processId, Long lastMessageId) {
+        chatDao.updateUserInfo(actor, processId, lastMessageId);
     }
 
-    public List<ChatMessage> getMessages(int chatId) {
-        return chatDao.getAll(chatId);
+    public List<ChatMessage> getMessages(Long processId) {
+        return chatDao.getAll(processId);
     }
 
-    public ChatMessage getMessage(long messageId) {
+    public ChatMessage getMessage(Long messageId) {
         return chatDao.getMessage(messageId);
     }
 
-    public List<ChatMessage> getMessages(int chatId, Long firstId, int count) {
-        return chatDao.getMessages(chatId, firstId, count);
+    public List<ChatMessage> getMessages(Long processId, Long firstId, int count) {
+        return chatDao.getMessages(processId, firstId, count);
     }
 
-    public List<ChatMessage> getFirstMessages(int chatId, int count) {
-        return chatDao.getFirstMessages(chatId, count);
+    public List<ChatMessage> getFirstMessages(Long processId, int count) {
+        return chatDao.getFirstMessages(processId, count);
     }
 
-    public List<ChatMessage> getNewMessages(int chatId, Long lastId) {
-        return chatDao.getNewMessages(chatId, lastId);
+    public List<ChatMessage> getNewMessages(Long processId, Long lastId) {
+        return chatDao.getNewMessages(processId, lastId);
     }
 
-    public long setMessage(int chatId, ChatMessage message) {
+    public long setMessage(Long processId, ChatMessage message) {
         return chatDao.save(message);
     }
 
-    public long getAllMessagesCount(int chatId) {
-        return chatDao.getMessagesCount(chatId);
+    public long getAllMessagesCount(Long processId) {
+        return chatDao.getMessagesCount(processId);
     }
 
-    public void deleteMessage(long messId) {
+    public void deleteMessage(Long messId) {
         chatDao.deleteMessageFiles(messId);
         chatDao.deleteMessage(messId);
-    }
-
-    public List<Integer> getAllConnectedChatId(int chatId) {
-        return chatDao.getAllConnectedChatId(chatId);
     }
 
     public List<ChatMessageFile> getMessageFiles(ChatMessage message) {
@@ -78,7 +74,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.saveFile(file);
     }
 
-    public ChatMessageFile getFile(long fileId) {
+    public ChatMessageFile getFile(Long fileId) {
         return chatDao.getFile(fileId);
     }
 
@@ -90,8 +86,8 @@ public class ChatLogic extends WfCommonLogic {
         return true;
     }
 
-    public List<Actor> getAllUsersNames(int chatId) {
-        return chatDao.getAllUsersNames(chatId);
+    public List<Actor> getAllUsersNames(Long processId) {
+        return chatDao.getAllUsersNames(processId);
     }
 
     public boolean sendMessageToEmail(String title, String message, String Emaile) {

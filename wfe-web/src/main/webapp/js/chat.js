@@ -95,7 +95,7 @@ messageBody.append($("<tr/>").append($("<td/>").append($("<div/>").append(addRep
 //запрос на инициализацию
 var chatSocket = null;
 var chatSocketURL = null;
-let urlString = "/wfe/ajaxcmd?command=ChatInitialize&chatId=" + $("#ChatForm").attr("chatId") + "&messageCount=" + messagesStep;	
+let urlString = "/wfe/ajaxcmd?command=ChatInitialize&processId=" + $("#ChatForm").attr("processId") + "&messageCount=" + messagesStep;	
 $.ajax({
 	type: "POST",
 	url: urlString,
@@ -117,7 +117,7 @@ $.ajax({
 		else{
 			$("#modal-body").scrollTop($("#messBody0")[0].offsetTop);
 		}
-		chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?chatId=" + $("#ChatForm").attr("chatId");
+		chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?processId=" + $("#ChatForm").attr("processId");
 		chatSocket = new WebSocket(chatSocketURL);
 		chatSocket.onmessage = onMessage;
 		//действия при открытии сокета
@@ -183,7 +183,7 @@ $("#modal-body").resize(function(){
 //фунцкия отправляет запрос на выдачу count старых сообщений
 function newxtMessages(count){
 	let newMessage={};
-	newMessage.chatId=$("#ChatForm").attr("chatId");
+	newMessage.processId=$("#ChatForm").attr("processId");
 	newMessage.type="getMessages";
 	newMessage.lastMessageId=minMassageId;
 	newMessage.Count = count; // количество сообщений
@@ -200,7 +200,7 @@ function updatenumberNewMessages(numberNewMessages0){
 //функция отправляет по сокету id последнего прочитонного сообщния
 function updateLastReadMessage(){
 	let newSend0={};
-	newSend0.chatId=$("#ChatForm").attr("chatId");
+	newSend0.processId=$("#ChatForm").attr("processId");
 	newSend0.type="setChatUserInfo";
 	newSend0.currentMessageId=currentMessageId;
 	let sendObject0 = JSON.stringify(newSend0);
@@ -274,7 +274,7 @@ $(".acceptSettingsModal").click(function(){
 			// сокет
 			let newMessage={};
 			newMessage.message=message;
-			newMessage.chatId=$("#ChatForm").attr("chatId");
+			newMessage.processId=$("#ChatForm").attr("processId");
 			newMessage.idHierarchyMessage = idHierarchyMessage;
 			newMessage.type="newMessage";
 			if(attachedFiles.length > 0){
@@ -307,7 +307,7 @@ $(".acceptSettingsModal").click(function(){
 				message = message.replace(/\n/g, "<br/>");
 				let newMessage={};
 				newMessage.message=message;
-				newMessage.chatId=$("#ChatForm").attr("chatId");
+				newMessage.processId=$("#ChatForm").attr("processId");
 				newMessage.type="editMessage";
 				newMessage.editMessageId = editMessageId;
 				$("#message").val(""); 
@@ -394,7 +394,7 @@ $.fn.scrollView = function (selector) {
 //------------------вставка юзеров
 //ajax запрос иерархии сообщений, вернет Promise ajax запроса
 function getUsersNames(){
-	let urlString = "/wfe/ajaxcmd?command=GetUsersNamesForChat&chatId=" + $("#ChatForm").attr("chatId");
+	let urlString = "/wfe/ajaxcmd?command=GetUsersNamesForChat&processId=" + $("#ChatForm").attr("processId");
 	return $.ajax({
 		type: "POST",
 		url: urlString,
@@ -678,7 +678,7 @@ function deleteAttachedFile(){
 
 // ajax запрос иерархии сообщений, вернет Promise ajax запроса
 function hierarhyCheak(messageId){
-	let urlString = "/wfe/ajaxcmd?command=GetHierarhyLevel&chatId=" + $("#ChatForm").attr("chatId") + "&messageId=" + messageId;	
+	let urlString = "/wfe/ajaxcmd?command=GetHierarhyLevel&processId=" + $("#ChatForm").attr("processId") + "&messageId=" + messageId;	
 	return $.ajax({
 		type: "POST",
 		url: urlString,
@@ -917,7 +917,7 @@ function deleteMessage(){
 	if(confirm("Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно")){
 		let newMessage={};
 		newMessage.messageId=$(this).parent().parent().parent().parent().parent().attr("mesId");
-		newMessage.chatId=$("#ChatForm").attr("chatId");
+		newMessage.processId=$("#ChatForm").attr("processId");
 		newMessage.type="deleteMessage";
 		chatSocket.send(JSON.stringify(newMessage));
 		$(this).parent().parent().parent().parent().remove();
@@ -986,7 +986,7 @@ function onMessage(event) {
 		nextStepLoadFile(message0.messageId, 0);
 		let newMessage={};
 		newMessage.messageId=message0.messageId;
-		newMessage.chatId=$("#ChatForm").attr("chatId");
+		newMessage.processId=$("#ChatForm").attr("processId");
 		newMessage.type="sendToChat";
 		chatSocket.send(JSON.stringify(newMessage));
 	}
