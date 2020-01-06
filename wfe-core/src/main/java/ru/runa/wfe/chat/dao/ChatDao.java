@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFiles;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.chat.QChatMessage;
-import ru.runa.wfe.chat.QChatMessageFiles;
+import ru.runa.wfe.chat.QChatMessageFile;
 import ru.runa.wfe.chat.QChatsUserInfo;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
@@ -88,22 +88,22 @@ public class ChatDao extends GenericDao<ChatMessage> {
     }
 
     public void deleteMessageFiles(long messId) {
-        QChatMessageFiles f = QChatMessageFiles.chatMessageFiles;
+        QChatMessageFile f = QChatMessageFile.chatMessageFile;
         queryFactory.delete(f).where(f.messageId.id.eq(messId));
     }
 
-    public ChatMessageFiles saveFile(ChatMessageFiles file) {
+    public ChatMessageFile saveFile(ChatMessageFile file) {
         sessionFactory.getCurrentSession().save(file);
         return file;
     }
 
-    public List<ChatMessageFiles> getMessageFiles(ChatMessage message) {
-        QChatMessageFiles mf = QChatMessageFiles.chatMessageFiles;
+    public List<ChatMessageFile> getMessageFiles(ChatMessage message) {
+        QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         return queryFactory.selectFrom(mf).where(mf.messageId.eq(message)).fetch();
     }
 
-    public ChatMessageFiles getFile(long fileId) {
-        QChatMessageFiles mf = QChatMessageFiles.chatMessageFiles;
+    public ChatMessageFile getFile(long fileId) {
+        QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         return queryFactory.selectFrom(mf).where(mf.id.eq(fileId)).fetchFirst();
     }
 

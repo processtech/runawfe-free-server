@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -16,14 +15,12 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFiles;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
@@ -223,7 +220,7 @@ public class ChatSocket {
         messageObject.put("author", message.getUserName());
         if (message.getHaveFiles() == true) {
             // индексы файлов
-            List<ChatMessageFiles> filesArray = Delegates.getChatService().getChatMessageFiles(message);
+            List<ChatMessageFile> filesArray = Delegates.getChatService().getChatMessageFiles(message);
             if (filesArray.size() > 0) {
                 messageObject.put("haveFile", true);
                 JSONArray filesArrayObject = new JSONArray();

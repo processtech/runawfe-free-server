@@ -2,15 +2,13 @@ package ru.runa.wf.web.servlet;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-
-import ru.runa.wfe.chat.ChatMessageFiles;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 1024, // 1 гб
@@ -26,7 +24,7 @@ public class ChatFileInputServlet extends HttpServlet {
         String fileName = request.getParameter("fileName");
         String endFlag = request.getParameter("endFlag");
         Part file = request.getPart("file");
-        ChatMessageFiles chatFile = new ChatMessageFiles();
+        ChatMessageFile chatFile = new ChatMessageFile();
         chatFile.setFileName(fileName);
         chatFile.setMessageId(Delegates.getChatService().getChatMessage(mesId));
 

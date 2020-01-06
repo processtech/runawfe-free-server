@@ -1,9 +1,8 @@
 package ru.runa.wfe.service.delegate;
 
 import java.util.List;
-
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFiles;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.user.Actor;
@@ -39,17 +38,17 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<ChatMessageFiles> getChatMessageFiles(ChatMessage message) {
+    public List<ChatMessageFile> getChatMessageFiles(ChatMessage message) {
         return getChatService().getChatMessageFiles(message);
     }
 
     @Override
-    public ChatMessageFiles getChatMessageFile(long fileId) {
+    public ChatMessageFile getChatMessageFile(long fileId) {
         return getChatService().getChatMessageFile(fileId);
     }
 
     @Override
-    public ChatMessageFiles saveChatMessageFile(ChatMessageFiles file) {
+    public ChatMessageFile saveChatMessageFile(ChatMessageFile file) {
         return getChatService().saveChatMessageFile(file);
     }
 

@@ -19,15 +19,15 @@ public class CreateChatDB extends DbPatch {
         List<String> sql = super.getDDLQueriesAfter();
         List<ColumnDef> columns = new LinkedList<DbPatch.ColumnDef>();
 
-        ColumnDef id = new ColumnDef("MESSAGE_ID", Types.BIGINT, false);
+        ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
         id.setPrimaryKey();
 
         columns.add(id);
         columns.add(new ColumnDef("TEXT", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("USER_ID", dialect.getTypeName(Types.BIGINT), true));
-        columns.add(new ColumnDef("IERARCHY_MESSAGE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
+        columns.add(new ColumnDef("QUOTED_MESSAGE_IDS", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("CHAT_ID", Types.INTEGER, false));
-        columns.add(new ColumnDef("Message_Date", Types.TIMESTAMP, false));
+        columns.add(new ColumnDef("MESSAGE_DATE", Types.TIMESTAMP, false));
         columns.add(new ColumnDef("HAVE_FILES", Types.BOOLEAN, false));
         columns.add(new ColumnDef("IS_ACTIVE", Types.BOOLEAN, false));
 
@@ -44,20 +44,20 @@ public class CreateChatDB extends DbPatch {
         columns2.add(id2);
         columns2.add(new ColumnDef("LAST_MESSAGE_ID", Types.BIGINT, false));
 
-        sql.add(getDDLCreateTable("CHATS_USER_INFO", columns2, null));
+        sql.add(getDDLCreateTable("CHAT_USER_INFO", columns2, null));
         sql.add(getDDLCreateSequence("SEQ_CHAT_USER_INFO"));
         // message - files
 
         List<ColumnDef> columns3 = new LinkedList<DbPatch.ColumnDef>();
-        ColumnDef id3 = new ColumnDef("FILE_ID", Types.BIGINT, false);
+        ColumnDef id3 = new ColumnDef("ID", Types.BIGINT, false);
         id3.setPrimaryKey();
         columns3.add(new ColumnDef("MESSAGE_ID", dialect.getTypeName(Types.BIGINT), true));
         columns3.add(new ColumnDef("FILE", dialect.getTypeName(Types.BLOB), true));
         columns3.add(new ColumnDef("FILE_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns3.add(id3);
 
-        sql.add(getDDLCreateTable("CHAT_MESSAGE_FILES", columns3, null));
-        sql.add(getDDLCreateSequence("SEQ_CHAT_MESSAGE_FILES"));
+        sql.add(getDDLCreateTable("CHAT_MESSAGE_FILE", columns3, null));
+        sql.add(getDDLCreateSequence("SEQ_CHAT_MESSAGE_FILE"));
         // user flag
         // sql.add(getDDLCreateColumn("EXECUTOR", new ColumnDef("IS_CHAT_MESSAGE_TO_EMAILE", Types.BOOLEAN)));
 
@@ -67,9 +67,9 @@ public class CreateChatDB extends DbPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesAfter();
-        sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_CHAT_MESSAGE_USER", "USER_ID", "EXECUTOR", "ID"));
-        sql.add(getDDLCreateForeignKey("CHATS_USER_INFO", "FK_CHATS_USER_INFO_USER", "USER_ID", "EXECUTOR", "ID"));
-        sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_FILES", "FK_FILE_CHAT_MESSAGE", "MESSAGE_ID", "CHAT_MESSAGE", "MESSAGE_ID"));
+        // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_EXECUTOR_ID", "USER_ID", "EXECUTOR", "ID"));
+        // sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_EXECUTOR_ID", "USER_ID", "EXECUTOR", "ID"));
+        // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_FILE", "FK_CHAT_MESSAGE_ID", "MESSAGE_ID", "CHAT_MESSAGE", "ID"));
         return sql;
     }
 }

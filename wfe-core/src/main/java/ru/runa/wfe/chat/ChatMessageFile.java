@@ -10,12 +10,11 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-@Table(name = "CHAT_MESSAGE_FILES")
-public class ChatMessageFiles {
+@Table(name = "CHAT_MESSAGE_FILE")
+public class ChatMessageFile {
 
     private long id;
     private ChatMessage messageId;
@@ -24,8 +23,8 @@ public class ChatMessageFiles {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE_FILES", allocationSize = 1)
-    @Column(name = "FILE_ID")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE_FILE", allocationSize = 1)
+    @Column(name = "ID")
     public long getId() {
         return id;
     }
@@ -36,7 +35,7 @@ public class ChatMessageFiles {
 
     @ManyToOne
     @JoinColumn(name = "MESSAGE_ID")
-    @ForeignKey(name = "FK_FILE_CHAT_MESSAGE")
+    @ForeignKey(name = "FK_CHAT_MESSAGE_ID")
     public ChatMessage getMessageId() {
         return messageId;
     }

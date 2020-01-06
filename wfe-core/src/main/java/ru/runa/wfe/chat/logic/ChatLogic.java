@@ -11,7 +11,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFiles;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
@@ -70,15 +70,15 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getAllConnectedChatId(chatId);
     }
 
-    public List<ChatMessageFiles> getMessageFiles(ChatMessage message) {
+    public List<ChatMessageFile> getMessageFiles(ChatMessage message) {
         return chatDao.getMessageFiles(message);
     }
 
-    public ChatMessageFiles saveFile(ChatMessageFiles file) {
+    public ChatMessageFile saveFile(ChatMessageFile file) {
         return chatDao.saveFile(file);
     }
 
-    public ChatMessageFiles getFile(long fileId) {
+    public ChatMessageFile getFile(long fileId) {
         return chatDao.getFile(fileId);
     }
 

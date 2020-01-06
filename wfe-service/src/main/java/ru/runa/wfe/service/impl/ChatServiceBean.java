@@ -1,7 +1,6 @@
 package ru.runa.wfe.service.impl;
 
 import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -9,15 +8,12 @@ import javax.interceptor.Interceptors;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFiles;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.chat.logic.ChatLogic;
-import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -34,7 +30,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @Autowired
     private ChatLogic chatLogic;
-	
+
     @WebMethod(exclude = true)
     @Override
     public boolean chatSendMessageToEmail(String title, String message, String Emaile) {
@@ -61,19 +57,19 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessageFiles> getChatMessageFiles(ChatMessage message) {
+    public List<ChatMessageFile> getChatMessageFiles(ChatMessage message) {
         return chatLogic.getMessageFiles(message);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public ChatMessageFiles getChatMessageFile(long fileId) {
+    public ChatMessageFile getChatMessageFile(long fileId) {
         return chatLogic.getFile(fileId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public ChatMessageFiles saveChatMessageFile(ChatMessageFiles file) {
+    public ChatMessageFile saveChatMessageFile(ChatMessageFile file) {
         return chatLogic.saveFile(file);
     }
 

@@ -10,19 +10,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
 import org.hibernate.annotations.ForeignKey;
-
 import ru.runa.wfe.user.Actor;
 
 @Entity
-@Table(name = "CHATS_USER_INFO")
+@Table(name = "CHAT_USER_INFO")
 public class ChatsUserInfo {
 
+    private long id;
     private int chatId;
     private long lastMessageId;
     private Actor actor;
-    private long id;
 
     ChatsUserInfo() {
     }
@@ -32,6 +30,27 @@ public class ChatsUserInfo {
         actor = actor0;
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_USER_INFO", allocationSize = 1)
+    @Column(name = "ID")
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    @Column(name = "CHAT_ID")
+    public int getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
+    }
+
     @Column(name = "LAST_MESSAGE_ID")
     public long getLastMessageId() {
         return lastMessageId;
@@ -39,6 +58,17 @@ public class ChatsUserInfo {
 
     public void setLastMessageId(long lastMessageId) {
         this.lastMessageId = lastMessageId;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    @ForeignKey(name = "FK_EXECUTOR_ID")
+    public Actor getActor() {
+        return actor;
+    }
+
+    public void setActor(Actor actor) {
+        this.actor = actor;
     }
 
     @Transient
@@ -59,37 +89,5 @@ public class ChatsUserInfo {
     @Transient
     public void setUserName(String userName) {
         this.actor.setName(userName);
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "USER_ID")
-    @ForeignKey(name = "FK_CHATS_USER_INFO_USER")
-    public Actor getActor() {
-        return actor;
-    }
-
-    public void setActor(Actor actor) {
-        this.actor = actor;
-    }
-
-    @Column(name = "CHAT_ID")
-    public int getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(int chatId) {
-        this.chatId = chatId;
-    }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_USER_INFO", allocationSize = 1)
-    @Column(name = "ID")
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 }

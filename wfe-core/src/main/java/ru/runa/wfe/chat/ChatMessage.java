@@ -29,6 +29,18 @@ public class ChatMessage {
     private boolean haveFiles = false;
     private boolean active = true;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE", allocationSize = 1)
+    @Column(name = "ID")
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     @Column(name = "TEXT")
     public String getText() {
         return text;
@@ -36,6 +48,15 @@ public class ChatMessage {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    @Column(name = "QUOTED_MESSAGE_IDS")
+    public String getIerarchyMessage() {
+        return ierarchyMessage;
+    }
+
+    public void setIerarchyMessage(String ierarchyMessage) {
+        this.ierarchyMessage = ierarchyMessage;
     }
 
     @Transient
@@ -64,27 +85,6 @@ public class ChatMessage {
         this.ierarchyMessage = newierarchyMessage.toString();
     }
 
-    @Column(name = "IERARCHY_MESSAGE")
-    public String getIerarchyMessage() {
-        return ierarchyMessage;
-    }
-
-    public void setIerarchyMessage(String ierarchyMessage) {
-        this.ierarchyMessage = ierarchyMessage;
-    }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE", allocationSize = 1)
-    @Column(name = "MESSAGE_ID")
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     @Column(name = "CHAT_ID")
     public int getChatId() {
         return chatId;
@@ -94,7 +94,7 @@ public class ChatMessage {
         this.chatId = chatId;
     }
 
-    @Column(name = "Message_Date")
+    @Column(name = "MESSAGE_DATE")
     public Timestamp getDate() {
         return date;
     }
@@ -115,7 +115,7 @@ public class ChatMessage {
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")
-    @ForeignKey(name = "FK_CHAT_MESSAGE_USER")
+    @ForeignKey(name = "FK_EXECUTOR_ID")
     public Actor getActor() {
         return actor;
     }
@@ -134,11 +134,11 @@ public class ChatMessage {
     }
 
     @Column(name = "IS_ACTIVE")
-	public boolean getActive() {
-		return active;
-	}
+    public boolean getActive() {
+        return active;
+    }
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

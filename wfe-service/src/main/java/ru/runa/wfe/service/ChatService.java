@@ -1,9 +1,8 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
-
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFiles;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.user.Actor;
 
@@ -61,7 +60,7 @@ public interface ChatService {
      *            chat message associated files
      * @return not <code>null</code>
      */
-    public List<ChatMessageFiles> getChatMessageFiles(ChatMessage message);
+    public List<ChatMessageFile> getChatMessageFiles(ChatMessage message);
 
     /**
      * Get ChatMessageFiles by id.
@@ -70,7 +69,7 @@ public interface ChatService {
      *            file Id
      * @return ChatMessageFiles or <code>null</code>
      */
-    public ChatMessageFiles getChatMessageFile(long fileId);
+    public ChatMessageFile getChatMessageFile(long fileId);
 
     /**
      * Save ChatMessageFiles.
@@ -79,7 +78,7 @@ public interface ChatService {
      *            new file to save (associated message in ChatMessageFiles)
      * @return not <code>null</code>
      */
-    public ChatMessageFiles saveChatMessageFile(ChatMessageFiles file);
+    public ChatMessageFile saveChatMessageFile(ChatMessageFile file);
 
     /**
      * Get List array of all ChatMessage in chat.
