@@ -18,8 +18,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 	
 	@Override
-    public boolean chatSendMessageToEmail(String title, String message, String Emaile) {
-        return getChatService().chatSendMessageToEmail(title, message, Emaile);
+    public boolean sendMessageToEmail(String title, String message, String Emaile) {
+        return getChatService().sendMessageToEmail(title, message, Emaile);
     }
 
     @Override
@@ -33,8 +33,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public boolean canEditChatMessage(Actor user) {
-        return getChatService().canEditChatMessage(user);
+    public boolean canEditMessage(Actor user) {
+        return getChatService().canEditMessage(user);
     }
 
     @Override
@@ -58,8 +58,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<ChatMessage> getChatNewMessages(int chatId, Long lastId) {
-        return getChatService().getChatNewMessages(chatId, lastId);
+    public List<ChatMessage> getNewChatMessages(int chatId, Long lastId) {
+        return getChatService().getNewChatMessages(chatId, lastId);
     }
 
     @Override
@@ -73,8 +73,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<ChatMessage> getChatFirstMessages(int chatId, int count) {
-        return getChatService().getChatFirstMessages(chatId, count);
+    public List<ChatMessage> getFirstChatMessages(int chatId, int count) {
+        return getChatService().getFirstChatMessages(chatId, count);
     }
 
     @Override
@@ -88,8 +88,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public long getChatNewMessagesCount(long lastMessageId, int chatId) {
-        return getChatService().getChatNewMessagesCount(lastMessageId, chatId);
+    public long getNewChatMessagesCount(long lastMessageId, int chatId) {
+        return getChatService().getNewChatMessagesCount(lastMessageId, chatId);
     }
 
     @Override
@@ -98,18 +98,18 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public long getChatAllMessagesCount(int chatId) {
-        return getChatService().getChatAllMessagesCount(chatId);
+    public long getAllChatMessagesCount(int chatId) {
+        return getChatService().getAllChatMessagesCount(chatId);
     }
 
     @Override
-    public List<Integer> getChatAllConnectedChatId(int chatId) {
-        return getChatService().getChatAllConnectedChatId(chatId);
+    public List<Integer> getAllConnectedChatId(int chatId) {
+        return getChatService().getAllConnectedChatId(chatId);
     }
 
     @Override
-    public long setChatMessage(int chatId, ChatMessage message) {
-        return getChatService().setChatMessage(chatId, message);
+    public long saveChatMessage(int chatId, ChatMessage message) {
+        return getChatService().saveChatMessage(chatId, message);
     }
 
 }

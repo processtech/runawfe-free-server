@@ -3,12 +3,9 @@ package ru.runa.common.web;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.Session;
-
 import org.json.simple.JSONObject;
-
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
@@ -36,7 +33,7 @@ public class ChatSessionHandler {
     }
 
     public void sendToChats(JSONObject message, int chatId) throws IOException {
-        List<Integer> chatIds = Delegates.getChatService().getChatAllConnectedChatId(chatId);
+        List<Integer> chatIds = Delegates.getChatService().getAllConnectedChatId(chatId);
         for (Session session : sessions) {
             int thisId = (int) session.getUserProperties().get("chatId");
             if (chatIds.contains(thisId)) {
@@ -46,7 +43,7 @@ public class ChatSessionHandler {
     }
 
     public void sendToChats(JSONObject message, int chatId, Actor coreUser) throws IOException {
-        List<Integer> chatIds = Delegates.getChatService().getChatAllConnectedChatId(chatId);
+        List<Integer> chatIds = Delegates.getChatService().getAllConnectedChatId(chatId);
         for (Session session : sessions) {
             int thisId = (int) session.getUserProperties().get("chatId");
             if (chatIds.contains(thisId)) {

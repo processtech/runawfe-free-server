@@ -33,7 +33,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public boolean chatSendMessageToEmail(String title, String message, String Emaile) {
+    public boolean sendMessageToEmail(String title, String message, String Emaile) {
         return chatLogic.sendMessageToEmail(title, message, Emaile);
     }
 
@@ -51,7 +51,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public boolean canEditChatMessage(Actor user) {
+    public boolean canEditMessage(Actor user) {
         return chatLogic.canEditMessage(user);
     }
 
@@ -81,7 +81,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatNewMessages(int chatId, Long lastId) {
+    public List<ChatMessage> getNewChatMessages(int chatId, Long lastId) {
         return chatLogic.getNewMessages(chatId, lastId);
     }
 
@@ -99,13 +99,13 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public long getChatAllMessagesCount(int chatId) {
+    public long getAllChatMessagesCount(int chatId) {
         return chatLogic.getAllMessagesCount(chatId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatFirstMessages(int chatId, int count) {
+    public List<ChatMessage> getFirstChatMessages(int chatId, int count) {
         return chatLogic.getFirstMessages(chatId, count);
     }
 
@@ -117,7 +117,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public List<Integer> getChatAllConnectedChatId(int chatId) {
+    public List<Integer> getAllConnectedChatId(int chatId) {
         return chatLogic.getAllConnectedChatId(chatId);
     }
 
@@ -129,7 +129,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public long getChatNewMessagesCount(long lastMessageId, int chatId) {
+    public long getNewChatMessagesCount(long lastMessageId, int chatId) {
         return chatLogic.getNewMessagesCount(lastMessageId, chatId);
     }
 
@@ -141,7 +141,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public long setChatMessage(int chatId, ChatMessage message) {
+    public long saveChatMessage(int chatId, ChatMessage message) {
         return chatLogic.setMessage(chatId, message);
     }
 }

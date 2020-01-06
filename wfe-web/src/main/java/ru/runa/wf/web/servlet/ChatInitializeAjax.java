@@ -1,13 +1,10 @@
 package ru.runa.wf.web.servlet;
 
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
-
 import ru.runa.common.web.ChatSocket;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatsUserInfo;
@@ -25,7 +22,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         List<ChatMessage> messages;
         JSONArray messagesArrayObject = new JSONArray();
         outputObject.put("lastMessageId", chatUserInfo.getLastMessageId());
-        messages = Delegates.getChatService().getChatNewMessages(chatId, chatUserInfo.getLastMessageId());
+        messages = Delegates.getChatService().getNewChatMessages(chatId, chatUserInfo.getLastMessageId());
         if (messages.size() > 0) {
             messagesArrayObject.add(ChatSocket.convertMessage(messages.get(0), true));
             for (int i = 1; i < messages.size(); i++) {

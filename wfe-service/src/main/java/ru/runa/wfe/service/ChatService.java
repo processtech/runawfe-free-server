@@ -25,7 +25,7 @@ public interface ChatService {
      *
      * @return sends an email (chat emaile - chat.properties)
      */
-    public boolean chatSendMessageToEmail(String title, String message, String Emaile);
+    public boolean sendMessageToEmail(String title, String message, String Emaile);
 
     /**
      * get all users names for this chat
@@ -51,7 +51,7 @@ public interface ChatService {
      *            validated user (actor)
      * @return not <code>null</code>
      */
-    public boolean canEditChatMessage(Actor user);
+    public boolean canEditMessage(Actor user);
 
     /**
      * Get List array of all ChatMessageFiles in chat message.
@@ -120,7 +120,7 @@ public interface ChatService {
      *            message Id, all returned message id >= lastId
      * @return not <code>null</code> order by date asc
      */
-    public List<ChatMessage> getChatNewMessages(int chatId, Long lastId);
+    public List<ChatMessage> getNewChatMessages(int chatId, Long lastId);
 
     /**
      * Get List array of last ChatMessage (first in the array of all messages).
@@ -131,7 +131,7 @@ public interface ChatService {
      *            number of messages in the returned array
      * @return not <code>null</code>
      */
-    public List<ChatMessage> getChatFirstMessages(int chatId, int count);
+    public List<ChatMessage> getFirstChatMessages(int chatId, int count);
 
     /**
      * Save ChatMessage in DB.
@@ -142,7 +142,7 @@ public interface ChatService {
      *            new message to save
      * @return new message id
      */
-    public long setChatMessage(int chatId, ChatMessage message);
+    public long saveChatMessage(int chatId, ChatMessage message);
 
     /**
      * Get number of chat messages.
@@ -151,7 +151,7 @@ public interface ChatService {
      *            chat Id
      * @return number of chat messages
      */
-    long getChatAllMessagesCount(int chatId);
+    long getAllChatMessagesCount(int chatId);
 
     /**
      * Delete ChatMessage in DB.
@@ -168,7 +168,7 @@ public interface ChatService {
      *            chat Id
      * @return List array of Connected chat Id and chatId (Integer), not <code>null</code>
      */
-    public List<Integer> getChatAllConnectedChatId(int chatId);
+    public List<Integer> getAllConnectedChatId(int chatId);
 
     /**
      * Get ChatsUserInfo with information about the user in this chat or create new ChatsUserInfo with lastMessageId = max message Id in chat with
@@ -191,7 +191,7 @@ public interface ChatService {
      *            last message Id
      * @return number of chat messages with id > lastMessageId
      */
-    public long getChatNewMessagesCount(long lastMessageId, int chatId);
+    public long getNewChatMessagesCount(long lastMessageId, int chatId);
 
     /**
      * update lastMessageId in ChatsUserInfo with userId, userName, chatId.

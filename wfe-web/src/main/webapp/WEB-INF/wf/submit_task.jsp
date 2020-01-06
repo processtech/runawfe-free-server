@@ -48,8 +48,8 @@
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
 
 <wf:ChatTag identifiableId='<%= 0L %>' type="TaskInProcess" chatId = '<%= taskId %>'/>
-<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chatStyles.css?"+Version.getHash() %>' />">
-<script type="text/javascript" src="/wfe/js/chatPart1.js"></script>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
+<script type="text/javascript" src="/wfe/js/chat.js"></script>
 
 <% if (WebResources.isTaskDelegationEnabled()) { %>
 	<wf:taskFormDelegationButton taskId="<%= taskId %>" />

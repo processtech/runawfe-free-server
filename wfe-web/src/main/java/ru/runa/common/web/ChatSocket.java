@@ -81,12 +81,12 @@ public class ChatSocket {
             	newMessage.setActive(false);
             }
             // сейв в БД
-            long newMessId = Delegates.getChatService().setChatMessage(newMessage.getChatId(), newMessage);
+            long newMessId = Delegates.getChatService().saveChatMessage(newMessage.getChatId(), newMessage);
             newMessage.setId(newMessId);
             // отправка по чату всем:
             if (newMessage.getHaveFiles() == false) {
                 JSONObject sendObject = convertMessage(newMessage, false);
-                if (Delegates.getChatService().canEditChatMessage(((User) session.getUserProperties().get("user")).getActor())) {
+                if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
                     sessionHandler.sendToChats(sendObject, newMessage.getChatId(), newMessage.getActor());
                 } else {
                     sessionHandler.sendToChats(sendObject, newMessage.getChatId());
@@ -102,7 +102,7 @@ public class ChatSocket {
             int spaceIndex = -1;
             String login;
             String serchText = newMessage.getText();
-            Actor actor0;
+            Actor actor;
             while (true) {
                 dogIndex = serchText.indexOf('@', dogIndex + 1);
                 if (dogIndex != -1) {
@@ -113,15 +113,15 @@ public class ChatSocket {
                         login = serchText.substring(dogIndex + 1);
                     }
                     try {
-                        actor0 = Delegates.getExecutorService().getActorCaseInsensitive(login);
+                        actor = Delegates.getExecutorService().getActorCaseInsensitive(login);
                     } catch (Exception e) {
-                        actor0 = null;
+                        actor = null;
                     }
-                    if (actor0 != null) {
+                    if (actor != null) {
                         // отправка по почте
-                        Delegates.getChatService().chatSendMessageToEmail(
+                        Delegates.getChatService().sendMessageToEmail(
                                 "вам сообщение от " + newMessage.getActor().getName() + " в чате №" + newMessage.getChatId() + " в RunaWFE",
-                                newMessage.getText() + "\n это автоматическое сообщение, на него отвечать не нужно", actor0.getEmail());
+                                newMessage.getText() + "\n это автоматическое сообщение, на него отвечать не нужно", actor.getEmail());
                     }
                 } else {
                     break;
@@ -141,7 +141,7 @@ public class ChatSocket {
                 messages = Delegates.getChatService().getChatMessages(Integer.parseInt((String) objectMessage.get("chatId")),
                         chatUserInfo.getLastMessageId(), Integer.MAX_VALUE);
             }
-            if (Delegates.getChatService().canEditChatMessage(((User) session.getUserProperties().get("user")).getActor())) {
+            if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
                 for (ChatMessage newMessage : messages) {
                     JSONObject sendObject = convertMessage(newMessage, true);
                     if (newMessage.getActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
@@ -168,7 +168,7 @@ public class ChatSocket {
                     chatId);
             JSONObject sendObject = new JSONObject();
             sendObject.put("messType", "ChatUserInfo");
-            sendObject.put("numberNewMessages", Delegates.getChatService().getChatNewMessagesCount(userInfo.getLastMessageId(), chatId));
+            sendObject.put("numberNewMessages", Delegates.getChatService().getNewChatMessagesCount(userInfo.getLastMessageId(), chatId));
             sendObject.put("lastMessageId", userInfo.getLastMessageId());
             sessionHandler.sendToSession(session, sendObject);
         } else if (typeMessage.equals("setChatUserInfo")) {// обновление userInfo
@@ -181,14 +181,14 @@ public class ChatSocket {
             	message0.setActive(true);
             	Delegates.getChatService().updateChatMessage(message0);
             }
-            if (Delegates.getChatService().canEditChatMessage(message0.getActor())) {
+            if (Delegates.getChatService().canEditMessage(message0.getActor())) {
                 sessionHandler.sendToChats(convertMessage(message0, false), Integer.parseInt((String) objectMessage.get("chatId")),
                         message0.getActor());
             } else {
                 sessionHandler.sendToChats(convertMessage(message0, false), Integer.parseInt((String) objectMessage.get("chatId")));
             }
         } else if (typeMessage.equals("editMessage")) {
-            if (Delegates.getChatService().canEditChatMessage(((User) session.getUserProperties().get("user")).getActor())) {
+            if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
                 int chatId = Integer.parseInt((String) objectMessage.get("chatId"));
                 Long editMessageId = Long.parseLong((String) objectMessage.get("editMessageId"));
                 String newText = (String) objectMessage.get("message");
@@ -198,11 +198,11 @@ public class ChatSocket {
                         newMessage.setText(newText);
                         Delegates.getChatService().updateChatMessage(newMessage);
                         // рассылка обновления сообщения
-                        JSONObject message0 = new JSONObject();
-                        message0.put("messType", "editMessage");
-                        message0.put("mesId", newMessage.getId());
-                        message0.put("newText", newMessage.getText());
-                        sessionHandler.sendToChats(message0, Integer.parseInt((String) objectMessage.get("chatId")));
+                        JSONObject responseMessage = new JSONObject();
+                        responseMessage.put("messType", "editMessage");
+                        responseMessage.put("mesId", newMessage.getId());
+                        responseMessage.put("newText", newMessage.getText());
+                        sessionHandler.sendToChats(responseMessage, Integer.parseInt((String) objectMessage.get("chatId")));
                     }
                 }
             }

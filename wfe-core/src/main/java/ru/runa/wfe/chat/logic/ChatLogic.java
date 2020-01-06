@@ -95,7 +95,6 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public boolean sendMessageToEmail(String title, String message, String Emaile) {
-        Properties properties = ClassLoaderUtil.getProperties("chat.properties", true);
         // Создаем соединение для отправки почтового сообщения
         javax.mail.Session session = javax.mail.Session.getDefaultInstance(properties,
                 // Аутентификатор - объект, который передает логин и пароль
