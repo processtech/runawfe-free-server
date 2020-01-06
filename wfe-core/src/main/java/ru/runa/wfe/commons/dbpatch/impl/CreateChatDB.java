@@ -68,9 +68,9 @@ public class CreateChatDB extends DbPatch {
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesAfter();
         // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_EXECUTOR_ID", "USER_ID", "EXECUTOR", "ID"));
-        // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
+        sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
         // sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_EXECUTOR_ID", "USER_ID", "EXECUTOR", "ID"));
-        // sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
+        sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
         // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_FILE", "FK_CHAT_MESSAGE_ID", "MESSAGE_ID", "CHAT_MESSAGE", "ID"));
         return sql;
     }
