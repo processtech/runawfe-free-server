@@ -27,7 +27,7 @@ public class CreateChatDB extends DbPatch {
         columns.add(new ColumnDef("USER_ID", dialect.getTypeName(Types.BIGINT), true));
         columns.add(new ColumnDef("QUOTED_MESSAGE_IDS", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("PROCESS_ID", Types.BIGINT, false));
-        columns.add(new ColumnDef("MESSAGE_DATE", Types.TIMESTAMP, false));
+        columns.add(new ColumnDef("CREATE_DATE", Types.DATE, false));
         columns.add(new ColumnDef("HAVE_FILES", Types.BOOLEAN, false));
         columns.add(new ColumnDef("IS_ACTIVE", Types.BOOLEAN, false));
 
@@ -60,7 +60,6 @@ public class CreateChatDB extends DbPatch {
         sql.add(getDDLCreateSequence("SEQ_CHAT_MESSAGE_FILE"));
         // user flag
         // sql.add(getDDLCreateColumn("EXECUTOR", new ColumnDef("IS_CHAT_MESSAGE_TO_EMAILE", Types.BOOLEAN)));
-
         return sql;
     }
 

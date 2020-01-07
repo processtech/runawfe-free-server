@@ -1,7 +1,7 @@
 package ru.runa.wfe.chat;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,7 +24,7 @@ public class ChatMessage {
     private String text;
     private String ierarchyMessage;
     private Long processId;
-    private Timestamp date;
+    private Date createDate;
     private Actor actor;
     private Boolean haveFiles = false;
     private Boolean active = true;
@@ -97,13 +97,13 @@ public class ChatMessage {
         this.processId = processId;
     }
 
-    @Column(name = "MESSAGE_DATE")
-    public Timestamp getDate() {
-        return date;
+    @Column(name = "CREATE_DATE")
+    public Date getCreateDate() {
+        return createDate;
     }
 
-    public void setDate(Timestamp date) {
-        this.date = date;
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     @Transient

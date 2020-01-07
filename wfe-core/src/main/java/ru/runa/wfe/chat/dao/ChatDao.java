@@ -23,7 +23,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
             chatUser = new ChatsUserInfo(processId, actor);
             // последнее сообщение
             QChatMessage m = QChatMessage.chatMessage;
-            ChatMessage firstMes = queryFactory.selectFrom(m).where(m.processId.eq(processId)).orderBy(m.date.asc()).fetchFirst();
+            ChatMessage firstMes = queryFactory.selectFrom(m).where(m.processId.eq(processId)).orderBy(m.createDate.asc()).fetchFirst();
             if (firstMes == null) {
                 chatUser.setLastMessageId(-1L);
             } else {
@@ -50,22 +50,23 @@ public class ChatDao extends GenericDao<ChatMessage> {
 
     public List<ChatMessage> getAll(Long processId) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.processId.eq(processId)).orderBy(m.date.desc()).fetch();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId)).orderBy(m.createDate.desc()).fetch();
     }
 
     public List<ChatMessage> getFirstMessages(Long processId, int count) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true))).orderBy(m.date.desc()).limit(count).fetch();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true))).orderBy(m.createDate.desc()).limit(count).fetch();
     }
 
     public List<ChatMessage> getNewMessages(Long processId, Long lastId) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true)).and(m.id.goe(lastId))).orderBy(m.date.asc()).fetch();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true)).and(m.id.goe(lastId))).orderBy(m.createDate.asc())
+                .fetch();
     }
 
     public List<ChatMessage> getMessages(Long processId, Long firstId, int count) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true)).and(m.id.lt(firstId))).orderBy(m.date.desc())
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true)).and(m.id.lt(firstId))).orderBy(m.createDate.desc())
                 .limit(count).fetch();
     }
 

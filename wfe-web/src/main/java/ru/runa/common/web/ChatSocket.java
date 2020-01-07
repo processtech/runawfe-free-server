@@ -1,9 +1,9 @@
 package ru.runa.common.web;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -75,7 +75,7 @@ public class ChatSocket {
             // чатID
             newMessage.setProcessId(Long.parseLong((String) objectMessage.get("processId")));
             // дата
-            newMessage.setDate(new Timestamp(Calendar.getInstance().getTime().getTime()));
+            newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
             //проверка на файлы
             if (newMessage.getHaveFiles() == true) {
             	newMessage.setActive(false);
@@ -238,7 +238,7 @@ public class ChatSocket {
             messageObject.put("haveFile", false);
         }
         @SuppressWarnings("deprecation")
-        String dateNow = message.getDate().toGMTString();
+        String dateNow = message.getCreateDate().toGMTString();
         messageObject.put("dateTime", dateNow);
         if (message.getIerarchyMessageArray().size() > 0) {
             messageObject.put("hierarchyMessageFlag", 1);
