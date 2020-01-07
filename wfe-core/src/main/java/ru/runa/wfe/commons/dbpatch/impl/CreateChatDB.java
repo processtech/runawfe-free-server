@@ -24,7 +24,7 @@ public class CreateChatDB extends DbPatch {
 
         columns.add(id);
         columns.add(new ColumnDef("TEXT", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
-        columns.add(new ColumnDef("USER_ID", dialect.getTypeName(Types.BIGINT), true));
+        columns.add(new ColumnDef("CREATE_ACTOR_ID", dialect.getTypeName(Types.BIGINT), true));
         columns.add(new ColumnDef("QUOTED_MESSAGE_IDS", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("PROCESS_ID", Types.BIGINT, false));
         columns.add(new ColumnDef("CREATE_DATE", Types.DATE, false));
@@ -66,11 +66,11 @@ public class CreateChatDB extends DbPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesAfter();
-        // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_EXECUTOR_ID", "USER_ID", "EXECUTOR", "ID"));
-        sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
-        // sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_EXECUTOR_ID", "USER_ID", "EXECUTOR", "ID"));
-        sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
-        // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_FILE", "FK_CHAT_MESSAGE_ID", "MESSAGE_ID", "CHAT_MESSAGE", "ID"));
+        // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_CHAT_MESSAGE_EXECUTOR_ID", "CREATE_ACTOR_ID", "EXECUTOR", "ID"));
+        sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_CHAT_MESSAGE_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
+        // sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_CHAT_USER_INFO_EXECUTOR_ID", "USER_ID", "EXECUTOR", "ID"));
+        sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_CHAT_MESSAGE_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
+        // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_FILE", "FK_CHAT_MESSAGE_FILE_CHAT_MESSAGE_ID", "MESSAGE_ID", "CHAT_MESSAGE", "ID"));
         return sql;
     }
 }

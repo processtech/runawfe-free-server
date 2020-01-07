@@ -18,7 +18,7 @@ public class GetHierarhyLevelAjax extends JsonAjaxCommand {
         String messageId = request.getParameter("messageId");
         JSONObject outputObject = new JSONObject();
         ChatMessage coreMessage = Delegates.getChatService().getChatMessage(Long.parseLong(messageId));
-        List<Long> coreMessageHierarhy = coreMessage.getIerarchyMessageArray();
+        List<Long> coreMessageHierarhy = coreMessage.getQuotedMessageIdsArray();
         if (coreMessageHierarhy.size() > 0) {
             JSONArray messagesArrayObject = new JSONArray();
             for (int i = 0; i < coreMessageHierarhy.size(); i++) {
@@ -28,7 +28,7 @@ public class GetHierarhyLevelAjax extends JsonAjaxCommand {
                     attachedMesObject.put("id", attachedMessage.getId());
                     attachedMesObject.put("text", attachedMessage.getText());
                     attachedMesObject.put("author", attachedMessage.getUserName());
-                    if (attachedMessage.getIerarchyMessageArray().size() > 0) {
+                    if (attachedMessage.getQuotedMessageIdsArray().size() > 0) {
                         attachedMesObject.put("hierarchyMessageFlag", 1);
                     } else {
                         attachedMesObject.put("hierarchyMessageFlag", 0);

@@ -53,133 +53,32 @@ public class ChatSocket {
         JSONParser parser = new JSONParser();
         objectMessage = (JSONObject) parser.parse(message);
         String typeMessage = (String) objectMessage.get("type");
-        if (typeMessage.equals("newMessage")) {// добавить сообщение
-            ChatMessage newMessage = new ChatMessage();
-            // юзер
-            newMessage.setActor(((User) session.getUserProperties().get("user")).getActor());
-            // текст
-            newMessage.setText((String) objectMessage.get("message"));
-            // иерархия сообщений
-            ArrayList<Long> hierarchyMessagesIds = new ArrayList<Long>();
-            String messagesIds[] = ((String) objectMessage.get("idHierarchyMessage")).split(":");
-            for (int i = 0; i < messagesIds.length; i++) {
-                if (!(messagesIds[i].isEmpty())) {
-                    hierarchyMessagesIds.add(Long.parseLong(messagesIds[i]));
-                }
-            }
-            newMessage.setIerarchyMessageArray(hierarchyMessagesIds);
-            // файлы
-            if (((boolean) objectMessage.get("haveFile")) == true) {
-                newMessage.setHaveFiles(true);
-            }
-            // чатID
-            newMessage.setProcessId(Long.parseLong((String) objectMessage.get("processId")));
-            // дата
-            newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
-            //проверка на файлы
-            if (newMessage.getHaveFiles() == true) {
-            	newMessage.setActive(false);
-            }
-            // сейв в БД
-            long newMessId = Delegates.getChatService().saveChatMessage(newMessage.getProcessId(), newMessage);
-            newMessage.setId(newMessId);
-            // отправка по чату всем:
-            if (newMessage.getHaveFiles() == false) {
-                JSONObject sendObject = convertMessage(newMessage, false);
-                if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
-                    sessionHandler.sendToChats(sendObject, newMessage.getProcessId(), newMessage.getActor());
-                } else {
-                    sessionHandler.sendToChats(sendObject, newMessage.getProcessId());
-                }
-            } else {// если есть файлы, то откладываем отправку до их дозагрузки
-                JSONObject sendObject = new JSONObject();
-                sendObject.put("messType", "nextStepLoadFile");
-                sendObject.put("messageId", newMessage.getId());
-                sessionHandler.sendToSession(session, sendObject);
-            }
-            // разссылка пользователям @user
-            int dogIndex = -1;
-            int spaceIndex = -1;
-            String login;
-            String serchText = newMessage.getText();
-            Actor actor;
-            while (true) {
-                dogIndex = serchText.indexOf('@', dogIndex + 1);
-                if (dogIndex != -1) {
-                    spaceIndex = serchText.indexOf(' ', dogIndex);
-                    if (spaceIndex != -1) {
-                        login = serchText.substring(dogIndex + 1, spaceIndex);
-                    } else {
-                        login = serchText.substring(dogIndex + 1);
-                    }
-                    try {
-                        actor = Delegates.getExecutorService().getActorCaseInsensitive(login);
-                    } catch (Exception e) {
-                        actor = null;
-                    }
-                    if (actor != null) {
-                        // отправка по почте
-                        Delegates.getChatService().sendMessageToEmail(
-                                "вам сообщение от " + newMessage.getActor().getName() + " в чате №" + newMessage.getProcessId() + " в RunaWFE",
-                                newMessage.getText() + "\n это автоматическое сообщение, на него отвечать не нужно", actor.getEmail());
-                    }
-                } else {
-                    break;
-                }
-            }
-        } else if (typeMessage.equals("getMessages")) { // отправка N сообщений
-            int countMessages = ((Long) objectMessage.get("Count")).intValue();
-            Long lastMessageId = ((Long) objectMessage.get("lastMessageId"));
-            List<ChatMessage> messages;
-            if (lastMessageId != -1) {
-                messages = Delegates.getChatService().getChatMessages(Long.parseLong((String) objectMessage.get("processId")), lastMessageId,
-                        countMessages);
-            } else {// если это первые сообщения после открытия чата/чат оказался пуст
-                Long processId = Long.parseLong((String) objectMessage.get("processId"));
-                ChatsUserInfo chatUserInfo = Delegates.getChatService()
-                        .getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(), processId);
-                messages = Delegates.getChatService().getChatMessages(Long.parseLong((String) objectMessage.get("processId")),
-                        chatUserInfo.getLastMessageId(), Integer.MAX_VALUE);
-            }
-            if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
-                for (ChatMessage newMessage : messages) {
-                    JSONObject sendObject = convertMessage(newMessage, true);
-                    if (newMessage.getActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
-                        sendObject.put("coreUser", true);
-                    }
-                    sessionHandler.sendToSession(session, sendObject);
-                }
-            } else {
-                for (ChatMessage newMessage : messages) {
-                    JSONObject sendObject = convertMessage(newMessage, true);
-                    sessionHandler.sendToSession(session, sendObject);
-                }
-            }
-            JSONObject sendDeblocOldMes = new JSONObject();
-            sendDeblocOldMes.put("messType", "deblocOldMes");
-            sessionHandler.sendToSession(session, sendDeblocOldMes);
-        } else if (typeMessage.equals("deleteMessage")) {// удаление сообщения
+        switch (typeMessage) {
+        case "newMessage":
+            addNewMessage(session, objectMessage);
+            break;
+        case "getMessages":
+            getMessages(session, objectMessage);
+            break;
+        case "deleteMessage":
             if (Delegates.getExecutorService().isAdministrator((User) session.getUserProperties().get("user"))) {
                 Delegates.getChatService().deleteChatMessage(Long.parseLong((String) objectMessage.get("messageId")));
             }
-        } else if (typeMessage.equals("getChatUserInfo")) {// userInfo, последнее прочитанное сообщение
-            Long processId = Long.parseLong((String) objectMessage.get("processId"));
-            ChatsUserInfo userInfo = Delegates.getChatService().getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
-                    processId);
-            JSONObject sendObject = new JSONObject();
-            sendObject.put("messType", "ChatUserInfo");
-            sendObject.put("numberNewMessages", Delegates.getChatService().getNewChatMessagesCount(userInfo.getLastMessageId(), processId));
-            sendObject.put("lastMessageId", userInfo.getLastMessageId());
-            sessionHandler.sendToSession(session, sendObject);
-        } else if (typeMessage.equals("setChatUserInfo")) {// обновление userInfo
-            long currentMessageId = Long.parseLong((String) objectMessage.get("currentMessageId"));
-            Delegates.getChatService().updateChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
-                    Long.parseLong((String) objectMessage.get("processId")), currentMessageId);
-        } else if (typeMessage.equals("sendToChat")) {
+            break;
+        case "getChatUserInfo":
+            getChatUserInfo(session, objectMessage);
+            break;
+        case "setChatUserInfo":
+            setChatUserInfo(session, objectMessage);
+            break;
+        case "editMessage":
+            editMessage(session, objectMessage);
+            break;
+        case "sendToChat":
             ChatMessage message0 = Delegates.getChatService().getChatMessage((Long) objectMessage.get("messageId"));
             if(message0.getActive() == false) {
-            	message0.setActive(true);
-            	Delegates.getChatService().updateChatMessage(message0);
+                message0.setActive(true);
+                Delegates.getChatService().updateChatMessage(message0);
             }
             if (Delegates.getChatService().canEditMessage(message0.getActor())) {
                 sessionHandler.sendToChats(convertMessage(message0, false), Long.parseLong((String) objectMessage.get("processId")),
@@ -187,28 +86,162 @@ public class ChatSocket {
             } else {
                 sessionHandler.sendToChats(convertMessage(message0, false), Long.parseLong((String) objectMessage.get("processId")));
             }
-        } else if (typeMessage.equals("editMessage")) {
+            break;
+        default:
+            break;
+        }
+    }
+
+
+    // вставка нового сообщения
+    void addNewMessage(Session session, JSONObject objectMessage) throws IOException {
+        ChatMessage newMessage = new ChatMessage();
+        // юзер
+        newMessage.setActor(((User) session.getUserProperties().get("user")).getActor());
+        // текст
+        newMessage.setText((String) objectMessage.get("message"));
+        // иерархия сообщений
+        ArrayList<Long> hierarchyMessagesIds = new ArrayList<Long>();
+        String messagesIds[] = ((String) objectMessage.get("idHierarchyMessage")).split(":");
+        for (int i = 0; i < messagesIds.length; i++) {
+            if (!(messagesIds[i].isEmpty())) {
+                hierarchyMessagesIds.add(Long.parseLong(messagesIds[i]));
+            }
+        }
+        newMessage.setQuotedMessageIdsArray(hierarchyMessagesIds);
+        // файлы
+        if (((boolean) objectMessage.get("haveFile")) == true) {
+            newMessage.setHaveFiles(true);
+        }
+        // чатID
+        newMessage.setProcessId(Long.parseLong((String) objectMessage.get("processId")));
+        // дата
+        newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
+        // проверка на файлы
+        if (newMessage.getHaveFiles() == true) {
+            newMessage.setActive(false);
+        }
+        // сейв в БД
+        long newMessId = Delegates.getChatService().saveChatMessage(newMessage.getProcessId(), newMessage);
+        newMessage.setId(newMessId);
+        // отправка по чату всем:
+        if (newMessage.getHaveFiles() == false) {
+            JSONObject sendObject = convertMessage(newMessage, false);
             if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
-                int processId = Integer.parseInt((String) objectMessage.get("processId"));
-                Long editMessageId = Long.parseLong((String) objectMessage.get("editMessageId"));
-                String newText = (String) objectMessage.get("message");
-                ChatMessage newMessage = Delegates.getChatService().getChatMessage(editMessageId);
-                if ((newMessage != null)) {
-                    if (newMessage.getActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
-                        newMessage.setText(newText);
-                        Delegates.getChatService().updateChatMessage(newMessage);
-                        // рассылка обновления сообщения
-                        JSONObject responseMessage = new JSONObject();
-                        responseMessage.put("messType", "editMessage");
-                        responseMessage.put("mesId", newMessage.getId());
-                        responseMessage.put("newText", newMessage.getText());
-                        sessionHandler.sendToChats(responseMessage, Long.parseLong((String) objectMessage.get("processId")));
-                    }
+                sessionHandler.sendToChats(sendObject, newMessage.getProcessId(), newMessage.getActor());
+            } else {
+                sessionHandler.sendToChats(sendObject, newMessage.getProcessId());
+            }
+        } else {// если есть файлы, то откладываем отправку до их дозагрузки
+            JSONObject sendObject = new JSONObject();
+            sendObject.put("messType", "nextStepLoadFile");
+            sendObject.put("messageId", newMessage.getId());
+            sessionHandler.sendToSession(session, sendObject);
+        }
+        // разссылка пользователям @user
+        int dogIndex = -1;
+        int spaceIndex = -1;
+        String login;
+        String serchText = newMessage.getText();
+        Actor actor;
+        while (true) {
+            dogIndex = serchText.indexOf('@', dogIndex + 1);
+            if (dogIndex != -1) {
+                spaceIndex = serchText.indexOf(' ', dogIndex);
+                if (spaceIndex != -1) {
+                    login = serchText.substring(dogIndex + 1, spaceIndex);
+                } else {
+                    login = serchText.substring(dogIndex + 1);
                 }
+                try {
+                    actor = Delegates.getExecutorService().getActorCaseInsensitive(login);
+                } catch (Exception e) {
+                    actor = null;
+                }
+                if (actor != null) {
+                    // отправка по почте
+                    Delegates.getChatService().sendMessageToEmail(
+                            "вам сообщение от " + newMessage.getActor().getName() + " в чате №" + newMessage.getProcessId() + " в RunaWFE",
+                            newMessage.getText() + "\n это автоматическое сообщение, на него отвечать не нужно", actor.getEmail());
+                }
+            } else {
+                break;
             }
         }
     }
 
+    // отправка N сообщений
+    void getMessages(Session session, JSONObject objectMessage) throws IOException {
+        int countMessages = ((Long) objectMessage.get("Count")).intValue();
+        Long lastMessageId = ((Long) objectMessage.get("lastMessageId"));
+        List<ChatMessage> messages;
+        if (lastMessageId != -1) {
+            messages = Delegates.getChatService().getChatMessages(Long.parseLong((String) objectMessage.get("processId")), lastMessageId,
+                    countMessages);
+        } else {// если это первые сообщения после открытия чата/чат оказался пуст
+            Long processId = Long.parseLong((String) objectMessage.get("processId"));
+            ChatsUserInfo chatUserInfo = Delegates.getChatService().getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
+                    processId);
+            messages = Delegates.getChatService().getChatMessages(Long.parseLong((String) objectMessage.get("processId")),
+                    chatUserInfo.getLastMessageId(), Integer.MAX_VALUE);
+        }
+        if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
+            for (ChatMessage newMessage : messages) {
+                JSONObject sendObject = convertMessage(newMessage, true);
+                if (newMessage.getActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
+                    sendObject.put("coreUser", true);
+                }
+                sessionHandler.sendToSession(session, sendObject);
+            }
+        } else {
+            for (ChatMessage newMessage : messages) {
+                JSONObject sendObject = convertMessage(newMessage, true);
+                sessionHandler.sendToSession(session, sendObject);
+            }
+        }
+        JSONObject sendDeblocOldMes = new JSONObject();
+        sendDeblocOldMes.put("messType", "deblocOldMes");
+        sessionHandler.sendToSession(session, sendDeblocOldMes);
+    }
+
+    //
+    void getChatUserInfo(Session session, JSONObject objectMessage) throws IOException {
+        Long processId = Long.parseLong((String) objectMessage.get("processId"));
+        ChatsUserInfo userInfo = Delegates.getChatService().getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(), processId);
+        JSONObject sendObject = new JSONObject();
+        sendObject.put("messType", "ChatUserInfo");
+        sendObject.put("numberNewMessages", Delegates.getChatService().getNewChatMessagesCount(userInfo.getLastMessageId(), processId));
+        sendObject.put("lastMessageId", userInfo.getLastMessageId());
+        sessionHandler.sendToSession(session, sendObject);
+    }
+
+    //
+    void setChatUserInfo(Session session, JSONObject objectMessage) throws IOException {
+        long currentMessageId = Long.parseLong((String) objectMessage.get("currentMessageId"));
+        Delegates.getChatService().updateChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
+                Long.parseLong((String) objectMessage.get("processId")), currentMessageId);
+    }
+
+    //
+    void editMessage(Session session, JSONObject objectMessage) throws IOException {
+        if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
+            Long editMessageId = Long.parseLong((String) objectMessage.get("editMessageId"));
+            String newText = (String) objectMessage.get("message");
+            ChatMessage newMessage = Delegates.getChatService().getChatMessage(editMessageId);
+            if ((newMessage != null)) {
+                if (newMessage.getActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
+                    newMessage.setText(newText);
+                    Delegates.getChatService().updateChatMessage(newMessage);
+                    // рассылка обновления сообщения
+                    JSONObject responseMessage = new JSONObject();
+                    responseMessage.put("messType", "editMessage");
+                    responseMessage.put("mesId", newMessage.getId());
+                    responseMessage.put("newText", newMessage.getText());
+                    sessionHandler.sendToChats(responseMessage, Long.parseLong((String) objectMessage.get("processId")));
+                }
+            }
+        }
+    }
     // отправка сообщения, old - старые сообщения, которые отобразятся сверху
     static public JSONObject convertMessage(ChatMessage message, Boolean old) {
         JSONObject sendObject = new JSONObject();
@@ -240,7 +273,7 @@ public class ChatSocket {
         @SuppressWarnings("deprecation")
         String dateNow = message.getCreateDate().toGMTString();
         messageObject.put("dateTime", dateNow);
-        if (message.getIerarchyMessageArray().size() > 0) {
+        if (message.getQuotedMessageIdsArray().size() > 0) {
             messageObject.put("hierarchyMessageFlag", 1);
         } else {
             messageObject.put("hierarchyMessageFlag", 0);

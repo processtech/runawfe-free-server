@@ -35,7 +35,7 @@ public class ChatMessageFile {
 
     @ManyToOne
     @JoinColumn(name = "MESSAGE_ID")
-    @ForeignKey(name = "FK_CHAT_MESSAGE_ID")
+    @ForeignKey(name = "FK_CHAT_MESSAGE_FILE_CHAT_MESSAGE_ID")
     public ChatMessage getMessageId() {
         return messageId;
     }

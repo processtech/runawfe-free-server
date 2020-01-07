@@ -41,9 +41,6 @@ public class ChatsUserInfo {
         this.id = id;
     }
 
-    // @ManyToOne
-    // @JoinColumn(name = "PROCESS_ID")
-    // @ForeignKey(name = "FK_BPM_PROCESS_ID")
     @Column(name = "PROCESS_ID")
     public Long getProcessId() {
         return processId;
@@ -64,7 +61,7 @@ public class ChatsUserInfo {
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")
-    @ForeignKey(name = "FK_EXECUTOR_ID")
+    @ForeignKey(name = "FK_CHAT_USER_INFO_EXECUTOR_ID")
     public Actor getActor() {
         return actor;
     }

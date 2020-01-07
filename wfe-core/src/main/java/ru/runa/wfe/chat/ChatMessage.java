@@ -22,10 +22,10 @@ public class ChatMessage {
 
     private Long id;
     private String text;
-    private String ierarchyMessage;
+    private String quotedMessageIds;
     private Long processId;
     private Date createDate;
-    private Actor actor;
+    private Actor createActor;
     private Boolean haveFiles = false;
     private Boolean active = true;
 
@@ -51,19 +51,19 @@ public class ChatMessage {
     }
 
     @Column(name = "QUOTED_MESSAGE_IDS")
-    public String getIerarchyMessage() {
-        return ierarchyMessage;
+    public String getQuotedMessageIds() {
+        return quotedMessageIds;
     }
 
-    public void setIerarchyMessage(String ierarchyMessage) {
-        this.ierarchyMessage = ierarchyMessage;
+    public void setQuotedMessageIds(String quotedMessageIds) {
+        this.quotedMessageIds = quotedMessageIds;
     }
 
     @Transient
-    public List<Long> getIerarchyMessageArray() {
+    public List<Long> getQuotedMessageIdsArray() {
         ArrayList<Long> ierarchyMessage0 = new ArrayList<Long>();
 
-        String messagesIds[] = ierarchyMessage.split(":");
+        String messagesIds[] = quotedMessageIds.split(":");
         for (int i = 0; i < messagesIds.length; i++) {
             if (!(messagesIds[i].isEmpty())) {
                 ierarchyMessage0.add(Long.parseLong(messagesIds[i]));
@@ -74,7 +74,7 @@ public class ChatMessage {
     }
 
     @Transient
-    public void setIerarchyMessageArray(List<Long> ierarchyMessage) {
+    public void setQuotedMessageIdsArray(List<Long> ierarchyMessage) {
         StringBuilder newierarchyMessage = new StringBuilder(ierarchyMessage.size() * 4);
         if (ierarchyMessage.size() > 0) {
             for (int i = 0; i < ierarchyMessage.size() - 1; i++) {
@@ -82,12 +82,9 @@ public class ChatMessage {
             }
             newierarchyMessage.append(ierarchyMessage.get(ierarchyMessage.size() - 1).toString());
         }
-        this.ierarchyMessage = newierarchyMessage.toString();
+        this.quotedMessageIds = newierarchyMessage.toString();
     }
 
-    // @ManyToOne
-    // @JoinColumn(name = "PROCESS_ID")
-    // @ForeignKey(name = "FK_BPM_PROCESS_ID")
     @Column(name = "PROCESS_ID")
     public Long getProcessId() {
         return processId;
@@ -107,24 +104,19 @@ public class ChatMessage {
     }
 
     @Transient
-    public long getUserId() {
-        return actor.getId();
-    }
-
-    @Transient
     public String getUserName() {
-        return actor.getName();
+        return createActor.getName();
     }
 
     @ManyToOne
-    @JoinColumn(name = "USER_ID")
-    @ForeignKey(name = "FK_EXECUTOR_ID")
+    @JoinColumn(name = "CREATE_ACTOR_ID")
+    @ForeignKey(name = "FK_CHAT_MESSAGE_EXECUTOR_ID")
     public Actor getActor() {
-        return actor;
+        return createActor;
     }
 
-    public void setActor(Actor actor) {
-        this.actor = actor;
+    public void setActor(Actor createActor) {
+        this.createActor = createActor;
     }
 
     @Column(name = "HAVE_FILES")
