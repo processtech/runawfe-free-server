@@ -33,6 +33,12 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
+    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
+        return chatLogic.getNewMessagesCounts(chatsIds, isMentions, user);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public boolean sendMessageToEmail(String title, String message, String Emaile) {
         return chatLogic.sendMessageToEmail(title, message, Emaile);
     }
@@ -136,6 +142,6 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = true)
     @Override
     public long saveChatMessage(Long processId, ChatMessage message) {
-        return chatLogic.setMessage(processId, message);
+        return chatLogic.saveMessage(processId, message);
     }
 }

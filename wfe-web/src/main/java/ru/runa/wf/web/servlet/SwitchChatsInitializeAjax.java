@@ -1,0 +1,36 @@
+package ru.runa.wf.web.servlet;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONAware;
+import org.json.simple.JSONObject;
+import ru.runa.wfe.commons.web.JsonAjaxCommand;
+import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.User;
+
+public class SwitchChatsInitializeAjax extends JsonAjaxCommand {
+    @Override
+    protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
+        List<Long> chatIds = new ArrayList<Long>();
+        List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, null);
+        for (WfProcess proc : processes) {
+            chatIds.add(proc.getId());
+        }
+        List<Boolean> isMentions =new ArrayList<Boolean>();
+        List<Long> countMessages = Delegates.getChatService().getNewMessagesCounts(chatIds, isMentions, user.getActor());
+        JSONArray outputObjects = new JSONArray();
+        JSONObject outObj;
+        for (int i = 0; i < countMessages.size(); i++) {
+            outObj = new JSONObject();
+            outObj.put("processId", chatIds.get(i));
+            outObj.put("countMessage", countMessages.get(i));
+            outObj.put("isMention", isMentions.get(i));
+            outputObjects.add(outObj);
+        }
+
+        return outputObjects;
+    }
+}

@@ -30,6 +30,7 @@ public class CreateChatDB extends DbPatch {
         columns.add(new ColumnDef("CREATE_DATE", Types.DATE, false));
         columns.add(new ColumnDef("HAVE_FILES", Types.BOOLEAN, false));
         columns.add(new ColumnDef("IS_ACTIVE", Types.BOOLEAN, false));
+        columns.add(new ColumnDef("IS_PRIVATE", Types.BOOLEAN, false));
 
         sql.add(getDDLCreateTable("CHAT_MESSAGE", columns, null));
         sql.add(getDDLCreateSequence("SEQ_CHAT_MESSAGE"));
@@ -58,8 +59,18 @@ public class CreateChatDB extends DbPatch {
 
         sql.add(getDDLCreateTable("CHAT_MESSAGE_FILE", columns3, null));
         sql.add(getDDLCreateSequence("SEQ_CHAT_MESSAGE_FILE"));
-        // user flag
-        // sql.add(getDDLCreateColumn("EXECUTOR", new ColumnDef("IS_CHAT_MESSAGE_TO_EMAILE", Types.BOOLEAN)));
+
+        // perm
+        List<ColumnDef> columns4 = new LinkedList<DbPatch.ColumnDef>();
+        ColumnDef id4 = new ColumnDef("ID", Types.BIGINT, false);
+        id4.setPrimaryKey();
+        columns4.add(new ColumnDef("EXECUTOR_ID", dialect.getTypeName(Types.BIGINT), true));
+        columns4.add(new ColumnDef("MESSAGE_ID", dialect.getTypeName(Types.BIGINT), true));
+        columns4.add(id4);
+
+        sql.add(getDDLCreateTable("CHAT_MESSAGE_PERMISSION", columns4, null));
+        sql.add(getDDLCreateSequence("SEQ_CHAT_MESSAGE_PERMISSION"));
+
         return sql;
     }
 
@@ -70,7 +81,9 @@ public class CreateChatDB extends DbPatch {
         sql.add(getDDLCreateForeignKey("CHAT_MESSAGE", "FK_CHAT_MESSAGE_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
         // sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_CHAT_USER_INFO_EXECUTOR_ID", "USER_ID", "EXECUTOR", "ID"));
         sql.add(getDDLCreateForeignKey("CHAT_USER_INFO", "FK_CHAT_MESSAGE_BPM_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"));
-        // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_FILE", "FK_CHAT_MESSAGE_FILE_CHAT_MESSAGE_ID", "MESSAGE_ID", "CHAT_MESSAGE", "ID"));
+        // sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_FILE", "FK_CHAT_MESSAGE_FILE_ID", "MESSAGE_ID", "CHAT_MESSAGE", "ID"));
+        sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_PERMISSION", "FK_CHAT_MESSAGE_PERMISSION_ID", "MESSAGE_ID", "CHAT_MESSAGE", "ID"));
+        sql.add(getDDLCreateForeignKey("CHAT_MESSAGE_PERMISSION", "FK_CHAT_MESSAGE_PERMISSION_EXECUTOR_ID", "EXECUTOR_ID", "EXECUTOR", "ID"));
         return sql;
     }
 }

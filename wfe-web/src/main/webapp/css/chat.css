@@ -357,7 +357,6 @@
 }
 
 .dropZ{
-	position: absolute;
 	width: 100%;
 	z-index: 10000;
 	color: #dddddd;
@@ -521,4 +520,37 @@ input[type=file]::-webkit-file-upload-button {
 	-o-user-select: none;
 	-webkit-user-select: none;
 	user-select: none;
+}
+
+.modalSwitchingWindow{
+	width: 25vw;
+    height: 40vh;
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    float: left;
+    background-color: white;
+    border: 1px solid darkgray;
+	
+}
+.modalSwitchingWindowHeader{
+	width: 100%;
+    height: 20%;
+    border-bottom: 1px solid darkgray;
+}
+
+.modalSwitchingWindowBody{
+	width: 100%;
+    height: 80%;
+    background-color: #f4f4f4;
+}
+
+.modalSwitchingWindowButton{
+	width:auto;
+	height: auto;
+}
+
+.isMentionChats{
+	font-style:italic;
 }

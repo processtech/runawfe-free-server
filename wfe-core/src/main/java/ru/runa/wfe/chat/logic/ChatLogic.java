@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat.logic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.Authenticator;
@@ -20,6 +21,10 @@ import ru.runa.wfe.user.Actor;
 public class ChatLogic extends WfCommonLogic {
 
     private Properties properties = ClassLoaderUtil.getProperties("chat.properties", true);
+
+    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
+        return chatDao.getNewMessagesCounts(chatsIds, isMentions, user);
+    }
 
     public ChatsUserInfo getUserInfo(Actor actor, Long processId) {
         return chatDao.getUserInfo(actor, processId);
@@ -53,7 +58,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessages(processId, lastId);
     }
 
-    public long setMessage(Long processId, ChatMessage message) {
+    public long saveMessage(Long processId, ChatMessage message) {
         return chatDao.save(message);
     }
 
@@ -87,7 +92,10 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<Actor> getAllUsersNames(Long processId) {
-        return chatDao.getAllUsersNames(processId);
+        //return chatDao.getAllUsersNames(processId);
+        List<Actor> ret = new ArrayList<Actor>();
+        ;
+        return ret;
     }
 
     public boolean sendMessageToEmail(String title, String message, String Emaile) {

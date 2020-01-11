@@ -8,5 +8,6 @@
 	<command class="ru.runa.wf.web.servlet.GetHierarhyLevelAjax" name="GetHierarhyLevel"></command>
 	<command class="ru.runa.wf.web.servlet.GetUsersNamesForChatAjax" name="GetUsersNamesForChat"></command>
 	<command class="ru.runa.wf.web.servlet.ChatInitializeAjax" name="ChatInitialize"></command>
+	<command class="ru.runa.wf.web.servlet.SwitchChatsInitializeAjax" name="SwitchChatsInitialize"></command>
 
 </configuration>

@@ -13,6 +13,17 @@ import ru.runa.wfe.user.Actor;
  * @since ___
  */
 public interface ChatService {
+
+    /**
+     * 
+     * 
+     *
+     * 
+     *
+     * 
+     */
+    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user);
+
     /**
      * send by email
      * 

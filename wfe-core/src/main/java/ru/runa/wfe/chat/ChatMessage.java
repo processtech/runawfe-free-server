@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.ForeignKey;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Executor;
 
 @Entity
 @Table(name = "CHAT_MESSAGE")
@@ -28,6 +29,10 @@ public class ChatMessage {
     private Actor createActor;
     private Boolean haveFiles = false;
     private Boolean active = true;
+    private Boolean isPrivate = true;
+
+    @Transient
+    private List<Executor> mentionedExecutors;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -135,5 +140,24 @@ public class ChatMessage {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    @Column(name = "IS_PRIVATE")
+    public Boolean getIsPrivate() {
+        return isPrivate;
+    }
+
+    public void setIsPrivate(Boolean isPrivate) {
+        this.isPrivate = isPrivate;
+    }
+
+    @Transient
+    public List<Executor> getMentionedExecutors() {
+        return mentionedExecutors;
+    }
+
+    @Transient
+    public void setMentionedExecutors(List<Executor> mentionedExecutors) {
+        this.mentionedExecutors = mentionedExecutors;
     }
 }

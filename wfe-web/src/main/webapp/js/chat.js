@@ -15,6 +15,8 @@ var userNameLength=0;
 var userNameTable = $("<table/>");
 userNameTable.addClass("tableModalNameSetMessage");
 userNameTable.attr("id", "userNameTable");
+
+var idsProcess=[];
 //флаг - блок чата
 var lockFlag = false;
 //зона для дропа файлов
@@ -91,47 +93,13 @@ addReplyA0.click(messReplyClickFunction);
 messageBody.append($("<tr/>").append($("<td/>").append(openHierarchyA0).append($("<div/>").addClass("loadedHierarchy"))));
 messageBody.append($("<tr/>").append($("<td/>").append($("<div/>").append(addReplyA0))));
 
-
+//сокет принимающий нов. собщения для всех чатов
+var chatsNewMessSocket = null;
+var chatsNewMessSocketURL = null;
 //запрос на инициализацию
 var chatSocket = null;
 var chatSocketURL = null;
-let urlString = "/wfe/ajaxcmd?command=ChatInitialize&processId=" + $("#ChatForm").attr("processId") + "&messageCount=" + messagesStep;	
-$.ajax({
-	type: "POST",
-	url: urlString,
-	dataType: "json",
-	contentType: "application/json; charset=UTF-8",
-	processData: false,
-	success: function(data) {
-		currentMessageId = data.lastMessageId;
-		addMessages(data.messages[0]);
-		$("#modal-body").scrollTop(0);
-		for(let i=1; i<data.messages.length; i++){
-			addMessages(data.messages[i]);
-		}
-		if(numberNewMessages == 0){
-			newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
-			updatenumberNewMessages(0);
-			$("#modal-body").scrollTop($("#modal-body")[0].scrollHeight);
-		}
-		else{
-			$("#modal-body").scrollTop($("#messBody0")[0].offsetTop);
-		}
-		chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?processId=" + $("#ChatForm").attr("processId");
-		chatSocket = new WebSocket(chatSocketURL);
-		chatSocket.onmessage = onMessage;
-		//действия при открытии сокета
-		chatSocket.onopen=function(){
-		}
-		//действия при закрытии сокета
-		chatSocket.onclose = function(){
-			$("#modal-body").append("<table ><td>" + "потерянно соединение с чатом сервера" + "</td></table >");
-		}
-		//скролл к непрочитанным
-		//установка скрол-функции отслеживания непрочитанных
-		$("#modal-body").bind("load scroll", scrollNewMessages);
-	}
-});
+ajaxInitializationChat();
 $("#btnCl").hide();
 
 //реальный размер элемента
@@ -219,7 +187,8 @@ btnLoadNewMessage.onclick=function(){
 }
 
 // кнопка открытия чата
-btnOpenChat.onclick = function() {
+btnOpenChat.onclick = openChat;
+function openChat() {
 	if(chatForm != null){
 		chatForm.style.display = "block";
 		switchCheak=1;
@@ -390,6 +359,11 @@ $.fn.scrollView = function (selector) {
 			}, 1);
 	});
 }
+
+//получение количество пикселей(без px)
+$.fn.getSlisePx = function(property) {
+    return parseInt(this.css(property).slice(0,-2));
+};
 
 //------------------вставка юзеров
 //ajax запрос иерархии сообщений, вернет Promise ajax запроса
@@ -670,7 +644,7 @@ $("#fileInput").change(function() {
 //удаление прикрепленных к сообщению файлов (для не отправленных сообщений)
 function deleteAttachedFile(){
 	attachedFiles.splice($(this).attr("fileNumber"));
-	$(this).parent().parent().remove();
+	$(this).closest("tr").remove();
 	return false;
 }
 
@@ -878,16 +852,16 @@ function addMessages(data){
 function messReplyClickFunction(){
 	if(lockFlag == false){
 		if($(this).attr("flagAttach") == "false"){
-			attachedPosts.push($(this).parent().parent().parent().parent().parent().attr("mesId"));
+			attachedPosts.push($(this).closest(".selectionTextQuote").attr("mesId"));
 			$(this).attr("flagAttach", "true");
 			$(this).text("Отменить");
 				//создаем отметку о прикреплении
 				let newMessReply=$("<tr/>");
-				newMessReply.append($("<td/>").text("прикрепленное сообщение:" + $("#messageText" + $(this).parent().parent().parent().parent().parent().attr("messageIndex")).text()));
+				newMessReply.append($("<td/>").text("прикрепленное сообщение:" + $("#messageText" + $(this).closest(".selectionTextQuote").attr("messageIndex")).text()));
 				let deleteMessReplyButton = $("<button/>");
 				deleteMessReplyButton.text("X");
-				deleteMessReplyButton.attr("id", "deleteMessReply" + $(this).parent().parent().parent().parent().parent().attr("messageIndex"));
-				deleteMessReplyButton.attr("mesIndex", $(this).parent().parent().parent().parent().parent().attr("messageIndex"));
+				deleteMessReplyButton.attr("id", "deleteMessReply" + $(this).closest(".selectionTextQuote").attr("messageIndex"));
+				deleteMessReplyButton.attr("mesIndex", $(this).closest(".selectionTextQuote").attr("messageIndex"));
 				deleteMessReplyButton.attr("type", "button");
 				deleteMessReplyButton.click(deleteAttachedMessage);
 				newMessReply.append($("<td/>").append(deleteMessReplyButton));
@@ -896,39 +870,39 @@ function messReplyClickFunction(){
 		else{
 			$(this).text("Ответить");
 			$(this).attr("flagAttach", "false");
-			let pos0 = attachedPosts.indexOf($(this).parent().parent().parent().parent().parent().attr("mesId"), 0);
+			let pos0 = attachedPosts.indexOf($(this).closest(".selectionTextQuote").attr("mesId"), 0);
 			attachedPosts.splice(pos0, 1);
-			$("#deleteMessReply" + $(this).parent().parent().parent().parent().parent().attr("messageIndex")).parent().parent().remove();
+			$("#deleteMessReply" + $(this).closest(".selectionTextQuote").attr("messageIndex")).closest(".selectionTextQuote").remove();
 		}
 	}
 }
 
 //функция открепления сообщений
 function deleteAttachedMessage(){
-	let pos0 = attachedPosts.indexOf($("#messReply"+$(this).parent().parent().parent().parent().parent().attr("mesIndex")).attr("mesId"), 0);
+	let pos0 = attachedPosts.indexOf($("#messReply"+$(this).closest(".selectionTextQuote").attr("mesIndex")).attr("mesId"), 0);
 	attachedPosts.splice(pos0, 1);
-	$("#messReply" + $(this).parent().parent().parent().parent().parent().attr("mesIndex")).text("Ответить");
-	$("#messReply" + $(this).parent().parent().parent().parent().parent().attr("mesIndex")).attr("flagAttach", "false");
-	$(this).parent().parent().remove();
+	$("#messReply" + $(this).closest(".selectionTextQuote").attr("mesIndex")).text("Ответить");
+	$("#messReply" + $(this).closest(".selectionTextQuote").attr("mesIndex")).attr("flagAttach", "false");
+	$(this).closest(".selectionTextQuote").remove();
 }
 
 // удаление сообщений
 function deleteMessage(){
 	if(confirm("Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно")){
 		let newMessage={};
-		newMessage.messageId=$(this).parent().parent().parent().parent().parent().attr("mesId");
+		newMessage.messageId=$(this).closest(".selectionTextQuote").attr("mesId");
 		newMessage.processId=$("#ChatForm").attr("processId");
 		newMessage.type="deleteMessage";
 		chatSocket.send(JSON.stringify(newMessage));
-		$(this).parent().parent().parent().parent().remove();
+		$(this).closest(".selectionTextQuote").remove();
 	}
 }
 
 //редактирование сообщений
 function editMessage(){
-	editMessageId = $(this).parent().parent().parent().parent().parent().attr("mesId");
+	editMessageId = $(this).closest(".selectionTextQuote").attr("mesId");
 	editMessageFlag=true;
-	$("#message").val($("#messageText"+$(this).parent().parent().parent().parent().parent().attr("mesIndex")).text());
+	$("#message").val($("#messageText"+$(this).closest(".selectionTextQuote").attr("mesIndex")).text());
 }
 
 function nextStepLoadFile(messageId, FileIndex){
@@ -1020,12 +994,13 @@ var dragMaster = (function() {
 		document.onmouseup = null
 		document.ondragstart = null
 		document.body.onselectstart = null
+		
 	}
 
 	function mouseMove(e){
 
 		with(dragObject.style) {
-			position = 'absolute'
+			position = 'fixed'
 			if (mouseOffset.y <= e.pageY){ 
 					if(e.pageY<($('body').height()+$('.modal-content').height()))
 					top = e.pageY - mouseOffset.y + 'px'
@@ -1112,9 +1087,148 @@ function stopResizing(e){
 	}
 }
 
-$.fn.getSlisePx = function(property) {
-    return parseInt(this.css(property).slice(0,-2));
-};
 
+
+$('.modalSwitchingWindowButton').click(function (){
+	
+	
+	if($('.modalSwitchingWindow').css("display")=="none"){
+		$('.modalSwitchingWindow').css({"display":"block"});
+		ajaxAllInitializationChats();
+	}
+	else
+		$('.modalSwitchingWindow').css({"display":"none"});
+});
+
+function getAllChat(data){
+	let messagesStep=20;
+	$(".modalSwitchingWindowBody").html("");
+	let idRowListChats=$("<tr/>");
+	idRowListChats.attr("id",0);
+	let numUnredaMes=$("<td/>").attr("class","readMes");
+	idRowListChats.append($("<td/>"));
+	idRowListChats.append(numUnredaMes);
+	for(let i=0;i<data.length;i++){
+		let cloneIdRowListChats=idRowListChats.clone();
+		cloneIdRowListChats.attr("id",data[i].processId);
+		cloneIdRowListChats.click(function(){
+			chatSocket.close();
+			newMessageIndex=0;
+			oldMessagesIndex = -1;
+			minMassageId = -1;
+			maxMassageId = -1;
+			currentMessageId = -1;
+			numberNewMessages = 0;
+			blocOldMes=0;
+			attachedPosts=[];
+			$("#messReplyTable").remove();
+			$(".selectionTextQuote").remove();
+			$("#ChatForm").attr("processId",data[i].processId);
+			ajaxInitializationChat();
+			if(numberNewMessages>0){
+				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx('padding'));
+			}
+			else{
+				newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
+			}
+		});
+		cloneIdRowListChats.children().first().append("processId "+data[i].processId);
+		cloneIdRowListChats.children(".readMes").append(data[i].countMessage);
+		cloneIdRowListChats.children(".readMes").attr("id","numberNewMessages"+data[i].processId)
+		if(data[i].countMessage>0){
+			if(data[i].isMention===true){
+				cloneIdRowListChats.children(".readMes").attr("class","isMentionChats");
+			}
+			else{
+				cloneIdRowListChats.children(".readMes").attr("class","newMessagesChatClass");
+			}
+		}
+		else{
+			cloneIdRowListChats.children(".readMes").attr("class","noNewMessagesChatClass");
+		}
+		$(".modalSwitchingWindowBody").append(cloneIdRowListChats);
+	}
+
+}
+
+function ajaxInitializationChat(){
+	let urlString = "/wfe/ajaxcmd?command=ChatInitialize&processId=" + $("#ChatForm").attr("processId") + "&messageCount=" + messagesStep;
+	$.ajax({
+		type: "POST",
+		url: urlString,
+		dataType: "json",
+		contentType: "application/json; charset=UTF-8",
+		processData: false,
+		success: function(data) {
+			let reSwitchCheak=switchCheak;
+			switchCheak=0;
+			currentMessageId = data.lastMessageId;
+			addMessages(data.messages[0]);
+			$("#modal-body").scrollTop(0);
+			for(let i=1; i<data.messages.length; i++){
+				addMessages(data.messages[i]);
+			}
+			
+			if(numberNewMessages == 0){
+				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
+				updatenumberNewMessages(0);
+			}
+			chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + $("#ChatForm").attr("processId");
+			chatSocket = new WebSocket(chatSocketURL);
+			chatSocket.onmessage = onMessage;
+			//действия при открытии сокета
+			chatSocket.onopen=function(){
+				lockFlag=false;
+			}
+
+			//действия при закрытии сокета
+			chatSocket.onclose = function(){
+				lockFlag=true;
+			}
+			//скролл к непрочитанным
+			//установка скрол-функции отслеживания непрочитанных
+			$("#modal-body").bind("load scroll", scrollNewMessages);
+
+			switchCheak=reSwitchCheak;
+			if(switchCheak==1){
+				openChat();
+			}
+		}
+	});
+}
+
+function ajaxAllInitializationChats(){
+	let urlString = "/wfe/ajaxcmd?command=SwitchChatsInitialize";
+	$.ajax({
+		type: "POST",
+		url: urlString,
+		dataType: "json",
+		contentType: "application/json; charset=UTF-8",
+		processData: false,
+		success: function(data) {
+			getAllChat(data);
+			chatsNewMessSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
+			chatsNewMessSocket = new WebSocket(chatsNewMessSocketURL);
+			chatsNewMessSocket.onmessage = onChatsNewMessSocketMessage;
+			//действия при открытии сокета
+			chatsNewMessSocket.onopen=function(){
+			}
+			//действия при закрытии сокета
+			chatsNewMessSocket.onclose = function(){
+			}
+		}
+});
+}
+
+//обработка сообщений для сокета "новых сообщений (chatsNewMessSocket)"
+function onChatsNewMessSocketMessage(event){
+	let message0 = JSON.parse(event.data);
+	if(message0.messType == "newMessage"){
+		$("#numberNewMessages"+message0.processId).text(Number.parseInt($("#numberNewMessages"+message0.processId).text()) + 1);
+		if(message0.mentioned == true){
+			$("#numberNewMessages"+message0.processId).attr("class","isMentionChats");
+		}
+	}
+}
 // конец
 });

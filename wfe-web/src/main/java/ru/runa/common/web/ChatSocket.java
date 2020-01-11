@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 @ApplicationScoped
@@ -121,29 +123,15 @@ public class ChatSocket {
         if (newMessage.getHaveFiles() == true) {
             newMessage.setActive(false);
         }
-        // сейв в БД
-        long newMessId = Delegates.getChatService().saveChatMessage(newMessage.getProcessId(), newMessage);
-        newMessage.setId(newMessId);
-        // отправка по чату всем:
-        if (newMessage.getHaveFiles() == false) {
-            JSONObject sendObject = convertMessage(newMessage, false);
-            if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
-                sessionHandler.sendToChats(sendObject, newMessage.getProcessId(), newMessage.getActor());
-            } else {
-                sessionHandler.sendToChats(sendObject, newMessage.getProcessId());
-            }
-        } else {// если есть файлы, то откладываем отправку до их дозагрузки
-            JSONObject sendObject = new JSONObject();
-            sendObject.put("messType", "nextStepLoadFile");
-            sendObject.put("messageId", newMessage.getId());
-            sessionHandler.sendToSession(session, sendObject);
-        }
+        //
         // разссылка пользователям @user
         int dogIndex = -1;
         int spaceIndex = -1;
         String login;
         String serchText = newMessage.getText();
-        Actor actor;
+        // Actor actor;
+        Executor actor;
+        HashSet<Actor> mentionedActors = new HashSet<Actor>();
         while (true) {
             dogIndex = serchText.indexOf('@', dogIndex + 1);
             if (dogIndex != -1) {
@@ -154,19 +142,40 @@ public class ChatSocket {
                     login = serchText.substring(dogIndex + 1);
                 }
                 try {
-                    actor = Delegates.getExecutorService().getActorCaseInsensitive(login);
+                    // actor = Delegates.getExecutorService().getActorCaseInsensitive(login);
+                    actor = Delegates.getExecutorService().getExecutorByName(((User) session.getUserProperties().get("user")), login);
                 } catch (Exception e) {
                     actor = null;
                 }
                 if (actor != null) {
+                    newMessage.getMentionedExecutors().add(actor);
+                    mentionedActors.add((Actor) actor);
                     // отправка по почте
-                    Delegates.getChatService().sendMessageToEmail(
-                            "вам сообщение от " + newMessage.getActor().getName() + " в чате №" + newMessage.getProcessId() + " в RunaWFE",
-                            newMessage.getText() + "\n это автоматическое сообщение, на него отвечать не нужно", actor.getEmail());
+                    // Delegates.getChatService().sendMessageToEmail(
+                    // "вам сообщение от " + newMessage.getActor().getName() + " в чате №" + newMessage.getProcessId() + " в RunaWFE",
+                    // newMessage.getText() + "\n это автоматическое сообщение, на него отвечать не нужно", actor.getEmail());
                 }
             } else {
                 break;
             }
+        }
+        // сейв в БД
+        long newMessId = Delegates.getChatService().saveChatMessage(newMessage.getProcessId(), newMessage);
+        newMessage.setId(newMessId);
+        //
+        // отправка по чату всем:
+        if (newMessage.getHaveFiles() == false) {
+            JSONObject sendObject1 = convertMessage(newMessage, false);
+            sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getActor(), mentionedActors);
+            JSONObject sendObject2 = new JSONObject();
+            sendObject2.put("processId", newMessage.getProcessId());
+            sendObject2.put("messType", "newMessage");
+            sessionHandler.sendOnlyNewMessagesSessions(sendObject2, newMessage.getProcessId(), newMessage.getActor(), mentionedActors);
+        } else {// если есть файлы, то откладываем отправку до их дозагрузки
+            JSONObject sendObject = new JSONObject();
+            sendObject.put("messType", "nextStepLoadFile");
+            sendObject.put("messageId", newMessage.getId());
+            sessionHandler.sendToSession(session, sendObject);
         }
     }
 

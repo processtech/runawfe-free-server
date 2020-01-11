@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
@@ -15,6 +16,23 @@ import ru.runa.wfe.user.QActor;
 @Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ChatDao extends GenericDao<ChatMessage> {
+
+    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
+        QChatsUserInfo cui = QChatsUserInfo.chatsUserInfo;
+        QChatMessage m = QChatMessage.chatMessage;
+        List<Long> ret = new ArrayList<Long>();
+        for (int i = 0; i < chatsIds.size(); i++) {
+            ChatsUserInfo userI = queryFactory.selectFrom(cui).where(cui.actor.eq(user).and(cui.processId.eq(chatsIds.get(i)))).fetchFirst();
+            if (userI == null) {
+                userI = getUserInfo(user, chatsIds.get(i));
+            }
+            Long lastMesId = userI.getLastMessageId();
+
+            ret.add(queryFactory.selectFrom(m).where(m.processId.eq(chatsIds.get(i)).and(m.active.eq(true)).and(m.id.gt(lastMesId))).fetchCount());
+            isMentions.add(true);
+        }
+        return ret;
+    }
 
     public ChatsUserInfo getUserInfo(Actor actor, Long processId) {
         QChatsUserInfo cui = QChatsUserInfo.chatsUserInfo;

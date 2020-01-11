@@ -16,6 +16,11 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     private ChatService getChatService() {
         return getService();
     }
+
+    @Override
+    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
+        return getChatService().getNewMessagesCounts(chatsIds, isMentions, user);
+    }
 	
 	@Override
     public boolean sendMessageToEmail(String title, String message, String Emaile) {
@@ -106,5 +111,6 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     public long saveChatMessage(Long processId, ChatMessage message) {
         return getChatService().saveChatMessage(processId, message);
     }
+
 
 }

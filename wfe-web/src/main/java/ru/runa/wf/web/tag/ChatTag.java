@@ -35,13 +35,13 @@ public class ChatTag extends SecuredObjectFormTag {
     }
     
     public Long getProcessId() {
-		return processId;
-	}
+        return processId;
+    }
 
-	@Attribute(required = false, rtexprvalue = true)
+    @Attribute(required = false, rtexprvalue = true)
     public void setProcessId(Long processId) {
-		this.processId = processId;
-	}
+        this.processId = processId;
+    }
 
     @Override
     protected void fillFormData(TD tdFormElement) {
@@ -243,6 +243,23 @@ public class ChatTag extends SecuredObjectFormTag {
         //modalSetting.addElement(modalHeaderSetting);
         modalSetting.addElement(modalBodySetting);
         modalSetting.addElement(modalFooterSetting);
+
+        Div modalSwitchingWindow = new Div();
+        modalSwitchingWindow.setClass("modalSwitchingWindow");
+        Div modalSwitchingWindowHeader = new Div();
+        Div modalSwitchingWindowBody = new Div();
+        modalSwitchingWindowBody.setClass("modalSwitchingWindowBody");
+        modalSwitchingWindowHeader.setClass("modalSwitchingWindowHeader");
+        modalSwitchingWindow.addElement(modalSwitchingWindowHeader);
+        modalSwitchingWindow.addElement(modalSwitchingWindowBody);
+
+        Button modalSwitchingWindowButton = new Button();
+        modalSwitchingWindowButton.setType("button");
+        modalSwitchingWindowButton.addElement("Переключиться на другой чат");
+        modalSwitchingWindowButton.setClass("modalSwitchingWindowButton");
+
+        tdFormElement.addElement(modalSwitchingWindowButton);
+        tdFormElement.addElement(modalSwitchingWindow);
         tdFormElement.addElement(modalSetting);
         tdFormElement.addElement(newMessagesIndicator);
         tdFormElement.addElement(box);
