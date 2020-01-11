@@ -1,6 +1,7 @@
 package ru.runa.wfe.service.impl;
 
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -20,6 +21,7 @@ import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Executor;
 
 @Stateless(name = "ChatServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -33,6 +35,18 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
+    public List<Long> getActiveChatIds(Actor user) {
+        return chatLogic.getActiveChatIds(user);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public Set<Executor> getAllUsers(Long processId, Actor user) {
+        return chatLogic.getAllUsers(processId, user);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
         return chatLogic.getNewMessagesCounts(chatsIds, isMentions, user);
     }
@@ -41,12 +55,6 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @Override
     public boolean sendMessageToEmail(String title, String message, String Emaile) {
         return chatLogic.sendMessageToEmail(title, message, Emaile);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public List<Actor> getAllUsersNamesForChat(Long processId) {
-        return chatLogic.getAllUsersNames(processId);
     }
 
     @WebMethod(exclude = true)

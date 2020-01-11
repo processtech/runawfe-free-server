@@ -32,7 +32,7 @@ public class ChatMessage {
     private Boolean isPrivate = true;
 
     @Transient
-    private List<Executor> mentionedExecutors;
+    private List<Executor> mentionedExecutors = new ArrayList<Executor>();
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -116,11 +116,11 @@ public class ChatMessage {
     @ManyToOne
     @JoinColumn(name = "CREATE_ACTOR_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_EXECUTOR_ID")
-    public Actor getActor() {
+    public Actor getCreateActor() {
         return createActor;
     }
 
-    public void setActor(Actor createActor) {
+    public void setCreateActor(Actor createActor) {
         this.createActor = createActor;
     }
 

@@ -1,21 +1,30 @@
 package ru.runa.wfe.chat.dao;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.ChatRecipient;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageFile;
+import ru.runa.wfe.chat.QChatRecipient;
 import ru.runa.wfe.chat.QChatsUserInfo;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.QActor;
+import ru.runa.wfe.user.Executor;
 
 @Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ChatDao extends GenericDao<ChatMessage> {
+
+    public List<Long> getActiveChatIds(Actor user) {
+        QChatRecipient cr = QChatRecipient.chatRecipient;
+        return queryFactory.select(cr.messageId.processId).from(cr).where(cr.executorId.eq(user.getId())).distinct().fetch();
+    }
 
     public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
         QChatsUserInfo cui = QChatsUserInfo.chatsUserInfo;
@@ -94,7 +103,27 @@ public class ChatDao extends GenericDao<ChatMessage> {
     }
 
     public long save(ChatMessage message) {
-        return create(message).getId();
+        Long mesId = create(message).getId();
+        for (Executor executor : message.getMentionedExecutors()) {
+            if (executor.getClass() == Actor.class) {
+                ChatRecipient messagePermission = new ChatRecipient(message, executor.getId(), true);
+                sessionFactory.getCurrentSession().save(messagePermission);
+            }
+        }
+        return mesId;
+    }
+
+    public long save(ChatMessage message, Set<Executor> executors) {
+        Long mesId = create(message).getId();
+        Set<Executor> mentionedExecutors = new HashSet<Executor>(message.getMentionedExecutors());
+        for (Executor executor : executors) {
+            if (executor.getClass() == Actor.class) {
+                ChatRecipient messagePermission;
+                messagePermission = new ChatRecipient(message, executor.getId(), mentionedExecutors.contains(executor));
+                sessionFactory.getCurrentSession().save(messagePermission);
+            }
+        }
+        return mesId;
     }
 
     public long getMessagesCount(Long processId) {
@@ -129,11 +158,6 @@ public class ChatDao extends GenericDao<ChatMessage> {
     public void updateMessage(ChatMessage message) {
         QChatMessage mes = QChatMessage.chatMessage;
         sessionFactory.getCurrentSession().merge(message);
-    }
-
-    public List<Actor> getAllUsersNames(Long processId) {
-        QActor a = QActor.actor;
-        return queryFactory.selectFrom(a).fetch();
     }
 
 }

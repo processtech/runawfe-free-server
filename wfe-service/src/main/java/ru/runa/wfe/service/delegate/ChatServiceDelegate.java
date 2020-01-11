@@ -1,11 +1,13 @@
 package ru.runa.wfe.service.delegate;
 
 import java.util.List;
+import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Executor;
 
 public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
 
@@ -18,6 +20,16 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
+    public List<Long> getActiveChatIds(Actor user) {
+        return getChatService().getActiveChatIds(user);
+    }
+
+    @Override
+    public Set<Executor> getAllUsers(Long processId, Actor user) {
+        return getChatService().getAllUsers(processId, user);
+    }
+
+    @Override
     public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
         return getChatService().getNewMessagesCounts(chatsIds, isMentions, user);
     }
@@ -25,11 +37,6 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
 	@Override
     public boolean sendMessageToEmail(String title, String message, String Emaile) {
         return getChatService().sendMessageToEmail(title, message, Emaile);
-    }
-
-    @Override
-    public List<Actor> getAllUsersNamesForChat(Long processId) {
-        return getChatService().getAllUsersNamesForChat(processId);
     }
 
     @Override

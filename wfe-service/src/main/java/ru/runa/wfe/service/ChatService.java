@@ -1,10 +1,12 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
+import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Executor;
 
 /**
  * Chat service.
@@ -13,6 +15,10 @@ import ru.runa.wfe.user.Actor;
  * @since ___
  */
 public interface ChatService {
+
+    public List<Long> getActiveChatIds(Actor user);
+
+    public Set<Executor> getAllUsers(Long processId, Actor user);
 
     /**
      * 
@@ -37,15 +43,6 @@ public interface ChatService {
      * @return sends an email (chat emaile - chat.properties)
      */
     public boolean sendMessageToEmail(String title, String message, String Emaile);
-
-    /**
-     * get all users names for this chat
-     *
-     * @param processId
-     *            chat id
-     * @return List<Actor> or <code>null</code>
-     */
-    public List<Actor> getAllUsersNamesForChat(Long processId);
 
     /**
      * merge message in DB

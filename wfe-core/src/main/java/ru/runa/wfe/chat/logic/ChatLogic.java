@@ -1,8 +1,11 @@
 package ru.runa.wfe.chat.logic;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -16,11 +19,40 @@ import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
+import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Executor;
 
 public class ChatLogic extends WfCommonLogic {
 
     private Properties properties = ClassLoaderUtil.getProperties("chat.properties", true);
+
+    public List<Long> getActiveChatIds(Actor user) {
+        List<Long> ret = chatDao.getActiveChatIds(user);
+        if (ret == null) {
+            ret = new ArrayList<Long>();
+        }
+        return ret;
+    }
+
+    public Set<Executor> getAllUsers(Long processId, Actor user) {
+        Set<Executor> ret = new HashSet<Executor>();
+        // выбираем таски
+        List<Task> tasks = Lists.newArrayList();
+        Process process = processDao.getNotNull(processId);
+        tasks.addAll(taskDao.findByProcess(process));
+        List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
+        for (Process subprocess : subprocesses) {
+            tasks.addAll(taskDao.findByProcess(subprocess));
+        }
+        // собираем юзеров
+        for(Task task : tasks) {
+            ret.addAll(executorDao.getActors(new ArrayList<Long>(task.getOpenedByExecutorIds())));
+        }
+        //
+        return ret;
+    }
 
     public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
         return chatDao.getNewMessagesCounts(chatsIds, isMentions, user);
@@ -59,7 +91,13 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public long saveMessage(Long processId, ChatMessage message) {
-        return chatDao.save(message);
+        if (!message.getIsPrivate()) {
+            Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
+            return chatDao.save(message, executors);
+        }
+        else {
+            return chatDao.save(message);
+        }
     }
 
     public long getAllMessagesCount(Long processId) {
@@ -89,13 +127,6 @@ public class ChatLogic extends WfCommonLogic {
 
     public boolean canEditMessage(Actor user) {
         return true;
-    }
-
-    public List<Actor> getAllUsersNames(Long processId) {
-        //return chatDao.getAllUsersNames(processId);
-        List<Actor> ret = new ArrayList<Actor>();
-        ;
-        return ret;
     }
 
     public boolean sendMessageToEmail(String title, String message, String Emaile) {

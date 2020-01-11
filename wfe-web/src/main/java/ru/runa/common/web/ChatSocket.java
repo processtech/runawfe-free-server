@@ -82,9 +82,9 @@ public class ChatSocket {
                 message0.setActive(true);
                 Delegates.getChatService().updateChatMessage(message0);
             }
-            if (Delegates.getChatService().canEditMessage(message0.getActor())) {
+            if (Delegates.getChatService().canEditMessage(message0.getCreateActor())) {
                 sessionHandler.sendToChats(convertMessage(message0, false), Long.parseLong((String) objectMessage.get("processId")),
-                        message0.getActor());
+                        message0.getCreateActor());
             } else {
                 sessionHandler.sendToChats(convertMessage(message0, false), Long.parseLong((String) objectMessage.get("processId")));
             }
@@ -99,7 +99,7 @@ public class ChatSocket {
     void addNewMessage(Session session, JSONObject objectMessage) throws IOException {
         ChatMessage newMessage = new ChatMessage();
         // юзер
-        newMessage.setActor(((User) session.getUserProperties().get("user")).getActor());
+        newMessage.setCreateActor(((User) session.getUserProperties().get("user")).getActor());
         // текст
         newMessage.setText((String) objectMessage.get("message"));
         // иерархия сообщений
@@ -142,7 +142,6 @@ public class ChatSocket {
                     login = serchText.substring(dogIndex + 1);
                 }
                 try {
-                    // actor = Delegates.getExecutorService().getActorCaseInsensitive(login);
                     actor = Delegates.getExecutorService().getExecutorByName(((User) session.getUserProperties().get("user")), login);
                 } catch (Exception e) {
                     actor = null;
@@ -166,11 +165,11 @@ public class ChatSocket {
         // отправка по чату всем:
         if (newMessage.getHaveFiles() == false) {
             JSONObject sendObject1 = convertMessage(newMessage, false);
-            sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getActor(), mentionedActors);
+            sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors);
             JSONObject sendObject2 = new JSONObject();
             sendObject2.put("processId", newMessage.getProcessId());
             sendObject2.put("messType", "newMessage");
-            sessionHandler.sendOnlyNewMessagesSessions(sendObject2, newMessage.getProcessId(), newMessage.getActor(), mentionedActors);
+            sessionHandler.sendOnlyNewMessagesSessions(sendObject2, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors);
         } else {// если есть файлы, то откладываем отправку до их дозагрузки
             JSONObject sendObject = new JSONObject();
             sendObject.put("messType", "nextStepLoadFile");
@@ -197,7 +196,7 @@ public class ChatSocket {
         if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
             for (ChatMessage newMessage : messages) {
                 JSONObject sendObject = convertMessage(newMessage, true);
-                if (newMessage.getActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
+                if (newMessage.getCreateActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
                     sendObject.put("coreUser", true);
                 }
                 sessionHandler.sendToSession(session, sendObject);
@@ -238,7 +237,7 @@ public class ChatSocket {
             String newText = (String) objectMessage.get("message");
             ChatMessage newMessage = Delegates.getChatService().getChatMessage(editMessageId);
             if ((newMessage != null)) {
-                if (newMessage.getActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
+                if (newMessage.getCreateActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
                     newMessage.setText(newText);
                     Delegates.getChatService().updateChatMessage(newMessage);
                     // рассылка обновления сообщения
