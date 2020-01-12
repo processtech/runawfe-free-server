@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.service.ChatService;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.User;
 
 public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
 
@@ -20,103 +19,103 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<Long> getActiveChatIds(Actor user) {
+    public void readMessage(User user, Long messageId) {
+        getChatService().readMessage(user, messageId);
+    }
+
+    @Override
+    public Long getLastReadMessage(User user, Long processId) {
+        return getChatService().getLastReadMessage(user, processId);
+    }
+
+    @Override
+    public List<Long> getActiveChatIds(User user) {
         return getChatService().getActiveChatIds(user);
     }
 
     @Override
-    public Set<Executor> getAllUsers(Long processId, Actor user) {
-        return getChatService().getAllUsers(processId, user);
+    public Set<Executor> getAllUsers(User user, Long processId) {
+        return getChatService().getAllUsers(user, processId);
     }
 
     @Override
-    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
-        return getChatService().getNewMessagesCounts(chatsIds, isMentions, user);
+    public List<Long> getNewMessagesCounts(User user, List<Long> processIds, List<Boolean> isMentions) {
+        return getChatService().getNewMessagesCounts(user, processIds, isMentions);
     }
 	
 	@Override
-    public boolean sendMessageToEmail(String title, String message, String Emaile) {
-        return getChatService().sendMessageToEmail(title, message, Emaile);
+    public boolean sendMessageToEmail(User user, String title, String message, String Emaile) {
+        return getChatService().sendMessageToEmail(user, title, message, Emaile);
     }
 
     @Override
-    public void updateChatMessage(ChatMessage message) {
-    	getChatService().updateChatMessage(message);
+    public void updateChatMessage(User user, ChatMessage message) {
+        getChatService().updateChatMessage(user, message);
     }
 
     @Override
-    public boolean canEditMessage(Actor user) {
+    public boolean canEditMessage(User user) {
         return getChatService().canEditMessage(user);
     }
 
     @Override
-    public List<ChatMessageFile> getChatMessageFiles(ChatMessage message) {
-        return getChatService().getChatMessageFiles(message);
+    public List<ChatMessageFile> getChatMessageFiles(User user, ChatMessage message) {
+        return getChatService().getChatMessageFiles(user, message);
     }
 
     @Override
-    public ChatMessageFile getChatMessageFile(Long fileId) {
-        return getChatService().getChatMessageFile(fileId);
+    public ChatMessageFile getChatMessageFile(User user, Long fileId) {
+        return getChatService().getChatMessageFile(user, fileId);
     }
 
     @Override
-    public ChatMessageFile saveChatMessageFile(ChatMessageFile file) {
-        return getChatService().saveChatMessageFile(file);
+    public ChatMessageFile saveChatMessageFile(User user, ChatMessageFile file) {
+        return getChatService().saveChatMessageFile(user, file);
     }
 
     @Override
-    public List<ChatMessage> getChatMessages(Long processId) {
-        return getChatService().getChatMessages(processId);
+    public List<ChatMessage> getChatMessages(User user, Long processId) {
+        return getChatService().getChatMessages(user, processId);
     }
 
     @Override
-    public List<ChatMessage> getNewChatMessages(Long processId, Long lastId) {
-        return getChatService().getNewChatMessages(processId, lastId);
+    public List<ChatMessage> getNewChatMessages(User user, Long processId) {
+        return getChatService().getNewChatMessages(user, processId);
     }
 
     @Override
-    public ChatMessage getChatMessage(Long messageId) {
-        return getChatService().getChatMessage(messageId);
+    public ChatMessage getChatMessage(User user, Long messageId) {
+        return getChatService().getChatMessage(user, messageId);
     }
 
     @Override
-    public List<ChatMessage> getChatMessages(Long processId, Long firstId, int count) {
-        return getChatService().getChatMessages(processId, firstId, count);
+    public List<ChatMessage> getChatMessages(User user, Long processId, Long firstId, int count) {
+        return getChatService().getChatMessages(user, processId, firstId, count);
     }
 
     @Override
-    public List<ChatMessage> getFirstChatMessages(Long processId, int count) {
-        return getChatService().getFirstChatMessages(processId, count);
+    public List<ChatMessage> getFirstChatMessages(User user, Long processId, int count) {
+        return getChatService().getFirstChatMessages(user, processId, count);
     }
 
     @Override
-    public void deleteChatMessage(Long messId) {
-    	getChatService().deleteChatMessage(messId);
+    public void deleteChatMessage(User user, Long messId) {
+        getChatService().deleteChatMessage(user, messId);
     }
 
     @Override
-    public ChatsUserInfo getChatUserInfo(Actor actor, Long processId) {
-        return getChatService().getChatUserInfo(actor, processId);
+    public long getNewChatMessagesCount(User user, Long processId) {
+        return getChatService().getNewChatMessagesCount(user, processId);
     }
 
     @Override
-    public long getNewChatMessagesCount(Long lastMessageId, Long processId) {
-        return getChatService().getNewChatMessagesCount(lastMessageId, processId);
+    public long getAllChatMessagesCount(User user, Long processId) {
+        return getChatService().getAllChatMessagesCount(user, processId);
     }
 
     @Override
-    public void updateChatUserInfo(Actor actor, Long processId, Long lastMessageId) {
-        getChatService().updateChatUserInfo(actor, processId, lastMessageId);
-    }
-
-    @Override
-    public long getAllChatMessagesCount(Long processId) {
-        return getChatService().getAllChatMessagesCount(processId);
-    }
-
-    @Override
-    public long saveChatMessage(Long processId, ChatMessage message) {
-        return getChatService().saveChatMessage(processId, message);
+    public long saveChatMessage(User user, Long processId, ChatMessage message) {
+        return getChatService().saveChatMessage(user, processId, message);
     }
 
 

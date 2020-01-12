@@ -17,12 +17,12 @@ public class GetHierarhyLevelAjax extends JsonAjaxCommand {
         String processId = request.getParameter("processId");
         String messageId = request.getParameter("messageId");
         JSONObject outputObject = new JSONObject();
-        ChatMessage coreMessage = Delegates.getChatService().getChatMessage(Long.parseLong(messageId));
+        ChatMessage coreMessage = Delegates.getChatService().getChatMessage(user, Long.parseLong(messageId));
         List<Long> coreMessageHierarhy = coreMessage.getQuotedMessageIdsArray();
         if (coreMessageHierarhy.size() > 0) {
             JSONArray messagesArrayObject = new JSONArray();
             for (int i = 0; i < coreMessageHierarhy.size(); i++) {
-                ChatMessage attachedMessage = Delegates.getChatService().getChatMessage(coreMessageHierarhy.get(i));
+                ChatMessage attachedMessage = Delegates.getChatService().getChatMessage(user, coreMessageHierarhy.get(i));
                 JSONObject attachedMesObject = new JSONObject();
                 if (attachedMessage != null) {
                     attachedMesObject.put("id", attachedMessage.getId());

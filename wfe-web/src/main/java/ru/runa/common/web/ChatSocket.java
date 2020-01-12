@@ -22,7 +22,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -64,25 +63,24 @@ public class ChatSocket {
             break;
         case "deleteMessage":
             if (Delegates.getExecutorService().isAdministrator((User) session.getUserProperties().get("user"))) {
-                Delegates.getChatService().deleteChatMessage(Long.parseLong((String) objectMessage.get("messageId")));
+                Delegates.getChatService().deleteChatMessage((User) session.getUserProperties().get("user"),
+                        Long.parseLong((String) objectMessage.get("messageId")));
             }
             break;
-        case "getChatUserInfo":
-            getChatUserInfo(session, objectMessage);
-            break;
-        case "setChatUserInfo":
-            setChatUserInfo(session, objectMessage);
+        case "readMessage":
+            readMessage(session, objectMessage);
             break;
         case "editMessage":
             editMessage(session, objectMessage);
             break;
         case "sendToChat":
-            ChatMessage message0 = Delegates.getChatService().getChatMessage((Long) objectMessage.get("messageId"));
+            ChatMessage message0 = Delegates.getChatService().getChatMessage((User) session.getUserProperties().get("user"),
+                    (Long) objectMessage.get("messageId"));
             if(message0.getActive() == false) {
                 message0.setActive(true);
-                Delegates.getChatService().updateChatMessage(message0);
+                Delegates.getChatService().updateChatMessage((User) session.getUserProperties().get("user"), message0);
             }
-            if (Delegates.getChatService().canEditMessage(message0.getCreateActor())) {
+            if (Delegates.getChatService().canEditMessage((User) session.getUserProperties().get("user"))) {
                 sessionHandler.sendToChats(convertMessage(message0, false), Long.parseLong((String) objectMessage.get("processId")),
                         message0.getCreateActor());
             } else {
@@ -159,7 +157,8 @@ public class ChatSocket {
             }
         }
         // сейв в БД
-        long newMessId = Delegates.getChatService().saveChatMessage(newMessage.getProcessId(), newMessage);
+        long newMessId = Delegates.getChatService().saveChatMessage((User) session.getUserProperties().get("user"), newMessage.getProcessId(),
+                newMessage);
         newMessage.setId(newMessId);
         //
         // отправка по чату всем:
@@ -182,18 +181,14 @@ public class ChatSocket {
     void getMessages(Session session, JSONObject objectMessage) throws IOException {
         int countMessages = ((Long) objectMessage.get("Count")).intValue();
         Long lastMessageId = ((Long) objectMessage.get("lastMessageId"));
+        Long processId = Long.parseLong((String) objectMessage.get("processId"));
         List<ChatMessage> messages;
-        if (lastMessageId != -1) {
-            messages = Delegates.getChatService().getChatMessages(Long.parseLong((String) objectMessage.get("processId")), lastMessageId,
-                    countMessages);
-        } else {// если это первые сообщения после открытия чата/чат оказался пуст
-            Long processId = Long.parseLong((String) objectMessage.get("processId"));
-            ChatsUserInfo chatUserInfo = Delegates.getChatService().getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
-                    processId);
-            messages = Delegates.getChatService().getChatMessages(Long.parseLong((String) objectMessage.get("processId")),
-                    chatUserInfo.getLastMessageId(), Integer.MAX_VALUE);
+        if(lastMessageId < 0) {
+            lastMessageId = Delegates.getChatService().getLastReadMessage((User) session.getUserProperties().get("user"), processId);
         }
-        if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
+        messages = Delegates.getChatService().getChatMessages((User) session.getUserProperties().get("user"), processId, lastMessageId,
+                countMessages);
+        if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")))) {
             for (ChatMessage newMessage : messages) {
                 JSONObject sendObject = convertMessage(newMessage, true);
                 if (newMessage.getCreateActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
@@ -213,33 +208,21 @@ public class ChatSocket {
     }
 
     //
-    void getChatUserInfo(Session session, JSONObject objectMessage) throws IOException {
-        Long processId = Long.parseLong((String) objectMessage.get("processId"));
-        ChatsUserInfo userInfo = Delegates.getChatService().getChatUserInfo(((User) session.getUserProperties().get("user")).getActor(), processId);
-        JSONObject sendObject = new JSONObject();
-        sendObject.put("messType", "ChatUserInfo");
-        sendObject.put("numberNewMessages", Delegates.getChatService().getNewChatMessagesCount(userInfo.getLastMessageId(), processId));
-        sendObject.put("lastMessageId", userInfo.getLastMessageId());
-        sessionHandler.sendToSession(session, sendObject);
-    }
-
-    //
-    void setChatUserInfo(Session session, JSONObject objectMessage) throws IOException {
-        long currentMessageId = Long.parseLong((String) objectMessage.get("currentMessageId"));
-        Delegates.getChatService().updateChatUserInfo(((User) session.getUserProperties().get("user")).getActor(),
-                Long.parseLong((String) objectMessage.get("processId")), currentMessageId);
+    void readMessage(Session session, JSONObject objectMessage) throws IOException {
+        Long currentMessageId = Long.parseLong((String) objectMessage.get("currentMessageId"));
+        Delegates.getChatService().readMessage(((User) session.getUserProperties().get("user")), currentMessageId);
     }
 
     //
     void editMessage(Session session, JSONObject objectMessage) throws IOException {
-        if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")).getActor())) {
+        if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")))) {
             Long editMessageId = Long.parseLong((String) objectMessage.get("editMessageId"));
             String newText = (String) objectMessage.get("message");
-            ChatMessage newMessage = Delegates.getChatService().getChatMessage(editMessageId);
+            ChatMessage newMessage = Delegates.getChatService().getChatMessage((User) session.getUserProperties().get("user"), editMessageId);
             if ((newMessage != null)) {
                 if (newMessage.getCreateActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
                     newMessage.setText(newText);
-                    Delegates.getChatService().updateChatMessage(newMessage);
+                    Delegates.getChatService().updateChatMessage((User) session.getUserProperties().get("user"), newMessage);
                     // рассылка обновления сообщения
                     JSONObject responseMessage = new JSONObject();
                     responseMessage.put("messType", "editMessage");
@@ -250,6 +233,7 @@ public class ChatSocket {
             }
         }
     }
+
     // отправка сообщения, old - старые сообщения, которые отобразятся сверху
     static public JSONObject convertMessage(ChatMessage message, Boolean old) {
         JSONObject sendObject = new JSONObject();
@@ -261,7 +245,7 @@ public class ChatSocket {
         messageObject.put("author", message.getUserName());
         if (message.getHaveFiles() == true) {
             // индексы файлов
-            List<ChatMessageFile> filesArray = Delegates.getChatService().getChatMessageFiles(message);
+            List<ChatMessageFile> filesArray = Delegates.getChatService().getChatMessageFiles(null, message);
             if (filesArray.size() > 0) {
                 messageObject.put("haveFile", true);
                 JSONArray filesArrayObject = new JSONArray();

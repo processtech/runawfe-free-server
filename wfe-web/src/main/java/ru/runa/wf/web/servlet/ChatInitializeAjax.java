@@ -7,7 +7,6 @@ import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
 import ru.runa.common.web.ChatSocket;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -18,18 +17,17 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         Long processId = Long.parseLong(request.getParameter("processId"));
         Integer countMessages = Integer.parseInt(request.getParameter("messageCount"));
         JSONObject outputObject = new JSONObject();
-        ChatsUserInfo chatUserInfo = Delegates.getChatService().getChatUserInfo(user.getActor(), processId);
+        Long lastMessageId = Delegates.getChatService().getLastReadMessage(user, processId);
         List<ChatMessage> messages;
         JSONArray messagesArrayObject = new JSONArray();
-        outputObject.put("lastMessageId", chatUserInfo.getLastMessageId());
-        messages = Delegates.getChatService().getNewChatMessages(processId, chatUserInfo.getLastMessageId());
+        outputObject.put("lastMessageId", lastMessageId);
+        messages = Delegates.getChatService().getNewChatMessages(user, processId);
         if (messages.size() > 0) {
             JSONObject messageObject = ChatSocket.convertMessage(messages.get(0), true);
             if (messages.get(0).getCreateActor().equals(user.getActor())) {
                 messageObject.put("coreUser", true);
             }
             messagesArrayObject.add(messageObject);
-
             for (int i = 1; i < messages.size(); i++) {
                 messageObject = ChatSocket.convertMessage(messages.get(i), false);
                 if (messages.get(i).getCreateActor().equals(user.getActor())) {
@@ -39,7 +37,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
             }
         }
         if (messages.size() < countMessages) {// дополняем старыми
-            messages = Delegates.getChatService().getChatMessages(processId, chatUserInfo.getLastMessageId(), countMessages - messages.size());
+            messages = Delegates.getChatService().getChatMessages(user, processId, lastMessageId, countMessages - messages.size());
             for (int i = 0; i < messages.size(); i++) {
                 JSONObject messageObject = ChatSocket.convertMessage(messages.get(i), true);
                 if (messages.get(i).getCreateActor().equals(user.getActor())) {

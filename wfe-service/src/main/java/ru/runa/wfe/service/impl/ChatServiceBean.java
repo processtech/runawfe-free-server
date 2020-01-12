@@ -13,15 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.User;
 
 @Stateless(name = "ChatServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -35,121 +34,121 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public List<Long> getActiveChatIds(Actor user) {
-        return chatLogic.getActiveChatIds(user);
+    public void readMessage(User user, Long messageId) {
+        chatLogic.readMessage(user.getActor(), messageId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public Set<Executor> getAllUsers(Long processId, Actor user) {
-        return chatLogic.getAllUsers(processId, user);
+    public Long getLastReadMessage(User user, Long processId) {
+        return chatLogic.getLastReadMessage(user.getActor(), processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
-        return chatLogic.getNewMessagesCounts(chatsIds, isMentions, user);
+    public List<Long> getActiveChatIds(User user) {
+        return chatLogic.getActiveChatIds(user.getActor());
     }
 
     @WebMethod(exclude = true)
     @Override
-    public boolean sendMessageToEmail(String title, String message, String Emaile) {
+    public Set<Executor> getAllUsers(User user, Long processId) {
+        return chatLogic.getAllUsers(processId, user.getActor());
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public List<Long> getNewMessagesCounts(User user, List<Long> processIds, List<Boolean> isMentions) {
+        return chatLogic.getNewMessagesCounts(processIds, isMentions, user.getActor());
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public boolean sendMessageToEmail(User user, String title, String message, String Emaile) {
         return chatLogic.sendMessageToEmail(title, message, Emaile);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void updateChatMessage(ChatMessage message) {
+    public void updateChatMessage(User user, ChatMessage message) {
         chatLogic.updateMessage(message);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public boolean canEditMessage(Actor user) {
-        return chatLogic.canEditMessage(user);
+    public boolean canEditMessage(User user) {
+        return chatLogic.canEditMessage(user.getActor());
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessageFile> getChatMessageFiles(ChatMessage message) {
+    public List<ChatMessageFile> getChatMessageFiles(User user, ChatMessage message) {
         return chatLogic.getMessageFiles(message);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public ChatMessageFile getChatMessageFile(Long fileId) {
+    public ChatMessageFile getChatMessageFile(User user, Long fileId) {
         return chatLogic.getFile(fileId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public ChatMessageFile saveChatMessageFile(ChatMessageFile file) {
+    public ChatMessageFile saveChatMessageFile(User user, ChatMessageFile file) {
         return chatLogic.saveFile(file);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatMessages(Long processId) {
+    public List<ChatMessage> getChatMessages(User user, Long processId) {
         return chatLogic.getMessages(processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getNewChatMessages(Long processId, Long lastId) {
-        return chatLogic.getNewMessages(processId, lastId);
+    public List<ChatMessage> getNewChatMessages(User user, Long processId) {
+        return chatLogic.getNewMessages(user.getActor(), processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public ChatMessage getChatMessage(Long messageId) {
+    public ChatMessage getChatMessage(User user, Long messageId) {
         return chatLogic.getMessage(messageId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatMessages(Long processId, Long firstIndex, int count) {
-        return chatLogic.getMessages(processId, firstIndex, count);
+    public List<ChatMessage> getChatMessages(User user, Long processId, Long firstIndex, int count) {
+        return chatLogic.getMessages(user.getActor(), processId, firstIndex, count);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public long getAllChatMessagesCount(Long processId) {
+    public long getAllChatMessagesCount(User user, Long processId) {
         return chatLogic.getAllMessagesCount(processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getFirstChatMessages(Long processId, int count) {
-        return chatLogic.getFirstMessages(processId, count);
+    public List<ChatMessage> getFirstChatMessages(User user, Long processId, int count) {
+        return chatLogic.getFirstMessages(user.getActor(), processId, count);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void deleteChatMessage(Long messId) {
+    public void deleteChatMessage(User user, Long messId) {
         chatLogic.deleteMessage(messId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public ChatsUserInfo getChatUserInfo(Actor actor, Long processId) {
-        return chatLogic.getUserInfo(actor, processId);
+    public long getNewChatMessagesCount(User user, Long processId) {
+        return chatLogic.getNewMessagesCount(user.getActor(), processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public long getNewChatMessagesCount(Long lastMessageId, Long processId) {
-        return chatLogic.getNewMessagesCount(lastMessageId, processId);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public void updateChatUserInfo(Actor actor, Long processId, Long lastMessageId) {
-        chatLogic.updateUserInfo(actor, processId, lastMessageId);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public long saveChatMessage(Long processId, ChatMessage message) {
+    public long saveChatMessage(User user, Long processId, ChatMessage message) {
         return chatLogic.saveMessage(processId, message);
     }
 }

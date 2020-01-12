@@ -4,9 +4,8 @@ import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.ChatsUserInfo;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.User;
 
 /**
  * Chat service.
@@ -16,9 +15,13 @@ import ru.runa.wfe.user.Executor;
  */
 public interface ChatService {
 
-    public List<Long> getActiveChatIds(Actor user);
+    public void readMessage(User user, Long messageId);
 
-    public Set<Executor> getAllUsers(Long processId, Actor user);
+    public Long getLastReadMessage(User user, Long processId);
+
+    public List<Long> getActiveChatIds(User user);
+
+    public Set<Executor> getAllUsers(User user, Long processId);
 
     /**
      * 
@@ -28,7 +31,7 @@ public interface ChatService {
      *
      * 
      */
-    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user);
+    public List<Long> getNewMessagesCounts(User user, List<Long> processIds, List<Boolean> isMentions);
 
     /**
      * send by email
@@ -42,7 +45,7 @@ public interface ChatService {
      *
      * @return sends an email (chat emaile - chat.properties)
      */
-    public boolean sendMessageToEmail(String title, String message, String Emaile);
+    public boolean sendMessageToEmail(User user, String title, String message, String Emaile);
 
     /**
      * merge message in DB
@@ -50,7 +53,7 @@ public interface ChatService {
      * @param message
      *            message to merge
      */
-    public void updateChatMessage(ChatMessage message);
+    public void updateChatMessage(User user, ChatMessage message);
 
     /**
      * validates the user (can edit message)
@@ -59,7 +62,7 @@ public interface ChatService {
      *            validated user (actor)
      * @return not <code>null</code>
      */
-    public boolean canEditMessage(Actor user);
+    public boolean canEditMessage(User user);
 
     /**
      * Get List array of all ChatMessageFiles in chat message.
@@ -68,7 +71,7 @@ public interface ChatService {
      *            chat message associated files
      * @return not <code>null</code>
      */
-    public List<ChatMessageFile> getChatMessageFiles(ChatMessage message);
+    public List<ChatMessageFile> getChatMessageFiles(User user, ChatMessage message);
 
     /**
      * Get ChatMessageFiles by id.
@@ -77,7 +80,7 @@ public interface ChatService {
      *            file Id
      * @return ChatMessageFiles or <code>null</code>
      */
-    public ChatMessageFile getChatMessageFile(Long fileId);
+    public ChatMessageFile getChatMessageFile(User user, Long fileId);
 
     /**
      * Save ChatMessageFiles.
@@ -86,7 +89,7 @@ public interface ChatService {
      *            new file to save (associated message in ChatMessageFiles)
      * @return not <code>null</code>
      */
-    public ChatMessageFile saveChatMessageFile(ChatMessageFile file);
+    public ChatMessageFile saveChatMessageFile(User user, ChatMessageFile file);
 
     /**
      * Get List array of all ChatMessage in chat.
@@ -95,7 +98,7 @@ public interface ChatService {
      *            chat Id
      * @return not <code>null</code>
      */
-    public List<ChatMessage> getChatMessages(Long processId);
+    public List<ChatMessage> getChatMessages(User user, Long processId);
 
     /**
      * Gets ChatMessage.
@@ -104,7 +107,7 @@ public interface ChatService {
      *            message Id
      * @return ChatMessage or <code>null</code>
      */
-    public ChatMessage getChatMessage(Long messageId);
+    public ChatMessage getChatMessage(User user, Long messageId);
 
     /**
      * Get List array of ChatMessage, where all "message Id" < firstId.
@@ -117,7 +120,7 @@ public interface ChatService {
      *            number of messages in the returned array
      * @return not <code>null</code> order by date desc
      */
-    public List<ChatMessage> getChatMessages(Long processId, Long firstId, int count);
+    public List<ChatMessage> getChatMessages(User user, Long processId, Long firstId, int count);
 
     /**
      * Get List array of ChatMessage, where all "message Id" >= lastId.
@@ -128,7 +131,7 @@ public interface ChatService {
      *            message Id, all returned message id >= lastId
      * @return not <code>null</code> order by date asc
      */
-    public List<ChatMessage> getNewChatMessages(Long processId, Long lastId);
+    public List<ChatMessage> getNewChatMessages(User user, Long processId);
 
     /**
      * Get List array of last ChatMessage (first in the array of all messages).
@@ -139,7 +142,7 @@ public interface ChatService {
      *            number of messages in the returned array
      * @return not <code>null</code>
      */
-    public List<ChatMessage> getFirstChatMessages(Long processId, int count);
+    public List<ChatMessage> getFirstChatMessages(User user, Long processId, int count);
 
     /**
      * Save ChatMessage in DB.
@@ -150,7 +153,7 @@ public interface ChatService {
      *            new message to save
      * @return new message id
      */
-    public long saveChatMessage(Long processId, ChatMessage message);
+    public long saveChatMessage(User user, Long processId, ChatMessage message);
 
     /**
      * Get number of chat messages.
@@ -159,7 +162,7 @@ public interface ChatService {
      *            chat Id
      * @return number of chat messages
      */
-    long getAllChatMessagesCount(Long processId);
+    long getAllChatMessagesCount(User user, Long processId);
 
     /**
      * Delete ChatMessage in DB.
@@ -167,19 +170,7 @@ public interface ChatService {
      * @param messId
      *            message Id
      */
-    public void deleteChatMessage(Long messId);
-
-    /**
-     * Get ChatsUserInfo with information about the user in this chat or create new ChatsUserInfo with lastMessageId = max message Id in chat with
-     * processId.
-     *
-     * @param processId
-     *            chat Id
-     * @param actor
-     *            user Actor
-     * @return ChatsUserInfo with information about the user in this chat, not <code>null</code>
-     */
-    public ChatsUserInfo getChatUserInfo(Actor actor, Long processId);
+    public void deleteChatMessage(User user, Long messId);
 
     /**
      * Get number of chat messages with id > lastMessageId.
@@ -190,17 +181,5 @@ public interface ChatService {
      *            last message Id
      * @return number of chat messages with id > lastMessageId
      */
-    public long getNewChatMessagesCount(Long lastMessageId, Long processId);
-
-    /**
-     * update lastMessageId in ChatsUserInfo with userId, userName, processId.
-     *
-     * @param actor
-     *            user Actor
-     * @param processId
-     *            chat Id
-     * @param lastMessageId
-     *            new lastMessageId in ChatsUserInfo
-     */
-    public void updateChatUserInfo(Actor actor, Long processId, Long lastMessageId);
+    public long getNewChatMessagesCount(User user, Long processId);
 }

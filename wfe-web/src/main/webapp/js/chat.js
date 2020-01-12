@@ -169,7 +169,7 @@ function updatenumberNewMessages(numberNewMessages0){
 function updateLastReadMessage(){
 	let newSend0={};
 	newSend0.processId=$("#ChatForm").attr("processId");
-	newSend0.type="setChatUserInfo";
+	newSend0.type="readMessage";
 	newSend0.currentMessageId=currentMessageId;
 	let sendObject0 = JSON.stringify(newSend0);
 	chatSocket.send(sendObject0);
@@ -947,14 +947,6 @@ function onMessage(event) {
 	}
 	else if(message0.messType == "deblocOldMes"){
 		blocOldMes=0;
-	}
-	else if(message0.messType == "ChatUserInfo"){
-		if(switchCheak == 0){
-			if(currentMessageId<message0.lastMessageId){
-				currentMessageId = message0.lastMessageId;
-			}
-			updatenumberNewMessages(message0.numberNewMessages);
-		}
 	}
 	else if(message0.messType == "nextStepLoadFile"){
 		nextStepLoadFile(message0.messageId, 0);

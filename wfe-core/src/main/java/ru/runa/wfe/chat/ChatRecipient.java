@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat;
 
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,8 +19,11 @@ public class ChatRecipient {
     private Long id;
     private ChatMessage messageId;
     private Long executorId;
-    private Boolean unread = true;
+    private Date readDate = null;
     private Boolean mentioned = false;
+
+    public ChatRecipient() {
+    }
 
     public ChatRecipient(ChatMessage messageId, Long executorId, Boolean mentioned) {
         this.messageId = messageId;
@@ -39,10 +43,9 @@ public class ChatRecipient {
         this.id = id;
     }
 
-    // @Column(name = "MESSAGE_ID")
     @ManyToOne
     @JoinColumn(name = "MESSAGE_ID")
-    @ForeignKey(name = "FK_CHAT_RECIPIENT_CHAT_MESSAGE_ID")
+    @ForeignKey(name = "FK_CHAT_MESSAGE_RECIPIENT_M_ID")
     public ChatMessage getMessageId() {
         return messageId;
     }
@@ -60,13 +63,13 @@ public class ChatRecipient {
         this.executorId = executorId;
     }
 
-    @Column(name = "UNREAD")
-    public Boolean getUnread() {
-        return unread;
+    @Column(name = "READ_DATE")
+    public Date getReadDate() {
+        return readDate;
     }
 
-    public void setUnread(Boolean unread) {
-        this.unread = unread;
+    public void setReadDate(Date readDate) {
+        this.readDate = readDate;
     }
 
     @Column(name = "MENTIONED")

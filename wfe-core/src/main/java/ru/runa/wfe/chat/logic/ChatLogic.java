@@ -16,17 +16,25 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.ChatsUserInfo;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 
 public class ChatLogic extends WfCommonLogic {
 
     private Properties properties = ClassLoaderUtil.getProperties("chat.properties", true);
+
+    public void readMessage(Actor user, Long messageId) {
+        chatDao.readMessage(user, messageId);
+    }
+
+    public Long getLastReadMessage(Actor user, Long processId) {
+        return chatDao.getLastReadMessage(user, processId);
+    }
 
     public List<Long> getActiveChatIds(Actor user) {
         List<Long> ret = chatDao.getActiveChatIds(user);
@@ -48,9 +56,14 @@ public class ChatLogic extends WfCommonLogic {
         }
         // собираем юзеров
         for(Task task : tasks) {
-            ret.addAll(executorDao.getActors(new ArrayList<Long>(task.getOpenedByExecutorIds())));
+            Executor executor = task.getExecutor();
+            if (executor.getClass() == Group.class) {
+                ret.addAll(executorDao.getGroupActors(((Group) task.getExecutor())));
+            }
+            else if (executor.getClass() == Actor.class) {
+                ret.add(executor);
+            }
         }
-        //
         return ret;
     }
 
@@ -58,16 +71,8 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessagesCounts(chatsIds, isMentions, user);
     }
 
-    public ChatsUserInfo getUserInfo(Actor actor, Long processId) {
-        return chatDao.getUserInfo(actor, processId);
-    }
-
-    public long getNewMessagesCount(Long lastMessageId, Long processId) {
-        return chatDao.getNewMessagesCount(lastMessageId, processId);
-    }
-
-    public void updateUserInfo(Actor actor, Long processId, Long lastMessageId) {
-        chatDao.updateUserInfo(actor, processId, lastMessageId);
+    public long getNewMessagesCount(Actor user, Long processId) {
+        return chatDao.getNewMessagesCount(user, processId);
     }
 
     public List<ChatMessage> getMessages(Long processId) {
@@ -78,16 +83,16 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getMessage(messageId);
     }
 
-    public List<ChatMessage> getMessages(Long processId, Long firstId, int count) {
-        return chatDao.getMessages(processId, firstId, count);
+    public List<ChatMessage> getMessages(Actor user, Long processId, Long firstId, int count) {
+        return chatDao.getMessages(user, processId, firstId, count);
     }
 
-    public List<ChatMessage> getFirstMessages(Long processId, int count) {
-        return chatDao.getFirstMessages(processId, count);
+    public List<ChatMessage> getFirstMessages(Actor user, Long processId, int count) {
+        return chatDao.getFirstMessages(user, processId, count);
     }
 
-    public List<ChatMessage> getNewMessages(Long processId, Long lastId) {
-        return chatDao.getNewMessages(processId, lastId);
+    public List<ChatMessage> getNewMessages(Actor user, Long processId) {
+        return chatDao.getNewMessages(user, processId);
     }
 
     public long saveMessage(Long processId, ChatMessage message) {
@@ -100,6 +105,7 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
+    // -?
     public long getAllMessagesCount(Long processId) {
         return chatDao.getMessagesCount(processId);
     }

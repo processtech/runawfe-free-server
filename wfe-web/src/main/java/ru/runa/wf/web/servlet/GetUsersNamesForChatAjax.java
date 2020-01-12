@@ -18,7 +18,7 @@ public class GetUsersNamesForChatAjax extends JsonAjaxCommand {
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
         JSONObject outputObject = new JSONObject();
         Long processId = Long.parseLong(request.getParameter("processId"));
-        Set<Executor> executors = Delegates.getChatService().getAllUsers(processId, user.getActor());
+        Set<Executor> executors = Delegates.getChatService().getAllUsers(user, processId);
         // JSONArray userNames = new JSONArray();
         // JSONArray groupNames = new JSONArray();
         // JSONArray roleNames = new JSONArray();

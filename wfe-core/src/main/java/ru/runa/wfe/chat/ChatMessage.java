@@ -29,7 +29,7 @@ public class ChatMessage {
     private Actor createActor;
     private Boolean haveFiles = false;
     private Boolean active = true;
-    private Boolean isPrivate = true;
+    private Boolean isPrivate = false;
 
     @Transient
     private List<Executor> mentionedExecutors = new ArrayList<Executor>();

@@ -8,8 +8,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import ru.runa.common.web.Commons;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.User;
 
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 1024, // 1 гб
         maxFileSize = 1024 * 1024 * 1024, // 1 гб
@@ -20,17 +22,18 @@ public class ChatFileInputServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        User user = Commons.getUser(request.getSession());
         Long mesId = Long.parseLong(request.getParameter("messageId"));
         String fileName = request.getParameter("fileName");
         Part file = request.getPart("file");
         ChatMessageFile chatFile = new ChatMessageFile();
         chatFile.setFileName(fileName);
-        chatFile.setMessageId(Delegates.getChatService().getChatMessage(mesId));
+        chatFile.setMessageId(Delegates.getChatService().getChatMessage(user, mesId));
 
         byte[] FileMass = new byte[(int) file.getSize()];
         InputStreamReader reader = new InputStreamReader(file.getInputStream());
         file.getInputStream().read(FileMass);
         chatFile.setFile(org.apache.commons.lang.ArrayUtils.toObject(FileMass));
-        Delegates.getChatService().saveChatMessageFile(chatFile);
+        Delegates.getChatService().saveChatMessageFile(user, chatFile);
     }
 }
