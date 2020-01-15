@@ -29,6 +29,10 @@ public class ChatLogic extends WfCommonLogic {
 
     private Properties properties = ClassLoaderUtil.getProperties("chat.properties", true);
 
+    public void deleteFile(User user, Long id) {
+        chatDao.deleteFile(user, id);
+    }
+
     public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds) {
         Set<Executor> executors;
         if (!message.getIsPrivate()) {
@@ -135,8 +139,8 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.saveFile(file);
     }
 
-    public ChatMessageFile getFile(Long fileId) {
-        return chatDao.getFile(fileId);
+    public ChatMessageFile getFile(Actor actor, Long fileId) {
+        return chatDao.getFile(actor, fileId);
     }
 
     public void updateMessage(ChatMessage message) {

@@ -23,13 +23,13 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         outputObject.put("lastMessageId", lastMessageId);
         messages = Delegates.getChatService().getNewChatMessages(user, processId);
         if (messages.size() > 0) {
-            JSONObject messageObject = ChatSocket.convertMessage(messages.get(0), true);
+            JSONObject messageObject = ChatSocket.convertMessage(user,messages.get(0), true);
             if (messages.get(0).getCreateActor().equals(user.getActor())) {
                 messageObject.put("coreUser", true);
             }
             messagesArrayObject.add(messageObject);
             for (int i = 1; i < messages.size(); i++) {
-                messageObject = ChatSocket.convertMessage(messages.get(i), false);
+                messageObject = ChatSocket.convertMessage(user,messages.get(i), false);
                 if (messages.get(i).getCreateActor().equals(user.getActor())) {
                     messageObject.put("coreUser", true);
                 }
@@ -39,7 +39,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         if (messages.size() < countMessages) {// дополняем старыми
             messages = Delegates.getChatService().getChatMessages(user, processId, lastMessageId, countMessages - messages.size());
             for (int i = 0; i < messages.size(); i++) {
-                JSONObject messageObject = ChatSocket.convertMessage(messages.get(i), true);
+                JSONObject messageObject = ChatSocket.convertMessage(user,messages.get(i), true);
                 if (messages.get(i).getCreateActor().equals(user.getActor())) {
                     messageObject.put("coreUser", true);
                 }

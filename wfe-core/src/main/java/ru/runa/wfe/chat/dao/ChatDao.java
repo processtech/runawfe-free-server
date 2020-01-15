@@ -22,6 +22,11 @@ import ru.runa.wfe.user.User;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ChatDao extends GenericDao<ChatMessage> {
 
+    public void deleteFile(User user, Long id) {
+        QChatMessageFile f = QChatMessageFile.chatMessageFile;
+        queryFactory.delete(f).where(f.id.eq(id));
+    }
+
     public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds, Set<Executor> executors) {
         message = create(message);
         Long mesId = message.getId();
@@ -130,18 +135,14 @@ public class ChatDao extends GenericDao<ChatMessage> {
     }
 
     public long save(ChatMessage message) {
-        Long mesId = create(message).getId();
-        for (Executor executor : message.getMentionedExecutors()) {
-            if (executor.getClass() == Actor.class) {
-                ChatRecipient chatRecipient = new ChatRecipient(message, executor.getId(), true);
-                sessionFactory.getCurrentSession().save(chatRecipient);
-            }
-        }
-        return mesId;
+        return save(message, new HashSet<Executor>(message.getMentionedExecutors()));
     }
 
     public long save(ChatMessage message, Set<Executor> executors) {
         Long mesId = create(message).getId();
+        if (!executors.contains(message.getCreateActor())) {
+            executors.add(message.getCreateActor());
+        }
         Set<Executor> mentionedExecutors = new HashSet<Executor>(message.getMentionedExecutors());
         for (Executor executor : executors) {
             if (executor.getClass() == Actor.class) {
@@ -180,9 +181,11 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return queryFactory.selectFrom(mf).where(mf.messageId.eq(message)).fetch();
     }
 
-    public ChatMessageFile getFile(Long fileId) {
+    public ChatMessageFile getFile(Actor actor, Long fileId) {
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
-        return queryFactory.selectFrom(mf).where(mf.id.eq(fileId)).fetchFirst();
+        QChatRecipient cr = QChatRecipient.chatRecipient;
+        return queryFactory.select(mf).from(mf, cr).where(mf.id.eq(fileId).and(mf.messageId.eq(cr.messageId).and(cr.executorId.eq(actor.getId()))))
+                .fetchFirst();
     }
 
     public void updateMessage(ChatMessage message) {

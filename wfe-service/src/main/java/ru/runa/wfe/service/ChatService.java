@@ -16,6 +16,8 @@ import ru.runa.wfe.user.User;
  */
 public interface ChatService {
 
+    public void deleteFile(User user, Long id);
+
     public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds);
 
     public void readMessage(User user, Long messageId);

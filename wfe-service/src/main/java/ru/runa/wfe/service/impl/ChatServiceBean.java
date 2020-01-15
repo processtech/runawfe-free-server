@@ -35,6 +35,12 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
+    public void deleteFile(User user, Long id) {
+        chatLogic.deleteFile(user, id);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds) {
         return chatLogic.saveMessageAndBindFiles(user, message, fileIds);
     }
@@ -96,7 +102,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = true)
     @Override
     public ChatMessageFile getChatMessageFile(User user, Long fileId) {
-        return chatLogic.getFile(fileId);
+        return chatLogic.getFile(user.getActor(), fileId);
     }
 
     @WebMethod(exclude = true)
@@ -158,4 +164,5 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     public long saveChatMessage(User user, Long processId, ChatMessage message) {
         return chatLogic.saveMessage(processId, message);
     }
+
 }

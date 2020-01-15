@@ -153,6 +153,15 @@ public class ChatTag extends SecuredObjectFormTag {
         UL messageUserMention = new UL();
         messageUserMention.setClass("messageUserMention");
 
+        Div checkBoxContainer = new Div();
+        checkBoxContainer.addElement("Приватное сообщение:");
+        Input checkBoxPrivateMessage = new Input();
+        checkBoxPrivateMessage.setType("checkbox");
+        checkBoxPrivateMessage.setClass("checkBoxPrivateMessage");
+        checkBoxContainer.addElement(checkBoxPrivateMessage);
+        checkBoxContainer.setClass("checkBoxContainer");
+
+        modalFooter.addElement(checkBoxContainer);
         modalFooter.addElement(messageUserMention);
         modalFooter.addElement(messageSend);
         modalFooter.addElement(boxButton);

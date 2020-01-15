@@ -20,6 +20,11 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
+    public void deleteFile(User user, Long id) {
+        getChatService().deleteFile(user, id);
+    }
+
+    @Override
     public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds) {
         return getChatService().saveMessageAndBindFiles(user, message, fileIds);
     }
