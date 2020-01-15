@@ -1,5 +1,6 @@
 package ru.runa.wfe.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
@@ -31,6 +32,12 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @Autowired
     private ChatLogic chatLogic;
+
+    @WebMethod(exclude = true)
+    @Override
+    public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds) {
+        return chatLogic.saveMessageAndBindFiles(user, message, fileIds);
+    }
 
     @WebMethod(exclude = true)
     @Override

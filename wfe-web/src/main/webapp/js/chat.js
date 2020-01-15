@@ -227,9 +227,10 @@ $(".acceptSettingsModal").click(function(){
 
 // кнопка "отправить"
  function sendMessage() {
-	deleteUserNameTable();
+	deleteUserNameTable();//перенести вовнутрь????
 	if(lockFlag == false){
 		if(editMessageFlag == false){
+			lockFlag = true;
 			let message = document.getElementById("message").value;
 			//ищем ссылки
 			message=message.replace(/(^|[^\/\"\'\>\w])(http\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
@@ -248,10 +249,16 @@ $(".acceptSettingsModal").click(function(){
 			newMessage.type="newMessage";
 			if(attachedFiles.length > 0){
 				newMessage.haveFile=true;
+				let fileNames = [];
+				for(let i=0; i<attachedFiles.length; i++){
+					fileNames.push(attachedFiles[i].name);
+				}
+				newMessage.fileNames = fileNames;
 				lockFlag = true;
 			}
 			else{
 				newMessage.haveFile=false;
+				lockFlag = false
 			}
 			//отправка
 			chatSocket.send(JSON.stringify(newMessage));
@@ -776,12 +783,6 @@ function addMessages(data){
 				}
 				
 				// "ответить"
-				//addReplyA0.attr("id", "messReply"+$(this).parent().parent().parent().parent().attr("messageIndex"));
-				//addReplyA0.attr("messageIndex", mesIndex)
-				
-				//addReplyA0.attr("mesId", data.messages[ mes ].id);
-				//addReplyA0.attr("flagAttach", "false");
-				//addReplyA0.click(messReplyClickFunction);
 				cloneMess.find(".addReply").click(messReplyClickFunction);
 				
 				//файлы
@@ -905,40 +906,20 @@ function editMessage(){
 	$("#message").val($("#messageText"+$(this).closest(".selectionTextQuote").attr("mesIndex")).text());
 }
 
-function nextStepLoadFile(messageId, FileIndex){
+//-------------- выгрузка файлов на сервер
+function stepLoadFile(i){
 	progressBar.show();
 	// Создаем форму с несколькими значениями
-	let form0 = new FormData();
-	form0.append("file", attachedFiles[0]);
-	// отправляем через xhr
-	let xhr = new XMLHttpRequest();
-	let endFlag = false;
-	if(attachedFiles.length == FileIndex+1){
-		xhr.onload = function() {
-			attachedFiles=[];
-			$("#filesTable").html("");
-			lockFlag=false;
-			progressBar.hide();
-		};
-		xhr.upload.onprogress = function(event) {
-			progressBar.text(event.loaded + ' / ' + event.total);
-		  }
-		xhr.open("post", "/wfe/chatFileInput" + "?fileName=" + attachedFiles[FileIndex].name + "&messageId=" +messageId + "&endFlag=true", false);
-		xhr.send(form0);
-	}
-	else{
-		xhr.onload = function() {
-			FileIndex++;
-			nextStepLoadFile(messageId, FileIndex);
-		};
-		xhr.upload.onprogress = function(event) {
-			progressBar.text(event.loaded + ' / ' + event.total);
-		  }
-		xhr.open("post", "/wfe/chatFileInput" + "?fileName=" + attachedFiles[FileIndex].name + "&messageId=" +messageId + "&endFlag=false", false);
-		xhr.send(form0);
-	}
+	let reader = new FileReader();
+    let rawData = new ArrayBuffer();
+    reader.onload = function(e) {
+    	rawData = e.target.result;
+    	chatSocket.send(rawData);
+    }
+    reader.readAsArrayBuffer(attachedFiles[i]);
 }
 
+//--------------------
 // приём с сервера
 function onMessage(event) {
 	let message0 = JSON.parse(event.data);
@@ -948,13 +929,26 @@ function onMessage(event) {
 	else if(message0.messType == "deblocOldMes"){
 		blocOldMes=0;
 	}
+	else if(message0.messType == "stepLoadFile"){
+		if(attachedFiles.length > 0)
+			stepLoadFile(0);
+	}
 	else if(message0.messType == "nextStepLoadFile"){
-		nextStepLoadFile(message0.messageId, 0);
-		let newMessage={};
-		newMessage.messageId=message0.messageId;
-		newMessage.processId=$("#ChatForm").attr("processId");
-		newMessage.type="sendToChat";
-		chatSocket.send(JSON.stringify(newMessage));
+		if(message0.fileLoaded == false){
+			//тут обработка непринятого файла
+		}
+		let step = message0.number + 1;
+		if(attachedFiles.length > step){
+			stepLoadFile(step);
+		}
+		else{
+			let newMessage={};
+			newMessage.processId=$("#ChatForm").attr("processId");
+			newMessage.type="endLoadFiles";
+			chatSocket.send(JSON.stringify(newMessage));
+			attachedFiles = [];
+			lockFlag = false;
+		}
 	}
 	else if(message0.messType == "editMessage"){
 		let mesSelector = $("[textMessagId='"+message0.mesId+"']");
@@ -1167,6 +1161,7 @@ function ajaxInitializationChat(){
 			}
 			chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + $("#ChatForm").attr("processId");
 			chatSocket = new WebSocket(chatSocketURL);
+			chatSocket.binaryType = "arraybuffer";
 			chatSocket.onmessage = onMessage;
 			//действия при открытии сокета
 			chatSocket.onopen=function(){

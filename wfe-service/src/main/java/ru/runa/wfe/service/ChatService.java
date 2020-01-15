@@ -1,5 +1,6 @@
 package ru.runa.wfe.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
@@ -14,6 +15,8 @@ import ru.runa.wfe.user.User;
  * @since ___
  */
 public interface ChatService {
+
+    public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds);
 
     public void readMessage(User user, Long messageId);
 

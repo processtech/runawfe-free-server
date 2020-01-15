@@ -23,10 +23,22 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.User;
 
 public class ChatLogic extends WfCommonLogic {
 
     private Properties properties = ClassLoaderUtil.getProperties("chat.properties", true);
+
+    public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds) {
+        Set<Executor> executors;
+        if (!message.getIsPrivate()) {
+            executors = getAllUsers(message.getProcessId(), message.getCreateActor());
+        }
+        else {
+            executors = new HashSet<Executor>(message.getMentionedExecutors());
+        }
+        return chatDao.saveMessageAndBindFiles(user, message, fileIds, executors);
+    }
 
     public void readMessage(Actor user, Long messageId) {
         chatDao.readMessage(user, messageId);

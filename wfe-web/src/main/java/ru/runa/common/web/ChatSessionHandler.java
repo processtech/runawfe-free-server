@@ -52,42 +52,58 @@ public class ChatSessionHandler {
         }
     }
 
-    public void sendToChats(JSONObject message, Long processId, Actor coreUser, HashSet<Actor> mentionedActors) throws IOException {
+    public void sendToChats(JSONObject message, Long processId, Actor coreUser, HashSet<Actor> mentionedActors, boolean isPrivate)
+            throws IOException {
         for (Session session : sessions) {
+            JSONObject sendObject = (JSONObject) message.clone(); // проверить клон!
             Long thisId = (Long) session.getUserProperties().get("processId");
             if (processId.equals(thisId)) {
                 Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
                 if (thisActor.equals(coreUser)) {
-                    message.put("coreUser", true);
+                    sendObject.put("coreUser", true);
                 }
-                if (mentionedActors.contains(thisActor)) {
-                    message.put("mentioned", true);
+                else {
+                    if (mentionedActors.contains(thisActor)) {
+                        sendObject.put("mentioned", true);
+                    } else {
+                        if (isPrivate) {
+                            continue;
+                        }
+                    }
                 }
-                session.getBasicRemote().sendText(message.toString());
+                session.getBasicRemote().sendText(sendObject.toString());
             }
         }
     }
 
     public void sendToChats(JSONObject message, Long processId, Actor coreUser) throws IOException {
-        sendToChats(message, processId, coreUser, null);
+        sendToChats(message, processId, coreUser, null, false);
     }
 
     public void sendToChats(JSONObject message, Long processId) throws IOException {
-        sendToChats(message, processId, null, null);
+        sendToChats(message, processId, null, null, false);
     }
 
-    public void sendOnlyNewMessagesSessions(JSONObject message, Long processId, Actor coreUser, HashSet<Actor> mentionedActors) throws IOException {
+    public void sendOnlyNewMessagesSessions(JSONObject message, Long processId, Actor coreUser, HashSet<Actor> mentionedActors, boolean isPrivate)
+            throws IOException {
         for (Session session : onlyNewMessagesSessions) {
-            HashSet<Long> processIds = ((HashSet<Long>) session.getUserProperties().get("processIds"));
-            if (processIds.contains(processId)) {
+            JSONObject sendObject = (JSONObject) message.clone(); // проверить клон!
+            Long thisId = (Long) session.getUserProperties().get("processId");
+            if (processId.equals(thisId)) {
                 Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
                 if (thisActor.equals(coreUser)) {
-                    message.put("coreUser", true);
+                    sendObject.put("coreUser", true);
                 }
-                if(mentionedActors.contains(thisActor)) {
-                    message.put("mentioned", true);
+                else {
+                    if (mentionedActors.contains(thisActor)) {
+                        sendObject.put("mentioned", true);
+                    } else {
+                        if (isPrivate) {
+                            continue;
+                        }
+                    }
                 }
-                session.getBasicRemote().sendText(message.toString());
+                session.getBasicRemote().sendText(sendObject.toString());
             }
         }
     }

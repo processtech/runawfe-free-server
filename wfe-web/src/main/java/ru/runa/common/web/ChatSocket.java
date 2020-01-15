@@ -1,6 +1,7 @@
 package ru.runa.common.web;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -48,8 +49,41 @@ public class ChatSocket {
     }
 
     @OnMessage
-    public void handleMessage(String message, Session session) throws IOException, ParseException, ClassNotFoundException, MessagingException {
+    public void uploadFile(ByteBuffer msg, boolean last, Session session) throws IOException {
+        Integer fileNumber = -1;
+        try {
+            /*
+             * session.getUserProperties().put("activeFileNames", objectMessage.get("fileNames")); session.getUserProperties().put("activeFileSize",
+             * 0); session.getUserProperties().put("activeFileIds", new ArrayList<Long>());
+             */
+            fileNumber = (Integer) session.getUserProperties().get("activeFileSize") + 1;
+            session.getUserProperties().put("activeFileSize", fileNumber);
+            byte[] bytes = new byte[msg.remaining()];
+            msg.get(bytes);
+            ChatMessageFile chatFile = new ChatMessageFile();
+            chatFile.setFileName("test");// доделать!!
+            ChatMessage chatMessage = Delegates.getChatService().getChatMessage((User) session.getUserProperties().get("user"), 0L);
+            chatFile.setMessageId(chatMessage);
+            chatFile.setFile(org.apache.commons.lang.ArrayUtils.toObject(bytes));
+            chatFile = Delegates.getChatService().saveChatMessageFile((User) session.getUserProperties().get("user"), chatFile);
+            ((ArrayList<Long>) session.getUserProperties().get("activeFileIds")).add(chatFile.getId());
+            // send "ok"
+            JSONObject sendObject = new JSONObject();
+            sendObject.put("fileLoaded", true);
+            sendObject.put("messType", "nextStepLoadFile");
+            sendObject.put("number", fileNumber);// !!
+            sessionHandler.sendToSession(session, sendObject);
+        } catch (Exception e) {
+            JSONObject sendObject = new JSONObject();
+            sendObject.put("fileLoaded", false);
+            sendObject.put("messType", "nextStepLoadFile");
+            sendObject.put("number", fileNumber);// !!
+            sessionHandler.sendToSession(session, sendObject);
+        }
+    }
 
+    @OnMessage
+    public void handleMessage(String message, Session session) throws IOException, ParseException, ClassNotFoundException, MessagingException {
         JSONObject objectMessage = new JSONObject();
         JSONParser parser = new JSONParser();
         objectMessage = (JSONObject) parser.parse(message);
@@ -73,19 +107,26 @@ public class ChatSocket {
         case "editMessage":
             editMessage(session, objectMessage);
             break;
-        case "sendToChat":
-            ChatMessage message0 = Delegates.getChatService().getChatMessage((User) session.getUserProperties().get("user"),
-                    (Long) objectMessage.get("messageId"));
-            if(message0.getActive() == false) {
-                message0.setActive(true);
-                Delegates.getChatService().updateChatMessage((User) session.getUserProperties().get("user"), message0);
+        case "endLoadFiles":
+            ChatMessage activeMessage = (ChatMessage) session.getUserProperties().get("activeMessage");
+            ArrayList<Long> fileIds = (ArrayList<Long>) session.getUserProperties().get("activeFileIds");
+            long mesId = Delegates.getChatService().saveMessageAndBindFiles((User) session.getUserProperties().get("user"), activeMessage, fileIds);
+            activeMessage.setId(mesId);
+            //
+            HashSet<Actor> mentionedActors = new HashSet<Actor>();
+            for (Executor mentionedExecutor : activeMessage.getMentionedExecutors()) {
+                if (mentionedExecutor.getClass() == Actor.class) {
+                    mentionedActors.add((Actor) mentionedExecutor);
+                }
             }
-            if (Delegates.getChatService().canEditMessage((User) session.getUserProperties().get("user"))) {
-                sessionHandler.sendToChats(convertMessage(message0, false), Long.parseLong((String) objectMessage.get("processId")),
-                        message0.getCreateActor());
-            } else {
-                sessionHandler.sendToChats(convertMessage(message0, false), Long.parseLong((String) objectMessage.get("processId")));
-            }
+            JSONObject sendObject1 = convertMessage(activeMessage, false);
+            sessionHandler.sendToChats(sendObject1, activeMessage.getProcessId(), activeMessage.getCreateActor(), mentionedActors,
+                    activeMessage.getIsPrivate());
+            JSONObject sendObject2 = new JSONObject();
+            sendObject2.put("processId", activeMessage.getProcessId());
+            sendObject2.put("messType", "newMessage");
+            sessionHandler.sendOnlyNewMessagesSessions(sendObject2, activeMessage.getProcessId(), activeMessage.getCreateActor(), mentionedActors,
+                    activeMessage.getIsPrivate());
             break;
         default:
             break;
@@ -117,10 +158,6 @@ public class ChatSocket {
         newMessage.setProcessId(Long.parseLong((String) objectMessage.get("processId")));
         // дата
         newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
-        // проверка на файлы
-        if (newMessage.getHaveFiles() == true) {
-            newMessage.setActive(false);
-        }
         //
         // разссылка пользователям @user
         int dogIndex = -1;
@@ -129,7 +166,6 @@ public class ChatSocket {
         String serchText = newMessage.getText();
         // Actor actor;
         Executor actor;
-        HashSet<Actor> mentionedActors = new HashSet<Actor>();
         while (true) {
             dogIndex = serchText.indexOf('@', dogIndex + 1);
             if (dogIndex != -1) {
@@ -146,7 +182,6 @@ public class ChatSocket {
                 }
                 if (actor != null) {
                     newMessage.getMentionedExecutors().add(actor);
-                    mentionedActors.add((Actor) actor);
                     // отправка по почте
                     // Delegates.getChatService().sendMessageToEmail(
                     // "вам сообщение от " + newMessage.getActor().getName() + " в чате №" + newMessage.getProcessId() + " в RunaWFE",
@@ -156,23 +191,37 @@ public class ChatSocket {
                 break;
             }
         }
-        // сейв в БД
-        long newMessId = Delegates.getChatService().saveChatMessage((User) session.getUserProperties().get("user"), newMessage.getProcessId(),
-                newMessage);
-        newMessage.setId(newMessId);
-        //
-        // отправка по чату всем:
         if (newMessage.getHaveFiles() == false) {
-            JSONObject sendObject1 = convertMessage(newMessage, false);
-            sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors);
-            JSONObject sendObject2 = new JSONObject();
-            sendObject2.put("processId", newMessage.getProcessId());
-            sendObject2.put("messType", "newMessage");
-            sessionHandler.sendOnlyNewMessagesSessions(sendObject2, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors);
-        } else {// если есть файлы, то откладываем отправку до их дозагрузки
+            HashSet<Actor> mentionedActors = new HashSet<Actor>();
+            for (Executor mentionedExecutor : newMessage.getMentionedExecutors()) {
+                if (mentionedExecutor.getClass() == Actor.class) {
+                    mentionedActors.add((Actor) mentionedExecutor);
+                }
+            }
+            // сейв в БД
+            long newMessId = Delegates.getChatService().saveChatMessage((User) session.getUserProperties().get("user"), newMessage.getProcessId(),
+                    newMessage);
+            newMessage.setId(newMessId);
+            // отправка по чату всем:
+            if (newMessage.getHaveFiles() == false) {
+                JSONObject sendObject1 = convertMessage(newMessage, false);
+                sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors,
+                        newMessage.getIsPrivate());
+                JSONObject sendObject2 = new JSONObject();
+                sendObject2.put("processId", newMessage.getProcessId());
+                sendObject2.put("messType", "newMessage");
+                sessionHandler.sendOnlyNewMessagesSessions(sendObject2, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors,
+                        newMessage.getIsPrivate());
+            }
+        }
+        else {// если есть файлы, то откладываем отправку до их дозагрузки
+            session.getUserProperties().put("activeMessage", newMessage);
+            session.getUserProperties().put("activeFileNames", objectMessage.get("fileNames"));
+            Integer filesize = 0;
+            session.getUserProperties().put("activeFileSize", filesize);
+            session.getUserProperties().put("activeFileIds", new ArrayList<Long>());
             JSONObject sendObject = new JSONObject();
-            sendObject.put("messType", "nextStepLoadFile");
-            sendObject.put("messageId", newMessage.getId());
+            sendObject.put("messType", "stepLoadFile");
             sessionHandler.sendToSession(session, sendObject);
         }
     }

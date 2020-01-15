@@ -16,10 +16,31 @@ import ru.runa.wfe.chat.QChatRecipient;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.User;
 
 @Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ChatDao extends GenericDao<ChatMessage> {
+
+    public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds, Set<Executor> executors) {
+        message = create(message);
+        Long mesId = message.getId();
+        QChatMessageFile mf = QChatMessageFile.chatMessageFile;
+        for (Long fileId : fileIds) {
+            ChatMessageFile file = queryFactory.selectFrom(mf).where(mf.id.eq(fileId)).fetchFirst();
+            file.setMessageId(message);
+            sessionFactory.getCurrentSession().merge(file);
+        }
+        Set<Executor> mentionedExecutors = new HashSet<Executor>(message.getMentionedExecutors());
+        for (Executor executor : executors) {
+            if (executor.getClass() == Actor.class) {
+                ChatRecipient chatRecipient;
+                chatRecipient = new ChatRecipient(message, executor.getId(), mentionedExecutors.contains(executor));
+                sessionFactory.getCurrentSession().save(chatRecipient);
+            }
+        }
+        return mesId;
+    }
 
     public void readMessage(Actor user, Long messageId) {
         QChatRecipient cr = QChatRecipient.chatRecipient;

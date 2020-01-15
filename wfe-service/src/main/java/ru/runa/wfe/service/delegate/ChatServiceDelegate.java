@@ -1,5 +1,6 @@
 package ru.runa.wfe.service.delegate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
@@ -16,6 +17,11 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
 
     private ChatService getChatService() {
         return getService();
+    }
+
+    @Override
+    public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds) {
+        return getChatService().saveMessageAndBindFiles(user, message, fileIds);
     }
 
     @Override
