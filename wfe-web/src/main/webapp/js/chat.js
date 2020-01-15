@@ -30,6 +30,8 @@ var switchCheak=0;
 var chatForm=document.getElementById("ChatForm");
 //флаг обозначающий состояние(развернут или свернут) чат
 var flagRollExpandChat=0;
+//флаг для первичной инициализации всех чатов во время откытия окна переключения чатов
+var flagPrimaryInitialization=0;
 //нумерация сообщений = количество загруженных сообщений, если небыло удалений
 var newMessageIndex=0;
 var oldMessagesIndex = -1;//только для старых, идет в отрицательные
@@ -117,33 +119,35 @@ function hierarhyCheak(messageId){
 }
 //функция для разворачивания вложенных сообщений
 function hierarchyOpen(){
-	if($(this).attr("openFlag") == 1){
-		let thisElem=$(".openHierarchy")[ 0 ];
-		$(this).next(".loadedHierarchy")[ 0 ].style.display="none";
-		$(this).attr("openFlag","0");
-		$(this).text("Развернуть вложенные сообщения");
-		return 0;
-	}
-	else{
-		let thisElem=$(".openHierarchy")[ 0 ];
-		if($(this).attr("loadFlag") == 1){
-			$(this).next(".loadedHierarchy")[ 0 ].style.display="block";
-			$(this).attr("openFlag","1");
-			$(this).text("Свернуть");
-			return 0;
-		}else{
+	if(lockFlag == false){
+		if($(this).attr("openFlag") == 1){
 			let thisElem=$(".openHierarchy")[ 0 ];
-			let element=this;
-			hierarhyCheak($(element).attr("mesId")).then(ajaxRet=>{
-				messagesRetMass = getAttachedMessagesArray(ajaxRet);
-				for(let i=0; i<messagesRetMass.length; i++){
-					$(this).next(".loadedHierarchy").append(messagesRetMass[ i ]);
-				}
-				$(element).attr("loadFlag", "1");
+			$(this).next(".loadedHierarchy")[ 0 ].style.display="none";
+			$(this).attr("openFlag","0");
+			$(this).text("Развернуть вложенные сообщения");
+			return 0;
+		}
+		else{
+			let thisElem=$(".openHierarchy")[ 0 ];
+			if($(this).attr("loadFlag") == 1){
+				$(this).next(".loadedHierarchy")[ 0 ].style.display="block";
 				$(this).attr("openFlag","1");
 				$(this).text("Свернуть");
 				return 0;
-			});
+			}else{
+				let thisElem=$(".openHierarchy")[ 0 ];
+				let element=this;
+				hierarhyCheak($(element).attr("mesId")).then(ajaxRet=>{
+					messagesRetMass = getAttachedMessagesArray(ajaxRet);
+					for(let i=0; i<messagesRetMass.length; i++){
+						$(this).next(".loadedHierarchy").append(messagesRetMass[ i ]);
+					}
+					$(element).attr("loadFlag", "1");
+					$(this).attr("openFlag","1");
+					$(this).text("Свернуть");
+					return 0;
+				});
+			}
 		}
 	}
 }
@@ -203,29 +207,35 @@ function messReplyClickFunction(){
 }
 //функция открепления сообщений
 function deleteAttachedMessage(){
-	let pos0 = attachedPosts.indexOf($("#messBody"+$(this).attr("mesindex")).attr("mesId"), 0);
-	attachedPosts.splice(pos0, 1);
-	$("#messBody" + $(this).attr("mesindex")).find(".addReply").text("Ответить");
-	$("#messBody" + $(this).attr("mesindex")).find(".addReply").attr("flagAttach", "false");
-	$(this).closest("tr").remove();
+	if(lockFlag == false){
+		let pos0 = attachedPosts.indexOf($("#messBody"+$(this).attr("mesindex")).attr("mesId"), 0);
+		attachedPosts.splice(pos0, 1);
+		$("#messBody" + $(this).attr("mesindex")).find(".addReply").text("Ответить");
+		$("#messBody" + $(this).attr("mesindex")).find(".addReply").attr("flagAttach", "false");
+		$(this).closest("tr").remove();
+	}
 }
 //----остальные (малые)
 //удаление сообщений
 function deleteMessage(){
-	if(confirm("Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно")){
-		let newMessage={};
-		newMessage.messageId=$(this).closest(".selectionTextQuote").attr("mesId");
-		newMessage.processId=$("#ChatForm").attr("processId");
-		newMessage.type="deleteMessage";
-		chatSocket.send(JSON.stringify(newMessage));
-		$(this).closest(".selectionTextQuote").remove();
+	if(lockFlag == false){
+		if(confirm("Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно")){
+			let newMessage={};
+			newMessage.messageId=$(this).closest(".selectionTextQuote").attr("mesId");
+			newMessage.processId=$("#ChatForm").attr("processId");
+			newMessage.type="deleteMessage";
+			chatSocket.send(JSON.stringify(newMessage));
+			$(this).closest(".selectionTextQuote").remove();
+		}
 	}
 }
 //редактирование сообщений
 function editMessage(){
-	editMessageId = $(this).closest(".selectionTextQuote").attr("mesId");
-	editMessageFlag=true;
-	$("#message").val($("#messageText"+$(this).closest(".selectionTextQuote").attr("mesIndex")).text());
+	if(lockFlag == false){
+		editMessageId = $(this).closest(".selectionTextQuote").attr("mesId");
+		editMessageFlag=true;
+		$("#message").val($("#messageText"+$(this).closest(".selectionTextQuote").attr("mesIndex")).text());
+	}
 }
 
 //--------------------------------------------------------
@@ -242,25 +252,29 @@ function newxtMessages(count){
 }
 //подгрузка старых сообщений
 function loadOldMessages(){
-	if(blocOldMes == 0){
-	blocOldMes=1;
-	// запрос 20 сообщений старых
-	newxtMessages(messagesStep);
+	if(lockFlag==false){
+		if(blocOldMes == 0){
+			blocOldMes=1;
+			// запрос 20 сообщений старых
+			newxtMessages(messagesStep);
+		}
 	}
 }
 //кнопка открытия чата
 function openChat() {
-	if(chatForm != null){
-		chatForm.style.display = "block";
-		switchCheak=1;
-		//установка границы скролла непрочитанных
-		if(numberNewMessages == 0){
-			newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
-			$("#modal-body").scrollTop($("#modal-body")[0].scrollHeight);
-		}
-		else{
-			newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - $("#modal-body").height();
-			$("#modal-body").scrollTop(newMessagesHeight);
+	if(lockFlag==false){
+		if(chatForm != null){
+			chatForm.style.display = "block";
+			switchCheak=1;
+			//установка границы скролла непрочитанных
+			if(numberNewMessages == 0){
+				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
+				$("#modal-body").scrollTop($("#modal-body")[0].scrollHeight);
+			}
+			else{
+				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - $("#modal-body").height();
+				$("#modal-body").scrollTop(newMessagesHeight);
+			}
 		}
 	}
 }
@@ -318,6 +332,7 @@ function sendMessage() {
 			$(".checkBoxPrivateMessage").prop("checked",false);
 			$("#messReplyTable").empty();
 			$(".warningText").text("0/1024");
+			$("#fileInput").val("");
 		}
 		else{//редактирование сообщения
 			if(confirm("Вы действительно хотите отредактировать сообщение? Отменить это действие будет невозможно")){
@@ -348,49 +363,51 @@ function sendMessage() {
 }
 //кнопка увеличить/уменьшить чат
 function zoomInZoomOut(){
-	if(flagRollExpandChat == 0){
-		flagRollExpandChat=1;
-		$(".modal-content").css({
-			width: $(".modal-content").width() + 300,
-		});
-		
-		$(".messageUserMention").css({
-			"margin-top" : (-1)*$("#message").height()+"px",
-			height: 90+"px",	
-			width: 212+"px",
-		})
-		dropZone.css({
-			height: $("#attachedArea").height(),
-		});
-		imgButton.src="/wfe/images/chat_expand.png";
-		if(numberNewMessages>0){
-			newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
-		}
-		else{
-			newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
-		}
-	}else if(flagRollExpandChat == 1){
-		flagRollExpandChat=0;
-		$(".modal-content").css({
-			width: $(".modal-content").width() - 300,
-		});
-		$("#attachedArea").css({
-			height: $("#attachedArea").height() - 50,
-		});
-		
-		
-		$(".messageUserMention").css({
-			"margin-top" : (-1) * $("#message").height()+10+"px",
-			height: 50+"px",			
-			width: 225+"px",
-		});
-		imgButton.src="/wfe/images/chat_roll_up.png";
-		if(numberNewMessages>0){
-			newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
-		}
-		else{
-
-			newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
+	if(lockFlag == false){
+		if(flagRollExpandChat == 0){
+			flagRollExpandChat=1;
+			$(".modal-content").css({
+				width: $(".modal-content").width() + 300,
+			});
+			
+			$(".messageUserMention").css({
+				"margin-top" : (-1)*$("#message").height()+"px",
+				height: 90+"px",	
+				width: 212+"px",
+			})
+			dropZone.css({
+				height: $("#attachedArea").height(),
+			});
+			imgButton.src="/wfe/images/chat_expand.png";
+			if(numberNewMessages>0){
+				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
+			}
+			else{
+				newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
+			}
+		}else if(flagRollExpandChat == 1){
+			flagRollExpandChat=0;
+			$(".modal-content").css({
+				width: $(".modal-content").width() - 300,
+			});
+			$("#attachedArea").css({
+				height: $("#attachedArea").height() - 50,
+			});
+			
+			
+			$(".messageUserMention").css({
+				"margin-top" : (-1) * $("#message").height()+10+"px",
+				height: 50+"px",			
+				width: 225+"px",
+			});
+			imgButton.src="/wfe/images/chat_roll_up.png";
+			if(numberNewMessages>0){
+				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
+			}
+			else{
+	
+				newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
+			}
 		}
 	}
 }
@@ -480,9 +497,11 @@ function getUsersNames(){
 }
 //@
 function enterClickUserNames(event){
-	let userNameText = $(this).text().slice(userNameLength+1) + " ";
-	$("#message").val($("#message").val().slice(0, userNamePosition+userNameLength+1) + userNameText + $("#message").val().slice(userNamePosition+userNameLength+1));
-	deleteUserNameTable();
+	if(lockFlag == false){
+		let userNameText = $(this).text().slice(userNameLength+1) + " ";
+		$("#message").val($("#message").val().slice(0, userNamePosition+userNameLength+1) + userNameText + $("#message").val().slice(userNamePosition+userNameLength+1));
+		deleteUserNameTable();
+	}
 }
 //полная очистка таблицы вставки userNameTable и её переменных
 function deleteUserNameTable(){
@@ -737,9 +756,11 @@ $("#fileInput").change(function() {
 });
 //удаление прикрепленного к сообщению файла (для таблички прикрепленных файлов)
 function deleteAttachedFile(){
-	attachedFiles.splice($(this).attr("fileNumber"));
-	$(this).closest("tr").remove();
-	return false;
+	if(lockFlag == false){
+		attachedFiles.splice($(this).attr("fileNumber"));
+		$(this).closest("tr").remove();
+		return false;
+	}
 }
 
 //--------------------------------------------------------------
@@ -1007,13 +1028,45 @@ function stopResizing(e){
 //----------------------------------------------------------------------
 //функции переключения между чатами
 $(".modalSwitchingWindowButton").click(function (){
-	if($(".modalSwitchingWindow").css("display")=="none"){
-		$(".modalSwitchingWindow").css({"display":"block"});
-		ajaxAllInitializationChats();
+	if(lockFlag == false){
+		if($(".modalSwitchingWindow").css("display")=="none"){
+			$(".modalSwitchingWindow").css({"display":"block"});
+			if(flagPrimaryInitialization==0){
+				ajaxAllInitializationChats();
+				flagPrimaryInitialization=1;
+			}
+		}
+		else
+			$(".modalSwitchingWindow").css({"display":"none"});
 	}
-	else
-		$(".modalSwitchingWindow").css({"display":"none"});
 });
+
+function swapChat(){
+	if(lockFlag == false){
+		chatSocket.close();
+		newMessageIndex=0;
+		oldMessagesIndex = -1;
+		minMassageId = -1;
+		maxMassageId = -1;
+		currentMessageId = -1;
+		numberNewMessages = 0;
+		blocOldMes=0;
+		attachedPosts=[];
+		attachedFiles = [];
+		$("#progressBar").css({"display":"none"});
+		$("#messReplyTable").empty();
+		$("#filesTable").empty();
+		$(".selectionTextQuote").remove();
+		$("#ChatForm").attr("processId",data[i].processId);
+		ajaxInitializationChat();
+		if(numberNewMessages>0){
+			newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
+		}
+		else{
+			newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
+		}
+	}
+}
 
 function getAllChat(data){
 	let messagesStep=20;
@@ -1026,30 +1079,7 @@ function getAllChat(data){
 	for(let i=0;i<data.length;i++){
 		let cloneIdRowListChats=idRowListChats.clone();
 		cloneIdRowListChats.attr("id",data[i].processId);
-		cloneIdRowListChats.click(function(){
-			chatSocket.close();
-			newMessageIndex=0;
-			oldMessagesIndex = -1;
-			minMassageId = -1;
-			maxMassageId = -1;
-			currentMessageId = -1;
-			numberNewMessages = 0;
-			blocOldMes=0;
-			attachedPosts=[];
-			attachedFiles = [];
-			$("#progressBar").css({"display":"none"});
-			$("#messReplyTable").empty();
-			$("#filesTable").empty();
-			$(".selectionTextQuote").remove();
-			$("#ChatForm").attr("processId",data[i].processId);
-			ajaxInitializationChat();
-			if(numberNewMessages>0){
-				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
-			}
-			else{
-				newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
-			}
-		});
+		cloneIdRowListChats.click(swapChat);
 		cloneIdRowListChats.children().first().append("processId "+data[i].processId);
 		cloneIdRowListChats.children(".readMes").append(data[i].countMessage);
 		cloneIdRowListChats.children(".readMes").attr("id","numberNewMessages"+data[i].processId)
@@ -1157,6 +1187,7 @@ btnLoadOldMessages.onclick = loadOldMessages;
 btnSend.onclick=sendMessage;
 document.getElementById("close").onclick = closeChat;
 btnOp.onclick=zoomInZoomOut;
+
 //комбинация хоткея "отправить" (cntrl+enter)
 $("#message").keydown(function(e){
 	if(e.ctrlKey && e.keyCode == 13){

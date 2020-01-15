@@ -59,17 +59,13 @@ public class ChatSocket {
         Integer fileNumber = -1;
         JSONObject sendObject;
         try {
-            /*
-             * session.getUserProperties().put("activeFileNames", objectMessage.get("fileNames")); session.getUserProperties().put("activeFileSize",
-             * 0); session.getUserProperties().put("activeFileIds", new ArrayList<Long>());
-             */
             fileNumber = (Integer) session.getUserProperties().get("activeFileSize");
             byte[] bytes = new byte[msg.remaining()];
             msg.get(bytes);
             ChatMessageFile chatFile = new ChatMessageFile();
             chatFile.setFileName((String) ((JSONArray) session.getUserProperties().get("activeFileNames")).get(fileNumber));// доделать!!
             ChatMessage chatMessage = Delegates.getChatService().getChatMessage((User) session.getUserProperties().get("user"), 0L);
-            chatFile.setMessageId(chatMessage);
+            chatFile.setMessageId(null);
             chatFile.setFile(org.apache.commons.lang.ArrayUtils.toObject(bytes));
             chatFile = Delegates.getChatService().saveChatMessageFile((User) session.getUserProperties().get("user"), chatFile);
             ((ArrayList<Long>) session.getUserProperties().get("activeFileIds")).add(chatFile.getId());
