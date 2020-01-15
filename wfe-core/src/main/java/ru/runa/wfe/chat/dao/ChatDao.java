@@ -157,7 +157,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
     // ?
     public long getMessagesCount(Long processId) {
         QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.processId.eq(processId).and(m.active.eq(true))).fetchCount();
+        return queryFactory.selectFrom(m).where(m.processId.eq(processId)).fetchCount();
     }
 
     public void deleteMessage(Long messId) {

@@ -28,7 +28,6 @@ public class ChatMessage {
     private Date createDate;
     private Actor createActor;
     private Boolean haveFiles = false;
-    private Boolean active = true;
     private Boolean isPrivate = false;
 
     @Transient
@@ -131,15 +130,6 @@ public class ChatMessage {
 
     public void setHaveFiles(Boolean haveFiles) {
         this.haveFiles = haveFiles;
-    }
-
-    @Column(name = "IS_ACTIVE")
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
     }
 
     @Column(name = "IS_PRIVATE")

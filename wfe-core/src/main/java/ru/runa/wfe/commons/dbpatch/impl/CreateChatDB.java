@@ -29,7 +29,6 @@ public class CreateChatDB extends DbPatch {
         columns.add(new ColumnDef("PROCESS_ID", Types.BIGINT, false));
         columns.add(new ColumnDef("CREATE_DATE", Types.DATE, false));
         columns.add(new ColumnDef("HAVE_FILES", Types.BOOLEAN, false));
-        columns.add(new ColumnDef("IS_ACTIVE", Types.BOOLEAN, false));
         columns.add(new ColumnDef("IS_PRIVATE", Types.BOOLEAN, false));
 
         sql.add(getDDLCreateTable("CHAT_MESSAGE", columns, null));
