@@ -1,6 +1,5 @@
 package ru.runa.wfe.chat.logic;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +13,9 @@ import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -22,6 +24,7 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
@@ -37,8 +40,7 @@ public class ChatLogic extends WfCommonLogic {
         Set<Executor> executors;
         if (!message.getIsPrivate()) {
             executors = getAllUsers(message.getProcessId(), message.getCreateActor());
-        }
-        else {
+        } else {
             executors = new HashSet<Executor>(message.getMentionedExecutors());
         }
         return chatDao.saveMessageAndBindFiles(user, message, fileIds, executors);
@@ -61,26 +63,46 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public Set<Executor> getAllUsers(Long processId, Actor user) {
-        Set<Executor> ret = new HashSet<Executor>();
-        // выбираем таски
-        List<Task> tasks = Lists.newArrayList();
+        Set<Executor> result = new HashSet<>();
         Process process = processDao.getNotNull(processId);
-        tasks.addAll(taskDao.findByProcess(process));
-        List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
-        for (Process subprocess : subprocesses) {
-            tasks.addAll(taskDao.findByProcess(subprocess));
-        }
-        // собираем юзеров
-        for(Task task : tasks) {
-            Executor executor = task.getExecutor();
-            if (executor.getClass() == Group.class) {
-                ret.addAll(executorDao.getGroupActors(((Group) task.getExecutor())));
+        List<Process> subProcesses = nodeProcessDao.getSubprocessesRecursive(process);
+        {
+            // select user from active tasks
+            List<Task> tasks = new ArrayList<>();
+            tasks.addAll(taskDao.findByProcess(process));
+            for (Process subProcess : subProcesses) {
+                tasks.addAll(taskDao.findByProcess(subProcess));
             }
-            else if (executor.getClass() == Actor.class) {
-                ret.add(executor);
+            for (Task task : tasks) {
+                Executor executor = task.getExecutor();
+                if (executor instanceof Group) {
+                    // TODO подумать - хотим мы хранить в получателях ссылки на группы или на пользователей
+                    result.addAll(executorDao.getGroupActors(((Group) executor)));
+                } else if (executor instanceof Actor) {
+                    result.add(executor);
+                }
             }
         }
-        return ret;
+        {
+            // select user from completed tasks
+            List<ProcessLog> processLogs = new ArrayList<>();
+            ProcessLogFilter filter = new ProcessLogFilter(processId);
+            filter.setRootClassName(TaskEndLog.class.getName());
+            processLogs.addAll(processLogDao.getAll(filter));
+            for (Process subProcess : subProcesses) {
+                filter.setProcessId(subProcess.getId());
+                processLogs.addAll(processLogDao.getAll(filter));
+            }
+            for (ProcessLog processLog : processLogs) {
+                String actorName = ((TaskEndLog) processLog).getActorName();
+                try {
+                    result.add(executorDao.getActor(actorName));
+                } catch (ExecutorDoesNotExistException e) {
+                    log.debug("Ignored deleted actor " + actorName + " for chat message");
+                }
+            }
+        }
+        return result;
     }
 
     public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
@@ -115,8 +137,7 @@ public class ChatLogic extends WfCommonLogic {
         if (!message.getIsPrivate()) {
             Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
             return chatDao.save(message, executors);
-        }
-        else {
+        } else {
             return chatDao.save(message);
         }
     }
@@ -154,7 +175,7 @@ public class ChatLogic extends WfCommonLogic {
     public boolean sendMessageToEmail(String title, String message, String Emaile) {
         // Создаем соединение для отправки почтового сообщения
         javax.mail.Session session = javax.mail.Session.getDefaultInstance(properties,
-                // Аутентификатор - объект, который передает логин и пароль
+        // Аутентификатор - объект, который передает логин и пароль
                 new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
