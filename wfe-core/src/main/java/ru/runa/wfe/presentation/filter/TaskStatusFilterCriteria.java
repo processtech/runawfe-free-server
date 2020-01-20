@@ -41,11 +41,11 @@ public class TaskStatusFilterCriteria extends FilterCriteria {
 
         switch (taskStatus) {
             case TASK_STATUS_ACTIVE:
-            where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = '").append(TaskEndReason.UNKNOWN.name())
+            where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = '").append(TaskEndReason.PROCESSING.name())
                     .append("'");
                 break;
             case TASK_STATUS_HAS_ASSIGNED:
-            where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = '").append(TaskEndReason.PROCESSING.name())
+            where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = '").append(TaskEndReason.COMPLETED.name())
                     .append("'");
                 break;
             case TASK_STATUS_HAS_NOT_STARTED:
