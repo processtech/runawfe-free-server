@@ -39,6 +39,7 @@ public class ChatSessionHandler {
     }
 
     public void removeSession(Session session) {
+        onlyNewMessagesSessions.remove(session);
         sessions.remove(session);
     }
 
@@ -88,8 +89,7 @@ public class ChatSessionHandler {
             throws IOException {
         for (Session session : onlyNewMessagesSessions) {
             JSONObject sendObject = (JSONObject) message.clone(); // проверить клон!
-            Long thisId = (Long) session.getUserProperties().get("processId");
-            if (processId.equals(thisId)) {
+            if (((HashSet<Long>) session.getUserProperties().get("processIds")).contains(processId)) {
                 Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
                 if (thisActor.equals(coreUser)) {
                     sendObject.put("coreUser", true);

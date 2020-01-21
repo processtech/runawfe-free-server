@@ -1057,7 +1057,7 @@ function swapChat(){
 		$("#messReplyTable").empty();
 		$("#filesTable").empty();
 		$(".selectionTextQuote").remove();
-		$("#ChatForm").attr("processId",data[i].processId);
+		$("#ChatForm").attr("processId", $(this).attr("processId"));
 		ajaxInitializationChat();
 		if(numberNewMessages>0){
 			newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
@@ -1078,7 +1078,8 @@ function getAllChat(data){
 	idRowListChats.append(numUnredaMes);
 	for(let i=0;i<data.length;i++){
 		let cloneIdRowListChats=idRowListChats.clone();
-		cloneIdRowListChats.attr("id",data[i].processId);
+		cloneIdRowListChats.attr("id","switchChat"+data[i].processId);
+		cloneIdRowListChats.attr("processId",data[i].processId);
 		cloneIdRowListChats.click(swapChat);
 		cloneIdRowListChats.children().first().append("processId "+data[i].processId);
 		cloneIdRowListChats.children(".readMes").append(data[i].countMessage);

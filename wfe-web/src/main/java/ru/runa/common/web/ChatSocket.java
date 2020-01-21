@@ -43,9 +43,12 @@ public class ChatSocket {
 
     @OnClose
     public void close(Session session) {
-        ArrayList<Long> fileIds = (ArrayList<Long>) session.getUserProperties().get("activeFileIds");
-        for(Long fileId : fileIds) {
-            Delegates.getChatService().deleteFile(((User) session.getUserProperties().get("user")), fileId);
+        Object activeFileIdsObject = session.getUserProperties().get("activeFileIds");
+        if (activeFileIdsObject != null) {
+            ArrayList<Long> fileIds = (ArrayList<Long>) activeFileIdsObject;
+            for (Long fileId : fileIds) {
+                Delegates.getChatService().deleteFile(((User) session.getUserProperties().get("user")), fileId);
+            }
         }
         sessionHandler.removeSession(session);
     }
