@@ -26,8 +26,6 @@ var fileInp=1024 * 1024 * 20;//20 мб
 var characterSize=1024;
 //флаг развернутого чата (0 - свернут, 1 - развернут)
 var switchCheak=0;
-//
-var chatForm=document.getElementById("ChatForm");
 //флаг обозначающий состояние(развернут или свернут) чат
 var flagRollExpandChat=0;
 //флаг для первичной инициализации всех чатов во время откытия окна переключения чатов
@@ -53,6 +51,41 @@ var chatsNewMessSocketURL = null;
 //сокет основной
 var chatSocket = null;
 var chatSocketURL = null;
+//--------------------------------функция "полной очистки"
+
+function clearChat(){
+	//переменные
+	newMessagesHeight = 0;
+	attachedPosts=[];
+	editMessageFlag=false;
+	editMessageId = -1;
+	userNamePosition = -1;
+	userNamePositionFlag = false;
+	userLoadFlag = false;
+	userList = [];
+	userNameLength=0;
+	//lockFlag = false;
+	dropZone=$("#dropZ");
+	attachedFiles=[];
+	//switchCheak=0;
+	flagRollExpandChat=0;
+	flagPrimaryInitialization=0;
+	newMessageIndex=0;
+	oldMessagesIndex = -1;//только для старых, идет в отрицательные
+	minMassageId = -1;
+	maxMassageId = -1;
+	currentMessageId = -1;
+	numberNewMessages = 0;
+	blocOldMes=0;
+	messagesStep = 20;
+	listUserNameFastInput=1;
+	userNameTableLength=0;
+	//очистка чата
+	$("#progressBar").css({"display":"none"});
+	$("#messReplyTable").empty();
+	$("#filesTable").empty();
+	$(".selectionTextQuote").remove();
+}
 
 //-------------------------------------------
 //переменные кнопок
@@ -263,8 +296,8 @@ function loadOldMessages(){
 //кнопка открытия чата
 function openChat() {
 	if(lockFlag==false){
-		if(chatForm != null){
-			chatForm.style.display = "block";
+		if(document.getElementById("ChatForm") != null){
+			document.getElementById("ChatForm").style.display = "block";
 			switchCheak=1;
 			//установка границы скролла непрочитанных
 			if(numberNewMessages == 0){
@@ -280,7 +313,7 @@ function openChat() {
 }
 //закрытие (сворачивание) чата
 function closeChat() {
-	chatForm.style.display = "none";
+	document.getElementById("ChatForm").style.display = "none";
 	switchCheak=0;
 }
 //кнопка "отправить"
@@ -468,7 +501,7 @@ $("#modal-body").resize(function(){
 function updatenumberNewMessages(numberNewMessages0){
 	numberNewMessages = numberNewMessages0;
 	document.getElementById("countNewMessages").innerHTML="" + numberNewMessages + "";
-
+	$("#numberNewMessages"+$("#ChatForm").attr("processid")).text(numberNewMessages0);
 }
 //функция отправляет по сокету id последнего прочитонного сообщния
 function updateLastReadMessage(){
@@ -477,7 +510,6 @@ function updateLastReadMessage(){
 	newSend0.type="readMessage";
 	newSend0.currentMessageId=currentMessageId;
 	let sendObject0 = JSON.stringify(newSend0);
-	$("#numberNewMessages"+$("#ChatForm").attr("processid")).text(Number.parseInt($("#numberNewMessages"+$("#ChatForm").attr("processid")).text()) - 1);
 	chatSocket.send(sendObject0);
 }
 
@@ -1043,28 +1075,12 @@ $(".modalSwitchingWindowButton").click(function (){
 
 function swapChat(){
 	if(lockFlag == false){
+		lockFlag = true;
 		chatSocket.close();
-		newMessageIndex=0;
-		oldMessagesIndex = -1;
-		minMassageId = -1;
-		maxMassageId = -1;
-		currentMessageId = -1;
-		numberNewMessages = 0;
-		blocOldMes=0;
-		attachedPosts=[];
-		attachedFiles = [];
-		$("#progressBar").css({"display":"none"});
-		$("#messReplyTable").empty();
-		$("#filesTable").empty();
-		$(".selectionTextQuote").remove();
+		clearChat();
+		lockFlag = false;
 		$("#ChatForm").attr("processId", $(this).attr("processId"));
 		ajaxInitializationChat();
-		if(numberNewMessages>0){
-			newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
-		}
-		else{
-			newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
-		}
 	}
 }
 
@@ -1103,9 +1119,11 @@ function getAllChat(data){
 function onChatsNewMessSocketMessage(event){
 	let message0 = JSON.parse(event.data);
 	if(message0.messType == "newMessage"){
-		$("#numberNewMessages"+message0.processId).text(Number.parseInt($("#numberNewMessages"+message0.processId).text()) + 1);
-		if(message0.mentioned == true){
-			$("#numberNewMessages"+message0.processId).attr("class","isMentionChats");
+		if(message0.processId != $("#ChatForm").attr("processId")){
+			$("#numberNewMessages"+message0.processId).text(Number.parseInt($("#numberNewMessages"+message0.processId).text()) + 1);
+			if(message0.mentioned == true){
+				$("#numberNewMessages"+message0.processId).attr("class","isMentionChats");
+			}
 		}
 	}
 }
@@ -1147,7 +1165,7 @@ function ajaxInitializationChat(){
 			//скролл к непрочитанным
 			//установка скрол-функции отслеживания непрочитанных
 			$("#modal-body").bind("load scroll", scrollNewMessages);
-
+			lockFlag=false;
 			switchCheak=reSwitchCheak;
 			if(switchCheak==1){
 				openChat();
