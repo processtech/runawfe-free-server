@@ -27,11 +27,14 @@ public class ChatMessage {
     private Long processId;
     private Date createDate;
     private Actor createActor;
-    private Boolean haveFiles = false;
+    @Transient
     private Boolean isPrivate = false;
-
     @Transient
     private List<Executor> mentionedExecutors = new ArrayList<Executor>();
+    @Transient
+    public List<String> fileNames = new ArrayList<String>();
+    @Transient
+    public List<Long> fileIds = new ArrayList<Long>();
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -113,7 +116,7 @@ public class ChatMessage {
     }
 
     @ManyToOne
-    @JoinColumn(name = "CREATE_ACTOR_ID")
+    @JoinColumn(name = "CREATE_ACTOR")
     @ForeignKey(name = "FK_CHAT_MESSAGE_EXECUTOR_ID")
     public Actor getCreateActor() {
         return createActor;
@@ -123,20 +126,12 @@ public class ChatMessage {
         this.createActor = createActor;
     }
 
-    @Column(name = "HAVE_FILES")
-    public Boolean getHaveFiles() {
-        return haveFiles;
-    }
-
-    public void setHaveFiles(Boolean haveFiles) {
-        this.haveFiles = haveFiles;
-    }
-
-    @Column(name = "IS_PRIVATE")
+    @Transient
     public Boolean getIsPrivate() {
         return isPrivate;
     }
 
+    @Transient
     public void setIsPrivate(Boolean isPrivate) {
         this.isPrivate = isPrivate;
     }

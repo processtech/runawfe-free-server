@@ -50,7 +50,7 @@ public interface ChatService {
      *
      * @return sends an email (chat emaile - chat.properties)
      */
-    public boolean sendMessageToEmail(User user, String title, String message, String Emaile);
+    public Boolean sendMessageToEmail(User user, String title, String message, String Emaile);
 
     /**
      * merge message in DB
@@ -67,7 +67,7 @@ public interface ChatService {
      *            validated user (actor)
      * @return not <code>null</code>
      */
-    public boolean canEditMessage(User user);
+    public Boolean canEditMessage(User user);
 
     /**
      * Get List array of all ChatMessageFiles in chat message.
@@ -158,16 +158,7 @@ public interface ChatService {
      *            new message to save
      * @return new message id
      */
-    public long saveChatMessage(User user, Long processId, ChatMessage message);
-
-    /**
-     * Get number of chat messages.
-     *
-     * @param processId
-     *            chat Id
-     * @return number of chat messages
-     */
-    long getAllChatMessagesCount(User user, Long processId);
+    public Long saveChatMessage(User user, Long processId, ChatMessage message);
 
     /**
      * Delete ChatMessage in DB.
@@ -186,5 +177,5 @@ public interface ChatService {
      *            last message Id
      * @return number of chat messages with id > lastMessageId
      */
-    public long getNewChatMessagesCount(User user, Long processId);
+    public Long getNewChatMessagesCount(User user, Long processId);
 }

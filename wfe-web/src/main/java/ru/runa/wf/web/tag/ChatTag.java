@@ -12,26 +12,24 @@ import org.apache.ecs.html.TextArea;
 import org.apache.ecs.html.UL;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-import ru.runa.common.web.tag.SecuredObjectFormTag;
-import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredObject;
+import ru.runa.common.web.tag.FormTag;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "ChatTag")
-public class ChatTag extends SecuredObjectFormTag {
+public class ChatTag extends FormTag /* TitledFormTag */ {
 
     private static final long serialVersionUID = -4722799699002222875L;
-    private String type="default";
+    private Long taskId = -1L;
     private Long processId = 0L;
     
-    private String getType() {
-        return type;
+    private Long getTaskId() {
+        return taskId;
     }
 
     @Attribute(required = false, rtexprvalue = true)
-    public void setType(String type) {
-        this.type = type;
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
     }
     
     public Long getProcessId() {
@@ -44,9 +42,9 @@ public class ChatTag extends SecuredObjectFormTag {
     }
 
     @Override
-    protected void fillFormData(TD tdFormElement) {
-    	if(getType() == "TaskInProcess") {
-            WfTask task = Delegates.getTaskService().getTask(getUser(), getProcessId());
+    protected void fillFormElement(TD tdFormElement) {
+        if (getTaskId() != -1) {
+            WfTask task = Delegates.getTaskService().getTask(getUser(), getTaskId());
             setProcessId(task.getProcessId());
     	}
         IMG imageChatExpand = new IMG();
@@ -273,23 +271,5 @@ public class ChatTag extends SecuredObjectFormTag {
         tdFormElement.addElement(newMessagesIndicator);
         tdFormElement.addElement(box);
     }
-
-    @Override
-    protected Permission getSubmitPermission() {
-        return null;
-    }
-    
-	@Override
-	protected SecuredObject getSecuredObject() {
-		switch (getType()) {
-		case "TaskInProcess":
-            WfTask task = Delegates.getTaskService().getTask(getUser(), getProcessId());
-			return Delegates.getExecutionService().getProcess(getUser(), task.getProcessId());
-		case "Process":
-            return Delegates.getExecutionService().getProcess(getUser(), getProcessId());
-		default:
-			return null;
-		}
-	}
 	
 }

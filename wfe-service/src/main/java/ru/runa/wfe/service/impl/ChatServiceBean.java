@@ -77,7 +77,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public boolean sendMessageToEmail(User user, String title, String message, String Emaile) {
+    public Boolean sendMessageToEmail(User user, String title, String message, String Emaile) {
         return chatLogic.sendMessageToEmail(title, message, Emaile);
     }
 
@@ -89,14 +89,14 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public boolean canEditMessage(User user) {
+    public Boolean canEditMessage(User user) {
         return chatLogic.canEditMessage(user.getActor());
     }
 
     @WebMethod(exclude = true)
     @Override
     public List<ChatMessageFile> getChatMessageFiles(User user, ChatMessage message) {
-        return chatLogic.getMessageFiles(message);
+        return chatLogic.getMessageFiles(user.getActor(), message);
     }
 
     @WebMethod(exclude = true)
@@ -137,12 +137,6 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public long getAllChatMessagesCount(User user, Long processId) {
-        return chatLogic.getAllMessagesCount(processId);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
     public List<ChatMessage> getFirstChatMessages(User user, Long processId, int count) {
         return chatLogic.getFirstMessages(user.getActor(), processId, count);
     }
@@ -155,13 +149,13 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public long getNewChatMessagesCount(User user, Long processId) {
+    public Long getNewChatMessagesCount(User user, Long processId) {
         return chatLogic.getNewMessagesCount(user.getActor(), processId);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public long saveChatMessage(User user, Long processId, ChatMessage message) {
+    public Long saveChatMessage(User user, Long processId, ChatMessage message) {
         return chatLogic.saveMessage(processId, message);
     }
 

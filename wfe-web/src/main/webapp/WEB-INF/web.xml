@@ -218,15 +218,6 @@
 			<http-only>true</http-only>
 		</cookie-config>
 	</session-config>
-
-	<servlet>
-		<servlet-name>chatFileInput</servlet-name>
-		<servlet-class>ru.runa.wf.web.servlet.ChatFileInputServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>chatFileInput</servlet-name>
-		<url-pattern>/chatFileInput</url-pattern>
-	</servlet-mapping>
 	
 	<servlet>
 		<servlet-name>chatFileOutput</servlet-name>

@@ -109,7 +109,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessagesCounts(chatsIds, isMentions, user);
     }
 
-    public long getNewMessagesCount(Actor user, Long processId) {
+    public Long getNewMessagesCount(Actor user, Long processId) {
         return chatDao.getNewMessagesCount(user, processId);
     }
 
@@ -133,7 +133,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessages(user, processId);
     }
 
-    public long saveMessage(Long processId, ChatMessage message) {
+    public Long saveMessage(Long processId, ChatMessage message) {
         if (!message.getIsPrivate()) {
             Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
             return chatDao.save(message, executors);
@@ -142,18 +142,13 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
-    // -?
-    public long getAllMessagesCount(Long processId) {
-        return chatDao.getMessagesCount(processId);
-    }
-
     public void deleteMessage(Long messId) {
         chatDao.deleteMessageFiles(messId);
         chatDao.deleteMessage(messId);
     }
 
-    public List<ChatMessageFile> getMessageFiles(ChatMessage message) {
-        return chatDao.getMessageFiles(message);
+    public List<ChatMessageFile> getMessageFiles(Actor actor, ChatMessage message) {
+        return chatDao.getMessageFiles(actor, message);
     }
 
     public ChatMessageFile saveFile(ChatMessageFile file) {
@@ -168,11 +163,11 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.updateMessage(message);
     }
 
-    public boolean canEditMessage(Actor user) {
+    public Boolean canEditMessage(Actor user) {
         return true;
     }
 
-    public boolean sendMessageToEmail(String title, String message, String Emaile) {
+    public Boolean sendMessageToEmail(String title, String message, String Emaile) {
         // Создаем соединение для отправки почтового сообщения
         javax.mail.Session session = javax.mail.Session.getDefaultInstance(properties,
         // Аутентификатор - объект, который передает логин и пароль

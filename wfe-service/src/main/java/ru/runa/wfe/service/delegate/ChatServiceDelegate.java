@@ -55,7 +55,7 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 	
 	@Override
-    public boolean sendMessageToEmail(User user, String title, String message, String Emaile) {
+    public Boolean sendMessageToEmail(User user, String title, String message, String Emaile) {
         return getChatService().sendMessageToEmail(user, title, message, Emaile);
     }
 
@@ -65,7 +65,7 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public boolean canEditMessage(User user) {
+    public Boolean canEditMessage(User user) {
         return getChatService().canEditMessage(user);
     }
 
@@ -115,17 +115,12 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public long getNewChatMessagesCount(User user, Long processId) {
+    public Long getNewChatMessagesCount(User user, Long processId) {
         return getChatService().getNewChatMessagesCount(user, processId);
     }
 
     @Override
-    public long getAllChatMessagesCount(User user, Long processId) {
-        return getChatService().getAllChatMessagesCount(user, processId);
-    }
-
-    @Override
-    public long saveChatMessage(User user, Long processId, ChatMessage message) {
+    public Long saveChatMessage(User user, Long processId, ChatMessage message) {
         return getChatService().saveChatMessage(user, processId, message);
     }
 

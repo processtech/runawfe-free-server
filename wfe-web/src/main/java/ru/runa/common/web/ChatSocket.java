@@ -66,10 +66,9 @@ public class ChatSocket {
             byte[] bytes = new byte[msg.remaining()];
             msg.get(bytes);
             ChatMessageFile chatFile = new ChatMessageFile();
-            chatFile.setFileName((String) ((JSONArray) session.getUserProperties().get("activeFileNames")).get(fileNumber));// доделать!!
-            ChatMessage chatMessage = Delegates.getChatService().getChatMessage((User) session.getUserProperties().get("user"), 0L);
-            chatFile.setMessageId(null);
-            chatFile.setFile(org.apache.commons.lang.ArrayUtils.toObject(bytes));
+            chatFile.setFileName((String) ((JSONArray) session.getUserProperties().get("activeFileNames")).get(fileNumber));
+            chatFile.setMessage(null);
+            chatFile.setFile(bytes);
             chatFile = Delegates.getChatService().saveChatMessageFile((User) session.getUserProperties().get("user"), chatFile);
             ((ArrayList<Long>) session.getUserProperties().get("activeFileIds")).add(chatFile.getId());
             // send "ok"
@@ -138,8 +137,9 @@ public class ChatSocket {
         }
         newMessage.setQuotedMessageIdsArray(hierarchyMessagesIds);
         // файлы
+        Boolean haveFiles = false;
         if (((boolean) objectMessage.get("haveFile")) == true) {
-            newMessage.setHaveFiles(true);
+            haveFiles = true;
         }
         // приватное ли сообщение
         newMessage.setIsPrivate((Boolean) objectMessage.get("isPrivate"));
@@ -177,7 +177,7 @@ public class ChatSocket {
                 break;
             }
         }
-        if (newMessage.getHaveFiles() == false) {
+        if (haveFiles == false) {
             HashSet<Actor> mentionedActors = new HashSet<Actor>();
             for (Executor mentionedExecutor : newMessage.getMentionedExecutors()) {
                 if (mentionedExecutor.getClass() == Actor.class) {
@@ -189,16 +189,14 @@ public class ChatSocket {
                     newMessage);
             newMessage.setId(newMessId);
             // отправка по чату всем:
-            if (newMessage.getHaveFiles() == false) {
-                JSONObject sendObject1 = convertMessage(((User) session.getUserProperties().get("user")), newMessage, false);
-                sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors,
-                        newMessage.getIsPrivate());
-                JSONObject sendObject2 = new JSONObject();
-                sendObject2.put("processId", newMessage.getProcessId());
-                sendObject2.put("messType", "newMessage");
-                sessionHandler.sendOnlyNewMessagesSessions(sendObject2, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors,
-                        newMessage.getIsPrivate());
-            }
+            JSONObject sendObject1 = convertMessage(((User) session.getUserProperties().get("user")), newMessage, false);
+            sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors,
+                    newMessage.getIsPrivate());
+            JSONObject sendObject2 = new JSONObject();
+            sendObject2.put("processId", newMessage.getProcessId());
+            sendObject2.put("messType", "newMessage");
+            sessionHandler.sendOnlyNewMessagesSessions(sendObject2, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors,
+                    newMessage.getIsPrivate());
             //
             for (Executor executor : newMessage.getMentionedExecutors()) {
                 Properties chatProp = ClassLoaderUtil.getProperties("chat.properties", true);
@@ -230,6 +228,8 @@ public class ChatSocket {
         ArrayList<Long> fileIds = (ArrayList<Long>) session.getUserProperties().get("activeFileIds");
         long mesId = Delegates.getChatService().saveMessageAndBindFiles((User) session.getUserProperties().get("user"), activeMessage, fileIds);
         activeMessage.setId(mesId);
+        activeMessage.fileIds = fileIds;
+        activeMessage.fileNames = new ArrayList<String>((JSONArray) session.getUserProperties().get("activeFileNames"));
         //
         HashSet<Actor> mentionedActors = new HashSet<Actor>();
         for (Executor mentionedExecutor : activeMessage.getMentionedExecutors()) {
@@ -316,16 +316,14 @@ public class ChatSocket {
         messageObject.put("id", message.getId());
         messageObject.put("text", message.getText());
         messageObject.put("author", message.getUserName());
-        if (message.getHaveFiles() == true) {
-            // индексы файлов
-            List<ChatMessageFile> filesArray = Delegates.getChatService().getChatMessageFiles(user, message);
-            if (filesArray.size() > 0) {
+        if (message.fileNames != null) {
+            if (message.fileNames.size() > 0) {
                 messageObject.put("haveFile", true);
                 JSONArray filesArrayObject = new JSONArray();
-                for (int i = 0; i < filesArray.size(); i++) {
+                for (int i = 0; i < message.fileNames.size(); i++) {
                     JSONObject fileObject = new JSONObject();
-                    fileObject.put("id", filesArray.get(i).getId());
-                    fileObject.put("name", filesArray.get(i).getFileName());
+                    fileObject.put("id", message.fileIds.get(i));
+                    fileObject.put("name", message.fileNames.get(i));
                     filesArrayObject.add(fileObject);
                 }
                 messageObject.put("fileIdArray", filesArrayObject);

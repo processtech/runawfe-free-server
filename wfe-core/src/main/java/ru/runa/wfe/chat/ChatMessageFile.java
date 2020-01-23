@@ -17,8 +17,8 @@ import org.hibernate.annotations.ForeignKey;
 public class ChatMessageFile {
 
     private Long id;
-    private ChatMessage messageId;
-    private Byte[] file;
+    private ChatMessage message;
+    private byte[] file;
     private String fileName;
 
     @Id
@@ -34,23 +34,23 @@ public class ChatMessageFile {
     }
 
     @ManyToOne
-    @JoinColumn(name = "MESSAGE_ID")
+    @JoinColumn(name = "MESSAGE")
     @ForeignKey(name = "FK_CHAT_MESSAGE_FILE_ID")
-    public ChatMessage getMessageId() {
-        return messageId;
+    public ChatMessage getMessage() {
+        return message;
     }
 
-    public void setMessageId(ChatMessage messageId) {
-        this.messageId = messageId;
+    public void setMessage(ChatMessage message) {
+        this.message = message;
     }
 
     @Column(name = "FILE")
     @Lob
-    public Byte[] getFile() {
+    public byte[] getFile() {
         return file;
     }
 
-    public void setFile(Byte[] file) {
+    public void setFile(byte[] file) {
         this.file = file;
     }
 

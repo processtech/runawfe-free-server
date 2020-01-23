@@ -13,27 +13,27 @@ import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-@Table(name = "CHAT_RECIPIENT")
-public class ChatRecipient {
+@Table(name = "CHAT_MESSAGE_RECIPIENT")
+public class ChatMessageRecipient {
 
     private Long id;
-    private ChatMessage messageId;
+    private ChatMessage message;
     private Long executorId;
     private Date readDate = null;
     private Boolean mentioned = false;
 
-    public ChatRecipient() {
+    public ChatMessageRecipient() {
     }
 
-    public ChatRecipient(ChatMessage messageId, Long executorId, Boolean mentioned) {
-        this.messageId = messageId;
+    public ChatMessageRecipient(ChatMessage message, Long executorId, Boolean mentioned) {
+        this.message = message;
         this.executorId = executorId;
         this.mentioned = mentioned;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_RECIPIENT", allocationSize = 1)
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE_RECIPIENT", allocationSize = 1)
     @Column(name = "ID")
     public Long getId() {
         return id;
@@ -44,14 +44,14 @@ public class ChatRecipient {
     }
 
     @ManyToOne
-    @JoinColumn(name = "MESSAGE_ID")
+    @JoinColumn(name = "MESSAGE")
     @ForeignKey(name = "FK_CHAT_MESSAGE_RECIPIENT_M_ID")
-    public ChatMessage getMessageId() {
-        return messageId;
+    public ChatMessage getMessage() {
+        return message;
     }
 
-    public void setMessageId(ChatMessage messageId) {
-        this.messageId = messageId;
+    public void setMessage(ChatMessage message) {
+        this.message = message;
     }
 
     @Column(name = "EXECUTOR_ID")
