@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "CHAT_MESSAGE_FILE")
@@ -34,8 +35,9 @@ public class ChatMessageFile {
     }
 
     @ManyToOne
-    @JoinColumn(name = "MESSAGE")
+    @JoinColumn(name = "MESSAGE_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_FILE_ID")
+    @Index(name = "IX_CHAT_MESSAGE_FILE_MESSAGE")
     public ChatMessage getMessage() {
         return message;
     }

@@ -58,13 +58,13 @@
 	border: none;
 	cursor: pointer;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 8pt; /*     */
+	font-size: 8pt;
 	resize: none;
 	display: block;
 	width: 100%;
 	min-height: 60px;
 }
-.countNewMessages{/* -  */
+.countNewMessages{
 	width: max-content;
 	background: #5aff7f;
 	text-decoration: underline;
@@ -82,16 +82,15 @@
 }
 
 .modal {
-	display: none; /*    */
-	position: absolute;	 /*Stay in place */
-	/*z-index: 1;  Sit on top */
-	padding-top: 480px; /* Location of the box */
+	display: none;
+	position: absolute;
+	padding-top: 480px;
 	left: 0;
 	top: 0;
 	padding-left:20%;
-	width: 100vw; /* Full width */
-	height: 100vh; /* Full height */
-	overflow: auto; /* Enable scroll if needed */ 
+	width: 100vw;
+	height: 100vh;
+	overflow: auto; 
 }
 	   
 .quote{
@@ -117,7 +116,7 @@
 	padding: 7px;
 	border-bottom:solid 1px;
 	text-decoration: underline;
-	border-bottom-color: #804040; /*    */
+	border-bottom-color: #804040;
 	overflow: hidden;
 	color: #990000;
 }
@@ -126,23 +125,23 @@
 	font-weight: normal;
 	padding: 8px;
 	color: #000080;
-	text-decoration: none; /*     */
+	text-decoration: none;
 }
 
 .openHierarchy:visited {
-	color: #804040; /*    */
+	color: #804040;  
 } 
 
 .openHierarchy:hover {
-	color: #0080c0; /*         */	 
-	text-decoration: underline; /*   */
+	color: #0080c0; 
+	text-decoration: underline;
 }
 
 .selectionTextQuote{
 	background-size:auto;
 	background-origin:padding-box;
 	padding: 7px;
-	border-bottom-color: #515050; /*    */
+	border-bottom-color: #515050;
 	overflow: hidden;
 }
 
@@ -154,8 +153,8 @@
 	font-weight: 600;
 	padding: 8px;
 	color: blue;
-	color: #000080; /*    */ 
-	text-decoration: none; /*     */
+	color: #000080;
+	text-decoration: none;
 }
 
 .deleterMessage {
@@ -171,12 +170,12 @@
 }
 
 .addReply , .deleterMessage:visited {
-	color: #000080; /*    */
+	color: #000080;
 } 
 
 .addReply , .deleterMessage:hover {
-	color: #0080c0; /*         */	 
-	text-decoration: underline; /*   */
+	color: #0080c0; 
+	text-decoration: underline;
 }
 
 .modal-content {
@@ -190,10 +189,10 @@
 	animation-name: animatetop;
 	animation-duration: 0.4s;
 	width: 346px;
-    min-width:15vw;
-    max-width: 50vw;
-    max-height: 67vh;
-    min-height: 67vh;
+	min-width:15vw;
+	max-width: 50vw;
+	max-height: 67vh;
+	min-height: 67vh;
 	top: 380px;
 	padding-top: 0px;
 	margin-bottom: 0px;
@@ -256,12 +255,12 @@
 	-webkit-line-clamp: 4;
 	-webkit-box-orient: vertical;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 0.67rem; /*     */
-	height: 390px; /*   */
-	overflow-y: scroll; /*    */
+	font-size: 0.67rem;
+	height: 390px;
+	overflow-y: scroll;
 	font-weight: 590;
 	font-style:normal;
-	word-break: break-word;/*     */
+	word-break: break-word;
 	scroll-behavior: smooth;	 
 	margin-bottom:10px;
 	box-shadow: #cccccc 2px 2px 8px;
@@ -489,19 +488,20 @@ input[type=file]::-webkit-file-upload-button {
 /*ToDo*/
 #messReplyTable {
 	position: absolute;
-    display: block;
-    opacity: 0.7;
-    width: 100%;
-    height: 25%;
-    overflow: scroll;
+	display: block;
+	opacity: 0.7;
+	width: 100%;
+	height: 25%;
+	overflow: scroll;
 }
+
 #filesTable{
-    position: inherit;
-    display: block;
-    opacity: 0.7;
-    width: 100%;
-    height: 20%;
-    overflow: scroll;
+	position: inherit;
+	display: block;
+	opacity: 0.7;
+	width: 100%;
+	height: 20%;
+	overflow: scroll;
 }
 .image {
 	width: 300px;
@@ -514,8 +514,8 @@ input[type=file]::-webkit-file-upload-button {
 }
 
 #loadNewBessageButton {
-    margin-bottom: 5px;
-    width: 100%;
+	margin-bottom: 5px;
+	width: 100%;
 }
 
 #resizableTarget{
@@ -532,26 +532,25 @@ input[type=file]::-webkit-file-upload-button {
 
 .modalSwitchingWindow{
 	width: 25vw;
-    height: 40vh;
-    display: none;
-    position: absolute;
-    top: 50%;
-    left: 40%;
-    float: left;
-    background-color: white;
-    border: 1px solid darkgray;
-	
+	height: 40vh;
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 40%;
+	float: left;
+	background-color: white;
+	border: 1px solid darkgray;
 }
 .modalSwitchingWindowHeader{
 	width: 100%;
-    height: 20%;
-    border-bottom: 1px solid darkgray;
+	height: 20%;
+	border-bottom: 1px solid darkgray;
 }
 
 .modalSwitchingWindowBody{
 	width: 100%;
-    height: 80%;
-    background-color: #f4f4f4;
+	height: 80%;
+	background-color: #f4f4f4;
 }
 
 .modalSwitchingWindowButton{
@@ -560,14 +559,13 @@ input[type=file]::-webkit-file-upload-button {
 }
 .checkBoxContainer{
 	width: 50%;
-    float: right;
+	float: right;
 }
 
 .isMentionChats{
 	font-style:italic;
 }
 .warningText{
-    margin-right: 0px;
-    width: 50%;
-}
-   
+	margin-right: 0px;
+	width: 50%;
+}   

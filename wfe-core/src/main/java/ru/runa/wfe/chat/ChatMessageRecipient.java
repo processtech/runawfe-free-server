@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "CHAT_MESSAGE_RECIPIENT")
@@ -44,7 +45,7 @@ public class ChatMessageRecipient {
     }
 
     @ManyToOne
-    @JoinColumn(name = "MESSAGE")
+    @JoinColumn(name = "MESSAGE_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_RECIPIENT_M_ID")
     public ChatMessage getMessage() {
         return message;
@@ -54,7 +55,9 @@ public class ChatMessageRecipient {
         this.message = message;
     }
 
+    // TODO: сдалвть FK к Executor оставив Long
     @Column(name = "EXECUTOR_ID")
+    @Index(name = "IX_CHAT_MESSAGE_RECIPIENT_E_R", columnNames = { "EXECUTOR_ID", "READ_DATE" })
     public Long getExecutorId() {
         return executorId;
     }

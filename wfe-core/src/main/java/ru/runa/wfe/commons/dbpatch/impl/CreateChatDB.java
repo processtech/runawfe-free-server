@@ -24,7 +24,7 @@ public class CreateChatDB extends DbPatch {
 
         columns.add(id);
         columns.add(new ColumnDef("TEXT", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
-        columns.add(new ColumnDef("CREATE_ACTOR", dialect.getTypeName(Types.BIGINT), true));
+        columns.add(new ColumnDef("CREATE_ACTOR_ID", dialect.getTypeName(Types.BIGINT), true));
         columns.add(new ColumnDef("QUOTED_MESSAGE_IDS", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("PROCESS_ID", Types.BIGINT, false));
         columns.add(new ColumnDef("CREATE_DATE", Types.DATE, false));
@@ -36,7 +36,7 @@ public class CreateChatDB extends DbPatch {
         List<ColumnDef> columns3 = new LinkedList<DbPatch.ColumnDef>();
         ColumnDef id3 = new ColumnDef("ID", Types.BIGINT, false);
         id3.setPrimaryKey();
-        columns3.add(new ColumnDef("MESSAGE", dialect.getTypeName(Types.BIGINT), true));
+        columns3.add(new ColumnDef("MESSAGE_ID", dialect.getTypeName(Types.BIGINT), true));
         columns3.add(new ColumnDef("FILE", dialect.getTypeName(Types.BLOB), true));
         columns3.add(new ColumnDef("FILE_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns3.add(id3);
@@ -49,7 +49,7 @@ public class CreateChatDB extends DbPatch {
         ColumnDef id4 = new ColumnDef("ID", Types.BIGINT, false);
         id4.setPrimaryKey();
         columns4.add(new ColumnDef("EXECUTOR_ID", dialect.getTypeName(Types.BIGINT), true));
-        columns4.add(new ColumnDef("MESSAGE", dialect.getTypeName(Types.BIGINT), true));
+        columns4.add(new ColumnDef("MESSAGE_ID", dialect.getTypeName(Types.BIGINT), true));
         columns4.add(new ColumnDef("READ_DATE", Types.DATE, false));
         columns4.add(new ColumnDef("MENTIONED", Types.BOOLEAN, false));
         columns4.add(id4);

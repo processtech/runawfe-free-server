@@ -189,7 +189,7 @@ public class ChatSocket {
             }
             // сейв в БД
             Long newMessId = Delegates.getChatService().saveChatMessage((User) session.getUserProperties().get("user"), newMessage.getProcessId(),
-                    newMessage, mentionedExecutors, isPrivate);
+                        newMessage, mentionedExecutors, isPrivate);
             newMessage.setId(newMessId);
             // отправка по чату всем:
             ChatMessageDto chatMessageDto = new ChatMessageDto(newMessage);

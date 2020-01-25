@@ -13,6 +13,7 @@ var userNamePosition = -1;
 var userNamePositionFlag = false;
 var userLoadFlag = false;
 var userList = [];
+var userFullNameList=[];
 var userNameLength=0;
 //флаг - блок чата
 var lockFlag = false;
@@ -47,10 +48,22 @@ var listUserNameFastInput=1;
 var userNameTableLength=0;
 //сокет принимающий количество нов. собщений для всех чатов
 var chatsNewMessSocket = null;
-var chatsNewMessSocketURL = null;
+var chatsNewMessSocketUrl = null;
 //сокет основной
 var chatSocket = null;
-var chatSocketURL = null;
+var chatSocketUrl = null;
+
+var editMessageButtonText="редактировать";
+var addReplyButtonText="Ответить";
+var removeReplyButtonText="Отменить";
+var warningEditMessage="Вы действительно хотите отредактировать сообщение? Отменить это действие будет невозможно";
+var warningRemoveMessage="Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно";
+var attachedMessageSignature ="Прикрепленное сообщение";
+var openHierarchySignature="Развернуть вложенные сообщения";
+var closeHierarchySignature="Свернуть";
+var quoteText ="Цитата";
+var errorMessFilePart1="Ошибка. Размер файла превышен на ";
+var errorMessFilePart2=" байт, максимальный размер файла = ";
 //--------------------------------функция "полной очистки"
 
 function clearChat(){
@@ -63,6 +76,7 @@ function clearChat(){
 	userNamePositionFlag = false;
 	userLoadFlag = false;
 	userList = [];
+	userFullNameList=[];
 	userNameLength=0;
 	//lockFlag = false;
 	dropZone=$("#dropZ");
@@ -126,10 +140,10 @@ openHierarchyA0.addClass("openHierarchy")
 .attr("loadFlag", 0)
 .attr("openFlag", 0)
 .attr("mesId", 0)
-.text("Развернуть вложенные сообщения");
+.text(openHierarchySignature);
 //"ответить"
 let addReplyA0 = $("<a/>");
-addReplyA0.text(" Ответить");
+addReplyA0.text(addReplyButtonText);
 addReplyA0.addClass("addReply");
 addReplyA0.attr("flagAttach", "false");
 addReplyA0.click(messReplyClickFunction);
@@ -157,7 +171,7 @@ function hierarchyOpen(){
 			let thisElem=$(".openHierarchy")[ 0 ];
 			$(this).next(".loadedHierarchy")[ 0 ].style.display="none";
 			$(this).attr("openFlag","0");
-			$(this).text("Развернуть вложенные сообщения");
+			$(this).text(openHierarchySignature);
 			return 0;
 		}
 		else{
@@ -165,7 +179,7 @@ function hierarchyOpen(){
 			if($(this).attr("loadFlag") == 1){
 				$(this).next(".loadedHierarchy")[ 0 ].style.display="block";
 				$(this).attr("openFlag","1");
-				$(this).text("Свернуть");
+				$(this).text(closeHierarchySignature);
 				return 0;
 			}else{
 				let thisElem=$(".openHierarchy")[ 0 ];
@@ -177,7 +191,7 @@ function hierarchyOpen(){
 					}
 					$(element).attr("loadFlag", "1");
 					$(this).attr("openFlag","1");
-					$(this).text("Свернуть");
+					$(this).text(closeHierarchySignature);
 					return 0;
 				});
 			}
@@ -191,7 +205,7 @@ function getAttachedMessagesArray(data) {
 		for(let mes=0;mes<data.messages.length;mes++){
 			if(data.messages[ mes ].text != null){
 				let messageBody = $("<table/>").addClass("quote");
-				messageBody.append($("<tr/>").addClass("selectionTextAdditional").append($("<td/>").text("Цитата: " + data.messages[ mes ].author)));
+				messageBody.append($("<tr/>").addClass("selectionTextAdditional").append($("<td/>").text(quoteText+":" + data.messages[ mes ].author)));
 				messageBody.append($("<tr/>").append($("<td/>").text(data.messages[ mes ].text)));
 				if(data.messages[ mes ].hierarchyMessageFlag == 1){
 					let openHierarchy0 = $("<a/>").addClass("openHierarchy");
@@ -199,7 +213,7 @@ function getAttachedMessagesArray(data) {
 					openHierarchy0.attr("mesId", data.messages[ mes ].id);
 					openHierarchy0.attr("loadFlag", 0);
 					openHierarchy0.attr("openFlag", 0);
-					openHierarchy0.text("Развернуть вложенные сообщения");
+					openHierarchy0.text(openHierarchySignature);
 					openHierarchy0.click(hierarchyOpen);
 					messageBody.append($("<tr/>").append($("<td/>").append(openHierarchy0).append($("<div/>").addClass("loadedHierarchy"))));
 				}
@@ -216,10 +230,10 @@ function messReplyClickFunction(){
 		if($(this).attr("flagAttach") == "false"){
 			attachedPosts.push($(this).closest(".selectionTextQuote").attr("mesId"));
 			$(this).attr("flagAttach", "true");
-			$(this).text("Отменить");
+			$(this).text(removeReplyButtonText);
 				//создаем отметку о прикреплении
 				let newMessReply=$("<tr/>");
-				newMessReply.append($("<td/>").text("прикрепленное сообщение:" + $("#messageText" + $(this).closest(".selectionTextQuote").attr("messageIndex")).text()));
+				newMessReply.append($("<td/>").text(attachedMessageSignature+":" + $("#messageText" + $(this).closest(".selectionTextQuote").attr("messageIndex")).text()));
 				let deleteMessReplyButton = $("<button/>");
 				deleteMessReplyButton.text("X");
 				deleteMessReplyButton.attr("id", "deleteMessReply" + $(this).closest(".selectionTextQuote").attr("messageIndex"));
@@ -230,7 +244,7 @@ function messReplyClickFunction(){
 				$("#messReplyTable").append(newMessReply);
 		}
 		else{
-			$(this).text("Ответить");
+			$(this).text(addReplyButtonText);
 			$(this).attr("flagAttach", "false");
 			let pos0 = attachedPosts.indexOf($(this).closest(".selectionTextQuote").attr("mesId"), 0);
 			attachedPosts.splice(pos0, 1);
@@ -243,7 +257,7 @@ function deleteAttachedMessage(){
 	if(lockFlag == false){
 		let pos0 = attachedPosts.indexOf($("#messBody"+$(this).attr("mesindex")).attr("mesId"), 0);
 		attachedPosts.splice(pos0, 1);
-		$("#messBody" + $(this).attr("mesindex")).find(".addReply").text("Ответить");
+		$("#messBody" + $(this).attr("mesindex")).find(".addReply").text(addReplyButtonText);
 		$("#messBody" + $(this).attr("mesindex")).find(".addReply").attr("flagAttach", "false");
 		$(this).closest("tr").remove();
 	}
@@ -252,7 +266,7 @@ function deleteAttachedMessage(){
 //удаление сообщений
 function deleteMessage(){
 	if(lockFlag == false){
-		if(confirm("Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно")){
+		if(confirm(warningRemoveMessage)){
 			let newMessage={};
 			newMessage.messageId=$(this).closest(".selectionTextQuote").attr("mesId");
 			newMessage.processId=$("#ChatForm").attr("processId");
@@ -358,7 +372,7 @@ function sendMessage() {
 			// чистим "ответы"
 			let addReplys0 = document.getElementsByClassName("addReply");
 			for(let i=0; i<addReplys0.length; i++){
-				$(addReplys0[ i ]).text("Ответить");
+				$(addReplys0[ i ]).text(addReplyButtonText);
 				$(addReplys0[ i ]).attr("flagAttach", "false");
 			}
 			attachedPosts=[];
@@ -368,7 +382,7 @@ function sendMessage() {
 			$("#fileInput").val("");
 		}
 		else{//редактирование сообщения
-			if(confirm("Вы действительно хотите отредактировать сообщение? Отменить это действие будет невозможно")){
+			if(confirm(warningEditMessage)){
 				let message = document.getElementById("message").value;
 				//ищем ссылки
 				message=message.replace(/(^|[^\/\"\'\>\w])(http\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
@@ -413,7 +427,7 @@ function zoomInZoomOut(){
 			});
 			imgButton.src="/wfe/images/chat_expand.png";
 			if(numberNewMessages>0){
-				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
+				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlicePx("padding"));
 			}
 			else{
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
@@ -435,7 +449,7 @@ function zoomInZoomOut(){
 			});
 			imgButton.src="/wfe/images/chat_roll_up.png";
 			if(numberNewMessages>0){
-				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
+				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlicePx("padding"));
 			}
 			else{
 	
@@ -452,7 +466,7 @@ function getElmHeight(node) {
    return node.outerHeight(true);
 }
 //получение количество пикселей(без px)
-$.fn.getSlisePx = function(property) {
+$.fn.getSlicePx = function(property) {
     return parseInt(this.css(property).slice(0,-2));
 };
 //----------------------------------------
@@ -508,7 +522,7 @@ function updateLastReadMessage(){
 	let newSend0={};
 	newSend0.processId=$("#ChatForm").attr("processId");
 	newSend0.type="readMessage";
-	newSend0.currentMessageId=currentMessageId;
+	newSend0.currentMessageId=currentMessageId+"";
 	let sendObject0 = JSON.stringify(newSend0);
 	chatSocket.send(sendObject0);
 }
@@ -530,8 +544,10 @@ function getUsersNames(){
 //@
 function enterClickUserNames(event){
 	if(lockFlag == false){
-		let userNameText = $(this).text().slice(userNameLength+1) + " ";
-		$("#message").val($("#message").val().slice(0, userNamePosition+userNameLength+1) + userNameText + $("#message").val().slice(userNamePosition+userNameLength+1));
+		//let userNameText = $(this).text().slice(userNameLength+1) + " ";
+		let userId = $(this).attr("id").replace(/[^0-9]/gim, "");
+		let sizeName=$("#message").val().slice(userNamePosition).match(/^@\w*/g);
+		$("#message").val($("#message").val().slice(0,userNamePosition)+$("#message").val().slice(userNamePosition).replace(/^@\w*/gim,"@"+userList[userId]));
 		deleteUserNameTable();
 	}
 }
@@ -549,12 +565,21 @@ function updateUserNameTable(enterUserName){
 	userNameTableLength = 0;
 	for(let i=0;i<userList.length;i++){
 		let partName = userList[i].slice(0,userNameLength);
+		let partFullName=userFullNameList[i].slice(0,userNameLength);
 		if(partName==enterUserName){
 			let userNameBlockList=$("<li/>");
 			userNameBlockList.attr("id","idListUserNameTr"+userNameTableLength);
 			userNameBlockList.addClass("list");
 			userNameBlockList.click(enterClickUserNames);
-			userNameTable.append(userNameBlockList.text("@"+userList[i]));
+			userNameTable.append(userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )"));
+			userNameTableLength++;
+		}
+		else if(partFullName==enterUserName){
+			let userNameBlockList=$("<li/>");
+			userNameBlockList.attr("id","idListUserNameTr"+userNameTableLength);
+			userNameBlockList.addClass("list");
+			userNameBlockList.click(enterClickUserNames);
+			userNameTable.append(userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )"));
 			userNameTableLength++;
 		}
 	}
@@ -646,7 +671,9 @@ $("#message").keydown(function keydownUserNames(event){//не забыть оп�
 			getUsersNames().then(function(data){
 				userLoadFlag = true;
 				userList = data.names;
+				userFullNameList=data.fullNames;
 				userList.sort();
+				userFullNameList.sort();
 				if(userNamePositionFlag == true){
 					userNameTable.html("");
 				}
@@ -659,7 +686,7 @@ $("#message").keydown(function keydownUserNames(event){//не забыть оп�
 					userNameBlockList.addClass("list");
 					userNameBlockList.attr("id","idListUserNameTr"+i);
 					userNameBlockList.click(enterClickUserNames);
-					userNameBlockList.text("@"+userList[i]);
+					userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )");
 					userNameTable.append(userNameBlockList);
 				}
 				$("#idListUserNameTr"+0).addClass("selected");
@@ -680,7 +707,7 @@ $("#message").keydown(function keydownUserNames(event){//не забыть оп�
 				userNameBlockList.addClass("list");
 				userNameBlockList.attr("id","idListUserNameTr"+i);
 				userNameBlockList.click(enterClickUserNames);
-				userNameBlockList.text("@"+userList[i]);
+				userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )");
 				userNameTable.append(userNameBlockList);
 			}
 			$("#idListUserNameTr"+0).addClass("selected");
@@ -691,7 +718,7 @@ $("#message").keydown(function keydownUserNames(event){//не забыть оп�
 	else if((userNamePositionFlag == true)&&( (this.selectionStart) > (userNamePosition) )&&( (this.selectionStart) < (userNameLength+2+userNamePosition) )&&(event.key.length==1)&&(/^[A-Za-z0-9]+$/.test(event.key))){
 		userNameLength++;
 		//обновляем таблицу
-		updateUserNameTable(this.value.slice(userNamePosition+1, this.selectionStart) + event.key + this.value.slice(this.selectionStart,userNamePosition+userNameLength+1));
+		updateUserNameTable(this.value.slice(userNamePosition+1, this.selectionStart) + event.key + this.value.slice(this.selectionStart,userNamePosition+userNameLength));
 	}
 });
 $("#message").keyup(function keyupUserNames(event){
@@ -756,7 +783,7 @@ if (typeof(window.FileReader) != "undefined") {
 				$("#filesTable").append(newFile);
 			}
 			else{
-				alert("Ошибка. Размер файла превышен на "+(fileSize-fileInp)+" байт, максимальный размер файла = " + fileInp/(1073741824) + " гб / " + fileInp + "байт");
+				alert(errorMessFilePart1+(fileSize-fileInp)+errorMessFilePart2+ fileInp/(1073741824) + " Gb / " + fileInp + "bite");
 			}
 		}
 		dropZone.hide();
@@ -862,7 +889,7 @@ function addMessages(data){
 				//редактирование сообщения кнопка
 				if(data.coreUser == true){ //исправить в сокете, что бы давалось сообщениям???
 					let editMessage0 = $("<a/>");
-					editMessage0.text("редактировать");
+					editMessage0.text(editMessageButtonText);
 					editMessage0.click(editMessage);
 					cloneMess.append($("<tr/>").append($("<td/>").append(editMessage0)));
 				}
@@ -1051,7 +1078,7 @@ function stopResizing(e){
 	window.removeEventListener("mousemove", startResizing, false);
 	window.removeEventListener("mouseup", stopResizing, false);
 	if(numberNewMessages>0){
-		newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlisePx("padding"));
+		newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlicePx("padding"));
 	}
 	else{
 		newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
@@ -1150,8 +1177,8 @@ function ajaxInitializationChat(){
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
 				updatenumberNewMessages(0);
 			}
-			chatSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + $("#ChatForm").attr("processId");
-			chatSocket = new WebSocket(chatSocketURL);
+			chatSocketUrl = "ws://" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + $("#ChatForm").attr("processId");
+			chatSocket = new WebSocket(chatSocketUrl);
 			chatSocket.binaryType = "arraybuffer";
 			chatSocket.onmessage = onMessage;
 			//действия при открытии сокета
@@ -1184,8 +1211,8 @@ function ajaxAllInitializationChats(){
 		processData: false,
 		success: function(data) {
 			getAllChat(data);
-			chatsNewMessSocketURL = "ws://" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
-			chatsNewMessSocket = new WebSocket(chatsNewMessSocketURL);
+			chatsNewMessSocketUrl = "ws://" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
+			chatsNewMessSocket = new WebSocket(chatsNewMessSocketUrl);
 			chatsNewMessSocket.onmessage = onChatsNewMessSocketMessage;
 			//действия при открытии сокета
 			chatsNewMessSocket.onopen=function(){
@@ -1195,6 +1222,44 @@ function ajaxAllInitializationChats(){
 			}
 		}
 });
+}
+
+function ajaxLocale(){
+	let urlString="/wfe/ajaxcmd?command=LocaleTextChat";
+	$.ajax({
+		type: "POST",
+		url: urlString,
+		dataType: "json",
+		contentType: "application/json; charset=UTF-8",
+		processData: false,
+		success: function(data) {
+			LocaleText(data);
+			
+		}
+		});
+}
+
+function LocaleText(data){
+	$(".modalSwitchingWindowButton").text(data.switchChatButton);
+	$("#message").attr("placeholder",data.textAreaMessagePalceholder);
+	$(".checkBoxContainer").first().text(data.privateMessageCheckbox);
+	$("#dropZ").text(data.dropBlock);
+	$("#newMessagesIndicator").first().text(data.newMessageIndicator);
+	$("#newMessagesIndicator").last().text();
+	btnOpenChat.innerHTML=data.buttonSendMessage;
+	btnLoadOldMessages.innerHTML=data.buttonLoadOldMessage;
+	editMessageButtonText=data.editMessageButton;
+	addReplyButtonText=data.addReplyInMessageButton;
+	attachedMessageSignature=data.attachedMessage;
+	removeReplyButtonText=data.removeReplyInMessageButton;
+	warningEditMessage=data.warningEditMessage;
+	warningRemoveMessage=data.warningRemoveMessage;
+	openHierarchySignature=data.openHierarchy;
+	closeHierarchySignature=data.closeHierarchy;
+	quoteText=data.quoteText;
+	errorMessFilePart1=data.errorMessFilePart1;
+	errorMessFilePart2=data.errorMessFilePart2;
+	
 }
 //----------------------------------------------
 //начальные действия

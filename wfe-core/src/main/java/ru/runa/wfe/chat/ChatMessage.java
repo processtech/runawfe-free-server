@@ -14,27 +14,21 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import ru.runa.wfe.user.Actor;
 
-@Entity
+@Entity /*
+         * (foreignKeys = { @ForeignKey(entity = Process.class, parentColumns = "ID", childColumns = "PROCESS_ID", name =
+         * "FK_CHAT_MESSAGE_PROCESS_ID") })
+         */
 @Table(name = "CHAT_MESSAGE")
 public class ChatMessage {
-
     private Long id;
     private String text;
     private String quotedMessageIds;
     private Long processId;
     private Date createDate;
     private Actor createActor;
-    /*
-     * @Transient private Boolean isPrivate = false;
-     * 
-     * @Transient private List<Executor> mentionedExecutors = new ArrayList<Executor>();
-     * 
-     * @Transient public List<String> fileNames = new ArrayList<String>();
-     * 
-     * @Transient public List<Long> fileIds = new ArrayList<Long>();
-     */
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -92,6 +86,14 @@ public class ChatMessage {
         this.quotedMessageIds = newierarchyMessage.toString();
     }
 
+    /*
+     * @ManyToOne(targetEntity = Process.class)
+     * 
+     * @JoinColumn(name = "PROCESS_ID")
+     * 
+     * @ForeignKey(name = "FK_CHAT_MESSAGE_PROCESS_ID")
+     */
+    // TODO: сдалвть FK к Process оставив Long
     @Column(name = "PROCESS_ID")
     public Long getProcessId() {
         return processId;
@@ -116,8 +118,9 @@ public class ChatMessage {
     }
 
     @ManyToOne
-    @JoinColumn(name = "CREATE_ACTOR")
+    @JoinColumn(name = "CREATE_ACTOR_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_EXECUTOR_ID")
+    @Index(name = "IX_CHAT_MESSAGE_PROCESS_ACTOR", columnNames = { "PROCESS_ID", "CREATE_ACTOR" })
     public Actor getCreateActor() {
         return createActor;
     }
@@ -125,13 +128,4 @@ public class ChatMessage {
     public void setCreateActor(Actor createActor) {
         this.createActor = createActor;
     }
-    /*
-     * @Transient public Boolean getIsPrivate() { return isPrivate; }
-     * 
-     * @Transient public void setIsPrivate(Boolean isPrivate) { this.isPrivate = isPrivate; }
-     * 
-     * @Transient public List<Executor> getMentionedExecutors() { return mentionedExecutors; }
-     * 
-     * @Transient public void setMentionedExecutors(List<Executor> mentionedExecutors) { this.mentionedExecutors = mentionedExecutors; }
-     */
 }

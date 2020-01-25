@@ -23,11 +23,13 @@ public class GetUsersNamesForChatAjax extends JsonAjaxCommand {
         // JSONArray groupNames = new JSONArray();
         // JSONArray roleNames = new JSONArray();
         JSONArray names = new JSONArray();
+        JSONArray fullNames = new JSONArray();
         for (Executor executor : executors) {
             Class<? extends Executor> executorClass = executor.getClass();
             if (executorClass == Actor.class) {
                 // userNames.add(actors.get(i).getName());
                 names.add(executor.getName());
+                fullNames.add(executor.getFullName());
             } else if (executorClass == Group.class) {
                 // groupNames.add(actors.get(i).getName());
                 //names.add(actors.get(i).getName());
@@ -37,6 +39,7 @@ public class GetUsersNamesForChatAjax extends JsonAjaxCommand {
         // outputObject.put("groupNames", groupNames);
         // outputObject.put("roleNames", roleNames);
         outputObject.put("names", names);
+        outputObject.put("fullNames", fullNames);
         return outputObject;
     }
 
