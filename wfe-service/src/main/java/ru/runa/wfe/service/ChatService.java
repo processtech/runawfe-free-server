@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
@@ -16,9 +17,11 @@ import ru.runa.wfe.user.User;
  */
 public interface ChatService {
 
+    public List<Long> getMentionedExecutorIds(User user, Long messageId);
+
     public void deleteFile(User user, Long id);
 
-    public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds);
+    public Long saveMessageAndBindFiles(User user, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate, ArrayList<Long> fileIds);
 
     public void readMessage(User user, Long messageId);
 
@@ -97,15 +100,6 @@ public interface ChatService {
     public ChatMessageFile saveChatMessageFile(User user, ChatMessageFile file);
 
     /**
-     * Get List array of all ChatMessage in chat.
-     *
-     * @param processId
-     *            chat Id
-     * @return not <code>null</code>
-     */
-    public List<ChatMessage> getChatMessages(User user, Long processId);
-
-    /**
      * Gets ChatMessage.
      *
      * @param messageId
@@ -113,6 +107,8 @@ public interface ChatService {
      * @return ChatMessage or <code>null</code>
      */
     public ChatMessage getChatMessage(User user, Long messageId);
+
+    public ChatMessageDto getChatMessageDto(User user, Long messageId);
 
     /**
      * Get List array of ChatMessage, where all "message Id" < firstId.
@@ -125,7 +121,7 @@ public interface ChatService {
      *            number of messages in the returned array
      * @return not <code>null</code> order by date desc
      */
-    public List<ChatMessage> getChatMessages(User user, Long processId, Long firstId, int count);
+    public List<ChatMessageDto> getChatMessages(User user, Long processId, Long firstId, int count);
 
     /**
      * Get List array of ChatMessage, where all "message Id" >= lastId.
@@ -136,7 +132,7 @@ public interface ChatService {
      *            message Id, all returned message id >= lastId
      * @return not <code>null</code> order by date asc
      */
-    public List<ChatMessage> getNewChatMessages(User user, Long processId);
+    public List<ChatMessageDto> getNewChatMessages(User user, Long processId);
 
     /**
      * Get List array of last ChatMessage (first in the array of all messages).
@@ -147,7 +143,7 @@ public interface ChatService {
      *            number of messages in the returned array
      * @return not <code>null</code>
      */
-    public List<ChatMessage> getFirstChatMessages(User user, Long processId, int count);
+    public List<ChatMessageDto> getFirstChatMessages(User user, Long processId, int count);
 
     /**
      * Save ChatMessage in DB.
@@ -158,7 +154,7 @@ public interface ChatService {
      *            new message to save
      * @return new message id
      */
-    public Long saveChatMessage(User user, Long processId, ChatMessage message);
+    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate);
 
     /**
      * Delete ChatMessage in DB.

@@ -18,6 +18,7 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
@@ -32,18 +33,23 @@ public class ChatLogic extends WfCommonLogic {
 
     private Properties properties = ClassLoaderUtil.getProperties("chat.properties", true);
 
+    public List<Long> getMentionedExecutorIds(Long messageId) {
+        return chatDao.getMentionedExecutorIds(messageId);
+    }
+
     public void deleteFile(User user, Long id) {
         chatDao.deleteFile(user, id);
     }
 
-    public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds) {
+    public Long saveMessageAndBindFiles(User user, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+            ArrayList<Long> fileIds) {
         Set<Executor> executors;
-        if (!message.getIsPrivate()) {
+        if (!isPrivate) {
             executors = getAllUsers(message.getProcessId(), message.getCreateActor());
         } else {
-            executors = new HashSet<Executor>(message.getMentionedExecutors());
+            executors = new HashSet<Executor>(mentionedExecutors);
         }
-        return chatDao.saveMessageAndBindFiles(user, message, fileIds, executors);
+        return chatDao.saveMessageAndBindFiles(user, message, fileIds, executors, mentionedExecutors);
     }
 
     public void readMessage(Actor user, Long messageId) {
@@ -113,32 +119,32 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessagesCount(user, processId);
     }
 
-    public List<ChatMessage> getMessages(Long processId) {
-        return chatDao.getAll(processId);
-    }
-
     public ChatMessage getMessage(Long messageId) {
         return chatDao.getMessage(messageId);
     }
 
-    public List<ChatMessage> getMessages(Actor user, Long processId, Long firstId, int count) {
+    public ChatMessageDto getMessageDto(Long messageId) {
+        return chatDao.getMessageDto(messageId);
+    }
+
+    public List<ChatMessageDto> getMessages(Actor user, Long processId, Long firstId, int count) {
         return chatDao.getMessages(user, processId, firstId, count);
     }
 
-    public List<ChatMessage> getFirstMessages(Actor user, Long processId, int count) {
+    public List<ChatMessageDto> getFirstMessages(Actor user, Long processId, int count) {
         return chatDao.getFirstMessages(user, processId, count);
     }
 
-    public List<ChatMessage> getNewMessages(Actor user, Long processId) {
+    public List<ChatMessageDto> getNewMessages(Actor user, Long processId) {
         return chatDao.getNewMessages(user, processId);
     }
 
-    public Long saveMessage(Long processId, ChatMessage message) {
-        if (!message.getIsPrivate()) {
+    public Long saveMessage(Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+        if (!isPrivate) {
             Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
-            return chatDao.save(message, executors);
+            return chatDao.save(message, executors, mentionedExecutors);
         } else {
-            return chatDao.save(message);
+            return chatDao.save(message, mentionedExecutors, mentionedExecutors);
         }
     }
 

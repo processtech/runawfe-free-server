@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -24,6 +25,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
@@ -142,7 +144,7 @@ public class ChatSocket {
             haveFiles = true;
         }
         // приватное ли сообщение
-        newMessage.setIsPrivate((Boolean) objectMessage.get("isPrivate"));
+        Boolean isPrivate = (Boolean) objectMessage.get("isPrivate");
         // чатID
         newMessage.setProcessId(Long.parseLong((String) objectMessage.get("processId")));
         // дата
@@ -153,7 +155,7 @@ public class ChatSocket {
         int spaceIndex = -1;
         String login;
         String serchText = newMessage.getText();
-        // Actor actor;
+        HashSet<Executor> mentionedExecutors = new HashSet<Executor>();
         Executor actor;
         while (true) {
             dogIndex = serchText.indexOf('@', dogIndex + 1);
@@ -170,7 +172,7 @@ public class ChatSocket {
                     actor = null;
                 }
                 if (actor != null) {
-                    newMessage.getMentionedExecutors().add(actor);
+                    mentionedExecutors.add(actor);
 
                 }
             } else {
@@ -178,27 +180,29 @@ public class ChatSocket {
             }
         }
         if (haveFiles == false) {
+            // получения Actors (в дальнейшем - получение из групп)
             HashSet<Actor> mentionedActors = new HashSet<Actor>();
-            for (Executor mentionedExecutor : newMessage.getMentionedExecutors()) {
+            for (Executor mentionedExecutor : mentionedExecutors) {
                 if (mentionedExecutor.getClass() == Actor.class) {
                     mentionedActors.add((Actor) mentionedExecutor);
                 }
             }
             // сейв в БД
-            long newMessId = Delegates.getChatService().saveChatMessage((User) session.getUserProperties().get("user"), newMessage.getProcessId(),
-                    newMessage);
+            Long newMessId = Delegates.getChatService().saveChatMessage((User) session.getUserProperties().get("user"), newMessage.getProcessId(),
+                    newMessage, mentionedExecutors, isPrivate);
             newMessage.setId(newMessId);
             // отправка по чату всем:
-            JSONObject sendObject1 = convertMessage(((User) session.getUserProperties().get("user")), newMessage, false);
+            ChatMessageDto chatMessageDto = new ChatMessageDto(newMessage);
+            JSONObject sendObject1 = convertMessage(((User) session.getUserProperties().get("user")), chatMessageDto, false);
             sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors,
-                    newMessage.getIsPrivate());
+                    isPrivate);
             JSONObject sendObject2 = new JSONObject();
             sendObject2.put("processId", newMessage.getProcessId());
             sendObject2.put("messType", "newMessage");
             sessionHandler.sendOnlyNewMessagesSessions(sendObject2, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors,
-                    newMessage.getIsPrivate());
-            //
-            for (Executor executor : newMessage.getMentionedExecutors()) {
+                    isPrivate);
+            // отправка по email
+            for (Executor executor : mentionedExecutors) {
                 Properties chatProp = ClassLoaderUtil.getProperties("chat.properties", true);
                 String themeEmail = (String) chatProp.get("chat.email.theme");
                 themeEmail = themeEmail.replace("$actorName", newMessage.getCreateActor().getName());
@@ -213,6 +217,8 @@ public class ChatSocket {
         }
         else {// если есть файлы, то откладываем отправку до их дозагрузки
             session.getUserProperties().put("activeMessage", newMessage);
+            session.getUserProperties().put("activeIsPrivate", isPrivate);
+            session.getUserProperties().put("activeMentionedExecutors", mentionedExecutors);
             session.getUserProperties().put("activeFileNames", objectMessage.get("fileNames"));
             Integer filesize = 0;
             session.getUserProperties().put("activeFileSize", filesize);
@@ -226,51 +232,57 @@ public class ChatSocket {
     void endLoadFiles(Session session, JSONObject objectMessage) throws IOException {
         ChatMessage activeMessage = (ChatMessage) session.getUserProperties().get("activeMessage");
         ArrayList<Long> fileIds = (ArrayList<Long>) session.getUserProperties().get("activeFileIds");
-        long mesId = Delegates.getChatService().saveMessageAndBindFiles((User) session.getUserProperties().get("user"), activeMessage, fileIds);
+        Set<Executor> mentionedExecutors = (Set<Executor>) session.getUserProperties().get("activeMentionedExecutors");
+        Boolean isPrivate = (Boolean) session.getUserProperties().get("activeIsPrivate");
+        long mesId = Delegates.getChatService().saveMessageAndBindFiles((User) session.getUserProperties().get("user"), activeMessage,
+                mentionedExecutors, isPrivate, fileIds);
         activeMessage.setId(mesId);
-        activeMessage.fileIds = fileIds;
-        activeMessage.fileNames = new ArrayList<String>((JSONArray) session.getUserProperties().get("activeFileNames"));
+        ChatMessageDto messageDto = new ChatMessageDto(activeMessage);
+        messageDto.setFileIds(fileIds);
+        messageDto.setFileNames(new ArrayList<String>((JSONArray) session.getUserProperties().get("activeFileNames")));
         //
         HashSet<Actor> mentionedActors = new HashSet<Actor>();
-        for (Executor mentionedExecutor : activeMessage.getMentionedExecutors()) {
+        for (Executor mentionedExecutor : mentionedExecutors) {
             if (mentionedExecutor.getClass() == Actor.class) {
                 mentionedActors.add((Actor) mentionedExecutor);
             }
         }
-        JSONObject sendObject1 = convertMessage(((User) session.getUserProperties().get("user")), activeMessage, false);
+        JSONObject sendObject1 = convertMessage(((User) session.getUserProperties().get("user")), messageDto, false);
         sessionHandler.sendToChats(sendObject1, activeMessage.getProcessId(), activeMessage.getCreateActor(), mentionedActors,
-                activeMessage.getIsPrivate());
+                isPrivate);
         JSONObject sendObject2 = new JSONObject();
         sendObject2.put("processId", activeMessage.getProcessId());
         sendObject2.put("messType", "newMessage");
         sessionHandler.sendOnlyNewMessagesSessions(sendObject2, activeMessage.getProcessId(), activeMessage.getCreateActor(), mentionedActors,
-                activeMessage.getIsPrivate());
-        session.getUserProperties().put("activeMessage", new ChatMessage());
+                isPrivate);
+        session.getUserProperties().put("activeMessage", null);
         session.getUserProperties().put("activeFileNames", "");
         session.getUserProperties().put("activeFileSize", 0);
-        session.getUserProperties().put("activeFileIds", new ArrayList<Long>());
+        session.getUserProperties().put("activeFileIds", null);
+        session.getUserProperties().put("activeIsPrivate", false);
+        session.getUserProperties().put("activeMentionedExecutors", null);
     }
     // отправка N сообщений
     void getMessages(Session session, JSONObject objectMessage) throws IOException {
         int countMessages = ((Long) objectMessage.get("Count")).intValue();
         Long lastMessageId = ((Long) objectMessage.get("lastMessageId"));
         Long processId = Long.parseLong((String) objectMessage.get("processId"));
-        List<ChatMessage> messages;
+        List<ChatMessageDto> messages;
         if(lastMessageId < 0) {
             lastMessageId = Delegates.getChatService().getLastReadMessage((User) session.getUserProperties().get("user"), processId);
         }
         messages = Delegates.getChatService().getChatMessages((User) session.getUserProperties().get("user"), processId, lastMessageId,
                 countMessages);
         if (Delegates.getChatService().canEditMessage(((User) session.getUserProperties().get("user")))) {
-            for (ChatMessage newMessage : messages) {
+            for (ChatMessageDto newMessage : messages) {
                 JSONObject sendObject = convertMessage(((User) session.getUserProperties().get("user")), newMessage, true);
-                if (newMessage.getCreateActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
+                if (newMessage.getMessage().getCreateActor().equals(((User) session.getUserProperties().get("user")).getActor())) {
                     sendObject.put("coreUser", true);
                 }
                 sessionHandler.sendToSession(session, sendObject);
             }
         } else {
-            for (ChatMessage newMessage : messages) {
+            for (ChatMessageDto newMessage : messages) {
                 JSONObject sendObject = convertMessage(((User) session.getUserProperties().get("user")), newMessage, true);
                 sessionHandler.sendToSession(session, sendObject);
             }
@@ -308,22 +320,22 @@ public class ChatSocket {
     }
 
     // отправка сообщения, old - старые сообщения, которые отобразятся сверху
-    static public JSONObject convertMessage(User user, ChatMessage message, Boolean old) {
+    static public JSONObject convertMessage(User user, ChatMessageDto message, Boolean old) {
         JSONObject sendObject = new JSONObject();
         sendObject.put("messType", "newMessages");
         JSONArray messagesArrayObject = new JSONArray();
         JSONObject messageObject = new JSONObject();
-        messageObject.put("id", message.getId());
-        messageObject.put("text", message.getText());
-        messageObject.put("author", message.getUserName());
-        if (message.fileNames != null) {
-            if (message.fileNames.size() > 0) {
+        messageObject.put("id", message.getMessage().getId());
+        messageObject.put("text", message.getMessage().getText());
+        messageObject.put("author", message.getMessage().getUserName());
+        if (message.getFileNames() != null) {
+            if (message.getFileNames().size() > 0) {
                 messageObject.put("haveFile", true);
                 JSONArray filesArrayObject = new JSONArray();
-                for (int i = 0; i < message.fileNames.size(); i++) {
+                for (int i = 0; i < message.getFileNames().size(); i++) {
                     JSONObject fileObject = new JSONObject();
-                    fileObject.put("id", message.fileIds.get(i));
-                    fileObject.put("name", message.fileNames.get(i));
+                    fileObject.put("id", message.getFileIds().get(i));
+                    fileObject.put("name", message.getFileNames().get(i));
                     filesArrayObject.add(fileObject);
                 }
                 messageObject.put("fileIdArray", filesArrayObject);
@@ -333,10 +345,9 @@ public class ChatSocket {
         } else {
             messageObject.put("haveFile", false);
         }
-        @SuppressWarnings("deprecation")
-        String dateNow = message.getCreateDate().toGMTString();
+        String dateNow = message.getMessage().getCreateDate().toGMTString();
         messageObject.put("dateTime", dateNow);
-        if (message.getQuotedMessageIdsArray().size() > 0) {
+        if (message.getMessage().getQuotedMessageIdsArray().size() > 0) {
             messageObject.put("hierarchyMessageFlag", 1);
         } else {
             messageObject.put("hierarchyMessageFlag", 0);

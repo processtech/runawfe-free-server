@@ -15,7 +15,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.ForeignKey;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
 
 @Entity
 @Table(name = "CHAT_MESSAGE")
@@ -27,14 +26,15 @@ public class ChatMessage {
     private Long processId;
     private Date createDate;
     private Actor createActor;
-    @Transient
-    private Boolean isPrivate = false;
-    @Transient
-    private List<Executor> mentionedExecutors = new ArrayList<Executor>();
-    @Transient
-    public List<String> fileNames = new ArrayList<String>();
-    @Transient
-    public List<Long> fileIds = new ArrayList<Long>();
+    /*
+     * @Transient private Boolean isPrivate = false;
+     * 
+     * @Transient private List<Executor> mentionedExecutors = new ArrayList<Executor>();
+     * 
+     * @Transient public List<String> fileNames = new ArrayList<String>();
+     * 
+     * @Transient public List<Long> fileIds = new ArrayList<Long>();
+     */
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -125,24 +125,13 @@ public class ChatMessage {
     public void setCreateActor(Actor createActor) {
         this.createActor = createActor;
     }
-
-    @Transient
-    public Boolean getIsPrivate() {
-        return isPrivate;
-    }
-
-    @Transient
-    public void setIsPrivate(Boolean isPrivate) {
-        this.isPrivate = isPrivate;
-    }
-
-    @Transient
-    public List<Executor> getMentionedExecutors() {
-        return mentionedExecutors;
-    }
-
-    @Transient
-    public void setMentionedExecutors(List<Executor> mentionedExecutors) {
-        this.mentionedExecutors = mentionedExecutors;
-    }
+    /*
+     * @Transient public Boolean getIsPrivate() { return isPrivate; }
+     * 
+     * @Transient public void setIsPrivate(Boolean isPrivate) { this.isPrivate = isPrivate; }
+     * 
+     * @Transient public List<Executor> getMentionedExecutors() { return mentionedExecutors; }
+     * 
+     * @Transient public void setMentionedExecutors(List<Executor> mentionedExecutors) { this.mentionedExecutors = mentionedExecutors; }
+     */
 }

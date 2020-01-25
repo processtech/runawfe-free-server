@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
@@ -35,14 +36,21 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
+    public List<Long> getMentionedExecutorIds(User user, Long messageId) {
+        return chatLogic.getMentionedExecutorIds(messageId);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public void deleteFile(User user, Long id) {
         chatLogic.deleteFile(user, id);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds) {
-        return chatLogic.saveMessageAndBindFiles(user, message, fileIds);
+    public Long saveMessageAndBindFiles(User user, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+            ArrayList<Long> fileIds) {
+        return chatLogic.saveMessageAndBindFiles(user, message, mentionedExecutors, isPrivate, fileIds);
     }
 
     @WebMethod(exclude = true)
@@ -113,13 +121,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatMessages(User user, Long processId) {
-        return chatLogic.getMessages(processId);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public List<ChatMessage> getNewChatMessages(User user, Long processId) {
+    public List<ChatMessageDto> getNewChatMessages(User user, Long processId) {
         return chatLogic.getNewMessages(user.getActor(), processId);
     }
 
@@ -131,13 +133,19 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getChatMessages(User user, Long processId, Long firstIndex, int count) {
+    public ChatMessageDto getChatMessageDto(User user, Long messageId) {
+        return chatLogic.getMessageDto(messageId);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public List<ChatMessageDto> getChatMessages(User user, Long processId, Long firstIndex, int count) {
         return chatLogic.getMessages(user.getActor(), processId, firstIndex, count);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<ChatMessage> getFirstChatMessages(User user, Long processId, int count) {
+    public List<ChatMessageDto> getFirstChatMessages(User user, Long processId, int count) {
         return chatLogic.getFirstMessages(user.getActor(), processId, count);
     }
 
@@ -155,8 +163,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public Long saveChatMessage(User user, Long processId, ChatMessage message) {
-        return chatLogic.saveMessage(processId, message);
+    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+        return chatLogic.saveMessage(processId, message, mentionedExecutors, isPrivate);
     }
 
 }
