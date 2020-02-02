@@ -49,7 +49,7 @@
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
 <script type="text/javascript" src="/wfe/js/chat.js"></script>
 <div style="float:left; max-width: 150px; margin-top: -25px;">
-	<a id="openChatButton" onclick="openChat()">Открыть чат <sup id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</sup></a>
+	<a id="openChatButton" onclick="openChat()">Открыть чат <span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 </div>
 <div id="ChatForm"></div>
 <% if (WebResources.isTaskDelegationEnabled()) { %>

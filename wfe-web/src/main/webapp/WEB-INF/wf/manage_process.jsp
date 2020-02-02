@@ -82,7 +82,7 @@ function Reload() {
 	</tr>
 	<tr>
 		<td align="right">
-			<a id="openChatButton" onclick="openChat()">Открыть чат <sup id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</sup></a>
+			<a id="openChatButton" onclick="openChat()">Открыть чат <span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 			<div id="ChatForm" processId="<%=id %>"></div>
 		</td>
 		<td align="right">
