@@ -54,31 +54,35 @@
 }
 		
 #message{
-	font-weight: bold;
-	border: none;
-	cursor: pointer;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 8pt;
-	resize: none;
-	display: block;
-	width: 100%;
-	min-height: 60px;
+font-weight: bold;
+    border: none;
+    cursor: pointer;
+    resize: none;
+    display: block;
+    width: 98%;
+    height: 80px;
+    margin: auto;
+    overflow: auto;
 }
 .countNewMessages{
 	width: max-content;
-	background: #5aff7f;
-	text-decoration: underline;
 	font-family: inherit;
 	display: -webkit-inline-box;
 	font-weight: 600;
 	font-size: 10pt;
+	min-width: 15px;
+    min-height: 15px;
+    background-color: #990000;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    display: inline-block;
 }
 		
 .newMessagesIndicator{/*      */
-	border: 1px solid #990000;
 	width: max-content;
 	float: inherit;
-	background: #d4ebff;
+	padding: 5px 0;
 }
 
 .modal {
@@ -94,13 +98,12 @@
 }
 	   
 .quote{
-	outline: 1px solid #5c5c60;
-	background: rgba(114, 120, 122, 0.15);
 	background-size: auto;
 	padding: 1px 0 0 7px;
 	width: 100%;
 	font-weight: normal;
 	font-style: italic;
+	border-left: 1px double #aaaaaa;
 }
 .author{			
 	color: #990000;
@@ -111,11 +114,9 @@
 }
 
 .selectionTextAdditional{
-	background: rgba(178, 178, 181, 0.48);
 	background-size:auto;
 	padding: 7px;
 	border-bottom:solid 1px;
-	text-decoration: underline;
 	border-bottom-color: #804040;
 	overflow: hidden;
 	color: #990000;
@@ -139,14 +140,14 @@
 
 .selectionTextQuote{
 	background-size:auto;
+	background-color: #ffffff;
 	background-origin:padding-box;
 	padding: 7px;
-	border-bottom-color: #515050;
 	overflow: hidden;
 }
 
-.selectionTextQuote:nth-child(even){
-	background: #dddddd;
+.selectionTextQuote:not(:last-child){
+	border-bottom: 1px solid #aaaaaa;
 }
 
 .addReply , .deleterMessage{
@@ -180,8 +181,7 @@
 
 .modal-content {
 	background-color: #e9eaed;
-	margin: auto;
-	padding: 5px;
+	/*margin: auto;*/
 	width: 30vw;
 	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
 	-webkit-animation-name: animatetop;
@@ -191,33 +191,18 @@
 	width: 346px;
 	min-width:15vw;
 	max-width: 50vw;
-	max-height: 67vh;
+	/*max-height: 67vh;
 	min-height: 67vh;
-	top: 380px;
+	top: 380px;*/
 	padding-top: 0px;
 	margin-bottom: 0px;
 	display: block;
 	will-change: width, margin-right, right, transform, opacity, left, height;
 	transform: translateY(0%);
-	left: 1027px;
+	/*left: 1027px;*/
+	right: 15px;
 	z-index: 1000;
 	position: fixed;
-}
-
-#close {
-	float: right;
-	font-weight: bold;
-	font-size: larger;
-	color: rgb(68,68,68);
-	border: 1px solid rgba(0,0,0,.1); 
-	height: 22px;
-}
-
-#close:hover{
-	color: rgb(24,24,24);
-	border: 1px solid rgb(198,198,198);
-	background: #f7f7f7 linear-gradient(#f7f7f7, #f1f1f1);
-	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
 
 .modal-header {
@@ -230,11 +215,14 @@
 }
 
 .modal-header-dragg {
+	flex-grow: 1;
 	outline: none;
-	padding: 5px 50px;
-	position: absolute;
+	/*padding: 5px 50px;
+	position: absolute;*/
+	display: inline-block;
+	float: left;
 	background-color: #ffffff00;
-	left: 40px;
+	/*left: 40px;*/
 	cursor: move;
 	width: 150px;
 	height: 20px;
@@ -262,9 +250,8 @@
 	font-style:normal;
 	word-break: break-word;
 	scroll-behavior: smooth;	 
-	margin-bottom:10px;
-	box-shadow: #cccccc 2px 2px 8px;
-	padding: 0;
+	padding: 5px;
+	border: 1px solid #aaaaaa;
 }
 
 @media (min-width:500px){
@@ -286,10 +273,10 @@
 }
 
 #btnOp {
-	float:left;
+
 	color: rgb(68,68,68);
-	border: 1px solid rgba(0,0,0,.1);		
-	height: 22px;
+	border: 1px solid rgba(0,0,0,.1);	
+	padding: 1px 3px;
 }
 
 #btnOp #imgButton {
@@ -324,7 +311,7 @@
 }
 
 #attachedArea{
-	min-height: 60px;
+	height: 100px;
 	width: 100%;
 	overflow: auto;
 	margin-top: 5px;
@@ -359,7 +346,7 @@
 	width: 100%;
 	z-index: 10000;
 	color: #dddddd;
-	min-height: 60px;	
+	min-height: 80px;	
 	position: absolute;	
 	text-align: center;
 	margin-top: 4px;
@@ -367,14 +354,14 @@
 }
 
 .dropZActive{
-	background-color: #80808082;
+	background-color: #808080;
 	color:black;
 	z-index: 10000;
 }
 
 .dropZActiveFocus{
-	min-height: 60px;
-	background-color: #666666;;
+	min-height: 80px;
+	background-color: #999999;
 	color: white;
 	z-index: 10000;
 }
@@ -445,18 +432,30 @@ input[type=file] {
 }
 
 input[type=file]:before {
+    background-color: #ffffff;
 	width: 90px;
 	height: 20px;
 	font-size: 12px;
 	line-height: 22px;
 	content: 'Выбрать';
 	display: inline-block;
-	background: white;
+/*	background: white;
 	border: 1px solid #000;
 	padding: 0 10px;
 	text-align: center;
 	font-family: Helvetica, Arial, sans-serif;
-	color: black;
+	color: black;*/
+    background: buttonface;
+    padding: 0 10px;
+    text-align: center;
+    font-family: Helvetica, Arial, sans-serif;
+    border-width: 1px;
+    border-style: double;
+    border-color: #aaaaaa;
+}
+
+input[type=file]:before:hover{
+	border-color: #cccccc;
 }
 
 input[type=file]::-webkit-file-upload-button {
@@ -476,32 +475,31 @@ input[type=file]::-webkit-file-upload-button {
 }
 
 #progressBar{
-	top: 0;
+	/*top: 0;
 	height: 100%;
 	position: absolute;
-	width: 88%;
 	background: gray;
 	text-align: center;
-	font-size: 15pt;
+	font-size: 15pt;*/
+	padding: 5px;
+	width: 88%;
 }
 
 /*ToDo*/
 #messReplyTable {
-	position: absolute;
-	display: block;
-	opacity: 0.7;
-	width: 100%;
-	height: 25%;
-	overflow: scroll;
+display: block;
+    opacity: 0.7;
+    width: 100%;
+    height: 25%;
 }
 
 #filesTable{
 	position: inherit;
-	display: block;
-	opacity: 0.7;
-	width: 100%;
-	height: 20%;
-	overflow: scroll;
+    display: block;
+    opacity: 0.7;
+    width: 100%;
+    height: 75%;
+    overflow-y: auto;
 }
 .image {
 	width: 300px;
@@ -531,31 +529,22 @@ input[type=file]::-webkit-file-upload-button {
 }
 
 .modalSwitchingWindow{
-	width: 25vw;
-	height: 40vh;
-	display: none;
-	position: absolute;
-	top: 50%;
-	left: 40%;
-	float: left;
-	background-color: white;
-	border: 1px solid darkgray;
-}
-.modalSwitchingWindowHeader{
-	width: 100%;
-	height: 20%;
-	border-bottom: 1px solid darkgray;
+    border-style: none !important;	
+    background-color: white;
+	/*padding-top: 5px;*/	
+	width: auto;
+	max-height: 300px;
+	overflow: auto;
 }
 
-.modalSwitchingWindowBody{
-	width: 100%;
-	height: 80%;
-	background-color: #f4f4f4;
+.modalSwitchingWindowBody td {
+	border: 1px solid #aaaaaa;
 }
 
 .modalSwitchingWindowButton{
 	width:auto;
 	height: auto;
+	margin: 5px 0;
 }
 .checkBoxContainer{
 	width: 50%;
@@ -566,6 +555,27 @@ input[type=file]::-webkit-file-upload-button {
 	font-style:italic;
 }
 .warningText{
-	margin-right: 0px;
-	width: 50%;
+	padding: 5px;
+    float: left;
 }   
+.modalSwitchingWindow tr:hover {
+	cursor: pointer;
+}
+button, input, checkbox {
+	cursor: pointer;
+}
+.modal-content .box {
+	border-spacing: 0
+}
+.modal-content .box th {
+	padding-right: 0px; 
+	padding-left: 0px; 
+	display:flex; 
+	justify-content: space-between;
+}
+.bgcdeadlineExpired {
+	background-color: #ff9999;
+}
+#ChatForm {
+	display: none;
+}

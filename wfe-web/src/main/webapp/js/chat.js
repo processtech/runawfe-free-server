@@ -1,5 +1,35 @@
 $(document).ready(function() {
 //-----------------------------------------
+// id процесса для чата на форме
+if($("input[name='one_task_hidden_field']").val() == "one_task_hidden_field"){
+	var pidff = $("a[href^='/wfe/manage_process.do?id=']").text();
+	$("#ChatForm").attr("processId", pidff);
+}
+//TODO id процесса на submit_task.jsp
+
+//шаблон модального окна чата
+var textLoadOldMessage = "Загрузить сообщения выше";
+var textPprivateMessage = "Приватное сообщение:";
+var textEnterMessage = "Введите текст сообщения";
+var textDragFile = "Перетащите сюда файл";
+var textBtnSend = "Отправить";
+var modalHeaderChat = '<table class="box"><tbody><tr><th class="box"><button id="btnOp" type="button"><img id="imgButton" alt="resize" src="/wfe/images/chat_roll_up.png"></button><div id="modal-header-dragg" class="modal-header-dragg"></div><span id="close" class="ui-icon ui-icon-closethick ui-state-highlight" style="cursor: pointer; float: right; margin: 1px;"></span></th></tr></tbody></table>';
+var modalFooterChat = '<div class="checkBoxContainer">' + textPprivateMessage + '<input type="checkbox" class="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
+
+$("#ChatForm").append('<div class="modal-content"/>');
+$(".modal-content").html(modalHeaderChat);
+$(".modal-content").append('<div id="modal-body" class="modal-body"/>');
+$(".modal-body").html('<button id="loadNewBessageButton" type="button">' + textLoadOldMessage + '</button>');
+
+$(".modal-content").append('<div id="modalFooter" class="modal-footer"/>');
+$(".modal-footer").append(modalFooterChat);
+
+var rowSMCount = $('.tab tr').size();
+if (rowSMCount>9) {
+    $(".modal-body").attr("admin", "true");
+}
+//TODO информация о пользователе на submit_task.jsp и manage_process.jsp, потом всё это переедет в main_layout.jsp для добавления списка процессов в меню
+
 //переменные
 //высота "непрочитанного" сообщения по скроллу
 var newMessagesHeight = 0;
@@ -64,6 +94,9 @@ var closeHierarchySignature="Свернуть";
 var quoteText ="Цитата";
 var errorMessFilePart1="Ошибка. Размер файла превышен на ";
 var errorMessFilePart2=" байт, максимальный размер файла = ";
+
+
+
 //--------------------------------функция "полной очистки"
 
 function clearChat(){
@@ -310,6 +343,8 @@ function loadOldMessages(){
 //кнопка открытия чата
 function openChat() {
 	if(lockFlag==false){
+		$(".modal-header-dragg").text("Чат процесса " + $("#ChatForm").attr("processId"));
+		$(".warningText").text("0/1024");
 		if(document.getElementById("ChatForm") != null){
 			document.getElementById("ChatForm").style.display = "block";
 			switchCheak=1;
@@ -516,6 +551,11 @@ function updatenumberNewMessages(numberNewMessages0){
 	numberNewMessages = numberNewMessages0;
 	document.getElementById("countNewMessages").innerHTML="" + numberNewMessages + "";
 	$("#numberNewMessages"+$("#ChatForm").attr("processid")).text(numberNewMessages0);
+	if(numberNewMessages>0){
+		$(".countNewMessages").addClass("bgcdeadlineExpired");
+	}else{
+		$(".countNewMessages").removeClass("bgcdeadlineExpired");
+	}
 }
 //функция отправляет по сокету id последнего прочитонного сообщния
 function updateLastReadMessage(){
@@ -724,10 +764,10 @@ $("#message").keydown(function keydownUserNames(event){//не забыть оп�
 $("#message").keyup(function keyupUserNames(event){
 	$(".warningText").html($("#message").val().length+"/"+characterSize);
 	if($("#message").val().length>characterSize){
-		$(".warningText").css({"color":"red"});
+		$(".warningText").addClass("colorRed");
 	}
 	else{
-		$(".warningText").css({"color":"black"});
+		$(".warningText").removeClass("colorRed");;
 	}
 });
 // -----------приём файлов
@@ -1107,13 +1147,15 @@ function swapChat(){
 		clearChat();
 		lockFlag = false;
 		$("#ChatForm").attr("processId", $(this).attr("processId"));
+		$(".modal-header-dragg").text("Чат процесса " + $(this).attr("processId"));
 		ajaxInitializationChat();
 	}
 }
 
 function getAllChat(data){
 	let messagesStep=20;
-	$(".modalSwitchingWindowBody").html("");
+	$(".modalSwitchingWindow").html("<tr><th class='list'>Список чатов</th><th  class='list'>Количество сообщений</th></tr>");
+	//$(".modalSwitchingWindowBody").html("");
 	let idRowListChats=$("<tr/>");
 	idRowListChats.attr("id",0);
 	let numUnredaMes=$("<td/>").attr("class","readMes");
@@ -1138,9 +1180,10 @@ function getAllChat(data){
 		else{
 			cloneIdRowListChats.children(".readMes").attr("class","noNewMessagesChatClass");
 		}
-		$(".modalSwitchingWindowBody").append(cloneIdRowListChats);
+		//$(".modalSwitchingWindowBody").append(cloneIdRowListChats);
+		$(".modalSwitchingWindow").append(cloneIdRowListChats);
 	}
-
+	$(".modalSwitchingWindow td").addClass("list");
 }
 //обработка сообщений для сокета "новых сообщений (chatsNewMessSocket)"
 function onChatsNewMessSocketMessage(event){
@@ -1278,7 +1321,7 @@ $("#message").keydown(function(e){
 		sendMessage();
 	}
 });
-$("#modalFooter").children().first().after("<div class=\"warningText\">"+$("#message").val().length+"/"+characterSize+"</div>");
+//$("#modalFooter").children().first().after("<div class=\"warningText\">"+$("#message").val().length+"/"+characterSize+"</div>");
 //-----скролл
 $.fn.scrollView = function (selector) {
 	return this.each(function () {

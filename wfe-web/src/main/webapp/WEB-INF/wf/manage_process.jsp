@@ -16,6 +16,7 @@
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
 <script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
 <% if (WebResources.getDiagramRefreshInterval() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {
@@ -60,7 +61,8 @@ function Reload() {
 <wf:processInfoForm buttonAlignment="right" identifiableId='<%= id %>' taskId='<%= taskId %>'>
 <table width="100%">
 	<tr>
-		<td align="right">
+		<td align="right"></td>
+		<td width="200" align="right">
 		<% if(graphMode) { %>
 			<wf:showProcessGraphLink identifiableId='<%=id %>' href='<%= "/show_process_graph.do?id=" + id + "&taskId=" + taskId + "&childProcessId=" + childProcessId %>'  />
 		<% } %>
@@ -70,6 +72,7 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
+		<td align="right"></td>
 		<td align="right">
 			<wf:showHistoryLink identifiableId='<%=id %>' href='<%= "/show_history.do?id=" + id %>'  />
 		</td>
@@ -79,6 +82,10 @@ function Reload() {
 	</tr>
 	<tr>
 		<td align="right">
+			<a id="openChatButton" onclick="openChat()">Открыть чат <sup id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</sup></a>
+			<div id="ChatForm" processId="<%=id %>"></div>
+		</td>
+		<td align="right">
 			<wf:showGraphHistoryLink identifiableId='<%=id %>' href='<%= "/show_graph_history.do?id=" + id %>'  />
 		</td>
 		<td width="200" align="right">
@@ -86,14 +93,12 @@ function Reload() {
 		</td>
 	</tr>
 </table>
+<script type="text/javascript" src="/wfe/js/chat.js"></script>
 </wf:processInfoForm>
 
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
 <wf:processSwimlaneMonitor identifiableId='<%= id %>' />
 <wf:processVariableMonitor identifiableId='<%= id %>' />
-<wf:ChatTag taskId='<%= -1L %>' processId = '<%= id %>'/>
-<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
-<script type="text/javascript" src="/wfe/js/chat.js"></script>
 <% if(!graphMode) { %>
 	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
 <% } %>
