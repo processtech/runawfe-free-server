@@ -121,7 +121,6 @@ public class ChatSocket {
         }
     }
 
-
     // вставка нового сообщения
     void addNewMessage(Session session, JSONObject objectMessage) throws IOException {
         ChatMessage newMessage = new ChatMessage();
@@ -145,6 +144,9 @@ public class ChatSocket {
         }
         // приватное ли сообщение
         Boolean isPrivate = (Boolean) objectMessage.get("isPrivate");
+
+        String privateNames = (String) objectMessage.get("privateNames");
+        String[] loginsPrivateTable = privateNames.split(";", 0);
         // чатID
         newMessage.setProcessId(Long.parseLong((String) objectMessage.get("processId")));
         // дата
@@ -173,9 +175,20 @@ public class ChatSocket {
                 }
                 if (actor != null) {
                     mentionedExecutors.add(actor);
-
                 }
+
             } else {
+                if ((loginsPrivateTable.length > 0) && (loginsPrivateTable[0].trim().length() != 0)) {
+                    for (int i = 0; i < loginsPrivateTable.length; i++) {
+                        actor = Delegates.getExecutorService().getExecutorByName(((User) session.getUserProperties().get("user")),
+                                loginsPrivateTable[i]);
+                        if (actor != null) {
+                            if (mentionedExecutors.contains(actor) == false) {
+                                mentionedExecutors.add(actor);
+                            }
+                        }
+                    }
+                }
                 break;
             }
         }
@@ -189,13 +202,12 @@ public class ChatSocket {
             }
             // сейв в БД
             Long newMessId = Delegates.getChatService().saveChatMessage((User) session.getUserProperties().get("user"), newMessage.getProcessId(),
-                        newMessage, mentionedExecutors, isPrivate);
+                    newMessage, mentionedExecutors, isPrivate);
             newMessage.setId(newMessId);
             // отправка по чату всем:
             ChatMessageDto chatMessageDto = new ChatMessageDto(newMessage);
             JSONObject sendObject1 = convertMessage(((User) session.getUserProperties().get("user")), chatMessageDto, false);
-            sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors,
-                    isPrivate);
+            sessionHandler.sendToChats(sendObject1, newMessage.getProcessId(), newMessage.getCreateActor(), mentionedActors, isPrivate);
             JSONObject sendObject2 = new JSONObject();
             sendObject2.put("processId", newMessage.getProcessId());
             sendObject2.put("messType", "newMessage");
@@ -214,8 +226,7 @@ public class ChatSocket {
 
                 Delegates.getChatService().sendMessageToEmail(null, themeEmail, messageEmail, ((Actor) executor).getEmail());
             }
-        }
-        else {// если есть файлы, то откладываем отправку до их дозагрузки
+        } else {// если есть файлы, то откладываем отправку до их дозагрузки
             session.getUserProperties().put("activeMessage", newMessage);
             session.getUserProperties().put("activeIsPrivate", isPrivate);
             session.getUserProperties().put("activeMentionedExecutors", mentionedExecutors);
@@ -248,8 +259,7 @@ public class ChatSocket {
             }
         }
         JSONObject sendObject1 = convertMessage(((User) session.getUserProperties().get("user")), messageDto, false);
-        sessionHandler.sendToChats(sendObject1, activeMessage.getProcessId(), activeMessage.getCreateActor(), mentionedActors,
-                isPrivate);
+        sessionHandler.sendToChats(sendObject1, activeMessage.getProcessId(), activeMessage.getCreateActor(), mentionedActors, isPrivate);
         JSONObject sendObject2 = new JSONObject();
         sendObject2.put("processId", activeMessage.getProcessId());
         sendObject2.put("messType", "newMessage");
@@ -262,13 +272,14 @@ public class ChatSocket {
         session.getUserProperties().put("activeIsPrivate", false);
         session.getUserProperties().put("activeMentionedExecutors", null);
     }
+
     // отправка N сообщений
     void getMessages(Session session, JSONObject objectMessage) throws IOException {
         int countMessages = ((Long) objectMessage.get("Count")).intValue();
         Long lastMessageId = ((Long) objectMessage.get("lastMessageId"));
         Long processId = Long.parseLong((String) objectMessage.get("processId"));
         List<ChatMessageDto> messages;
-        if(lastMessageId < 0) {
+        if (lastMessageId < 0) {
             lastMessageId = Delegates.getChatService().getLastReadMessage((User) session.getUserProperties().get("user"), processId);
         }
         messages = Delegates.getChatService().getChatMessages((User) session.getUserProperties().get("user"), processId, lastMessageId,

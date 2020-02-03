@@ -14,7 +14,7 @@ var textEnterMessage = "Введите текст сообщения";
 var textDragFile = "Перетащите сюда файл";
 var textBtnSend = "Отправить";
 var modalHeaderChat = '<table class="box"><tbody><tr><th class="box"><button id="btnOp" type="button"><img id="imgButton" alt="resize" src="/wfe/images/chat_roll_up.png"></button><div id="modal-header-dragg" class="modal-header-dragg"></div><span id="close" class="ui-icon ui-icon-closethick ui-state-highlight" style="cursor: pointer; float: right; margin: 1px;"></span></th></tr></tbody></table>';
-var modalFooterChat = '<div class="checkBoxContainer">' + textPprivateMessage + '<input type="checkbox" class="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
+var modalFooterChat = '<div class="checkBoxContainer">' + textPprivateMessage + '<input type="checkbox" id="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
 
 $("#ChatForm").append('<div class="modal-content"/>');
 $(".modal-content").html(modalHeaderChat);
@@ -314,7 +314,7 @@ function editMessage(){
 	if(lockFlag == false){
 		editMessageId = $(this).closest(".selectionTextQuote").attr("mesId");
 		editMessageFlag=true;
-		$("#message").val($("#messageText"+$(this).closest(".selectionTextQuote").attr("mesIndex")).text());
+		$("#message").val($("#messageText"+$(this).closest(".selectionTextQuote").attr("messageindex")).text());
 	}
 }
 
@@ -387,7 +387,16 @@ function sendMessage() {
 			newMessage.processId=$("#ChatForm").attr("processId");
 			newMessage.idHierarchyMessage = idHierarchyMessage;
 			newMessage.type="newMessage";
-			newMessage.isPrivate=$(".checkBoxPrivateMessage").prop("checked");
+			newMessage.isPrivate=$("#checkBoxPrivateMessage").prop("checked");
+			let namesPrivate="";
+			$("#tablePrivate table tr").each(function(row){
+				$(this).find('td').each(function(cell){
+					if($(this).children().prop("checked")==true){
+						namesPrivate+=$(this).parent().find(".userNamePrivate").text()+";"
+					}
+				});
+			});
+			newMessage.privateNames=namesPrivate;
 			if(attachedFiles.length > 0){
 				newMessage.haveFile=true;
 				let fileNames = [];
@@ -411,10 +420,12 @@ function sendMessage() {
 				$(addReplys0[ i ]).attr("flagAttach", "false");
 			}
 			attachedPosts=[];
-			$(".checkBoxPrivateMessage").prop("checked",false);
+			$("#checkBoxPrivateMessage").prop("checked",false);
 			$("#messReplyTable").empty();
 			$(".warningText").text("0/1024");
 			$("#fileInput").val("");
+			$("#tablePrivate table").empty();
+			$("#tablePrivate").css("display","none");
 		}
 		else{//редактирование сообщения
 			if(confirm(warningEditMessage)){
@@ -431,6 +442,7 @@ function sendMessage() {
 				newMessage.editMessageId = editMessageId;
 				$("#message").val(""); 
 				chatSocket.send(JSON.stringify(newMessage));
+				$("[textMessagId='"+editMessageId+"']").text(message);
 				editMessageId=-1;
 				editMessageFlag=false;
 			}
@@ -585,23 +597,25 @@ function getUsersNames(){
 function enterClickUserNames(event){
 	if(lockFlag == false){
 		//let userNameText = $(this).text().slice(userNameLength+1) + " ";
-		let userId = $(this).attr("id").replace(/[^0-9]/gim, "");
+		let userId = $(this).attr("userId");
 		let sizeName=$("#message").val().slice(userNamePosition).match(/^@\w*/g);
-		$("#message").val($("#message").val().slice(0,userNamePosition)+$("#message").val().slice(userNamePosition).replace(/^@\w*/gim,"@"+userList[userId]));
+		$("#message").val($("#message").val().slice(0,userNamePosition)+$("#message").val().slice(userNamePosition).replace(/^@\w*/gim,"@"+userList[userId]+" "));
 		deleteUserNameTable();
 	}
 }
 //полная очистка таблицы вставки userNameTable и её переменных
 function deleteUserNameTable(){
 	userNameTable.detach();
-	userNameTable.html("");
+	userNameTable.empty();
 	$(".messageUserMention").css({"display":"none"});
 	userNameLength=0;
 	userNamePositionFlag = false;
+	$("#message").off();
+	$("#message").keydown(firstKeyCheck);
 }
 //обновить таблицу userNameTable
 function updateUserNameTable(enterUserName){
-	userNameTable.html("");
+	userNameTable.empty();
 	userNameTableLength = 0;
 	for(let i=0;i<userList.length;i++){
 		let partName = userList[i].slice(0,userNameLength);
@@ -609,6 +623,7 @@ function updateUserNameTable(enterUserName){
 		if(partName==enterUserName){
 			let userNameBlockList=$("<li/>");
 			userNameBlockList.attr("id","idListUserNameTr"+userNameTableLength);
+			userNameBlockList.attr("userId",i);
 			userNameBlockList.addClass("list");
 			userNameBlockList.click(enterClickUserNames);
 			userNameTable.append(userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )"));
@@ -618,6 +633,7 @@ function updateUserNameTable(enterUserName){
 			let userNameBlockList=$("<li/>");
 			userNameBlockList.attr("id","idListUserNameTr"+userNameTableLength);
 			userNameBlockList.addClass("list");
+			userNameBlockList.attr("userId",i);
 			userNameBlockList.click(enterClickUserNames);
 			userNameTable.append(userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )"));
 			userNameTableLength++;
@@ -625,7 +641,95 @@ function updateUserNameTable(enterUserName){
 	}
 	$("#idListUserNameTr"+0).addClass("selected");
 }
-$("#message").keydown(function keydownUserNames(event){//не забыть оптимизировать if на проверки (userNamePositionFlag == true) !!!
+$("#message").keydown(firstKeyCheck);
+$("#message").keyup(function keyupUserNames(event){
+	$(".warningText").html($("#message").val().length+"/"+characterSize);
+	if($("#message").val().length>characterSize){
+		$(".warningText").css({"color":"red"});
+	}
+	else{
+		$(".warningText").css({"color":"black"});
+	}
+});
+let tablePrivateReply=$("<div/>");
+tablePrivateReply.append($("<table/>"));
+tablePrivateReply.attr("id","tablePrivate");
+$(".modal-content").append(tablePrivateReply);
+$("#checkBoxPrivateMessage").change(function(){
+	if(this.checked){
+		$("#tablePrivate").css("display","flex");
+		getUsersNames().then(fillingPrivateMessageRecipientTable);
+	}
+	else{
+		$("#tablePrivate").css("display","none");
+		$("#tablePrivate table").empty();
+	}
+});
+
+function firstKeyCheck(event){
+	if(event.key == "@"){
+		userNamePosition = this.selectionStart;
+		//заполнение таблицы
+		if(userLoadFlag == false){
+			getUsersNames().then(function(data){
+				userLoadFlag = true;
+				userList = data.names;
+				userFullNameList=data.fullNames;
+				userList.sort();
+				userFullNameList.sort();
+				if(userNamePositionFlag == true){
+					userNameTable.empty();
+				}
+				else{
+					$(".messageUserMention").append(userNameTable);
+					userNamePositionFlag = true;
+				}
+				for(let i=0;i<userList.length;i++){
+					let userNameBlockList=$("<div/>");
+					userNameBlockList.addClass("list");
+					userNameBlockList.attr("id","idListUserNameTr"+i);
+					userNameBlockList.attr("userId",i);
+					userNameBlockList.click(enterClickUserNames);
+					userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )");
+					userNameTable.append(userNameBlockList);
+				}
+				$("#idListUserNameTr"+0).addClass("selected");
+				userNameTableLength = userList.length-1;
+				$(".messageUserMention").css({"display":"block"});
+			});
+		}
+		else{
+			if(userNamePositionFlag == true){
+				userNameTable.empty();
+			}
+			else{
+				$(".messageUserMention").append(userNameTable);
+				userNamePositionFlag = true;
+			}
+			for(let i=0;i<userList.length;i++){
+				let userNameBlockList=$("<div/>");
+				userNameBlockList.addClass("list");
+				userNameBlockList.attr("id","idListUserNameTr"+i);
+				userNameBlockList.attr("userId",i);
+				userNameBlockList.click(enterClickUserNames);
+				userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )");
+				userNameTable.append(userNameBlockList);
+			}
+			$("#idListUserNameTr"+0).addClass("selected");
+			userNameTableLength = userList.length-1;
+			$(".messageUserMention").css({"display":"block"});
+		}
+		$("#message").off();
+		$("#message").keydown(secondKeyCheck);
+	}
+	//комбинация хоткея "отправить" (cntrl+enter)
+	else if(event.ctrlKey && event.keyCode == 13){
+		sendMessage();
+		return false;
+	}
+}
+
+function secondKeyCheck(event){
 	if(event.key == "Backspace"){
 		if(userNamePositionFlag == true){
 			if(this.selectionStart == userNamePosition+1){
@@ -699,77 +803,21 @@ $("#message").keydown(function keydownUserNames(event){//не забыть оп�
 			}
 		}
 	}
-	else if ((event.key == " ") || (event.key == "Enter")){
+	else if (event.key == "Enter"){
 		if(userNamePositionFlag == true){
 			$("#idListUserNameTr"+listUserNameFastInput).click();
+			return false;
 		}
 	}
-	else if(event.key == "@"){
-		userNamePosition = this.selectionStart;
-		//заполнение таблицы
-		if(userLoadFlag == false){
-			getUsersNames().then(function(data){
-				userLoadFlag = true;
-				userList = data.names;
-				userFullNameList=data.fullNames;
-				userList.sort();
-				userFullNameList.sort();
-				if(userNamePositionFlag == true){
-					userNameTable.html("");
-				}
-				else{
-					$(".messageUserMention").append(userNameTable);
-					userNamePositionFlag = true;
-				}
-				for(let i=0;i<userList.length;i++){
-					let userNameBlockList=$("<div/>");
-					userNameBlockList.addClass("list");
-					userNameBlockList.attr("id","idListUserNameTr"+i);
-					userNameBlockList.click(enterClickUserNames);
-					userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )");
-					userNameTable.append(userNameBlockList);
-				}
-				$("#idListUserNameTr"+0).addClass("selected");
-				userNameTableLength = userList.length-1;
-				$(".messageUserMention").css({"display":"block"});
-			});
-		}
-		else{
-			if(userNamePositionFlag == true){
-				userNameTable.html("");
-			}
-			else{
-				$(".messageUserMention").append(userNameTable);
-				userNamePositionFlag = true;
-			}
-			for(let i=0;i<userList.length;i++){
-				let userNameBlockList=$("<div/>");
-				userNameBlockList.addClass("list");
-				userNameBlockList.attr("id","idListUserNameTr"+i);
-				userNameBlockList.click(enterClickUserNames);
-				userNameBlockList.text("@"+userFullNameList[i]+" ( "+userList[i]+" )");
-				userNameTable.append(userNameBlockList);
-			}
-			$("#idListUserNameTr"+0).addClass("selected");
-			userNameTableLength = userList.length-1;
-			$(".messageUserMention").css({"display":"block"});
-		}
+	else if (event.key == " "){
+		deleteUserNameTable();
 	}
 	else if((userNamePositionFlag == true)&&( (this.selectionStart) > (userNamePosition) )&&( (this.selectionStart) < (userNameLength+2+userNamePosition) )&&(event.key.length==1)&&(/^[A-Za-z0-9]+$/.test(event.key))){
 		userNameLength++;
 		//обновляем таблицу
 		updateUserNameTable(this.value.slice(userNamePosition+1, this.selectionStart) + event.key + this.value.slice(this.selectionStart,userNamePosition+userNameLength));
 	}
-});
-$("#message").keyup(function keyupUserNames(event){
-	$(".warningText").html($("#message").val().length+"/"+characterSize);
-	if($("#message").val().length>characterSize){
-		$(".warningText").addClass("colorRed");
-	}
-	else{
-		$(".warningText").removeClass("colorRed");;
-	}
-});
+}
 // -----------приём файлов
 //проверка браузера
 if (typeof(window.FileReader) != "undefined") {
@@ -1282,6 +1330,21 @@ function ajaxLocale(){
 		});
 }
 
+function ajaxLoadNamesList(){
+	let urlString="/wfe/ajaxcmd?command=LoadNamesList";
+	$.ajax({
+		type: "POST",
+		url: urlString,
+		dataType: "json",
+		contentType: "application/json; charset=UTF-8",
+		processData: false,
+		success: function(data) {
+			userList=data.names;
+			
+		}
+	});
+}
+
 function LocaleText(data){
 	$(".modalSwitchingWindowButton").text(data.switchChatButton);
 	$("#message").attr("placeholder",data.textAreaMessagePalceholder);
@@ -1304,6 +1367,28 @@ function LocaleText(data){
 	errorMessFilePart2=data.errorMessFilePart2;
 	
 }
+
+function fillingPrivateMessageRecipientTable(data){
+	userList=data.names;
+	let tr=$("<tr/>");
+	let td=$("<td/>");
+	let inputCheckbox=$("<input/>");
+	for(let i=0;i<userList.length;i++){
+		if(userList[i].trim()!=""){
+			let cloneTR=tr.clone();
+			let cloneTDUserName=td.clone();
+			cloneTDUserName.attr("class","userNamePrivate");
+			let cloneTDCheckBox=td.clone();
+			let cloneInputCheckbox=inputCheckbox.clone();
+			cloneInputCheckbox.attr("type","checkbox");
+			cloneTDUserName.append(userList[i]+"");
+			cloneTDCheckBox.append(cloneInputCheckbox);
+			cloneTR.append(cloneTDUserName);
+			cloneTR.append(cloneTDCheckBox);
+			$("#tablePrivate table").append(cloneTR);
+		}
+	}
+}
 //----------------------------------------------
 //начальные действия
 //запрос на инициализацию
@@ -1315,12 +1400,6 @@ btnSend.onclick=sendMessage;
 document.getElementById("close").onclick = closeChat;
 btnOp.onclick=zoomInZoomOut;
 
-//комбинация хоткея "отправить" (cntrl+enter)
-$("#message").keydown(function(e){
-	if(e.ctrlKey && e.keyCode == 13){
-		sendMessage();
-	}
-});
 //$("#modalFooter").children().first().after("<div class=\"warningText\">"+$("#message").val().length+"/"+characterSize+"</div>");
 //-----скролл
 $.fn.scrollView = function (selector) {
