@@ -1330,21 +1330,6 @@ function ajaxLocale(){
 		});
 }
 
-function ajaxLoadNamesList(){
-	let urlString="/wfe/ajaxcmd?command=LoadNamesList";
-	$.ajax({
-		type: "POST",
-		url: urlString,
-		dataType: "json",
-		contentType: "application/json; charset=UTF-8",
-		processData: false,
-		success: function(data) {
-			userList=data.names;
-			
-		}
-	});
-}
-
 function LocaleText(data){
 	$(".modalSwitchingWindowButton").text(data.switchChatButton);
 	$("#message").attr("placeholder",data.textAreaMessagePalceholder);
