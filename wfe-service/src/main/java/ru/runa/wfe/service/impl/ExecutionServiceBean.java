@@ -257,14 +257,14 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public List<WfSwimlane> getProcessSwimlanes(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         return executionLogic.getProcessSwimlanes(user, processId);
     }
-
+    
     @Override
     @WebResult(name = "result")
     public List<WfSwimlane> getActiveProcessesSwimlanes(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "namePattern") @NonNull String namePattern) {
         return executionLogic.getActiveProcessesSwimlanes(user, namePattern);
     }
-
+    
     @Override
     @WebResult(name = "result")
     public boolean reassignSwimlane(@WebParam(name = "user") User user, @WebParam(name = "id") @NonNull Long id) {
@@ -357,8 +357,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebMethod(exclude = true)
-    public void sendSignal(@NonNull User user, @NonNull Map<String, String> routingData, @NonNull Map<String, Object> payloadData,
-            long ttlInSeconds) {
+    public void sendSignal(@NonNull User user, @NonNull Map<String, String> routingData, @NonNull Map<String, Object> payloadData, long ttlInSeconds) {
         Utils.sendBpmnMessage(routingData, payloadData, ttlInSeconds * 1000);
     }
 

@@ -18,7 +18,7 @@ public class ChatFileOutputServlet extends HttpServlet {
         User user = Commons.getUser(request.getSession());
         Long fileId = Long.parseLong(request.getParameter("fileId"));
         ChatMessageFile file = Delegates.getChatService().getChatMessageFile(user, fileId);
-        response.getOutputStream().write(file.getFile());
+        response.getOutputStream().write(file.getBytes());
     }
 
     @Override
@@ -26,6 +26,6 @@ public class ChatFileOutputServlet extends HttpServlet {
         User user = Commons.getUser(request.getSession());
         Long fileId = Long.parseLong(request.getParameter("fileId"));
         ChatMessageFile file = Delegates.getChatService().getChatMessageFile(user, fileId);
-        response.getOutputStream().write(file.getFile());
+        response.getOutputStream().write(file.getBytes());
     }
 }

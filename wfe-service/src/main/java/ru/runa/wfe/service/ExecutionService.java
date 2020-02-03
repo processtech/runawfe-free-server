@@ -45,6 +45,7 @@ import ru.runa.wfe.var.file.FileVariableImpl;
  * @since 4.0
  */
 public interface ExecutionService {
+
     /**
      * Starts new process by definition.
      *
@@ -58,8 +59,8 @@ public interface ExecutionService {
      * @throws DefinitionDoesNotExistException
      * @throws ValidationException
      */
-    public Long startProcess(User user, String definitionName, Map<String, Object> variables)
-            throws DefinitionDoesNotExistException, ValidationException;
+    public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
+            ValidationException;
 
     /**
      * Starts new process by definition.
@@ -74,8 +75,8 @@ public interface ExecutionService {
      * @throws DefinitionDoesNotExistException
      * @throws ValidationException
      */
-    public Long startProcessById(User user, Long definitionId, Map<String, Object> variables)
-            throws DefinitionDoesNotExistException, ValidationException;
+    public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
+            ValidationException;
 
     /**
      * Gets process count for {@link BatchPresentation}.
@@ -180,7 +181,7 @@ public interface ExecutionService {
      * @throws ProcessDoesNotExistException
      */
     public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern);
-
+    
     /**
      * Reassigns initialized process role.
      *
@@ -192,7 +193,7 @@ public interface ExecutionService {
      * @throws ProcessDoesNotExistException
      */
     public boolean reassignSwimlane(User user, Long id);
-
+    
     /**
      * Assigns role by name to specified executor.
      *

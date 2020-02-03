@@ -19,8 +19,8 @@ public class ChatMessageFile {
 
     private Long id;
     private ChatMessage message;
-    private byte[] file;
     private String fileName;
+    private byte[] bytes;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -46,17 +46,7 @@ public class ChatMessageFile {
         this.message = message;
     }
 
-    @Column(name = "FILE")
-    @Lob
-    public byte[] getFile() {
-        return file;
-    }
-
-    public void setFile(byte[] file) {
-        this.file = file;
-    }
-
-    @Column(name = "FILE_NAME")
+    @Column(name = "FILE_NAME", length = 1024, nullable = false)
     public String getFileName() {
         return fileName;
     }
@@ -64,4 +54,15 @@ public class ChatMessageFile {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+
+    @Column(name = "BYTES", length = 16777216, nullable = false)
+    @Lob
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
+
 }

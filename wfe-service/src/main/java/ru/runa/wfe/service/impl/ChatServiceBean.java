@@ -48,9 +48,9 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public Long saveMessageAndBindFiles(User user, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
-            ArrayList<Long> fileIds) {
-        return chatLogic.saveMessageAndBindFiles(user, message, mentionedExecutors, isPrivate, fileIds);
+    public Long saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+            Boolean isPrivate, ArrayList<Long> fileIds) {
+        return chatLogic.saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, fileIds);
     }
 
     @WebMethod(exclude = true)
@@ -85,20 +85,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public Boolean sendMessageToEmail(User user, String title, String message, String Emaile) {
-        return chatLogic.sendMessageToEmail(title, message, Emaile);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
     public void updateChatMessage(User user, ChatMessage message) {
         chatLogic.updateMessage(message);
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public Boolean canEditMessage(User user) {
-        return chatLogic.canEditMessage(user.getActor());
     }
 
     @WebMethod(exclude = true)
@@ -164,7 +152,9 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = true)
     @Override
     public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
-        return chatLogic.saveMessage(processId, message, mentionedExecutors, isPrivate);
+        Long id = chatLogic.saveMessage(processId, message, mentionedExecutors, isPrivate);
+        chatLogic.sendNotifications(message, mentionedExecutors);
+        return id;
     }
 
 }

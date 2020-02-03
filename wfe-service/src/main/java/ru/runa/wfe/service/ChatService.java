@@ -13,7 +13,7 @@ import ru.runa.wfe.user.User;
  * Chat service.
  *
  * @author mrumyantsev
- * @since ___
+ * @since 02.02.2020
  */
 public interface ChatService {
 
@@ -21,7 +21,7 @@ public interface ChatService {
 
     public void deleteFile(User user, Long id);
 
-    public Long saveMessageAndBindFiles(User user, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate, ArrayList<Long> fileIds);
+    public Long saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate, ArrayList<Long> fileIds);
 
     public void readMessage(User user, Long messageId);
 
@@ -31,29 +31,7 @@ public interface ChatService {
 
     public Set<Executor> getAllUsers(User user, Long processId);
 
-    /**
-     * 
-     * 
-     *
-     * 
-     *
-     * 
-     */
     public List<Long> getNewMessagesCounts(User user, List<Long> processIds, List<Boolean> isMentions);
-
-    /**
-     * send by email
-     * 
-     * @param title
-     *            message subject
-     * @param message
-     *            message
-     * @param Emaile
-     *            email address (full)
-     *
-     * @return sends an email (chat emaile - chat.properties)
-     */
-    public Boolean sendMessageToEmail(User user, String title, String message, String Emaile);
 
     /**
      * merge message in DB
@@ -62,15 +40,6 @@ public interface ChatService {
      *            message to merge
      */
     public void updateChatMessage(User user, ChatMessage message);
-
-    /**
-     * validates the user (can edit message)
-     *
-     * @param user
-     *            validated user (actor)
-     * @return not <code>null</code>
-     */
-    public Boolean canEditMessage(User user);
 
     /**
      * Get List array of all ChatMessageFiles in chat message.

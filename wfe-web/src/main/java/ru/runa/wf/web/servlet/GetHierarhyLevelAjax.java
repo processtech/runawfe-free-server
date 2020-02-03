@@ -1,7 +1,8 @@
 package ru.runa.wf.web.servlet;
 
-import java.util.List;
+import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
@@ -14,25 +15,26 @@ public class GetHierarhyLevelAjax extends JsonAjaxCommand {
 
     @Override
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
-        String processId = request.getParameter("processId");
         String messageId = request.getParameter("messageId");
         JSONObject outputObject = new JSONObject();
-        ChatMessage coreMessage = Delegates.getChatService().getChatMessage(user, Long.parseLong(messageId));
-        List<Long> coreMessageHierarhy = coreMessage.getQuotedMessageIdsArray();
-        if (coreMessageHierarhy.size() > 0) {
+        ChatMessage chatMessage = Delegates.getChatService().getChatMessage(user, Long.parseLong(messageId));
+        ArrayList<Long> quotedMessageIds = new ArrayList<Long>();
+        String[] ids = chatMessage.getQuotedMessageIds().split(":");
+        for (int i = 0; i < ids.length; i++) {
+            if (!(ids[i].isEmpty())) {
+                quotedMessageIds.add(Long.parseLong(ids[i]));
+            }
+        }
+        if (quotedMessageIds.size() > 0) {
             JSONArray messagesArrayObject = new JSONArray();
-            for (int i = 0; i < coreMessageHierarhy.size(); i++) {
-                ChatMessage attachedMessage = Delegates.getChatService().getChatMessage(user, coreMessageHierarhy.get(i));
+            for (int i = 0; i < quotedMessageIds.size(); i++) {
+                ChatMessage attachedMessage = Delegates.getChatService().getChatMessage(user, quotedMessageIds.get(i));
                 JSONObject attachedMesObject = new JSONObject();
                 if (attachedMessage != null) {
                     attachedMesObject.put("id", attachedMessage.getId());
                     attachedMesObject.put("text", attachedMessage.getText());
-                    attachedMesObject.put("author", attachedMessage.getUserName());
-                    if (attachedMessage.getQuotedMessageIdsArray().size() > 0) {
-                        attachedMesObject.put("hierarchyMessageFlag", 1);
-                    } else {
-                        attachedMesObject.put("hierarchyMessageFlag", 0);
-                    }
+                    attachedMesObject.put("author", attachedMessage.getCreateActor().getName());
+                    attachedMesObject.put("hierarchyMessageFlag", StringUtils.isNotBlank(attachedMessage.getQuotedMessageIds()));
                 } else {
                     attachedMesObject.put("id", -1);
                     attachedMesObject.put("text", "message deleted");
@@ -41,7 +43,6 @@ public class GetHierarhyLevelAjax extends JsonAjaxCommand {
                 }
                 messagesArrayObject.add(attachedMesObject);
             }
-
             outputObject.put("newMessage", 0);
             outputObject.put("messages", messagesArrayObject);
         } else {

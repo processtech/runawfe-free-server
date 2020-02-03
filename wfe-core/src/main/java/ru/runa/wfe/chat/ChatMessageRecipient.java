@@ -12,6 +12,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import ru.runa.wfe.user.Executor;
 
 @Entity
 @Table(name = "CHAT_MESSAGE_RECIPIENT")
@@ -19,16 +20,16 @@ public class ChatMessageRecipient {
 
     private Long id;
     private ChatMessage message;
-    private Long executorId;
-    private Date readDate = null;
-    private Boolean mentioned = false;
+    private Executor executor;
+    private Date readDate;
+    private boolean mentioned;
 
     public ChatMessageRecipient() {
     }
 
-    public ChatMessageRecipient(ChatMessage message, Long executorId, Boolean mentioned) {
+    public ChatMessageRecipient(ChatMessage message, Executor executor, boolean mentioned) {
         this.message = message;
-        this.executorId = executorId;
+        this.executor = executor;
         this.mentioned = mentioned;
     }
 
@@ -44,9 +45,10 @@ public class ChatMessageRecipient {
         this.id = id;
     }
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "MESSAGE_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_RECIPIENT_M_ID")
+    @Index(name = "IX_CHAT_MESSAGE_RECIPIENT_M_ID")
     public ChatMessage getMessage() {
         return message;
     }
@@ -55,15 +57,16 @@ public class ChatMessageRecipient {
         this.message = message;
     }
 
-    // TODO: сдалвть FK к Executor оставив Long
-    @Column(name = "EXECUTOR_ID")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "EXECUTOR_ID")
+    @ForeignKey(name = "FK_CHAT_MESSAGE_RECIPIENT_E_ID")
     @Index(name = "IX_CHAT_MESSAGE_RECIPIENT_E_R", columnNames = { "EXECUTOR_ID", "READ_DATE" })
-    public Long getExecutorId() {
-        return executorId;
+    public Executor getExecutor() {
+        return executor;
     }
 
-    public void setExecutorId(Long executorId) {
-        this.executorId = executorId;
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
     }
 
     @Column(name = "READ_DATE")
@@ -75,12 +78,12 @@ public class ChatMessageRecipient {
         this.readDate = readDate;
     }
 
-    @Column(name = "MENTIONED")
-    public Boolean getMentioned() {
+    @Column(name = "MENTIONED", nullable = false)
+    public boolean isMentioned() {
         return mentioned;
     }
 
-    public void setMentioned(Boolean mentioned) {
+    public void setMentioned(boolean mentioned) {
         this.mentioned = mentioned;
     }
 

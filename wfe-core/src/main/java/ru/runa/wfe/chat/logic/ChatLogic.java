@@ -1,23 +1,26 @@
 package ru.runa.wfe.chat.logic;
 
+import com.google.common.base.Joiner;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import javax.mail.Authenticator;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dao.ChatDao;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
@@ -30,8 +33,10 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
 public class ChatLogic extends WfCommonLogic {
+    private Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
 
-    private Properties properties = ClassLoaderUtil.getProperties("chat.properties", true);
+    @Autowired
+    private ChatDao chatDao;
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
         return chatDao.getMentionedExecutorIds(messageId);
@@ -41,11 +46,12 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteFile(user, id);
     }
 
-    public Long saveMessageAndBindFiles(User user, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+    public Long saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
             ArrayList<Long> fileIds) {
+        message.setProcess(processDao.get(processId));
         Set<Executor> executors;
         if (!isPrivate) {
-            executors = getAllUsers(message.getProcessId(), message.getCreateActor());
+            executors = getAllUsers(message.getProcess().getId(), message.getCreateActor());
         } else {
             executors = new HashSet<Executor>(mentionedExecutors);
         }
@@ -82,7 +88,7 @@ public class ChatLogic extends WfCommonLogic {
             for (Task task : tasks) {
                 Executor executor = task.getExecutor();
                 if (executor instanceof Group) {
-                    // TODO подумать - хотим мы хранить в получателях ссылки на группы или на пользователей
+                    // TODO Do we want to store actor or group links?
                     result.addAll(executorDao.getGroupActors(((Group) executor)));
                 } else if (executor instanceof Actor) {
                     result.add(executor);
@@ -140,6 +146,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public Long saveMessage(Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+        message.setProcess(processDao.get(processId));
         if (!isPrivate) {
             Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
             return chatDao.save(message, executors, mentionedExecutors);
@@ -169,39 +176,43 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.updateMessage(message);
     }
 
-    public Boolean canEditMessage(Actor user) {
-        return true;
-    }
 
-    public Boolean sendMessageToEmail(String title, String message, String Emaile) {
-        // Создаем соединение для отправки почтового сообщения
-        javax.mail.Session session = javax.mail.Session.getDefaultInstance(properties,
-        // Аутентификатор - объект, который передает логин и пароль
-                new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(properties.getProperty("chat.email.login"), properties.getProperty("chat.email.password"));
-                    }
-                });
-        // Создаем новое почтовое сообщение
-        Message mimeMessage = new MimeMessage(session);
-        try {
-            // От кого
-            mimeMessage.setFrom(new InternetAddress(properties.getProperty("chat.email.login")));
-            // Кому
-            mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(Emaile));
-            // Тема письма
-            mimeMessage.setSubject(title);
-            // Текст письма
-            mimeMessage.setText(message);
-            // отправка
-            Transport.send(mimeMessage);
-        } catch (AddressException e) {
-            return false;
-        } catch (MessagingException e) {
-            return false;
+    public void sendNotifications(ChatMessage chatMessage, Collection<Executor> executors) {
+        if (properties.isEmpty()) {
+            log.debug("chat.email.properties are not defined");
+            return;
         }
-        return true;
+        try {
+            Set<String> emails = new HashSet<String>();
+            for (Executor executor : executors) {
+                if (executor instanceof Actor && StringUtils.isNotBlank(((Actor) executor).getEmail())) {
+                    emails.add(((Actor) executor).getEmail());
+                }
+            }
+            if (emails.isEmpty()) {
+                log.debug("No emails found for " + chatMessage);
+                return;
+            }
+            javax.mail.Session session = javax.mail.Session.getDefaultInstance(properties, new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(properties.getProperty("login"), properties.getProperty("password"));
+                }
+            });
+            Message mimeMessage = new MimeMessage(session);
+            String titlePattern = (String) properties.get("title.pattern");
+            String title = titlePattern//
+                    .replace("$actorName", chatMessage.getCreateActor().getName())//
+                    .replace("$processId", chatMessage.getProcess().getId().toString());
+            String message = ((String) properties.get("message.pattern")).replace("$message", chatMessage.getText());
+            mimeMessage.setFrom(new InternetAddress(properties.getProperty("login")));
+            mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(Joiner.on(";").join(emails)));
+            mimeMessage.setSubject(title);
+            mimeMessage.setText(message);
+            Transport.send(mimeMessage);
+        } catch (Exception e) {
+            log.warn("Unable to send chat email notification", e);
+        }
     }
 
 }
