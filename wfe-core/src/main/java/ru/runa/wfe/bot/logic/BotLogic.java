@@ -104,6 +104,7 @@ public class BotLogic extends CommonLogic {
             executorDao.addExecutorToGroup(botActor, botsGroup);
         }
         bot = botDao.create(bot);
+        sessionFactory.getCurrentSession().flush();
         incrementBotStationVersion(bot);
         return bot;
     }
@@ -130,7 +131,7 @@ public class BotLogic extends CommonLogic {
         return botDao.getNotNull(botStation, name);
     }
 
-    public void updateBot(User user, Bot bot, boolean incrementBotStationVersion) throws BotAlreadyExistsException {
+    public Bot updateBot(User user, Bot bot, boolean incrementBotStationVersion) throws BotAlreadyExistsException {
         checkPermission(user);
         Preconditions.checkNotNull(bot.getBotStation());
         Bot botToCheck = getBot(user, bot.getBotStation().getId(), bot.getUsername());
@@ -138,9 +139,11 @@ public class BotLogic extends CommonLogic {
             throw new BotAlreadyExistsException(bot.getUsername());
         }
         bot = botDao.update(bot);
+        sessionFactory.getCurrentSession().flush();   // see #1303-6
         if (incrementBotStationVersion) {
             incrementBotStationVersion(bot);
         }
+        return bot;
     }
 
     public void removeBot(User user, Long id) throws BotDoesNotExistException {

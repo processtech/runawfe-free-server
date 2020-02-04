@@ -138,7 +138,8 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             } catch (Exception e) {
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
                         || processDefinition.getDeployment().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
-                    throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue + "'", e);
+                    throw new InternalApplicationException(
+                            "Unable to parse default value '" + stringDefaultValue + "' for variable '" + variableDefinition.getName() + "'", e);
                 } else {
                     LogFactory.getLog(getClass()).error(
                             "Unable to format default value '" + stringDefaultValue + "' in " + processDefinition + ":" + variableDefinition, e);

@@ -25,9 +25,9 @@ public class TaskServiceDelegate extends Ejb3Delegate implements TaskService {
     }
 
     @Override
-    public void completeTask(User user, Long taskId, Map<String, Object> variables) {
+    public WfTask completeTask(User user, Long taskId, Map<String, Object> variables) {
         try {
-            getTaskService().completeTask(user, taskId, variables);
+            return getTaskService().completeTask(user, taskId, variables);
         } catch (Exception e) {
             throw handleException(e);
         }

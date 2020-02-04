@@ -253,6 +253,7 @@
 			</list>
 		</property>
 	</bean>
+
 	<bean id="profileLogic" class="ru.runa.wfe.user.logic.ProfileLogic" />
 	<bean id="relationLogic" class="ru.runa.wfe.relation.logic.RelationLogic" />
 	<bean id="substitutionLogic" class="ru.runa.wfe.ss.logic.SubstitutionLogic" />
@@ -262,6 +263,8 @@
 	<bean id="executionLogic" class="ru.runa.wfe.execution.logic.ExecutionLogic" />
 	<bean id="taskLogic" class="ru.runa.wfe.task.logic.TaskLogic" />
 	<bean id="variableLogic" class="ru.runa.wfe.var.logic.VariableLogic" />
+	<bean id="chatLogic" class="ru.runa.wfe.chat.logic.ChatLogic" />
+	
 	<bean id="assignmentHelper" class="ru.runa.wfe.extension.assign.AssignmentHelper" />
 	<bean id="adminScriptRunner" class="ru.runa.wfe.script.AdminScriptRunner" />
 	<bean id="reportLogic" class="ru.runa.wfe.report.logic.ReportLogic" />

@@ -31,6 +31,7 @@
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/trumbowyg.css" />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/delegate.dialog.css?"+Version.getHash() %>' />">
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
 <% 
 	for (String url : WebResources.getTaskFormExternalJsLibs()) {
 %>
@@ -46,11 +47,16 @@
 	String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
 %>
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
+<script type="text/javascript" src="/wfe/js/chat.js"></script>
+<div style="float:left; max-width: 150px; margin-top: -25px;">
+	<a id="openChatButton" onclick="openChat()">Открыть чат <span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
+</div>
+<div id="ChatForm"></div>
 <% if (WebResources.isTaskDelegationEnabled()) { %>
 	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
 <% } %>
-<wf:taskForm title="<%= title %>" taskId="<%= taskId %>" action="/submitTaskForm" />
 
+<wf:taskForm title="<%= title %>" taskId="<%= taskId %>" action="/submitTaskForm" />
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 </tiles:insert>
