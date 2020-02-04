@@ -146,6 +146,9 @@ public class Utils {
     }
 
     public static ObjectMessage sendBpmnMessage(Map<String, String> routingData, Map<String, Object> payloadData, long ttlInMilliSeconds) {
+        if (routingData.isEmpty()) {
+            throw new InternalApplicationException("Routing data is required");
+        }
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -232,6 +235,9 @@ public class Utils {
         List<String> selectors = getObjectMessageSelectorSelectors(routingData);
         Set<String> result = Sets.newHashSet();
         for (Set<String> set : Sets.powerSet(Sets.newHashSet(selectors))) {
+            if (set.isEmpty()) {
+                continue;
+            }
             List<String> list = Lists.newArrayList(set);
             Collections.sort(list);
             result.add(Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(list));

@@ -68,6 +68,10 @@ public class LdapProperties {
         return RESOURCES.getStringProperty("synchronization.account.name.attribute");
     }
 
+    public static String getSynchronizationGroupNameAttribute() {
+        return RESOURCES.getStringProperty("synchronization.group.name.attribute", getSynchronizationAccountNameAttribute());
+    }
+
     public static String getSynchronizationUserFullNameAttribute() {
         return RESOURCES.getStringProperty("synchronization.user.fullName.attribute");
     }

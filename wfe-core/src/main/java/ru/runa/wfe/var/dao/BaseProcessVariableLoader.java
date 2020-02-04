@@ -135,7 +135,7 @@ public class BaseProcessVariableLoader {
                     Map<String, String> syncVariableNames = Maps.newHashMap();
                     ProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(nodeProcess
                             .getProcess());
-                    Node node = parentProcessDefinition.getNodeNotNull(nodeProcess.getParentToken().getNodeId());
+                    Node node = parentProcessDefinition.getNodeNotNull(nodeProcess.getNodeId());
                     multiSubprocessFlagsMap.put(process, node instanceof MultiSubprocessNode);
                     if (node instanceof SubprocessNode) {
                         SubprocessNode subprocessNode = (SubprocessNode) node;

@@ -1,23 +1,18 @@
 package ru.runa.wfe.audit;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
-
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.SafeIndefiniteLoop;
-import ru.runa.wfe.lang.NodeType;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProcessLogs implements Serializable {
@@ -140,27 +135,18 @@ public class ProcessLogs implements Serializable {
     }
 
     public Map<TaskCreateLog, TaskEndLog> getTaskLogs() {
-        Map<String, TaskCreateLog> tmpByTaskName = Maps.newHashMap();
-        Map<Long, TaskCreateLog> tmpByTaskId = Maps.newHashMap();
+        Map<Long, TaskCreateLog> taskCreateLogByTaskId = Maps.newHashMap();
         Map<TaskCreateLog, TaskEndLog> result = Maps.newHashMap();
-        boolean compatibilityMode = false;
         for (ProcessLog log : logs) {
             if (log instanceof TaskCreateLog) {
                 TaskCreateLog taskCreateLog = (TaskCreateLog) log;
-                String key = log.getProcessId() + taskCreateLog.getTaskName();
-                tmpByTaskName.put(key, taskCreateLog);
-                tmpByTaskId.put(taskCreateLog.getTaskId(), taskCreateLog);
+                taskCreateLogByTaskId.put(taskCreateLog.getTaskId(), taskCreateLog);
             }
             if (log instanceof TaskEndLog) {
                 TaskEndLog taskEndLog = (TaskEndLog) log;
-                TaskCreateLog taskCreateLog;
-                if (taskEndLog.getTaskId() != null && tmpByTaskId.containsKey(taskEndLog.getTaskId())) {
-                    taskCreateLog = tmpByTaskId.remove(taskEndLog.getTaskId());
-                    tmpByTaskName.remove(log.getProcessId() + taskCreateLog.getTaskName());
-                } else {
-                    String key = log.getProcessId() + taskEndLog.getTaskName();
-                    taskCreateLog = tmpByTaskName.remove(key);
-                    compatibilityMode = true;
+                TaskCreateLog taskCreateLog = null;
+                if (taskCreateLogByTaskId.containsKey(taskEndLog.getTaskId())) {
+                    taskCreateLog = taskCreateLogByTaskId.remove(taskEndLog.getTaskId());
                 }
                 if (taskCreateLog == null) {
                     LogFactory.getLog(getClass()).warn("No TaskCreateLog for " + log);
@@ -168,34 +154,9 @@ public class ProcessLogs implements Serializable {
                 }
                 result.put(taskCreateLog, taskEndLog);
             }
-            if (log instanceof NodeLeaveLog) {
-                NodeLeaveLog nodeLeaveLog = (NodeLeaveLog) log;
-                if (NodeType.START_EVENT == nodeLeaveLog.getNodeType()) {
-                    ProcessStartLog processStartLog = getFirstOrNull(ProcessStartLog.class);
-                    if (processStartLog == null) {
-                        continue;
-                    }
-                    TaskCreateLog taskCreateLog = new TaskCreateLog();
-                    taskCreateLog.setId(processStartLog.getId());
-                    taskCreateLog.setCreateDate(nodeLeaveLog.getCreateDate());
-                    taskCreateLog.setProcessId(nodeLeaveLog.getProcessId());
-                    taskCreateLog.setSeverity(nodeLeaveLog.getSeverity());
-                    taskCreateLog.setTokenId(nodeLeaveLog.getTokenId());
-                    taskCreateLog.addAttribute(Attributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
-                    TaskEndLog taskEndLog = new TaskEndLog();
-                    taskEndLog.setId(processStartLog.getId());
-                    taskEndLog.setCreateDate(nodeLeaveLog.getCreateDate());
-                    taskEndLog.setProcessId(nodeLeaveLog.getProcessId());
-                    taskEndLog.setSeverity(nodeLeaveLog.getSeverity());
-                    taskEndLog.setTokenId(nodeLeaveLog.getTokenId());
-                    taskEndLog.addAttribute(Attributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
-                    taskEndLog.addAttribute(Attributes.ATTR_ACTOR_NAME, processStartLog.getActorName());
-                    result.put(taskCreateLog, taskEndLog);
-                }
-            }
         }
         // unfinished tasks
-        for (TaskCreateLog taskCreateLog : compatibilityMode ? tmpByTaskName.values() : tmpByTaskId.values()) {
+        for (TaskCreateLog taskCreateLog : taskCreateLogByTaskId.values()) {
             result.put(taskCreateLog, null);
         }
         return result;

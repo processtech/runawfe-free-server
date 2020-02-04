@@ -77,6 +77,7 @@ import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
@@ -224,12 +225,13 @@ public class ExecutionLogic extends WfCommonLogic {
         Map<String, Object> extraVariablesMap = Maps.newHashMap();
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(processDefinition));
-        SwimlaneDefinition startTaskSwimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
+        StartNode startNode = processDefinition.getStartStateNotNull();
+        SwimlaneDefinition startTaskSwimlaneDefinition = startNode.getFirstTaskNotNull().getSwimlane();
         String startTaskSwimlaneName = startTaskSwimlaneDefinition.getName();
         if (!variables.containsKey(startTaskSwimlaneName)) {
             variables.put(startTaskSwimlaneName, user.getActor());
         }
-        validateVariables(user, null, variableProvider, processDefinition, processDefinition.getStartStateNotNull().getNodeId(), variables);
+        validateVariables(user, null, variableProvider, processDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
         Process process = processFactory.startProcess(processDefinition, variables, user.getActor(), transitionName, transientVariables);
