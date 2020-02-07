@@ -13,6 +13,7 @@ var textPprivateMessage = "Приватное сообщение:";
 var textEnterMessage = "Введите текст сообщения";
 var textDragFile = "Перетащите сюда файл";
 var textBtnSend = "Отправить";
+var textHeader = "Чат процесса ";
 var modalHeaderChat = '<table class="box"><tbody><tr><th class="box"><button id="btnOp" type="button"><img id="imgButton" alt="resize" src="/wfe/images/chat_roll_up.png"></button><div id="modal-header-dragg" class="modal-header-dragg"></div><span id="close" class="ui-icon ui-icon-closethick ui-state-highlight" style="cursor: pointer; float: right; margin: 1px;"></span></th></tr></tbody></table>';
 var modalFooterChat = '<div class="checkBoxContainer">' + textPprivateMessage + '<input type="checkbox" id="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
 
@@ -82,6 +83,12 @@ var chatsNewMessSocketUrl = null;
 //сокет основной
 var chatSocket = null;
 var chatSocketUrl = null;
+
+
+var languageText = (window.navigator.language ||
+        window.navigator.systemLanguage ||
+        window.navigator.userLanguage);
+languageText = languageText.substr(0, 2).toLowerCase();
 
 var editMessageButtonText="редактировать";
 var addReplyButtonText="Ответить";
@@ -343,7 +350,7 @@ function loadOldMessages(){
 //кнопка открытия чата
 function openChat() {
 	if(lockFlag==false){
-		$(".modal-header-dragg").text("Чат процесса " + $("#ChatForm").attr("processId"));
+		$(".modal-header-dragg").text(textHeader + $("#ChatForm").attr("processId"));
 		$(".warningText").text("0/1024");
 		if(document.getElementById("ChatForm") != null){
 			document.getElementById("ChatForm").style.display = "block";
@@ -1316,7 +1323,7 @@ function ajaxAllInitializationChats(){
 }
 
 function ajaxLocale(){
-	let urlString="/wfe/ajaxcmd?command=LocaleTextChat";
+	let urlString="/wfe/ajaxcmd?command=LocaleTextChat&language="+languageText;
 	$.ajax({
 		type: "POST",
 		url: urlString,
@@ -1324,6 +1331,7 @@ function ajaxLocale(){
 		contentType: "application/json; charset=UTF-8",
 		processData: false,
 		success: function(data) {
+			
 			LocaleText(data);
 			
 		}
@@ -1331,14 +1339,15 @@ function ajaxLocale(){
 }
 
 function LocaleText(data){
-	$(".modalSwitchingWindowButton").text(data.switchChatButton);
-	$("#message").attr("placeholder",data.textAreaMessagePalceholder);
-	$(".checkBoxContainer").first().text(data.privateMessageCheckbox);
-	$("#dropZ").text(data.dropBlock);
-	$("#newMessagesIndicator").first().text(data.newMessageIndicator);
-	$("#newMessagesIndicator").last().text();
-	btnOpenChat.innerHTML=data.buttonSendMessage;
-	btnLoadOldMessages.innerHTML=data.buttonLoadOldMessage;
+	$("#openChatButton").first(data.openChatButton);
+	//$(".modalSwitchingWindowButton").text(data.switchChatButton);
+	//$("#newMessagesIndicator").first().text(data.newMessageIndicator);
+	//$("#newMessagesIndicator").last().text();
+	textEnterMessage = data.textAreaMessagePalceholder;
+	textPprivateMessage = data.privateMessageCheckbox;
+	textDragFile = data.dropBlock;
+	textBtnSend=data.buttonSendMessage;
+	textLoadOldMessage=data.buttonLoadOldMessage;
 	editMessageButtonText=data.editMessageButton;
 	addReplyButtonText=data.addReplyInMessageButton;
 	attachedMessageSignature=data.attachedMessage;
@@ -1350,6 +1359,7 @@ function LocaleText(data){
 	quoteText=data.quoteText;
 	errorMessFilePart1=data.errorMessFilePart1;
 	errorMessFilePart2=data.errorMessFilePart2;
+	textHeader=data.textHeader;
 	
 }
 
@@ -1378,6 +1388,7 @@ function fillingPrivateMessageRecipientTable(data){
 //начальные действия
 //запрос на инициализацию
 ajaxInitializationChat();
+ajaxLocale();
 $("#btnCl").hide();
 btnOpenChat.onclick = openChat;
 btnLoadOldMessages.onclick = loadOldMessages;

@@ -180,7 +180,10 @@ public class ChatDao extends GenericDao<ChatMessage> {
 
     public void deleteMessage(Long messId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        queryFactory.delete(cr).where(cr.message.id.eq(messId));
+        //queryFactory.delete(cr).where(cr.message.id.eq(messId));
+        for(ChatMessageRecipient recipient : queryFactory.selectFrom(cr).where(cr.message.id.eq(messId)).fetch()) {
+        	sessionFactory.getCurrentSession().delete(recipient);
+        }
         delete(messId);
     }
 
