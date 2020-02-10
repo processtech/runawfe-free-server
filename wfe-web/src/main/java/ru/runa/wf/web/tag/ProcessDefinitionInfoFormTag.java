@@ -67,7 +67,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         nameTR.addElement(new TD(definitionName).setClass(Resources.CLASS_LIST_TABLE_TD));
         TD nameTD = new TD();
         nameTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-        if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE, SecuredSingleton.DEFINITIONS)) {
+        if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM)) {
             nameTD.addElement(definition.getName() + " (");
             String historyUrl = Commons.getActionUrl(ShowDefinitionHistoryAction.ACTION, "name", definition.getName(), pageContext,
                     PortletUrlType.Render);

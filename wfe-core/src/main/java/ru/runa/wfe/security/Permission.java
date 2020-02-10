@@ -158,9 +158,14 @@ public final class Permission implements Serializable, Comparable<Permission> {
     public static final Permission CANCEL_PROCESS = new Permission("CANCEL_PROCESS");
 
     /**
-     * Create or import object of specific type.
+     * Create or import process definition.
      */
-    public static final Permission CREATE = new Permission("CREATE");
+    public static final Permission CREATE_DEFINITION = new Permission("CREATE_DEFINITION");
+
+    /**
+     * Create or import executor.
+     */
+    public static final Permission CREATE_EXECUTOR = new Permission("CREATE_EXECUTOR");
 
     /**
      * Delete specific object (when applied to that object), or any object of specific type (when applied to objects list).
@@ -173,6 +178,12 @@ public final class Permission implements Serializable, Comparable<Permission> {
     public static final Permission LOGIN = new Permission("LOGIN");
 
     /**
+     * Read objects list, corresponding menu item is visible.
+     * When applied to specific objects instead of whole list, only those objects will be visible in list.
+     */
+    public static final Permission LIST = new Permission("LIST");
+
+    /**
      * Formerly no-arg Permission constructor, used only as PropertyTdBuilder constructor argument in FieldDescriptor constructor calls.
      * PermissionDAO.isAllowed...() checks always return false for it, without accessing database.
      *
@@ -182,15 +193,14 @@ public final class Permission implements Serializable, Comparable<Permission> {
     public static final Permission NONE = new Permission("NONE");
 
     /**
-     * Read objects list, corresponding menu item is visible.
-     * When applied to specific objects instead of whole list, only those objects will be visible in list.
-     */
-    public static final Permission LIST = new Permission("LIST");
-
-    /**
      * Can read and export any object details.
      */
     public static final Permission READ = new Permission("READ");
+
+    /**
+     * View or download Wildfly server logs.
+     */
+    public static final Permission READ_LOGS = new Permission("READ_LOGS");
 
     /**
      * Can read object permissions.

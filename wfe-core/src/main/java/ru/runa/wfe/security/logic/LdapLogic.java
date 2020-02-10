@@ -357,7 +357,7 @@ public class LdapLogic {
             group = executorDao.getGroup(group.getName());
         } else {
             group = executorDao.create(group);
-            permissionDao.setPermissions(group, Lists.newArrayList(Permission.LOGIN), SecuredSingleton.EXECUTORS);
+            permissionDao.setPermissions(group, Lists.newArrayList(Permission.LOGIN), SecuredSingleton.SYSTEM);
         }
         return group;
     }

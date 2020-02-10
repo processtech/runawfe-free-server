@@ -67,7 +67,7 @@ import ru.runa.wfe.var.VariableDefinition;
 public class DefinitionLogic extends WfCommonLogic {
 
     public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
-        permissionDao.checkAllowed(user, Permission.CREATE, SecuredSingleton.DEFINITIONS);
+        permissionDao.checkAllowed(user, Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
         ProcessDefinition definition;
         try {
             definition = parseProcessDefinition(processArchiveBytes);

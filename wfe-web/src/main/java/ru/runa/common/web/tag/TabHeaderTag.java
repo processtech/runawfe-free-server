@@ -66,12 +66,9 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_BOT_STATION, SecuredSingleton.BOTSTATIONS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATA_SOURCES, SecuredSingleton.SYSTEM));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SYSTEM, SecuredSingleton.SYSTEM));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SCRIPTS, SecuredSingleton.SCRIPTS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_ERRORS, SecuredSingleton.ERRORS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SUBSTITUTION_CRITERIA, SecuredSingleton.SUBSTITUTION_CRITERIAS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATAFILE, SecuredSingleton.DATAFILE));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS, SecuredSingleton.LOGS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
     }
 
@@ -141,6 +138,9 @@ public class TabHeaderTag extends TagSupport {
         try {
             if (menuForward.menuMessage.getKey().equals("manage_settings")) {
                 return Delegates.getExecutorService().isAdministrator(getUser());
+            }
+            if (menuForward.menuMessage.getKey().equals("view_logs")) {
+                return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ_LOGS, SecuredSingleton.SYSTEM);
             }
             if (menuForward.menuMessage.getKey().equals("manage_observable_tasks")
                     && Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.VIEW_TASKS, SecuredObjectType.EXECUTOR)) {

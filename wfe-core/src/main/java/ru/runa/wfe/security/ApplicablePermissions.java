@@ -31,17 +31,18 @@ import ru.runa.wfe.commons.CollectionUtil;
 import static ru.runa.wfe.security.Permission.ALL;
 import static ru.runa.wfe.security.Permission.CANCEL;
 import static ru.runa.wfe.security.Permission.CANCEL_PROCESS;
-import static ru.runa.wfe.security.Permission.CREATE;
+import static ru.runa.wfe.security.Permission.CREATE_DEFINITION;
+import static ru.runa.wfe.security.Permission.CREATE_EXECUTOR;
 import static ru.runa.wfe.security.Permission.DELETE;
 import static ru.runa.wfe.security.Permission.LIST;
 import static ru.runa.wfe.security.Permission.LOGIN;
 import static ru.runa.wfe.security.Permission.READ;
+import static ru.runa.wfe.security.Permission.READ_LOGS;
 import static ru.runa.wfe.security.Permission.READ_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.READ_PROCESS;
 import static ru.runa.wfe.security.Permission.START;
 import static ru.runa.wfe.security.Permission.UPDATE;
 import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
-import static ru.runa.wfe.security.Permission.UPDATE_SELF;
 import static ru.runa.wfe.security.Permission.UPDATE_STATUS;
 import static ru.runa.wfe.security.Permission.VIEW_TASKS;
 
@@ -213,15 +214,11 @@ public final class ApplicablePermissions {
         add(SecuredObjectType.BOTSTATIONS, ALL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
 
-        // System singleton:
-        add(SecuredObjectType.DATAFILE, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
         add(SecuredObjectType.DEFINITION, ALL, LIST, READ, UPDATE, START, READ_PROCESS, CANCEL_PROCESS)
                 .defaults(LIST)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.DEFINITIONS, ALL, LIST, READ, CREATE, UPDATE, START, READ_PROCESS, CANCEL_PROCESS)
+        add(SecuredObjectType.DEFINITIONS, ALL, LIST, READ, UPDATE, START, READ_PROCESS, CANCEL_PROCESS)
                 .defaults(LIST)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
@@ -232,19 +229,7 @@ public final class ApplicablePermissions {
         add(SecuredObjectType.EXECUTOR, LIST, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.EXECUTORS, ALL, LOGIN, LIST, READ, VIEW_TASKS, CREATE, UPDATE, UPDATE_STATUS, UPDATE_SELF, DELETE)
-                .defaults(LOGIN)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
-
-        // System singleton:
-        add(SecuredObjectType.LOGS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
         add(SecuredObjectType.PROCESS, ALL, LIST, READ, CANCEL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
-
-        add(SecuredObjectType.PROCESSES, ALL, LIST, READ, CANCEL)
-                .defaults(LIST)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         // System singleton:
@@ -260,15 +245,8 @@ public final class ApplicablePermissions {
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
 
         // System singleton:
-        add(SecuredObjectType.SCRIPTS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
-        // System singleton:
-        add(SecuredObjectType.SUBSTITUTION_CRITERIAS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
-        // System singleton:
-        add(SecuredObjectType.SYSTEM, ALL)
+        add(SecuredObjectType.SYSTEM, ALL, LOGIN, CREATE_EXECUTOR, READ_LOGS, CREATE_DEFINITION)
+                .defaults(LOGIN)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
     }
 }

@@ -64,6 +64,7 @@ import ru.runa.wfe.commons.dbpatch.impl.JbpmRefactoringPatch;
 import ru.runa.wfe.commons.dbpatch.impl.NodeTypeChangePatch;
 import ru.runa.wfe.commons.dbpatch.impl.PerformancePatch401;
 import ru.runa.wfe.commons.dbpatch.impl.PermissionMappingPatch403;
+import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsBack;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep4;
@@ -158,6 +159,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep3.class);
         patches.add(AddProcessExternalData.class);
         patches.add(RefactorPermissionsStep4.class);
+        patches.add(RefactorPermissionsBack.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 

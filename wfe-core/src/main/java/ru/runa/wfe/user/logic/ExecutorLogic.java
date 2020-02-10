@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import lombok.val;
@@ -141,7 +142,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public <T extends Executor> T create(User user, T executor) {
-        permissionDao.checkAllowed(user, Permission.CREATE, SecuredSingleton.EXECUTORS);
+        permissionDao.checkAllowed(user, Permission.CREATE_EXECUTOR, SecuredSingleton.SYSTEM);
         executorDao.create(executor);
         val selfPermissions = Collections.singletonList(executor instanceof Group ? Permission.READ : Permission.LIST);
         permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(executor), executor);
@@ -243,7 +244,10 @@ public class ExecutorLogic extends CommonLogic {
         if (!Strings.isNullOrEmpty(passwordsRegexp) && !Pattern.compile(passwordsRegexp).matcher(password).matches()) {
             throw new WeakPasswordException();
         }
-        authorizationLogic.checkAllowedUpdateExecutor(user, actor);
+        // Actor can change his own password.
+        if (!Objects.equals(actor.getId(), user.getActor().getId())) {
+            permissionDao.checkAllowed(user, Permission.UPDATE, actor);
+        }
         executorDao.setPassword(actor, password);
     }
 

@@ -111,16 +111,14 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
         return super.equals(obj);
     }
 
-    // Lists & list items:
+    // Lists (obsolete, see #1586) & list items:
 
-    public static final SecuredObjectType EXECUTORS = new SecuredObjectType("EXECUTORS");
-    public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR", EXECUTORS);
+    public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR");
 
     public static final SecuredObjectType DEFINITIONS = new SecuredObjectType("DEFINITIONS");
     public static final SecuredObjectType DEFINITION = new SecuredObjectType("DEFINITION", DEFINITIONS);
 
-    public static final SecuredObjectType PROCESSES = new SecuredObjectType("PROCESSES");
-    public static final SecuredObjectType PROCESS = new SecuredObjectType("PROCESS", PROCESSES);
+    public static final SecuredObjectType PROCESS = new SecuredObjectType("PROCESS");
 
     public static final SecuredObjectType REPORTS = new SecuredObjectType("REPORTS");
     public static final SecuredObjectType REPORT = new SecuredObjectType("REPORT", REPORTS);
@@ -128,11 +126,7 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
     // Standalone singleton types, alphabetically:
 
     public static final SecuredObjectType BOTSTATIONS = new SecuredObjectType("BOTSTATIONS");
-    public static final SecuredObjectType DATAFILE = new SecuredObjectType("DATAFILE");
     public static final SecuredObjectType ERRORS = new SecuredObjectType("ERRORS");
-    public static final SecuredObjectType LOGS = new SecuredObjectType("LOGS");
     public static final SecuredObjectType RELATIONS = new SecuredObjectType("RELATIONS");
-    public static final SecuredObjectType SCRIPTS = new SecuredObjectType("SCRIPTS");
-    public static final SecuredObjectType SUBSTITUTION_CRITERIAS = new SecuredObjectType("SUBSTITUTION_CRITERIAS");
     public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM");
 }

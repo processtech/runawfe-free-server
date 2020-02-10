@@ -9,14 +9,12 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.QDeployment;
 import ru.runa.wfe.execution.QProcess;
 import ru.runa.wfe.report.QReportDefinition;
 import ru.runa.wfe.report.dto.WfReport;
-import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.QExecutor;
 
 /**
@@ -168,7 +166,6 @@ public class SecuredObjectFactory {
     static {
 
         add(SecuredSingleton.BOTSTATIONS);
-        add(SecuredSingleton.DATAFILE);
         add(SecuredSingleton.DEFINITIONS);
 
         add(SecuredObjectType.DEFINITION, new Loader(SecuredObjectType.DEFINITION) {
@@ -209,10 +206,6 @@ public class SecuredObjectFactory {
             }
         });
 
-        add(SecuredSingleton.EXECUTORS);
-
-        add(SecuredSingleton.LOGS);
-
         add(SecuredObjectType.PROCESS, new Loader(SecuredObjectType.PROCESS) {
             @Override
             public SecuredObject findById(Long id) {
@@ -221,7 +214,6 @@ public class SecuredObjectFactory {
             }
         });
 
-        add(SecuredSingleton.PROCESSES);
         add(SecuredSingleton.RELATIONS);
         add(SecuredSingleton.REPORTS);
 
@@ -233,8 +225,6 @@ public class SecuredObjectFactory {
             }
         });
 
-        add(SecuredSingleton.SCRIPTS);
-        add(SecuredSingleton.SUBSTITUTION_CRITERIAS);
         add(SecuredSingleton.SYSTEM);
     }
 }

@@ -26,6 +26,7 @@ import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
@@ -82,8 +83,13 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
     }
 
     @Override
+    protected boolean isSubmitButtonEnabled() {
+        return isVisible();
+    }
+
+    @Override
     protected Permission getSubmitPermission() {
-        return Permission.CREATE;
+        throw new IllegalAccessError();
     }
 
     @Override
@@ -108,7 +114,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected boolean isVisible() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE, getSecuredObject());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
     }
 
     private static TR createFileInputRow(String label, String name, String value, boolean enabled, boolean required, String type,
