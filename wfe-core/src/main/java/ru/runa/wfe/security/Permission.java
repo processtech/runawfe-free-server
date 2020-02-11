@@ -178,12 +178,6 @@ public final class Permission implements Serializable, Comparable<Permission> {
     public static final Permission LOGIN = new Permission("LOGIN");
 
     /**
-     * Read objects list, corresponding menu item is visible.
-     * When applied to specific objects instead of whole list, only those objects will be visible in list.
-     */
-    public static final Permission LIST = new Permission("LIST");
-
-    /**
      * Formerly no-arg Permission constructor, used only as PropertyTdBuilder constructor argument in FieldDescriptor constructor calls.
      * PermissionDAO.isAllowed...() checks always return false for it, without accessing database.
      *

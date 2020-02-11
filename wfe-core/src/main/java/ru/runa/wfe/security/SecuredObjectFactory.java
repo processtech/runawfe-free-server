@@ -166,7 +166,6 @@ public class SecuredObjectFactory {
     static {
 
         add(SecuredSingleton.BOTSTATIONS);
-        add(SecuredSingleton.DEFINITIONS);
 
         add(SecuredObjectType.DEFINITION, new Loader(SecuredObjectType.DEFINITION) {
             @Override
@@ -184,8 +183,6 @@ public class SecuredObjectFactory {
                 return getQueryFactory().select(d.id, d.name).from(d).where(d.name.in(names)).fetch();
             }
         });
-
-        add(SecuredSingleton.ERRORS);
 
         add(SecuredObjectType.EXECUTOR, new Loader(SecuredObjectType.EXECUTOR) {
             @Override

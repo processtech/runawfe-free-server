@@ -12,7 +12,6 @@ import static ru.runa.wfe.security.Permission.ALL;
 import static ru.runa.wfe.security.Permission.CANCEL;
 import static ru.runa.wfe.security.Permission.CANCEL_PROCESS;
 import static ru.runa.wfe.security.Permission.DELETE;
-import static ru.runa.wfe.security.Permission.LIST;
 import static ru.runa.wfe.security.Permission.READ;
 import static ru.runa.wfe.security.Permission.READ_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.READ_PROCESS;
@@ -22,8 +21,6 @@ import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.UPDATE_STATUS;
 import static ru.runa.wfe.security.SecuredObjectType.BOTSTATIONS;
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
-import static ru.runa.wfe.security.SecuredObjectType.DEFINITIONS;
-import static ru.runa.wfe.security.SecuredObjectType.ERRORS;
 import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 import static ru.runa.wfe.security.SecuredObjectType.PROCESS;
 import static ru.runa.wfe.security.SecuredObjectType.RELATIONS;
@@ -258,67 +255,47 @@ public class PermissionSubstitutions {
     static {
 
         // System singleton:
-        add(BOTSTATIONS, LIST).self(ALL);
-        add(BOTSTATIONS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
+        add(BOTSTATIONS, READ).self(ALL);
+        add(BOTSTATIONS, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
         add(BOTSTATIONS, UPDATE_PERMISSIONS).self(ALL);
 
-        add(DEFINITION, CANCEL_PROCESS).self(ALL).list();
-        add(DEFINITION, ALL).list();
-        add(DEFINITION, LIST).self(ALL, READ, START, UPDATE).list();
-        add(DEFINITION, READ).self(ALL, UPDATE).list();
-        add(DEFINITION, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS, READ).list();
-        add(DEFINITION, READ_PROCESS).self(ALL).list();
-        add(DEFINITION, START).self(ALL).list();
-        add(DEFINITION, UPDATE).self(ALL).list();
-        add(DEFINITION, UPDATE_PERMISSIONS).self(ALL, UPDATE).list();
+        add(DEFINITION, CANCEL_PROCESS).self(ALL);
+        add(DEFINITION, ALL);
+        add(DEFINITION, READ).self(ALL, START, UPDATE);
+        add(DEFINITION, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
+        add(DEFINITION, READ_PROCESS).self(ALL);
+        add(DEFINITION, START).self(ALL);
+        add(DEFINITION, UPDATE).self(ALL);
+        add(DEFINITION, UPDATE_PERMISSIONS).self(ALL, UPDATE);
 
-        add(DEFINITIONS, CANCEL_PROCESS).self(ALL);
-        add(DEFINITIONS, LIST).self(ALL, READ, START, UPDATE);
-        add(DEFINITIONS, READ).self(ALL, UPDATE);
-        add(DEFINITIONS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS, READ);
-        add(DEFINITIONS, READ_PROCESS).self(ALL);
-        add(DEFINITIONS, START).self(ALL);
-        add(DEFINITIONS, UPDATE).self(ALL);
-        add(DEFINITIONS, UPDATE_PERMISSIONS).self(ALL, UPDATE);
-
-        // System singleton:
-        add(ERRORS, LIST).self(ALL);
-        add(ERRORS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
-        add(ERRORS, UPDATE_PERMISSIONS).self(ALL);
-
-        add(EXECUTOR, LIST).self(READ, UPDATE_STATUS, DELETE);
-        add(EXECUTOR, READ).self(UPDATE);
-        add(EXECUTOR, READ_PERMISSIONS).self(UPDATE_PERMISSIONS, READ);
+        add(EXECUTOR, READ).self(UPDATE, UPDATE_STATUS, DELETE);
+        add(EXECUTOR, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
         add(EXECUTOR, UPDATE);
         add(EXECUTOR, UPDATE_STATUS).self(UPDATE);
         add(EXECUTOR, UPDATE_PERMISSIONS).self(UPDATE);
 
         add(PROCESS, ALL);
         add(PROCESS, CANCEL).self(ALL);
-        add(PROCESS, LIST).self(ALL, READ, CANCEL);
-        add(PROCESS, READ).self(ALL);
-        add(PROCESS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
+        add(PROCESS, READ).self(ALL, READ, CANCEL);
+        add(PROCESS, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
         add(PROCESS, UPDATE_PERMISSIONS).self(ALL);
 
         // System singleton:
-        add(RELATIONS, LIST).self(ALL);
-        add(RELATIONS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
+        add(RELATIONS, READ).self(ALL);
+        add(RELATIONS, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
         add(RELATIONS, UPDATE_PERMISSIONS).self(ALL);
 
         add(REPORT, ALL).list();
         add(REPORT, READ).self(ALL).list();
-        add(REPORT, LIST).self(READ).list();
-        add(REPORT, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS).list();
+        add(REPORT, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS).list();
         add(REPORT, UPDATE_PERMISSIONS).self(ALL).list();
 
         add(REPORTS, READ).self(ALL);
-        add(REPORTS, LIST).self(READ);
-        add(REPORTS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
+        add(REPORTS, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
         add(REPORTS, UPDATE_PERMISSIONS).self(ALL);
 
         // System singleton:
-        add(SYSTEM, LIST).self(ALL);
-        add(SYSTEM, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
-        add(SYSTEM, UPDATE_PERMISSIONS).self(ALL);
+        add(SYSTEM, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
+        add(SYSTEM, UPDATE_PERMISSIONS).self(READ);
     }
 }

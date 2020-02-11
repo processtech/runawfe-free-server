@@ -201,38 +201,38 @@ public class DefinitionLogic extends WfCommonLogic {
 
     public WfDefinition getLatestProcessDefinition(User user, String definitionName) {
         ProcessDefinition definition = getLatestDefinition(definitionName);
-        permissionDao.checkAllowed(user, Permission.LIST, definition.getDeployment());
+        permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
         return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START, definition.getDeployment()));
     }
 
     public WfDefinition getProcessDefinitionVersion(User user, String name, Long version) {
         Deployment deployment = deploymentDao.findDeployment(name, version);
         ProcessDefinition definition = getDefinition(deployment.getId());
-        permissionDao.checkAllowed(user, Permission.LIST, definition.getDeployment());
+        permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
         return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START, definition.getDeployment()));
     }
 
     public WfDefinition getProcessDefinition(User user, Long definitionId) {
         try {
             ProcessDefinition definition = getDefinition(definitionId);
-            permissionDao.checkAllowed(user, Permission.LIST, definition.getDeployment());
+            permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
             return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START, definition.getDeployment()));
         } catch (Exception e) {
             Deployment deployment = deploymentDao.getNotNull(definitionId);
-            permissionDao.checkAllowed(user, Permission.LIST, deployment);
+            permissionDao.checkAllowed(user, Permission.READ, deployment);
             return new WfDefinition(deployment);
         }
     }
 
     public ProcessDefinition getParsedProcessDefinition(User user, Long definitionId) {
         ProcessDefinition processDefinition = getDefinition(definitionId);
-        permissionDao.checkAllowed(user, Permission.LIST, processDefinition.getDeployment());
+        permissionDao.checkAllowed(user, Permission.READ, processDefinition.getDeployment());
         return processDefinition;
     }
 
     public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
         ProcessDefinition definition = getDefinition(definitionId);
-        permissionDao.checkAllowed(user, Permission.LIST, definition.getDeployment());
+        permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
@@ -243,7 +243,7 @@ public class DefinitionLogic extends WfCommonLogic {
     public List<WfDefinition> getProcessDefinitionHistory(User user, String name) {
         List<Deployment> deploymentVersions = deploymentDao.findAllDeploymentVersions(name);
         final List<WfDefinition> result = Lists.newArrayListWithExpectedSize(deploymentVersions.size());
-        isPermissionAllowed(user, deploymentVersions, Permission.LIST, new CheckMassPermissionCallback() {
+        isPermissionAllowed(user, deploymentVersions, Permission.READ, new CheckMassPermissionCallback() {
             @Override
             public void onPermissionGranted(SecuredObject securedObject) {
                 result.add(new WfDefinition((Deployment) securedObject));
@@ -314,7 +314,7 @@ public class DefinitionLogic extends WfCommonLogic {
     public byte[] getFile(User user, Long definitionId, String fileName) {
         Deployment deployment = deploymentDao.getNotNull(definitionId);
         if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(FileDataProvider.BOTS_XML_FILE)) {
-            permissionDao.checkAllowed(user, Permission.LIST, deployment);
+            permissionDao.checkAllowed(user, Permission.READ, deployment);
         }
         if (FileDataProvider.PAR_FILE.equals(fileName)) {
             return deployment.getContent();
@@ -348,19 +348,19 @@ public class DefinitionLogic extends WfCommonLogic {
 
     public List<SwimlaneDefinition> getSwimlanes(User user, Long definitionId) {
         ProcessDefinition definition = processDefinitionLoader.getDefinition(definitionId);
-        permissionDao.checkAllowed(user, Permission.LIST, definition.getDeployment());
+        permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
         return definition.getSwimlanes();
     }
 
     public List<VariableDefinition> getProcessDefinitionVariables(User user, Long definitionId) {
         ProcessDefinition definition = getDefinition(definitionId);
-        permissionDao.checkAllowed(user, Permission.LIST, definition.getDeployment());
+        permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
         return definition.getVariables();
     }
 
     public VariableDefinition getProcessDefinitionVariable(User user, Long definitionId, String variableName) {
         ProcessDefinition definition = getDefinition(definitionId);
-        permissionDao.checkAllowed(user, Permission.LIST, definition.getDeployment());
+        permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
         return definition.getVariable(variableName, true);
     }
 
@@ -429,7 +429,7 @@ public class DefinitionLogic extends WfCommonLogic {
             definitionSecuredObjects.add(new ru.runa.wfe.definition.logic.DefinitionLogic.DefinitionSecuredObject(deploymentName));
         }
         final List<String> definitionsWithPermission = new ArrayList<>();
-        isPermissionAllowed(user, definitionSecuredObjects, Permission.LIST, new CheckMassPermissionCallback() {
+        isPermissionAllowed(user, definitionSecuredObjects, Permission.READ, new CheckMassPermissionCallback() {
             @Override
             public void onPermissionGranted(SecuredObject securedObject) {
                 definitionsWithPermission.add(((ru.runa.wfe.definition.logic.DefinitionLogic.DefinitionSecuredObject) securedObject).getDeploymentName());

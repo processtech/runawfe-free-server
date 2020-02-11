@@ -76,7 +76,7 @@ public class ExecutorLogic extends CommonLogic {
             return false;
         }
         Executor executor = executorDao.getExecutor(executorName);
-        permissionDao.checkAllowed(user, Permission.LIST, executor);
+        permissionDao.checkAllowed(user, Permission.READ, executor);
         return true;
     }
 
@@ -96,7 +96,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public Actor getActor(User user, String name) {
-        return checkPermissionsOnExecutor(user, executorDao.getActor(name), Permission.LIST);
+        return checkPermissionsOnExecutor(user, executorDao.getActor(name), Permission.READ);
     }
 
     public Actor getActorCaseInsensitive(String login) {
@@ -104,11 +104,11 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public Group getGroup(User user, String name) {
-        return checkPermissionsOnExecutor(user, executorDao.getGroup(name), Permission.LIST);
+        return checkPermissionsOnExecutor(user, executorDao.getGroup(name), Permission.READ);
     }
 
     public Executor getExecutor(User user, String name) {
-        return checkPermissionsOnExecutor(user, executorDao.getExecutor(name), Permission.LIST);
+        return checkPermissionsOnExecutor(user, executorDao.getExecutor(name), Permission.READ);
     }
 
     public boolean isAdministrator(User user) {
@@ -144,7 +144,7 @@ public class ExecutorLogic extends CommonLogic {
     public <T extends Executor> T create(User user, T executor) {
         permissionDao.checkAllowed(user, Permission.CREATE_EXECUTOR, SecuredSingleton.SYSTEM);
         executorDao.create(executor);
-        val selfPermissions = Collections.singletonList(executor instanceof Group ? Permission.READ : Permission.LIST);
+        val selfPermissions = Collections.singletonList(executor instanceof Group ? Permission.READ : Permission.READ);
         permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(executor), executor);
         permissionDao.setPermissions(executor, selfPermissions, executor);
         return executor;
@@ -201,12 +201,12 @@ public class ExecutorLogic extends CommonLogic {
     public List<Actor> getGroupActors(User user, Group group) {
         checkPermissionsOnExecutor(user, group, Permission.READ);
         Set<Actor> groupActors = executorDao.getGroupActors(group);
-        return filterSecuredObject(user, Lists.newArrayList(groupActors), Permission.LIST);
+        return filterSecuredObject(user, Lists.newArrayList(groupActors), Permission.READ);
     }
 
     public List<Executor> getAllExecutorsFromGroup(User user, Group group) {
         checkPermissionsOnExecutor(user, group, Permission.READ);
-        return filterSecuredObject(user, executorDao.getAllNonGroupExecutorsFromGroup(group), Permission.LIST);
+        return filterSecuredObject(user, executorDao.getAllNonGroupExecutorsFromGroup(group), Permission.READ);
     }
 
     public void removeExecutorsFromGroup(User user, List<? extends Executor> executors, Group group) {
@@ -221,7 +221,7 @@ public class ExecutorLogic extends CommonLogic {
 
     private void removeExecutorsFromGroupInternal(User user, List<? extends Executor> executors, Group group) {
         checkPermissionsOnExecutor(user, group, Permission.UPDATE);
-        checkPermissionsOnExecutors(user, executors, Permission.LIST);
+        checkPermissionsOnExecutors(user, executors, Permission.READ);
         executorDao.removeExecutorsFromGroup(executors, group);
     }
 
@@ -267,22 +267,22 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public List<Group> getExecutorGroups(User user, Executor executor, BatchPresentation batchPresentation, boolean isExclude) {
-        checkPermissionsOnExecutor(user, executor, Permission.LIST);
+        checkPermissionsOnExecutor(user, executor, Permission.READ);
         PresentationConfiguredCompiler<Group> compiler = PresentationCompilerHelper.createExecutorGroupsCompiler(user, executor, batchPresentation,
                 !isExclude);
         return compiler.getBatch();
     }
 
     public int getExecutorGroupsCount(User user, Executor executor, BatchPresentation batchPresentation, boolean isExclude) {
-        checkPermissionsOnExecutor(user, executor, Permission.LIST);
+        checkPermissionsOnExecutor(user, executor, Permission.READ);
         PresentationConfiguredCompiler<Group> compiler = PresentationCompilerHelper.createExecutorGroupsCompiler(user, executor, batchPresentation,
                 !isExclude);
         return compiler.getCount();
     }
 
     public boolean isExecutorInGroup(User user, Executor executor, Group group) {
-        checkPermissionsOnExecutor(user, executor, Permission.LIST);
-        checkPermissionsOnExecutor(user, group, Permission.LIST);
+        checkPermissionsOnExecutor(user, executor, Permission.READ);
+        checkPermissionsOnExecutor(user, group, Permission.READ);
         return executorDao.isExecutorInGroup(executor, group);
     }
 
@@ -291,7 +291,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public Actor getActorByCode(User user, Long code) {
-        return checkPermissionsOnExecutor(user, executorDao.getActorByCode(code), Permission.LIST);
+        return checkPermissionsOnExecutor(user, executorDao.getActorByCode(code), Permission.READ);
     }
 
     public Group saveTemporaryGroup(Group temporaryGroup, Collection<? extends Executor> newGroupExecutors) {

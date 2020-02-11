@@ -91,7 +91,7 @@ public class VariableLogic extends WfCommonLogic {
         List<WfVariable> result = Lists.newArrayList();
         Process process = processDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(process));
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
@@ -106,7 +106,7 @@ public class VariableLogic extends WfCommonLogic {
     public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) throws ProcessDoesNotExistException {
         Map<Long, List<WfVariable>> result = Maps.newHashMap();
         List<Process> processes = processDao.find(processIds);
-        processes = filterSecuredObject(user, processes, Permission.LIST);
+        processes = filterSecuredObject(user, processes, Permission.READ);
         Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(processes);
         for (Process process : processes) {
             List<WfVariable> list = Lists.newArrayList();
@@ -216,7 +216,7 @@ public class VariableLogic extends WfCommonLogic {
     public void updateVariables(User user, Long processId, Map<String, Object> variables) {
         Process process = processDao.getNotNull(processId);
         // TODO check ProcessPermission.UPDATE
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         ProcessDefinition processDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
@@ -238,7 +238,7 @@ public class VariableLogic extends WfCommonLogic {
     private WfVariableHistoryState getHistoricalVariableOnDate(User user, ProcessLogFilter filter) {
         List<WfVariable> result = Lists.newArrayList();
         Process process = processDao.getNotNull(filter.getProcessId());
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         Set<String> simpleVariablesChanged = Sets.newHashSet();
         Map<Process, Map<String, Variable<?>>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
         VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);

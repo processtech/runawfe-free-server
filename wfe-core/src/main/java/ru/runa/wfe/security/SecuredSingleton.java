@@ -56,8 +56,6 @@ public final class SecuredSingleton extends SecuredObjectBase {
     // Alphabetically, please:
 
     public static final SecuredSingleton BOTSTATIONS = new SecuredSingleton(SecuredObjectType.BOTSTATIONS);
-    public static final SecuredSingleton DEFINITIONS = new SecuredSingleton(SecuredObjectType.DEFINITIONS);
-    public static final SecuredSingleton ERRORS = new SecuredSingleton(SecuredObjectType.ERRORS);
     public static final SecuredSingleton RELATIONS = new SecuredSingleton(SecuredObjectType.RELATIONS);
     public static final SecuredSingleton REPORTS = new SecuredSingleton(SecuredObjectType.REPORTS);
     public static final SecuredSingleton SYSTEM = new SecuredSingleton(SecuredObjectType.SYSTEM);

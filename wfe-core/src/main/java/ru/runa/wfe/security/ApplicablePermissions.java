@@ -34,7 +34,6 @@ import static ru.runa.wfe.security.Permission.CANCEL_PROCESS;
 import static ru.runa.wfe.security.Permission.CREATE_DEFINITION;
 import static ru.runa.wfe.security.Permission.CREATE_EXECUTOR;
 import static ru.runa.wfe.security.Permission.DELETE;
-import static ru.runa.wfe.security.Permission.LIST;
 import static ru.runa.wfe.security.Permission.LOGIN;
 import static ru.runa.wfe.security.Permission.READ;
 import static ru.runa.wfe.security.Permission.READ_LOGS;
@@ -206,47 +205,39 @@ public final class ApplicablePermissions {
     // List types in aplhabetic order, please. For each type:
     // - Visible permissions: add(type, ...) - in the order they'll appear in editor.
     // - Default permissions: .defaults(...) - in any order; optional: if omitted, first visible permission will be used.
-    // - Hidden  permissions: .hidden(...)   - in any order; READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST (unless visible) must be present for all types.
+    // - Hidden  permissions: .hidden(...)   - in any order; READ_PERMISSIONS, UPDATE_PERMISSIONS, READ (unless visible) must be present for all types.
     // ATTENTION!!! Lists of visible permissions are duplicated in RefactorPermissionsStep3 migration.
     static {
 
         // System singleton:
         add(SecuredObjectType.BOTSTATIONS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, READ);
 
-        add(SecuredObjectType.DEFINITION, ALL, LIST, READ, UPDATE, START, READ_PROCESS, CANCEL_PROCESS)
-                .defaults(LIST)
+        add(SecuredObjectType.DEFINITION, ALL, READ, UPDATE, DELETE, START, READ_PROCESS, CANCEL_PROCESS)
+                .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.DEFINITIONS, ALL, LIST, READ, UPDATE, START, READ_PROCESS, CANCEL_PROCESS)
-                .defaults(LIST)
+        add(SecuredObjectType.EXECUTOR, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        // System singleton:
-        add(SecuredObjectType.ERRORS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
-        add(SecuredObjectType.EXECUTOR, LIST, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
-
-        add(SecuredObjectType.PROCESS, ALL, LIST, READ, CANCEL)
+        add(SecuredObjectType.PROCESS, ALL, READ, CANCEL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         // System singleton:
         add(SecuredObjectType.RELATIONS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, READ);
 
         add(SecuredObjectType.REPORT, ALL, READ)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         add(SecuredObjectType.REPORTS, ALL, READ)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         // System singleton:
-        add(SecuredObjectType.SYSTEM, ALL, LOGIN, CREATE_EXECUTOR, READ_LOGS, CREATE_DEFINITION)
+        add(SecuredObjectType.SYSTEM, READ, LOGIN, CREATE_EXECUTOR, CREATE_DEFINITION, READ_LOGS)
                 .defaults(LOGIN)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
     }
 }

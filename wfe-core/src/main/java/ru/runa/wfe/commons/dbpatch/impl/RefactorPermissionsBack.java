@@ -16,4 +16,6 @@ public class RefactorPermissionsBack extends DbPatch {
     //      LOGS.ALL, LIST ---> SYSTEM.READ_LOGS
     //      LOGS.* ---> delete
     //      SUBSTITUTION_CRITERIAS.* ---> delete
+    //      SYSTEM.ALL ---> SYSTEM.READ
+    //      *.LIST ---> READ
 }

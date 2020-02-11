@@ -115,8 +115,7 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
 
     public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR");
 
-    public static final SecuredObjectType DEFINITIONS = new SecuredObjectType("DEFINITIONS");
-    public static final SecuredObjectType DEFINITION = new SecuredObjectType("DEFINITION", DEFINITIONS);
+    public static final SecuredObjectType DEFINITION = new SecuredObjectType("DEFINITION");
 
     public static final SecuredObjectType PROCESS = new SecuredObjectType("PROCESS");
 
@@ -126,7 +125,6 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
     // Standalone singleton types, alphabetically:
 
     public static final SecuredObjectType BOTSTATIONS = new SecuredObjectType("BOTSTATIONS");
-    public static final SecuredObjectType ERRORS = new SecuredObjectType("ERRORS");
     public static final SecuredObjectType RELATIONS = new SecuredObjectType("RELATIONS");
     public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM");
 }

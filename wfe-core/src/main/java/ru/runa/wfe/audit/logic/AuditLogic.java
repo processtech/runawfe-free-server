@@ -57,7 +57,7 @@ public class AuditLogic extends CommonLogic {
     public ProcessLogs getProcessLogs(User user, ProcessLogFilter filter) {
         Preconditions.checkNotNull(filter.getProcessId(), "filter.processId");
         ru.runa.wfe.execution.Process process = processDao.getNotNull(filter.getProcessId());
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         ProcessLogs result = new ProcessLogs(filter.getProcessId());
         List<ProcessLog> logs = processLogDao.getAll(filter);
         result.addLogs(logs, filter.isIncludeSubprocessLogs());
@@ -75,7 +75,7 @@ public class AuditLogic extends CommonLogic {
     public Object getProcessLogValue(User user, Long logId) {
         Preconditions.checkNotNull(logId, "logId");
         ProcessLog processLog = processLogDao.getNotNull(logId);
-        permissionDao.checkAllowed(user, Permission.LIST, SecuredObjectType.PROCESS, processLog.getProcessId());
+        permissionDao.checkAllowed(user, Permission.READ, SecuredObjectType.PROCESS, processLog.getProcessId());
         return processLog.getBytesObject();
     }
 

@@ -110,8 +110,8 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public List<Permission> getIssuedPermissions(User user, Executor performer, SecuredObject securedObject) {
-        checkPermissionsOnExecutor(user, performer, Permission.LIST);
-        permissionDao.checkAllowed(user, Permission.LIST, securedObject);
+        checkPermissionsOnExecutor(user, performer, Permission.READ);
+        permissionDao.checkAllowed(user, Permission.READ, securedObject);
         return permissionDao.getIssuedPermissions(performer, securedObject);
     }
 
@@ -218,7 +218,7 @@ public class AuthorizationLogic extends CommonLogic {
     private void setPermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions,
             boolean deleteExisting) {
         Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
-        permissionDao.checkAllowed(user, Permission.LIST, executor);
+        permissionDao.checkAllowed(user, Permission.READ, executor);
 
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
 
@@ -302,7 +302,7 @@ public class AuthorizationLogic extends CommonLogic {
      */
     private void removePermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
         Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
-        permissionDao.checkAllowed(user, Permission.LIST, executor);
+        permissionDao.checkAllowed(user, Permission.READ, executor);
 
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
 
@@ -356,7 +356,7 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public void setPermissions(User user, Executor executor, Collection<Permission> permissions, SecuredObject securedObject) {
-        checkPermissionsOnExecutor(user, executor, Permission.LIST);
+        checkPermissionsOnExecutor(user, executor, Permission.READ);
         permissionDao.checkAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
         permissionDao.setPermissions(executor, permissions, securedObject);
     }
@@ -382,7 +382,7 @@ public class AuthorizationLogic extends CommonLogic {
         List<Executor> executors = compiler.getBatch();
         for (Executor privelegedExecutor : permissionDao.getPrivilegedExecutors(securedObject.getSecuredObjectType())) {
             if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
-                    && permissionDao.isAllowed(user, Permission.LIST, privelegedExecutor)) {
+                    && permissionDao.isAllowed(user, Permission.READ, privelegedExecutor)) {
                 if (hasPermission)
                   executors.add(0, privelegedExecutor);
                 else

@@ -238,14 +238,14 @@ public class TaskLogic extends WfCommonLogic {
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
         Process process = processDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         for (Task task : taskDao.findByProcess(process)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
             List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
             for (Process subprocess : subprocesses) {
-                permissionDao.checkAllowed(user, Permission.LIST, subprocess);
+                permissionDao.checkAllowed(user, Permission.READ, subprocess);
                 for (Task task : taskDao.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
                 }

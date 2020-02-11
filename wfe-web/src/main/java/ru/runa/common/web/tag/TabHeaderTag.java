@@ -66,7 +66,6 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_BOT_STATION, SecuredSingleton.BOTSTATIONS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATA_SOURCES, SecuredSingleton.SYSTEM));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SYSTEM, SecuredSingleton.SYSTEM));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_ERRORS, SecuredSingleton.ERRORS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
@@ -147,7 +146,7 @@ public class TabHeaderTag extends TagSupport {
                 return true;
             }
             if (menuForward.object != null) {
-                return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.LIST, menuForward.object);
+                return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, menuForward.object);
             } else {
                 return true;
             }

@@ -65,7 +65,7 @@ public class ShowSystemLogFormTag extends BatchReturningTitledFormTag {
     }
 
     protected Permission getPermission() {
-        return Permission.LIST;
+        return Permission.READ;
     }
 
     @Override

@@ -35,13 +35,13 @@ public class ReportLogic extends WfCommonLogic {
 
     public WfReport getReportDefinition(User user, Long id) {
         WfReport reportDefinition = reportDao.getReportDefinition(id);
-        permissionDao.checkAllowed(user, Permission.LIST, reportDefinition);
+        permissionDao.checkAllowed(user, Permission.READ, reportDefinition);
         return reportDefinition;
     }
 
     public SecuredObject getReportDefinition(User user, String reportName) {
         WfReport reportDefinition = new WfReport(reportDao.getReportDefinition(reportName));
-        permissionDao.checkAllowed(user, Permission.LIST, reportDefinition);
+        permissionDao.checkAllowed(user, Permission.READ, reportDefinition);
         return reportDefinition;
     }
 

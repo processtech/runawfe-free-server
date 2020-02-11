@@ -53,7 +53,7 @@ public final class PresentationCompilerHelper {
      * @return {@linkplain PresentationConfiguredCompiler} for loading all executors.
      */
     public static PresentationConfiguredCompiler<Executor> createAllExecutorsCompiler(User user, BatchPresentation batchPresentation) {
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.LIST, ALL_EXECUTORS_CLASSES);
+        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, ALL_EXECUTORS_CLASSES);
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions);
         return new PresentationConfiguredCompiler<>(batchPresentation, parameters);
     }
@@ -91,7 +91,7 @@ public final class PresentationCompilerHelper {
         String notInRestriction = inClause + " (SELECT relation.executor.id FROM " + ExecutorGroupMembership.class.getName()
                 + " as relation WHERE relation.group.id=" + group.getId() + ")";
         String[] idRestrictions = { notInRestriction, "<> " + group.getId() };
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.LIST, ALL_EXECUTORS_CLASSES);
+        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, ALL_EXECUTORS_CLASSES);
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addIdRestrictions(idRestrictions);
         return new PresentationConfiguredCompiler<>(batchPresentation, parameters);
     }
@@ -114,7 +114,7 @@ public final class PresentationCompilerHelper {
         String inRestriction = inClause + " (SELECT relation.group.id FROM " + ExecutorGroupMembership.class.getName()
                 + " as relation WHERE relation.executor.id=" + executor.getId() + ")";
         String[] idRestrictions = { inRestriction, "<> " + executor.getId() };
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.LIST,
+        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ,
                 new SecuredObjectType[] { SecuredObjectType.EXECUTOR });
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addRequestedClass(Group.class)
                 .addIdRestrictions(idRestrictions);
@@ -140,7 +140,7 @@ public final class PresentationCompilerHelper {
         String inClause = hasPermission ? "IN" : "NOT IN";
         String idRestriction = inClause + " (SELECT pm.executor.id from " + PermissionMapping.class.getName() + " as pm where pm.objectId="
                 + securedObject.getIdentifiableId() + " and pm.objectType='" + securedObject.getSecuredObjectType() + "')";
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.LIST, ALL_EXECUTORS_CLASSES);
+        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, ALL_EXECUTORS_CLASSES);
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addIdRestrictions(idRestriction);
         return new PresentationConfiguredCompiler<>(batchPresentation, parameters);
     }

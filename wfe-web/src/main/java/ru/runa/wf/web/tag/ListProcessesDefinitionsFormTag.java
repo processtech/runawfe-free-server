@@ -90,14 +90,12 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     private boolean isUndeployAllowed(List<WfDefinition> definitions) {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.DEFINITIONS);
-        // TODO If (when) hidden types & permissions are implemented, uncomment and review/edit this.
-//        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UNDEPLOY_DEFINITION, definitions)) {
-//            if (undeploy) {
-//                return true;
-//            }
-//        }
-//        return false;
+        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DELETE, definitions)) {
+            if (undeploy) {
+                return true;
+            }
+        }
+        return false;
     }
 
     class EnvImpl extends EnvBaseImpl {
