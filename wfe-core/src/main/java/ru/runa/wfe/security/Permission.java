@@ -222,11 +222,6 @@ public final class Permission implements Serializable, Comparable<Permission> {
     public static final Permission UPDATE_PERMISSIONS = new Permission("UPDATE_PERMISSIONS");
 
     /**
-     * Actor can edit his own profile.
-     */
-    public static final Permission UPDATE_SELF = new Permission("UPDATE_SELF");
-
-    /**
      * Can edit actors's status.
      */
     public static final Permission UPDATE_STATUS = new Permission("UPDATE_STATUS");
