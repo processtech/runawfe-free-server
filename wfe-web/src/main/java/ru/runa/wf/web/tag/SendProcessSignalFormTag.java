@@ -1,7 +1,5 @@
 package ru.runa.wf.web.tag;
 
-import org.apache.ecs.StringElement;
-import org.apache.ecs.html.Script;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
@@ -11,7 +9,6 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
-import ru.runa.wf.web.SignalUtils;
 import ru.runa.wf.web.action.SendProcessSignalAction;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
