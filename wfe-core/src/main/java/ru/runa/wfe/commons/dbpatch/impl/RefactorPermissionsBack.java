@@ -5,8 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.hibernate.Query;
@@ -24,7 +26,7 @@ public class RefactorPermissionsBack extends DbPatch {
     public void executeDML(Session session) {
         Connection conn = session.connection();
 
-        // Are we working with RunaWFE 4.3.0 (RefactorPermissionsStep4 is not yet applied) or 4.4.0?
+        // Are we working with RunaWFE 4.3.0 (original RefactorPermissionsStep4 is not yet applied) or 4.4.0?
         boolean isV43;
         try (Statement stmt = conn.createStatement()) {
             // No "limit 1", because Oracle does not understand it.
@@ -32,6 +34,9 @@ public class RefactorPermissionsBack extends DbPatch {
             isV43 = rs.next();
         }
 
+        // Postoned RefactorPermissionsStep4 execution to detect which version we are migrating from.
+        // But now we execute it before even former RefactorPermissionsStep3, because it simplifles RefactorPermissionsStep3.
+        executeDML_step4(session);
         if (isV43) {
             executeDML_v43(session);
         } else {
@@ -41,12 +46,12 @@ public class RefactorPermissionsBack extends DbPatch {
 
 
     /**
-     * Migrate 4.3.0 to 4.4.1 (moved old RefactorPermissionsStep3 here and edited).
+     * Migrate 4.3.0 to 4.4.1. Moved 4.4.0's RefactorPermissionsStep3.executeDML() here and edited.
+     * Note that RefactorPermissionStep4 (merging ACTOR and GROUP to EXECUTOR) is already done.
      *
      * Adjusts object_type and permission values for rm660, see https://rm.processtech.ru/attachments/download/1210.
      */
-    // TODO "update permission_mapping set permission = 'CREATE_DEFINITION' where object_type='SYSTEM' and permission = 'DEPLOY_DEFINITION'"
-    // TODO "update permission_mapping set permission = 'READ_LOGS' where object_type='SYSTEM' and permission = 'VIEW_LOGS'"
+    @SneakyThrows
     private void executeDML_v43(Session session) {
 
         class PMatch {
@@ -63,23 +68,14 @@ public class RefactorPermissionsBack extends DbPatch {
 
         // ATTENTION!!! This duplicates visible permission lists in ApplicablePermissions configuration.
         PMatch[] pMatches = new PMatch[] {
-                new PMatch("ACTOR", true, "LIST", "READ", "VIEW_TASKS", "UPDATE", "UPDATE_STATUS", "DELETE"),
                 new PMatch("BOTSTATIONS", false, "ALL"),
-                new PMatch("DATAFILE", false, "ALL"),
-                new PMatch("DEFINITION", true, "ALL", "LIST", "READ", "START", "READ_PROCESS", "CANCEL_PROCESS", "UPDATE"),
-                new PMatch("DEFINITIONS", false, "ALL", "LIST", "READ", "START", "READ_PROCESS", "CANCEL_PROCESS", "CREATE", "UPDATE"),
-                new PMatch("ERRORS", false, "ALL"),
-                new PMatch("EXECUTORS", false, "ALL", "LOGIN", "LIST", "READ", "VIEW_TASKS", "CREATE", "UPDATE", "UPDATE_STATUS", "UPDATE_SELF", "DELETE"),
-                new PMatch("GROUP", true, "LIST", "READ", "VIEW_TASKS", "UPDATE", "UPDATE_STATUS", "DELETE"),
-                new PMatch("LOGS", false, "ALL"),
-                new PMatch("PROCESSES", false, "ALL", "LIST", "READ", "CANCEL"),
-                new PMatch("PROCESS", true, "ALL", "LIST", "READ", "CANCEL"),
+                new PMatch("DEFINITION", true, "ALL", "READ", "UPDATE", "DELETE", "START", "READ_PROCESS", "CANCEL_PROCESS"),
+                new PMatch("EXECUTOR", true, "READ", "VIEW_TASKS", "UPDATE", "UPDATE_STATUS", "DELETE"),
+                new PMatch("PROCESS", true, "ALL", "READ", "CANCEL"),
                 new PMatch("RELATIONS", false, "ALL"),
-                new PMatch("REPORTS", false, "ALL", "LIST"),
-                new PMatch("REPORT", true, "ALL", "LIST"),
-                new PMatch("SCRIPTS", false, "ALL"),
-                new PMatch("SUBSTITUTION_CRITERIAS", false, "ALL"),
-                new PMatch("SYSTEM", false, "ALL"),
+                new PMatch("REPORT", true, "ALL", "READ"),
+                new PMatch("REPORTS", false, "ALL", "READ"),
+                new PMatch("SYSTEM", false, "READ", "LOGIN", "CREATE_EXECUTOR", "CREATE_DEFINITION", "READ_LOGS"),
         };
 
         List<String> allTypes = new ArrayList<>(pMatches.length);
@@ -183,24 +179,62 @@ public class RefactorPermissionsBack extends DbPatch {
         }
 
 
+        // Merge LIST_GROUP permission into READ on EXECUTOR-s.
+        // This can be done with single INSERT SELECT WHERE NOT EXISTS (), but i'm afraid it won't work on all SQL servers.
+        {
+            @AllArgsConstructor
+            @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+            class HasPermission {
+                long id;
+
+                @EqualsAndHashCode.Include
+                Long executorId;
+
+                @EqualsAndHashCode.Include
+                Long objectId;
+            }
+            val haveReadPermission = new HashSet<HasPermission>(1000);
+            val haveListPermission = new HashSet<HasPermission>(1000);
+
+            val conn = session.connection();
+            try (Statement q = conn.createStatement()) {
+                val rs = q.executeQuery("select id, executor_id, object_id, permission from permission_mapping " +
+                        "where object_type = 'EXECUTOR' and permission in ('READ', 'LIST_GROUP')");
+                while (rs.next()) {
+                    (rs.getString(4).equals("READ") ? haveReadPermission : haveListPermission)
+                            .add(new HasPermission(rs.getLong(1), rs.getLong(2), rs.getLong(3)));
+                }
+            }
+
+            try (
+                    PreparedStatement qUpdate = conn.prepareStatement("update permission_mapping set permission = 'READ' where id = ?");
+                    PreparedStatement qDelete = conn.prepareStatement("delete from permission_mapping where id = ?")
+            ) {
+                for (HasPermission p : haveListPermission) {
+                    val q = haveReadPermission.contains(p) ? qDelete : qUpdate;
+                    q.setLong(1, p.id);
+                    q.executeUpdate();
+                }
+            }
+        }
+
+
         // Update permission_mapping.permission. ONLY NAROWWING TRANSFORMATIONS, NO "ALL" ESCALATION.
         // ATTENTION!!! Possible UK violations are not avoided!
         {
             String[] specialQueries = new String[] {
-                    "update permission_mapping set permission = 'LIST' where permission='READ'",
-                    "update permission_mapping set permission = 'LOGIN', object_type = 'EXECUTORS' where object_type = 'SYSTEM' and permission = 'LOGIN_TO_SYSTEM'",
-                    "update permission_mapping set permission = 'UPDATE_STATUS' where object_type = 'ACTOR' and permission = 'UPDATE_ACTOR_STATUS'",
-                    "update permission_mapping set permission = 'VIEW_TASKS' where object_type = 'ACTOR' and permission = 'VIEW_ACTOR_TASKS'",
-                    "update permission_mapping set permission = 'VIEW_TASKS' where object_type = 'GROUP' and permission = 'VIEW_GROUP_TASKS'",
-                    "update permission_mapping set permission = 'READ' where object_type = 'GROUP' and permission = 'LIST_GROUP'",
+                    "update permission_mapping set permission = 'ALL' where object_type = 'BOTSTATIONS' and permission = 'BOT_STATION_CONFIGURE'",
 
-                    "update permission_mapping set permission = 'UPDATE' where object_type = 'GROUP' and permission = 'ADD_TO_GROUP'",
-                    "delete from permission_mapping where object_type = 'GROUP' and permission = 'REMOVE_FROM_GROUP'",
+                    "update permission_mapping set permission = 'UPDATE' where object_type = 'EXECUTOR' and permission = 'ADD_TO_GROUP'",
+                    "delete from permission_mapping where object_type = 'EXECUTOR' and permission = 'REMOVE_FROM_GROUP'",
+                    "update permission_mapping set permission = 'UPDATE_STATUS' where object_type = 'EXECUTOR' and permission = 'UPDATE_ACTOR_STATUS'",
+                    "update permission_mapping set permission = 'VIEW_TASKS' where object_type = 'EXECUTOR' and permission in ('VIEW_ACTOR_TASKS', 'VIEW_GROUP_TASKS')",
 
-                    "update permission_mapping set permission = 'UPDATE' where object_type = 'BOTSTATIONS' and permission = 'BOT_STATION_CONFIGURE'",
-                    "update permission_mapping set permission = 'START' where object_type = 'PROCESS' and permission = 'START_PROCESS'",
                     "update permission_mapping set permission = 'CANCEL' where object_type = 'PROCESS' and permission = 'CANCEL_PROCESS'",
-                    "update permission_mapping set permission = 'CREATE', object_type = 'EXECUTORS' where object_type='SYSTEM' and permission = 'CREATE_EXECUTOR'",
+
+                    "update permission_mapping set permission = 'LOGIN' where object_type = 'SYSTEM' and permission = 'LOGIN_TO_SYSTEM'",
+                    "update permission_mapping set permission = 'CREATE_DEFINITION' where object_type='SYSTEM' and permission = 'DEPLOY_DEFINITION'",
+                    "update permission_mapping set permission = 'READ_LOGS' where object_type='SYSTEM' and permission = 'VIEW_LOGS'",
             };
             for (String q : specialQueries) {
                 session.createSQLQuery(q).executeUpdate();
@@ -272,25 +306,8 @@ public class RefactorPermissionsBack extends DbPatch {
                 stmt.executeUpdate("delete " + sqlSuffix);
             }
 
-            String idName, idValue;
-            switch (dbType) {
-                case ORACLE:
-                    // Bugfix: https://rm.processtech.ru/issues/637#note-15
-                    idName = "id, ";
-                    idValue = "seq_permission_mapping.nextval, ";
-                    break;
-                case POSTGRESQL:
-                    // TODO Should we generate PK field with "default nextval('sequence_name')" instead?
-                    //      Or even use BIGSERIAL instead of manual sequence creation?
-                    idName = "id, ";
-                    idValue = "nextval('seq_permission_mapping'), ";
-                    break;
-                default:
-                    idName = "";
-                    idValue = "";
-            }
-            try (PreparedStatement stmt = conn.prepareStatement(
-                    "insert into permission_mapping (" + idName + "executor_id, object_type, object_id, permission) values (" + idValue + "?, ?, ?, 'READ')"
+            try (PreparedStatement stmt = conn.prepareStatement("insert into permission_mapping (" + insertPkColumn() +
+                    "executor_id, object_type, object_id, permission) values (" + insertPkNextVal("permission_mapping") + "?, ?, ?, 'READ')"
             )) {
                 for (Row r : rows) {
                     stmt.setLong(1, r.executorId);
@@ -302,19 +319,63 @@ public class RefactorPermissionsBack extends DbPatch {
 
         // Do everything else.
         {
+            // Same list as allTypes in executeDML_v43().
+            val deleteTypesSqlSuffix = "not in ('BOTSTATIONS', 'DEFINITION', 'EXECUTOR', 'PROCESS', 'RELATIONS', 'REPORT', 'REPORTS', 'SYSTEM')";
+
             String[] specialQueries = new String[]{
                     "update permission_mapping set permission = 'READ' where object_type='SYSTEM' and permission = 'ALL'",
                     "update permission_mapping set object_type = 'SYSTEM' where object_type = 'EXECUTORS' and permission = 'LOGIN'",
                     "update permission_mapping set permission = 'CREATE_EXECUTOR', object_type = 'SYSTEM' where object_type='EXECUTORS' and permission = 'CREATE'",
                     "update permission_mapping set permission = 'CREATE_DEFINITION', object_type = 'SYSTEM' where object_type='DEFINITIONS' and permission = 'CREATE'",
                     "update permission_mapping set permission = 'READ_LOGS', object_type = 'SYSTEM' where object_type='LOGS' and permission = 'ALL'",
-                    "delete from permission_mapping where object_type in ('DEFINITIONS', 'EXECUTORS', 'PROCESSES', 'LOGS', 'SUBSTITUTION_CRITERIAS')"
+                    "delete from permission_mapping where object_type " + deleteTypesSqlSuffix,
+                    "delete from priveleged_mapping where type " + deleteTypesSqlSuffix
             };
             try (Statement stmt = conn.createStatement()) {
                 for (String sql : specialQueries) {
                     stmt.executeUpdate(sql);
                 }
             }
+        }
+    }
+
+
+    /**
+     * Moved 4.4.0's RefactorPermissionsStep4.executeDML() here, unchanged.
+     *
+     * Types ACTOR and GROUP are merged into EXECUTOR for rm718.
+     */
+    private void executeDML_step4(Session session) {
+        // Replace ACTOR and GROUP types with EXECUTOR in permission_mapping
+        // Delete ACTOR and GROUP from priveleged_mapping
+        {
+            session.createSQLQuery("delete from permission_mapping where object_type = 'EXECUTOR'").executeUpdate();
+            session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'")
+                    .executeUpdate();
+            session.createSQLQuery("delete from priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
+            session.createSQLQuery("delete from priveleged_mapping where type = 'GROUP'").executeUpdate();
+            session.createSQLQuery("update priveleged_mapping set type = 'EXECUTOR' where type = 'ACTOR'").executeUpdate();
+        }
+    }
+
+    private String insertPkColumn() {
+        switch (dbType) {
+            case ORACLE:
+            case POSTGRESQL:
+                return "id, ";
+            default:
+                return "";
+        }
+    }
+
+    private String insertPkNextVal(String tableName) {
+        switch (dbType) {
+            case ORACLE:
+                return "seq_" + tableName + ".nextval, ";
+            case POSTGRESQL:
+                return "nextval('seq_" + tableName + "'), ";
+            default:
+                return "";
         }
     }
 }

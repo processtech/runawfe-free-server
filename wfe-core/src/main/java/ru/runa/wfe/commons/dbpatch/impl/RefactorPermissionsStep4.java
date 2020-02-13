@@ -25,17 +25,11 @@ import ru.runa.wfe.commons.dbpatch.DbPatch;
  */
 public class RefactorPermissionsStep4 extends DbPatch {
 
+    /**
+     * Implementation was moved to RefactorPermissionsBack.executeDML_step4() unchanged.
+     * See #1586, #1586-10.
+     */
     @Override
     public void executeDML(Session session) {
-        // Replace ACTOR and GROUP types with EXECUTOR in permission_mapping
-        // Delete ACTOR and GROUP from priveleged_mapping
-        {
-            session.createSQLQuery("delete from permission_mapping where object_type = 'EXECUTOR'").executeUpdate();
-            session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'")
-                    .executeUpdate();
-            session.createSQLQuery("delete from priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
-            session.createSQLQuery("delete from priveleged_mapping where type = 'GROUP'").executeUpdate();
-            session.createSQLQuery("update priveleged_mapping set type = 'EXECUTOR' where type = 'ACTOR'").executeUpdate();
-        }
     }
 }
