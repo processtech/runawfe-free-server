@@ -34,13 +34,13 @@ public class RefactorPermissionsBack extends DbPatch {
             isV43 = rs.next();
         }
 
-        // Postoned RefactorPermissionsStep4 execution to detect which version we are migrating from.
-        // But now we execute it before even former RefactorPermissionsStep3, because it simplifles RefactorPermissionsStep3.
-        executeDML_step4(session);
         if (isV43) {
-            executeDML_v43(session);
+            // Postoned RefactorPermissionsStep4 execution to detect (above) which version we are migrating from.
+            // But now we execute it before even former RefactorPermissionsStep3, because this simplifles RefactorPermissionsStep3.
+            executeDML_step4(session);
+            executeDML_step3(session);
         } else {
-            executeDML_v44(conn);
+            executeDML_fromV44(conn);
         }
     }
 
@@ -52,7 +52,7 @@ public class RefactorPermissionsBack extends DbPatch {
      * Adjusts object_type and permission values for rm660, see https://rm.processtech.ru/attachments/download/1210.
      */
     @SneakyThrows
-    private void executeDML_v43(Session session) {
+    private void executeDML_step3(Session session) {
 
         class PMatch {
             private final String type;
@@ -279,7 +279,7 @@ public class RefactorPermissionsBack extends DbPatch {
      * Migrate 4.4.0 to 4.4.1.
      */
     @SneakyThrows
-    private void executeDML_v44(Connection conn) {
+    private void executeDML_fromV44(Connection conn) {
         // Replace all LIST permissions with READ.
         // Since some objects may have both permissions, have to re-insert them to avoid UK violations. To reduce memory usage,
         // process only object types which can have both permissions and which we are not going to delete below: DEFINITION, EXECUTOR, PROCESS.
@@ -319,7 +319,7 @@ public class RefactorPermissionsBack extends DbPatch {
 
         // Do everything else.
         {
-            // Same list as allTypes in executeDML_v43().
+            // Same list as allTypes in executeDML_step3().
             val deleteTypesSqlSuffix = "not in ('BOTSTATIONS', 'DEFINITION', 'EXECUTOR', 'PROCESS', 'RELATIONS', 'REPORT', 'REPORTS', 'SYSTEM')";
 
             String[] specialQueries = new String[]{

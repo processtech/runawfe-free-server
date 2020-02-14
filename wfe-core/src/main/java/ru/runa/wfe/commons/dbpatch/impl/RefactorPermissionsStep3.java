@@ -26,7 +26,7 @@ import ru.runa.wfe.commons.dbpatch.DbPatch;
 public class RefactorPermissionsStep3 extends DbPatch {
 
     /**
-     * Implementation was moved to RefactorPermissionsBack.executeDML_v43() and edited.
+     * Implementation was moved to RefactorPermissionsBack.executeDML_step3() and edited.
      * See #1586, #1586-10.
      */
     @Override
