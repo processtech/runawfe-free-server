@@ -48,9 +48,9 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @WebMethod(exclude = true)
     @Override
-    public Long saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-            Boolean isPrivate, ArrayList<Long> fileIds) {
-        return chatLogic.saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, fileIds);
+    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+            Boolean isPrivate, ArrayList<ChatMessageFile> files) {
+        return chatLogic.saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, files);
     }
 
     @WebMethod(exclude = true)

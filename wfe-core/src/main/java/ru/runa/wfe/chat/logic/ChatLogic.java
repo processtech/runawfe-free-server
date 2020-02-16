@@ -46,8 +46,8 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteFile(user, id);
     }
 
-    public Long saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
-            ArrayList<Long> fileIds) {
+    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+            ArrayList<ChatMessageFile> files) {
         message.setProcess(processDao.get(processId));
         Set<Executor> executors;
         if (!isPrivate) {
@@ -55,7 +55,7 @@ public class ChatLogic extends WfCommonLogic {
         } else {
             executors = new HashSet<Executor>(mentionedExecutors);
         }
-        return chatDao.saveMessageAndBindFiles(user, message, fileIds, executors, mentionedExecutors);
+        return chatDao.saveMessageAndBindFiles(user, message, files, executors, mentionedExecutors);
     }
 
     public void readMessage(Actor user, Long messageId) {

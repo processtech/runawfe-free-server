@@ -32,16 +32,18 @@ public class ChatDao extends GenericDao<ChatMessage> {
         queryFactory.delete(f).where(f.id.eq(id));
     }
 
-    public Long saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<Long> fileIds, Set<Executor> executors,
+    public ChatMessageDto saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<ChatMessageFile> files, Set<Executor> executors,
             Set<Executor> mentionedExecutors) {
         Long mesId = save(message, executors, mentionedExecutors);
-        QChatMessageFile mf = QChatMessageFile.chatMessageFile;
-        for (Long fileId : fileIds) {
-            ChatMessageFile file = queryFactory.selectFrom(mf).where(mf.id.eq(fileId)).fetchFirst();
+        message.setId(mesId);
+        ChatMessageDto ret = new ChatMessageDto(message);
+        for (ChatMessageFile file : files) {
             file.setMessage(message);
-            sessionFactory.getCurrentSession().merge(file);
+            sessionFactory.getCurrentSession().save(file);
+            ret.getFileIds().add(file.getId());
+            ret.getFileNames().add(file.getFileName());
         }
-        return mesId;
+        return ret;
     }
 
     public void readMessage(Actor user, Long messageId) {

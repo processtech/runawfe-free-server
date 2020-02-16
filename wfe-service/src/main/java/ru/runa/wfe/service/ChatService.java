@@ -21,7 +21,8 @@ public interface ChatService {
 
     public void deleteFile(User user, Long id);
 
-    public Long saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate, ArrayList<Long> fileIds);
+    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+            ArrayList<ChatMessageFile> files);
 
     public void readMessage(User user, Long messageId);
 

@@ -46,13 +46,6 @@ public class ChatSocket {
 
     @OnClose
     public void close(Session session) {
-        Object activeFileIdsObject = session.getUserProperties().get("activeFileIds");
-        if (activeFileIdsObject != null) {
-            ArrayList<Long> fileIds = (ArrayList<Long>) activeFileIdsObject;
-            for (Long fileId : fileIds) {
-                Delegates.getChatService().deleteFile(getUser(session), fileId);
-            }
-        }
         sessionHandler.removeSession(session);
     }
 
@@ -62,33 +55,46 @@ public class ChatSocket {
 
     @OnMessage
     public void uploadFile(ByteBuffer msg, boolean last, Session session) throws IOException {
-        Integer fileNumber = -1;
-        JSONObject sendObject;
-        try {
-            fileNumber = (Integer) session.getUserProperties().get("activeFileSize");
-            // TODO only first 16384 bytes saved in DB
-            byte[] bytes = new byte[msg.remaining()];
-            msg.get(bytes);
-            ChatMessageFile chatMessageFile = new ChatMessageFile();
-            chatMessageFile.setFileName((String) ((JSONArray) session.getUserProperties().get("activeFileNames")).get(fileNumber));
-            // TODO files are saved to db without ChatMessage link
-            chatMessageFile.setBytes(bytes);
-            chatMessageFile = Delegates.getChatService().saveChatMessageFile(getUser(session), chatMessageFile);
-            ((ArrayList<Long>) session.getUserProperties().get("activeFileIds")).add(chatMessageFile.getId());
-            // send "ok"
-            sendObject = new JSONObject();
-            sendObject.put("fileLoaded", true);
-            sendObject.put("messType", "nextStepLoadFile");
-            sendObject.put("number", fileNumber);
-        } catch (Exception e) {
-            log.error("uploadFile failed", e);
-            sendObject = new JSONObject();
-            sendObject.put("fileLoaded", false);
-            sendObject.put("messType", "nextStepLoadFile");
-            sendObject.put("number", fileNumber);
+        ArrayList<ByteBuffer> loadedBytes = ((ArrayList<ByteBuffer>) session.getUserProperties().get("activeLoadFile"));
+        loadedBytes.add(msg);
+        if (last) {
+            Integer fileNumber = -1;
+            JSONObject sendObject;
+            try {
+                fileNumber = (Integer) session.getUserProperties().get("activeFileSize");
+                byte[] bytes;
+                int oldBytesSize = 0;
+                for (ByteBuffer buffer : loadedBytes) {
+                    oldBytesSize += buffer.remaining();
+                }
+                bytes = new byte[oldBytesSize];
+                int copyBytesSize = 0;
+                for(int i=0; i<loadedBytes.size(); i++) {
+                    int remaining = loadedBytes.get(i).remaining();
+                    loadedBytes.get(i).get(bytes, copyBytesSize, loadedBytes.get(i).remaining());
+                    copyBytesSize += remaining;
+                }
+                ChatMessageFile chatMessageFile = new ChatMessageFile();
+                chatMessageFile.setFileName((String) ((JSONArray) session.getUserProperties().get("activeFileNames")).get(fileNumber));
+                chatMessageFile.setBytes(bytes);
+                ((ArrayList<ChatMessageFile>) session.getUserProperties().get("activeFiles")).add(chatMessageFile);
+                // send "ok"
+                sendObject = new JSONObject();
+                sendObject.put("fileLoaded", true);
+                sendObject.put("messType", "nextStepLoadFile");
+                sendObject.put("number", fileNumber);
+            } catch (Exception e) {
+                log.error("uploadFile failed", e);
+                sendObject = new JSONObject();
+                sendObject.put("fileLoaded", false);
+                sendObject.put("messType", "nextStepLoadFile");
+                sendObject.put("number", fileNumber);
+            }
+            loadedBytes.clear();
+            session.getUserProperties().put("activeFileSize", fileNumber + 1);
+            sessionHandler.sendToSession(session, sendObject);
         }
-        session.getUserProperties().put("activeFileSize", fileNumber + 1);
-        sessionHandler.sendToSession(session, sendObject);
+        session.getUserProperties().put("activeLoadFile", loadedBytes);
     }
 
     @OnMessage
@@ -187,7 +193,8 @@ public class ChatSocket {
             session.getUserProperties().put("activeFileNames", objectMessage.get("fileNames"));
             Integer filesize = 0;
             session.getUserProperties().put("activeFileSize", filesize);
-            session.getUserProperties().put("activeFileIds", new ArrayList<Long>());
+            session.getUserProperties().put("activeFiles", new ArrayList<ChatMessageFile>());
+            session.getUserProperties().put("activeLoadFile", new ArrayList<ByteBuffer>());
             JSONObject sendObject = new JSONObject();
             sendObject.put("messType", "stepLoadFile");
             sessionHandler.sendToSession(session, sendObject);
@@ -216,16 +223,12 @@ public class ChatSocket {
             // TODO why this method invoked several times?
             return;
         }
-        ArrayList<Long> fileIds = (ArrayList<Long>) session.getUserProperties().get("activeFileIds");
+        ArrayList<ChatMessageFile> files = (ArrayList<ChatMessageFile>) session.getUserProperties().get("activeFiles");
         Set<Executor> mentionedExecutors = (Set<Executor>) session.getUserProperties().get("activeMentionedExecutors");
         Boolean isPrivate = (Boolean) session.getUserProperties().get("activeIsPrivate");
         Long processId = (Long) session.getUserProperties().get("activeProcessId");
-        Long messageId = Delegates.getChatService().saveMessageAndBindFiles(getUser(session), processId, activeMessage, mentionedExecutors,
-                isPrivate, fileIds);
-        activeMessage.setId(messageId);
-        ChatMessageDto messageDto = new ChatMessageDto(activeMessage);
-        messageDto.setFileIds(fileIds);
-        messageDto.setFileNames(new ArrayList<String>((JSONArray) session.getUserProperties().get("activeFileNames")));
+        ChatMessageDto messageDto = Delegates.getChatService().saveMessageAndBindFiles(getUser(session), processId, activeMessage, mentionedExecutors,
+                isPrivate, files);
         //
         HashSet<Actor> mentionedActors = new HashSet<Actor>();
         for (Executor mentionedExecutor : mentionedExecutors) {
@@ -241,9 +244,10 @@ public class ChatSocket {
         sessionHandler.sendOnlyNewMessagesSessions(sendObject2, activeMessage.getProcess().getId(), activeMessage.getCreateActor(), mentionedActors,
                 isPrivate);
         session.getUserProperties().put("activeMessage", null);
+        session.getUserProperties().put("activeLoadFile", null);
         session.getUserProperties().put("activeFileNames", "");
         session.getUserProperties().put("activeFileSize", 0);
-        session.getUserProperties().put("activeFileIds", null);
+        session.getUserProperties().put("activeFiles", null);
         session.getUserProperties().put("activeIsPrivate", false);
         session.getUserProperties().put("activeMentionedExecutors", null);
     }
