@@ -4,13 +4,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import lombok.val;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -24,6 +27,7 @@ public class RefactorPermissionsBack extends DbPatch {
     @Override
     @SneakyThrows
     public void executeDML(Session session) {
+//        if (true) throw new Exception("DEBUG STOP");
         Connection conn = session.connection();
 
         // Are we working with RunaWFE 4.3.0 (original RefactorPermissionsStep4 is not yet applied) or 4.4.0?
@@ -179,58 +183,108 @@ public class RefactorPermissionsBack extends DbPatch {
         }
 
 
-        // Merge LIST_GROUP permission into READ on EXECUTOR-s.
-        // This can be done with single INSERT SELECT WHERE NOT EXISTS (), but i'm afraid it won't work on all SQL servers.
+        // Merge permissions.
+        // - on EXECUTOR: READ, LIST_GROUP into READ;
+        // - on EXECUTOR: ADD_TO_GROUP, REMOVE_FROM_GROUP, UPDATE_EXECUTOR into UPDATE;
+        // - on RELATIONS: READ, UPDATE_PERMISSIONS, UPDATE_RELATION into ALL.
         {
             @AllArgsConstructor
-            @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-            class HasPermission {
-                long id;
-
-                @EqualsAndHashCode.Include
+            @EqualsAndHashCode
+            class FoundPermission {
                 Long executorId;
-
-                @EqualsAndHashCode.Include
                 Long objectId;
             }
-            val haveReadPermission = new HashSet<HasPermission>(1000);
-            val haveListPermission = new HashSet<HasPermission>(1000);
 
-            val conn = session.connection();
-            try (Statement q = conn.createStatement()) {
-                val rs = q.executeQuery("select id, executor_id, object_id, permission from permission_mapping " +
-                        "where object_type = 'EXECUTOR' and permission in ('READ', 'LIST_GROUP')");
-                while (rs.next()) {
-                    (rs.getString(4).equals("READ") ? haveReadPermission : haveListPermission)
-                            .add(new HasPermission(rs.getLong(1), rs.getLong(2), rs.getLong(3)));
+            @AllArgsConstructor
+            @EqualsAndHashCode
+            class MapKey {
+                String objectType;
+                String permission;
+            }
+
+            class MapValue {
+                String[] sourcePermissions;
+                HashSet<FoundPermission> found = new HashSet<>(1000);
+
+                MapValue(String... sourcePermissions) {
+                    this.sourcePermissions = sourcePermissions;
                 }
             }
 
+            // key.permission is target permission to merge into, value.sourcePermissions are to merge from.
+            Map<MapKey, MapValue> mapTargetToSources = new HashMap<MapKey, MapValue>() {{
+                put(new MapKey("EXECUTOR", "READ"), new MapValue("READ", "LIST_GROUP"));
+                put(new MapKey("EXECUTOR", "UPDATE"), new MapValue("ADD_TO_GROUP", "REMOVE_FROM_GROUP", "UPDATE_EXECUTOR"));
+                put(new MapKey("RELATIONS", "ALL"), new MapValue("UPDATE_PERMISSIONS", "UPDATE_RELATION"));
+                put(new MapKey("BOTSTATIONS", "ALL"), new MapValue("UPDATE_PERMISSIONS", "BOT_STATION_CONFIGURE"));
+            }};
+
+            Map<MapKey, MapKey> mapSourceToTarget = new HashMap<>(mapTargetToSources.size());
+            for (val kv : mapTargetToSources.entrySet()) {
+                MapKey k = kv.getKey();
+                for (String p : kv.getValue().sourcePermissions) {
+                    mapSourceToTarget.put(new MapKey(k.objectType, p), k);
+                }
+            }
+
+            val filterObjectTypes = new ArrayList<String>(mapTargetToSources.size());
+            val filterPermissions = new ArrayList<String>(mapTargetToSources.size() * 10);
+            for (val kv : mapTargetToSources.entrySet()) {
+                filterObjectTypes.add(kv.getKey().objectType);
+                filterPermissions.addAll(Arrays.asList(kv.getValue().sourcePermissions));
+            }
+
+            val conn = session.connection();
             try (
-                    PreparedStatement qUpdate = conn.prepareStatement("update permission_mapping set permission = 'READ' where id = ?");
-                    PreparedStatement qDelete = conn.prepareStatement("delete from permission_mapping where id = ?")
+                    Statement q = conn.createStatement();
+                    PreparedStatement qDelete = conn.prepareStatement("delete from permission_mapping where id = ?");
+                    PreparedStatement qUpdate = conn.prepareStatement("update permission_mapping set permission = ? where id = ?");
             ) {
-                for (HasPermission p : haveListPermission) {
-                    val q = haveReadPermission.contains(p) ? qDelete : qUpdate;
-                    q.setLong(1, p.id);
-                    q.executeUpdate();
+                val rs = q.executeQuery("select id, executor_id, object_type, object_id, permission " +
+                        "from permission_mapping " +
+                        "where object_type in ('" + StringUtils.join(filterObjectTypes, "','") + "') " +
+                        "and permission in ('" + StringUtils.join(filterPermissions, "','") + "')");
+                while (rs.next()) {
+                    String permission = rs.getString(5);
+                    val key = mapSourceToTarget.get(new MapKey(rs.getString(3), permission));
+                    if (key == null) {
+                        // Ignore unknown combination.
+                        continue;
+                    }
+                    val value = mapTargetToSources.get(key);
+                    val found = new FoundPermission(rs.getLong(2), rs.getLong(4));
+                    val id = rs.getLong(1);
+
+                    if (value.found.contains(found)) {
+                        qDelete.setLong(1, id);
+                        qDelete.executeUpdate();
+                    } else {
+                        value.found.add(found);
+                        if (!permission.equals(key.permission)) {
+                            qUpdate.setString(1, key.permission);
+                            qUpdate.setLong(2, id);
+                            qUpdate.executeUpdate();
+                        }
+                    }
                 }
             }
         }
 
 
-        // Update permission_mapping.permission. ONLY NAROWWING TRANSFORMATIONS, NO "ALL" ESCALATION.
-        // ATTENTION!!! Possible UK violations are not avoided!
+        // Updates without merging:
         {
             String[] specialQueries = new String[] {
-                    "update permission_mapping set permission = 'ALL' where object_type = 'BOTSTATIONS' and permission = 'BOT_STATION_CONFIGURE'",
+                    "update permission_mapping set permission = 'START' where object_type = 'DEFINITION' and permission = 'START_PROCESS'",
+                    "update permission_mapping set permission = 'UPDATE' where object_type = 'DEFINITION' and permission = 'REDEPLOY_DEFINITION'",
+                    "update permission_mapping set permission = 'DELETE' where object_type = 'DEFINITION' and permission = 'UNDEPLOY_DEFINITION'",
 
-                    "update permission_mapping set permission = 'UPDATE' where object_type = 'EXECUTOR' and permission = 'ADD_TO_GROUP'",
-                    "delete from permission_mapping where object_type = 'EXECUTOR' and permission = 'REMOVE_FROM_GROUP'",
                     "update permission_mapping set permission = 'UPDATE_STATUS' where object_type = 'EXECUTOR' and permission = 'UPDATE_ACTOR_STATUS'",
                     "update permission_mapping set permission = 'VIEW_TASKS' where object_type = 'EXECUTOR' and permission in ('VIEW_ACTOR_TASKS', 'VIEW_GROUP_TASKS')",
 
                     "update permission_mapping set permission = 'CANCEL' where object_type = 'PROCESS' and permission = 'CANCEL_PROCESS'",
+
+                    "update permission_mapping set permission = 'ALL' where object_type = 'REPORT' and permission = 'DEPLOY_REPORT'",
+                    "update permission_mapping set permission = 'ALL' where object_type = 'REPORTS' and permission = 'DEPLOY_REPORT'",
 
                     "update permission_mapping set permission = 'LOGIN' where object_type = 'SYSTEM' and permission = 'LOGIN_TO_SYSTEM'",
                     "update permission_mapping set permission = 'CREATE_DEFINITION' where object_type='SYSTEM' and permission = 'DEPLOY_DEFINITION'",

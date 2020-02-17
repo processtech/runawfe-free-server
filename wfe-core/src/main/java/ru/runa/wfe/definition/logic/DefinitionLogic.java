@@ -266,7 +266,7 @@ public class DefinitionLogic extends WfCommonLogic {
         }
         if (version == null) {
             Deployment latestDeployment = deploymentDao.findLatestDeployment(definitionName);
-            permissionDao.checkAllowed(user, Permission.ALL, latestDeployment);
+            permissionDao.checkAllowed(user, Permission.DELETE, latestDeployment);
             permissionDao.deleteAllPermissions(latestDeployment);
             List<Deployment> deployments = deploymentDao.findAllDeploymentVersions(definitionName);
             for (Deployment deployment : deployments) {
