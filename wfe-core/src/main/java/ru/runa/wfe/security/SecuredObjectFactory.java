@@ -13,6 +13,7 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.QDeployment;
 import ru.runa.wfe.execution.QProcess;
+import ru.runa.wfe.relation.QRelation;
 import ru.runa.wfe.report.QReportDefinition;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.user.QExecutor;
@@ -212,6 +213,15 @@ public class SecuredObjectFactory {
         });
 
         add(SecuredSingleton.RELATIONS);
+
+        add(SecuredObjectType.RELATION, new Loader(SecuredObjectType.RELATION) {
+            @Override
+            public SecuredObject findById(Long id) {
+                QRelation r = QRelation.relation;
+                return getQueryFactory().selectFrom(r).where(r.id.eq(id)).fetchFirst();
+            }
+        });
+
         add(SecuredSingleton.REPORTS);
 
         add(SecuredObjectType.REPORT, new Loader(SecuredObjectType.REPORT) {

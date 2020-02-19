@@ -89,7 +89,7 @@ public class AuditLogic extends CommonLogic {
      * @return Loaded system logs.
      */
     public List<SystemLog> getSystemLogs(User user, BatchPresentation batchPresentation) {
-        permissionDao.checkAllowed(user, Permission.READ_LOGS, SecuredSingleton.SYSTEM);
+        permissionDao.checkAllowed(user, Permission.VIEW_LOGS, SecuredSingleton.SYSTEM);
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getBatch();
     }
@@ -104,7 +104,7 @@ public class AuditLogic extends CommonLogic {
      * @return System logs count.
      */
     public int getSystemLogsCount(User user, BatchPresentation batchPresentation) {
-        permissionDao.checkAllowed(user, Permission.READ_LOGS, SecuredSingleton.SYSTEM);
+        permissionDao.checkAllowed(user, Permission.VIEW_LOGS, SecuredSingleton.SYSTEM);
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getCount();
     }

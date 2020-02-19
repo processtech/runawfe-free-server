@@ -59,12 +59,12 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.READ, SecuredSingleton.RELATIONS);
         Relation relation = Delegates.getRelationService().getRelation(getUser(), relationId);
         BatchPresentation batchPresentation = getBatchPresentation();
         List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(getUser(), relation.getName(), batchPresentation);
         TableBuilder tableBuilder = new TableBuilder();
-        TdBuilder checkboxBuilder = new CheckboxTdBuilder(null, Permission.ALL) {
+        TdBuilder checkboxBuilder = new CheckboxTdBuilder(null, Permission.UPDATE) {
 
             @Override
             protected String getIdValue(Object object) {

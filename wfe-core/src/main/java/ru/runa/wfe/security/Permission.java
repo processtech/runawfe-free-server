@@ -194,7 +194,7 @@ public final class Permission implements Serializable, Comparable<Permission> {
     /**
      * View or download Wildfly server logs.
      */
-    public static final Permission READ_LOGS = new Permission("READ_LOGS");
+    public static final Permission VIEW_LOGS = new Permission("VIEW_LOGS");
 
     /**
      * Can read object permissions.

@@ -44,7 +44,7 @@ public class BotStationListTag extends TitledFormTag {
     private static final long serialVersionUID = -4263750161023575386L;
 
     protected Permission getPermission() {
-        return Permission.ALL;
+        return Permission.READ;
     }
 
     protected SecuredObject getSecuredObject() {
@@ -81,7 +81,7 @@ public class BotStationListTag extends TitledFormTag {
 
     @Override
     public boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override

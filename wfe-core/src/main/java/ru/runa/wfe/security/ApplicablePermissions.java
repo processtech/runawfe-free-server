@@ -36,7 +36,7 @@ import static ru.runa.wfe.security.Permission.CREATE_EXECUTOR;
 import static ru.runa.wfe.security.Permission.DELETE;
 import static ru.runa.wfe.security.Permission.LOGIN;
 import static ru.runa.wfe.security.Permission.READ;
-import static ru.runa.wfe.security.Permission.READ_LOGS;
+import static ru.runa.wfe.security.Permission.VIEW_LOGS;
 import static ru.runa.wfe.security.Permission.READ_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.READ_PROCESS;
 import static ru.runa.wfe.security.Permission.START;
@@ -210,33 +210,40 @@ public final class ApplicablePermissions {
     static {
 
         // System singleton:
-        add(SecuredObjectType.BOTSTATIONS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, READ);
+        add(SecuredObjectType.BOTSTATIONS, READ, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         add(SecuredObjectType.DEFINITION, ALL, READ, UPDATE, DELETE, START, READ_PROCESS, CANCEL_PROCESS)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         add(SecuredObjectType.EXECUTOR, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
+                .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         add(SecuredObjectType.PROCESS, ALL, READ, CANCEL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
-
-        // System singleton:
-        add(SecuredObjectType.RELATIONS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, READ);
-
-        add(SecuredObjectType.REPORT, ALL, READ)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.REPORTS, ALL, READ)
+        add(SecuredObjectType.RELATION, READ, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        add(SecuredObjectType.RELATIONS, READ, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        add(SecuredObjectType.REPORT, READ, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        add(SecuredObjectType.REPORTS, READ, UPDATE)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         // System singleton:
-        add(SecuredObjectType.SYSTEM, READ, LOGIN, CREATE_EXECUTOR, CREATE_DEFINITION, READ_LOGS)
+        add(SecuredObjectType.SYSTEM, READ, LOGIN, CREATE_EXECUTOR, CREATE_DEFINITION, VIEW_LOGS)
                 .defaults(LOGIN)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
     }

@@ -23,6 +23,7 @@ import static ru.runa.wfe.security.SecuredObjectType.BOTSTATIONS;
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
 import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 import static ru.runa.wfe.security.SecuredObjectType.PROCESS;
+import static ru.runa.wfe.security.SecuredObjectType.RELATION;
 import static ru.runa.wfe.security.SecuredObjectType.RELATIONS;
 import static ru.runa.wfe.security.SecuredObjectType.REPORT;
 import static ru.runa.wfe.security.SecuredObjectType.REPORTS;
@@ -255,9 +256,7 @@ public class PermissionSubstitutions {
     static {
 
         // System singleton:
-        add(BOTSTATIONS, READ).self(ALL);
-        add(BOTSTATIONS, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
-        add(BOTSTATIONS, UPDATE_PERMISSIONS).self(ALL);
+        add(BOTSTATIONS, READ).self(UPDATE);
 
         add(DEFINITION, CANCEL_PROCESS).self(ALL);
         add(DEFINITION, ALL);
@@ -280,19 +279,17 @@ public class PermissionSubstitutions {
         add(PROCESS, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
         add(PROCESS, UPDATE_PERMISSIONS).self(ALL);
 
-        // System singleton:
-        add(RELATIONS, READ).self(ALL);
-        add(RELATIONS, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
-        add(RELATIONS, UPDATE_PERMISSIONS).self(ALL);
+//        add(RELATION, UPDATE).list();
+//        add(RELATION, READ).self(UPDATE).list();
+        add(RELATION, READ).self(UPDATE);
 
-        add(REPORT, ALL).list();
-        add(REPORT, READ).self(ALL).list();
-        add(REPORT, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS).list();
-        add(REPORT, UPDATE_PERMISSIONS).self(ALL).list();
+        add(RELATIONS, READ).self(UPDATE);
 
-        add(REPORTS, READ).self(ALL);
-        add(REPORTS, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
-        add(REPORTS, UPDATE_PERMISSIONS).self(ALL);
+//        add(REPORT, UPDATE).list();
+//        add(REPORT, READ).self(UPDATE).list();
+        add(REPORT, READ).self(UPDATE);
+
+        add(REPORTS, READ).self(UPDATE);
 
         // System singleton:
         add(SYSTEM, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);

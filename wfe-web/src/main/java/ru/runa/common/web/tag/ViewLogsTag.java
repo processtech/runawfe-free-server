@@ -38,7 +38,7 @@ public class ViewLogsTag extends TagSupport {
             StringBuilder html = new StringBuilder();
             File dirFile = new File(logDirPath);
             if (dirFile.exists() && dirFile.isDirectory()) {
-                if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ_LOGS, SecuredSingleton.SYSTEM)) {
+                if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_LOGS, SecuredSingleton.SYSTEM)) {
                     File[] logFiles = dirFile.listFiles();
                     Arrays.sort(logFiles);
                     for (File file : logFiles) {

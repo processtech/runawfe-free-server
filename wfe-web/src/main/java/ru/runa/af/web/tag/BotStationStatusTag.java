@@ -95,7 +95,7 @@ public class BotStationStatusTag extends TitledFormTag {
 
     @Override
     public boolean isSubmitButtonEnabled() {
-        boolean result = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        boolean result = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
         if (!result) {
             return false;
         }

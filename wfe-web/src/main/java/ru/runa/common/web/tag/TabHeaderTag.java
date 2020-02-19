@@ -139,7 +139,7 @@ public class TabHeaderTag extends TagSupport {
                 return Delegates.getExecutorService().isAdministrator(getUser());
             }
             if (menuForward.menuMessage.getKey().equals("view_logs")) {
-                return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ_LOGS, SecuredSingleton.SYSTEM);
+                return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_LOGS, SecuredSingleton.SYSTEM);
             }
             if (menuForward.menuMessage.getKey().equals("manage_observable_tasks")
                     && Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.VIEW_TASKS, SecuredObjectType.EXECUTOR)) {

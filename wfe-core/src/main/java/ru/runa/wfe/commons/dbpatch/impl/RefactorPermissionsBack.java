@@ -42,7 +42,7 @@ public class RefactorPermissionsBack extends DbPatch {
             // Postoned RefactorPermissionsStep4 execution to detect (above) which version we are migrating from.
             // But now we execute it before even former RefactorPermissionsStep3, because this simplifles RefactorPermissionsStep3.
             executeDML_step4(session);
-            executeDML_step3(session);
+            executeDML_step3(session, conn);
         } else {
             executeDML_fromV44(conn);
         }
@@ -56,7 +56,7 @@ public class RefactorPermissionsBack extends DbPatch {
      * Adjusts object_type and permission values for rm660, see https://rm.processtech.ru/attachments/download/1210.
      */
     @SneakyThrows
-    private void executeDML_step3(Session session) {
+    private void executeDML_step3(Session session, Connection conn) {
 
         class PMatch {
             private final String type;
@@ -72,14 +72,15 @@ public class RefactorPermissionsBack extends DbPatch {
 
         // ATTENTION!!! This duplicates visible permission lists in ApplicablePermissions configuration.
         PMatch[] pMatches = new PMatch[] {
-                new PMatch("BOTSTATIONS", false, "ALL"),
+                new PMatch("BOTSTATIONS", false, "READ", "UPDATE"),
                 new PMatch("DEFINITION", true, "ALL", "READ", "UPDATE", "DELETE", "START", "READ_PROCESS", "CANCEL_PROCESS"),
                 new PMatch("EXECUTOR", true, "READ", "VIEW_TASKS", "UPDATE", "UPDATE_STATUS", "DELETE"),
                 new PMatch("PROCESS", true, "ALL", "READ", "CANCEL"),
-                new PMatch("RELATIONS", false, "ALL"),
-                new PMatch("REPORT", true, "ALL", "READ"),
-                new PMatch("REPORTS", false, "ALL", "READ"),
-                new PMatch("SYSTEM", false, "READ", "LOGIN", "CREATE_EXECUTOR", "CREATE_DEFINITION", "READ_LOGS"),
+                new PMatch("RELATION", true, "READ", "UPDATE"),
+                new PMatch("RELATIONS", false, "READ", "UPDATE"),
+                new PMatch("REPORT", true, "READ", "UPDATE"),
+                new PMatch("REPORTS", false, "READ", "UPDATE"),
+                new PMatch("SYSTEM", false, "READ", "LOGIN", "CREATE_EXECUTOR", "CREATE_DEFINITION", "VIEW_LOGS"),
         };
 
         List<String> allTypes = new ArrayList<>(pMatches.length);
@@ -93,24 +94,10 @@ public class RefactorPermissionsBack extends DbPatch {
             @SuppressWarnings("unchecked")
             List<Number> executorIds = session.createSQLQuery("select distinct executor_id from priveleged_mapping order by executor_id").list();
 
-            String idName, idValue;
-            switch (dbType) {
-                case ORACLE:
-                    idName = "id, ";
-                    idValue = "seq_priveleged_mapping.nextval, ";
-                    break;
-                case POSTGRESQL:
-                    idName = "id, ";
-                    idValue = "nextval('seq_priveleged_mapping'), ";
-                    break;
-                default:
-                    idName = "";
-                    idValue = "";
-            }
-            SQLQuery qInsert = session.createSQLQuery("insert into priveleged_mapping(" + idName + "type, executor_id) values (" + idValue +
-                    ":type, :executorId)");
-
             session.createSQLQuery("delete from priveleged_mapping where 1=1").executeUpdate();
+
+            SQLQuery qInsert = session.createSQLQuery("insert into priveleged_mapping(" + insertPkColumn() + "type, executor_id) values (" +
+                    insertPkNextVal("priveleged_mapping") + ":type, :executorId)");
             for (String t : allTypes) {
                 for (Number e : executorIds) {
                     qInsert.setParameter("type", t);
@@ -122,71 +109,16 @@ public class RefactorPermissionsBack extends DbPatch {
 
 
         // Update permission_mapping.type.
-        {
-            class TMatch {
-                private final String oldType;
-                private final String newType;
-                private final boolean clearObjectId;
-
-                private TMatch(String oldType, String newType, boolean clearObjectId) {
-                    this.oldType = oldType;
-                    this.newType = newType;
-                    this.clearObjectId = clearObjectId;
-                }
-            }
-
-            TMatch[] tMatches = {
-                    new TMatch("BOTSTATION", "BOTSTATIONS", true),
-                    // RELATION & RELATION_PAIR will be just deleted; it simpler than deal with possible UK violations, and it's also more correct:
-                    new TMatch("RELATIONGROUP", "RELATIONS", true),
-                    // REPORT will now refer to report instance, not to list of reports:
-                    new TMatch("REPORT", "REPORTS", true),
-            };
-            HashMap<String, TMatch> tMap = new HashMap<>(tMatches.length);
-            for (TMatch m : tMatches) {
-                tMap.put(m.oldType, m);
-            }
-
-            // Delete is needed to avoid possible UK violation by following update.
-            SQLQuery qDelete = session.createSQLQuery("delete from permission_mapping where object_type = :objectType and object_id = :objectId and permission = :permission and executor_id = :executorId");
-            SQLQuery qUpdate = session.createSQLQuery("update permission_mapping set object_type = :objectType, object_id = :objectId where id = :id");
-
-            // I tried iterate(), but got "SQL queries do not currently support iteration".
-            @SuppressWarnings("unchecked")
-            List<Object[]> rows = session
-                    .createSQLQuery("select id, object_type, object_id, permission, executor_id from permission_mapping where object_type in (:types)")
-                    .setParameterList("types", tMap.keySet())
-                    .list();
-            for (Object[] row : rows) {
-                long id = ((Number)row[0]).longValue();
-                String objectType = (String)row[1];
-                long objectId = ((Number)row[2]).longValue();
-                String permission = (String)row[3];
-                long executorId = ((Number)row[4]).longValue();
-
-                TMatch m = tMap.get(objectType);
-                if (m.clearObjectId) {
-                    objectId = 0;
-                }
-
-                qDelete.setParameter("objectType", m.newType);
-                qDelete.setParameter("objectId", objectId);
-                qDelete.setParameter("permission", permission);
-                qDelete.setParameter("executorId", executorId);
-                qDelete.executeUpdate();
-
-                qUpdate.setParameter("objectType", m.newType);
-                qUpdate.setParameter("objectId", objectId);  // Reset to 0 if m.clearObjectId, unchanged otherwise.
-                qUpdate.setParameter("id", id);
-                qUpdate.executeUpdate();
-            }
+        try (val stmt = conn.createStatement()) {
+            stmt.executeUpdate("update permission_mapping set object_type = 'REPORTS' where object_type = 'REPORT' and object_id = 0");
+            stmt.executeUpdate("update permission_mapping set object_type = 'BOTSTATIONS' where object_type = 'BOTSTATION'");
+            stmt.executeUpdate("update permission_mapping set object_type = 'RELATIONS' where object_type = 'RELATIONGROUP'");
         }
 
 
         // Merge permissions.
         // - on EXECUTOR: READ, LIST_GROUP into READ;
         // - on EXECUTOR: ADD_TO_GROUP, REMOVE_FROM_GROUP, UPDATE_EXECUTOR into UPDATE;
-        // - on RELATIONS: READ, UPDATE_PERMISSIONS, UPDATE_RELATION into ALL.
         {
             @AllArgsConstructor
             @EqualsAndHashCode
@@ -215,8 +147,6 @@ public class RefactorPermissionsBack extends DbPatch {
             Map<MapKey, MapValue> mapTargetToSources = new HashMap<MapKey, MapValue>() {{
                 put(new MapKey("EXECUTOR", "READ"), new MapValue("READ", "LIST_GROUP"));
                 put(new MapKey("EXECUTOR", "UPDATE"), new MapValue("ADD_TO_GROUP", "REMOVE_FROM_GROUP", "UPDATE_EXECUTOR"));
-                put(new MapKey("RELATIONS", "ALL"), new MapValue("UPDATE_PERMISSIONS", "UPDATE_RELATION"));
-                put(new MapKey("BOTSTATIONS", "ALL"), new MapValue("UPDATE_PERMISSIONS", "BOT_STATION_CONFIGURE"));
             }};
 
             Map<MapKey, MapKey> mapSourceToTarget = new HashMap<>(mapTargetToSources.size());
@@ -234,7 +164,6 @@ public class RefactorPermissionsBack extends DbPatch {
                 filterPermissions.addAll(Arrays.asList(kv.getValue().sourcePermissions));
             }
 
-            val conn = session.connection();
             try (
                     Statement q = conn.createStatement();
                     PreparedStatement qDelete = conn.prepareStatement("delete from permission_mapping where id = ?");
@@ -274,8 +203,11 @@ public class RefactorPermissionsBack extends DbPatch {
         // Updates without merging:
         {
             String[] specialQueries = new String[] {
+                    // Common for multiple object types:
+                    "update permission_mapping set permission = 'UPDATE' where permission in " +
+                            "('BOT_STATION_CONFIGURE', 'REDEPLOY_DEFINITION', 'UPDATE_RELATION', 'DEPLOY_REPORT')",
+
                     "update permission_mapping set permission = 'START' where object_type = 'DEFINITION' and permission = 'START_PROCESS'",
-                    "update permission_mapping set permission = 'UPDATE' where object_type = 'DEFINITION' and permission = 'REDEPLOY_DEFINITION'",
                     "update permission_mapping set permission = 'DELETE' where object_type = 'DEFINITION' and permission = 'UNDEPLOY_DEFINITION'",
 
                     "update permission_mapping set permission = 'UPDATE_STATUS' where object_type = 'EXECUTOR' and permission = 'UPDATE_ACTOR_STATUS'",
@@ -283,12 +215,8 @@ public class RefactorPermissionsBack extends DbPatch {
 
                     "update permission_mapping set permission = 'CANCEL' where object_type = 'PROCESS' and permission = 'CANCEL_PROCESS'",
 
-                    "update permission_mapping set permission = 'ALL' where object_type = 'REPORT' and permission = 'DEPLOY_REPORT'",
-                    "update permission_mapping set permission = 'ALL' where object_type = 'REPORTS' and permission = 'DEPLOY_REPORT'",
-
                     "update permission_mapping set permission = 'LOGIN' where object_type = 'SYSTEM' and permission = 'LOGIN_TO_SYSTEM'",
                     "update permission_mapping set permission = 'CREATE_DEFINITION' where object_type='SYSTEM' and permission = 'DEPLOY_DEFINITION'",
-                    "update permission_mapping set permission = 'READ_LOGS' where object_type='SYSTEM' and permission = 'VIEW_LOGS'",
             };
             for (String q : specialQueries) {
                 session.createSQLQuery(q).executeUpdate();
@@ -381,7 +309,7 @@ public class RefactorPermissionsBack extends DbPatch {
                     "update permission_mapping set object_type = 'SYSTEM' where object_type = 'EXECUTORS' and permission = 'LOGIN'",
                     "update permission_mapping set permission = 'CREATE_EXECUTOR', object_type = 'SYSTEM' where object_type='EXECUTORS' and permission = 'CREATE'",
                     "update permission_mapping set permission = 'CREATE_DEFINITION', object_type = 'SYSTEM' where object_type='DEFINITIONS' and permission = 'CREATE'",
-                    "update permission_mapping set permission = 'READ_LOGS', object_type = 'SYSTEM' where object_type='LOGS' and permission = 'ALL'",
+                    "update permission_mapping set permission = 'VIEW_LOGS', object_type = 'SYSTEM' where object_type='LOGS' and permission = 'ALL'",
                     "delete from permission_mapping where object_type " + deleteTypesSqlSuffix,
                     "delete from priveleged_mapping where type " + deleteTypesSqlSuffix
             };

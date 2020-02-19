@@ -71,7 +71,7 @@ public class RelationFormTag extends TitledFormTag {
     protected boolean isSubmitButtonEnabled() {
         if (relationId != null) {
             // TODO Was isAllowed(RELATION, relationId). Is this if() necessary? Where enabled was initialized?
-            enabled = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
+            enabled = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.RELATIONS);
         }
         return enabled;
     }

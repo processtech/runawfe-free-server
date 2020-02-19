@@ -111,7 +111,7 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
         return super.equals(obj);
     }
 
-    // Lists (obsolete, see #1586) & list items:
+    public static final SecuredObjectType BOTSTATIONS = new SecuredObjectType("BOTSTATIONS");
 
     public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR");
 
@@ -119,12 +119,11 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
 
     public static final SecuredObjectType PROCESS = new SecuredObjectType("PROCESS");
 
+    public static final SecuredObjectType RELATIONS = new SecuredObjectType("RELATIONS");
+    public static final SecuredObjectType RELATION = new SecuredObjectType("RELATION", RELATIONS);
+
     public static final SecuredObjectType REPORTS = new SecuredObjectType("REPORTS");
     public static final SecuredObjectType REPORT = new SecuredObjectType("REPORT", REPORTS);
 
-    // Standalone singleton types, alphabetically:
-
-    public static final SecuredObjectType BOTSTATIONS = new SecuredObjectType("BOTSTATIONS");
-    public static final SecuredObjectType RELATIONS = new SecuredObjectType("RELATIONS");
     public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM");
 }
