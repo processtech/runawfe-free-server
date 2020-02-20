@@ -63,7 +63,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(reports);
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.ALL) },
+                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.UPDATE) },
                 batchPresentation,
                 new TdBuilder[] { new ReportPropertiesTdBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, reports);

@@ -219,7 +219,7 @@ public class ExecutionLogic extends WfCommonLogic {
         }
         ProcessDefinition processDefinition = getDefinition(definitionId);
         if (SystemProperties.isCheckProcessStartPermissions()) {
-            permissionDao.checkAllowed(user, Permission.START, processDefinition.getDeployment());
+            permissionDao.checkAllowed(user, Permission.START_PROCESS, processDefinition.getDeployment());
         }
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
         Map<String, Object> extraVariablesMap = Maps.newHashMap();

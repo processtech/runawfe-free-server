@@ -8,16 +8,10 @@ import java.util.Objects;
 import java.util.Set;
 import ru.runa.wfe.commons.CollectionUtil;
 
-import static ru.runa.wfe.security.Permission.ALL;
 import static ru.runa.wfe.security.Permission.CANCEL;
-import static ru.runa.wfe.security.Permission.CANCEL_PROCESS;
-import static ru.runa.wfe.security.Permission.DELETE;
 import static ru.runa.wfe.security.Permission.READ;
-import static ru.runa.wfe.security.Permission.READ_PERMISSIONS;
-import static ru.runa.wfe.security.Permission.READ_PROCESS;
-import static ru.runa.wfe.security.Permission.START;
+import static ru.runa.wfe.security.Permission.START_PROCESS;
 import static ru.runa.wfe.security.Permission.UPDATE;
-import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.UPDATE_STATUS;
 import static ru.runa.wfe.security.SecuredObjectType.BOTSTATIONS;
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
@@ -27,7 +21,6 @@ import static ru.runa.wfe.security.SecuredObjectType.RELATION;
 import static ru.runa.wfe.security.SecuredObjectType.RELATIONS;
 import static ru.runa.wfe.security.SecuredObjectType.REPORT;
 import static ru.runa.wfe.security.SecuredObjectType.REPORTS;
-import static ru.runa.wfe.security.SecuredObjectType.SYSTEM;
 
 /**
  * A registry of permission substitutions. For example, if UPDATE_STATUS permission is checked on specific ACTOR, access should be granted
@@ -254,30 +247,13 @@ public class PermissionSubstitutions {
 
     // In alphabetic order, please:
     static {
-
-        // System singleton:
         add(BOTSTATIONS, READ).self(UPDATE);
 
-        add(DEFINITION, CANCEL_PROCESS).self(ALL);
-        add(DEFINITION, ALL);
-        add(DEFINITION, READ).self(ALL, START, UPDATE);
-        add(DEFINITION, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
-        add(DEFINITION, READ_PROCESS).self(ALL);
-        add(DEFINITION, START).self(ALL);
-        add(DEFINITION, UPDATE).self(ALL);
-        add(DEFINITION, UPDATE_PERMISSIONS).self(ALL, UPDATE);
+        add(DEFINITION, READ).self(START_PROCESS, UPDATE);
 
-        add(EXECUTOR, READ).self(UPDATE, UPDATE_STATUS, DELETE);
-        add(EXECUTOR, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
-        add(EXECUTOR, UPDATE);
-        add(EXECUTOR, UPDATE_STATUS).self(UPDATE);
-        add(EXECUTOR, UPDATE_PERMISSIONS).self(UPDATE);
+        add(EXECUTOR, READ).self(UPDATE, UPDATE_STATUS);
 
-        add(PROCESS, ALL);
-        add(PROCESS, CANCEL).self(ALL);
-        add(PROCESS, READ).self(ALL, READ, CANCEL);
-        add(PROCESS, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
-        add(PROCESS, UPDATE_PERMISSIONS).self(ALL);
+        add(PROCESS, READ).self(CANCEL);
 
 //        add(RELATION, UPDATE).list();
 //        add(RELATION, READ).self(UPDATE).list();
@@ -290,9 +266,5 @@ public class PermissionSubstitutions {
         add(REPORT, READ).self(UPDATE);
 
         add(REPORTS, READ).self(UPDATE);
-
-        // System singleton:
-        add(SYSTEM, READ_PERMISSIONS).self(READ, UPDATE_PERMISSIONS);
-        add(SYSTEM, UPDATE_PERMISSIONS).self(READ);
     }
 }

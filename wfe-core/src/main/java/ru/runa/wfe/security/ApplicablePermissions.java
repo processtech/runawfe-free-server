@@ -28,21 +28,21 @@ import java.util.Set;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.CollectionUtil;
 
-import static ru.runa.wfe.security.Permission.ALL;
 import static ru.runa.wfe.security.Permission.CANCEL;
 import static ru.runa.wfe.security.Permission.CANCEL_PROCESS;
+import static ru.runa.wfe.security.Permission.CHANGE_SELF_PASSWORD;
 import static ru.runa.wfe.security.Permission.CREATE_DEFINITION;
 import static ru.runa.wfe.security.Permission.CREATE_EXECUTOR;
 import static ru.runa.wfe.security.Permission.DELETE;
 import static ru.runa.wfe.security.Permission.LOGIN;
 import static ru.runa.wfe.security.Permission.READ;
-import static ru.runa.wfe.security.Permission.VIEW_LOGS;
 import static ru.runa.wfe.security.Permission.READ_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.READ_PROCESS;
-import static ru.runa.wfe.security.Permission.START;
+import static ru.runa.wfe.security.Permission.START_PROCESS;
 import static ru.runa.wfe.security.Permission.UPDATE;
 import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.UPDATE_STATUS;
+import static ru.runa.wfe.security.Permission.VIEW_LOGS;
 import static ru.runa.wfe.security.Permission.VIEW_TASKS;
 
 /**
@@ -208,21 +208,19 @@ public final class ApplicablePermissions {
     // - Hidden  permissions: .hidden(...)   - in any order; READ_PERMISSIONS, UPDATE_PERMISSIONS, READ (unless visible) must be present for all types.
     // ATTENTION!!! Lists of visible permissions are duplicated in RefactorPermissionsStep3 migration.
     static {
-
-        // System singleton:
         add(SecuredObjectType.BOTSTATIONS, READ, UPDATE)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.DEFINITION, ALL, READ, UPDATE, DELETE, START, READ_PROCESS, CANCEL_PROCESS)
+        add(SecuredObjectType.DEFINITION, READ, UPDATE, DELETE, START_PROCESS, READ_PROCESS, CANCEL_PROCESS)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.EXECUTOR, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
+        add(SecuredObjectType.EXECUTOR, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.PROCESS, ALL, READ, CANCEL)
+        add(SecuredObjectType.PROCESS, READ, CANCEL)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
@@ -242,8 +240,7 @@ public final class ApplicablePermissions {
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        // System singleton:
-        add(SecuredObjectType.SYSTEM, READ, LOGIN, CREATE_EXECUTOR, CREATE_DEFINITION, VIEW_LOGS)
+        add(SecuredObjectType.SYSTEM, READ, LOGIN, CHANGE_SELF_PASSWORD, CREATE_EXECUTOR, CREATE_DEFINITION, VIEW_LOGS)
                 .defaults(LOGIN)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
     }

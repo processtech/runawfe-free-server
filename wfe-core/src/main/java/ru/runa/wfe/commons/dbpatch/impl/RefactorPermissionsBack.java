@@ -73,14 +73,14 @@ public class RefactorPermissionsBack extends DbPatch {
         // ATTENTION!!! This duplicates visible permission lists in ApplicablePermissions configuration.
         PMatch[] pMatches = new PMatch[] {
                 new PMatch("BOTSTATIONS", false, "READ", "UPDATE"),
-                new PMatch("DEFINITION", true, "ALL", "READ", "UPDATE", "DELETE", "START", "READ_PROCESS", "CANCEL_PROCESS"),
+                new PMatch("DEFINITION", true, "READ", "UPDATE", "DELETE", "START_PROCESS", "READ_PROCESS", "CANCEL_PROCESS"),
                 new PMatch("EXECUTOR", true, "READ", "VIEW_TASKS", "UPDATE", "UPDATE_STATUS", "DELETE"),
                 new PMatch("PROCESS", true, "ALL", "READ", "CANCEL"),
                 new PMatch("RELATION", true, "READ", "UPDATE"),
                 new PMatch("RELATIONS", false, "READ", "UPDATE"),
                 new PMatch("REPORT", true, "READ", "UPDATE"),
                 new PMatch("REPORTS", false, "READ", "UPDATE"),
-                new PMatch("SYSTEM", false, "READ", "LOGIN", "CREATE_EXECUTOR", "CREATE_DEFINITION", "VIEW_LOGS"),
+                new PMatch("SYSTEM", false, "READ", "LOGIN", "CHANGE_SELF_PASSWORD", "CREATE_EXECUTOR", "CREATE_DEFINITION", "VIEW_LOGS"),
         };
 
         List<String> allTypes = new ArrayList<>(pMatches.length);
@@ -207,7 +207,6 @@ public class RefactorPermissionsBack extends DbPatch {
                     "update permission_mapping set permission = 'UPDATE' where permission in " +
                             "('BOT_STATION_CONFIGURE', 'REDEPLOY_DEFINITION', 'UPDATE_RELATION', 'DEPLOY_REPORT')",
 
-                    "update permission_mapping set permission = 'START' where object_type = 'DEFINITION' and permission = 'START_PROCESS'",
                     "update permission_mapping set permission = 'DELETE' where object_type = 'DEFINITION' and permission = 'UNDEPLOY_DEFINITION'",
 
                     "update permission_mapping set permission = 'UPDATE_STATUS' where object_type = 'EXECUTOR' and permission = 'UPDATE_ACTOR_STATUS'",

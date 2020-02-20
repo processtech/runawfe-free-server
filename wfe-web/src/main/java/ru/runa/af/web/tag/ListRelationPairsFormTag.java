@@ -40,6 +40,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -59,7 +60,7 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.READ, SecuredSingleton.RELATIONS);
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.READ, SecuredObjectType.RELATION, relationId);
         Relation relation = Delegates.getRelationService().getRelation(getUser(), relationId);
         BatchPresentation batchPresentation = getBatchPresentation();
         List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(getUser(), relation.getName(), batchPresentation);

@@ -116,7 +116,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public void remove(User user, List<Long> ids) {
-        List<Executor> executors = checkPermissionsOnExecutors(user, executorDao.getExecutors(ids), Permission.DELETE);
+        List<Executor> executors = checkPermissionsOnExecutors(user, executorDao.getExecutors(ids), Permission.UPDATE);
         for (Executor executor : executors) {
             remove(executor);
         }
@@ -244,9 +244,12 @@ public class ExecutorLogic extends CommonLogic {
         if (!Strings.isNullOrEmpty(passwordsRegexp) && !Pattern.compile(passwordsRegexp).matcher(password).matches()) {
             throw new WeakPasswordException();
         }
-        // Actor can change his own password.
-        if (!Objects.equals(actor.getId(), user.getActor().getId())) {
-            permissionDao.checkAllowed(user, Permission.UPDATE, actor);
+        if (!permissionDao.isAllowed(user, Permission.UPDATE, actor)) {
+            if (Objects.equals(actor.getId(), user.getActor().getId())) {
+                permissionDao.checkAllowed(user, Permission.CHANGE_SELF_PASSWORD, SecuredSingleton.SYSTEM);
+            } else {
+                throw new AuthorizationException(user + " hasn't permission to change password for actor " + actor);
+            }
         }
         executorDao.setPassword(actor, password);
     }

@@ -54,6 +54,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -84,9 +85,9 @@ public class DefinitionLogic extends WfCommonLogic {
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
         deploymentDao.deploy(definition.getDeployment(), null);
-        permissionDao.setPermissions(user.getActor(), Collections.singletonList(Permission.ALL), definition.getDeployment());
+        permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(SecuredObjectType.DEFINITION), definition.getDeployment());
         log.debug("Deployed process definition " + definition);
-        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START, definition.getDeployment()));
+        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getDeployment()));
     }
 
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
@@ -202,21 +203,21 @@ public class DefinitionLogic extends WfCommonLogic {
     public WfDefinition getLatestProcessDefinition(User user, String definitionName) {
         ProcessDefinition definition = getLatestDefinition(definitionName);
         permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
-        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START, definition.getDeployment()));
+        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getDeployment()));
     }
 
     public WfDefinition getProcessDefinitionVersion(User user, String name, Long version) {
         Deployment deployment = deploymentDao.findDeployment(name, version);
         ProcessDefinition definition = getDefinition(deployment.getId());
         permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
-        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START, definition.getDeployment()));
+        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getDeployment()));
     }
 
     public WfDefinition getProcessDefinition(User user, Long definitionId) {
         try {
             ProcessDefinition definition = getDefinition(definitionId);
             permissionDao.checkAllowed(user, Permission.READ, definition.getDeployment());
-            return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START, definition.getDeployment()));
+            return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getDeployment()));
         } catch (Exception e) {
             Deployment deployment = deploymentDao.getNotNull(definitionId);
             permissionDao.checkAllowed(user, Permission.READ, deployment);
@@ -418,7 +419,7 @@ public class DefinitionLogic extends WfCommonLogic {
             }
         }
         final List<WfDefinition> result = Lists.newArrayListWithExpectedSize(deploymentIds.size());
-        isPermissionAllowed(user, deployments, Permission.START,
+        isPermissionAllowed(user, deployments, Permission.START_PROCESS,
                 new StartProcessPermissionCheckCallback(result, processDefinitions));
         return result;
     }

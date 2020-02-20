@@ -86,10 +86,6 @@ public class ReportLogic extends WfCommonLogic {
             file = replacedReport.getCompiledReport();
         }
         ReportDefinition reportDefinition = createReportDefinition(report, file);
-        if (!permissionDao.isAllowed(user, Permission.ALL, report)) {
-            throw new AuthorizationException(user + " does not have " + Permission.ALL + " permission to " + report);
-        }
-
         reportDao.redeployReport(reportDefinition);
     }
 
