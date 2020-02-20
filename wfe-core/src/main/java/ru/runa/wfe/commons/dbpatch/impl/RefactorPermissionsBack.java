@@ -24,6 +24,42 @@ import ru.runa.wfe.commons.dbpatch.DbPatch;
  */
 public class RefactorPermissionsBack extends DbPatch {
 
+    private static class PMatch {
+        final String type;
+        final boolean hasIds;
+        final String[] perms;
+
+        PMatch (String type, boolean hasIds, String... perms) {
+            this.type = type;
+            this.hasIds = hasIds;
+            this.perms = perms;
+        }
+    }
+
+    private PMatch[] pMatches;
+    private List<String> allTypes;
+
+    public RefactorPermissionsBack() {
+        // ATTENTION!!! This duplicates visible permission lists in ApplicablePermissions configuration.
+        pMatches = new PMatch[] {
+                new PMatch("BOTSTATIONS", false, "READ", "UPDATE"),
+                new PMatch("DEFINITION", true, "READ", "UPDATE", "DELETE", "START_PROCESS", "READ_PROCESS", "CANCEL_PROCESS"),
+                new PMatch("EXECUTOR", true, "READ", "VIEW_TASKS", "UPDATE", "UPDATE_ACTOR_STATUS"),
+                new PMatch("PROCESS", true, "READ", "CANCEL"),
+                new PMatch("RELATION", true, "READ", "UPDATE"),
+                new PMatch("RELATIONS", false, "READ", "UPDATE"),
+                new PMatch("REPORT", true, "READ", "UPDATE"),
+                new PMatch("REPORTS", false, "READ", "UPDATE"),
+                new PMatch("SYSTEM", false, "READ", "LOGIN", "CHANGE_SELF_PASSWORD", "CREATE_EXECUTOR", "CREATE_DEFINITION", "VIEW_LOGS"),
+        };
+
+        allTypes = new ArrayList<>(pMatches.length);
+        for (PMatch pm : pMatches) {
+            allTypes.add(pm.type);
+        }
+    }
+
+
     @Override
     @SneakyThrows
     public void executeDML(Session session) {
@@ -44,7 +80,7 @@ public class RefactorPermissionsBack extends DbPatch {
             executeDML_step4(session);
             executeDML_step3(session, conn);
         } else {
-            executeDML_fromV44(conn);
+            executeDML_fromV44(session, conn);
         }
     }
 
@@ -57,37 +93,6 @@ public class RefactorPermissionsBack extends DbPatch {
      */
     @SneakyThrows
     private void executeDML_step3(Session session, Connection conn) {
-
-        class PMatch {
-            private final String type;
-            private final boolean hasIds;
-            private final String[] perms;
-
-            private PMatch (String type, boolean hasIds, String... perms) {
-                this.type = type;
-                this.hasIds = hasIds;
-                this.perms = perms;
-            }
-        }
-
-        // ATTENTION!!! This duplicates visible permission lists in ApplicablePermissions configuration.
-        PMatch[] pMatches = new PMatch[] {
-                new PMatch("BOTSTATIONS", false, "READ", "UPDATE"),
-                new PMatch("DEFINITION", true, "READ", "UPDATE", "DELETE", "START_PROCESS", "READ_PROCESS", "CANCEL_PROCESS"),
-                new PMatch("EXECUTOR", true, "READ", "VIEW_TASKS", "UPDATE", "UPDATE_STATUS", "DELETE"),
-                new PMatch("PROCESS", true, "ALL", "READ", "CANCEL"),
-                new PMatch("RELATION", true, "READ", "UPDATE"),
-                new PMatch("RELATIONS", false, "READ", "UPDATE"),
-                new PMatch("REPORT", true, "READ", "UPDATE"),
-                new PMatch("REPORTS", false, "READ", "UPDATE"),
-                new PMatch("SYSTEM", false, "READ", "LOGIN", "CHANGE_SELF_PASSWORD", "CREATE_EXECUTOR", "CREATE_DEFINITION", "VIEW_LOGS"),
-        };
-
-        List<String> allTypes = new ArrayList<>(pMatches.length);
-        for (PMatch pm : pMatches) {
-            allTypes.add(pm.type);
-        }
-
 
         // Refill priveleged_mapping from scratch.
         {
@@ -203,14 +208,13 @@ public class RefactorPermissionsBack extends DbPatch {
         // Updates without merging:
         {
             String[] specialQueries = new String[] {
-                    // Common for multiple object types:
-                    "update permission_mapping set permission = 'UPDATE' where permission in " +
-                            "('BOT_STATION_CONFIGURE', 'REDEPLOY_DEFINITION', 'UPDATE_RELATION', 'DEPLOY_REPORT')",
+                    "update permission_mapping set permission = 'UPDATE' " +
+                            "where permission in ('BOT_STATION_CONFIGURE', 'REDEPLOY_DEFINITION', 'UPDATE_RELATION', 'DEPLOY_REPORT')",
 
                     "update permission_mapping set permission = 'DELETE' where object_type = 'DEFINITION' and permission = 'UNDEPLOY_DEFINITION'",
 
-                    "update permission_mapping set permission = 'UPDATE_STATUS' where object_type = 'EXECUTOR' and permission = 'UPDATE_ACTOR_STATUS'",
-                    "update permission_mapping set permission = 'VIEW_TASKS' where object_type = 'EXECUTOR' and permission in ('VIEW_ACTOR_TASKS', 'VIEW_GROUP_TASKS')",
+                    "update permission_mapping set permission = 'VIEW_TASKS' " +
+                            "where object_type = 'EXECUTOR' and permission in ('VIEW_ACTOR_TASKS', 'VIEW_GROUP_TASKS')",
 
                     "update permission_mapping set permission = 'CANCEL' where object_type = 'PROCESS' and permission = 'CANCEL_PROCESS'",
 
@@ -223,20 +227,7 @@ public class RefactorPermissionsBack extends DbPatch {
         }
 
 
-        // Delete permission_mapping rows which still contain illegal (object type, permission name) combinations.
-        {
-            session.createSQLQuery("delete from permission_mapping where object_type not in (:types)")
-                    .setParameterList("types", allTypes)
-                    .executeUpdate();
-
-            Query qDeleteWithIds = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and object_id <> 0");
-            Query qDeleteWithoutIds = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and object_id = 0");
-            Query qDeleteBadPerms = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and (permission not in (:permissions))");
-            for (PMatch pm : pMatches) {
-                (pm.hasIds ? qDeleteWithoutIds : qDeleteWithIds).setParameter("type", pm.type).executeUpdate();
-                qDeleteBadPerms.setParameter("type", pm.type).setParameterList("permissions", pm.perms).executeUpdate();
-            }
-        }
+        deleteBadPermissionMappings(session);
 
 
         // Delete old obsolete batch_permission categories.
@@ -260,7 +251,7 @@ public class RefactorPermissionsBack extends DbPatch {
      * Migrate 4.4.0 to 4.4.1.
      */
     @SneakyThrows
-    private void executeDML_fromV44(Connection conn) {
+    private void executeDML_fromV44(Session session, Connection conn) {
         // Replace all LIST permissions with READ.
         // Since some objects may have both permissions, have to re-insert them to avoid UK violations. To reduce memory usage,
         // process only object types which can have both permissions and which we are not going to delete below: DEFINITION, EXECUTOR, PROCESS.
@@ -298,19 +289,26 @@ public class RefactorPermissionsBack extends DbPatch {
             }
         }
 
+
         // Do everything else.
         {
-            // Same list as allTypes in executeDML_step3().
-            val deleteTypesSqlSuffix = "not in ('BOTSTATIONS', 'DEFINITION', 'EXECUTOR', 'PROCESS', 'RELATIONS', 'REPORT', 'REPORTS', 'SYSTEM')";
-
             String[] specialQueries = new String[]{
-                    "update permission_mapping set permission = 'READ' where object_type='SYSTEM' and permission = 'ALL'",
+                    "update permission_mapping set permission = 'UPDATE' " +
+                            "where object_type in ('BOTSTATIONS', 'RELATIONS', 'REPORT', 'REPORTS') and permission = 'ALL'",
+
+                    "update permission_mapping set permission = 'START_PROCESS' where object_type='DEFINITION' and permission = 'START'",
+
+                    "update permission_mapping set permission = 'UPDATE_ACTOR_STATUS' where object_type='EXECUTOR' and permission = 'UPDATE_STATUS'",
+
                     "update permission_mapping set object_type = 'SYSTEM' where object_type = 'EXECUTORS' and permission = 'LOGIN'",
-                    "update permission_mapping set permission = 'CREATE_EXECUTOR', object_type = 'SYSTEM' where object_type='EXECUTORS' and permission = 'CREATE'",
-                    "update permission_mapping set permission = 'CREATE_DEFINITION', object_type = 'SYSTEM' where object_type='DEFINITIONS' and permission = 'CREATE'",
-                    "update permission_mapping set permission = 'VIEW_LOGS', object_type = 'SYSTEM' where object_type='LOGS' and permission = 'ALL'",
-                    "delete from permission_mapping where object_type " + deleteTypesSqlSuffix,
-                    "delete from priveleged_mapping where type " + deleteTypesSqlSuffix
+
+                    "update permission_mapping set permission = 'READ' where object_type='SYSTEM' and permission = 'ALL'",
+                    "update permission_mapping set permission = 'VIEW_LOGS', object_type = 'SYSTEM' " +
+                            "where object_type='LOGS' and permission = 'ALL'",
+                    "update permission_mapping set permission = 'CREATE_DEFINITION', object_type = 'SYSTEM' " +
+                            "where object_type='DEFINITIONS' and permission = 'CREATE'",
+                    "update permission_mapping set permission = 'CREATE_EXECUTOR', object_type = 'SYSTEM' " +
+                            "where object_type='EXECUTORS' and permission = 'CREATE'",
             };
             try (Statement stmt = conn.createStatement()) {
                 for (String sql : specialQueries) {
@@ -318,6 +316,9 @@ public class RefactorPermissionsBack extends DbPatch {
                 }
             }
         }
+
+
+        deleteBadPermissionMappings(session);
     }
 
 
@@ -339,6 +340,7 @@ public class RefactorPermissionsBack extends DbPatch {
         }
     }
 
+
     private String insertPkColumn() {
         switch (dbType) {
             case ORACLE:
@@ -357,6 +359,22 @@ public class RefactorPermissionsBack extends DbPatch {
                 return "nextval('seq_" + tableName + "'), ";
             default:
                 return "";
+        }
+    }
+
+    /**
+     * Delete permission_mapping rows which still contain illegal (object type, permission name) combinations.
+     */
+    private void deleteBadPermissionMappings(Session session) {
+        session.createSQLQuery("delete from permission_mapping where object_type not in (:types)").setParameterList("types", allTypes).executeUpdate();
+        session.createSQLQuery("delete from priveleged_mappinh where object_type not in (:types)").setParameterList("types", allTypes).executeUpdate();
+
+        Query qDeleteWithIds = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and object_id <> 0");
+        Query qDeleteWithoutIds = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and object_id = 0");
+        Query qDeleteBadPerms = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and (permission not in (:permissions))");
+        for (PMatch pm : pMatches) {
+            (pm.hasIds ? qDeleteWithoutIds : qDeleteWithIds).setParameter("type", pm.type).executeUpdate();
+            qDeleteBadPerms.setParameter("type", pm.type).setParameterList("permissions", pm.perms).executeUpdate();
         }
     }
 }

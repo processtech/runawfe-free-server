@@ -12,7 +12,7 @@ import static ru.runa.wfe.security.Permission.CANCEL;
 import static ru.runa.wfe.security.Permission.READ;
 import static ru.runa.wfe.security.Permission.START_PROCESS;
 import static ru.runa.wfe.security.Permission.UPDATE;
-import static ru.runa.wfe.security.Permission.UPDATE_STATUS;
+import static ru.runa.wfe.security.Permission.UPDATE_ACTOR_STATUS;
 import static ru.runa.wfe.security.SecuredObjectType.BOTSTATIONS;
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
 import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
@@ -23,13 +23,13 @@ import static ru.runa.wfe.security.SecuredObjectType.REPORT;
 import static ru.runa.wfe.security.SecuredObjectType.REPORTS;
 
 /**
- * A registry of permission substitutions. For example, if UPDATE_STATUS permission is checked on specific ACTOR, access should be granted
+ * A registry of permission substitutions. For example, if UPDATE_ACTOR_STATUS permission is checked on specific ACTOR, access should be granted
  * if any of next permissions are granted:
  *
  * <ul>
- *     <li>UPDATE_STATUS on given ACTOR (as requested);
+ *     <li>UPDATE_ACTOR_STATUS on given ACTOR (as requested);
  *     <li>UPDATE on given ACTOR;
- *     <li>UPDATE_STATUS on all EXECUTORS;
+ *     <li>UPDATE_ACTOR_STATUS on all EXECUTORS;
  *     <li>UPDATE on all EXECUTORS;
  *     <li>ALL on all EXECUTORS.
  * </ul>
@@ -38,7 +38,7 @@ import static ru.runa.wfe.security.SecuredObjectType.REPORTS;
  * then ALL on EXECUTORS assumes UPDATE on any ACTOR.
  * <p>
  * Used by PermissionDAO.isAllowed() methods. Also may be used by permission editor forms: e.g. if admin checks ALL permission on EXECUTORS,
- * then UPDATE and UPDATE_STATUS checkboxes should be disabled.
+ * then UPDATE and UPDATE_ACTOR_STATUS checkboxes should be disabled.
  *
  * @see SecuredObjectType
  * @see Permission
@@ -251,7 +251,7 @@ public class PermissionSubstitutions {
 
         add(DEFINITION, READ).self(START_PROCESS, UPDATE);
 
-        add(EXECUTOR, READ).self(UPDATE, UPDATE_STATUS);
+        add(EXECUTOR, READ).self(UPDATE, UPDATE_ACTOR_STATUS);
 
         add(PROCESS, READ).self(CANCEL);
 

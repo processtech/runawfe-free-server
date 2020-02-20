@@ -255,7 +255,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public Actor setStatus(User user, Actor actor, boolean isActive, boolean callHandlers) {
-        checkPermissionsOnExecutor(user, actor, Permission.UPDATE_STATUS);
+        checkPermissionsOnExecutor(user, actor, Permission.UPDATE_ACTOR_STATUS);
         Actor updated = executorDao.setStatus(actor, isActive);
         if (callHandlers) {
             for (SetStatusHandler handler : setStatusHandlers) {

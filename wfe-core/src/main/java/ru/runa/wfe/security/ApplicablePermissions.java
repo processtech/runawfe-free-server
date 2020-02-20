@@ -41,7 +41,7 @@ import static ru.runa.wfe.security.Permission.READ_PROCESS;
 import static ru.runa.wfe.security.Permission.START_PROCESS;
 import static ru.runa.wfe.security.Permission.UPDATE;
 import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
-import static ru.runa.wfe.security.Permission.UPDATE_STATUS;
+import static ru.runa.wfe.security.Permission.UPDATE_ACTOR_STATUS;
 import static ru.runa.wfe.security.Permission.VIEW_LOGS;
 import static ru.runa.wfe.security.Permission.VIEW_TASKS;
 
@@ -216,7 +216,7 @@ public final class ApplicablePermissions {
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.EXECUTOR, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS)
+        add(SecuredObjectType.EXECUTOR, READ, VIEW_TASKS, UPDATE, UPDATE_ACTOR_STATUS)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 

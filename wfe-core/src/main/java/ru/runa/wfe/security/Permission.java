@@ -198,15 +198,9 @@ public final class Permission implements Serializable, Comparable<Permission> {
 
     public static final Permission UPDATE = new Permission("UPDATE");
 
+    public static final Permission UPDATE_ACTOR_STATUS = new Permission("UPDATE_ACTOR_STATUS");
+
     public static final Permission UPDATE_PERMISSIONS = new Permission("UPDATE_PERMISSIONS");
 
-    /**
-     * Can edit actors's status.
-     */
-    public static final Permission UPDATE_STATUS = new Permission("UPDATE_STATUS");
-
-    /**
-     * Can view executor's tasks.
-     */
     public static final Permission VIEW_TASKS = new Permission("VIEW_TASKS");
 }
