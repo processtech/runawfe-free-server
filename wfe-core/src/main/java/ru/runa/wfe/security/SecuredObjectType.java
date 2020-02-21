@@ -111,11 +111,14 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
         return super.equals(obj);
     }
 
+
+    // Alphabetically, please:
+
     public static final SecuredObjectType BOTSTATIONS = new SecuredObjectType("BOTSTATIONS");
 
-    public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR");
-
     public static final SecuredObjectType DEFINITION = new SecuredObjectType("DEFINITION");
+
+    public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR");
 
     public static final SecuredObjectType PROCESS = new SecuredObjectType("PROCESS");
 

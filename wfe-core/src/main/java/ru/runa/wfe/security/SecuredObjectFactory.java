@@ -164,6 +164,8 @@ public class SecuredObjectFactory {
         add(singleton.getSecuredObjectType(), new SingletonLoader(singleton));
     }
 
+
+    // Alphabetically, please:
     static {
 
         add(SecuredSingleton.BOTSTATIONS);

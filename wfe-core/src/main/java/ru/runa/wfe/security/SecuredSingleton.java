@@ -53,6 +53,7 @@ public final class SecuredSingleton extends SecuredObjectBase {
         return type;
     }
 
+
     // Alphabetically, please:
 
     public static final SecuredSingleton BOTSTATIONS = new SecuredSingleton(SecuredObjectType.BOTSTATIONS);
