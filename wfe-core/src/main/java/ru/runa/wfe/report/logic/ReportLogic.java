@@ -69,10 +69,8 @@ public class ReportLogic extends WfCommonLogic {
     }
 
     public void redeployReport(User user, WfReport report, byte[] file) throws ReportFileMissingException {
-        if (!permissionDao.isAllowed(user, Permission.UPDATE, SecuredSingleton.REPORTS) &&
-                !permissionDao.isAllowed(user, Permission.UPDATE, report)) {
-            throw new AuthorizationException(user + " does not have " + Permission.UPDATE + " to " + report);
-        }
+        // It's enough to check only instance permission; see class PermissionSubstitutions and #1586-33.
+        permissionDao.checkAllowed(user, Permission.UPDATE, report);
 
         ReportDefinition existingByName = reportDao.getReportDefinition(report.getName());
         if (existingByName != null && !existingByName.getId().equals(report.getId())) {

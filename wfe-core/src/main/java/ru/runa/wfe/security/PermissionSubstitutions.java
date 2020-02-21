@@ -255,15 +255,13 @@ public class PermissionSubstitutions {
 
         add(PROCESS, READ).self(CANCEL);
 
-//        add(RELATION, UPDATE).list();
-//        add(RELATION, READ).self(UPDATE).list();
-        add(RELATION, READ).self(UPDATE);
+        add(RELATION, UPDATE).list();
+        add(RELATION, READ).self(UPDATE).list();
 
         add(RELATIONS, READ).self(UPDATE);
 
-//        add(REPORT, UPDATE).list();
-//        add(REPORT, READ).self(UPDATE).list();
-        add(REPORT, READ).self(UPDATE);
+        add(REPORT, UPDATE).list();
+        add(REPORT, READ).self(UPDATE).list();
 
         add(REPORTS, READ).self(UPDATE);
     }

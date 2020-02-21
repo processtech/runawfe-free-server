@@ -367,7 +367,7 @@ public class RefactorPermissionsBack extends DbPatch {
      */
     private void deleteBadPermissionMappings(Session session) {
         session.createSQLQuery("delete from permission_mapping where object_type not in (:types)").setParameterList("types", allTypes).executeUpdate();
-        session.createSQLQuery("delete from priveleged_mappinh where object_type not in (:types)").setParameterList("types", allTypes).executeUpdate();
+        session.createSQLQuery("delete from priveleged_mapping where        type not in (:types)").setParameterList("types", allTypes).executeUpdate();
 
         Query qDeleteWithIds = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and object_id <> 0");
         Query qDeleteWithoutIds = session.createSQLQuery("delete from permission_mapping where (object_type = :type) and object_id = 0");
