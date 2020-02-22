@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -261,12 +262,13 @@ public class RefactorPermissionsBack extends DbPatch {
         // 2. method executeDML() above uses RefactorPermissionsStep4's result to determine which wfe version we are migrating from.
         {
             @AllArgsConstructor
+            @EqualsAndHashCode
             class Row {
                 Long executorId;
                 String objectType;
                 Long objectId;
             }
-            val rows = new ArrayList<Row>(1000);
+            val rows = new LinkedHashSet<Row>(1000);
             val sqlSuffix = "from permission_mapping where object_type in ('DEFINITION', 'EXECUTOR', 'PROCESS') and permission in ('LIST', 'READ')";
             try (Statement stmt = conn.createStatement()) {
                 val rs = stmt.executeQuery("select executor_id, object_type, object_id " + sqlSuffix);
@@ -285,6 +287,7 @@ public class RefactorPermissionsBack extends DbPatch {
                     stmt.setLong(1, r.executorId);
                     stmt.setString(2, r.objectType);
                     stmt.setLong(3, r.objectId);
+                    stmt.executeUpdate();
                 }
             }
         }
@@ -293,6 +296,9 @@ public class RefactorPermissionsBack extends DbPatch {
         // Do everything else.
         {
             String[] specialQueries = new String[]{
+                    // Delete UPDATE_STATUS perission for groups, see #1586-27.
+                    "delete from permission_mapping where permission='UPDATE_STATUS' and object_id in (select id from executor where discriminator='Y')",
+
                     "update permission_mapping set permission = 'UPDATE' " +
                             "where object_type in ('BOTSTATIONS', 'RELATIONS', 'REPORT', 'REPORTS') and permission = 'ALL'",
 
