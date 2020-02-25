@@ -43,15 +43,15 @@ public class RefactorPermissionsBack extends DbPatch {
     public RefactorPermissionsBack() {
         // ATTENTION!!! This duplicates visible permission lists in ApplicablePermissions configuration.
         pMatches = new PMatch[] {
-                new PMatch("BOTSTATIONS", false, "READ", "UPDATE"),
-                new PMatch("DEFINITION", true, "READ", "UPDATE", "DELETE", "START_PROCESS", "READ_PROCESS", "CANCEL_PROCESS"),
-                new PMatch("EXECUTOR", true, "READ", "VIEW_TASKS", "UPDATE", "UPDATE_ACTOR_STATUS"),
-                new PMatch("PROCESS", true, "READ", "CANCEL"),
-                new PMatch("RELATION", true, "READ", "UPDATE"),
-                new PMatch("RELATIONS", false, "READ", "UPDATE"),
-                new PMatch("REPORT", true, "READ", "UPDATE"),
-                new PMatch("REPORTS", false, "READ", "UPDATE"),
-                new PMatch("SYSTEM", false, "READ", "LOGIN", "CHANGE_SELF_PASSWORD", "CREATE_EXECUTOR", "CREATE_DEFINITION", "VIEW_LOGS"),
+                new PMatch("BOTSTATIONS", false, "READ", "UPDATE_PERMISSIONS", "UPDATE"),
+                new PMatch("DEFINITION", true, "READ", "UPDATE_PERMISSIONS", "UPDATE", "DELETE", "START_PROCESS", "READ_PROCESS", "CANCEL_PROCESS"),
+                new PMatch("EXECUTOR", true, "READ", "UPDATE_PERMISSIONS", "UPDATE", "UPDATE_ACTOR_STATUS", "VIEW_TASKS"),
+                new PMatch("PROCESS", true, "READ", "UPDATE_PERMISSIONS", "CANCEL"),
+                new PMatch("RELATION", true, "READ", "UPDATE_PERMISSIONS", "UPDATE"),
+                new PMatch("RELATIONS", false, "READ", "UPDATE_PERMISSIONS", "UPDATE"),
+                new PMatch("REPORT", true, "READ", "UPDATE_PERMISSIONS", "UPDATE"),
+                new PMatch("REPORTS", false, "READ", "UPDATE_PERMISSIONS", "UPDATE"),
+                new PMatch("SYSTEM", false, "READ", "UPDATE_PERMISSIONS", "LOGIN", "CHANGE_SELF_PASSWORD", "CREATE_EXECUTOR", "CREATE_DEFINITION", "VIEW_LOGS"),
         };
 
         allTypes = new ArrayList<>(pMatches.length);
@@ -249,6 +249,25 @@ public class RefactorPermissionsBack extends DbPatch {
 
 
     /**
+     * Moved 4.4.0's RefactorPermissionsStep4.executeDML() here, unchanged.
+     *
+     * Types ACTOR and GROUP are merged into EXECUTOR for rm718.
+     */
+    private void executeDML_step4(Session session) {
+        // Replace ACTOR and GROUP types with EXECUTOR in permission_mapping
+        // Delete ACTOR and GROUP from priveleged_mapping
+        {
+            session.createSQLQuery("delete from permission_mapping where object_type = 'EXECUTOR'").executeUpdate();
+            session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'")
+                    .executeUpdate();
+            session.createSQLQuery("delete from priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
+            session.createSQLQuery("delete from priveleged_mapping where type = 'GROUP'").executeUpdate();
+            session.createSQLQuery("update priveleged_mapping set type = 'EXECUTOR' where type = 'ACTOR'").executeUpdate();
+        }
+    }
+
+
+    /**
      * Migrate 4.4.0 to 4.4.1.
      */
     @SneakyThrows
@@ -325,25 +344,6 @@ public class RefactorPermissionsBack extends DbPatch {
 
 
         deleteBadPermissionMappings(session);
-    }
-
-
-    /**
-     * Moved 4.4.0's RefactorPermissionsStep4.executeDML() here, unchanged.
-     *
-     * Types ACTOR and GROUP are merged into EXECUTOR for rm718.
-     */
-    private void executeDML_step4(Session session) {
-        // Replace ACTOR and GROUP types with EXECUTOR in permission_mapping
-        // Delete ACTOR and GROUP from priveleged_mapping
-        {
-            session.createSQLQuery("delete from permission_mapping where object_type = 'EXECUTOR'").executeUpdate();
-            session.createSQLQuery("update permission_mapping set object_type = 'EXECUTOR' where object_type = 'ACTOR' or object_type = 'GROUP'")
-                    .executeUpdate();
-            session.createSQLQuery("delete from priveleged_mapping where type = 'EXECUTOR'").executeUpdate();
-            session.createSQLQuery("delete from priveleged_mapping where type = 'GROUP'").executeUpdate();
-            session.createSQLQuery("update priveleged_mapping set type = 'EXECUTOR' where type = 'ACTOR'").executeUpdate();
-        }
     }
 
 

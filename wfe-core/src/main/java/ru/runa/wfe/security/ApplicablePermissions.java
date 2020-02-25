@@ -208,40 +208,40 @@ public final class ApplicablePermissions {
     // - Hidden  permissions: .hidden(...)   - in any order; READ_PERMISSIONS, UPDATE_PERMISSIONS, READ (unless visible) must be present for all types.
     // ATTENTION!!! Lists of visible permissions are duplicated in RefactorPermissionsStep3 migration.
     static {
-        add(SecuredObjectType.BOTSTATIONS, READ, UPDATE)
+        add(SecuredObjectType.BOTSTATIONS, READ, UPDATE_PERMISSIONS, UPDATE)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.DEFINITION, READ, UPDATE, DELETE, START_PROCESS, READ_PROCESS, CANCEL_PROCESS)
+        add(SecuredObjectType.DEFINITION, READ, UPDATE_PERMISSIONS, UPDATE, DELETE, START_PROCESS, READ_PROCESS, CANCEL_PROCESS)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.EXECUTOR, READ, VIEW_TASKS, UPDATE, UPDATE_ACTOR_STATUS)
+        add(SecuredObjectType.EXECUTOR, READ, UPDATE_PERMISSIONS, UPDATE, UPDATE_ACTOR_STATUS, VIEW_TASKS)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.PROCESS, READ, CANCEL)
+        add(SecuredObjectType.PROCESS, READ, UPDATE_PERMISSIONS, CANCEL)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.RELATION, READ, UPDATE)
+        add(SecuredObjectType.RELATION, READ, UPDATE_PERMISSIONS, UPDATE)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.RELATIONS, READ, UPDATE)
+        add(SecuredObjectType.RELATIONS, READ, UPDATE_PERMISSIONS, UPDATE)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.REPORT, READ, UPDATE)
+        add(SecuredObjectType.REPORT, READ, UPDATE_PERMISSIONS, UPDATE)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.REPORTS, READ, UPDATE)
+        add(SecuredObjectType.REPORTS, READ, UPDATE_PERMISSIONS, UPDATE)
                 .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.SYSTEM, READ, LOGIN, CHANGE_SELF_PASSWORD, CREATE_EXECUTOR, CREATE_DEFINITION, VIEW_LOGS)
+        add(SecuredObjectType.SYSTEM, READ, UPDATE_PERMISSIONS, LOGIN, CHANGE_SELF_PASSWORD, CREATE_EXECUTOR, CREATE_DEFINITION, VIEW_LOGS)
                 .defaults(LOGIN)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+                .hidden(READ_PERMISSIONS);
     }
 }

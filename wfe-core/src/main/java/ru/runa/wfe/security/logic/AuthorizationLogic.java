@@ -111,7 +111,7 @@ public class AuthorizationLogic extends CommonLogic {
 
     public List<Permission> getIssuedPermissions(User user, Executor performer, SecuredObject securedObject) {
         checkPermissionsOnExecutor(user, performer, Permission.READ);
-        permissionDao.checkAllowed(user, Permission.READ, securedObject);
+        permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
         return permissionDao.getIssuedPermissions(performer, securedObject);
     }
 

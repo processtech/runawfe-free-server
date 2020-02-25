@@ -10,6 +10,7 @@ import ru.runa.wfe.commons.CollectionUtil;
 
 import static ru.runa.wfe.security.Permission.CANCEL;
 import static ru.runa.wfe.security.Permission.READ;
+import static ru.runa.wfe.security.Permission.READ_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.START_PROCESS;
 import static ru.runa.wfe.security.Permission.UPDATE;
 import static ru.runa.wfe.security.Permission.UPDATE_ACTOR_STATUS;
@@ -21,6 +22,7 @@ import static ru.runa.wfe.security.SecuredObjectType.RELATION;
 import static ru.runa.wfe.security.SecuredObjectType.RELATIONS;
 import static ru.runa.wfe.security.SecuredObjectType.REPORT;
 import static ru.runa.wfe.security.SecuredObjectType.REPORTS;
+import static ru.runa.wfe.security.SecuredObjectType.SYSTEM;
 
 /**
  * A registry of permission substitutions. For example, if UPDATE_ACTOR_STATUS permission is checked on specific ACTOR, access should be granted
@@ -248,21 +250,31 @@ public class PermissionSubstitutions {
     // In alphabetic order, please:
     static {
         add(BOTSTATIONS, READ).self(UPDATE);
+        add(BOTSTATIONS, READ_PERMISSIONS).self(READ);
 
         add(DEFINITION, READ).self(START_PROCESS, UPDATE);
+        add(DEFINITION, READ_PERMISSIONS).self(READ);
 
         add(EXECUTOR, READ).self(UPDATE, UPDATE_ACTOR_STATUS);
+        add(EXECUTOR, READ_PERMISSIONS).self(READ);
 
         add(PROCESS, READ).self(CANCEL);
+        add(PROCESS, READ_PERMISSIONS).self(READ);
 
         add(RELATION, UPDATE).list();
         add(RELATION, READ).self(UPDATE).list();
+        add(RELATION, READ_PERMISSIONS).self(READ);
 
         add(RELATIONS, READ).self(UPDATE);
+        add(RELATIONS, READ_PERMISSIONS).self(READ);
 
         add(REPORT, UPDATE).list();
         add(REPORT, READ).self(UPDATE).list();
+        add(REPORT, READ_PERMISSIONS).self(READ);
 
         add(REPORTS, READ).self(UPDATE);
+        add(REPORTS, READ_PERMISSIONS).self(READ);
+
+        add(SYSTEM, READ_PERMISSIONS).self(READ);
     }
 }
