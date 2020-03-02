@@ -21,69 +21,53 @@
 	<setPermissions type="EXECUTOR" name="toto" executor="dorothy">
 	    <permission name="READ"/>
 		<permission name="UPDATE"/>
-		<permission name="LIST"/>
+		<permission name="VIEW_TASKS"/>
 	</setPermissions>
 	
 	<removePermissions type="EXECUTOR" name="toto" executor="dorothy">
-		<permission name="LIST"/>
+		<permission name="VIEW_TASKS"/>
 	</removePermissions>
 
 	<setPermissions type="EXECUTOR" name="employee" executor="dorothy">
 		<permission name="READ"/>
 		<permission name="UPDATE"/>
-		<permission name="UPDATE_STATUS"/>
+		<permission name="UPDATE_PERMISSIONS"/>
 	</setPermissions>
 		
 	<removePermissions type="EXECUTOR" name="employee" executor="dorothy">
-		<permission name="UPDATE_STATUS"/>
+		<permission name="UPDATE_PERMISSIONS"/>
 	</removePermissions>
         
 	<addPermissions type="EXECUTOR" name="employee" executor="employee">	
-		<permission name="LIST"/>
 		<permission name="READ"/>
 		<permission name="UPDATE"/>
-		<permission name="DELETE"/>
+		<permission name="UPDATE_PERMISSIONS"/>
 		<permission name="VIEW_TASKS"/>		
 	</addPermissions>
 	
 	<removePermissions type="EXECUTOR" name="employee" executor="employee">
-	    <permission name="LIST"/>
 		<permission name="UPDATE"/>
+	    <permission name="UPDATE_PERMISSIONS"/>
 	</removePermissions>
 	
 	<addPermissions type="EXECUTOR" name="tin" executor="employee">
 		<permission name="READ"/>
 		<permission name="UPDATE"/>>
+		<permission name="UPDATE_ACTOR_STATUS"/>>
 	</addPermissions>
 
 	<removePermissions type="EXECUTOR" name="tin" executor="employee">			
 		<permission name="UPDATE"/>
 	</removePermissions>
 	
-	<setPermissions type="EXECUTORS" executor="employee">
+	<setPermissions type="SYSTEM" executor="employee">
 		<permission name="READ"/>
-		<permission name="UPDATE"/>
 		<permission name="LOGIN"/>
-		<permission name="CREATE"/>		
+		<permission name="CREATE_DEFINITION"/>
+		<permission name="CREATE_EXECUTOR"/>
 	</setPermissions>
 	
-	<removePermissions type="EXECUTORS" executor="employee">			
-		<permission name="UPDATE"/>
+	<removePermissions type="SYSTEM" executor="employee">
+		<permission name="LOGIN"/>
 	</removePermissions>
-	
-	<setPermissions type="DEFINITIONS" executor="employee">
-		<permission name="CREATE"/>
-		<permission name="UPDATE"/>
-		<permission name="START"/>
-		<permission name="READ"/>
-		<permission name="READ_PROCESS"/>
-		<permission name="CANCEL_PROCESS"/>
-	</setPermissions>
-
-	<removePermissions type="DEFINITIONS" executor="employee">		
-		<permission name="READ"/>
-		<permission name="READ_PROCESS"/>
-		<permission name="CANCEL_PROCESS"/>
-	</removePermissions>	
-
 </workflowScript>

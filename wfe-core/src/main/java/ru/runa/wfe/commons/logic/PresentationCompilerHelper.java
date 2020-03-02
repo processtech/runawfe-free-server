@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.commons.logic;
 
+import lombok.val;
 import ru.runa.wfe.audit.SystemLog;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
@@ -81,18 +82,20 @@ public final class PresentationCompilerHelper {
      *            {@linkplain Group}, which children's must be loaded.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} for loading group children's.
-     * @param hasExecutor
-     *            Flag, equals true, if loading executors already in group; false to load executors not in group.
+     * @param isExclude
+     *            False to load executors belonging to group and having READ permission (meaning former LIST_GROUP);
+     *            true to load executors not in group and having UPDATE permission (meaning former ADD_TO_GROUP).
+     *            These permissions correspond to what is checked on callers' side.
      * @return {@linkplain PresentationConfiguredCompiler} for loading group children's.
      */
     public static PresentationConfiguredCompiler<Executor> createGroupChildrenCompiler(User user, Group group, BatchPresentation batchPresentation,
-            boolean hasExecutor) {
-        String inClause = hasExecutor ? "IN" : "NOT IN";
+            boolean isExclude) {
+        String inClause = isExclude ? "NOT IN" : "IN";
         String notInRestriction = inClause + " (SELECT relation.executor.id FROM " + ExecutorGroupMembership.class.getName()
                 + " as relation WHERE relation.group.id=" + group.getId() + ")";
         String[] idRestrictions = { notInRestriction, "<> " + group.getId() };
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, ALL_EXECUTORS_CLASSES);
-        CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addIdRestrictions(idRestrictions);
+        val permissions = new RestrictionsToPermissions(user, isExclude ? Permission.UPDATE : Permission.READ, ALL_EXECUTORS_CLASSES);
+        val parameters = CompilerParameters.createPaged().addPermissions(permissions).addIdRestrictions(idRestrictions);
         return new PresentationConfiguredCompiler<>(batchPresentation, parameters);
     }
 

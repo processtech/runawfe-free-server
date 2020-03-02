@@ -376,9 +376,11 @@ public class HibernateCompilerHqlBuider {
             permissionNames.add(p.getName());
         }
 
-        result.add("(instance.id in (select pm.objectId from PermissionMapping pm where pm.executor.id in (:securedOwnerIds) and " +
-                "pm.objectType in (:securedTypes) and pm.permission in (:securedPermissions)" +
-                "))");
+        result.add("(instance.id in (" +
+                "select pm.objectId " +
+                "from PermissionMapping pm " +
+                "where pm.executor.id in (:securedOwnerIds) and pm.objectType in (:securedTypes) and pm.permission in (:securedPermissions)" +
+        "))");
         placeholders.add("securedOwnerIds", executorIds);
 //        placeholders.add("securedTypes", Arrays.stream(types).map(SecuredObjectType::getName).collect(Collectors.toList()), Hibernate.STRING);
 //        placeholders.add("securedPermissions", subst.selfPermissions.stream().map(Permission::getName).collect(Collectors.toList()), Hibernate.STRING);

@@ -17,28 +17,24 @@
  */
 package ru.runa.af.service;
 
-import java.io.Serializable;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.security.auth.Subject;
-
+import lombok.Getter;
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.relation.Relation;
-import ru.runa.wfe.relation.RelationAlreadyExistException;
-import ru.runa.wfe.relation.RelationDoesNotExistException;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.security.SecuredSingleton;
-import ru.runa.wfe.security.AuthenticationException;
-import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
-import ru.runa.wfe.security.WeakPasswordException;
 import ru.runa.wfe.service.AuthenticationService;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.ExecutorService;
@@ -49,18 +45,12 @@ import ru.runa.wfe.service.SystemService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
-import ru.runa.wfe.ss.SubstitutionDoesNotExistException;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class ServiceTestHelper {
 
@@ -72,83 +62,83 @@ public class ServiceTestHelper {
 
     private final Set<Executor> createdExecutorsSet = Sets.newHashSet();
 
+    @Getter
     private final Map<String, Executor> defaultExecutorsMap = Maps.newHashMap();
 
     public final static String AUTHORIZED_PERFORMER_NAME = "AUTHORIZED_PERFORMER_NAME";
-
     public final static String AUTHORIZED_PERFORMER_DESCRIPTION = "AUTHORIZED_PERFORMER_DESCRIPTION";
-
     public final static String AUTHORIZED_PERFORMER_PASSWORD = "AUTHORIZED_PERFORMER_PASSWORD";
 
     public final static String UNAUTHORIZED_PERFORMER_NAME = "UNAUTHORIZED_PERFORMER_NAME";
-
     public final static String UNAUTHORIZED_PERFORMER_DESCRIPTION = "UNAUTHORIZED_PERFORMER_DESCRIPTION";
-
     public final static String UNAUTHORIZED_PERFORMER_PASSWORD = "UNAUTHORIZED_PERFORMER_PASSWORD";
 
     public final static String BASE_GROUP_NAME = "BASE_GROUP_NAME";
-
     public final static String BASE_GROUP_DESC = "BASE_GROUP_DESC";
-
     public final static String BASE_GROUP_ACTOR_NAME = "BASE_GROUP_ACTOR_NAME";
-
     public final static String BASE_GROUP_ACTOR_DESC = "BASE_GROUP_ACTOR_DESC";
-
     public final static String SUB_GROUP_NAME = "SUB_GROUP_NAME";
-
     public final static String SUB_GROUP_DESC = "SUB_GROUP_DESC";
-
     public final static String SUB_GROUP_ACTOR_NAME = "SUB_GROUP_ACTOR_NAME";
-
     public final static String SUB_GROUP_ACTOR_DESC = "SUB_GROUP_ACTOR_DESC";
-
     public final static String FAKE_ACTOR_NAME = "FAKE_ACTOR_NAME";
-
     public final static String FAKE_ACTOR_DESC = "FAKE_ACTOR_DESC";
-
     public final static String FAKE_GROUP_NAME = "FAKE_GROUP_NAME";
-
     public final static String FAKE_GROUP_DESC = "FAKE_GROUP_DESC";
 
+    @Getter
     private ExecutorService executorService;
 
     private RelationService relationService;
 
     private SubstitutionService substitutionService;
 
+    @Getter
     protected AuthorizationService authorizationService;
 
+    @Getter
     private AuthenticationService authenticationService;
 
+    @Getter
     private SystemService systemService;
 
+    @Getter
     private ProfileService profileService;
 
+    @Getter
     private Actor fakeActor;
 
+    @Getter
     private List<Executor> fakeExecutors;
 
     private Actor baseGroupActor;
 
     private Actor subGroupActor;
 
+    @Getter
     private Group fakeGroup;
 
     private Group baseGroup;
 
     private Group subGroup;
 
+    @Getter
     private User fakeUser;
 
-    private User authorizedPerformerUser, unauthorizedPerformerUser;
+    @Getter
+    private User authorizedUser;
+
+    @Getter
+    private User unauthorizedUser;
 
     private final String testClassName;
 
+    @Getter
     protected User adminUser;
 
     private Set<Subject> subjectOfActorsWithProfileSet = Sets.newHashSet();
 
-    public ServiceTestHelper(String testClassName) throws InternalApplicationException {
+    public ServiceTestHelper(String testClassName) {
         this.testClassName = testClassName;
         createExecutorServiceDelegate();
         createRelationServiceDelegate();
@@ -163,8 +153,14 @@ public class ServiceTestHelper {
         createProfileServiceDelegate();
     }
 
-    public List<Long> toIds(Collection<? extends SecuredObject> list) {
-        List<Long> ids = Lists.newArrayList();
+//    @SafeVarargs
+//    public final <T> ArrayList<T> list(T... oo) {
+//        return Lists.newArrayList(oo);
+//    }
+
+    public ArrayList<Long> toIds(Collection<? extends SecuredObject> list) {
+        // TODO Use java8 map.
+        val ids = new ArrayList<Long>(list.size());
         for (SecuredObject securedObject : list) {
             ids.add(securedObject.getIdentifiableId());
         }
@@ -175,18 +171,10 @@ public class ServiceTestHelper {
         profileService = Delegates.getProfileService();
     }
 
-    public ProfileService getProfileService() {
-        return profileService;
-    }
-
-    public User getAdminUser() {
-        return adminUser;
-    }
-
     /**
      * Creates groups and actors group contains subGroup and subActor subGroup contains subGroupActor
      */
-    public void createDefaultExecutorsMap() throws InternalApplicationException {
+    public void createDefaultExecutorsMap() {
         baseGroup = executorService.create(adminUser, new Group(testClassName + BASE_GROUP_NAME, testClassName + BASE_GROUP_DESC));
         defaultExecutorsMap.put(BASE_GROUP_NAME, baseGroup);
 
@@ -205,34 +193,28 @@ public class ServiceTestHelper {
         executorService.addExecutorsToGroup(adminUser, Lists.newArrayList(subGroupActor.getId()), subGroup.getId());
     }
 
-    public void releaseResources() throws InternalApplicationException {
+    public void releaseResources() {
         removeCreatedProfiles();
         removeCreatedExecutors();
         removeDefaultExecutors();
         executorService = null;
-        executorService = null;
-        authorizationService = null;
         authorizationService = null;
         authenticationService = null;
-        authenticationService = null;
-        systemService = null;
         systemService = null;
 
         fakeActor = null;
         fakeGroup = null;
-
         fakeExecutors.clear();
         fakeExecutors = null;
+        fakeUser = null;
 
         baseGroup = null;
         baseGroupActor = null;
         subGroup = null;
         subGroupActor = null;
-        fakeUser = null;
-
     }
 
-    private void removeCreatedProfiles() throws AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
+    private void removeCreatedProfiles() {
         subjectOfActorsWithProfileSet.clear();
         subjectOfActorsWithProfileSet = null;
         profileService = null;
@@ -245,7 +227,7 @@ public class ServiceTestHelper {
         createdExecutorsSet.remove(executor);
     }
 
-    public void removeExecutorIfExists(Executor executor) throws InternalApplicationException {
+    public void removeExecutorIfExists(Executor executor) {
         if (executor != null) {
             try {
                 if (executor instanceof Actor) {
@@ -260,15 +242,15 @@ public class ServiceTestHelper {
         }
     }
 
-    public void addExecutorToGroup(Executor executor, Group group) throws InternalApplicationException {
+    public void addExecutorToGroup(Executor executor, Group group) {
         executorService.addExecutorsToGroup(adminUser, Lists.newArrayList(executor.getId()), group.getId());
     }
 
-    public void removeExecutorFromGroup(Executor executor, Group group) throws InternalApplicationException {
+    public void removeExecutorFromGroup(Executor executor, Group group) {
         executorService.removeExecutorsFromGroup(adminUser, Lists.newArrayList(executor.getId()), group.getId());
     }
 
-    public boolean isExecutorExist(Executor executor) throws InternalApplicationException {
+    public boolean isExecutorExist(Executor executor) {
         boolean isExecutorExist = true;
         try {
             if (executor instanceof Actor) {
@@ -293,23 +275,17 @@ public class ServiceTestHelper {
         return isPasswordCorrect;
     }
 
-    public void setPermissionsToAuthorizedPerformer(Collection<Permission> permissions, Executor executor) throws InternalApplicationException {
-        authorizationService.setPermissions(adminUser, getAuthorizedPerformerActor().getId(), permissions, executor);
+    public void setPermissionsToAuthorizedActor(Collection<Permission> permissions, SecuredObject object) {
+        authorizationService.setPermissions(adminUser, getAuthorizedActor().getId(), permissions, object);
     }
 
-    public void setPermissionsToAuthorizedPerformerOnExecutorsList(Collection<Permission> permissions, List<? extends Executor> executors)
-            throws InternalApplicationException {
-        for (Executor executor : executors) {
-            authorizationService.setPermissions(adminUser, getAuthorizedPerformerActor().getId(), permissions, executor);
+    public void setPermissionsToAuthorizedActor(Collection<Permission> permissions, List<? extends SecuredObject> objects) {
+        for (SecuredObject o : objects) {
+            setPermissionsToAuthorizedActor(permissions, o);
         }
     }
 
-    public void setPermissionsToAuthorizedPerformerOnExecutors(Collection<Permission> permissions) {
-        authorizationService.setPermissions(adminUser, getAuthorizedPerformerActor().getId(), permissions, SecuredSingleton.EXECUTORS);
-    }
-
-    public Actor createActorIfNotExist(String name, String description)
-            throws ExecutorAlreadyExistsException, AuthorizationException, AuthenticationException {
+    public Actor createActorIfNotExist(String name, String description) {
         Actor actor;
         try {
             actor = executorService.getExecutorByName(adminUser, name);
@@ -320,8 +296,7 @@ public class ServiceTestHelper {
         return actor;
     }
 
-    public List<Actor> createActorArray(String name, String description)
-            throws ExecutorAlreadyExistsException, AuthorizationException, AuthenticationException {
+    public List<Actor> createActorArray(String name, String description) {
         Actor[] actorArray = new Actor[5];
         actorArray[0] = executorService.create(adminUser, new Actor(name + "0", description + "0"));
         actorArray[1] = executorService.create(adminUser, new Actor(name + "1", description + "1"));
@@ -336,8 +311,7 @@ public class ServiceTestHelper {
         return Lists.newArrayList(actorArray);
     }
 
-    public Group createGroupIfNotExist(String name, String description)
-            throws ExecutorAlreadyExistsException, AuthorizationException, AuthenticationException {
+    public Group createGroupIfNotExist(String name, String description) {
         Group group;
         try {
             group = executorService.getExecutorByName(adminUser, name);
@@ -348,7 +322,7 @@ public class ServiceTestHelper {
         return group;
     }
 
-    public List<Group> createGroupArray(String name, String description) throws InternalApplicationException {
+    public ArrayList<Group> createGroupArray(String name, String description) {
         Group[] groupArray = new Group[5];
         groupArray[0] = executorService.create(adminUser, new Group(name + "0", description + "0"));
         groupArray[1] = executorService.create(adminUser, new Group(name + "1", description + "1"));
@@ -363,7 +337,7 @@ public class ServiceTestHelper {
         return Lists.newArrayList(groupArray);
     }
 
-    public List<Executor> createMixedActorsGroupsArray(String name, String description) throws InternalApplicationException {
+    public ArrayList<Executor> createMixedActorsGroupsArray(String name, String description) {
         Executor[] mixedArray = new Executor[5];
         mixedArray[0] = executorService.create(adminUser, new Actor(name + "0", description + "0"));
         mixedArray[1] = executorService.create(adminUser, new Group(name + "1", description + "1"));
@@ -378,39 +352,11 @@ public class ServiceTestHelper {
         return Lists.newArrayList(mixedArray);
     }
 
-    public User getAuthorizedPerformerUser() {
-        return authorizedPerformerUser;
-    }
-
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
-
-    public User getUnauthorizedPerformerUser() {
-        return unauthorizedPerformerUser;
-    }
-
-    public Map<String, Executor> getDefaultExecutorsMap() {
-        return defaultExecutorsMap;
-    }
-
-    public Actor getFakeActor() {
-        return fakeActor;
-    }
-
-    public Group getFakeGroup() {
-        return fakeGroup;
-    }
-
-    public List<Executor> getFakeExecutors() {
-        return fakeExecutors;
-    }
-
-    public boolean isExecutorInGroup(Executor executor, Group group) throws InternalApplicationException {
+    public boolean isExecutorInGroup(Executor executor, Group group) {
         return executorService.isExecutorInGroup(adminUser, executor, group);
     }
 
-    public boolean isExecutorInGroups(Executor executor, List<Group> groups) throws InternalApplicationException {
+    public boolean isExecutorInGroups(Executor executor, List<Group> groups) {
         for (Group group : groups) {
             if (!executorService.isExecutorInGroup(adminUser, executor, group)) {
                 return false;
@@ -419,7 +365,7 @@ public class ServiceTestHelper {
         return true;
     }
 
-    public boolean isExecutorsInGroup(List<? extends Executor> executors, Group group) throws InternalApplicationException {
+    public boolean isExecutorsInGroup(List<? extends Executor> executors, Group group) {
         for (Executor executor : executors) {
             if (!executorService.isExecutorInGroup(adminUser, executor, group)) {
                 return false;
@@ -452,36 +398,35 @@ public class ServiceTestHelper {
         systemService = Delegates.getSystemService();
     }
 
-    private void createPerformersAndPerformesSubjects() throws ExecutorDoesNotExistException, ExecutorAlreadyExistsException, AuthorizationException,
-            AuthenticationException, WeakPasswordException {
+    private void createPerformersAndPerformesSubjects() {
         String authorizedActorName = testClassName + AUTHORIZED_PERFORMER_NAME;
-        Actor authorizedPerformerActor;
+        Actor authorizedActor;
         try {
-            authorizedPerformerActor = executorService.getExecutorByName(adminUser, authorizedActorName);
+            authorizedActor = executorService.getExecutorByName(adminUser, authorizedActorName);
         } catch (ExecutorDoesNotExistException e) {
-            authorizedPerformerActor = executorService.create(adminUser, new Actor(authorizedActorName, AUTHORIZED_PERFORMER_DESCRIPTION));
-            executorService.setPassword(adminUser, authorizedPerformerActor, AUTHORIZED_PERFORMER_PASSWORD);
+            authorizedActor = executorService.create(adminUser, new Actor(authorizedActorName, AUTHORIZED_PERFORMER_DESCRIPTION));
+            executorService.setPassword(adminUser, authorizedActor, AUTHORIZED_PERFORMER_PASSWORD);
         }
         String unauthorizedActorName = testClassName + UNAUTHORIZED_PERFORMER_NAME;
-        Actor unauthorizedPerformerActor;
+        Actor unauthorizedActor;
         try {
-            unauthorizedPerformerActor = executorService.getExecutorByName(adminUser, unauthorizedActorName);
+            unauthorizedActor = executorService.getExecutorByName(adminUser, unauthorizedActorName);
         } catch (ExecutorDoesNotExistException e) {
-            unauthorizedPerformerActor = executorService.create(adminUser, new Actor(unauthorizedActorName, UNAUTHORIZED_PERFORMER_DESCRIPTION));
-            executorService.setPassword(adminUser, unauthorizedPerformerActor, UNAUTHORIZED_PERFORMER_PASSWORD);
+            unauthorizedActor = executorService.create(adminUser, new Actor(unauthorizedActorName, UNAUTHORIZED_PERFORMER_DESCRIPTION));
+            executorService.setPassword(adminUser, unauthorizedActor, UNAUTHORIZED_PERFORMER_PASSWORD);
         }
-        authorizedPerformerUser = authenticationService.authenticateByLoginPassword(authorizedPerformerActor.getName(),
+        authorizedUser = authenticationService.authenticateByLoginPassword(authorizedActor.getName(),
                 AUTHORIZED_PERFORMER_PASSWORD);
-        unauthorizedPerformerUser = authenticationService.authenticateByLoginPassword(unauthorizedPerformerActor.getName(),
+        unauthorizedUser = authenticationService.authenticateByLoginPassword(unauthorizedActor.getName(),
                 UNAUTHORIZED_PERFORMER_PASSWORD);
     }
 
-    private void createAdminSubject() throws InternalApplicationException {
+    private void createAdminSubject() {
         adminUser = authenticationService.authenticateByLoginPassword(ADMINISTRATOR_NAME, ADMINISTRATOR_PASSWORD);
     }
 
     /** Removes all created executors from DB. */
-    private void removeCreatedExecutors() throws InternalApplicationException {
+    private void removeCreatedExecutors() {
         try {
             for (Executor executor : createdExecutorsSet) {
                 executor = executorService.getExecutor(adminUser, executor.getId());
@@ -489,15 +434,15 @@ public class ServiceTestHelper {
             }
         } catch (ExecutorDoesNotExistException ignored) {
         }
-        executorService.remove(adminUser, Lists.newArrayList(getAuthorizedPerformerActor().getId(), getUnauthorizedPerformerActor().getId()));
+        executorService.remove(adminUser, Lists.newArrayList(getAuthorizedActor().getId(), getUnauthorizedActor().getId()));
     }
 
-    public Collection<Permission> getOwnPermissions(Executor performer, Executor executor) throws InternalApplicationException {
+    public Collection<Permission> getOwnPermissions(Executor performer, Executor executor) {
         return authorizationService.getIssuedPermissions(adminUser, performer, executor);
     }
 
     /** check if default executors still exists in db, and id so removes them */
-    private void removeDefaultExecutors() throws InternalApplicationException {
+    private void removeDefaultExecutors() {
         List<Executor> undeletedExecutorsList = Lists.newArrayList();
         for (Executor executor : defaultExecutorsMap.values()) {
             boolean canRemove = false;
@@ -528,35 +473,19 @@ public class ServiceTestHelper {
         fakeUser = new User(fakeActor, null);
     }
 
-    public AuthorizationService getAuthorizationService() {
-        return authorizationService;
+    public Actor getAuthorizedActor() {
+        return authorizedUser.getActor();
     }
 
-    public AuthenticationService getAuthenticationService() {
-        return authenticationService;
+    public Actor getUnauthorizedActor() {
+        return unauthorizedUser.getActor();
     }
 
-    public SystemService getSystemService() {
-        return systemService;
-    }
-
-    public User getFakeUser() {
-        return fakeUser;
-    }
-
-    public Actor getAuthorizedPerformerActor() throws InternalApplicationException {
-        return authorizedPerformerUser.getActor();
-    }
-
-    public Actor getUnauthorizedPerformerActor() throws InternalApplicationException {
-        return unauthorizedPerformerUser.getActor();
-    }
-
-    public Group getAdministratorsGroup() throws InternalApplicationException {
+    public Group getAdministratorsGroup() {
         return executorService.getExecutorByName(adminUser, ADMINISTRATORS_NAME);
     }
 
-    public Actor getAdministrator() throws InternalApplicationException {
+    public Actor getAdministrator() {
         return executorService.getExecutorByName(adminUser, ADMINISTRATOR_NAME);
     }
 
@@ -564,37 +493,37 @@ public class ServiceTestHelper {
         return ADMINISTRATOR_PASSWORD;
     }
 
-    public Group getBaseGroup() throws InternalApplicationException {
+    public Group getBaseGroup() {
         return executorService.getExecutorByName(adminUser, baseGroup.getName());
         // return baseGroup; we can't cache executor that changes it's state in
         // db
     }
 
-    public Actor getBaseGroupActor() throws InternalApplicationException {
+    public Actor getBaseGroupActor() {
         return executorService.getExecutorByName(adminUser, baseGroupActor.getName());
         // return baseGroupActor;
     }
 
-    public Group getSubGroup() throws InternalApplicationException {
+    public Group getSubGroup() {
         return executorService.getExecutorByName(adminUser, subGroup.getName());
         // return subGroup;
     }
 
-    public Actor getSubGroupActor() throws InternalApplicationException {
+    public Actor getSubGroupActor() {
         return executorService.getExecutorByName(adminUser, subGroupActor.getName());
         // return subGroupActor;
     }
 
-    public Executor getExecutor(String name) throws InternalApplicationException {
+    public Executor getExecutor(String name) {
         return executorService.getExecutorByName(adminUser, name);
     }
 
-    public void setActorStatus(Actor actor, boolean isActive) throws AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
+    public void setActorStatus(Actor actor, boolean isActive) {
         executorService.setStatus(getAdminUser(), actor, isActive);
     }
 
     /*
-     * TODO: remove public Profile getDefaultProfile(Subject subject) throws InternalApplicationException, AuthenticationException { Profile profile =
+     * TODO: remove public Profile getDefaultProfile(Subject subject) { Profile profile =
      * profileService.getProfile(subject); subjectOfActorsWithProfileSet.add(subject); return profile; }
      * 
      * public Identifiable getFakeIdentifiable() { return new Identifiable() {
@@ -604,8 +533,7 @@ public class ServiceTestHelper {
      * @Override public SecuredObjectType getSecuredObjectType() { return SecuredObjectType.DEFINITION; } }; }
      */
 
-    public Substitution createTerminator(User user, SubstitutionCriteria substitutionCriteria, boolean isEnabled)
-            throws AuthorizationException, ExecutorDoesNotExistException, AuthenticationException {
+    public Substitution createTerminator(User user, SubstitutionCriteria substitutionCriteria, boolean isEnabled) {
         TerminatorSubstitution terminatorSubstitution = new TerminatorSubstitution();
         terminatorSubstitution.setOrgFunction("");
         terminatorSubstitution.setActorId(user.getActor().getId());
@@ -614,8 +542,7 @@ public class ServiceTestHelper {
         return substitutionService.createSubstitution(getAdminUser(), terminatorSubstitution);
     }
 
-    public Substitution createActorSubstitutor(User user, String orgFunction, SubstitutionCriteria substitutionCriteria, boolean isEnabled)
-            throws AuthorizationException, ExecutorDoesNotExistException, AuthenticationException {
+    public Substitution createActorSubstitutor(User user, String orgFunction, SubstitutionCriteria substitutionCriteria, boolean isEnabled) {
         Substitution substitution = new Substitution();
         substitution.setActorId(user.getActor().getId());
         substitution.setOrgFunction(orgFunction);
@@ -632,22 +559,19 @@ public class ServiceTestHelper {
         return BatchPresentationFactory.EXECUTORS.createDefault(presentationId);
     }
 
-    public Relation createRelation(String name, String description)
-            throws RelationAlreadyExistException, AuthorizationException, AuthenticationException {
+    public Relation createRelation(String name, String description) {
         return relationService.createRelation(adminUser, new Relation(name, description));
     }
 
-    public RelationPair addRelationPair(Long relationId, Executor left, Executor right)
-            throws RelationDoesNotExistException, AuthorizationException, AuthenticationException {
+    public RelationPair addRelationPair(Long relationId, Executor left, Executor right) {
         return relationService.addRelationPair(adminUser, relationId, left, right);
     }
 
-    public void removeRelation(Long relationId) throws RelationDoesNotExistException, AuthorizationException, AuthenticationException {
+    public void removeRelation(Long relationId) {
         relationService.removeRelation(adminUser, relationId);
     }
 
-    public <T extends SubstitutionCriteria> T createSubstitutionCriteria(T substitutionCriteria)
-            throws AuthorizationException, ExecutorDoesNotExistException, AuthenticationException {
+    public <T extends SubstitutionCriteria> T createSubstitutionCriteria(T substitutionCriteria) {
         if (substitutionCriteria == null) {
             return null;
         }
@@ -655,16 +579,14 @@ public class ServiceTestHelper {
         return (T) substitutionService.getCriteriaByName(getAdminUser(), substitutionCriteria.getName());
     }
 
-    public void removeSubstitutionCriteria(SubstitutionCriteria substitutionCriteria)
-            throws AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
+    public void removeSubstitutionCriteria(SubstitutionCriteria substitutionCriteria) {
         if (substitutionCriteria == null) {
             return;
         }
         substitutionService.deleteCriteria(getAdminUser(), substitutionCriteria);
     }
 
-    public void removeCriteriaFromSubstitution(Substitution substitution)
-            throws AuthorizationException, AuthenticationException, ExecutorDoesNotExistException, SubstitutionDoesNotExistException {
+    public void removeCriteriaFromSubstitution(Substitution substitution) {
         substitution.setCriteria(null);
         substitutionService.updateSubstitution(getAdminUser(), substitution);
     }

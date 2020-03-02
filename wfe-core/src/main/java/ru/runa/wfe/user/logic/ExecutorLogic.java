@@ -144,9 +144,8 @@ public class ExecutorLogic extends CommonLogic {
     public <T extends Executor> T create(User user, T executor) {
         permissionDao.checkAllowed(user, Permission.CREATE_EXECUTOR, SecuredSingleton.SYSTEM);
         executorDao.create(executor);
-        val selfPermissions = Collections.singletonList(executor instanceof Group ? Permission.READ : Permission.READ);
         permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(executor), executor);
-        permissionDao.setPermissions(executor, selfPermissions, executor);
+        permissionDao.setPermissions(executor, Collections.singletonList(Permission.READ), executor);
         return executor;
     }
 
@@ -185,16 +184,14 @@ public class ExecutorLogic extends CommonLogic {
     public List<Executor> getGroupChildren(User user, Group group, BatchPresentation batchPresentation, boolean isExclude) {
         // TODO Was (isExclude ? Permission.ADD_TO_GROUP : Permission.LIST_GROUP). That ADD_TO_GROUP is bad in get...() method.
         checkPermissionsOnExecutor(user, group, isExclude ? Permission.UPDATE : Permission.READ);
-        PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createGroupChildrenCompiler(user, group, batchPresentation,
-                !isExclude);
+        val compiler = PresentationCompilerHelper.createGroupChildrenCompiler(user, group, batchPresentation, isExclude);
         return compiler.getBatch();
     }
 
     public int getGroupChildrenCount(User user, Group group, BatchPresentation batchPresentation, boolean isExclude) {
         // TODO Was (isExclude ? Permission.ADD_TO_GROUP : Permission.LIST_GROUP). That ADD_TO_GROUP is bad in get...() method.
         checkPermissionsOnExecutor(user, group, isExclude ? Permission.UPDATE : Permission.READ);
-        PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createGroupChildrenCompiler(user, group, batchPresentation,
-                !isExclude);
+        val compiler = PresentationCompilerHelper.createGroupChildrenCompiler(user, group, batchPresentation, isExclude);
         return compiler.getCount();
     }
 

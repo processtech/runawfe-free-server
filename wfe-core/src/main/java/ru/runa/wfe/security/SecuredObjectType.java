@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import lombok.Getter;
+import lombok.NonNull;
 import ru.runa.wfe.commons.xml.SecuredObejctTypeXmlAdapter;
 
 /**
@@ -45,47 +47,50 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
     }
 
 
+    @Getter
     private String name;
+
+    /**
+     * Used for assertions. Currently, all non-singletons (those <code>permission_mapping.object_id != 0</code>) have parent singleton list types.
+     */
+    @Getter
+    private boolean singleton;
+
+    /**
+     * Used by PermissionSubstitutions and its callers. Nullable.
+     */
+    @Getter
     private SecuredObjectType listType;
 
-    public SecuredObjectType(String name, SecuredObjectType listType) {
+    private SecuredObjectType(String name, boolean singleton, SecuredObjectType listType) {
         if (name == null || name.isEmpty() || name.length() > 32) {
             // permission_mapping.object_type is varchar(32)
             throw new RuntimeException("SecuredObjectType.name is empty or too large");
         }
-        this.name = name;
         if (instancesByName.put(name, this) != null) {
             throw new RuntimeException("Duplicate SecuredObjectType.name \"" + name + "\"");
         }
 
+        if (listType != null && singleton) {
+            throw new RuntimeException("(listType.listType != null && singleton) for SecuredObjectType \"" + name + "\"");
+        }
         if (listType != null && listType.listType != null) {
             throw new RuntimeException("(listType.listType != null) for SecuredObjectType \"" + name + "\"");
         }
+
+        this.name = name;
+        this.singleton = singleton;
         this.listType = listType;
         instancesList.add(this);
         Collections.sort(instancesList);
     }
 
-    public SecuredObjectType(String name) {
-        this(name, null);
+    public SecuredObjectType(String name, @NonNull SecuredObjectType listType) {
+        this(name, false, listType);
     }
 
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Used by PermissionSubstitutions and its callers. Nullable.
-     */
-    public SecuredObjectType getListType() {
-        return listType;
-    }
-
-    /**
-     * Used for assertions. Currently, all non-singletons (those <code>permission_mapping.object_id != 0</code>) have parent singleton list types.
-     */
-    public boolean isSingleton() {
-        return listType == null;
+    public SecuredObjectType(String name, boolean singleton) {
+        this(name, singleton, null);
     }
 
     @Override
@@ -114,19 +119,19 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
 
     // Alphabetically, please:
 
-    public static final SecuredObjectType BOTSTATIONS = new SecuredObjectType("BOTSTATIONS");
+    public static final SecuredObjectType BOTSTATIONS = new SecuredObjectType("BOTSTATIONS", true);
 
-    public static final SecuredObjectType DEFINITION = new SecuredObjectType("DEFINITION");
+    public static final SecuredObjectType DEFINITION = new SecuredObjectType("DEFINITION", false);
 
-    public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR");
+    public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR", false);
 
-    public static final SecuredObjectType PROCESS = new SecuredObjectType("PROCESS");
+    public static final SecuredObjectType PROCESS = new SecuredObjectType("PROCESS", false);
 
-    public static final SecuredObjectType RELATIONS = new SecuredObjectType("RELATIONS");
+    public static final SecuredObjectType RELATIONS = new SecuredObjectType("RELATIONS", true);
     public static final SecuredObjectType RELATION = new SecuredObjectType("RELATION", RELATIONS);
 
-    public static final SecuredObjectType REPORTS = new SecuredObjectType("REPORTS");
+    public static final SecuredObjectType REPORTS = new SecuredObjectType("REPORTS", true);
     public static final SecuredObjectType REPORT = new SecuredObjectType("REPORT", REPORTS);
 
-    public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM");
+    public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM", true);
 }
