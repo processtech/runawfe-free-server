@@ -3,6 +3,7 @@ $(document).ready(function() {
 // id процесса для чата на форме
 if($("input[name='one_task_hidden_field']").val() == "one_task_hidden_field"){
 	var pidff = $("a[href^='/wfe/manage_process.do?id=']").text();
+	if (pidff === "") { pidff = $("a[href^='/wfe/show_process_graph.do?id=']").text();}
 	$("#ChatForm").attr("processId", pidff);
 }
 //TODO id процесса на submit_task.jsp
