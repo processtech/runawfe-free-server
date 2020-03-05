@@ -28,11 +28,13 @@ import java.util.List;
 import java.util.Map;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.convertors.LocalFilePathStringToFileVariable;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.var.UserTypeMap;
+import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.UserTypeFormat;
 
 import com.google.common.base.Defaults;
@@ -103,6 +105,9 @@ public class TypeConversionUtil {
                 }
                 if (classConvertTo == BigDecimal.class) {
                     return (T) new BigDecimal(s);
+                }
+                if (FileVariable.class.isAssignableFrom(classConvertTo)) {
+                    return new LocalFilePathStringToFileVariable().convertTo(object, classConvertTo);
                 }
                 // try to use 'valueOf(String)'
                 try {
