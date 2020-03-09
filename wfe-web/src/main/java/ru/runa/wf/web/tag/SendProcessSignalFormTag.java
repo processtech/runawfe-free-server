@@ -1,5 +1,6 @@
 package ru.runa.wf.web.tag;
 
+import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
@@ -45,9 +46,8 @@ public class SendProcessSignalFormTag extends TitledFormTag {
         tr.addElement(new TH(paramValue.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
 
         TR addTr = new TR();
-        TD addTd = new TD("+");
+        TD addTd = new TD(new A("javascript:" + onclick, "+"));
         addTd.setClass("list");
-        addTd.setOnClick(onclick);
         addTr.addElement(addTd);
         table.addElement(addTr);
     }
@@ -60,6 +60,6 @@ public class SendProcessSignalFormTag extends TitledFormTag {
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.PROCESSES);
     }
 }
