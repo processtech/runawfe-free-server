@@ -1,11 +1,6 @@
 package ru.runa.wfe.commons.convertors;
 
 import com.google.common.io.ByteStreams;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.TypeConvertor;
-import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.file.FileVariableImpl;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,28 +8,32 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
+import lombok.NonNull;
+import ru.runa.wfe.commons.TypeConvertor;
+import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 public class LocalFilePathStringToFileVariable implements TypeConvertor {
 
     private static final String DEFAULT_MIME = "application/octet-stream";
 
     /**
-     * Conver {@link java.lang.String} representation of file path to {@link FileVariableImpl}.
+     * Convert {@link java.lang.String} representation of file path to {@link FileVariableImpl}.
      *
-     * @param object {@link java.lang.String} representation of file path
+     * @param object         {@link java.lang.String} representation of file path
      * @param classConvertTo {@link FileVariable} or {@link FileVariableImpl}
-     * @param <T> type {@link FileVariable} or {@link FileVariableImpl}
+     * @param <T>            type {@link FileVariable} or {@link FileVariableImpl}
      * @return instance of {@link FileVariableImpl}
      */
     @Override
     public <T> T convertTo(Object object, Class<T> classConvertTo) {
         try {
-            caheckParams(object, classConvertTo);
-
+            checkParams(object, classConvertTo);
             Path path = Paths.get(object.toString());
             File file = new File(path.toUri());
-            if (!file.exists()) { throw new FileNotFoundException(); }
+            if (!file.exists()) {
+                throw new FileNotFoundException();
+            }
             FileInputStream reportFileInputStream = new FileInputStream(file);
             byte[] fileContent = ByteStreams.toByteArray(reportFileInputStream);
             FileVariable fileVariable = new FileVariableImpl(file.getName(), fileContent, getMime(path));
@@ -44,10 +43,13 @@ public class LocalFilePathStringToFileVariable implements TypeConvertor {
         }
     }
 
-    private void caheckParams(Object object, Class classConvertTo){
-        Objects.requireNonNull(object, "file path must be present");
-        if (!String.class.isAssignableFrom(object.getClass())) {throw new IllegalArgumentException("file path must be String type");}
-        if (!(classConvertTo == FileVariableImpl.class || classConvertTo == FileVariable.class)) {throw new IllegalArgumentException("to FileVariableImpl conver only");}
+    private void checkParams(@NonNull Object object, Class classConvertTo) {
+        if (!String.class.isAssignableFrom(object.getClass())) {
+            throw new IllegalArgumentException("file path must be String type");
+        }
+        if (!(classConvertTo == FileVariableImpl.class || classConvertTo == FileVariable.class)) {
+            throw new IllegalArgumentException("to FileVariableImpl conver only");
+        }
     }
 
     private String getMime(Path path) throws IOException {
@@ -55,8 +57,4 @@ public class LocalFilePathStringToFileVariable implements TypeConvertor {
         return mime != null && !mime.isEmpty() ? DEFAULT_MIME : mime;
     }
 
-    private boolean isBig(Path path) throws IOException {
-        long fileSize = Files.size(path);
-        return fileSize > SystemProperties.getLocalFileStorageFileLimit();
-    }
 }
