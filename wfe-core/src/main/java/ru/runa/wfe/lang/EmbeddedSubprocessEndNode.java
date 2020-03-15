@@ -56,6 +56,9 @@ public class EmbeddedSubprocessEndNode extends Node implements BoundaryEventCont
         executionContext.getToken().setNodeId(getNodeId());
     }
 
+    /**
+     * This implementation has a pitfall: in case of multiple active embedded subprocesses all will be cancelled by single event
+     */
     @Override
     public void endBoundaryEventTokens(ExecutionContext executionContext) {
         List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
