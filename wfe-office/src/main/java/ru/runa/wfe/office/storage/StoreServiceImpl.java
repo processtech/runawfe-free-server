@@ -2,7 +2,6 @@ package ru.runa.wfe.office.storage;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +22,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceStuff;
@@ -31,6 +31,7 @@ import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.office.excel.AttributeConstraints;
 import ru.runa.wfe.office.excel.ExcelConstraints;
+import ru.runa.wfe.office.excel.OnSheetConstraints;
 import ru.runa.wfe.office.excel.utils.ExcelHelper;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
@@ -50,6 +51,8 @@ public class StoreServiceImpl implements StoreService {
     private static final int START_ROW_INDEX = 0;
 
     private static final Log log = LogFactory.getLog(StoreServiceImpl.class);
+    private static final String DEFAULT_TABLE_NAME_PREFIX = "SHEET";
+    private static final String XLS_SUFFIX = ".xls";
 
     private ExcelConstraints constraints;
     private VariableFormat format;
@@ -61,29 +64,28 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public void createFileIfNotExist(String path) throws Exception {
-        File f = new File(path);
+    public void createFileIfNotExist(String path) throws InternalApplicationException {
+        final File f = new File(path);
         if (f.exists() && f.isFile()) {
             return;
         }
-        Workbook workbook = null;
-        if (path.endsWith(".xls")) {
-            workbook = new HSSFWorkbook();
-        } else {
-            workbook = new XSSFWorkbook();
-        }
-        workbook.createSheet();
-        OutputStream os = null;
+
         try {
-            os = new FileOutputStream(path);
+            if (!f.createNewFile()) {
+                log.error("Could not create file " + path);
+                throw new InternalApplicationException("Could not create file " + path);
+            }
+        } catch (IOException | SecurityException e) {
+            log.error("Could not create file: " + path, e);
+            throw new InternalApplicationException(e);
+        }
+
+        try (Workbook workbook = path.endsWith(".xls") ? new HSSFWorkbook() : new XSSFWorkbook(); OutputStream os = new FileOutputStream(path)) {
+            workbook.createSheet();
             workbook.write(os);
         } catch (Exception e) {
             log.error("", e);
-            Throwables.propagate(e);
-        } finally {
-            if (os != null) {
-                os.close();
-            }
+            throw new InternalApplicationException(e);
         }
     }
 
@@ -155,13 +157,13 @@ public class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void initParams(Properties properties) throws Exception {
+    private void initParams(Properties properties) throws InternalApplicationException {
         Preconditions.checkNotNull(properties);
         constraints = (ExcelConstraints) properties.get(PROP_CONSTRAINTS);
         format = (VariableFormat) properties.get(PROP_FORMAT);
         fullPath = properties.getProperty(PROP_PATH);
         if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) || fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
-            String dsName = null;
+            String dsName;
             if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)) {
                 dsName = fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE.length());
             } else {
@@ -170,7 +172,7 @@ public class StoreServiceImpl implements StoreService {
             DataSource ds = DataSourceStorage.getDataSource(dsName);
             if (ds instanceof ExcelDataSource) {
                 ExcelDataSource eds = (ExcelDataSource) ds;
-                fullPath = eds.getFilePath() + "/" + eds.getFileName();
+                fullPath = eds.getFilePath() + "/" + tableName() + XLS_SUFFIX;
             }
         }
         createFileIfNotExist(fullPath);
@@ -486,5 +488,23 @@ public class StoreServiceImpl implements StoreService {
             }
         }
         return false;
+    }
+
+    private String tableName() {
+        final OnSheetConstraints osc = (OnSheetConstraints) constraints;
+        String tableName = osc.getSheetName();
+        if (Strings.isNullOrEmpty(tableName)) {
+            String userTypeName = null;
+
+            if (format instanceof UserTypeFormat) {
+                userTypeName = format.toString();
+            } else if (format instanceof ListFormat) {
+                userTypeName = ((ListFormat) format).getComponentClassName(0);
+            }
+
+            tableName = Strings.isNullOrEmpty(userTypeName) ?
+                    DEFAULT_TABLE_NAME_PREFIX + osc.getSheetIndex() : userTypeName;
+        }
+        return tableName;
     }
 }
