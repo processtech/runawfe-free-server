@@ -100,4 +100,10 @@ public final class MessagesProcesses {
     public static final StrutsMessage LINK_SHOW_TASKS = new StrutsMessage("link.show_tasks");
     public static final StrutsMessage LABEL_GLOBAL = new StrutsMessage("label.global");
 
+    public static final StrutsMessage LABEL_SEND_PROCESS_SIGNAL = new StrutsMessage("label.send_process_signal");
+    public static final StrutsMessage ROUTING_PARAMETER_NAME = new StrutsMessage("label.routing_parameter_name");
+    public static final StrutsMessage ROUTING_PARAMETER_VALUE = new StrutsMessage("label.routing_parameter_value");
+    public static final StrutsMessage PAYLOAD_PARAMETER_NAME = new StrutsMessage("label.payload_parameter_name");
+    public static final StrutsMessage PAYLOAD_PARAMETER_VALUE = new StrutsMessage("label.payload_parameter_value");
+    public static final StrutsMessage SIGNAL_MESSAGE_IS_SENT = new StrutsMessage("signal.message_is_sent");
 }
