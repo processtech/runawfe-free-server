@@ -145,7 +145,7 @@ public class Utils {
         return sendBpmnMessage(routingData, payloadData, ttlInMilliSeconds);
     }
 
-    public static ObjectMessage sendBpmnMessage(Map<String, String> routingData, Map<String, Object> payloadData, long ttlInMilliSeconds) {
+    public static ObjectMessage sendBpmnMessage(Map<String, String> routingData, Map<String, ?> payloadData, long ttlInMilliSeconds) {
         if (routingData.isEmpty()) {
             throw new InternalApplicationException("Routing data is required");
         }

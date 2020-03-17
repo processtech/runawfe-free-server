@@ -54,6 +54,8 @@ import ru.runa.wfe.service.decl.ExecutionWebServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
+import ru.runa.wfe.service.jaxb.StringKeyValue;
+import ru.runa.wfe.service.jaxb.StringKeyValueConverter;
 import ru.runa.wfe.service.jaxb.Variable;
 import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
@@ -357,14 +359,29 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebMethod(exclude = true)
-    public void sendSignal(@NonNull User user, @NonNull Map<String, String> routingData, @NonNull Map<String, Object> payloadData, long ttlInSeconds) {
+    public void sendSignal(@NonNull User user, @NonNull Map<String, String> routingData, @NonNull Map<String, ?> payloadData, long ttlInSeconds) {
         Utils.sendBpmnMessage(routingData, payloadData, ttlInSeconds * 1000);
+    }
+
+    @WebResult(name = "result")
+    public void sendSignalWS(@WebParam(name = "user") @NonNull User user, @WebParam(name = "routingData") @NonNull List<StringKeyValue> routingData,
+            @WebParam(name = "payloadData") List<StringKeyValue> payloadData, @WebParam(name = "ttlInSeconds") long ttlInSeconds) {
+        sendSignal(user,
+                StringKeyValueConverter.unmarshal(routingData), 
+                StringKeyValueConverter.unmarshal(payloadData), 
+ ttlInSeconds);
     }
 
     @Override
     @WebMethod(exclude = true)
     public boolean signalReceiverIsActive(@NonNull User user, @NonNull Map<String, String> routingData) {
         return !executionLogic.findTokensForMessageSelector(routingData).isEmpty();
+    }
+
+    @WebResult(name = "result")
+    public boolean signalReceiverIsActiveWS(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "routingData") @NonNull List<StringKeyValue> routingData) {
+        return signalReceiverIsActive(user, StringKeyValueConverter.unmarshal(routingData));
     }
 
 }

@@ -321,7 +321,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public void sendSignal(User user, Map<String, String> routingData, Map<String, Object> payloadData, long ttl) {
+    public void sendSignal(User user, Map<String, String> routingData, Map<String, ?> payloadData, long ttl) {
         try {
             getExecutionService().sendSignal(user, routingData, payloadData, ttl);
         } catch (Exception e) {
