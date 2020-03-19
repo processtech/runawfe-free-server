@@ -52,7 +52,7 @@ public class StoreServiceImpl implements StoreService {
 
     private static final Log log = LogFactory.getLog(StoreServiceImpl.class);
     private static final String DEFAULT_TABLE_NAME_PREFIX = "SHEET";
-    private static final String XLS_SUFFIX = ".xls";
+    private static final String XLSX_SUFFIX = ".xlsx";
 
     private ExcelConstraints constraints;
     private VariableFormat format;
@@ -80,7 +80,7 @@ public class StoreServiceImpl implements StoreService {
             throw new InternalApplicationException(e);
         }
 
-        try (Workbook workbook = path.endsWith(XLS_SUFFIX) ? new HSSFWorkbook() : new XSSFWorkbook(); OutputStream os = new FileOutputStream(path)) {
+        try (Workbook workbook = path.endsWith(XLSX_SUFFIX) ? new XSSFWorkbook() : new HSSFWorkbook(); OutputStream os = new FileOutputStream(path)) {
             workbook.createSheet();
             workbook.write(os);
         } catch (Exception e) {
@@ -172,7 +172,7 @@ public class StoreServiceImpl implements StoreService {
             DataSource ds = DataSourceStorage.getDataSource(dsName);
             if (ds instanceof ExcelDataSource) {
                 ExcelDataSource eds = (ExcelDataSource) ds;
-                fullPath = eds.getFilePath() + "/" + tableName() + XLS_SUFFIX;
+                fullPath = eds.getFilePath() + "/" + tableName() + XLSX_SUFFIX;
             }
         }
         createFileIfNotExist(fullPath);
