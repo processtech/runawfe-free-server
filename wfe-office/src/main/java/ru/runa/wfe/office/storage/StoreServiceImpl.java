@@ -80,7 +80,7 @@ public class StoreServiceImpl implements StoreService {
             throw new InternalApplicationException(e);
         }
 
-        try (Workbook workbook = path.endsWith(".xls") ? new HSSFWorkbook() : new XSSFWorkbook(); OutputStream os = new FileOutputStream(path)) {
+        try (Workbook workbook = path.endsWith(XLS_SUFFIX) ? new HSSFWorkbook() : new XSSFWorkbook(); OutputStream os = new FileOutputStream(path)) {
             workbook.createSheet();
             workbook.write(os);
         } catch (Exception e) {
