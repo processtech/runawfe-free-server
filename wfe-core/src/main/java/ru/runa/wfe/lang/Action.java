@@ -21,13 +21,12 @@
  */
 package ru.runa.wfe.lang;
 
-import ru.runa.wfe.audit.ActionLog;
-import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.extension.ActionHandler;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import ru.runa.wfe.audit.ActionLog;
+import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.extension.ActionHandler;
 
 public class Action extends GraphElement {
     private static final long serialVersionUID = 1L;
@@ -49,7 +48,7 @@ public class Action extends GraphElement {
             actionHandler.execute(executionContext);
             executionContext.addLog(new ActionLog(this));
         } catch (Exception e) {
-            log.error("Failed " + this);
+            log.error("Failed " + delegation);
             throw Throwables.propagate(e);
         }
     }
@@ -72,7 +71,7 @@ public class Action extends GraphElement {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("event", actionEvent).add("delegation", delegation).toString();
+        return MoreObjects.toStringHelper(this).add("event", actionEvent).toString();
     }
 
 }
