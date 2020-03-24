@@ -108,9 +108,9 @@ public class BotServiceDelegate extends Ejb3Delegate implements BotService {
     }
 
     @Override
-    public void updateBot(User user, Bot bot, boolean incrementBotStationVersion) {
+    public Bot updateBot(User user, Bot bot, boolean incrementBotStationVersion) {
         try {
-            getBotService().updateBot(user, bot, incrementBotStationVersion);
+            return getBotService().updateBot(user, bot, incrementBotStationVersion);
         } catch (Exception e) {
             throw handleException(e);
         }

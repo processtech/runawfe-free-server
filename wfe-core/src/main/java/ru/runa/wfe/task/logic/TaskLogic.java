@@ -78,7 +78,7 @@ public class TaskLogic extends WfCommonLogic {
     @Autowired
     private ExecutorLogic executorLogic;
 
-    public void completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException {
+    public WfTask completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException {
         Task task = taskDao.getNotNull(taskId);
         if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new ProcessSuspendedException(task.getProcess().getId());
@@ -137,6 +137,15 @@ public class TaskLogic extends WfCommonLogic {
             }
             log.info("Task '" + task.getName() + "' was done by " + user + " in process " + task.getProcess());
             Errors.removeProcessError(processError);
+            List<Task> tokenTasks = taskDao.findByToken(executionContext.getToken());
+            if (tokenTasks.size() == 1) {
+                Task nextTask = tokenTasks.get(0);
+                TaskCompletionBy nextTaskCompletionBy = getTaskParticipationRole(user.getActor(), nextTask);
+                if (nextTaskCompletionBy != null && nextTaskCompletionBy != TaskCompletionBy.ADMIN) {
+                    return taskObjectFactory.create(nextTask, user.getActor(), false, null);
+                }
+            }
+            return null;
         } catch (ValidationException ex) {
             throw Throwables.propagate(ex);
         } catch (Throwable th) {

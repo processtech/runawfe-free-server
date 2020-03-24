@@ -62,8 +62,12 @@ import ru.runa.wfe.var.VariableProvider;
 public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
     private static final Log log = LogFactory.getLog(WorkflowBotTaskExecutor.class);
 
+    /**
+     * Owner.
+     */
     private final WorkflowBotExecutor botExecutor;
     private final WfTask task;
+
     private WorkflowBotTaskExecutionStatus executionStatus = WorkflowBotTaskExecutionStatus.SCHEDULED;
     private Calendar started = Calendar.getInstance();
     /**

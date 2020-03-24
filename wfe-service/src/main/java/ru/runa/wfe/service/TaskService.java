@@ -125,8 +125,9 @@ public interface TaskService {
      *            task id
      * @param variables
      *            variable values, can contain transition name by key ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY
+     * @return next task in this token or <code>null</code>
      */
-    void completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException,
+    WfTask completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException,
             ValidationException;
 
     /**

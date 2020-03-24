@@ -66,7 +66,9 @@ public class LdapLogic {
             LdapProperties.getSynchronizationUserObjectClass());
     private static final String OBJECT_CLASS_GROUP_FILTER = MessageFormat.format(LdapProperties.getSynchronizationObjectClassFilter(),
             LdapProperties.getSynchronizationGroupObjectClass());
+
     private static final String ATTR_ACCOUNT_NAME = LdapProperties.getSynchronizationAccountNameAttribute();
+    private static final String ATTR_GROUP_NAME = LdapProperties.getSynchronizationGroupNameAttribute();
     private static final String ATTR_GROUP_MEMBER = LdapProperties.getSynchronizationGroupMemberAttribute();
     // for paging
     private static final String LOGIN_FIRST_LETTER_FILTER = "(&(|({0}={1}*)({0}={2}*)){3})";
@@ -262,7 +264,7 @@ public class LdapLogic {
             }
         }
         for (SearchResult searchResult : groupResultsByDistinguishedName.values()) {
-            String name = getStringAttribute(searchResult, ATTR_ACCOUNT_NAME);
+            String name = getStringAttribute(searchResult, ATTR_GROUP_NAME);
             String description = getStringAttribute(searchResult, LdapProperties.getSynchronizationGroupDescriptionAttribute());
             ToStringHelper toStringHelper = MoreObjects.toStringHelper("group info");
             toStringHelper.add("name", name).add("description", description).omitNullValues();

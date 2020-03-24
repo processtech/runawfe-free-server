@@ -397,4 +397,12 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("datasource.password.export", true);
     }
 
+    public static boolean ignoreErrorsInSendEmailActionHandler() {
+        return RESOURCES.getBooleanProperty("SendEmailActionHandler.ignore.errors", false);
+    }
+
+    public static boolean showErrorsInGroovyExpressionValidator() {
+        return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
+    }
+
 }

@@ -44,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ReceiveMessageLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
@@ -81,8 +80,6 @@ public class ReceiveMessageBean implements MessageListener {
     private TokenDao tokenDao;
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
-    private ProcessLogDao processLogDao;
     @Resource
     private MessageDrivenContext context;
     @Autowired
@@ -161,10 +158,17 @@ public class ReceiveMessageBean implements MessageListener {
                 try {
                     transaction.begin();
                     Date createDate = message.getJMSTimestamp() != 0 ? new Date(message.getJMSTimestamp()) : new Date();
-                    Date expiryDate = message.getJMSExpiration() != 0 ? new Date(message.getJMSExpiration()) : null;
-                    Signal signal = new Signal(createDate, getRoutingData(message), (Map<String, Object>) message.getObject(), expiryDate);
-                    log.debug("Rejecting message request " + messageString + ", persisting to " + signal);
-                    signalDao.create(signal);
+                    Date expiryDate = null;
+                    if (message.propertyExists(BaseMessageNode.EXPIRATION_PROPERTY)) {
+                        expiryDate = new Date(message.getLongProperty(BaseMessageNode.EXPIRATION_PROPERTY));
+                    }
+                    if (expiryDate == null || expiryDate.after(new Date())) {
+                        Signal signal = new Signal(createDate, getRoutingData(message), (Map<String, Object>) message.getObject(), expiryDate);
+                        log.debug("Rejecting message request " + messageString + ", persisting to " + signal);
+                        signalDao.create(signal);
+                    } else {
+                        log.debug("Rejecting message request " + messageString + ", already expired");
+                    }
                     transaction.commit();
                 } catch (Exception e) {
                     Utils.rollbackTransaction(transaction);
