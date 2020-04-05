@@ -1,10 +1,8 @@
 package ru.runa.wfe.execution.dao;
 
-import java.util.Date;
-import ru.runa.wfe.execution.Token;
-
 import com.google.common.base.Preconditions;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import lombok.val;
 import org.springframework.stereotype.Component;
@@ -46,10 +44,9 @@ public class CurrentTokenDao extends GenericDao<CurrentToken> {
         return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.executionStatus.ne(ExecutionStatus.ENDED))).fetch();
     }
 
-    public List<CurrentToken> findByProcessAndNodeIdAndExecutionStatusIsFailed(CurrentProcess process, String nodeId) {
+    public List<CurrentToken> findByProcessAndNodeIdAndExecutionStatus(CurrentProcess process, String nodeId, ExecutionStatus status) {
         val t = QCurrentToken.currentToken;
-        return queryFactory.selectFrom(t)
-                .where(t.process.eq(process).and(t.nodeId.eq(nodeId)).and(t.executionStatus.eq(ExecutionStatus.FAILED)))
+        return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.nodeId.eq(nodeId)).and(t.executionStatus.eq(status)))
                 .fetch();
     }
 
