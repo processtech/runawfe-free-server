@@ -27,11 +27,13 @@ import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import lombok.val;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +117,7 @@ public class AuthorizationLogic extends CommonLogic {
         return permissionDao.getIssuedPermissions(performer, securedObject);
     }
 
+
     /**
      * Exports permissions to xml, see: ExportDataFileAction.
      * <p>
@@ -136,7 +139,7 @@ public class AuthorizationLogic extends CommonLogic {
                     singletonTypes.add(t);
                 }
             }
-            exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType)
+            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType)
                     .from(pm, e)
                     .where(pm.objectType.in(singletonTypes).and(pm.objectId.eq(0L)).and(pm.executor.eq(e)))
                     .orderBy(pm.objectType.asc(), e.name.asc(), pm.permission.asc()));
@@ -145,7 +148,7 @@ public class AuthorizationLogic extends CommonLogic {
         // Export ACTOR and GROUP permissions.
         {
             QExecutor e2 = new QExecutor("e2");  // same table as `e`, but different alias
-            exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, e2.name)
+            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, e2.name)
                     .from(pm, e, e2)
                     .where(pm.objectType.eq(EXECUTOR).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
                     .orderBy(pm.objectType.asc(), e2.name.asc(), e.name.asc(), pm.permission.asc()));
@@ -153,51 +156,125 @@ public class AuthorizationLogic extends CommonLogic {
 
         // Export DEFINITION permissions.
         {
+            // ********************************************************************************************************************************
+            // ***** !!!!! DON'T MERGE THIS INTO develop !!!!! This is temporary solution, before table BPM_PROCESS_DEFINITION_VER was created.
+            // ********************************************************************************************************************************
+
+            // Table PERMISSION_MAPPING (PM) for TYPE='DEFINITION' stores OBJECT_ID = Deployment.getIdentifiableId() which is name hash.
+            // So we cannot join on (PM.OBJECT_ID = BPM_PROCESS_DEFINITION.ID) on SQL side.
+            val definitionNamesByIdentifiableIds = new HashMap<Long, String>();
             QDeployment d = QDeployment.deployment;
-            exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, d.name)
-                    .from(pm, e, d)
+            for (val name : queryFactory.selectDistinct(d.name).from(d).fetch()) {
+                definitionNamesByIdentifiableIds.put((long) name.hashCode(), name);
+            }
+
+            val tuples = queryFactory.select(pm.permission, e.name, pm.objectType, pm.objectId)
+                    .from(pm, e)
                     .where(pm.objectType.eq(DEFINITION).and(pm.executor.eq(e)))
-                    .orderBy(d.name.asc(), e.name.asc(), pm.permission.asc()));
+                    // exportDataFilePermissions() requires that rows are ordered by (object, executor) first, permission last.
+                    .orderBy(pm.objectId.asc(), e.name.asc(), pm.permission.asc())
+                    .fetch();
+            val rows = new ArrayList<ExportDataFilePermissionRow>(tuples.size());
+            for (val t : tuples) {
+                val objectName = definitionNamesByIdentifiableIds.get(t.get(3, Long.class));
+                if (objectName != null) {
+                    rows.add(new ExportDataFilePermissionRow(t, objectName));
+                }
+            }
+
+            exportDataFilePermissions(parentElement, rows);
+        }
+    }
+
+    private static class ExportDataFilePermissionRow {
+        final Permission permission;
+        final String executorName;
+        final SecuredObjectType objectType;
+        String objectName;
+
+        ExportDataFilePermissionRow(Tuple t) {
+            this(t, t.size() == 4 ? t.get(3, String.class) : null);
+        }
+
+        ExportDataFilePermissionRow(Tuple t, String objectName) {
+            permission = t.get(0, Permission.class);
+            executorName = t.get(1, String.class);
+            objectType = t.get(2, SecuredObjectType.class);
+            this.objectName = objectName;
         }
     }
 
     /**
-     *
      * @param parentElement  Parent for "addPermissions" elements.
      * @param query  Must return fields in order: permission, executorName, objectType, [objectName].
      */
-    private void exportDataFileImpl(Element parentElement, JPQLQuery<Tuple> query) {
+    private void exportDataFilePermissions(Element parentElement, JPQLQuery<Tuple> query) {
+        try (final CloseableIterator<Tuple> it = query.iterate()) {
+            exportDataFilePermissionsImpl(parentElement, new CloseableIterator<ExportDataFilePermissionRow>() {
+                @Override
+                public void close() {
+                    it.close();
+                }
+
+                @Override
+                public boolean hasNext() {
+                    return it.hasNext();
+                }
+
+                @Override
+                public ExportDataFilePermissionRow next() {
+                    return new ExportDataFilePermissionRow(it.next());
+                }
+            });
+        }
+    }
+
+    private void exportDataFilePermissions(Element parentElement, ArrayList<ExportDataFilePermissionRow> rows) {
+        val it = rows.iterator();
+        exportDataFilePermissionsImpl(parentElement, new CloseableIterator<ExportDataFilePermissionRow>() {
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public ExportDataFilePermissionRow next() {
+                return it.next();
+            }
+        });
+    }
+
+    private void exportDataFilePermissionsImpl(Element parentElement, CloseableIterator<ExportDataFilePermissionRow> it) {
         SecuredObjectType lastObjectType = null;
         String lastObjectName = null;
         String lastExecutorName = null;
         Element addPermissionsElement = null;
 
-        try (CloseableIterator<Tuple> i = query.iterate()) {
-            while (i.hasNext()) {
-                Tuple t = i.next();
-                Permission permission = t.get(0, Permission.class);
-                String executorName = t.get(1, String.class);
-                SecuredObjectType objectType = t.get(2, SecuredObjectType.class);
-                String objectName = t.size() == 4 ? t.get(3, String.class) : null;
+        while (it.hasNext()) {
+            val row = it.next();
 
-                // Manually group by objectType, objectName, executorName.
-                if (objectType != lastObjectType || !Objects.equals(objectName, lastObjectName) || !Objects.equals(executorName, lastExecutorName)) {
-                    lastObjectType = objectType;
-                    lastObjectName = objectName;
-                    lastExecutorName = executorName;
+            // Manually group by objectType, objectName, executorName.
+            if (row.objectType != lastObjectType || !Objects.equals(row.objectName, lastObjectName) || !Objects.equals(row.executorName,
+                    lastExecutorName)) {
+                lastObjectType = row.objectType;
+                lastObjectName = row.objectName;
+                lastExecutorName = row.executorName;
 
-                    addPermissionsElement = parentElement.addElement("addPermissions", XmlUtils.RUNA_NAMESPACE);
-                    //noinspection ConstantConditions
-                    addPermissionsElement.addAttribute("type", objectType.getName());
-                    if (objectName != null) {
-                        addPermissionsElement.addAttribute("name", objectName);
-                    }
-                    addPermissionsElement.addAttribute("executor", executorName);
-                }
-
+                addPermissionsElement = parentElement.addElement("addPermissions", XmlUtils.RUNA_NAMESPACE);
                 //noinspection ConstantConditions
-                addPermissionsElement.addElement("permission", XmlUtils.RUNA_NAMESPACE).addAttribute("name", permission.getName());
+                addPermissionsElement.addAttribute("type", row.objectType.getName());
+                if (row.objectName != null) {
+                    addPermissionsElement.addAttribute("name", row.objectName);
+                }
+                addPermissionsElement.addAttribute("executor", row.executorName);
             }
+
+            //noinspection ConstantConditions
+            addPermissionsElement.addElement("permission", XmlUtils.RUNA_NAMESPACE).addAttribute("name", row.permission.getName());
         }
     }
 
