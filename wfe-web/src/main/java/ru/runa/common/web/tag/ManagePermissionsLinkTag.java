@@ -6,6 +6,7 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.PermissionWebUtils;
 import ru.runa.wfe.commons.web.PortletUrlType;
+import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -29,6 +30,15 @@ public class ManagePermissionsLinkTag extends BaseLinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
+        if (securedObjectType == SecuredObjectType.DEFINITION) {
+            // ********************************************************************************************************************************
+            // ***** !!!!! DON'T MERGE THIS INTO develop !!!!! This is temporary solution, before table BPM_PROCESS_DEFINITION_VER was created.
+            // ********************************************************************************************************************************
+            WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getUser(), identifiableId);
+            Delegates.getAuthorizationService().isAllowed(
+                    getUser(), Permission.READ_PERMISSIONS, securedObjectType, definition.getIdentifiableId()
+            );
+        }
         return Delegates.getAuthorizationService().isAllowed(
                 getUser(), Permission.READ_PERMISSIONS, securedObjectType, identifiableId != null ? identifiableId : 0
         );
