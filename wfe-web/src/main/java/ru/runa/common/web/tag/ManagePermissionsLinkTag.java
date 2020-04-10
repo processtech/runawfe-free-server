@@ -35,7 +35,7 @@ public class ManagePermissionsLinkTag extends BaseLinkTag {
             // ***** !!!!! DON'T MERGE THIS INTO develop !!!!! This is temporary solution, before table BPM_PROCESS_DEFINITION_VER was created.
             // ********************************************************************************************************************************
             WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getUser(), identifiableId);
-            Delegates.getAuthorizationService().isAllowed(
+            return Delegates.getAuthorizationService().isAllowed(
                     getUser(), Permission.READ_PERMISSIONS, securedObjectType, definition.getIdentifiableId()
             );
         }
