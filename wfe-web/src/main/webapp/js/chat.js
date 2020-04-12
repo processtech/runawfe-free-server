@@ -1,5 +1,13 @@
 $(document).ready(function() {
 //-----------------------------------------
+//протокол
+var socketProtocol = "";
+if(document.location.protocol == "https:"){
+	socketProtocol = "wss:";
+}
+else{
+	socketProtocol = "ws:";
+}
 // id процесса для чата на форме
 if($("input[name='one_task_hidden_field']").val() == "one_task_hidden_field"){
 	var pidff = $("a[href^='/wfe/manage_process.do?id=']").text();
@@ -1276,7 +1284,7 @@ function ajaxInitializationChat(){
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
 				updatenumberNewMessages(0);
 			}
-			chatSocketUrl = "ws://" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + $("#ChatForm").attr("processId");
+			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + $("#ChatForm").attr("processId");
 			chatSocket = new WebSocket(chatSocketUrl);
 			chatSocket.binaryType = "arraybuffer";
 			chatSocket.onmessage = onMessage;
@@ -1310,7 +1318,7 @@ function ajaxAllInitializationChats(){
 		processData: false,
 		success: function(data) {
 			getAllChat(data);
-			chatsNewMessSocketUrl = "ws://" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
+			chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
 			chatsNewMessSocket = new WebSocket(chatsNewMessSocketUrl);
 			chatsNewMessSocket.onmessage = onChatsNewMessSocketMessage;
 			//действия при открытии сокета

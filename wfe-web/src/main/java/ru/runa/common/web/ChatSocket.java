@@ -2,6 +2,7 @@ package ru.runa.common.web;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,14 +27,13 @@ import org.json.simple.parser.JSONParser;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 @ApplicationScoped
-@ServerEndpoint(value = "/chatSoket", configurator = ChatSocketConfigurator.class)
+@ServerEndpoint(value = "/chatSoket", subprotocols = { "wss" }, configurator = ChatSocketConfigurator.class)
 public class ChatSocket {
     private final Log log = LogFactory.getLog(ChatSocket.class);
     @Inject
@@ -321,7 +321,8 @@ public class ChatSocket {
         } else {
             messageObject.put("haveFile", false);
         }
-        String createDateString = CalendarUtil.formatDateTime(dto.getMessage().getCreateDate());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        String createDateString = sdf.format(dto.getMessage().getCreateDate());
         messageObject.put("dateTime", createDateString);
         messageObject.put("hierarchyMessageFlag", StringUtils.isNotBlank(dto.getMessage().getQuotedMessageIds()));
         messagesArrayObject.add(messageObject);
