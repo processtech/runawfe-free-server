@@ -675,6 +675,7 @@ $("#checkBoxPrivateMessage").change(function(){
 	if(this.checked){
 		$("#tablePrivate").css("display","flex");
 		getUsersNames().then(fillingPrivateMessageRecipientTable);
+		$("#variableTable").css({"display":"none"});
 	}
 	else{
 		$("#tablePrivate").css("display","none");
@@ -1347,6 +1348,21 @@ function ajaxLocale(){
 		});
 }
 
+function ajaxVariablesChat(){
+	let urlString="/wfe/ajaxcmd?command=ChatVariables&processId="+$("#ChatForm").attr("processId");
+	$("#modalFooter").append('<button id="btnVariable" type="button">Изменение переменных</button>');
+	$.ajax({
+		type: "POST",
+		url: urlString,
+		dataType: "json",
+		contentType: "application/json; charset=UTF-8",
+		processData: false,
+		success: function(data) {
+			variableChatTable(data);
+		}
+		});
+}
+
 function LocaleText(data){
 	$("#openChatButton").first(data.openChatButton);
 	//$(".modalSwitchingWindowButton").text(data.switchChatButton);
@@ -1393,11 +1409,56 @@ function fillingPrivateMessageRecipientTable(data){
 		}
 	}
 }
+
+function variableChatTable(data){
+	let divTableVariable=$("<div/>");
+	divTableVariable.attr("id","variableTable");
+	let tr=$("<tr/>");
+	let td=$("<td/>");
+	let inputVariables=$("<input/>");
+	inputVariables.attr("class","setVariables");
+	var massiveVariables=data.chatVariables;
+	for(let i=0;i<massiveVariables.length;i++){
+		let cloneTR=tr.clone();
+		let cloneInput=inputVariables.clone();
+		let cloneTDVariable=td.clone();
+		cloneTDVariable.attr("class","variableTD");
+		let cloneTDData=td.clone();
+		cloneTDVariable.append("Variable"+i+"=");
+		cloneInput.attr("value",massiveVariables(i));
+		cloneTDData.append(cloneInput);
+		cloneTR.append(cloneTDVariable);
+		cloneTR.append(cloneTDData);
+		divTableVariable.append(cloneTR);
+	}
+	$(".modal-content").append(divTableVariable);
+	
+}
+
+
+function variableTableShow() {
+	if($("#variableTable").css("display")=="none"){
+		$("#variableTable").css({"display":"block"});
+	}	
+	else{
+		$("#variableTable").css({"display":"none"});
+	}
+}
+$("body").on("click", "#btnVariable",function(){
+	variableTableShow();
+	$("#checkBoxPrivateMessage").prop("checked",false);
+	$("#messReplyTable").empty();
+	$("#tablePrivate table").empty();
+	$("#tablePrivate").css("display","none");
+	
+});
+
 //----------------------------------------------
 //начальные действия
 //запрос на инициализацию
 ajaxInitializationChat();
 ajaxLocale();
+ajaxVariablesChat();
 $("#btnCl").hide();
 btnOpenChat.onclick = openChat;
 btnLoadOldMessages.onclick = loadOldMessages;

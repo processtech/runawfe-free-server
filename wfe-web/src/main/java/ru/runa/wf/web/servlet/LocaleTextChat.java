@@ -34,7 +34,7 @@ public class LocaleTextChat extends JsonAjaxCommand {
         String warningRemoveMessage = propLanguage.getProperty("warningRemoveMessage");
         String warningEditMessage = propLanguage.getProperty("warningEditMessage");
         String openHierarchy = propLanguage.getProperty("openHierarchy");
-        String closeHierarchy = propLanguage.getProperty("closeHierarchy");
+        String closeHierarchy = propLanguage.getProperty("closeHierarchySignature");
         String quoteText = propLanguage.getProperty("quoteText");
         String errorMessFilePart1 = propLanguage.getProperty("errorMessFilePart1");
         String errorMessFilePart2 = propLanguage.getProperty("errorMessFilePart2");
@@ -58,7 +58,8 @@ public class LocaleTextChat extends JsonAjaxCommand {
         outputObject.put("openHierarchy", openHierarchy);
         outputObject.put("closeHierarchy", closeHierarchy);
         outputObject.put("quoteText", quoteText);
-        outputObject.put("closeHierarchy", errorMessFilePart2);
+        outputObject.put("errorMessFilePart1", errorMessFilePart2);
+        outputObject.put("errorMessFilePart2", errorMessFilePart2);
         outputObject.put("textHeader", textHeader);
         return outputObject;
     }

@@ -597,3 +597,27 @@ button, input, checkbox {
 	margin:0;
     background-color: #ffffff;
 }
+
+#variableTable{
+	display: none;
+	height: 15%;
+	width: 40%;
+	top: 60%;
+	left: 100%;
+	background-color: #e9eaed;
+	margin: 6px;
+	position: absolute;
+	box-shadow: 1px 4px 7px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+	overflow-y: scroll;
+	align-items: initial;
+	justify-content: center;
+}
+.variableTD{
+	padding: 5px;
+}
+#btnVariable{
+}
+.setVariables{
+	max-width: 40%;
+	text-overflow: ellipsis;
+}
