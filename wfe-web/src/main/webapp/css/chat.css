@@ -129,7 +129,7 @@ width: max-content;
 }
 
 .openHierarchy:visited {
-	color: #804040;  
+	color: #804040;
 } 
 
 .openHierarchy:hover {
@@ -138,7 +138,7 @@ width: max-content;
 }
 
 .selectionTextQuote{
-	background-size:auto;
+    width: 100%;
 	background-color: #ffffff;
 	background-origin:padding-box;
 	padding: 7px;
