@@ -35,7 +35,7 @@ public class ProcessDefinitionDescriptionFormTag extends ProcessDefinitionBaseFo
 
     @Override
     protected Permission getSubmitPermission() {
-        return Permission.LIST;
+        return Permission.READ;
     }
 
     @Override

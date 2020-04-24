@@ -4,8 +4,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +91,7 @@ public class TaskLogic extends WfCommonLogic {
         ProcessError processError = new ProcessError(ProcessErrorType.system, task.getProcess().getId(), task.getNodeId());
         try {
             if (variables == null) {
-                variables = Maps.newHashMap();
+                variables = new HashMap<>();
             }
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
             ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, task);
@@ -103,7 +103,7 @@ public class TaskLogic extends WfCommonLogic {
             }
             // don't persist selected transition name
             String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
-            Map<String, Object> extraVariablesMap = Maps.newHashMap();
+            Map<String, Object> extraVariablesMap = new HashMap<>();
             extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
             if (SystemProperties.isV3CompatibilityMode()) {
                 extraVariablesMap.put("transition", transitionName);
@@ -243,7 +243,7 @@ public class TaskLogic extends WfCommonLogic {
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
         Process p = processDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.LIST, p);
+        permissionDao.checkAllowed(user, Permission.READ, p);
         if (p.isArchived()) {
             return Collections.emptyList();
         }
@@ -254,7 +254,7 @@ public class TaskLogic extends WfCommonLogic {
         if (includeSubprocesses) {
             List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(cp);
             for (CurrentProcess subprocess : subprocesses) {
-                permissionDao.checkAllowed(user, Permission.LIST, subprocess);
+                permissionDao.checkAllowed(user, Permission.READ, subprocess);
                 for (Task task : taskDao.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
                 }

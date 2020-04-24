@@ -55,7 +55,7 @@ public class BotListTag extends TitledFormTag {
 
     @Override
     public boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override

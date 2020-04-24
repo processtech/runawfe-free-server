@@ -9,80 +9,74 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 public class AuthenticationServiceDelegatePasswordLoginModuleTest extends ServletTestCase {
-
-    private static final String PREFIX = AuthenticationServiceDelegatePasswordLoginModuleTest.class.getName();
-
     private static final String ACTOR1_NAME = "actor1";
-
     private static final String ACTOR2_NAME = "actor2";
-
     private static final String ACTOR_VALID_PWD = "validPWD";
 
-    private ServiceTestHelper th;
+    private final String PREFIX = getClass().getName();
 
+    private ServiceTestHelper h;
     private AuthenticationService authenticationService;
-
     private ExecutorService executorService;
 
     private Actor validActor;
 
-    protected void setUp() throws Exception {
-        th = new ServiceTestHelper(PREFIX);
-        authenticationService = th.getAuthenticationService();
-        executorService = th.getExecutorService();
+    @Override
+    protected void setUp() {
+        h = new ServiceTestHelper(PREFIX);
+        authenticationService = h.getAuthenticationService();
+        executorService = h.getExecutorService();
 
-        validActor = th.createActorIfNotExist(PREFIX + ACTOR1_NAME, "");
-        executorService.setPassword(th.getAdminUser(), validActor, ACTOR_VALID_PWD);
-
-        super.setUp();
+        validActor = h.createActorIfNotExist(PREFIX + ACTOR1_NAME, "");
+        executorService.setPassword(h.getAdminUser(), validActor, ACTOR_VALID_PWD);
     }
 
-    protected void tearDown() throws Exception {
-        th.releaseResources();
-        th = null;
+    @Override
+    protected void tearDown() {
+        h.releaseResources();
+        h = null;
         authenticationService = null;
         executorService = null;
         validActor = null;
-        super.tearDown();
     }
 
-    public void testValidPassword() throws Exception {
+    public void testValidPassword() {
         User validSubject = authenticationService.authenticateByLoginPassword(validActor.getName(), ACTOR_VALID_PWD);
         assertEquals("authenticated subject doesn't contains actor principal", validSubject.getActor(), validActor);
     }
 
-    public void testValidPasswordWithAnotherActorWithSamePassword() throws Exception {
-        Actor actor2 = th.createActorIfNotExist(PREFIX + ACTOR2_NAME, "");
-        executorService.setPassword(th.getAdminUser(), actor2, ACTOR_VALID_PWD);
+    public void testValidPasswordWithAnotherActorWithSamePassword() {
+        Actor actor2 = h.createActorIfNotExist(PREFIX + ACTOR2_NAME, "");
+        executorService.setPassword(h.getAdminUser(), actor2, ACTOR_VALID_PWD);
 
         User validSubject = authenticationService.authenticateByLoginPassword(validActor.getName(), ACTOR_VALID_PWD);
         assertEquals("authenticated subject doesn't contains actor principal", validSubject.getActor(), validActor);
     }
 
-    public void testLoginFakeActor() throws Exception {
+    public void testLoginFakeActor() {
         try {
-            authenticationService.authenticateByLoginPassword(th.getFakeActor().getName(), ACTOR_VALID_PWD);
+            authenticationService.authenticateByLoginPassword(h.getFakeActor().getName(), ACTOR_VALID_PWD);
             fail("allowing fake actor");
         } catch (AuthenticationException e) {
-            // expected
+            // Expected.
         }
     }
 
-    public void testInValidPassword() throws Exception {
+    public void testInValidPassword() {
         try {
             authenticationService.authenticateByLoginPassword(validActor.getName(), ACTOR_VALID_PWD + "Invalid");
             fail("allowing invalid password");
         } catch (AuthenticationException e) {
-            // expected
+            // Expected.
         }
     }
 
-    public void testInValidLogin() throws Exception {
+    public void testInValidLogin() {
         try {
             authenticationService.authenticateByLoginPassword(validActor.getName() + "Invalid", ACTOR_VALID_PWD);
             fail("allowing invalid login");
         } catch (AuthenticationException e) {
-            // expected
+            // Expected.
         }
     }
 }

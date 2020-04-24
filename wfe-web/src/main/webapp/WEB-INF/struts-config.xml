@@ -75,10 +75,6 @@
 		<forward name="manage_relations"
 			path="/manage_relations.do?tabForwardName=manage_relations" />
 		<forward name="manage_system" path="/manage_system.do?tabForwardName=manage_system" />
-		<forward name="manage_scripts" path="/manage_scripts.do?tabForwardName=manage_scripts" />
-		<forward name="manage_errors" path="/manage_errors.do?tabForwardName=manage_errors" />
-		<forward name="manage_substitution_criteria" path="/manage_substitution_criteria.do?tabForwardName=manage_substitution_criteria" />
-		<forward name="manage_datafile" path="/manage_datafile.do?tabForwardName=manage_datafile" />
 		<forward name="manage_settings"
 			path="/manage_settings.do?tabForwardName=manage_settings" />
 		<forward name="version" path="/version.do" />
@@ -207,8 +203,8 @@
 		<action path="/deleteSubstitutionCriterias"
 			type="ru.runa.af.web.action.DeleteSubstitutionCriteriasAction" name="substitutionCriteriasForm"
 			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_substitution_criteria.do" redirect="true" />
-			<forward name="failure" path="/manage_substitution_criteria.do" redirect="true" />
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		<action path="/startProcess" type="ru.runa.wf.web.action.StartProcessAction"
 			name="startProcessForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
@@ -253,8 +249,8 @@
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
 		<action path="/activateFailedProcesses" type="ru.runa.wf.web.action.ActivateFailedProcessesAction" scope="request">
-			<forward name="success" path="/manage_errors.do" redirect="true" />
-			<forward name="failure" path="/manage_errors.do" redirect="true" />
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
 			name="idForm" scope="request">
@@ -619,7 +615,7 @@
 		</action>
 		<action path="/admin_scripts" type="ru.runa.common.web.action.AdminkitScriptsAction"
 			name="adminScriptForm" scope="request" validate="false">
-			<forward name="success" path="/manage_scripts.do" redirect="false" />
+			<forward name="success" path="/manage_system.do" redirect="false" />
 		</action>
 		<action path="/getSessionFile"
 			type="ru.runa.common.web.action.GetSessionFileAction"
@@ -678,10 +674,6 @@
 			parameter="/WEB-INF/af/edit_substitution_criteria.jsp" />
 
 		<action path="/manage_system" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SYSTEM" />
-		<action path="/manage_scripts" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SCRIPTS" />
-		<action path="/manage_errors" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="ERRORS" />
-		<action path="/manage_substitution_criteria" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SUBSTITUTION_CRITERIAS" />
-		<action path="/manage_datafile" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="DATAFILE" />
 
         <action path="/messages_page" type="org.apache.struts.actions.ForwardAction" parameter="/WEB-INF/common/messages_page.jsp" />
 
@@ -820,8 +812,8 @@
 		</action>
 		<action path="/importDataFileAction" type="ru.runa.wf.web.action.ImportDataFileAction"
 			name="fileForm" scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_datafile.do" redirect="true" />
-			<forward name="failure" path="/manage_datafile.do" redirect="true" />
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		
 		<action path="/update_process_variables" type="org.apache.struts.actions.ForwardAction"

@@ -11,21 +11,21 @@ import java.util.Set;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.CollectionUtil;
 
-import static ru.runa.wfe.security.Permission.ALL;
 import static ru.runa.wfe.security.Permission.CANCEL;
 import static ru.runa.wfe.security.Permission.CANCEL_PROCESS;
-import static ru.runa.wfe.security.Permission.CREATE;
+import static ru.runa.wfe.security.Permission.CHANGE_SELF_PASSWORD;
+import static ru.runa.wfe.security.Permission.CREATE_DEFINITION;
+import static ru.runa.wfe.security.Permission.CREATE_EXECUTOR;
 import static ru.runa.wfe.security.Permission.DELETE;
-import static ru.runa.wfe.security.Permission.LIST;
 import static ru.runa.wfe.security.Permission.LOGIN;
 import static ru.runa.wfe.security.Permission.READ;
 import static ru.runa.wfe.security.Permission.READ_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.READ_PROCESS;
-import static ru.runa.wfe.security.Permission.START;
+import static ru.runa.wfe.security.Permission.START_PROCESS;
 import static ru.runa.wfe.security.Permission.UPDATE;
+import static ru.runa.wfe.security.Permission.UPDATE_ACTOR_STATUS;
 import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
-import static ru.runa.wfe.security.Permission.UPDATE_SELF;
-import static ru.runa.wfe.security.Permission.UPDATE_STATUS;
+import static ru.runa.wfe.security.Permission.VIEW_LOGS;
 import static ru.runa.wfe.security.Permission.VIEW_TASKS;
 
 /**
@@ -188,70 +188,43 @@ public final class ApplicablePermissions {
     // List types in aplhabetic order, please. For each type:
     // - Visible permissions: add(type, ...) - in the order they'll appear in editor.
     // - Default permissions: .defaults(...) - in any order; optional: if omitted, first visible permission will be used.
-    // - Hidden  permissions: .hidden(...)   - in any order; READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST (unless visible) must be present for all types.
+    // - Hidden  permissions: .hidden(...)   - in any order; READ_PERMISSIONS, UPDATE_PERMISSIONS, READ (unless visible) must be present for all types.
     // ATTENTION!!! Lists of visible permissions are duplicated in RefactorPermissionsStep3 migration.
     static {
+        add(SecuredObjectType.BOTSTATIONS, READ, UPDATE_PERMISSIONS, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);
 
-        // System singleton:
-        add(SecuredObjectType.BOTSTATIONS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+        add(SecuredObjectType.DEFINITION, READ, UPDATE_PERMISSIONS, READ, UPDATE, DELETE, START_PROCESS, READ_PROCESS, CANCEL_PROCESS)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);
 
-        // System singleton:
-        add(SecuredObjectType.DATAFILE, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+        add(SecuredObjectType.EXECUTOR, READ, UPDATE_PERMISSIONS, UPDATE, UPDATE_ACTOR_STATUS, VIEW_TASKS)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.DEFINITION, ALL, LIST, READ, UPDATE, START, READ_PROCESS, CANCEL_PROCESS)
-                .defaults(LIST)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+        add(SecuredObjectType.PROCESS, READ, UPDATE_PERMISSIONS, CANCEL)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.DEFINITIONS, ALL, LIST, READ, CREATE, UPDATE, START, READ_PROCESS, CANCEL_PROCESS)
-                .defaults(LIST)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+        add(SecuredObjectType.RELATION, READ, UPDATE_PERMISSIONS, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);
 
-        // System singleton:
-        add(SecuredObjectType.ERRORS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+        add(SecuredObjectType.RELATIONS, READ, UPDATE_PERMISSIONS, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.EXECUTOR, LIST, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+        add(SecuredObjectType.REPORT, READ, UPDATE_PERMISSIONS, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.EXECUTORS, ALL, LOGIN, LIST, READ, VIEW_TASKS, CREATE, UPDATE, UPDATE_STATUS, UPDATE_SELF, DELETE)
+        add(SecuredObjectType.REPORTS, READ, UPDATE_PERMISSIONS, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);
+
+        add(SecuredObjectType.SYSTEM, READ, UPDATE_PERMISSIONS, LOGIN, CHANGE_SELF_PASSWORD, CREATE_EXECUTOR, CREATE_DEFINITION, VIEW_LOGS)
                 .defaults(LOGIN)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
-
-        // System singleton:
-        add(SecuredObjectType.LOGS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
-        add(SecuredObjectType.PROCESS, ALL, LIST, READ, UPDATE, CANCEL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
-
-        add(SecuredObjectType.PROCESSES, ALL, LIST, READ, UPDATE, CANCEL)
-                .defaults(LIST)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
-
-        // System singleton:
-        add(SecuredObjectType.RELATIONS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
-        add(SecuredObjectType.REPORT, ALL, READ)
-                .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
-        add(SecuredObjectType.REPORTS, ALL, READ)
-                .defaults(READ)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
-        // System singleton:
-        add(SecuredObjectType.SCRIPTS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
-        // System singleton:
-        add(SecuredObjectType.SUBSTITUTION_CRITERIAS, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
-
-        // System singleton:
-        add(SecuredObjectType.SYSTEM, ALL)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+                .hidden(READ_PERMISSIONS);
     }
 }

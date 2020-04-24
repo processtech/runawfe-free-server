@@ -101,20 +101,6 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
         return authorizationLogic.isAllowedForAny(user, permission, securedObjectType);
     }
 
-    @WebMethod(exclude = true)
-    @Override
-    public boolean isAllowedUpdateExecutor(@NonNull User user, @NonNull Executor object) {
-        return authorizationLogic.isAllowedUpdateExecutor(user, object);
-    }
-
-
-    @WebMethod(exclude = true)
-    @Override
-    public boolean isAllowedUpdateExecutor(@NonNull User user, @NonNull Long id) {
-        return authorizationLogic.isAllowedUpdateExecutor(user, id);
-    }
-
-
     @Override
     @WebResult(name = "result")
     public List<Permission> getIssuedPermissions(@WebParam(name = "user") @NonNull User user,

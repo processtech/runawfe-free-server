@@ -23,7 +23,7 @@ public class DeployReportFormTag extends BaseReportFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.ALL, SecuredSingleton.REPORTS);
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.UPDATE, SecuredSingleton.REPORTS);
 
         ArrayList<WfReportParameter> parameters = (ArrayList<WfReportParameter>) pageContext.getRequest().getAttribute(REPORT_PARAMETERS);
 

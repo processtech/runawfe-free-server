@@ -14,7 +14,7 @@ public class DeleteBotStationLinkTag extends LinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override

@@ -55,7 +55,7 @@ public class BotTaskListTag extends TitledFormTag {
 
     @Override
     public boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class BotTaskListTag extends TitledFormTag {
         tdFormElement.addElement(new Input(Input.hidden, IdsForm.ID_INPUT_NAME, Long.toString(botId)));
         BotService botService = Delegates.getBotService();
         getForm().setEncType(Form.ENC_UPLOAD);
-        boolean disabled = !Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        boolean disabled = !Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
         List<BotTask> tasks = botService.getBotTasks(getUser(), botId);
         int nameSize = 1;
         for (BotTask botTask : tasks) {

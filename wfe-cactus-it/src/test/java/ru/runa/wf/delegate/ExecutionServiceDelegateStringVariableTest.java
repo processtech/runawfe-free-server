@@ -1,12 +1,10 @@
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
+import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.Permission;
@@ -14,54 +12,47 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 
-import com.google.common.collect.Lists;
-
 public class ExecutionServiceDelegateStringVariableTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
 
-    private WfServiceTestHelper th = null;
-
     @Override
-    protected void setUp() throws Exception {
-        th = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
 
-        th.deployValidProcessDefinition();
-
-        Collection<Permission> startPermissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
-
-        super.setUp();
+        h.deployValidProcessDefinition();
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.START_PROCESS, Permission.READ_PROCESS),
+                WfServiceTestHelper.VALID_PROCESS_NAME);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        th.undeployValidProcessDefinition();
-        th.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         executionService = null;
-        super.tearDown();
     }
 
-    public void testLongVariables() throws Exception {
-        Map<String, Object> variables = new HashMap<String, Object>();
+    public void testLongVariables() {
+        val variables = new HashMap<String, Object>();
         {
-            String varName = "variable";
-            String varValue = "";
+            val varName = "variable";
+            val varValue = new StringBuilder();
             for (int i = 0; i < 200; ++i) {
-                varValue = varValue + "-";
+                varValue.append("-");
             }
-            variables.put(varName, varValue);
+            variables.put(varName, varValue.toString());
         }
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, variables);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, variables);
         {
-            String varName = "variable";
-            String varValue = "";
+            val varName = "variable";
+            val varValue = new StringBuilder();
             for (int i = 0; i < 300; ++i) {
-                varValue = varValue + "-";
+                varValue.append("-");
             }
-            variables.put(varName, varValue);
+            variables.put(varName, varValue.toString());
         }
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAdminUser(), BatchPresentationFactory.TASKS.createDefault());
-        th.getTaskService().completeTask(th.getAdminUser(), tasks.get(0).getId(), variables);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAdminUser(), BatchPresentationFactory.TASKS.createDefault());
+        h.getTaskService().completeTask(h.getAdminUser(), tasks.get(0).getId(), variables);
     }
 }

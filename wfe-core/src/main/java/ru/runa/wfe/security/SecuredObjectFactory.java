@@ -14,6 +14,7 @@ import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.QProcessDefinition;
 import ru.runa.wfe.execution.QArchivedProcess;
 import ru.runa.wfe.execution.QCurrentProcess;
+import ru.runa.wfe.relation.QRelation;
 import ru.runa.wfe.report.QReportDefinition;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.user.QExecutor;
@@ -160,10 +161,10 @@ public class SecuredObjectFactory {
         add(singleton.getSecuredObjectType(), new SingletonLoader(singleton));
     }
 
+
+    // Alphabetically, please:
     static {
         add(SecuredSingleton.BOTSTATIONS);
-        add(SecuredSingleton.DATAFILE);
-        add(SecuredSingleton.DEFINITIONS);
 
         add(SecuredObjectType.DEFINITION, new Loader(SecuredObjectType.DEFINITION) {
             @Override
@@ -181,8 +182,6 @@ public class SecuredObjectFactory {
                 return getQueryFactory().select(d.id, d.name).from(d).where(d.name.in(names)).fetch();
             }
         });
-
-        add(SecuredSingleton.ERRORS);
 
         add(SecuredObjectType.EXECUTOR, new Loader(SecuredObjectType.EXECUTOR) {
             @Override
@@ -203,10 +202,6 @@ public class SecuredObjectFactory {
             }
         });
 
-        add(SecuredSingleton.EXECUTORS);
-
-        add(SecuredSingleton.LOGS);
-
         add(SecuredObjectType.PROCESS, new Loader(SecuredObjectType.PROCESS) {
             @Override
             public SecuredObject findById(Long id) {
@@ -220,8 +215,16 @@ public class SecuredObjectFactory {
             }
         });
 
-        add(SecuredSingleton.PROCESSES);
         add(SecuredSingleton.RELATIONS);
+
+        add(SecuredObjectType.RELATION, new Loader(SecuredObjectType.RELATION) {
+            @Override
+            public SecuredObject findById(Long id) {
+                QRelation r = QRelation.relation;
+                return getQueryFactory().selectFrom(r).where(r.id.eq(id)).fetchFirst();
+            }
+        });
+
         add(SecuredSingleton.REPORTS);
 
         add(SecuredObjectType.REPORT, new Loader(SecuredObjectType.REPORT) {
@@ -232,8 +235,6 @@ public class SecuredObjectFactory {
             }
         });
 
-        add(SecuredSingleton.SCRIPTS);
-        add(SecuredSingleton.SUBSTITUTION_CRITERIAS);
         add(SecuredSingleton.SYSTEM);
     }
 }

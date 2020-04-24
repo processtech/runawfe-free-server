@@ -136,11 +136,11 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public int getProcessesCount(User user, BatchPresentation batchPresentation) {
-        return getPersistentObjectCount(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES);
+        return getPersistentObjectCount(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES);
     }
 
     public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation) {
-        List<? extends Process> pp = getPersistentObjects(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES, true);
+        List<? extends Process> pp = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, true);
         return toWfProcesses(pp, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
@@ -375,7 +375,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public WfProcess getProcess(User user, Long id) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(id);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         return new WfProcess(process, getProcessErrors(process));
     }
 
@@ -385,7 +385,7 @@ public class ExecutionLogic extends WfCommonLogic {
             return null;
         }
         Process parentProcess = nodeProcess.getProcess();
-        permissionDao.checkAllowed(user, Permission.LIST, parentProcess);
+        permissionDao.checkAllowed(user, Permission.READ, parentProcess);
         return new WfProcess(parentProcess, getProcessErrors(parentProcess));
     }
 
@@ -394,13 +394,13 @@ public class ExecutionLogic extends WfCommonLogic {
         List<? extends Process> subprocesses = recursive
                 ? nodeProcessDao.getSubprocessesRecursive(process)
                 : nodeProcessDao.getSubprocesses(process);
-        subprocesses = filterSecuredObject(user, subprocesses, Permission.LIST);  // TODO Should also check permission on parent process?
+        subprocesses = filterSecuredObject(user, subprocesses, Permission.READ); // TODO Should also check permission on parent process?
         return toWfProcesses(subprocesses, null);
     }
 
     public List<WfJob> getJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
         Process p = processDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.LIST, p);
+        permissionDao.checkAllowed(user, Permission.READ, p);
         if (p.isArchived()) {
             return Collections.emptyList();
         }
@@ -424,7 +424,7 @@ public class ExecutionLogic extends WfCommonLogic {
     {
         // Search both current and archive even if toPopulateExecutionErrors == true, to check permissions.
         Process process = processDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
 
         // Optimization: erroneous processes don't go to archive.
         if (toPopulateExecutionErrors && process.isArchived()) {
@@ -454,7 +454,7 @@ public class ExecutionLogic extends WfCommonLogic {
             variables = Maps.newHashMap();
         }
         if (SystemProperties.isCheckProcessStartPermissions()) {
-            permissionDao.checkAllowed(user, Permission.START, parsedProcessDefinition.getProcessDefinition());
+            permissionDao.checkAllowed(user, Permission.START_PROCESS, parsedProcessDefinition.getProcessDefinition());
         }
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
         val extraVariablesMap = new HashMap<String, Object>();
@@ -484,7 +484,7 @@ public class ExecutionLogic extends WfCommonLogic {
     public byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId) {
         try {
             Process process = processDao.getNotNull(processId);
-            permissionDao.checkAllowed(user, Permission.LIST, process);
+            permissionDao.checkAllowed(user, Permission.READ, process);
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             Token highlightedToken = null;
             if (taskId != null) {
@@ -554,7 +554,7 @@ public class ExecutionLogic extends WfCommonLogic {
     public byte[] getProcessHistoryDiagram(User user, Long processId, String subprocessId) throws ProcessDoesNotExistException {
         try {
             Process process = processDao.getNotNull(processId);
-            permissionDao.checkAllowed(user, Permission.LIST, process);
+            permissionDao.checkAllowed(user, Permission.READ, process);
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             List<? extends BaseProcessLog> logs = processLogDao.getAll(process);
             List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
@@ -568,7 +568,7 @@ public class ExecutionLogic extends WfCommonLogic {
             throws ProcessDoesNotExistException {
         try {
             Process process = processDao.getNotNull(processId);
-            permissionDao.checkAllowed(user, Permission.LIST, process);
+            permissionDao.checkAllowed(user, Permission.READ, process);
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             List<? extends BaseProcessLog> logs = processLogDao.getAll(process);
             List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
@@ -626,14 +626,14 @@ public class ExecutionLogic extends WfCommonLogic {
     public List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(processId);
         ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         List<SwimlaneDefinition> swimlanes = parsedProcessDefinition.getSwimlanes();
         List<WfSwimlane> result = Lists.newArrayListWithExpectedSize(swimlanes.size());
         for (SwimlaneDefinition swimlaneDefinition : swimlanes) {
             Swimlane swimlane = swimlaneDao.findByProcessAndName(process, swimlaneDefinition.getName());
             Executor assignedExecutor = null;
             if (swimlane != null && swimlane.getExecutor() != null) {
-                if (permissionDao.isAllowed(user, Permission.LIST, swimlane.getExecutor())) {
+                if (permissionDao.isAllowed(user, Permission.READ, swimlane.getExecutor())) {
                     assignedExecutor = swimlane.getExecutor();
                 } else {
                     assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
@@ -651,7 +651,7 @@ public class ExecutionLogic extends WfCommonLogic {
             ParsedProcessDefinition processDefinition = getDefinition(swimlane.getProcess());
             SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlane.getName());
             Executor assignedExecutor = swimlane.getExecutor();
-            if (assignedExecutor == null || !permissionDao.isAllowed(user, Permission.LIST, assignedExecutor)) {
+            if (assignedExecutor == null || !permissionDao.isAllowed(user, Permission.READ, assignedExecutor)) {
                 assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
             }
             listSwimlanes.add(new WfSwimlane(swimlaneDefinition, swimlane, assignedExecutor));
@@ -712,7 +712,7 @@ public class ExecutionLogic extends WfCommonLogic {
         BatchPresentation batchPresentation = BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged();
         int index = batchPresentation.getType().getFieldIndex(CurrentProcessClassPresentation.PROCESS_EXECUTION_STATUS);
         batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
-        List<CurrentProcess> processes = getPersistentObjects(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES, false);
+        List<CurrentProcess> processes = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, false);
         return toWfProcesses(processes, null);
     }
 
@@ -843,7 +843,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
     private List<CurrentProcess> getCurrentProcessesInternal(User user, ProcessFilter filter) {
         List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
-        processes = filterSecuredObject(user, processes, Permission.LIST);
+        processes = filterSecuredObject(user, processes, Permission.READ);
         return processes;
     }
 

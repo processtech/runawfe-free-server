@@ -44,6 +44,6 @@ public class ListNotGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return Permission.LIST;
+        return Permission.READ;
     }
 }

@@ -20,7 +20,7 @@ import ru.runa.wfe.security.Permission;
  */
 public class ReportPropertiesTdBuilder extends BaseTdBuilder {
     public ReportPropertiesTdBuilder() {
-        super(Permission.ALL);
+        super(Permission.READ);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class ProfileLogic extends CommonLogic {
         List<Profile> result = Lists.newArrayListWithCapacity(actorIds.size());
         for (Long actorId : actorIds) {
             Actor actor = executorDao.getActor(actorId);
-            permissionDao.checkAllowed(user, Permission.LIST, actor);
+            permissionDao.checkAllowed(user, Permission.READ, actor);
             result.add(getProfile(actor));
         }
         return result;

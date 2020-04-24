@@ -16,7 +16,7 @@ public class DeployDefinitionLinkTag extends LinkTag {
     @Override
     protected boolean isLinkEnabled() {
         return !WebResources.isBulkDeploymentElements()
-                && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE, SecuredSingleton.DEFINITIONS);
+                && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
     }
 
     @Override

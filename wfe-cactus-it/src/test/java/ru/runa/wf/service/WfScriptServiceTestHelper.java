@@ -1,40 +1,31 @@
 package ru.runa.wf.service;
 
-import java.io.IOException;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.util.Collection;
-
-import ru.runa.wfe.InternalApplicationException;
+import java.util.HashMap;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.security.AuthenticationException;
-import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorDoesNotExistException;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class WfScriptServiceTestHelper extends WfServiceTestHelper {
 
-    public WfScriptServiceTestHelper(String testClassPrefixName) throws Exception {
+    public WfScriptServiceTestHelper(String testClassPrefixName) {
         super(testClassPrefixName);
     }
 
-    public boolean isAllowedToExecutor(SecuredObject securedObject, Executor executor, Permission permission)
-            throws ExecutorDoesNotExistException, InternalApplicationException {
+    public boolean hasOwnPermission(Executor executor, Permission permission, SecuredObject securedObject) {
         Collection<Permission> permissions = authorizationService.getIssuedPermissions(adminUser, executor, securedObject);
         return permissions.contains(permission);
     }
 
-    public boolean isAllowedToExecutorOnDefinition(Permission permission, Executor executor, String processDefinitionName)
-            throws InternalApplicationException {
+    public boolean hasOwnPermissionOnDefinition(Executor executor, Permission permission, String processDefinitionName) {
         WfDefinition definition = definitionService.getLatestProcessDefinition(adminUser, processDefinitionName);
-        return isAllowedToExecutor(definition, executor, permission);
+        return hasOwnPermission(executor, permission, definition);
     }
 
     public boolean areExecutorsWeaklyEqual(Executor e1, Executor e2) {
@@ -55,20 +46,17 @@ public class WfScriptServiceTestHelper extends WfServiceTestHelper {
             }
         }
         return true;
-
     }
 
-    public void executeScript(String resourceName)
-            throws IOException, ExecutorDoesNotExistException, AuthenticationException, AuthorizationException {
-        Delegates.getScriptingService().executeAdminScript(adminUser, readBytesFromFile(resourceName), Maps.<String, byte[]>newHashMap());
+    public void executeScript(String resourceName) {
+        Delegates.getScriptingService().executeAdminScript(adminUser, readBytesFromFile(resourceName), new HashMap<>());
     }
 
-    public WfProcess startProcessInstance(String processDefinitionName, Executor performer) throws InternalApplicationException {
-        Collection<Permission> validPermissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
-        getAuthorizationService().setPermissions(adminUser, performer.getId(), validPermissions,
+    public WfProcess startProcessInstance(String processDefinitionName, Executor performer) {
+        getAuthorizationService().setPermissions(adminUser, performer.getId(),
+                Lists.newArrayList(Permission.START_PROCESS, Permission.READ, Permission.READ_PROCESS),
                 getDefinitionService().getLatestProcessDefinition(adminUser, processDefinitionName));
         getExecutionService().startProcess(adminUser, processDefinitionName, null);
         return getExecutionService().getProcesses(adminUser, getProcessInstanceBatchPresentation()).get(0);
     }
-
 }

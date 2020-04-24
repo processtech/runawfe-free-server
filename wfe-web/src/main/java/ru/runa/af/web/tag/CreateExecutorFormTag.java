@@ -40,7 +40,7 @@ public class CreateExecutorFormTag extends TitledFormTag {
 
     @Override
     public void fillFormElement(TD tdFormElement) {
-        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.CREATE, SecuredSingleton.EXECUTORS);
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.CREATE_EXECUTOR, SecuredSingleton.SYSTEM);
         boolean isActor = CreateExecutorForm.TYPE_ACTOR.equals(type);
         ExecutorTableBuilder builder = new ExecutorTableBuilder(isActor, pageContext);
         tdFormElement.addElement(builder.buildTable());

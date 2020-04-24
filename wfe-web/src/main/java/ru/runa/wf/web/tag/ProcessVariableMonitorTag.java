@@ -102,7 +102,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
     @Override
     protected Permission getSubmitPermission() {
-        return Permission.LIST;
+        return Permission.READ;
     }
 
     @Override

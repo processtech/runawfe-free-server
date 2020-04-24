@@ -37,13 +37,13 @@ public class ReportLogic extends WfCommonLogic {
 
     public WfReport getReportDefinition(User user, Long id) {
         WfReport reportDefinition = reportDefinitionDao.getReportDefinition(id);
-        permissionDao.checkAllowed(user, Permission.LIST, reportDefinition);
+        permissionDao.checkAllowed(user, Permission.READ, reportDefinition);
         return reportDefinition;
     }
 
     public SecuredObject getReportDefinition(User user, String reportName) {
         WfReport reportDefinition = new WfReport(reportDefinitionDao.getReportDefinition(reportName));
-        permissionDao.checkAllowed(user, Permission.LIST, reportDefinition);
+        permissionDao.checkAllowed(user, Permission.READ, reportDefinition);
         return reportDefinition;
     }
 
@@ -60,7 +60,7 @@ public class ReportLogic extends WfCommonLogic {
     }
 
     public void deployReport(User user, WfReport report, byte[] file) {
-        permissionDao.checkAllowed(user, Permission.ALL, SecuredSingleton.REPORTS);
+        permissionDao.checkAllowed(user, Permission.UPDATE, SecuredSingleton.REPORTS);
         ReportDefinition existingByName = reportDefinitionDao.getReportDefinition(report.getName());
         if (existingByName != null) {
             throw new ReportWithNameExistsException(report.getName());
@@ -70,7 +70,7 @@ public class ReportLogic extends WfCommonLogic {
     }
 
     public void redeployReport(User user, WfReport report, byte[] file) throws ReportFileMissingException {
-        permissionDao.checkAllowed(user, Permission.ALL, report);
+        permissionDao.checkAllowed(user, Permission.UPDATE, report);
         ReportDefinition existingByName = reportDefinitionDao.getReportDefinition(report.getName());
         if (existingByName != null && !existingByName.getId().equals(report.getId())) {
             throw new ReportWithNameExistsException(report.getName());
@@ -83,15 +83,15 @@ public class ReportLogic extends WfCommonLogic {
             file = replacedReport.getCompiledReport();
         }
         ReportDefinition reportDefinition = createReportDefinition(report, file);
-        if (!permissionDao.isAllowed(user, Permission.ALL, report)) {
-            throw new AuthorizationException(user + " does not have " + Permission.ALL + " permission to " + report);
+        if (!permissionDao.isAllowed(user, Permission.UPDATE, report)) {
+            throw new AuthorizationException(user + " does not have " + Permission.UPDATE + " permission to " + report);
         }
 
         reportDefinitionDao.redeployReport(reportDefinition);
     }
 
     public void undeployReport(User user, Long reportId) {
-        permissionDao.checkAllowed(user, Permission.ALL, SecuredSingleton.REPORTS);
+        permissionDao.checkAllowed(user, Permission.UPDATE, SecuredSingleton.REPORTS);
         reportDefinitionDao.undeploy(reportId);
     }
 

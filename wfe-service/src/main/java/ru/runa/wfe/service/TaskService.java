@@ -105,7 +105,10 @@ public interface TaskService {
      *            variable values, can contain transition name by key ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY
      * @param swimlaneActorId
      *            actor id who will be assigned to task swimlane, can be <code>null</code>
+     *
+     * @deprecated This method delegates to {@link #completeTask(User, Long, Map)} abandoning {@code swimlaneActorId} argument.
      */
+    @Deprecated
     void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException,
             ValidationException;
 
@@ -117,11 +120,11 @@ public interface TaskService {
      * @param taskId
      *            task id
      * @param variables
-     *            variable values, can contain transition name by key ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY
+     *            Variable values, can contain transition name by key ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY.
+     *            May be null if empty.
      * @return next task in this token or <code>null</code>
      */
-    WfTask completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException,
-            ValidationException;
+    WfTask completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException, ValidationException;
 
     /**
      * Marks task as read.

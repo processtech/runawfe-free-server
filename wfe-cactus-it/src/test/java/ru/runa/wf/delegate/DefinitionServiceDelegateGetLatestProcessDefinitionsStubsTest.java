@@ -2,6 +2,7 @@ package ru.runa.wf.delegate;
 
 import java.util.List;
 
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
@@ -18,54 +19,50 @@ import ru.runa.wfe.service.delegate.Delegates;
  * @author Gritsenko_S
  */
 public class DefinitionServiceDelegateGetLatestProcessDefinitionsStubsTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private DefinitionService definitionService;
-
-    private WfServiceTestHelper helper = null;
-
     private BatchPresentation batchPresentation;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
 
-        helper.deployValidProcessDefinition();
-        batchPresentation = helper.getProcessDefinitionBatchPresentation();
-        super.setUp();
+        h.deployValidProcessDefinition();
+        batchPresentation = h.getProcessDefinitionBatchPresentation();
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition();
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         definitionService = null;
         batchPresentation = null;
-        super.tearDown();
     }
 
-    public void testGetLatestProcessDefinitionsStubsByAuthorizedSubject() throws Exception {
-        List<WfDefinition> processes = definitionService.getProcessDefinitions(helper.getAuthorizedPerformerUser(), batchPresentation, false);
+    public void testGetLatestProcessDefinitionsStubsByAuthorizedUser() {
+        List<WfDefinition> processes = definitionService.getProcessDefinitions(h.getAuthorizedUser(), batchPresentation, false);
 
         assertEquals("definitionDelegate.getLatestDefinitionStub() returned not expected list", 1, processes.size());
         assertEquals("definitionDelegate.getLatestDefinitionStub() returned process with different name", processes.get(0).getName(),
                 WfServiceTestHelper.VALID_PROCESS_NAME);
     }
 
-    public void testGetLatestProcessDefinitionsStubsByUnauthorizedSubject() throws Exception {
-        List<WfDefinition> processes;
+    public void testGetLatestProcessDefinitionsStubsByUnauthorizedUser() {
         try {
-            processes = definitionService.getProcessDefinitions(helper.getUnauthorizedPerformerUser(), batchPresentation, false);
-            assertEquals("testGetLatestDefinitionStubByUnauthorizedSubject returns process definition for unauthorized performer", 0,
-                    processes.size());
+            val processes = definitionService.getProcessDefinitions(h.getUnauthorizedUser(), batchPresentation, false);
+            assertEquals(0, processes.size());
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testGetLatestProcessDefinitionsStubsByFakeSubject() throws Exception {
+    public void testGetLatestProcessDefinitionsStubsByFakeUser() {
         try {
-            definitionService.getProcessDefinitions(helper.getFakeUser(), batchPresentation, false);
-            assertTrue("testGetLatestDefinitionStubByUnauthorizedSubject, no AuthenticationException", false);
+            definitionService.getProcessDefinitions(h.getFakeUser(), batchPresentation, false);
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 }

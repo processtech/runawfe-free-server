@@ -28,7 +28,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 public class UndeployProcessDefinitionTdBuilder extends BaseTdBuilder {
 
     public UndeployProcessDefinitionTdBuilder() {
-        super(Permission.ALL);
+        super(Permission.DELETE);
     }
 
     @Override

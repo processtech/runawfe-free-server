@@ -42,7 +42,7 @@ public class ViewLogsAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         try {
-            Delegates.getAuthorizationService().checkAllowed(getLoggedUser(request), Permission.ALL, SecuredSingleton.LOGS);
+            Delegates.getAuthorizationService().checkAllowed(getLoggedUser(request), Permission.VIEW_LOGS, SecuredSingleton.SYSTEM);
 
             String logDirPath = IoCommons.getLogDirPath();
             request.setAttribute("logDirPath", logDirPath);

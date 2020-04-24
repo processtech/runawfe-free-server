@@ -23,81 +23,79 @@ import com.google.common.collect.Lists;
  * @author Gritsenko_S
  */
 public class ExecutionServiceDelegateStartProcessInstanceTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
 
-    private WfServiceTestHelper helper = null;
-
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
 
-        helper.deployValidProcessDefinition();
-
-        Collection<Permission> startPermissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
-
-        super.setUp();
+        h.deployValidProcessDefinition();
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.START_PROCESS, Permission.READ_PROCESS),
+                WfServiceTestHelper.VALID_PROCESS_NAME);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition();
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         executionService = null;
-        super.tearDown();
     }
 
-    public void testStartProcessInstanceByAuthorizedSubject() throws Exception {
-        Long processInstanceId = executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+    public void testStartProcessInstanceByAuthorizedUser() {
+        Long processInstanceId = executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
         assertNotNull(processInstanceId);
-        List<WfProcess> processInstances = executionService.getProcesses(helper.getAuthorizedPerformerUser(),
-                helper.getProcessInstanceBatchPresentation());
+        List<WfProcess> processInstances = executionService.getProcesses(h.getAuthorizedUser(),
+                h.getProcessInstanceBatchPresentation());
         assertEquals("Process not started", 1, processInstances.size());
         assertEquals(processInstanceId, processInstances.get(0).getId());
     }
 
-    public void testStartProcessInstanceByUnauthorizedSubject() throws Exception {
+    public void testStartProcessInstanceByUnauthorizedUser() {
         try {
-            executionService.startProcess(helper.getUnauthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-            fail("testStartProcessInstanceByUnauthorizedSubject, no AuthorizationException");
+            executionService.startProcess(h.getUnauthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+            fail();
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testStartProcessInstanceByFakeSubject() throws Exception {
+    public void testStartProcessInstanceByFakeUser() {
         try {
-            executionService.startProcess(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-            fail("testStartProcessInstanceByFakeSubject, no AuthenticationException");
+            executionService.startProcess(h.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+            fail("expected AuthenticationException");
         } catch (InvalidDataAccessApiUsageException e) {
-            fail("testStartProcessInstanceByFakeSubject, no AuthenticationException");
+            fail("expected AuthenticationException");
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testStartProcessInstanceByAuthorizedSubjectWithoutSTARTPermission() throws Exception {
+    public void testStartProcessInstanceByAuthorizedUserWithoutSTARTPermission() {
         Collection<Permission> noPermissions = Lists.newArrayList();
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(noPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(noPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
         try {
-            executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-            fail("testStartProcessInstanceByAuthorizedSubjectWithoutSTARTPermission, no AuthorizationException");
+            executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+            fail();
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testStartProcessInstanceByAuthorizedSubjectWithoutREADPermission() throws Exception {
-        Collection<Permission> startPermissions = Lists.newArrayList(Permission.START);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-        List<WfProcess> processInstances = executionService.getProcesses(helper.getAdminUser(), helper.getProcessInstanceBatchPresentation());
+    public void testStartProcessInstanceByAuthorizedUserWithoutREADPermission() {
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.START_PROCESS), WfServiceTestHelper.VALID_PROCESS_NAME);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+        List<WfProcess> processInstances = executionService.getProcesses(h.getAdminUser(), h.getProcessInstanceBatchPresentation());
         assertEquals(1, processInstances.size());
     }
 
-    public void testStartProcessInstanceByAuthorizedSubjectWithInvalidProcessName() throws Exception {
+    public void testStartProcessInstanceByAuthorizedUserWithInvalidProcessName() {
         try {
-            executionService.startProcess(helper.getAuthorizedPerformerUser(), "0_INVALID_PROCESS_NAME", null);
+            executionService.startProcess(h.getAuthorizedUser(), "0_INVALID_PROCESS_NAME", null);
             fail("executionDelegate.startProcessInstance(subj, invalid name), no DefinitionDoesNotExistException");
         } catch (DefinitionDoesNotExistException e) {
+            // Expected.
         }
     }
 }

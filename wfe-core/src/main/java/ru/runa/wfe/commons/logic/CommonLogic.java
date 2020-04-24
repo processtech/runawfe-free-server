@@ -55,10 +55,10 @@ public class CommonLogic {
     protected HibernateQueryFactory queryFactory;
 
     protected <T extends Executor> T checkPermissionsOnExecutor(User user, T executor, Permission permission) {
-        if (executor.getName().equals(SystemExecutors.PROCESS_STARTER_NAME) && permission.equals(Permission.LIST)) {
+        if (executor.getName().equals(SystemExecutors.PROCESS_STARTER_NAME) && permission.equals(Permission.READ)) {
             return executor;
         }
-        if (executor instanceof TemporaryGroup && permission.equals(Permission.LIST)) {
+        if (executor instanceof TemporaryGroup && permission.equals(Permission.READ)) {
             return executor;
         }
         permissionDao.checkAllowed(user, permission, executor);

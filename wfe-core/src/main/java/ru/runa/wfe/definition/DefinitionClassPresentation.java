@@ -35,7 +35,7 @@ public class DefinitionClassPresentation extends ClassPresentation {
                 // get value/show in web getter parameters
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(ProcessDefinition.class, "name"), true, 1,
                         BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] {
-                        Permission.START, "name" }),
+                        Permission.START_PROCESS, "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(ProcessDefinition.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTdBuilder", new Object[] {}),
                 new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDbSource(ProcessDefinition.class, "category"),
