@@ -343,6 +343,23 @@ public class RefactorPermissionsBack extends DbMigration {
         }
 
         deleteBadPermissionMappings(session);
+
+        {
+            // fix RELATION if not exists
+            String type = "RELATION";
+            Number count = (Number) session.createSQLQuery("select count(*) from priveleged_mapping where type = :type").setParameter("type", type)
+                    .uniqueResult();
+            if (count.intValue() == 0) {
+                List<Number> executorIds = session.createSQLQuery("select distinct executor_id from priveleged_mapping order by executor_id").list();
+                SQLQuery qInsert = session.createSQLQuery("insert into priveleged_mapping(" + insertPkColumn() + "type, executor_id) values ("
+                        + insertPkNextVal("priveleged_mapping") + ":type, :executorId)");
+                for (Number e : executorIds) {
+                    qInsert.setParameter("type", type);
+                    qInsert.setParameter("executorId", e);
+                    qInsert.executeUpdate();
+                }
+            }
+        }
     }
 
     /**
