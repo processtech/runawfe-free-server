@@ -19,6 +19,8 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableStoreType;
+import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -127,16 +129,30 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         return variableDefinition;
     }
 
+    private String getProcessFileName(String path) {
+        return path.substring(FileDataProvider.PROCESS_FILE_PROTOCOL.length());
+    }
+
     private void parseDefaultValue(ProcessDefinition processDefinition, VariableDefinition variableDefinition) {
         String stringDefaultValue = (String) variableDefinition.getDefaultValue();
         if (!Strings.isNullOrEmpty(stringDefaultValue)) {
             try {
                 variableDefinition.setDefaultValue(null);
                 VariableFormat variableFormat = FormatCommons.create(variableDefinition);
-                Object value = variableFormat.parse(stringDefaultValue);
-                variableDefinition.setDefaultValue(value);
+
+                if (variableFormat.getJavaClass() == FileVariable.class) {
+                    String fileName = getProcessFileName(stringDefaultValue);
+                    byte[] fileData = processDefinition.getFileData(fileName);
+                    Object value = new FileVariableImpl(fileName, fileData, "");
+                    variableDefinition.setDefaultValue(value);
+                } else {
+                    Object value = variableFormat.parse(stringDefaultValue);
+                    variableDefinition.setDefaultValue(value);
+                }
+
             } catch (Exception e) {
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
+                        || null == processDefinition.getDeployment().getCreateDate()
                         || processDefinition.getDeployment().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
                     throw new InternalApplicationException(
                             "Unable to parse default value '" + stringDefaultValue + "' for variable '" + variableDefinition.getName() + "'", e);

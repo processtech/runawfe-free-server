@@ -130,6 +130,10 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
                 // for process update value
                 return uploadedFile.getFileVariable();
             }
+            else if (uploadedFile.getFileVariable() instanceof FileVariableImpl) {
+                return uploadedFile.getFileVariable();
+            }
+
             if (uploadedFile.getContent() == null) {
                 throw new InternalApplicationException("No content submitted for " + uploadedFile);
             }
