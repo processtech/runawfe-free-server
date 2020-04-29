@@ -34,6 +34,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String USER_TYPE = "usertype";
     private static final String DESCRIPTION = "description";
     private static final String STORE_TYPE = "storeType";
+    private static final String EDIT_IN_CHAT = "editInChat";
 
     @Autowired
     private LocalizationDao localizationDao;
@@ -119,6 +120,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         }
         variableDefinition.initComponentUserTypes(processDefinition);
         variableDefinition.setPublicAccess(Boolean.parseBoolean(element.attributeValue(PUBLIC, "false")));
+        variableDefinition.setEditInChat(Boolean.parseBoolean(element.attributeValue(EDIT_IN_CHAT, "false")));
         variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
         String storeTypeString = element.attributeValue(STORE_TYPE);
         if (!Strings.isNullOrEmpty(storeTypeString)) {

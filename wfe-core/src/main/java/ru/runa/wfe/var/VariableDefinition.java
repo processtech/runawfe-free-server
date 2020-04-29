@@ -46,6 +46,7 @@ public class VariableDefinition implements Serializable {
     // web-service serialization limitation
     private UserType[] formatComponentUserTypes;
     private boolean publicAccess;
+    private boolean editInChat;
     private Object defaultValue;
     private VariableStoreType storeType = VariableStoreType.DEFAULT;
     private transient VariableFormat variableFormat;
@@ -283,6 +284,14 @@ public class VariableDefinition implements Serializable {
 
     public void setStoreType(VariableStoreType storeType) {
         this.storeType = storeType;
+    }
+
+    public boolean isEditInChat() {
+        return editInChat;
+    }
+
+    public void setEditInChat(boolean editInChat) {
+        this.editInChat = editInChat;
     }
 
 }
