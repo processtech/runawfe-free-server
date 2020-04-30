@@ -1,3 +1,4 @@
+<%@page import="ru.runa.wfe.commons.SystemProperties"%>
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.Version"%>
 <%@ page import="ru.runa.common.web.Commons"%>
@@ -16,7 +17,7 @@
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
 <script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
-<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
+
 <% if (WebResources.getDiagramRefreshInterval() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {
@@ -93,7 +94,10 @@ function Reload() {
 		</td>
 	</tr>
 </table>
+<% if(SystemProperties.isChatEnabled()){%>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
 <script type="text/javascript" src="/wfe/js/chat.js"></script>
+<% }%>
 </wf:processInfoForm>
 
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
