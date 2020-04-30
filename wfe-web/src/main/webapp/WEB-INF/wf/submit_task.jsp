@@ -50,11 +50,11 @@
 <% if(SystemProperties.isChatEnabled()){%>
 <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
 <script type="text/javascript" src="/wfe/js/chat.js"></script>
-<% }%>
 <div style="float:left; max-width: 150px; margin-top: -25px;">
 	<a id="openChatButton" onclick="openChat()">Открыть чат <span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 </div>
 <div id="ChatForm"></div>
+<% }%>
 <% if (WebResources.isTaskDelegationEnabled()) { %>
 	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
 <% } %>

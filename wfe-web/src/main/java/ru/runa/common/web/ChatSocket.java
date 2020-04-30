@@ -42,7 +42,7 @@ public class ChatSocket {
 
     @OnOpen
     public void open(Session session, EndpointConfig config) throws IOException {
-        if (SystemProperties.isChatEnabled()) {
+        if (!SystemProperties.isChatEnabled()) {
             session.close();
         }
         else {

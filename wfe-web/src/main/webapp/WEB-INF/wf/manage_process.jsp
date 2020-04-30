@@ -82,10 +82,14 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
+		<% if(SystemProperties.isChatEnabled()){%>
+		<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
+		<script type="text/javascript" src="/wfe/js/chat.js"></script>
 		<td align="right">
 			<a id="openChatButton" onclick="openChat()">Открыть чат <span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 			<div id="ChatForm" processId="<%=id %>"></div>
 		</td>
+		<% }%>
 		<td align="right">
 			<wf:showGraphHistoryLink identifiableId='<%=id %>' href='<%= "/show_graph_history.do?id=" + id %>'  />
 		</td>
@@ -94,10 +98,6 @@ function Reload() {
 		</td>
 	</tr>
 </table>
-<% if(SystemProperties.isChatEnabled()){%>
-<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
-<script type="text/javascript" src="/wfe/js/chat.js"></script>
-<% }%>
 </wf:processInfoForm>
 
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />
