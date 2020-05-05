@@ -188,11 +188,14 @@ width: max-content;
 	animation-name: animatetop;
 	animation-duration: 0.4s;
 	width: 346px;
-	min-width:15vw;
+	min-width:300px;
 	max-width: 50vw;
+	min-height:586px;
 	/*max-height: 67vh;
 	min-height: 67vh;
 	top: 380px;*/
+	height:586px;
+	max-height:870px;
 	padding-top: 0px;
 	margin-bottom: 0px;
 	display: block;
@@ -243,7 +246,7 @@ width: max-content;
 	-webkit-box-orient: vertical;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 0.67rem;
-	height: 390px;
+	height: 50%;
 	overflow-y: scroll;
 	font-weight: 590;
 	font-style:normal;
@@ -269,6 +272,7 @@ width: max-content;
 	position:relative;
 	background-color: #e9eaed;
 	resize: horizontal;
+	height: 30%;
 }
 
 #btnOp {
@@ -486,15 +490,15 @@ input[type=file]::-webkit-file-upload-button {
 
 /*ToDo*/
 #messReplyTable {
-display: block;
-    opacity: 0.7;
+	display: block;
+	opacity: 0.7;
     width: 100%;
     height: 25%;
 }
 
 #filesTable{
 	position: inherit;
-    display: block;
+	display: block;
     opacity: 0.7;
     width: 100%;
     height: 75%;
@@ -505,9 +509,10 @@ display: block;
 	height: 200px;
 }
 .datetr {
-	font-weight: normal; 
-	width: 100%;
-	text-align: right;
+	font-weight: normal;
+    width: max-content;
+    text-align: right;
+    float: right;
 }
 
 #loadNewBessageButton {
@@ -518,6 +523,7 @@ display: block;
 #resizableTarget{
 	width:20px;
 	height:20px;
+	max-height: 30px;
 	float: right;
 	cursor: nw-resize;	
 	-moz-user-select: none;
@@ -528,7 +534,7 @@ display: block;
 }
 
 .modalSwitchingWindow{
-    border-style: none !important;	
+	border-style: none !important;	
     background-color: white;
 	/*padding-top: 5px;*/	
 	width: auto;
@@ -546,7 +552,7 @@ display: block;
 	margin: 5px 0;
 }
 .checkBoxContainer{
-	width: 50%;
+	width: auto;
 	float: right;
 }
 
@@ -555,7 +561,7 @@ display: block;
 }
 .warningText{
 	padding: 5px;
-    float: left;
+	float: left;
 }   
 .modalSwitchingWindow tr:hover {
 	cursor: pointer;
@@ -579,7 +585,7 @@ button, input, checkbox {
 #ChatForm {
 	display: none;
 }
-#tablePrivate{
+#privateBlock{
 	display:none; 
 	position: absolute;
 	width: 40%;
@@ -587,6 +593,21 @@ button, input, checkbox {
 	height: 20%;
 	left: 102%;
 	top: 61%;
+}
+.headTable{
+	height: 15%;
+	bottom: 100%;
+	border-spacing: 0;
+	background-color: #990000;
+	color: white;
+	text-align: left;
+	width: 100%;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-weight: bold;
+}
+#tablePrivate{
+	height:100%;
 	background-color: #e9eaed;
 	align-items: initial;
 	justify-content: center;
@@ -594,30 +615,18 @@ button, input, checkbox {
 	box-shadow: 1px 4px 7px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 }
 #tablePrivate table{
+	width:100%;
 	margin:0;
-    background-color: #ffffff;
+	background-color: #ffffff;
 }
 
-#variableTable{
-	display: none;
-	height: 15%;
-	width: 40%;
-	top: 60%;
-	left: 100%;
-	background-color: #e9eaed;
-	margin: 6px;
-	position: absolute;
-	box-shadow: 1px 4px 7px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
-	overflow-y: scroll;
-	align-items: initial;
-	justify-content: center;
+#resizeImg{
+	width: 20px;
+	height: 20px;
+	pointer-events: none;
 }
-.variableTD{
-	padding: 5px;
-}
-#btnVariable{
-}
-.setVariables{
-	max-width: 40%;
+.userNamePrivate{
 	text-overflow: ellipsis;
+	max-width: 75px;
+	overflow: hidden;
 }

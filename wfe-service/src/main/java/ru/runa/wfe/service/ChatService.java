@@ -28,6 +28,8 @@ public interface ChatService {
 
     public Long getLastReadMessage(User user, Long processId);
 
+    public Long getLastMessage(User user, Long processId);
+
     public List<Long> getActiveChatIds(User user);
 
     public Set<Executor> getAllUsers(User user, Long processId);

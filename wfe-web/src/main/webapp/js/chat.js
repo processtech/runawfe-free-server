@@ -441,7 +441,7 @@ function sendMessage() {
 			$(".warningText").text("0/1024");
 			$("#fileInput").val("");
 			$("#tablePrivate table").empty();
-			$("#tablePrivate").css("display","none");
+			$("#privateBlock").css("display","none");
 		}
 		else{//редактирование сообщения
 			if(confirm(warningEditMessage)){
@@ -667,18 +667,24 @@ $("#message").keyup(function keyupUserNames(event){
 		$(".warningText").css({"color":"black"});
 	}
 });
+let privateBlock=$("<div/>");
+privateBlock.attr("id","privateBlock");
+let headTablePrivate=$("<div/>");
+headTablePrivate.attr("class","headTable");
+headTablePrivate.append("<div style='padding-left:5px;'>Кому отправить</div>");
+privateBlock.append(headTablePrivate);
 let tablePrivateReply=$("<div/>");
 tablePrivateReply.append($("<table/>"));
 tablePrivateReply.attr("id","tablePrivate");
-$(".modal-content").append(tablePrivateReply);
+privateBlock.append(tablePrivateReply);
+$(".modal-content").append(privateBlock);
 $("#checkBoxPrivateMessage").change(function(){
 	if(this.checked){
-		$("#tablePrivate").css("display","flex");
+		$("#privateBlock").css("display","block");
 		getUsersNames().then(fillingPrivateMessageRecipientTable);
-		$("#variableTable").css({"display":"none"});
 	}
 	else{
-		$("#tablePrivate").css("display","none");
+		$("#privateBlock").css("display","none");
 		$("#tablePrivate table").empty();
 	}
 });
@@ -996,7 +1002,7 @@ function addMessages(data){
 					let editMessage0 = $("<a/>");
 					editMessage0.text(editMessageButtonText);
 					editMessage0.click(editMessage);
-					cloneMess.append($("<tr/>").append($("<td/>").append(editMessage0)));
+					cloneMess.find(".addReply").parent().parent().append($("<td/>").append(editMessage0));
 				}
 				// конец
 				// установка сообщения
@@ -1165,7 +1171,7 @@ function getPosition(e){
 
 dragMaster.dragWindow(tagetDrug,windowChat);
 //расстягивание
-$(".modal-content").append("<div id=\"resizableTarget\"></div>")
+$("#modalFooter").append("<div id=\"resizableTarget\"><img id='resizeImg' src='/wfe/images/resize.png'></div>")
 var resizeHandle = document.getElementById("resizableTarget");
 resizeHandle.addEventListener("mousedown", initialResizing, false);
 
@@ -1177,6 +1183,14 @@ function initialResizing(e){
 function startResizing(e){
 	windowChat.style.width = (e.clientX - windowChat.offsetLeft) + "px";
 	windowChat.style.height = (e.clientY - windowChat.offsetTop) + "px";
+	if(parseInt($(".modal-content").css("height"))>840){
+		$(".modal-body").css({"height":"67%"});	
+	}
+	else if(parseInt($(".modal-content").css("height"))>=725){
+		$(".modal-body").css({"height":"60%"});	
+	}else{
+		$(".modal-body").css({"height":"50%"});	
+	}
 }
 
 function stopResizing(e){
@@ -1348,20 +1362,6 @@ function ajaxLocale(){
 		});
 }
 
-function ajaxVariablesChat(){
-	let urlString="/wfe/ajaxcmd?command=ChatVariables&processId="+$("#ChatForm").attr("processId");
-	$("#modalFooter").append('<button id="btnVariable" type="button">Изменение переменных</button>');
-	$.ajax({
-		type: "POST",
-		url: urlString,
-		dataType: "json",
-		contentType: "application/json; charset=UTF-8",
-		processData: false,
-		success: function(data) {
-			variableChatTable(data);
-		}
-		});
-}
 
 function LocaleText(data){
 	$("#openChatButton").first(data.openChatButton);
@@ -1397,8 +1397,11 @@ function fillingPrivateMessageRecipientTable(data){
 		if(userList[i].trim()!=""){
 			let cloneTR=tr.clone();
 			let cloneTDUserName=td.clone();
+			
 			cloneTDUserName.attr("class","userNamePrivate");
+			cloneTDUserName.attr("title",userList[i]+"");
 			let cloneTDCheckBox=td.clone();
+			cloneTDCheckBox.css({"float":"left"});
 			let cloneInputCheckbox=inputCheckbox.clone();
 			cloneInputCheckbox.attr("type","checkbox");
 			cloneTDUserName.append(userList[i]+"");
@@ -1410,55 +1413,15 @@ function fillingPrivateMessageRecipientTable(data){
 	}
 }
 
-function variableChatTable(data){
-	let divTableVariable=$("<div/>");
-	divTableVariable.attr("id","variableTable");
-	let tr=$("<tr/>");
-	let td=$("<td/>");
-	let inputVariables=$("<input/>");
-	inputVariables.attr("class","setVariables");
-	var massiveVariables=data.chatVariables;
-	for(let i=0;i<massiveVariables.length;i++){
-		let cloneTR=tr.clone();
-		let cloneInput=inputVariables.clone();
-		let cloneTDVariable=td.clone();
-		cloneTDVariable.attr("class","variableTD");
-		let cloneTDData=td.clone();
-		cloneTDVariable.append("Variable"+i+"=");
-		cloneInput.attr("value",massiveVariables(i));
-		cloneTDData.append(cloneInput);
-		cloneTR.append(cloneTDVariable);
-		cloneTR.append(cloneTDData);
-		divTableVariable.append(cloneTR);
-	}
-	$(".modal-content").append(divTableVariable);
-	
-}
 
 
-function variableTableShow() {
-	if($("#variableTable").css("display")=="none"){
-		$("#variableTable").css({"display":"block"});
-	}	
-	else{
-		$("#variableTable").css({"display":"none"});
-	}
-}
-$("body").on("click", "#btnVariable",function(){
-	variableTableShow();
-	$("#checkBoxPrivateMessage").prop("checked",false);
-	$("#messReplyTable").empty();
-	$("#tablePrivate table").empty();
-	$("#tablePrivate").css("display","none");
-	
-});
+
 
 //----------------------------------------------
 //начальные действия
 //запрос на инициализацию
 ajaxInitializationChat();
 ajaxLocale();
-ajaxVariablesChat();
 $("#btnCl").hide();
 btnOpenChat.onclick = openChat;
 btnLoadOldMessages.onclick = loadOldMessages;

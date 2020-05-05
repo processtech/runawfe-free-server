@@ -69,6 +69,15 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return lastMesId;
     }
 
+    public Long getLastMessage(Actor user, Long processId) {
+        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
+        Long lastMesId = queryFactory.select(cr.message.id.max()).from(cr).where(cr.executor.eq(user)).fetchFirst();
+        if (lastMesId == null) {
+            lastMesId = -1L;
+        }
+        return lastMesId;
+    }
+
     public List<Long> getActiveChatIds(Actor user) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.message.process.id).from(cr).where(cr.executor.eq(user)).distinct().fetch();

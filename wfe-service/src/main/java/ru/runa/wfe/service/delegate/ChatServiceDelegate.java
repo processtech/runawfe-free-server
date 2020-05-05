@@ -121,5 +121,9 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
         return getChatService().saveChatMessage(user, processId, message, mentionedExecutors, isPrivate);
     }
 
+    @Override
+    public Long getLastMessage(User user, Long processId) {
+        return getChatService().getLastMessage(user, processId);
+    }
 
 }

@@ -66,6 +66,10 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getLastReadMessage(user, processId);
     }
 
+    public Long getLastMessage(Actor user, Long processId) {
+        return chatDao.getLastMessage(user, processId);
+    }
+
     public List<Long> getActiveChatIds(Actor user) {
         List<Long> ret = chatDao.getActiveChatIds(user);
         if (ret == null) {
