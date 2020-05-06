@@ -1,4 +1,4 @@
-<%@page import="ru.runa.wfe.commons.SystemProperties"%>
+<%@page import="javax.jws.WebParam"%>
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.Version"%>
 <%@ page import="ru.runa.common.web.Commons"%>
@@ -82,7 +82,7 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
-		<% if(SystemProperties.isChatEnabled()){%>
+		<% if(WebResources.isChatEnabled()){%>
 		<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
 		<script type="text/javascript" src="/wfe/js/chat.js"></script>
 		<td align="right">

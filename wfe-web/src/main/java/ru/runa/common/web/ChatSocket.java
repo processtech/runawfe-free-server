@@ -24,10 +24,10 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import ru.runa.common.WebResources;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -42,7 +42,7 @@ public class ChatSocket {
 
     @OnOpen
     public void open(Session session, EndpointConfig config) throws IOException {
-        if (!SystemProperties.isChatEnabled()) {
+        if (!WebResources.isChatEnabled()) {
             session.close();
         }
         else {

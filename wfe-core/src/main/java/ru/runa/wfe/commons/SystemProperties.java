@@ -404,9 +404,4 @@ public class SystemProperties {
     public static boolean showErrorsInGroovyExpressionValidator() {
         return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
     }
-    
-    public static boolean isChatEnabled() {
-        return RESOURCES.getBooleanProperty("chat.enabled", true);
-    }
-
 }
