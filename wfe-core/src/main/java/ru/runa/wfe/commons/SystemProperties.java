@@ -229,10 +229,6 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("auto.invocation.local.botstation.enabled", true);
     }
 
-    public static boolean isUpdateProcessVariablesInAPIEnabled() {
-        return RESOURCES.getBooleanProperty("executionServiceAPI.updateVariables.enabled", false);
-    }
-
     public static boolean isExecuteGroovyScriptInAPIEnabled() {
         return RESOURCES.getBooleanProperty("scriptingServiceAPI.executeGroovyScript.enabled", false);
     }
