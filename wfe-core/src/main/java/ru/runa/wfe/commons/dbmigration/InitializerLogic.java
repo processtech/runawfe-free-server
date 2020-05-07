@@ -40,6 +40,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
+import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
@@ -153,6 +154,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             RenameProcessesBatchPresentationClassTypes.class,
             RenameSequences.class,
             AddArchivedProcessExternalData.class,
+ CreateChatDbPatch.class,
             RefactorPermissionsBack.class
     );
 
