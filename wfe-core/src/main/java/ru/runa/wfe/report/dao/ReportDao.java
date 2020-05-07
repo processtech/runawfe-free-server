@@ -23,7 +23,7 @@ public class ReportDao extends GenericDao<ReportDefinition> {
     private static final SecuredObjectType[] SECURED_OBJECTS = new SecuredObjectType[] { SecuredObjectType.REPORT };
 
     public List<WfReport> getReportDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.LIST, SECURED_OBJECTS);
+        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, SECURED_OBJECTS);
         CompilerParameters parameters = CompilerParameters.create(enablePaging).addPermissions(permissions);
         List<ReportDefinition> deployments = new PresentationCompiler<ReportDefinition>(batchPresentation).getBatch(parameters);
         List<WfReport> definitions = Lists.newArrayList();

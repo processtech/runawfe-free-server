@@ -164,7 +164,7 @@ public class LdapLogic {
                     log.info("Creating " + actor);
                     executorDao.create(actor);
                     executorDao.addExecutorsToGroup(Lists.newArrayList(actor), importGroup);
-                    permissionDao.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), actor);
+                    permissionDao.setPermissions(importGroup, Lists.newArrayList(Permission.READ), actor);
                     changesCount++;
                 } else {
                     ldapActorsToDelete.remove(actor);
@@ -279,7 +279,7 @@ public class LdapLogic {
                 log.info("Creating " + group);
                 executorDao.create(group);
                 executorDao.addExecutorsToGroup(Lists.newArrayList(group), importGroup);
-                permissionDao.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), group);
+                permissionDao.setPermissions(importGroup, Lists.newArrayList(Permission.READ), group);
                 changesCount++;
             } else {
                 ldapGroupsToDelete.remove(group);
@@ -357,7 +357,7 @@ public class LdapLogic {
             group = executorDao.getGroup(group.getName());
         } else {
             group = executorDao.create(group);
-            permissionDao.setPermissions(group, Lists.newArrayList(Permission.LOGIN), SecuredSingleton.EXECUTORS);
+            permissionDao.setPermissions(group, Lists.newArrayList(Permission.LOGIN), SecuredSingleton.SYSTEM);
         }
         return group;
     }

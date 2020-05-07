@@ -17,103 +17,108 @@
  */
 package ru.runa.af.delegate;
 
-import java.util.Collection;
-
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import lombok.val;
+import lombok.var;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.ExecutorDoesNotExistException;
-
-import com.google.common.collect.Lists;
 
 /**
- * Created on 20.08.2004
+ * Created on 20.08.2004.
  */
 public class AuthorizationServiceDelegateSetPermissionsTest extends ServletTestCase {
-    private ServiceTestHelper helper;
-
+    private ServiceTestHelper h;
     private AuthorizationService authorizationService;
 
-    private Collection<Permission> p = Lists.newArrayList(Permission.READ, Permission.UPDATE);
-
     @Override
-    protected void setUp() throws Exception {
-        helper = new ServiceTestHelper(AuthorizationServiceDelegateSetPermissionsTest.class.getName());
-        helper.createDefaultExecutorsMap();
-
-        Collection<Permission> executorsP = Lists.newArrayList(Permission.UPDATE);
-        helper.setPermissionsToAuthorizedPerformerOnExecutors(executorsP);
-
+    protected void setUp() {
+        h = new ServiceTestHelper(AuthorizationServiceDelegateSetPermissionsTest.class.getName());
         authorizationService = Delegates.getAuthorizationService();
-        super.setUp();
+
+        h.createDefaultExecutorsMap();
+
+        // authorizationService.setPermissions() requires READ on subject (executors) and UPDATE_PERMISSIONS on object (other executors, system).
+        // Since subject executors are also used as objects, we set both permissions for them.
+        val ppSubject = Lists.newArrayList(Permission.READ, Permission.UPDATE_PERMISSIONS);
+        val ppObject = Lists.newArrayList(Permission.UPDATE_PERMISSIONS);
+        authorizationService.setPermissions(h.getAdminUser(), h.getAuthorizedActor().getId(), ppSubject, h.getBaseGroup());
+        authorizationService.setPermissions(h.getAdminUser(), h.getAuthorizedActor().getId(), ppSubject, h.getBaseGroupActor());
+        h.setPermissionsToAuthorizedActor(ppObject, SecuredSingleton.SYSTEM);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.releaseResources();
+    protected void tearDown() {
+        h.releaseResources();
         authorizationService = null;
-        super.tearDown();
     }
 
-    public void testSetPermissionsFakeSubject() throws Exception {
+    public void testSetPermissionsFakeUser() {
         try {
-            authorizationService.setPermissions(helper.getFakeUser(), helper.getBaseGroupActor().getId(), p, SecuredSingleton.EXECUTORS);
+            val expected = Lists.newArrayList(Permission.READ, Permission.LOGIN);
+            authorizationService.setPermissions(h.getFakeUser(), h.getBaseGroupActor().getId(), expected, SecuredSingleton.SYSTEM);
             fail("AuthorizationDelegate.setPermissions() allows fake subject");
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testSetPermissions() throws Exception {
-        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, helper.getBaseGroup());
-        Collection<Permission> actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(),
-                helper.getBaseGroup());
-        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", p, actual);
+    public void testSetPermissions() {
+        {
+            val expected = Lists.newArrayList(Permission.READ, Permission.UPDATE);
 
-        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroup().getId(), p, helper.getBaseGroupActor());
-        actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroup(), helper.getBaseGroupActor());
-        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", p, actual);
+            authorizationService.setPermissions(h.getAuthorizedUser(), h.getBaseGroupActor().getId(), expected, h.getBaseGroup());
+            var actual = authorizationService.getIssuedPermissions(h.getAdminUser(), h.getBaseGroupActor(), h.getBaseGroup());
+            ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", expected, actual);
 
-        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, SecuredSingleton.EXECUTORS);
-        actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(),
-                SecuredSingleton.EXECUTORS);
-        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", p, actual);
+            authorizationService.setPermissions(h.getAuthorizedUser(), h.getBaseGroup().getId(), expected, h.getBaseGroupActor());
+            actual = authorizationService.getIssuedPermissions(h.getAdminUser(), h.getBaseGroup(), h.getBaseGroupActor());
+            ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", expected, actual);
+        }
+        {
+            val expected = Lists.newArrayList(Permission.READ, Permission.VIEW_LOGS);
+
+            authorizationService.setPermissions(h.getAuthorizedUser(), h.getBaseGroupActor().getId(), expected, SecuredSingleton.SYSTEM);
+            val actual = authorizationService.getIssuedPermissions(h.getAdminUser(), h.getBaseGroupActor(), SecuredSingleton.SYSTEM);
+            ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", expected, actual);
+        }
     }
 
-    public void testSetNoPermission() throws Exception {
-        p = Lists.newArrayList();
-        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, helper.getBaseGroup());
-        Collection<Permission> actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(),
-                helper.getBaseGroup());
-        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", p, actual);
+    public void testSetNoPermission() {
+        val expected = new ArrayList<Permission>();
+        authorizationService.setPermissions(h.getAuthorizedUser(), h.getBaseGroupActor().getId(), expected, h.getBaseGroup());
+        val actual = authorizationService.getIssuedPermissions(h.getAdminUser(), h.getBaseGroupActor(), h.getBaseGroup());
+        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.setPermissions() does not set right permissions", expected, actual);
     }
 
-    public void testSetPermissionsUnauthorized() throws Exception {
+    public void testSetPermissionsUnauthorized() {
+        val expected = new ArrayList<Permission>();
         try {
-            authorizationService.setPermissions(helper.getUnauthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p, helper.getBaseGroup());
+            authorizationService.setPermissions(h.getUnauthorizedUser(), h.getBaseGroupActor().getId(), expected, h.getBaseGroup());
             fail("AuthorizationDelegate.setPermissions() allows unauthorized operation");
         } catch (AuthorizationException e) {
+            // Expected.
         }
 
         try {
-            authorizationService.setPermissions(helper.getUnauthorizedPerformerUser(), helper.getBaseGroup().getId(), p, helper.getBaseGroupActor());
+            authorizationService.setPermissions(h.getUnauthorizedUser(), h.getBaseGroup().getId(), expected, h.getBaseGroupActor());
             fail("AuthorizationDelegate.setPermissions() allows unauthorized operation");
         } catch (AuthorizationException e) {
+            // Expected.
         }
 
         try {
-            authorizationService.setPermissions(helper.getUnauthorizedPerformerUser(), helper.getBaseGroupActor().getId(), p,
-                    SecuredSingleton.EXECUTORS);
+            authorizationService.setPermissions(h.getUnauthorizedUser(), h.getBaseGroupActor().getId(), expected, SecuredSingleton.SYSTEM);
             fail("AuthorizationDelegate.setPermissions() allows unauthorized operation");
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
-
 }

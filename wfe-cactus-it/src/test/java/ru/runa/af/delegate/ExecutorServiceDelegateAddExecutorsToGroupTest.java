@@ -19,85 +19,88 @@
 package ru.runa.af.delegate;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.*;
-
-import java.util.Collection;
+import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.ExecutorDoesNotExistException;
+import ru.runa.wfe.user.Group;
 
 /*
  */
 public class ExecutorServiceDelegateAddExecutorsToGroupTest extends ServletTestCase {
-    private ServiceTestHelper th;
-
+    private ServiceTestHelper h;
     private ExecutorService executorService;
 
-    private static String testPrefix = ExecutorServiceDelegateAddExecutorsToGroupTest.class.getName();
-
     private Actor actor;
-
     private Group additionalGroup;
-
     private Actor additionalActor;
 
     private final Collection<Permission> updatePermissions = Lists.newArrayList(Permission.UPDATE);
-
     private final Collection<Permission> readPermissions = Lists.newArrayList(Permission.READ);
 
-    protected void setUp() throws Exception {
+    @Override
+    protected void setUp() {
         executorService = Delegates.getExecutorService();
-        th = new ServiceTestHelper(testPrefix);
-        th.createDefaultExecutorsMap();
+        h = new ServiceTestHelper(getClass().getName());
+        h.createDefaultExecutorsMap();
 
-        actor = th.getBaseGroupActor();
-        th.setPermissionsToAuthorizedPerformer(readPermissions, actor);
+        actor = h.getBaseGroupActor();
+        h.setPermissionsToAuthorizedActor(readPermissions, actor);
 
-        additionalGroup = th.createGroupIfNotExist("additionalG", "Additional Group");
-        additionalActor = th.createActorIfNotExist("additionalA", "Additional Actor");
-        th.setPermissionsToAuthorizedPerformer(readPermissions, additionalActor);
-        th.setPermissionsToAuthorizedPerformer(readPermissions, additionalGroup);
-
-        super.setUp();
+        additionalGroup = h.createGroupIfNotExist("additionalG", "Additional Group");
+        additionalActor = h.createActorIfNotExist("additionalA", "Additional Actor");
+        h.setPermissionsToAuthorizedActor(readPermissions, additionalActor);
+        h.setPermissionsToAuthorizedActor(readPermissions, additionalGroup);
     }
 
-    public void testAddExecutorByAuthorizedPerformer() throws Exception {
-        assertFalse("Executor not added to group ", th.isExecutorInGroup(additionalActor, additionalGroup));
+    @Override
+    protected void tearDown() {
+        h.releaseResources();
+        executorService = null;
+        actor = null;
+        additionalActor = null;
+        additionalGroup = null;
+    }
+
+    public void testAddExecutorByAuthorizedUser() {
+        assertFalse("Executor not added to group ", h.isExecutorInGroup(additionalActor, additionalGroup));
         try {
-            executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList(additionalActor.getId()),
+            executorService.addExecutorsToGroup(h.getAuthorizedUser(), Lists.newArrayList(additionalActor.getId()),
                     additionalGroup.getId());
             fail("Executor added to group without corresponding permissions");
         } catch (AuthorizationException e) {
-            // this is supposed result
+            // Expected.
         }
 
-        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalActor);
-        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
+        h.setPermissionsToAuthorizedActor(updatePermissions, additionalActor);
+        h.setPermissionsToAuthorizedActor(updatePermissions, additionalGroup);
 
-        executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList(additionalActor.getId()), additionalGroup.getId());
+        executorService.addExecutorsToGroup(h.getAuthorizedUser(), Lists.newArrayList(additionalActor.getId()), additionalGroup.getId());
 
-        additionalActor = executorService.getExecutor(th.getAuthorizedPerformerUser(), additionalActor.getId());
-        additionalGroup = executorService.getExecutor(th.getAuthorizedPerformerUser(), additionalGroup.getId());
+        additionalActor = executorService.getExecutor(h.getAuthorizedUser(), additionalActor.getId());
+        additionalGroup = executorService.getExecutor(h.getAuthorizedUser(), additionalGroup.getId());
 
-        assertTrue("Executor not added to group ", th.isExecutorInGroup(additionalActor, additionalGroup));
+        assertTrue("Executor not added to group ", h.isExecutorInGroup(additionalActor, additionalGroup));
     }
 
-    public void testAddExecutorByUnAuthorizedPerformer() throws Exception {
+    public void testAddExecutorByUnAuthorizedUser() {
         try {
-            executorService.addExecutorsToGroup(th.getUnauthorizedPerformerUser(), Lists.newArrayList(actor.getId()), additionalGroup.getId());
-            assertTrue("Executor not added to group ", th.isExecutorInGroup(additionalActor, additionalGroup));
+            executorService.addExecutorsToGroup(h.getUnauthorizedUser(), Lists.newArrayList(actor.getId()), additionalGroup.getId());
+            assertTrue("Executor not added to group ", h.isExecutorInGroup(additionalActor, additionalGroup));
         } catch (AuthorizationException e) {
-            // this is supposed result
+            // Expected.
         }
     }
 
-    public void testAddFakeExecutor() throws Exception {
-        th.setPermissionsToAuthorizedPerformer(updatePermissions, additionalGroup);
+    public void testAddFakeExecutor() {
+        h.setPermissionsToAuthorizedActor(updatePermissions, additionalGroup);
         try {
-            executorService.addExecutorsToGroup(th.getAuthorizedPerformerUser(), Lists.newArrayList(th.getFakeActor().getId()),
+            executorService.addExecutorsToGroup(h.getAuthorizedUser(), Lists.newArrayList(h.getFakeActor().getId()),
                     additionalGroup.getId());
             fail("Executor added to group ");
         } catch (AuthorizationException e) {
@@ -107,14 +110,4 @@ public class ExecutorServiceDelegateAddExecutorsToGroupTest extends ServletTestC
             fail("TODO trap");
         }
     }
-
-    protected void tearDown() throws Exception {
-        th.releaseResources();
-        executorService = null;
-        actor = null;
-        additionalActor = null;
-        additionalGroup = null;
-        super.tearDown();
-    }
-
 }

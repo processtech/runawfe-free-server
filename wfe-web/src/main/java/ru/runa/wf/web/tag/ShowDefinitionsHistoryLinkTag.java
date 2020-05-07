@@ -14,7 +14,7 @@ public class ShowDefinitionsHistoryLinkTag extends LinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, SecuredSingleton.DEFINITIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
     }
 
     @Override

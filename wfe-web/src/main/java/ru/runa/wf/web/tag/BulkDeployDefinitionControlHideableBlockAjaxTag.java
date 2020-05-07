@@ -122,6 +122,6 @@ public class BulkDeployDefinitionControlHideableBlockAjaxTag extends AbstractRet
     private boolean isBulkDeployEnabled() {
         User user = Commons.getUser(pageContext.getSession());
         return WebResources.isBulkDeploymentElements() &&
-                Delegates.getAuthorizationService().isAllowed(user, Permission.CREATE, SecuredSingleton.DEFINITIONS);
+                Delegates.getAuthorizationService().isAllowed(user, Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
     }
 }

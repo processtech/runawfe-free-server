@@ -17,26 +17,20 @@
  */
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
-import java.util.HashMap;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
-
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.security.AuthenticationException;
-import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
-import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 20.04.2005
@@ -47,56 +41,44 @@ import com.google.common.collect.Lists;
 public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
     private final static String STATE_1_TYPE = "html";
     private final static String STATE_2_TYPE = "swt";
+    private static final String VARIABLE_DEFAULT_FORMAT = "ru.runa.bpm.web.formgen.format.DefaultFormat";
+    private static final String VARIABLE_DOUBLE_FORMAT = "ru.runa.bpm.web.formgen.format.DoubleFormat";
 
-    final String VARIABLE_DEFAULT_FORMAT = "ru.runa.bpm.web.formgen.format.DefaultFormat";
-
-    final String VARIABLE_DOUBLE_FORMAT = "ru.runa.bpm.web.formgen.format.DoubleFormat";
-
-    private ExecutionService executionService;
-
+    private WfServiceTestHelper h = null;
     private DefinitionService definitionService;
-
-    private WfServiceTestHelper th = null;
-
     private WfTask task;
 
-    protected static final long FAKE_ID = -1;
-    protected static final String FAKE_NAME = "FAKE NAME OF TASK";
-
     @Override
-    protected void setUp() throws Exception {
-        th = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
-        executionService = Delegates.getExecutionService();
 
-        definitionService.deployProcessDefinition(th.getAdminUser(),
+        definitionService.deployProcessDefinition(h.getAdminUser(),
                 WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"));
 
-        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
+        val pp = Lists.newArrayList(Permission.START_PROCESS, Permission.READ_PROCESS);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(pp, WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
 
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME, null);
-        super.setUp();
+        Delegates.getExecutionService().startProcess(h.getAuthorizedUser(), WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME, null);
     }
 
-    private void initTaskData() throws AuthorizationException, AuthenticationException {
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
+    @Override
+    protected void tearDown() {
+        h.undeployValidProcessDefinition(WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
+        h.releaseResources();
+        definitionService = null;
+    }
+
+    private void initTaskData() {
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
         assertNotNull(tasks);
-        assertEquals(tasks.size() > 0, true);
+        assertTrue(tasks.size() > 0);
         task = tasks.get(0);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        th.undeployValidProcessDefinition(WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
-        th.releaseResources();
-        definitionService = null;
-        super.tearDown();
-    }
-
-    public void testGetFormTestByAuthorizedSubject() throws Exception {
+    public void testGetFormTestByAuthorizedUser() {
         initTaskData();
-        Interaction interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), task.getDefinitionId(), task.getNodeId());
+        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), task.getDefinitionId(), task.getNodeId());
         // TODO assertEquals("form name differ from original", STATE_1_NAME,
         // interaction.getStateName());
         // TODO assertEquals("form name differ from original", STATE_1_TYPE,
@@ -104,35 +86,37 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
 
     }
 
-    public void testGetFormTestByUnauthorizedSubject() throws Exception {
+    public void testGetFormTestByUnauthorizedUser() {
         initTaskData();
-        definitionService.getTaskNodeInteraction(th.getUnauthorizedPerformerUser(), task.getDefinitionId(), task.getNodeId());
+        definitionService.getTaskNodeInteraction(h.getUnauthorizedUser(), task.getDefinitionId(), task.getNodeId());
     }
 
-    public void testGetFormTestByFakeSubject() throws Exception {
+    public void testGetFormTestByFakeUser() {
         initTaskData();
         try {
-            task = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation()).get(0);
-            definitionService.getTaskNodeInteraction(th.getFakeUser(), task.getDefinitionId(), task.getNodeId());
-            fail("testGetFormTestByFakeSubject , no AuthenticationException");
+            task = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation()).get(0);
+            definitionService.getTaskNodeInteraction(h.getFakeUser(), task.getDefinitionId(), task.getNodeId());
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testGetFormTestByAuthorizedSubjectWithInvalidDefinitionId() throws Exception {
+    public void testGetFormTestByAuthorizedUserWithInvalidDefinitionId() {
         initTaskData();
         try {
-            definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), -1l, "");
-            fail("testGetFormTestByAuthorizedSubjectWithInvalidDefinitionId , no Exception");
+            definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), -1L, "");
+            fail();
         } catch (DefinitionDoesNotExistException e) {
+            // Expected.
         }
     }
 
-    public void testCheckForm() throws Exception {
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
-        assertEquals(tasks.size() > 0, true);
+    public void testCheckForm() {
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
+        assertTrue(tasks.size() > 0);
 
-        Interaction interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(),
+        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionId(),
                 tasks.get(0).getNodeId());
 
         // TODO assertEquals("state name differs from expected", STATE_1_NAME,
@@ -167,10 +151,10 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
             // assertTrue("optional variable flag was set to true",
             // var.isOptional());
 
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+            h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), null);
 
-            tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
-            interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(),
+            tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
+            interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionId(),
                     tasks.get(0).getNodeId());
 
             // TODO assertEquals("state name differs from expected",
@@ -187,5 +171,4 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
             // var.isOptional());
         }
     }
-
 }

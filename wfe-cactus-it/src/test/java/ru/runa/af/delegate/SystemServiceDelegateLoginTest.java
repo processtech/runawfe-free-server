@@ -17,62 +17,58 @@
  */
 package ru.runa.af.delegate;
 
+import com.google.common.collect.Lists;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.SystemService;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 16.08.2004
  */
-public class AASystemServiceDelegateLoginTest extends ServletTestCase {
-    private ServiceTestHelper th;
+public class SystemServiceDelegateLoginTest extends ServletTestCase {
+    private ServiceTestHelper h;
     private SystemService systemService;
-    private static String testPrefix = AASystemServiceDelegateLoginTest.class.getName();
 
     @Override
-    protected void tearDown() throws Exception {
-        th.releaseResources();
-        systemService = null;
-        super.tearDown();
-    }
-
-    @Override
-    protected void setUp() throws Exception {
+    protected void setUp() {
         systemService = Delegates.getSystemService();
-        th = new ServiceTestHelper(testPrefix);
-        th.createDefaultExecutorsMap();
-        th.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.LOGIN));
-        super.setUp();
+        h = new ServiceTestHelper(getClass().getName());
+
+        h.createDefaultExecutorsMap();
+        h.setPermissionsToAuthorizedActor(Lists.newArrayList(Permission.LOGIN), SecuredSingleton.SYSTEM);
     }
 
-    public void testLoginWithUnauthorizedPerformer() throws Exception {
+    @Override
+    protected void tearDown() {
+        h.releaseResources();
+        systemService = null;
+    }
+
+    public void testLoginWithUnauthorizedUser() {
         try {
-            systemService.login(th.getUnauthorizedPerformerUser());
+            systemService.login(h.getUnauthorizedUser());
             fail("SystemServiceDelegate does not throw AuthorizationFailedException on login() with unauthorized performer user call.");
         } catch (AuthorizationException e) {
-            // that's what we expected
+            // Expected.
         }
     }
 
-    public void testLoginWithAuthorizedPerformer() throws Exception {
-        systemService.login(th.getAuthorizedPerformerUser());
+    public void testLoginWithAuthorizedUser() {
+        systemService.login(h.getAuthorizedUser());
         assertTrue("SystemServiceDelegate.login() works.", true);
     }
 
-    public void testLoginWithFakeUser() throws Exception {
+    public void testLoginWithFakeUser() {
         try {
-            systemService.login(th.getFakeUser());
+            systemService.login(h.getFakeUser());
             fail("SystemServiceDelegate does not throw AuthorizationFailedException on login() with fakeUser call.");
         } catch (AuthenticationException e) {
-            // that's what we expected
+            // Expected.
         }
     }
-
 }

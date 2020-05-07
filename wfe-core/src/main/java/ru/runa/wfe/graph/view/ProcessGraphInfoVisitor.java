@@ -105,7 +105,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
      */
     private boolean hasReadPermission(Process process) {
         PermissionDao permissionDao = ApplicationContextFactory.getPermissionDAO();
-        return permissionDao.isAllowed(user, Permission.LIST, process);
+        return permissionDao.isAllowed(user, Permission.READ, process);
     }
 
 }

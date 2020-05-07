@@ -17,12 +17,10 @@
  */
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
-import java.util.HashMap;
+import com.google.common.collect.Lists;
 import java.util.List;
-
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -40,18 +38,13 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 
-import com.google.common.collect.Lists;
-
 /**
  * This test class is to check concurrent work of 2 users concerning "Assign task" function.<br />
- * It does not take into account substitution logic.
+ * It does not take substitution logic into account.
  * 
  * @see ExecutionServiceDelegateSubstitutionAssignTaskTest
  */
 public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
-
-    private final static String PREFIX = ExecutionServiceDelegateAssignTaskTest.class.getName();
-
     private static final String PROCESS_NAME = WfServiceTestHelper.SWIMLANE_SAME_GROUP_SEQ_PROCESS_NAME;
 
     private final static String nameActor1 = "actor1";
@@ -61,54 +54,46 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
     private final static String pwdActor1 = "123";
     private final static String pwdActor2 = "123";
 
-    private Actor actor1;
-    private Actor actor2;
-    private Group group;
-
     private User actor1User = null;
     private User actor2User = null;
 
-    private WfServiceTestHelper testHelper;
-
+    private WfServiceTestHelper h;
     private BatchPresentation batchPresentation;
 
     @Override
-    protected void setUp() throws Exception {
-        testHelper = new WfServiceTestHelper(PREFIX);
+    protected void setUp() {
+        val prefix = getClass().getName();
+        h = new WfServiceTestHelper(prefix);
+        batchPresentation = h.getTaskBatchPresentation();
 
-        actor1 = testHelper.createActorIfNotExist(nameActor1, PREFIX);
-        testHelper.getExecutorService().setPassword(testHelper.getAdminUser(), actor1, pwdActor1);
-        actor2 = testHelper.createActorIfNotExist(nameActor2, PREFIX);
-        testHelper.getExecutorService().setPassword(testHelper.getAdminUser(), actor2, pwdActor2);
-        group = testHelper.createGroupIfNotExist(nameGroup, "description");
-        testHelper.addExecutorToGroup(actor1, group);
-        testHelper.addExecutorToGroup(actor2, group);
+        Actor actor1 = h.createActorIfNotExist(nameActor1, prefix);
+        h.getExecutorService().setPassword(h.getAdminUser(), actor1, pwdActor1);
+        Actor actor2 = h.createActorIfNotExist(nameActor2, prefix);
+        h.getExecutorService().setPassword(h.getAdminUser(), actor2, pwdActor2);
+        Group group = h.createGroupIfNotExist(nameGroup, "description");
+        h.addExecutorToGroup(actor1, group);
+        h.addExecutorToGroup(actor2, group);
 
         {
-            Collection<Permission> perm = Lists.newArrayList(Permission.LOGIN);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), group.getId(), perm, SecuredSingleton.EXECUTORS);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), perm, SecuredSingleton.EXECUTORS);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor2.getId(), perm, SecuredSingleton.EXECUTORS);
+            val pp = Lists.newArrayList(Permission.LOGIN);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), group.getId(), pp, SecuredSingleton.SYSTEM);  // TODO What for?
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), actor1.getId(), pp, SecuredSingleton.SYSTEM);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), actor2.getId(), pp, SecuredSingleton.SYSTEM);
         }
 
-        actor1User = testHelper.getAuthenticationService().authenticateByLoginPassword(nameActor1, pwdActor1);
-        actor2User = testHelper.getAuthenticationService().authenticateByLoginPassword(nameActor2, pwdActor2);
+        actor1User = h.getAuthenticationService().authenticateByLoginPassword(nameActor1, pwdActor1);
+        actor2User = h.getAuthenticationService().authenticateByLoginPassword(nameActor2, pwdActor2);
 
         byte[] parBytes = WfServiceTestHelper.readBytesFromFile(PROCESS_NAME + ".par");
-        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
-        WfDefinition definition = testHelper.getDefinitionService().getLatestProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME);
-        Collection<Permission> definitionPermission = Lists.newArrayList(Permission.START);
-        testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), definitionPermission, definition);
-
-        batchPresentation = testHelper.getTaskBatchPresentation();
-        super.setUp();
+        h.getDefinitionService().deployProcessDefinition(h.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
+        WfDefinition definition = h.getDefinitionService().getLatestProcessDefinition(h.getAdminUser(), PROCESS_NAME);
+        h.getAuthorizationService().setPermissions(h.getAdminUser(), actor1.getId(), Lists.newArrayList(Permission.START_PROCESS), definition);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        testHelper.getDefinitionService().undeployProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME, null);
-        testHelper.releaseResources();
-        super.tearDown();
+    protected void tearDown() {
+        h.getDefinitionService().undeployProcessDefinition(h.getAdminUser(), PROCESS_NAME, null);
+        h.releaseResources();
     }
 
     /**
@@ -117,16 +102,14 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
      * <li>User 1 assigns a task</li>
      * <li>User 2 tries to assign the task</li>
      * </ul>
-     * 
-     * @throws Exception
      */
     // 1
-    public void testAssignAssigned() throws Exception {
+    public void testAssignAssigned() {
         {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
         for (int i = 0; i < 3; ++i) {
             moveAssignAssigned();
         }
@@ -142,15 +125,13 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
      * <li>User 1 executes a task</li>
      * <li>User 2 tries to assign the task</li>
      * </ul>
-     * 
-     * @throws Exception
      */
-    public void testAssignMoved() throws Exception {
+    public void testAssignMoved() {
         {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
         for (int i = 0; i < 3; ++i) {
             try {
                 moveAssignMoved();
@@ -172,15 +153,13 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
      * <li>User 1 assign a task</li>
      * <li>User 2 tries to move the task</li>
      * </ul>
-     * 
-     * @throws Exception
      */
-    public void testMoveAssigned() throws Exception {
+    public void testMoveAssigned() {
         {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
         for (int i = 0; i < 3; ++i) {
             moveMoveAssigned();
         }
@@ -196,19 +175,17 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
      * <li>User 1 executes a task</li>
      * <li>User 2 tries to execute the task</li>
      * </ul>
-     * 
-     * @throws Exception
      */
-    public void testMoveMoved() throws Exception {
+    public void testMoveMoved() {
         {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
         moveExecuteExecuted();
     }
 
-    private void moveAssignAssigned() throws Exception {
+    private void moveAssignAssigned() {
         WfTask[] tasks1, tasks2;
 
         {
@@ -216,7 +193,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks2 = checkTaskList(actor2User, 1);
         }
         Actor actor = actor1User.getActor();
-        testHelper.getTaskService().assignTask(actor1User, tasks1[0].getId(), tasks1[0].getOwner(), actor);
+        h.getTaskService().assignTask(actor1User, tasks1[0].getId(), tasks1[0].getOwner(), actor);
         {
             tasks1 = checkTaskList(actor1User, 1);
             checkTaskList(actor2User, 0);
@@ -226,22 +203,22 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(actor1User, tasks1[0].getId(), null);
     }
 
-    private void moveAssignMoved() throws Exception {
+    private void moveAssignMoved() {
         WfTask[] tasks1, tasks2;
 
         {
             tasks1 = checkTaskList(actor1User, 1);
             tasks2 = checkTaskList(actor2User, 1);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(actor1User, tasks1[0].getId(), null);
         assertExceptionThrownOnAssign(actor2User, tasks2[0]);
     }
 
     // ------------------------------------------------------------------------------------------------------------------------
-    private void moveMoveAssigned() throws Exception {
+    private void moveMoveAssigned() {
         WfTask[] tasks1, tasks2;
 
         {
@@ -249,7 +226,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks2 = checkTaskList(actor2User, 1);
         }
         Actor actor = actor1User.getActor();
-        testHelper.getTaskService().assignTask(actor1User, tasks1[0].getId(), tasks1[0].getOwner(), actor);
+        h.getTaskService().assignTask(actor1User, tasks1[0].getId(), tasks1[0].getOwner(), actor);
         {
             tasks1 = checkTaskList(actor1User, 1);
             checkTaskList(actor2User, 0);
@@ -259,17 +236,17 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             tasks1 = checkTaskList(actor1User, 1);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(actor1User, tasks1[0].getId(), null);
     }
 
-    private void moveExecuteExecuted() throws Exception {
+    private void moveExecuteExecuted() {
         WfTask[] tasks1, tasks2;
 
         {
             tasks1 = checkTaskList(actor1User, 1);
             tasks2 = checkTaskList(actor2User, 1);
         }
-        testHelper.getTaskService().completeTask(actor1User, tasks1[0].getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(actor1User, tasks1[0].getId(), null);
         {
             checkTaskList(actor1User, tasks1[0]);
             checkTaskList(actor2User, tasks2[0]);
@@ -277,9 +254,9 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
         assertExceptionThrownOnExecute(actor2User, tasks2[0]);
     }
 
-    private void assertExceptionThrownOnExecute(User user, WfTask task) throws InternalApplicationException {
+    private void assertExceptionThrownOnExecute(User user, WfTask task) {
         try {
-            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>(), null);
+            h.getTaskService().completeTask(user, task.getId(), null);
             throw new InternalApplicationException("Exception TaskDoesNotExistException not thrown");
         } catch (AuthenticationException e) {
         } catch (AuthorizationException e) {
@@ -292,10 +269,10 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
     }
 
     // /rask:
-    private void assertExceptionThrownOnAssign(User user, WfTask task) throws ExecutorDoesNotExistException {
+    private void assertExceptionThrownOnAssign(User user, WfTask task) {
         try {
             Actor actor = actor1User.getActor();
-            testHelper.getTaskService().assignTask(user, task.getId(), task.getOwner(), actor);
+            h.getTaskService().assignTask(user, task.getId(), task.getOwner(), actor);
             throw new InternalApplicationException("Exception TaskAlreadyAcceptedException not thrown");
         } catch (TaskAlreadyAcceptedException e) {
         } catch (AuthenticationException e) {
@@ -303,9 +280,9 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
         }
     }
 
-    private List<WfTask> checkTaskList(User user, WfTask task) throws Exception {
+    private List<WfTask> checkTaskList(User user, WfTask task) {
         boolean result = false;
-        List<WfTask> tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         for (WfTask taskStub : tasks) {
             if (taskStub.equals(task) && taskStub.getName().equals(task.getName())) {
                 result = true;
@@ -316,8 +293,8 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
         return tasks;
     }
 
-    private WfTask[] checkTaskList(User user, int expectedLength) throws Exception {
-        List<WfTask> tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+    private WfTask[] checkTaskList(User user, int expectedLength) {
+        List<WfTask> tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         assertEquals("getTasks() returns wrong tasks number (expected " + expectedLength + ", but was " + tasks.size() + ")", expectedLength,
                 tasks.size());
         return tasks.toArray(new WfTask[tasks.size()]);
