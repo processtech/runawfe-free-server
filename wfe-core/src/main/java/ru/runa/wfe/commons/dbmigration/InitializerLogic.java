@@ -146,6 +146,9 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             RefactorPermissionsStep3.class,
             AddProcessExternalData.class,
             RefactorPermissionsStep4.class,
+            EmptyPatch.class, // instead signals...
+            CreateChatDbPatch.class, 
+            RefactorPermissionsBack.class,
             SplitProcessDefinitionVersion.class,
             AddSubprocessRootIdColumn.class,
             SupportProcessArchivingBefore.class,
@@ -153,9 +156,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             RenameProcessesBatchPresentationCategories.class,
             RenameProcessesBatchPresentationClassTypes.class,
             RenameSequences.class,
-            AddArchivedProcessExternalData.class,
- CreateChatDbPatch.class,
-            RefactorPermissionsBack.class
+            AddArchivedProcessExternalData.class
     );
 
     @Autowired
