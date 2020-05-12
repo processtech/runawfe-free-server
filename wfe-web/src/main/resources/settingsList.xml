@@ -16,10 +16,6 @@
 		</property>
 		<property title="file.variable.local.storage.enableforfilesgreaterthan" pattern="\d*"/>
 		<property title="date.format.pattern" />
-		<property title="executionServiceAPI.updateVariables.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
 		<property title="scriptingServiceAPI.executeGroovyScript.enabled">
 			<value>true</value>
 			<value>false</value>
@@ -181,6 +177,10 @@
 			<value>false</value>
 		</property>
 		<property title="process.swimlane.assignment.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.variable.assignment.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>
