@@ -658,7 +658,7 @@ public class DocxUtils {
                     for (int n = 0; n < match.runs.size(); n++) {
                         if (n == 0) {
                             String newText = match.runs.get(n).getText(0);
-                            if (newText.length() > 2) {
+                            if (newText.length() > placeholder.length() && match.comparisonStartInFirstRunIndex + placeholder.length() <= newText.length()) {
                                 runs.get(next).setText(String.join("", newText.substring(match.comparisonStartInFirstRunIndex + placeholder.length()), runs.get(next).getText(0)), 0);
                             }
                             newText = newText.substring(0, match.comparisonStartInFirstRunIndex) + placeholder;
