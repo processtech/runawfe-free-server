@@ -233,27 +233,16 @@ public abstract class JdbcStoreService implements StoreService {
                 sb.append(SPACE);
                 sb.append(LIKE_LITERAL);
                 sb.append(SPACE);
-                sb.append(st.nextToken());
-            } else if (token.startsWith("@")) {
-                String variableName = token.substring(1);
-                String toAppend = "";
-                if (variableProvider instanceof ParamBasedVariableProvider) {
-                    ParamsDef paramsDef = ((ParamBasedVariableProvider) variableProvider).getParamsDef();
-                    if (paramsDef != null) {
-                        if (paramsDef.getInputParam(variableName) != null) {
-                            Object inputParamValue = paramsDef.getInputParamValue(variableName, variableProvider);
-                            toAppend = sqlValue(inputParamValue, variableProvider.getVariable(variableName).getDefinition().getFormatNotNull());
-                        } else {
-                            WfVariable wfVariable = variableProvider.getVariableNotNull(variableName);
-                            toAppend = sqlValue(wfVariable.getValue(), wfVariable.getDefinition().getFormatNotNull());
-                        }
+                if (st.hasMoreTokens()) {
+                    final String nextToken = st.nextToken();
+                    if (nextToken.startsWith("@")) {
+                        sb.append(extractVariableValue(nextToken));
+                    } else {
+                        sb.append(nextToken);
                     }
-                } else {
-                    WfVariable wfVariable = variableProvider.getVariableNotNull(variableName);
-                    toAppend = sqlValue(wfVariable.getValue(), wfVariable.getDefinition().getFormatNotNull());
                 }
-                sb.append(SPACE);
-                sb.append(toAppend);
+            } else if (token.startsWith("@")) {
+                sb.append(SPACE).append(extractVariableValue(token));
             } else if (token.equals(DOUBLE_EQUALS)) {
                 sb.append(SPACE);
                 sb.append(EQUALS);
@@ -294,5 +283,26 @@ public abstract class JdbcStoreService implements StoreService {
             }
             executeSql(MessageFormat.format(SQL_INSERT, tableName(), columns, values));
         }
+    }
+
+    private String extractVariableValue(String token) {
+        final String variableName = token.substring(1);
+        String toAppend = "";
+        if (variableProvider instanceof ParamBasedVariableProvider) {
+            ParamsDef paramsDef = ((ParamBasedVariableProvider) variableProvider).getParamsDef();
+            if (paramsDef != null) {
+                if (paramsDef.getInputParam(variableName) != null) {
+                    Object inputParamValue = paramsDef.getInputParamValue(variableName, variableProvider);
+                    toAppend = sqlValue(inputParamValue, variableProvider.getVariable(variableName).getDefinition().getFormatNotNull());
+                } else {
+                    WfVariable wfVariable = variableProvider.getVariableNotNull(variableName);
+                    toAppend = sqlValue(wfVariable.getValue(), wfVariable.getDefinition().getFormatNotNull());
+                }
+            }
+        } else {
+            WfVariable wfVariable = variableProvider.getVariableNotNull(variableName);
+            toAppend = sqlValue(wfVariable.getValue(), wfVariable.getDefinition().getFormatNotNull());
+        }
+        return toAppend;
     }
 }
