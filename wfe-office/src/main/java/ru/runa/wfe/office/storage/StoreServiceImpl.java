@@ -458,7 +458,7 @@ public class StoreServiceImpl implements StoreService {
                 }
             }
         }
-        return false;
+        return variableProvider.getVariable(variable.getDefinition().getName()) != null;
     }
 
     private String tableName() {
