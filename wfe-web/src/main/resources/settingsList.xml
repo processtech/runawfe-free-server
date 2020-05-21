@@ -57,6 +57,10 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="process.execution.node.async.default">
+			<value>true</value>
+			<value>false</value>
+		</property>
 	</properties_file>
 	
 	<properties_file title="class.presentation.properties">
