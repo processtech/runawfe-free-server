@@ -31,9 +31,9 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                 // get value/show in web getter parameters
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class, "definition.name"),
                         true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder",
-                        new Object[] { Permission.START, "name" }),
+                        new Object[] { Permission.START_PROCESS, "name" }),
                 new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class, "version"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.LIST, "version" }),
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "version" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class,
                         "definition.description"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTdBuilder",
                         new Object[] {}),

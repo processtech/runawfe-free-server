@@ -1,12 +1,12 @@
 package ru.runa.af.delegate;
 
-import java.util.Collection;
-
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import lombok.val;
+import lombok.var;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
@@ -14,77 +14,85 @@ import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.collect.Lists;
-
 /**
- * Created on 20.08.2004
- * 
+ * Created on 20.08.2004.
  */
 public class AuthorizationServiceDelegateGetPermissionsTest extends ServletTestCase {
-    private ServiceTestHelper helper;
-
+    private ServiceTestHelper h;
     private AuthorizationService authorizationService;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new ServiceTestHelper(AuthorizationServiceDelegateGetPermissionsTest.class.getName());
-        helper.createDefaultExecutorsMap();
-
-        Collection<Permission> executorP = Lists.newArrayList(Permission.UPDATE);
-        helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
-        helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
-        helper.setPermissionsToAuthorizedPerformer(executorP, helper.getSubGroupActor());
-        helper.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.LIST));
+    protected void setUp() {
+        h = new ServiceTestHelper(AuthorizationServiceDelegateGetPermissionsTest.class.getName());
         authorizationService = Delegates.getAuthorizationService();
-        super.setUp();
+
+        h.createDefaultExecutorsMap();
+
+        // authorizationService.getIssuedPermissions() requires READ on subject (executors)
+        // and READ_PERMISSIONS (which is hidden and derived from READ) on object (other executors, system).
+        val pp = Lists.newArrayList(Permission.READ);
+
+        h.setPermissionsToAuthorizedActor(pp, h.getBaseGroupActor());
+        h.setPermissionsToAuthorizedActor(pp, h.getBaseGroup());
+        h.setPermissionsToAuthorizedActor(pp, SecuredSingleton.SYSTEM);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.releaseResources();
+    protected void tearDown() {
+        h.releaseResources();
         authorizationService = null;
-        super.tearDown();
     }
 
-    public void testGetPermissionsFakeSubject() throws Exception {
+    public void testGetPermissionsFakeUser() {
         try {
-            authorizationService.getIssuedPermissions(helper.getFakeUser(), helper.getBaseGroupActor(), helper.getBaseGroupActor());
+            authorizationService.getIssuedPermissions(h.getFakeUser(), h.getBaseGroupActor(), h.getBaseGroupActor());
             fail("AuthorizationDelegate.getIssuedPermissions() allows fake subject");
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testGetPermissions() throws Exception {
-        Collection<Permission> noPermission = Lists.newArrayList();
-        Collection<Permission> expected = Lists.newArrayList(Permission.READ);
+    public void testGetPermissions() {
+        val empty = new ArrayList<Permission>();
+        val expected = Lists.newArrayList(Permission.READ);
 
-        Collection<Permission> actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(),
-                SecuredSingleton.EXECUTORS);
-        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", noPermission, actual);
+        var actual = authorizationService.getIssuedPermissions(h.getAuthorizedUser(), h.getBaseGroupActor(), SecuredSingleton.SYSTEM);
+        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", empty, actual);
 
-        authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroupActor().getId(), expected, SecuredSingleton.EXECUTORS);
-        actual = authorizationService.getIssuedPermissions(helper.getAdminUser(), helper.getBaseGroupActor(), SecuredSingleton.EXECUTORS);
+        authorizationService.setPermissions(h.getAdminUser(), h.getBaseGroupActor().getId(), expected, SecuredSingleton.SYSTEM);
+        actual = authorizationService.getIssuedPermissions(h.getAuthorizedUser(), h.getBaseGroupActor(), SecuredSingleton.SYSTEM);
         ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", expected, actual);
 
-        actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroup(), helper.getBaseGroupActor());
-        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", noPermission, actual);
+        actual = authorizationService.getIssuedPermissions(h.getAuthorizedUser(), h.getBaseGroup(), h.getBaseGroupActor());
+        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", empty, actual);
 
-        authorizationService.setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroup().getId(), expected, helper.getBaseGroupActor());
-        actual = authorizationService.getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroup(), helper.getBaseGroupActor());
+        authorizationService.setPermissions(h.getAdminUser(), h.getBaseGroup().getId(), expected, h.getBaseGroupActor());
+        actual = authorizationService.getIssuedPermissions(h.getAuthorizedUser(), h.getBaseGroup(), h.getBaseGroupActor());
         ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", expected, actual);
     }
 
-    public void testGetPermissionsUnauthorized() throws Exception {
+    public void testGetOwnPermissionsGroupPermissions() {
+        val empty = new ArrayList<Permission>();
+        val expected = Lists.newArrayList(Permission.READ);
+
+        authorizationService.setPermissions(h.getAdminUser(), h.getBaseGroup().getId(), expected, SecuredSingleton.SYSTEM);
+        val actual = authorizationService.getIssuedPermissions(h.getAdminUser(), h.getBaseGroupActor(), SecuredSingleton.SYSTEM);
+        ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getIssuedPermissions() returns wrong permissions", empty, actual);
+    }
+
+    public void testGetPermissionsUnauthorized() {
         try {
-            authorizationService.getIssuedPermissions(helper.getUnauthorizedPerformerUser(), helper.getBaseGroupActor(), SecuredSingleton.EXECUTORS);
+            authorizationService.getIssuedPermissions(h.getUnauthorizedUser(), h.getBaseGroupActor(), SecuredSingleton.SYSTEM);
             fail("AuthorizationDelegate.getIssuedPermissions() allows unauthorized operation");
         } catch (AuthorizationException e) {
+            // Expected.
         }
 
         try {
-            authorizationService.getIssuedPermissions(helper.getUnauthorizedPerformerUser(), helper.getBaseGroupActor(), helper.getBaseGroupActor());
+            authorizationService.getIssuedPermissions(h.getUnauthorizedUser(), h.getBaseGroupActor(), h.getBaseGroupActor());
             fail("AuthorizationDelegate.getIssuedPermissions() allows unauthorized operation");
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 }

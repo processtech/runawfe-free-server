@@ -20,7 +20,7 @@ import ru.runa.wfe.user.Executor;
 public abstract class BaseExecutorTdBuilder<T> extends BaseTdBuilder {
 
     public BaseExecutorTdBuilder() {
-        super(Permission.LIST);
+        super(Permission.READ);
     }
 
     protected abstract Executor getExecutor(T object, Env env);

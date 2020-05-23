@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
@@ -23,106 +24,101 @@ import ru.runa.wfe.service.delegate.Delegates;
  * @author Vitaliy S
  */
 public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
-
-    private WfServiceTestHelper helper = null;
-
     private BatchPresentation batchPresentation;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
+        batchPresentation = h.getProcessInstanceBatchPresentation();
 
-        helper.deployValidProcessDefinition();
+        h.deployValidProcessDefinition();
+        h.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        helper.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
-        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
-
-        Collection<Permission> startPermissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
-        batchPresentation = helper.getProcessInstanceBatchPresentation();
-        super.setUp();
+        val pp = Lists.newArrayList(Permission.START_PROCESS, Permission.READ_PROCESS);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(pp, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(pp, WfServiceTestHelper.VALID_PROCESS_NAME);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
-        helper.undeployValidProcessDefinition();
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         executionService = null;
         batchPresentation = null;
-        super.tearDown();
     }
 
-    public void testGetProcessInstanceStubsByVariableFilterByAuthorizedSubject() throws Exception {
+    public void testGetProcessInstanceStubsByVariableFilterByAuthorizedUser() {
         String name = "reason";
         String value = "intention";
         Map<String, Object> variablesMap = WfServiceTestHelper.createVariablesMap(name, value);
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
         variablesMap.put(name, "anothervalue");
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
         int index = batchPresentation.getType().getFieldIndex(CurrentProcessClassPresentation.PROCESS_VARIABLE);
         batchPresentation.addDynamicField(index, name);
         batchPresentation.getFilteredFields().put(0, new StringFilterCriteria(value));
-        List<WfProcess> processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        List<WfProcess> processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals(2, processes.size());
     }
 
-    public void testGetProcessInstanceStubsByVariableFilterWithWrongMatcherByAuthorizedSubject() throws Exception {
+    public void testGetProcessInstanceStubsByVariableFilterWithWrongMatcherByAuthorizedUser() {
         String name = "reason";
         String value = "intention";
         Map<String, Object> variablesMap = WfServiceTestHelper.createVariablesMap(name, value);
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
         int index = batchPresentation.getType().getFieldIndex(CurrentProcessClassPresentation.PROCESS_VARIABLE);
         batchPresentation.addDynamicField(index, name);
         batchPresentation.getFilteredFields().put(0, new StringFilterCriteria("bad matcher"));
-        List<WfProcess> processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        List<WfProcess> processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals(0, processes.size());
     }
 
-    public void testGetProcessInstanceStubsByAuthorizedSubject() throws Exception {
-        List<WfProcess> processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+    public void testGetProcessInstanceStubsByAuthorizedUser() {
+        List<WfProcess> processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", 0, processes.size());
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-        processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+        processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", 1, processes.size());
     }
 
-    public void testGetProcessInstanceStubsByUnauthorizedSubject() throws Exception {
-        List<WfProcess> processes = executionService.getProcesses(helper.getUnauthorizedPerformerUser(), batchPresentation);
+    public void testGetProcessInstanceStubsByUnauthorizedUser() {
+        List<WfProcess> processes = executionService.getProcesses(h.getUnauthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", 0, processes.size());
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-        processes = executionService.getProcesses(helper.getUnauthorizedPerformerUser(), batchPresentation);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+        processes = executionService.getProcesses(h.getUnauthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", 0, processes.size());
     }
 
-    public void testGetProcessInstanceStubsByFakeSubject() throws Exception {
+    public void testGetProcessInstanceStubsByFakeUser() {
         try {
-            executionService.getProcesses(helper.getFakeUser(), batchPresentation);
-            fail("testGetAllProcessInstanceStubsByFakeSubject, no AuthenticationException");
+            executionService.getProcesses(h.getFakeUser(), batchPresentation);
+            fail();
         } catch (AuthenticationException e) {
+            // Expeced.
         }
     }
 
-    public void testGetProcessInstanceStubsByAuthorizedSubjectWithoutREADPermission() throws Exception {
-        List<WfProcess> processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+    public void testGetProcessInstanceStubsByAuthorizedUserWithoutREADPermission() {
+        List<WfProcess> processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", 0, processes.size());
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-        processes = executionService.getProcesses(helper.getAdminUser(), batchPresentation);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+        processes = executionService.getProcesses(h.getAdminUser(), batchPresentation);
         assertEquals("Incorrect processes array", 1, processes.size());
         Collection<Permission> nullPermissions = Lists.newArrayList();
-        helper.setPermissionsToAuthorizedPerformerOnProcessInstance(nullPermissions, processes.get(0));
-        processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        h.setPermissionsToAuthorizedActorOnProcessInstance(nullPermissions, processes.get(0));
+        processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", 0, processes.size());
     }
 
-    public void testGetProcessInstanceStubsPagingByAuthorizedSubject() throws Exception {
-        List<WfProcess> processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+    public void testGetProcessInstanceStubsPagingByAuthorizedUser() {
+        List<WfProcess> processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", 0, processes.size());
 
         int rangeSize = 10;
@@ -131,26 +127,26 @@ public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends Servlet
 
         int expectedCount = 14;
         for (int i = 0; i < expectedCount; i++) {
-            executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+            executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
         }
-        processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", rangeSize, processes.size());
 
         batchPresentation.setPageNumber(2);
 
-        processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", expectedCount - rangeSize, processes.size());
 
         rangeSize = 50;
         batchPresentation.setRangeSize(rangeSize);
         batchPresentation.setPageNumber(1);
 
-        processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", expectedCount, processes.size());
     }
 
-    public void testGetProcessInstanceStubsUnexistentPageByAuthorizedSubject() throws Exception {
-        List<WfProcess> processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+    public void testGetProcessInstanceStubsUnexistentPageByAuthorizedUser() {
+        List<WfProcess> processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", 0, processes.size());
 
         int rangeSize = 10;
@@ -160,20 +156,22 @@ public class ExecutionServiceDelegateGetProcessInstanceStubsTest extends Servlet
 
         int expectedCount = 17;
         for (int i = 0; i < expectedCount; i++) {
-            executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+            executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
         }
-        List<WfProcess> firstTenProcesses = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        List<WfProcess> firstTenProcesses = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", rangeSize, firstTenProcesses.size());
 
         batchPresentation.setPageNumber(2);
-        processes = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        processes = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
         assertEquals("Incorrect processes array", expectedCount - 10, processes.size());
 
         // the wrong page is replaced by last page in case it contains 0 objects
         batchPresentation.setPageNumber(3);
 
-        List<WfProcess> wrongPageProcesses = executionService.getProcesses(helper.getAuthorizedPerformerUser(), batchPresentation);
+        List<WfProcess> wrongPageProcesses = executionService.getProcesses(h.getAuthorizedUser(), batchPresentation);
+        // due to
+        // ru.runa.wfe.presentation.BatchPresentation.setFilteredFieldsMap(Map<Integer,
+        // FilterCriteria>) in hibernate.update
         ArrayAssert.assertEqualArrays("Incorrect returned", firstTenProcesses, wrongPageProcesses);
     }
-
 }

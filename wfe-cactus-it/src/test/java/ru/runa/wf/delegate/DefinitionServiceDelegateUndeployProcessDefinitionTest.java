@@ -1,10 +1,9 @@
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -14,98 +13,93 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 20.04.2005
  * 
  * @author Gritsenko_S
  */
 public class DefinitionServiceDelegateUndeployProcessDefinitionTest extends ServletTestCase {
-
+    private WfServiceTestHelper h;
     private DefinitionService definitionService;
 
-    private WfServiceTestHelper helper = null;
-
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
 
-        helper.deployValidProcessDefinition();
-
-        Collection<Permission> undeployPermissions = Lists.newArrayList(Permission.ALL);
-        helper.setPermissionsToAuthorizedPerformerOnExecutors(undeployPermissions);
-
-        super.setUp();
+        h.deployValidProcessDefinition();
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.DELETE), WfServiceTestHelper.VALID_PROCESS_NAME);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.releaseResources();
+    protected void tearDown() {
+        h.releaseResources();
         definitionService = null;
-        super.tearDown();
     }
 
-    public void testUndeployProcessByAuthorizedPerformer() throws Exception {
-        definitionService.undeployProcessDefinition(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-        List<WfDefinition> deployedProcesses = definitionService.getProcessDefinitions(helper.getAuthorizedPerformerUser(),
-                helper.getProcessDefinitionBatchPresentation(), false);
+    public void testUndeployProcessByAuthorizedUser() {
+        definitionService.undeployProcessDefinition(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+        List<WfDefinition> deployedProcesses = definitionService.getProcessDefinitions(h.getAuthorizedUser(),
+                h.getProcessDefinitionBatchPresentation(), false);
 
         if (deployedProcesses.size() != 0) {
-            fail("testUndeployProcessByAuthorizedPerformer wrongNumberOfProcessDefinitions after undeployment");
+            fail("testUndeployProcessByAuthorizedUser() wrongNumberOfProcessDefinitions after undeployment");
         }
 
         try {
-            definitionService.undeployProcessDefinition(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-            fail("testUndeployProcessByAuthorizedPerformer allows undeploy process definition after undeployment");
+            definitionService.undeployProcessDefinition(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+            fail("testUndeployProcessByAuthorizedUser() allows undeploy process definition after undeployment");
         } catch (DefinitionDoesNotExistException e) {
+            // Expected.
         }
     }
 
-    public void testUndeployProcessByAuthorizedPerformerWithoutUNDEPLOYPermission() throws Exception {
+    public void testUndeployProcessByAuthorizedUserWithoutUNDEPLOYPermission() {
         try {
             Collection<Permission> undeployPermissions = Lists.newArrayList();
-            helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(undeployPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
+            h.setPermissionsToAuthorizedActorOnDefinitionByName(undeployPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
             try {
-                definitionService.undeployProcessDefinition(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-                fail("testUndeployProcessByAuthorizedPerformerWithoutUNDEPLOYPermission, no AuthorizationException");
+                definitionService.undeployProcessDefinition(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+                fail("testUndeployProcessByAuthorizedUserWithoutUNDEPLOYPermission(), no AuthorizationException");
             } catch (AuthorizationException e1) {
+                // Expected.
             }
         } finally {
-            helper.undeployValidProcessDefinition();
+            h.undeployValidProcessDefinition();
         }
     }
 
-    public void testUndeployProcessByUnauthorizedPerformer() throws Exception {
+    public void testUndeployProcessByUnauthorizedUser() {
         try {
-            definitionService.undeployProcessDefinition(helper.getUnauthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-            fail("testUndeployProcessByUnauthorizedPerformer, no AuthorizationException");
+            definitionService.undeployProcessDefinition(h.getUnauthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+            fail("testUndeployProcessByUnauthorizedUser(), no AuthorizationException");
         } catch (AuthorizationException e1) {
+            // Expected.
         } finally {
-            helper.undeployValidProcessDefinition();
+            h.undeployValidProcessDefinition();
         }
     }
 
-    public void testUndeployProcessByFakePerformer() throws Exception {
+    public void testUndeployProcessByFakeUser() {
         try {
-            definitionService.undeployProcessDefinition(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-            fail("testUndeployProcessByFakePerformer, no AuthenticationException");
+            definitionService.undeployProcessDefinition(h.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+            fail("no AuthenticationException");
         } catch (AuthenticationException e1) {
+            // Expected.
         } finally {
-            helper.undeployValidProcessDefinition();
+            h.undeployValidProcessDefinition();
         }
     }
 
-    public void testUndeployProcessWithUnexistentProcessName() throws Exception {
+    public void testUndeployProcessWithUnexistentProcessName() {
         try {
-            definitionService.undeployProcessDefinition(helper.getUnauthorizedPerformerUser(), "Unexistent_Process_definition_Name_000", null);
+            definitionService.undeployProcessDefinition(h.getUnauthorizedUser(), "Unexistent_Process_definition_Name_000", null);
             fail("testUndeployProcessWithNullProcessName allows undeploy process definition with unexistent name");
         } catch (DefinitionDoesNotExistException e) {
+            // Expected.
         } finally {
-            helper.undeployValidProcessDefinition();
+            h.undeployValidProcessDefinition();
         }
-
     }
 }

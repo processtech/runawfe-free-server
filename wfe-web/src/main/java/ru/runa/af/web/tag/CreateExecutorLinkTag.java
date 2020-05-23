@@ -13,6 +13,6 @@ public abstract class CreateExecutorLinkTag extends LinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE, SecuredSingleton.EXECUTORS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_EXECUTOR, SecuredSingleton.SYSTEM);
     }
 }

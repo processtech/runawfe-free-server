@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
@@ -20,34 +21,28 @@ import ru.runa.wfe.var.VariableDefinition;
  * @author Gritsenko_S
  */
 public class DefinitionServiceDelegateGetStartFormTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private DefinitionService definitionService;
-
-    private WfServiceTestHelper helper = null;
-
     private Long definitionId;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
 
-        helper.deployValidProcessDefinition();
-
-        definitionId = definitionService.getLatestProcessDefinition(helper.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getVersionId();
-
-        super.setUp();
+        h.deployValidProcessDefinition();
+        definitionId = definitionService.getLatestProcessDefinition(h.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getVersionId();
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition();
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         definitionService = null;
-        super.tearDown();
     }
 
-    public void testGetStartFormTestByAuthorizedSubject() throws Exception {
-        Interaction startForm = definitionService.getStartInteraction(helper.getAuthorizedPerformerUser(), definitionId);
+    public void testGetStartFormTestByAuthorizedUser() {
+        Interaction startForm = definitionService.getStartInteraction(h.getAuthorizedUser(), definitionId);
 
         // / TO DO : xml read from forms.xml & processdefinition.xml
         // TODO assertEquals("start form name differ from original",
@@ -55,7 +50,7 @@ public class DefinitionServiceDelegateGetStartFormTest extends ServletTestCase {
         if (false) {
             assertEquals("start form name differ from original", "html", startForm.getType());
             Map<String, VariableDefinition> vars = startForm.getVariables();
-            List<String> actual = new ArrayList<String>();
+            val actual = new ArrayList<String>();
             for (VariableDefinition var : vars.values()) {
                 actual.add(var.getName());
             }
@@ -65,23 +60,25 @@ public class DefinitionServiceDelegateGetStartFormTest extends ServletTestCase {
         }
     }
 
-    public void testGetStartFormTestByUnauthorizedSubject() throws Exception {
-        definitionService.getStartInteraction(helper.getUnauthorizedPerformerUser(), definitionId);
+    public void testGetStartFormTestByUnauthorizedUser() {
+        definitionService.getStartInteraction(h.getUnauthorizedUser(), definitionId);
     }
 
-    public void testGetStartFormTestByFakeSubject() throws Exception {
+    public void testGetStartFormTestByFakeUser() {
         try {
-            definitionService.getStartInteraction(helper.getFakeUser(), definitionId);
-            fail("testGetStartFormTestByFakeSubject , no AuthenticationException");
+            definitionService.getStartInteraction(h.getFakeUser(), definitionId);
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testGetStartFormTestByAuthorizedSubjectWithInvalidDefinitionId() throws Exception {
+    public void testGetStartFormTestByAuthorizedUserWithInvalidDefinitionId() {
         try {
-            definitionService.getStartInteraction(helper.getAuthorizedPerformerUser(), -1l);
-            fail("testGetStartFormTestByAuthorizedSubjectWithInvalidDefinitionId , no Exception");
+            definitionService.getStartInteraction(h.getAuthorizedUser(), -1L);
+            fail();
         } catch (DefinitionDoesNotExistException e) {
+            // Expected.
         }
     }
 }

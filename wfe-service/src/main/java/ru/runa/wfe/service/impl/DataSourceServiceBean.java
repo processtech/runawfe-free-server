@@ -20,7 +20,9 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.datasource.DataSourceStorage;
+import ru.runa.wfe.datasource.JdbcDataSource;
 import ru.runa.wfe.service.decl.DataSourceServiceLocal;
 import ru.runa.wfe.service.decl.DataSourceServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -46,6 +48,7 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
         return DataSourceStorage.getNames();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @WebResult(name = "result")
     public void importDataSource(@WebParam(name = "user") User user, @WebParam(name = "archive") byte[] archive) {
@@ -61,19 +64,21 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
                 baos.write(buf, 0, n);
             }
             zis.closeEntry();
-            DataSourceStorage.save(baos.toByteArray());
+            DataSourceStorage.save(baos.toByteArray(), true, !SystemProperties.isDatasourcePasswordExportAllowed());
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @WebResult(name = "result")
     public byte[] exportDataSource(@WebParam(name = "user") User user, @WebParam(name = "name") String name) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(executorDAO.isAdministrator(user.getActor()), "not administrator");
         Preconditions.checkArgument(name != null, "name");
-        byte[] content = DataSourceStorage.restoreWithoutPassword(name);
+        byte[] content = SystemProperties.isDatasourcePasswordExportAllowed() ? DataSourceStorage.restore(name)
+                : DataSourceStorage.restoreWithoutPassword(name);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos, Charsets.UTF_8)) {
             ZipEntry entry = new ZipEntry(name + ".xml");
@@ -89,10 +94,18 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
 
     @Override
     @WebMethod(exclude = true)
-    public void removeDataSource(@WebParam(name = "user") User user, @WebParam(name = "id") String name) {
+    public void removeDataSource(User user, String name) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(executorDAO.isAdministrator(user.getActor()), "not administrator");
         Preconditions.checkArgument(name != null, "name");
         DataSourceStorage.moveToHistory(name);
     }
+    
+    @Override
+    @WebMethod(exclude = true)
+    public String getDbServerInfo(String name) {
+        JdbcDataSource dataSource = (JdbcDataSource) DataSourceStorage.getDataSource(name);
+        return dataSource.serverVersion();
+    }
+
 }

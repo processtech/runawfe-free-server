@@ -107,7 +107,7 @@ public interface BotService {
      * @throws BotAlreadyExistsException
      *             if name collision occurs
      */
-    void updateBot(User user, Bot bot, boolean incrementBotStationVersion) throws BotAlreadyExistsException;
+    Bot updateBot(User user, Bot bot, boolean incrementBotStationVersion) throws BotAlreadyExistsException;
 
     /**
      * Removes bot with all bot tasks by id.

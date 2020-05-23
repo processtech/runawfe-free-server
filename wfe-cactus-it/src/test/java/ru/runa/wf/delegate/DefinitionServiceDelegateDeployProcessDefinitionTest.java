@@ -1,11 +1,11 @@
 package ru.runa.wf.delegate;
 
 import com.google.common.collect.Lists;
-import java.util.Collection;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -15,36 +15,30 @@ import ru.runa.wfe.service.delegate.Delegates;
  * @author Gritsenko_S
  */
 public class DefinitionServiceDelegateDeployProcessDefinitionTest extends ServletTestCase {
-
-    private DefinitionService definitionService = null;
-
-    private WfServiceTestHelper helper = null;
+    private WfServiceTestHelper h;
+    private DefinitionService definitionService;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
 
-        Collection<Permission> deployPermissions = Lists.newArrayList(Permission.CREATE);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitions(deployPermissions);
-
-        super.setUp();
+        h.setPermissionsToAuthorizedActor(Lists.newArrayList(Permission.CREATE_DEFINITION), SecuredSingleton.SYSTEM);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.releaseResources();
+    protected void tearDown() {
+        h.releaseResources();
         definitionService = null;
-        super.tearDown();
     }
 
-    public void testDeployInvalidProcessByAuthorizedPerformer() throws Exception {
+    public void testDeployInvalidProcessByAuthorizedUser() {
         try {
-            definitionService.deployProcessDefinition(helper.getAuthorizedPerformerUser(), helper.getInValidProcessDefinition(),
-                    Lists.newArrayList("testProcess"), null);
-            assertTrue("definitionDelegate.deployProcessByAuthorizedPerformer() no DefinitionArchiveFormatException", false);
+            definitionService
+                    .deployProcessDefinition(h.getAuthorizedUser(), h.getInValidProcessDefinition(), Lists.newArrayList("testProcess"), null);
+            fail();
         } catch (DefinitionArchiveFormatException e) {
-            // That's what we expect
+            // Expected.
         }
     }
 }

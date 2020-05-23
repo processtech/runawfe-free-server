@@ -16,9 +16,6 @@
                 <wf:tableViewSetupForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>" excelExportAction="/exportExcelProcesses" />
             </wf:viewControlsHideableBlock>
         </div>
-        <div style="position: absolute; right: 5px; top: 5px;">
-            <wf:managePermissionsLink securedObjectType="PROCESSES" />
-        </div>
     </div>
 </wf:listProcessesForm>
 </tiles:put>

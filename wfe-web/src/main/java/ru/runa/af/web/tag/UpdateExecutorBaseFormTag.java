@@ -28,6 +28,6 @@ public abstract class UpdateExecutorBaseFormTag extends SecuredObjectFormTag {
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowedUpdateExecutor(getUser(), getExecutor());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, getExecutor());
     }
 }

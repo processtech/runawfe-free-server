@@ -31,7 +31,7 @@ public class ListRelationsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.READ, SecuredSingleton.RELATIONS);
         List<Relation> relations = Delegates.getRelationService().getRelations(getUser(), getBatchPresentation());
         TableBuilder tableBuilder = new TableBuilder();
         TdBuilder checkboxBuilder = new CheckboxTdBuilder(null, null) {

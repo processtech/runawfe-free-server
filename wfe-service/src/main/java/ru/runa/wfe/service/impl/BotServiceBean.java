@@ -117,9 +117,9 @@ public class BotServiceBean implements BotServiceLocal, BotServiceRemote {
 
     @Override
     @WebResult(name = "result")
-    public void updateBot(@WebParam(name = "user") @NonNull User user, @WebParam(name = "bot") @NonNull Bot bot,
+    public Bot updateBot(@WebParam(name = "user") @NonNull User user, @WebParam(name = "bot") @NonNull Bot bot,
             @WebParam(name = "incrementBotStationVersion") boolean incrementBotStationVersion) {
-        botLogic.updateBot(user, bot, incrementBotStationVersion);
+        return botLogic.updateBot(user, bot, incrementBotStationVersion);
     }
 
     @Override

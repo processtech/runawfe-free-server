@@ -37,7 +37,8 @@ public class ExportDataFileAction extends ActionBase {
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-        Delegates.getAuthorizationService().checkAllowed(Commons.getUser(request.getSession()), Permission.ALL, SecuredSingleton.DATAFILE);
+        // TODO See #1586-5, #1586-6. Looks like v4.3 had no permission checks for this operation at all.
+        Delegates.getAuthorizationService().checkAllowed(Commons.getUser(request.getSession()), Permission.READ, SecuredSingleton.SYSTEM);
 
         try {
             final File file = File.createTempFile(DataFileBuilder.FILE_NAME, DataFileBuilder.FILE_EXT);

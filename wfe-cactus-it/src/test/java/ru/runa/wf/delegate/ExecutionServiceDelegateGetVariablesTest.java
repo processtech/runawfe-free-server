@@ -1,12 +1,11 @@
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -18,110 +17,105 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.var.dto.WfVariable;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 23.04.2005
  * 
  * @author Gritsenko_S
  */
 public class ExecutionServiceDelegateGetVariablesTest extends ServletTestCase {
+    private static final String variableName = "var1";
+    private static final String variableValue = "var1Value";
+
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
-
-    private WfServiceTestHelper th = null;
-
+    private Long processId;
     private Long taskId;
 
-    private Long processId;
-
-    private final String variableName = "var1";
-
-    private final String variableValue = "var1Value";
-
     @Override
-    protected void setUp() throws Exception {
-        th = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
 
-        th.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
+        h.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.START_PROCESS, Permission.READ_PROCESS),
+                WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
-        HashMap<String, Object> variablesMap = new HashMap<String, Object>();
-        variablesMap.put(variableName, variableValue);
-        processId = executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, variablesMap);
+        val vars = new HashMap<String, Object>();
+        vars.put(variableName, variableValue);
+        processId = executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, vars);
 
-        th.addExecutorToGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());
-        WfTask taskStub = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation()).get(0);
+        h.addExecutorToGroup(h.getAuthorizedActor(), h.getBossGroup());
+        WfTask taskStub = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation()).get(0);
         taskId = taskStub.getId();
-        super.setUp();
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        th.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
-        th.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.releaseResources();
         executionService = null;
-        super.tearDown();
     }
 
-    public void testGetVariablesByUnauthorizedSubject() throws Exception {
+    public void testGetVariablesByUnauthorizedUser() {
         try {
-            executionService.getVariables(th.getUnauthorizedPerformerUser(), processId);
-            fail("testGetVariablesByUnauthorizedSubject(), no AuthorizationException");
+            executionService.getVariables(h.getUnauthorizedUser(), processId);
+            fail();
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testGetVariablesByFakeSubject() throws Exception {
+    public void testGetVariablesByFakeUser() {
         try {
-            executionService.getVariables(th.getFakeUser(), processId);
-            fail("testGetVariablesByFakeSubject(), no AuthenticationException");
+            executionService.getVariables(h.getFakeUser(), processId);
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testGetVariablesByAuthorizedSubjectWithInvalidProcessId() throws Exception {
+    public void testGetVariablesByAuthorizedUserWithInvalidProcessId() {
         try {
-            executionService.getVariables(th.getAuthorizedPerformerUser(), -1l);
-            fail("testGetVariablesByAuthorizedSubjectWithInvalidTaskId(), no TaskDoesNotExistException");
+            executionService.getVariables(h.getAuthorizedUser(), -1L);
+            fail();
         } catch (ProcessDoesNotExistException e) {
+            // Expected.
         }
     }
 
-    public void testGetVariablesByAuthorizedSubject() throws Exception {
-        List<WfVariable> variables = executionService.getVariables(th.getAuthorizedPerformerUser(), processId);
-        List<String> names = new ArrayList<String>();
-        for (WfVariable v : variables) {
+    public void testGetVariablesByAuthorizedUser() {
+        List<WfVariable> vars = executionService.getVariables(h.getAuthorizedUser(), processId);
+        val names = new ArrayList<String>();
+        for (WfVariable v : vars) {
             names.add(v.getDefinition().getName());
         }
 
         List<String> expectedNames = Lists.newArrayList(variableName);
         ArrayAssert.assertWeakEqualArrays("variable names are not equal", expectedNames, names);
 
-        HashMap<String, Object> variables2 = new HashMap<String, Object>();
-        variables2.put("var2", "var2Value");
-        variables2.put("var3", "var3Value");
-        variables2.put("approved", "true");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), taskId, variables2);
+        val vars2 = new HashMap<String, Object>();
+        vars2.put("var2", "var2Value");
+        vars2.put("var3", "var3Value");
+        vars2.put("approved", "true");
+        h.getTaskService().completeTask(h.getAuthorizedUser(), taskId, vars2);
 
-        taskId = th.getTaskService().getMyTasks(th.getErpOperatorUser(), th.getTaskBatchPresentation()).get(0).getId();
+        taskId = h.getTaskService().getMyTasks(h.getErpOperatorUser(), h.getTaskBatchPresentation()).get(0).getId();
 
-        variables = executionService.getVariables(th.getAdminUser(), processId);
+        vars = executionService.getVariables(h.getAdminUser(), processId);
 
-        names = new ArrayList<String>();
-        HashMap<String, Object> vars = new HashMap<String, Object>();
-        for (WfVariable v : variables) {
+        names.clear();
+        val vars3 = new HashMap<String, Object>();
+        for (WfVariable v : vars) {
             names.add(v.getDefinition().getName());
-            vars.put(v.getDefinition().getName(), v.getValue());
+            vars3.put(v.getDefinition().getName(), v.getValue());
         }
         expectedNames = Lists.newArrayList("var2", "var3", "approved", variableName);
         ArrayAssert.assertWeakEqualArrays("variable names are not equal", expectedNames, names);
 
-        assertEquals(" variable value: <var1> differs from expected", "var1Value", vars.get("var1"));
-        assertEquals(" variable value: <var2> differs from expected", "var2Value", vars.get("var2"));
-        assertEquals(" variable value: <var3> differs from expected", "var3Value", vars.get("var3"));
-        assertEquals(" variable value: <approved> differs from expected", true, vars.get("approved"));
+        assertEquals(" variable value: <var1> differs from expected", "var1Value", vars3.get("var1"));
+        assertEquals(" variable value: <var2> differs from expected", "var2Value", vars3.get("var2"));
+        assertEquals(" variable value: <var3> differs from expected", "var3Value", vars3.get("var3"));
+        assertEquals(" variable value: <approved> differs from expected", true, vars3.get("approved"));
     }
 }

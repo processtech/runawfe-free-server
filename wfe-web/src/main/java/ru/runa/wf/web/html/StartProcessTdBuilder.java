@@ -27,7 +27,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 public class StartProcessTdBuilder extends BaseTdBuilder {
 
     public StartProcessTdBuilder() {
-        super(Permission.START);
+        super(Permission.START_PROCESS);
     }
 
     @Override

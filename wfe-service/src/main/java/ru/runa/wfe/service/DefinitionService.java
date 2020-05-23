@@ -315,4 +315,5 @@ public interface DefinitionService {
      * @return not <code>null</code>
      */
     List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2);
+
 }

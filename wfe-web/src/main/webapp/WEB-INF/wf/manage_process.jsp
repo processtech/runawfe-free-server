@@ -34,6 +34,11 @@ function Reload() {
 }  
 </script>
 <% } %>
+<style>
+	.ui-tooltip {
+		max-width: fit-content !important;
+	}
+</style>
 </tiles:put>
 
 <tiles:put name="body" type="string">

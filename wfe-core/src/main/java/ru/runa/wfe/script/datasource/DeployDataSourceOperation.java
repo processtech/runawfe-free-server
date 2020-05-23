@@ -31,7 +31,7 @@ public class DeployDataSourceOperation extends ScriptOperation implements DataSo
 
     @Override
     public void execute(ScriptExecutionContext context) {
-        if (DataSourceStorage.save(context.getExternalResource(file), false)) {
+        if (DataSourceStorage.save(context.getExternalResource(file), false, false)) {
             if (context.getDataSourceDefaultPassword() != null) {
                 String dsFileName = file.substring(file.lastIndexOf("/") + 1);
                 DataSourceStorage.changePassword(dsFileName.substring(0, dsFileName.length() - DATA_SOURCE_FILE_SUFFIX.length()),

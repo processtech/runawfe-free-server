@@ -91,24 +91,6 @@ public class AuthorizationServiceDelegate extends Ejb3Delegate implements Author
     }
 
     @Override
-    public boolean isAllowedUpdateExecutor(User user, Executor object) {
-        try {
-            return getAuthorizationService().isAllowedUpdateExecutor(user, object);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public boolean isAllowedUpdateExecutor(User user, Long id) {
-        try {
-            return getAuthorizationService().isAllowedUpdateExecutor(user, id);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
     public void exportDataFile(User user, Document script) {
         try {
             getAuthorizationService().exportDataFile(user, script);

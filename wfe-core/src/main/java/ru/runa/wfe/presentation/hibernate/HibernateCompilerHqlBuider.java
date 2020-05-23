@@ -315,15 +315,28 @@ public class HibernateCompilerHqlBuider {
             return result;
         }
 
-        // Check all types have same list type and permission substitutions. List type must not be null, since we're querying list.
+        // Check all types have same list type (unless null) and permission substitutions. List type may be null.
         // TODO After ACTOR and GROUP types are merged into EXECUTOR, consider to replace `types` to single `type`.
-        SecuredObjectType listType = pp.types[0].getListType();
-        PermissionSubstitutions.ForCheck subst = PermissionSubstitutions.getForCheck(pp.types[0], pp.permission);
-        Assert.notNull(listType);
-        for (int i = 1;  i < pp.types.length;  i++) {
-            Assert.isTrue(listType == pp.types[i].getListType());
-            Assert.isTrue(Objects.equals(subst, PermissionSubstitutions.getForCheck(pp.types[i], pp.permission)));
+        PermissionSubstitutions.ForCheck subst = null;
+        SecuredObjectType listType = null;
+        for (int i = 0;  i < pp.types.length;  i++) {
+            SecuredObjectType lt = pp.types[i].getListType();
+            if (lt != null) {
+                if (listType == null) {
+                    listType = lt;
+                } else {
+                    Assert.isTrue(listType == lt);
+                }
+            }
+            PermissionSubstitutions.ForCheck s = PermissionSubstitutions.getForCheck(pp.types[i], pp.permission);
+            if (i == 0) {
+                subst = s;
+            } else {
+                Assert.isTrue(Objects.equals(subst, s));
+            }
         }
+        Assert.notNull(subst);
+        Assert.isTrue(subst.listPermissions.isEmpty() || listType != null);
 
         ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
         PermissionDao permissionDao = ApplicationContextFactory.getPermissionDao();
@@ -355,9 +368,11 @@ public class HibernateCompilerHqlBuider {
             permissionNames.add(p.getName());
         }
 
-        result.add("(instance.id in (select pm.objectId from PermissionMapping pm where pm.executor.id in (:securedOwnerIds) and " +
-                "pm.objectType in (:securedTypes) and pm.permission in (:securedPermissions)" +
-                "))");
+        result.add("(instance.id in (" +
+                "select pm.objectId " +
+                "from PermissionMapping pm " +
+                "where pm.executor.id in (:securedOwnerIds) and pm.objectType in (:securedTypes) and pm.permission in (:securedPermissions)" +
+        "))");
         placeholders.add("securedOwnerIds", executorIds);
 //        placeholders.add("securedTypes", Arrays.stream(types).map(SecuredObjectType::getName).collect(Collectors.toList()), Hibernate.STRING);
 //        placeholders.add("securedPermissions", subst.selfPermissions.stream().map(Permission::getName).collect(Collectors.toList()), Hibernate.STRING);

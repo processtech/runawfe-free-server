@@ -1,10 +1,13 @@
 package ru.runa.common.web.html;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.jsp.PageContext;
+import lombok.val;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
@@ -22,6 +25,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
 /**
@@ -39,7 +43,16 @@ public class PermissionTableBuilder {
         this.securedObject = securedObject;
         this.user = user;
         this.pageContext = pageContext;
-        applicablePermissions = ApplicablePermissions.listVisible(securedObject);
+        val pp = ApplicablePermissions.listVisible(securedObject);
+        applicablePermissions = securedObject instanceof Group
+                ? Lists.newArrayList(Iterables.filter(pp, new Predicate<Permission>() {
+                    @Override
+                    public boolean apply(Permission p) {
+                        // #1586-27.
+                        return p != Permission.UPDATE_ACTOR_STATUS;
+                    }
+                }))
+                : pp;
         updateAllowed = Delegates.getAuthorizationService().isAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
     }
 

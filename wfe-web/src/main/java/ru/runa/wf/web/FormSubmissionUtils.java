@@ -150,7 +150,7 @@ public class FormSubmissionUtils {
         }
     }
 
-    private static Object extractVariable(HttpServletRequest request, Map<String, ?> userInput, VariableDefinition variableDefinition,
+    public static Object extractVariable(HttpServletRequest request, Map<String, ?> userInput, VariableDefinition variableDefinition,
             Map<String, String> errors) {
         VariableFormat format = FormatCommons.create(variableDefinition);
         HttpFormToVariableValue httpFormToVariableValue = new HttpFormToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request

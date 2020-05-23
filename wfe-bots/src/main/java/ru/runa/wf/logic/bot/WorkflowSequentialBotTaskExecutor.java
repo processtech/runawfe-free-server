@@ -14,14 +14,14 @@ import ru.runa.wfe.bot.BotTask;
 @CommonsLog
 public class WorkflowSequentialBotTaskExecutor implements Runnable, BotExecutionStatus {
     /**
-     * Bot with sequential tasks execution strategy.
+     * Used only for equals() and hashCode(). Bot with sequential tasks execution strategy.
      */
     private final Bot bot;
     /**
-     * Optional bot task, if executor created for specific bot task, not all bot
-     * tasks.
+     * Used only for equals() and hashCode(). Optional bot task, if executor created for specific bot task, not all bot tasks.
      */
     private final BotTask botTask;
+
     /**
      * Bot tasks, which must be executed by this task executor.
      */

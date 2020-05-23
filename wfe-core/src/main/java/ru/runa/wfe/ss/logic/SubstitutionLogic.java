@@ -70,7 +70,7 @@ public class SubstitutionLogic extends CommonLogic {
 
     public List<Substitution> getSubstitutions(User user, Long actorId) {
         Actor actor = executorDao.getActor(actorId);
-        checkPermissionsOnExecutor(user, actor, Permission.LIST);
+        checkPermissionsOnExecutor(user, actor, Permission.READ);
         return substitutionDao.getByActorId(actorId, true);
     }
 

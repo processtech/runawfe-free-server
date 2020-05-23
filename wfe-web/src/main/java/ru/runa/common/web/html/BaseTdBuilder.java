@@ -33,7 +33,7 @@ public abstract class BaseTdBuilder implements TdBuilder {
         if (permission == null) {
             return false;
         }
-        if (permission == Permission.START) {
+        if (permission == Permission.START_PROCESS) {
             return ((WfDefinition) object).isCanBeStarted();
         }
         return env.isAllowed(permission, securedObjectExtractor);

@@ -21,5 +21,4 @@
 	<addExecutorsToGroup name="boss">
 		<executor name="dorothy"/>
 	</addExecutorsToGroup>
-
 </workflowScript>

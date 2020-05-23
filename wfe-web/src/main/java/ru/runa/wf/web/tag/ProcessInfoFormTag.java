@@ -243,7 +243,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     }
 
     private boolean checkReadable(WfProcess parentProcess) {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.LIST, parentProcess);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, parentProcess);
     }
 
     @Override

@@ -263,7 +263,8 @@ public class ParallelGateway extends Node {
                         log.debug("Executing " + this);
                         CurrentProcess process = ApplicationContextFactory.getCurrentProcessDao().getNotNull(processId);
                         CurrentTokenDao currentTokenDao = ApplicationContextFactory.getCurrentTokenDao();
-                        List<CurrentToken> failedTokens = currentTokenDao.findByProcessAndNodeIdAndExecutionStatusIsFailed(process, gateway.getNodeId());
+                        List<CurrentToken> failedTokens = currentTokenDao.findByProcessAndNodeIdAndExecutionStatus(process, gateway.getNodeId(),
+                                ExecutionStatus.FAILED);
                         if (failedTokens.isEmpty()) {
                             log.warn("no failed tokens found");
                             return;

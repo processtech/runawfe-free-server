@@ -1,133 +1,121 @@
 package ru.runa.af.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 public class ExecutorServiceDelegateGetExecutorGroupsTest extends ServletTestCase {
-    private ServiceTestHelper th;
-
+    private ServiceTestHelper h;
     private ExecutorService executorService;
 
-    private static String testPrefix = ExecutorServiceDelegateGetExecutorGroupsTest.class.getName();
-
     private Group group;
-
     private Group subGroup;
-
     private Actor actor;
 
     @Override
-    protected void setUp() throws Exception {
+    protected void setUp() {
+        h = new ServiceTestHelper(getClass().getName());
         executorService = Delegates.getExecutorService();
-        th = new ServiceTestHelper(testPrefix);
-        th.createDefaultExecutorsMap();
-        List<Permission> readPermissions = Lists.newArrayList(Permission.READ);
 
-        actor = th.getSubGroupActor();
-        th.setPermissionsToAuthorizedPerformer(readPermissions, actor);
-        group = th.getBaseGroup();
-        subGroup = th.getSubGroup();
-        th.setPermissionsToAuthorizedPerformer(readPermissions, group);
-        th.setPermissionsToAuthorizedPerformer(readPermissions, subGroup);
-        super.setUp();
+        h.createDefaultExecutorsMap();
+        actor = h.getSubGroupActor();
+        group = h.getBaseGroup();
+        subGroup = h.getSubGroup();
+
+        val pp = Lists.newArrayList(Permission.READ);
+        h.setPermissionsToAuthorizedActor(pp, actor);
+        h.setPermissionsToAuthorizedActor(pp, group);
+        h.setPermissionsToAuthorizedActor(pp, subGroup);
     }
 
-    final public void testGetExecutorGroupsByAuthorizedPerformer1() throws Exception {
-        List<Group> calculatedGroups = executorService.getExecutorGroups(th.getAuthorizedPerformerUser(), actor, th.getExecutorBatchPresentation(),
+    @Override
+    protected void tearDown() {
+        h.releaseResources();
+        h = null;
+        executorService = null;
+        actor = null;
+        group = null;
+        subGroup = null;
+    }
+
+    final public void testGetExecutorGroupsByAuthorizedUser1() {
+        List<Group> calculatedGroups = executorService.getExecutorGroups(h.getAuthorizedUser(), actor, h.getExecutorBatchPresentation(),
                 false);
         List<Group> realGroups = Lists.newArrayList(subGroup);
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutorGroups( actor ) returns wrong group set", realGroups, calculatedGroups);
     }
 
-    final public void testGetExecutorGroupsByAuthorizedPerformer2() throws Exception {
-        List<Group> calculatedGroups = executorService.getExecutorGroups(th.getAuthorizedPerformerUser(), subGroup, th.getExecutorBatchPresentation(),
+    final public void testGetExecutorGroupsByAuthorizedUser2() {
+        List<Group> calculatedGroups = executorService.getExecutorGroups(h.getAuthorizedUser(), subGroup, h.getExecutorBatchPresentation(),
                 false);
         List<Group> realGroups = Lists.newArrayList(group);
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutorGroups( group ) returns wrong group set", realGroups, calculatedGroups);
     }
 
-    final public void testGetExecutorGroupsByAuthorizedPerformer3() throws Exception {
+    final public void testGetExecutorGroupsByAuthorizedUser3() {
         List<Permission> updatePermission = Lists.newArrayList(Permission.UPDATE);
-        th.setPermissionsToAuthorizedPerformer(updatePermission, group);
-        th.addExecutorToGroup(getActor(), getGroup());
-        List<Group> calculatedGroups = executorService.getExecutorGroups(th.getAuthorizedPerformerUser(), getActor(),
-                th.getExecutorBatchPresentation(), false);
+        h.setPermissionsToAuthorizedActor(updatePermission, group);
+        h.addExecutorToGroup(getActor(), getGroup());
+        List<Group> calculatedGroups = executorService.getExecutorGroups(h.getAuthorizedUser(), getActor(),
+                h.getExecutorBatchPresentation(), false);
         List<Group> realGroups = Lists.newArrayList(subGroup, getGroup());
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutorGroups() returns wrong group set", realGroups, calculatedGroups);
     }
 
-    private Group getGroup() throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
-        return executorService.getExecutor(th.getAdminUser(), group.getId());
+    private Group getGroup() {
+        return executorService.getExecutor(h.getAdminUser(), group.getId());
     }
 
-    private Actor getActor() throws InternalApplicationException, AuthorizationException, AuthenticationException, ExecutorDoesNotExistException {
-        return executorService.getExecutor(th.getAdminUser(), actor.getId());
+    private Actor getActor() {
+        return executorService.getExecutor(h.getAdminUser(), actor.getId());
     }
 
-    final public void testGetExecutorGroupsByAuthorizedPerformer4() throws Exception {
+    final public void testGetExecutorGroupsByAuthorizedUser4() {
         List<Permission> updatePermission = Lists.newArrayList(Permission.UPDATE);
         List<Permission> noPermissionArray = Lists.newArrayList();
-        th.setPermissionsToAuthorizedPerformer(updatePermission, group);
-        th.addExecutorToGroup(getActor(), getGroup());
-        th.setPermissionsToAuthorizedPerformer(noPermissionArray, subGroup);
-        List<Group> calculatedGroups = executorService.getExecutorGroups(th.getAuthorizedPerformerUser(), getActor(),
-                th.getExecutorBatchPresentation(), false);
+        h.setPermissionsToAuthorizedActor(updatePermission, group);
+        h.addExecutorToGroup(getActor(), getGroup());
+        h.setPermissionsToAuthorizedActor(noPermissionArray, subGroup);
+        List<Group> calculatedGroups = executorService.getExecutorGroups(h.getAuthorizedUser(), getActor(),
+                h.getExecutorBatchPresentation(), false);
         List<Group> realGroups = Lists.newArrayList(getGroup());
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutorGroups() returns wrong group set", realGroups, calculatedGroups);
     }
 
-    public void testGetExecutorGroupsByUnauthorizedPerformer1() throws Exception {
+    public void testGetExecutorGroupsByUnauthorizedUser1() {
         try {
-            executorService.getExecutorGroups(th.getUnauthorizedPerformerUser(), actor, th.getExecutorBatchPresentation(), false);
-            fail("businessDelegate.getExecutorGroupsByUnauthorizedPerformer(actor) no AuthorizationFailedException");
+            executorService.getExecutorGroups(h.getUnauthorizedUser(), actor, h.getExecutorBatchPresentation(), false);
+            fail();
         } catch (AuthorizationException e) {
-            // That's what we expect
+            // Expected.
         }
     }
 
-    public void testGetExecutorGroupsByUnauthorizedPerformer2() throws Exception {
+    public void testGetExecutorGroupsByUnauthorizedUser2() {
         try {
-            executorService.getExecutorGroups(th.getUnauthorizedPerformerUser(), subGroup, th.getExecutorBatchPresentation(), false);
-            fail("businessDelegate.getExecutorGroupsByUnauthorizedPerformer(subGroup) no AuthorizationFailedException");
+            executorService.getExecutorGroups(h.getUnauthorizedUser(), subGroup, h.getExecutorBatchPresentation(), false);
+            fail();
         } catch (AuthorizationException e) {
-            // That's what we expect
+            // Expected.
         }
     }
 
-    public void testGetExecutorGroupsWithFakeSubject() throws Exception {
+    public void testGetExecutorGroupsWithFakeUser() {
         try {
-            User fakeUser = th.getFakeUser();
-            executorService.getExecutorGroups(fakeUser, actor, th.getExecutorBatchPresentation(), false);
-            fail("testGetExecutorGroupsWithFakeSubject no Exception");
+            executorService.getExecutorGroups(h.getFakeUser(), actor, h.getExecutorBatchPresentation(), false);
+            fail();
         } catch (AuthenticationException e) {
-            // That's what we expect
+            // Expected.
         }
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        th.releaseResources();
-        th = null;
-        executorService = null;
-        actor = null;
-        group = null;
-        subGroup = null;
-        super.tearDown();
     }
 }

@@ -15,8 +15,8 @@ import ru.runa.common.web.html.EnvBaseImpl;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UndeployProcessDefinitionsAction;
@@ -25,7 +25,6 @@ import ru.runa.wf.web.html.StartProcessTdBuilder;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -51,7 +50,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TdBuilder[] { new CheckboxTdBuilder("versionId", Permission.ALL), new StartProcessTdBuilder() },
+                new TdBuilder[] { new CheckboxTdBuilder("versionId", Permission.DELETE), new StartProcessTdBuilder() },
                 batchPresentation,
                 new TdBuilder[] { new PropertiesProcessTdBuilder() }
         );
@@ -75,14 +74,12 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     private boolean isUndeployAllowed(List<WfDefinition> definitions) {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.DEFINITIONS);
-        // TODO If (when) hidden types & permissions are implemented, uncomment and review/edit this.
-//        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UNDEPLOY_DEFINITION, definitions)) {
-//            if (undeploy) {
-//                return true;
-//            }
-//        }
-//        return false;
+        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DELETE, definitions)) {
+            if (undeploy) {
+                return true;
+            }
+        }
+        return false;
     }
 
     class EnvImpl extends EnvBaseImpl {

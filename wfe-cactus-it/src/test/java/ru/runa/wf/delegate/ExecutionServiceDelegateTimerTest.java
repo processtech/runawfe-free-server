@@ -1,66 +1,49 @@
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
-import java.util.HashMap;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.security.AuthenticationException;
-import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.validation.ValidationException;
-
-import com.google.common.collect.Lists;
 
 public class ExecutionServiceDelegateTimerTest extends ServletTestCase {
-
     private static final String STATE_KOCHAB = "Kochab";
-
     private static final String STATE_ALIFA = "Alifa";
 
-    private ExecutionService executionService = null;
-
-    private WfServiceTestHelper th = null;
+    private WfServiceTestHelper h;
+    private ExecutionService executionService;
 
     @Override
-    protected void setUp() throws Exception {
-        th = new WfServiceTestHelper(getClass().getName());
-        th.deployValidProcessDefinition(WfServiceTestHelper.TIMER_PROCESS_NAME + ".par");
-        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.TIMER_PROCESS_NAME);
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
+        executionService = h.getExecutionService();
 
-        th.addExecutorToGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());
-
-        executionService = th.getExecutionService();
-
-        super.setUp();
+        h.deployValidProcessDefinition(WfServiceTestHelper.TIMER_PROCESS_NAME + ".par");
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.START_PROCESS, Permission.READ_PROCESS),
+                WfServiceTestHelper.TIMER_PROCESS_NAME);
+        h.addExecutorToGroup(h.getAuthorizedActor(), h.getBossGroup());
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        th.undeployValidProcessDefinition(WfServiceTestHelper.TIMER_PROCESS_NAME);
-        th.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition(WfServiceTestHelper.TIMER_PROCESS_NAME);
+        h.releaseResources();
         executionService = null;
-        super.tearDown();
     }
 
-    public void test() throws InternalApplicationException {
+    public void test() {
         Long pid = prolog();
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(),
-                th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), BatchPresentationFactory.TASKS.createDefault()).get(0).getId(),
-                new HashMap<String, Object>());
+        h.getTaskService().completeTask(h.getAuthorizedUser(),
+                h.getTaskService().getMyTasks(h.getAuthorizedUser(), BatchPresentationFactory.TASKS.createDefault()).get(0).getId(),
+                null);
         epilog(pid, STATE_KOCHAB, 1, 0);
     }
 
-    public void testTimeout() throws InternalApplicationException {
+    public void testTimeout() {
         Long pid = prolog();
         try {
             Thread.sleep(15000);
@@ -70,27 +53,27 @@ public class ExecutionServiceDelegateTimerTest extends ServletTestCase {
         // TODO fix me!!! epilog(pid, STATE_ANWAR, 0, 1);
     }
 
-    private Long prolog() throws AuthorizationException, AuthenticationException, DefinitionDoesNotExistException, ValidationException {
-        Long pid = executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.TIMER_PROCESS_NAME, null);
+    private Long prolog() {
+        Long pid = executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.TIMER_PROCESS_NAME, null);
         assertEquals(STATE_ALIFA,
-                th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), BatchPresentationFactory.TASKS.createDefault()).get(0).getName());
-        checkTasksCount(th.getAuthorizedPerformerUser(), 1);
-        checkTasksCount(th.getErpOperatorUser(), 0);
+                h.getTaskService().getMyTasks(h.getAuthorizedUser(), BatchPresentationFactory.TASKS.createDefault()).get(0).getName());
+        checkTasksCount(h.getAuthorizedUser(), 1);
+        checkTasksCount(h.getErpOperatorUser(), 0);
         return pid;
     }
 
-    private void epilog(Long pid, String stateName, int reqTasksCount, int erpTasksCount) throws AuthenticationException, AuthorizationException {
-        List<WfTask> list = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), BatchPresentationFactory.TASKS.createDefault());
+    private void epilog(Long pid, String stateName, int reqTasksCount, int erpTasksCount) {
+        List<WfTask> list = h.getTaskService().getMyTasks(h.getAuthorizedUser(), BatchPresentationFactory.TASKS.createDefault());
         for (WfTask inst : list) {
             assertEquals(stateName, inst.getName());
         }
         // assertEquals (stateName, executionService.getProcessInstanceTokens(
-        // helper.getAuthorizedPerformerUser(), pid).get(1).getName());
-        checkTasksCount(th.getAuthorizedPerformerUser(), reqTasksCount);
-        checkTasksCount(th.getErpOperatorUser(), erpTasksCount);
+        // helper.getAuthorizedUser(), pid).get(1).getName());
+        checkTasksCount(h.getAuthorizedUser(), reqTasksCount);
+        checkTasksCount(h.getErpOperatorUser(), erpTasksCount);
     }
 
-    private void checkTasksCount(User user, int expected) throws InternalApplicationException {
-        assertEquals(expected, th.getTaskService().getMyTasks(user, th.getTaskBatchPresentation()).size());
+    private void checkTasksCount(User user, int expected) {
+        assertEquals(expected, h.getTaskService().getMyTasks(user, h.getTaskBatchPresentation()).size());
     }
 }

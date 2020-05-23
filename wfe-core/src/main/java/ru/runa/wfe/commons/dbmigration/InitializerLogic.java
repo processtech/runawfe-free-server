@@ -40,6 +40,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
+import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
@@ -47,6 +48,7 @@ import ru.runa.wfe.commons.dbmigration.impl.JbpmRefactoringPatch;
 import ru.runa.wfe.commons.dbmigration.impl.NodeTypeChangePatch;
 import ru.runa.wfe.commons.dbmigration.impl.PerformancePatch401;
 import ru.runa.wfe.commons.dbmigration.impl.PermissionMappingPatch403;
+import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsBack;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep4;
@@ -144,6 +146,9 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             RefactorPermissionsStep3.class,
             AddProcessExternalData.class,
             RefactorPermissionsStep4.class,
+            EmptyPatch.class, // instead signals...
+            CreateChatDbPatch.class, 
+            RefactorPermissionsBack.class,
             SplitProcessDefinitionVersion.class,
             AddSubprocessRootIdColumn.class,
             SupportProcessArchivingBefore.class,

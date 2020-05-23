@@ -4,7 +4,6 @@ import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
@@ -27,7 +26,7 @@ public class TaskProcessDefinitionTdBuilder implements TdBuilder {
         TD td = new TD();
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         String definitionName = getValue(object, env);
-        if (env.hasProcessDefinitionPermission(Permission.LIST, task.getDefinitionVersionId())) {
+        if (env.hasProcessDefinitionPermission(Permission.READ, task.getDefinitionVersionId())) {
             String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, task.getDefinitionVersionId(),
                     env.getPageContext(), PortletUrlType.Render);
             A definitionNameLink = new A(url, definitionName);

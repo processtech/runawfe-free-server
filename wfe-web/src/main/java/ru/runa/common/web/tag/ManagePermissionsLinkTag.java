@@ -1,6 +1,5 @@
 package ru.runa.common.web.tag;
 
-import java.util.LinkedHashMap;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.Commons;
