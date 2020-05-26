@@ -22,6 +22,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
@@ -99,8 +100,8 @@ public class ExecutorServiceBean implements ExecutorServiceLocal, ExecutorServic
     }
 
     @Override
-    @WebResult(name = "result")
-    public <T extends Executor> T create(@WebParam(name = "user") @NonNull User user, @WebParam(name = "executor") @NonNull T executor) {
+    @WebMethod(exclude = true)
+    public <T extends Executor> T create(@NonNull User user, @NonNull T executor) {
         return executorLogic.create(user, executor);
     }
 
@@ -228,4 +229,17 @@ public class ExecutorServiceBean implements ExecutorServiceLocal, ExecutorServic
     public boolean isAdministrator(@WebParam(name = "user") @NonNull User user) {
         return executorLogic.isAdministrator(user);
     }
+
+    @WebResult(name = "result")
+    public Actor createActor(@WebParam(name = "user") @NonNull User user, @WebParam(name = "name") @NonNull String name,
+            @WebParam(name = "fullName") String fullName, @WebParam(name = "description") String description) {
+        return executorLogic.create(user, new Actor(name, description, fullName));
+    }
+
+    @WebResult(name = "result")
+    public Group createGroup(@WebParam(name = "user") @NonNull User user, @WebParam(name = "name") @NonNull String name,
+            @WebParam(name = "description") String description) {
+        return executorLogic.create(user, new Group(name, description));
+    }
+
 }
