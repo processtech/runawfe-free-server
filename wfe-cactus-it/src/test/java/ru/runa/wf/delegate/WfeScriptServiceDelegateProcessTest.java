@@ -18,17 +18,13 @@
 
 package ru.runa.wf.delegate;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cactus.ServletTestCase;
-
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
-import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wf.service.WfScriptServiceTestHelper;
 import ru.runa.wf.service.WfServiceTestHelper;
+import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 
 public class WfeScriptServiceDelegateProcessTest extends ServletTestCase {
 
@@ -37,155 +33,144 @@ public class WfeScriptServiceDelegateProcessTest extends ServletTestCase {
     private static final String REMOVE = "process_Remove_script.xml";
 
     private static final Group EMPLOYEE_GROUP = new Group("employee", null);
-    private Executor employee = null;
+
+    private WfScriptServiceTestHelper h;
+
+    private Executor employee;
     private WfProcess instanceStub1, instanceStub2;
-    private WfScriptServiceTestHelper helper = null;
 
-    protected void setUp() throws Exception {
-        helper = new WfScriptServiceTestHelper(getClass().getName());
-        employee = helper.createGroupIfNotExist(EMPLOYEE_GROUP.getName(), EMPLOYEE_GROUP.getDescription());
-        helper.deployValidProcessDefinition();
-        super.setUp();
+    @Override
+    protected void setUp() {
+        h = new WfScriptServiceTestHelper(getClass().getName());
+        employee = h.createGroupIfNotExist(EMPLOYEE_GROUP.getName(), EMPLOYEE_GROUP.getDescription());
+        h.deployValidProcessDefinition();
     }
 
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition();
-        helper.releaseResources();
-        helper = null;
-        super.tearDown();
+    @Override
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
+        h = null;
     }
 
-    public void testAddThenSetPermissions() throws Exception {
+    public void testAddThenSetPermissions() {
+        h.executeScript(ADD_SET);
 
-        // script with operations is parsed and executed here
-        helper.executeScript(ADD_SET);
-
-        /**
-         * This checks are valid only for one paticular given script file. If this script file is edited the following test method must be changed in
-         * corresponding way
-         */
+        // ATTENTION! These tests are valid only for script file executed above. If that file is edited, the tests must be changed accordingly.
 
         // group permission on process definition
-        assertFalse("Check if 'list' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.LIST, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertFalse("Check if 'DELETE' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.DELETE, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertFalse("Check if 'start' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.START, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertFalse("Check if 'START_PROCESS' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.START_PROCESS, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'read' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.READ, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'READ' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.READ, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'update' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.UPDATE, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'UPDATE' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.UPDATE, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'read_process' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.READ_PROCESS, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'READ_PROCESS' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.READ_PROCESS, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'cancel_process' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.CANCEL_PROCESS, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'CANCEL_PROCESS' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.CANCEL_PROCESS, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        instanceStub1 = helper.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, helper.getAdministrator());
-        instanceStub2 = helper.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, helper.getAdministrator());
+        instanceStub1 = h.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, h.getAdministrator());
+        instanceStub2 = h.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, h.getAdministrator());
 
         // group permission on process instances
-        assertTrue("Check if 'read' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub1, employee, Permission.READ));
+        assertTrue("Check if 'READ' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.READ, instanceStub1));
 
-        assertTrue("Check if 'cancel' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub1, employee, Permission.CANCEL));
+        assertTrue("Check if 'CANCEL' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.CANCEL, instanceStub1));
 
-        assertTrue("Check if 'read' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub2, employee, Permission.READ));
+        assertTrue("Check if 'READ' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.READ, instanceStub2));
 
-        assertTrue("Check if 'cancel' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub2, employee, Permission.CANCEL));
+        assertTrue("Check if 'CANCEL' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.CANCEL, instanceStub2));
 
     }
 
-    public void testSetThenAddPermissions() throws Exception {
+    public void testSetThenAddPermissions() {
+        h.executeScript(SET_ADD);
 
-        // script with operations is parsed and executed here
-        helper.executeScript(SET_ADD);
+        // ATTENTION! These tests are valid only for script file executed above. If that file is edited, the tests must be changed accordingly.
 
-        /**
-         * This checks are valid only for one paticular given script file. If this script file is edited the following test method must be changed in
-         * corresponding way
-         */
         // group permission on process definition
-        assertTrue("Check if 'read' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.READ, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'READ' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.READ, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'update' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.UPDATE, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'UPDATE' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.UPDATE, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'start' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.START, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'START_PROCESS' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.START_PROCESS, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'read_process' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.READ_PROCESS, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'READ_PROCESS' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.READ_PROCESS, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'cancel_process' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.CANCEL_PROCESS, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'CANCEL_PROCESS' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.CANCEL_PROCESS, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        instanceStub1 = helper.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, helper.getAdministrator());
-        instanceStub2 = helper.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, helper.getAdministrator());
+        instanceStub1 = h.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, h.getAdministrator());
+        instanceStub2 = h.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, h.getAdministrator());
 
         // group permission on process instances
-        assertTrue("Check if 'read' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub1, employee, Permission.READ));
+        assertTrue("Check if 'READ' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.READ, instanceStub1));
 
-        assertTrue("Check if 'cancel' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub1, employee, Permission.CANCEL));
+        assertTrue("Check if 'CANCEL' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.CANCEL, instanceStub1));
 
-        assertTrue("Check if 'read' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub2, employee, Permission.READ));
+        assertTrue("Check if 'READ' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.READ, instanceStub2));
 
-        assertTrue("Check if 'cancel' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub2, employee, Permission.CANCEL));
+        assertTrue("Check if 'CANCEL' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.CANCEL, instanceStub2));
     }
 
-    public void testRemovePermissions() throws Exception {
-        // script with operations is parsed and executed here
-        helper.executeScript(REMOVE);
+    public void testRemovePermissions() {
+        h.executeScript(REMOVE);
 
-        /**
-         * This checks are valid only for one paticular given script file. If this script file is edited the following test method must be changed in
-         * corresponding way
-         */
+        // ATTENTION! These tests are valid only for script file executed above. If that file is edited, the tests must be changed accordingly.
+
         // group permission on process definition
-        assertFalse("Check if 'list' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.LIST, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertFalse("Check if 'DELETE' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.DELETE, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'read' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.READ, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'READ' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.READ, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'update' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.UPDATE, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'UPDATE' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.UPDATE, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'start' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.START, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'START_PROCESS' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.START_PROCESS, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertTrue("Check if 'read_instance' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.READ_PROCESS, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertTrue("Check if 'READ_PROCESS' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.READ_PROCESS, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        assertFalse("Check if 'cancel_instance' permission is given to employees on validProcess definition",
-                helper.isAllowedToExecutorOnDefinition(Permission.CANCEL_PROCESS, employee, WfServiceTestHelper.VALID_PROCESS_NAME));
+        assertFalse("Check if 'CANCEL_PROCESS' permission is given to employees on validProcess definition",
+                h.hasOwnPermissionOnDefinition(employee, Permission.CANCEL_PROCESS, WfServiceTestHelper.VALID_PROCESS_NAME));
 
-        instanceStub1 = helper.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, helper.getAdministrator());
-        instanceStub2 = helper.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, helper.getAdministrator());
+        instanceStub1 = h.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, h.getAdministrator());
+        instanceStub2 = h.startProcessInstance(WfServiceTestHelper.VALID_PROCESS_NAME, h.getAdministrator());
 
         // group permission on process instances
-        assertTrue("Check if 'read' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub1, employee, Permission.READ));
+        assertTrue("Check if 'READ' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.READ, instanceStub1));
 
-        assertFalse("Check if 'cancel' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub1, employee, Permission.CANCEL));
+        assertFalse("Check if 'CANCEL' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.CANCEL, instanceStub1));
 
-        assertTrue("Check if 'read' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub2, employee, Permission.READ));
+        assertTrue("Check if 'READ' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.READ, instanceStub2));
 
-        assertFalse("Check if 'cancel' permission is given to employee on validProcess instance",
-                helper.isAllowedToExecutor(instanceStub2, employee, Permission.CANCEL));
-
+        assertFalse("Check if 'CANCEL' permission is given to employee on validProcess instance",
+                h.hasOwnPermission(employee, Permission.CANCEL, instanceStub2));
     }
 }

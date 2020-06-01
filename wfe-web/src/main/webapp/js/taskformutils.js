@@ -104,3 +104,15 @@ function deleteFile(inputId) {
 		}
 	});
 }
+
+function setFocusOnInvalidInputIfAny() {
+	var invalidInputs = $("[invalid='true']");
+	if (invalidInputs.length > 0) {
+		var firstInvalidInput = invalidInputs.get(0);
+		var parentTabPanels = $(firstInvalidInput).parents("div[role='tabpanel']");
+		if (parentTabPanels.length > 0) {
+			$("a[href='#" + parentTabPanels.get(0).id + "']").click();
+		}
+		firstInvalidInput.focus();
+	}
+}

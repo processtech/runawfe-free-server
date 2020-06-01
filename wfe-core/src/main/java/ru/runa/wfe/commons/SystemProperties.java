@@ -229,10 +229,6 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("auto.invocation.local.botstation.enabled", true);
     }
 
-    public static boolean isUpdateProcessVariablesInAPIEnabled() {
-        return RESOURCES.getBooleanProperty("executionServiceAPI.updateVariables.enabled", false);
-    }
-
     public static boolean isExecuteGroovyScriptInAPIEnabled() {
         return RESOURCES.getBooleanProperty("scriptingServiceAPI.executeGroovyScript.enabled", false);
     }
@@ -386,6 +382,23 @@ public class SystemProperties {
 
     public static Date getVariablesInvalidDefaultValuesAllowedBefore() {
         return RESOURCES.getDateProperty("variables.invalid.default.values.allowed.before", new Date());
+    }
+
+    /**
+     * Returns datasource password import/export policy (true - import/export allowed, false - otherwise)
+     * 
+     * @return boolean; default true
+     */
+    public static boolean isDatasourcePasswordExportAllowed() {
+        return RESOURCES.getBooleanProperty("datasource.password.export", true);
+    }
+
+    public static boolean ignoreErrorsInSendEmailActionHandler() {
+        return RESOURCES.getBooleanProperty("SendEmailActionHandler.ignore.errors", false);
+    }
+
+    public static boolean showErrorsInGroovyExpressionValidator() {
+        return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
     }
 
 }

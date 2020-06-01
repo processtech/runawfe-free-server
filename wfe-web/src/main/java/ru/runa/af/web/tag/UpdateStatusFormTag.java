@@ -50,7 +50,7 @@ public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_STATUS, getExecutor());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_ACTOR_STATUS, getExecutor());
     }
 
     @Override

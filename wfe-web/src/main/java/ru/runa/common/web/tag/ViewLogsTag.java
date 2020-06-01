@@ -27,7 +27,7 @@ public class ViewLogsTag extends TagSupport {
         return logDirPath;
     }
 
-    @Attribute(required = true, rtexprvalue = true)
+    @Attribute(required = true)
     public void setLogDirPath(String logDirPath) {
         this.logDirPath = logDirPath;
     }
@@ -38,7 +38,7 @@ public class ViewLogsTag extends TagSupport {
             StringBuilder html = new StringBuilder();
             File dirFile = new File(logDirPath);
             if (dirFile.exists() && dirFile.isDirectory()) {
-                if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.LOGS)) {
+                if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_LOGS, SecuredSingleton.SYSTEM)) {
                     File[] logFiles = dirFile.listFiles();
                     Arrays.sort(logFiles);
                     for (File file : logFiles) {

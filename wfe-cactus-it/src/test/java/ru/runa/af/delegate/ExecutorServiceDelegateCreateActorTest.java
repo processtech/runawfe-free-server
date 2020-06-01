@@ -18,95 +18,78 @@
 
 package ru.runa.af.delegate;
 
-import java.util.Collection;
-
+import com.google.common.collect.Lists;
 import org.apache.cactus.ServletTestCase;
-
-import ru.runa.wfe.security.SecuredSingleton;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 
-import com.google.common.collect.Lists;
-
 public class ExecutorServiceDelegateCreateActorTest extends ServletTestCase {
-    private final static String testPrefix = ExecutorServiceDelegateCreateActorTest.class.getName();
+    private final String PREFIX = getClass().getName();
 
-    private final static String NAME = "Name" + testPrefix;
-
-    private final static String DESC = "Desc" + testPrefix;
-
-    private final static String FULL_NAME = "FullName" + testPrefix;
-
-    private final static long CODE = System.currentTimeMillis();
-
-    private ServiceTestHelper th;
-
+    private ServiceTestHelper h;
     private ExecutorService executorService;
 
     private Actor actor;
 
     @Override
-    protected void setUp() throws Exception {
+    protected void setUp() {
+        h = new ServiceTestHelper(PREFIX);
         executorService = Delegates.getExecutorService();
-        th = new ServiceTestHelper(testPrefix);
-        Collection<Permission> createPermissions = Lists.newArrayList(Permission.CREATE);
-        th.setPermissionsToAuthorizedPerformerOnExecutors(createPermissions);
-        actor = new Actor(NAME, DESC, FULL_NAME, CODE);
-        super.setUp();
+
+        h.setPermissionsToAuthorizedActor(Lists.newArrayList(Permission.CREATE_EXECUTOR), SecuredSingleton.SYSTEM);
+        actor = new Actor(PREFIX + "_Name", PREFIX + "_Desc", PREFIX + "_FullName", System.currentTimeMillis());
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        th.removeExecutorIfExists(actor);
+    protected void tearDown() {
+        h.removeExecutorIfExists(actor);
         actor = null;
-        th.releaseResources();
+        h.releaseResources();
         executorService = null;
-
-        super.tearDown();
     }
 
-    public void testCreateActorByAuthorizedPerformer() throws Exception {
-        actor = executorService.create(th.getAuthorizedPerformerUser(), actor);
-        assertTrue("Executor does not exists ", th.isExecutorExist(actor));
-        Actor returnedActor = executorService.getExecutorByName(th.getAuthorizedPerformerUser(), actor.getName());
+    public void testCreateActorByAuthorizedUser() {
+        actor = executorService.create(h.getAuthorizedUser(), actor);
+        assertTrue("Executor does not exists ", h.isExecutorExist(actor));
+        Actor returnedActor = executorService.getExecutorByName(h.getAdminUser(), actor.getName());
         assertEquals("Returned actor differes with created one", actor, returnedActor);
     }
 
-    public void testCreateExecutorByUnAuthorizedPerformer() throws Exception {
+    public void testCreateExecutorByUnAuthorizedUser() {
         try {
-            executorService.create(th.getUnauthorizedPerformerUser(), actor);
+            executorService.create(h.getUnauthorizedUser(), actor);
             fail("ExecutorServiceDelegate allow unauthorized create");
         } catch (AuthorizationException e) {
-            // This is supposed result of operation
+            // Expected.
         }
     }
 
-    public void testCreateAlreadyExistedExecutor() throws Exception {
-        Actor actor2 = executorService.create(th.getAuthorizedPerformerUser(), actor);
-        assertTrue("Executor does not exists ", th.isExecutorExist(actor));
+    public void testCreateAlreadyExistedExecutor() {
+        Actor actor2 = executorService.create(h.getAuthorizedUser(), actor);
+        assertTrue("Executor does not exists ", h.isExecutorExist(actor));
         try {
-            executorService.create(th.getAuthorizedPerformerUser(), actor);
+            executorService.create(h.getAuthorizedUser(), actor);
             fail("ExecutorServiceDelegate allow create actor with same name");
         } catch (ExecutorAlreadyExistsException e) {
             // This is supposed result of operation
         }
-        Actor returnedActor = executorService.getExecutor(th.getAuthorizedPerformerUser(), actor2.getId());
+        Actor returnedActor = executorService.getExecutor(h.getAuthorizedUser(), actor2.getId());
         assertEquals("Returned actor differes with created one", actor, returnedActor);
     }
 
-    public void testCreateExecutorWithFakeSubject() throws Exception {
+    public void testCreateExecutorWithFakeUser() {
         try {
-            executorService.create(th.getFakeUser(), actor);
+            executorService.create(h.getFakeUser(), actor);
             fail("executor with fake subject created");
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
-
 }

@@ -17,10 +17,8 @@
  */
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
-
+import com.google.common.collect.Lists;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -30,8 +28,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 20.04.2005
  * 
@@ -39,59 +35,56 @@ import com.google.common.collect.Lists;
  * 
  */
 public class DefinitionServiceDelegateGetLatestDefinitionStubTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private DefinitionService definitionService;
-    private WfServiceTestHelper helper = null;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
 
-        helper.deployValidProcessDefinition();
-
-        Collection<Permission> permissions = Lists.newArrayList(Permission.READ);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
-
-        super.setUp();
+        h.deployValidProcessDefinition();
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.READ), WfServiceTestHelper.VALID_PROCESS_NAME);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition();
-
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         definitionService = null;
-        super.tearDown();
     }
 
-    public void testGetLatestDefinitionStubByAuthorizedUser() throws Exception {
-        WfDefinition process = definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(),
+    public void testGetLatestDefinitionStubByAuthorizedUser() {
+        WfDefinition process = definitionService.getLatestProcessDefinition(h.getAuthorizedUser(),
                 WfServiceTestHelper.VALID_PROCESS_NAME);
         assertEquals("definitionDelegate.getLatestDefinitionStub() returned process with different name", process.getName(),
                 WfServiceTestHelper.VALID_PROCESS_NAME);
     }
 
-    public void testGetLatestDefinitionStubByUnauthorizedUser() throws Exception {
+    public void testGetLatestDefinitionStubByUnauthorizedUser() {
         try {
-            definitionService.getLatestProcessDefinition(helper.getUnauthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
-            fail("testGetLatestDefinitionStubByUnauthorizedSubject, no AuthorizationException");
+            definitionService.getLatestProcessDefinition(h.getUnauthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
+            fail();
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testGetLatestDefinitionStubByFakeUser() throws Exception {
+    public void testGetLatestDefinitionStubByFakeUser() {
         try {
-            definitionService.getLatestProcessDefinition(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
-            fail("testGetLatestDefinitionStubByUnauthorizedSubject, no AuthenticationException");
+            definitionService.getLatestProcessDefinition(h.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testGetLatestDefinitionStubByAuthorizedSubjectWithInvalidProcessName() throws Exception {
+    public void testGetLatestDefinitionStubByAuthorizedUserWithInvalidProcessName() {
         try {
-            definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(), "0_Invalid_Process_Name");
-            fail("testGetLatestDefinitionStubByAuthorizedSubjectWithInvalidProcessName, no Exception");
+            definitionService.getLatestProcessDefinition(h.getAuthorizedUser(), "0_Invalid_Process_Name");
+            fail();
         } catch (DefinitionDoesNotExistException e) {
+            // Expected.
         }
     }
 }

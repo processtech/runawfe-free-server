@@ -2,7 +2,6 @@ package ru.runa.wfe.var;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.user.Executor;
@@ -18,7 +17,7 @@ import ru.runa.wfe.var.dto.WfVariable;
 public abstract class AbstractVariableProvider implements VariableProvider {
     protected final Log log = LogFactory.getLog(getClass());
 
-    protected ExecutorLoader getExecutorLoader() {
+    public ExecutorLoader getExecutorLoader() {
         return ApplicationContextFactory.getExecutorDAO();
     }
 

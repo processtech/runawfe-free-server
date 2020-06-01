@@ -17,29 +17,19 @@
  */
 package ru.runa.wfe.lang.bpmn2;
 
-import java.util.List;
-
-import ru.runa.wfe.commons.Utils;
+import java.util.Objects;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.BaseMessageNode;
+import ru.runa.wfe.lang.BaseReceiveMessageNode;
+import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.BoundaryEvent;
-import ru.runa.wfe.lang.BoundaryEventContainer;
-import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskCompletionInfo;
+import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.var.VariableMapping;
 
-import com.google.common.collect.Lists;
-
-public class CatchEventNode extends BaseMessageNode implements BoundaryEventContainer, BoundaryEvent {
+public class CatchEventNode extends BaseReceiveMessageNode implements BoundaryEvent {
     private static final long serialVersionUID = 1L;
-    private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     private Boolean boundaryEventInterrupting;
-
-    @Override
-    public List<BoundaryEvent> getBoundaryEvents() {
-        return boundaryEvents;
-    }
 
     @Override
     public Boolean getBoundaryEventInterrupting() {
@@ -52,28 +42,22 @@ public class CatchEventNode extends BaseMessageNode implements BoundaryEventCont
     }
 
     @Override
-    public NodeType getNodeType() {
-        return NodeType.RECEIVE_MESSAGE;
-    }
-
-    @Override
     public void cancelBoundaryEvent(Token token) {
     }
 
     @Override
-    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting() {
-        return TaskCompletionInfo.createForHandler(getEventType().name());
-    }
-
-    @Override
-    protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getToken().setMessageSelector(Utils.getReceiveMessageNodeSelector(executionContext.getVariableProvider(), this));
-    }
-
-    @Override
-    public void leave(ExecutionContext executionContext, Transition transition) {
-        super.leave(executionContext, transition);
-        executionContext.getToken().setMessageSelector(null);
+    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting(ExecutionContext executionContext) {
+        if (getParentElement() instanceof BaseTaskNode) {
+            String swimlaneName = ((BaseTaskNode) getParentElement()).getFirstTaskNotNull().getSwimlane().getName();
+            for (VariableMapping variableMapping : getVariableMappings()) {
+                if (!variableMapping.isPropertySelector()) {
+                    if (Objects.equals(swimlaneName, variableMapping.getName())) {
+                        return TaskCompletionInfo.createForSignal((Executor) executionContext.getVariableValue(swimlaneName));
+                    }
+                }
+            }
+        }
+        return TaskCompletionInfo.createForSignal(null);
     }
 
 }

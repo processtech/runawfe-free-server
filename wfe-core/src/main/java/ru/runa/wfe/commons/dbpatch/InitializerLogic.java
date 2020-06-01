@@ -57,6 +57,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddTransactionalBotSupport;
 import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
+import ru.runa.wfe.commons.dbpatch.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandVarcharPatch;
@@ -64,6 +65,7 @@ import ru.runa.wfe.commons.dbpatch.impl.JbpmRefactoringPatch;
 import ru.runa.wfe.commons.dbpatch.impl.NodeTypeChangePatch;
 import ru.runa.wfe.commons.dbpatch.impl.PerformancePatch401;
 import ru.runa.wfe.commons.dbpatch.impl.PermissionMappingPatch403;
+import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsBack;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep4;
@@ -158,6 +160,9 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep3.class);
         patches.add(AddProcessExternalData.class);
         patches.add(RefactorPermissionsStep4.class);
+        patches.add(EmptyPatch.class); // instead signals...
+        patches.add(CreateChatDbPatch.class);
+        patches.add(RefactorPermissionsBack.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 

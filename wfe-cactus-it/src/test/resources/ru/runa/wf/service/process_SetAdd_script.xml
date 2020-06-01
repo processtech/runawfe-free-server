@@ -9,7 +9,7 @@
 	
 	<addPermissions type="DEFINITION" name="validProcess" executor="employee">
 		<permission name="UPDATE"/>
-		<permission name="START"/>		
+		<permission name="START_PROCESS"/>
 		<permission name="READ_PROCESS"/>
 		<permission name="CANCEL_PROCESS"/>
 	</addPermissions>
@@ -22,6 +22,4 @@
 	<addPermissions type="DEFINITION" name="validProcess" executor="employee">
 		<permission name="CANCEL_PROCESS"/>
 	</addPermissions>
-
-
 </workflowScript>

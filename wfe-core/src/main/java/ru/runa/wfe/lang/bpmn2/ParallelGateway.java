@@ -1,16 +1,19 @@
 package ru.runa.wfe.lang.bpmn2;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.transaction.UserTransaction;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.Errors;
-import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.error.ProcessError;
@@ -23,12 +26,6 @@ import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class ParallelGateway extends Node {
     private static final long serialVersionUID = 1L;
@@ -263,7 +260,8 @@ public class ParallelGateway extends Node {
                         log.debug("Executing " + this);
                         ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDAO().getNotNull(processId);
                         TokenDao tokenDao = ApplicationContextFactory.getTokenDAO();
-                        List<Token> failedTokens = tokenDao.findByProcessAndNodeIdAndExecutionStatusIsFailed(process, gateway.getNodeId());
+                        List<Token> failedTokens = tokenDao.findByProcessAndNodeIdAndExecutionStatus(process, gateway.getNodeId(),
+                                ExecutionStatus.FAILED);
                         if (failedTokens.isEmpty()) {
                             log.warn("no failed tokens found");
                             return;

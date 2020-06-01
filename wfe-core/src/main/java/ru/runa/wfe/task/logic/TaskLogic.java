@@ -4,7 +4,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class TaskLogic extends WfCommonLogic {
     @Autowired
     private ExecutorLogic executorLogic;
 
-    public void completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException {
+    public WfTask completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException {
         Task task = taskDao.getNotNull(taskId);
         if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new ProcessSuspendedException(task.getProcess().getId());
@@ -86,7 +86,7 @@ public class TaskLogic extends WfCommonLogic {
         ProcessError processError = new ProcessError(ProcessErrorType.system, task.getProcess().getId(), task.getNodeId());
         try {
             if (variables == null) {
-                variables = Maps.newHashMap();
+                variables = new HashMap<>();
             }
             ProcessDefinition processDefinition = getDefinition(task);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
@@ -98,7 +98,7 @@ public class TaskLogic extends WfCommonLogic {
             }
             // don't persist selected transition name
             String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
-            Map<String, Object> extraVariablesMap = Maps.newHashMap();
+            Map<String, Object> extraVariablesMap = new HashMap<>();
             extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
             if (SystemProperties.isV3CompatibilityMode()) {
                 extraVariablesMap.put("transition", transitionName);
@@ -137,6 +137,15 @@ public class TaskLogic extends WfCommonLogic {
             }
             log.info("Task '" + task.getName() + "' was done by " + user + " in process " + task.getProcess());
             Errors.removeProcessError(processError);
+            List<Task> tokenTasks = taskDao.findByToken(executionContext.getToken());
+            if (tokenTasks.size() == 1) {
+                Task nextTask = tokenTasks.get(0);
+                TaskCompletionBy nextTaskCompletionBy = getTaskParticipationRole(user.getActor(), nextTask);
+                if (nextTaskCompletionBy != null && nextTaskCompletionBy != TaskCompletionBy.ADMIN) {
+                    return taskObjectFactory.create(nextTask, user.getActor(), false, null);
+                }
+            }
+            return null;
         } catch (ValidationException ex) {
             throw Throwables.propagate(ex);
         } catch (Throwable th) {
@@ -229,14 +238,14 @@ public class TaskLogic extends WfCommonLogic {
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
         Process process = processDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         for (Task task : taskDao.findByProcess(process)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
             List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
             for (Process subprocess : subprocesses) {
-                permissionDao.checkAllowed(user, Permission.LIST, subprocess);
+                permissionDao.checkAllowed(user, Permission.READ, subprocess);
                 for (Task task : taskDao.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
                 }

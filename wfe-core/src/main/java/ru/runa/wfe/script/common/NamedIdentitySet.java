@@ -92,21 +92,21 @@ public class NamedIdentitySet {
 
     @XmlEnum
     public enum NamedIdentityType {
-        @XmlEnumValue(value = "ProcessDefinition")
-        PROCESS_DEFINITION(SecuredObjectType.DEFINITION, "ProcessDefinition"),
+        @XmlEnumValue(value = "DEFINITION")
+        PROCESS_DEFINITION(SecuredObjectType.DEFINITION),
 
-        @XmlEnumValue(value = "Executor")
-        EXECUTOR(SecuredObjectType.EXECUTOR, "Executor"),
+        @XmlEnumValue(value = "EXECUTOR")
+        EXECUTOR(SecuredObjectType.EXECUTOR),
 
-        @XmlEnumValue(value = "Report")
-        REPORT(SecuredObjectType.REPORT, "Report");
+        @XmlEnumValue(value = "REPORT")
+        REPORT(SecuredObjectType.REPORT);
 
         private SecuredObjectType securedObjectType;
         private String scriptName;
 
-        NamedIdentityType(SecuredObjectType securedObjectType, String scriptName) {
-            this.securedObjectType = securedObjectType;
-            this.scriptName = scriptName;
+        NamedIdentityType(SecuredObjectType type) {
+            this.securedObjectType = type;
+            this.scriptName = type.getName();
         }
 
         public String getScriptName() {

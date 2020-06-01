@@ -35,7 +35,7 @@ public abstract class RelationExecutorBaseTdBuilder implements TdBuilder {
             return getExecutor((RelationPair) o);
         }
     };
-    final PropertyTdBuilder builder = new PropertyTdBuilder(Permission.LIST, "name", extractor);
+    final PropertyTdBuilder builder = new PropertyTdBuilder(Permission.READ, "name", extractor);
 
     protected abstract Executor getExecutor(RelationPair relation);
 

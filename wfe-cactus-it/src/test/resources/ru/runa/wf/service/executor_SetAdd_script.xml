@@ -12,7 +12,7 @@
 	</addExecutorsToGroup>
 
 	<setPermissions type="EXECUTOR" name="toto" executor="dorothy">		
-		<permission name="LIST"/>
+		<permission name="VIEW_TASKS"/>
 	</setPermissions>
 
 	<addPermissions type="EXECUTOR" name="toto" executor="dorothy">
@@ -21,20 +21,20 @@
 	</addPermissions>
 
 	<setPermissions type="EXECUTOR" name="employee" executor="dorothy">
-		<permission name="LIST"/>
-		<permission name="READ"/>		
+		<permission name="READ"/>
+		<permission name="VIEW_TASKS"/>
 	</setPermissions>
 
 	<addPermissions type="EXECUTOR" name="employee" executor="dorothy">
 		<permission name="UPDATE"/>
-		<permission name="DELETE"/>		
+		<permission name="UPDATE_PERMISSIONS"/>
 	</addPermissions>
          
 	<addPermissions type="EXECUTOR" name="employee" executor="employee">
-		<permission name="LIST"/>
 		<permission name="READ"/>
+		<permission name="VIEW_TASKS"/>
 		<permission name="UPDATE"/>
-		<permission name="DELETE"/>
+		<permission name="UPDATE_PERMISSIONS"/>
 	</addPermissions>
 
 	<addPermissions type="EXECUTOR" name="tin" executor="employee">
@@ -42,26 +42,13 @@
 		<permission name="UPDATE"/>
 	</addPermissions>
 
-	<setPermissions type="EXECUTORS" executor="employee">
-		<permission name="READ"/>
-		<permission name="UPDATE"/>
-	</setPermissions>
-
-	<addPermissions type="EXECUTORS" executor="employee">
+	<setPermissions type="SYSTEM" executor="employee">
 		<permission name="LOGIN"/>
-		<permission name="CREATE"/>		
-	</addPermissions>
-			
-	<setPermissions type="DEFINITIONS" executor="employee">
-		<permission name="CREATE"/>
-		<permission name="UPDATE"/>
-		<permission name="START"/>		
+		<permission name="READ"/>
 	</setPermissions>
 
-	<addPermissions type="DEFINITIONS" executor="employee">		
-		<permission name="READ"/>
-		<permission name="READ_PROCESS"/>
-		<permission name="CANCEL_PROCESS"/>
+	<addPermissions type="SYSTEM" executor="employee">
+		<permission name="CREATE_DEFINITION"/>
+		<permission name="CREATE_EXECUTOR"/>
 	</addPermissions>
-	
 </workflowScript>

@@ -18,14 +18,11 @@
 
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-
-import org.apache.cactus.ServletTestCase;
-
 import com.google.common.collect.Lists;
-
+import java.util.List;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.apache.cactus.ServletTestCase;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -39,8 +36,6 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 public class GetNewSubstitutorTaskListTest extends ServletTestCase {
-    private final static String PREFIX = GetNewSubstitutorTaskListTest.class.getName();
-
     private static final String PROCESS_FILE_URL = WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME;
     private final static String PROCESS_NAME = WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME;
 
@@ -52,6 +47,10 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
     private final static String pwdSubstitutor = "substitutor";
     private final static String pwdSubstitutor2 = "substitutor2";
 
+    private String PREFIX = getClass().getName();
+    private WfServiceTestHelper h;
+    private BatchPresentation batchPresentation;
+
     private User substituted = null;
     private User substitutor = null;
     private User substitutor2 = null;
@@ -60,77 +59,70 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
     private SubstitutionCriteriaSwimlane substitutionCriteria_requester;
     private SubstitutionCriteriaSwimlane substitutionCriteria_no_requester;
 
-    private WfServiceTestHelper testHelper;
-
-    private BatchPresentation batchPresentation;
-
     @Override
-    protected void setUp() throws Exception {
-        testHelper = new WfServiceTestHelper(PREFIX);
+    protected void setUp() {
+        h = new WfServiceTestHelper(PREFIX);
 
-        Actor substitutedActor = testHelper.createActorIfNotExist(nameSubstitutedActor, PREFIX);
-        testHelper.getExecutorService().setPassword(testHelper.getAdminUser(), substitutedActor, nameSubstitutedActor);
-        Actor substitutor = testHelper.createActorIfNotExist(nameSubstitutor, PREFIX);
-        testHelper.getExecutorService().setPassword(testHelper.getAdminUser(), substitutor, nameSubstitutor);
-        Actor substitutor2 = testHelper.createActorIfNotExist(nameSubstitutor2, PREFIX);
-        testHelper.getExecutorService().setPassword(testHelper.getAdminUser(), substitutor2, nameSubstitutor2);
+        Actor substitutedActor = h.createActorIfNotExist(nameSubstitutedActor, PREFIX);
+        h.getExecutorService().setPassword(h.getAdminUser(), substitutedActor, nameSubstitutedActor);
+        Actor substitutor = h.createActorIfNotExist(nameSubstitutor, PREFIX);
+        h.getExecutorService().setPassword(h.getAdminUser(), substitutor, nameSubstitutor);
+        Actor substitutor2 = h.createActorIfNotExist(nameSubstitutor2, PREFIX);
+        h.getExecutorService().setPassword(h.getAdminUser(), substitutor2, nameSubstitutor2);
 
         {
-            Collection<Permission> perm = Lists.newArrayList(Permission.LOGIN);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutedActor.getId(), perm,
-                    SecuredSingleton.EXECUTORS);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutor.getId(), perm, SecuredSingleton.EXECUTORS);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutor2.getId(), perm, SecuredSingleton.EXECUTORS);
+            val pp = Lists.newArrayList(Permission.LOGIN);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), substitutedActor.getId(), pp, SecuredSingleton.SYSTEM);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), substitutor.getId(), pp, SecuredSingleton.SYSTEM);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), substitutor2.getId(), pp, SecuredSingleton.SYSTEM);
         }
         {
-            Collection<Permission> perm = Lists.newArrayList(Permission.READ);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutedActor.getId(), perm, substitutor);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutor.getId(), perm, substitutedActor);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutor2.getId(), perm, substitutedActor);
+            val pp = Lists.newArrayList(Permission.READ);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), substitutedActor.getId(), pp, substitutor);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), substitutor.getId(), pp, substitutedActor);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), substitutor2.getId(), pp, substitutedActor);
         }
 
-        substituted = testHelper.getAuthenticationService().authenticateByLoginPassword(nameSubstitutedActor, pwdSubstitutedActor);
-        this.substitutor = testHelper.getAuthenticationService().authenticateByLoginPassword(nameSubstitutor, pwdSubstitutor);
-        this.substitutor2 = testHelper.getAuthenticationService().authenticateByLoginPassword(nameSubstitutor2, pwdSubstitutor2);
+        substituted = h.getAuthenticationService().authenticateByLoginPassword(nameSubstitutedActor, pwdSubstitutedActor);
+        this.substitutor = h.getAuthenticationService().authenticateByLoginPassword(nameSubstitutor, pwdSubstitutor);
+        this.substitutor2 = h.getAuthenticationService().authenticateByLoginPassword(nameSubstitutor2, pwdSubstitutor2);
 
         substitutionCriteria_always = null;
         substitutionCriteria_requester = new SubstitutionCriteriaSwimlane();
         substitutionCriteria_requester.setConfiguration(PROCESS_NAME + ".requester");
         substitutionCriteria_requester.setName(PROCESS_NAME + ".requester");
-        substitutionCriteria_requester = testHelper.createSubstitutionCriteria(substitutionCriteria_requester);
+        substitutionCriteria_requester = h.createSubstitutionCriteria(substitutionCriteria_requester);
         substitutionCriteria_no_requester = new SubstitutionCriteriaSwimlane();
         substitutionCriteria_no_requester.setConfiguration(PROCESS_NAME + ".No_requester");
         substitutionCriteria_no_requester.setName(PROCESS_NAME + ".No_requester");
-        substitutionCriteria_no_requester = testHelper.createSubstitutionCriteria(substitutionCriteria_no_requester);
+        substitutionCriteria_no_requester = h.createSubstitutionCriteria(substitutionCriteria_no_requester);
 
         byte[] parBytes = WfServiceTestHelper.readBytesFromFile(PROCESS_FILE_URL);
-        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
-        WfDefinition definition = testHelper.getDefinitionService().getLatestProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME);
-        Collection<Permission> definitionPermission = Lists.newArrayList(Permission.START);
-        testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitutedActor.getId(), definitionPermission, definition);
+        h.getDefinitionService().deployProcessDefinition(h.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
+        WfDefinition definition = h.getDefinitionService().getLatestProcessDefinition(h.getAdminUser(), PROCESS_NAME);
+        h.getAuthorizationService().setPermissions(h.getAdminUser(), substitutedActor.getId(), Lists.newArrayList(Permission.START_PROCESS),
+                definition);
 
-        batchPresentation = testHelper.getTaskBatchPresentation();
-        super.setUp();
+        batchPresentation = h.getTaskBatchPresentation();
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        testHelper.getDefinitionService().undeployProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME, null);
-        testHelper.releaseResources();
-        testHelper.removeSubstitutionCriteria(substitutionCriteria_always);
-        testHelper.removeSubstitutionCriteria(substitutionCriteria_requester);
-        testHelper.removeSubstitutionCriteria(substitutionCriteria_no_requester);
-        super.tearDown();
+    protected void tearDown() {
+        h.getDefinitionService().undeployProcessDefinition(h.getAdminUser(), PROCESS_NAME, null);
+        h.releaseResources();
+        h.removeSubstitutionCriteria(substitutionCriteria_always);
+        h.removeSubstitutionCriteria(substitutionCriteria_requester);
+        h.removeSubstitutionCriteria(substitutionCriteria_no_requester);
     }
 
     /*
      * Simple test case. Using process one_swimline_process and one substitutor with always subsitution rules. Checking correct task's list on
      * active/inactive actors.
      */
-    public void testSubstitutionSimple() throws Exception {
-        Substitution substitution1 = testHelper.createActorSubstitutor(substituted,
+    public void testSubstitutionSimple() {
+        Substitution substitution1 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_always, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+        Substitution substitution2 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will check precondition - no tasks to all actor's
@@ -139,7 +131,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
 
         {
             checkTaskList(substituted, 1);
@@ -166,8 +158,8 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
         List<WfTask> tasks;
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substituted, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -186,21 +178,21 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 1);
         }
         setStatus(substitutor, true);
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substitutor, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
             checkTaskList(substitutor2, 0);
         }
-        testHelper.removeCriteriaFromSubstitution(substitution1);
-        testHelper.removeCriteriaFromSubstitution(substitution2);
+        h.removeCriteriaFromSubstitution(substitution1);
+        h.removeCriteriaFromSubstitution(substitution2);
     }
 
-    public void testSubstitutionByCriteria() throws Exception {
-        Substitution substitution1 = testHelper.createActorSubstitutor(substituted,
+    public void testSubstitutionByCriteria() {
+        Substitution substitution1 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_requester, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+        Substitution substitution2 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will heck precondition - no tasks to all actor's
@@ -209,7 +201,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
 
         {
             checkTaskList(substituted, 1);
@@ -236,8 +228,8 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
         List<WfTask> tasks;
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substituted, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -256,21 +248,21 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 1);
         }
         setStatus(substitutor, true);
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substitutor, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
             checkTaskList(substitutor2, 0);
         }
-        testHelper.removeCriteriaFromSubstitution(substitution1);
-        testHelper.removeCriteriaFromSubstitution(substitution2);
+        h.removeCriteriaFromSubstitution(substitution1);
+        h.removeCriteriaFromSubstitution(substitution2);
     }
 
-    public void testSubstitutionByFalseCriteria() throws Exception {
-        Substitution substitution1 = testHelper.createActorSubstitutor(substituted,
+    public void testSubstitutionByFalseCriteria() {
+        Substitution substitution1 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_no_requester, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+        Substitution substitution2 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will heck precondition - no tasks to all actor's
@@ -279,7 +271,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
 
         {
             checkTaskList(substituted, 1);
@@ -306,8 +298,8 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
         List<WfTask> tasks;
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substituted, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -326,22 +318,22 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 1);
         }
         setStatus(substitutor, true);
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substituted, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
             checkTaskList(substitutor2, 0);
         }
-        testHelper.removeCriteriaFromSubstitution(substitution1);
-        testHelper.removeCriteriaFromSubstitution(substitution2);
+        h.removeCriteriaFromSubstitution(substitution1);
+        h.removeCriteriaFromSubstitution(substitution2);
     }
 
-    public void testSubstitutionFalseTermination() throws Exception {
-        Substitution substitution1 = testHelper.createTerminator(substituted, substitutionCriteria_no_requester, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+    public void testSubstitutionFalseTermination() {
+        Substitution substitution1 = h.createTerminator(substituted, substitutionCriteria_no_requester, true);
+        Substitution substitution2 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_always, true);
-        Substitution substitution3 = testHelper.createActorSubstitutor(substituted,
+        Substitution substitution3 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will heck precondition - no tasks to all actor's
@@ -350,7 +342,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
 
         {
             checkTaskList(substituted, 1);
@@ -377,8 +369,8 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
         List<WfTask> tasks;
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substituted, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -397,23 +389,23 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 1);
         }
         setStatus(substitutor, true);
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substitutor, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
             checkTaskList(substitutor2, 0);
         }
-        testHelper.removeCriteriaFromSubstitution(substitution1);
-        testHelper.removeCriteriaFromSubstitution(substitution2);
-        testHelper.removeCriteriaFromSubstitution(substitution3);
+        h.removeCriteriaFromSubstitution(substitution1);
+        h.removeCriteriaFromSubstitution(substitution2);
+        h.removeCriteriaFromSubstitution(substitution3);
     }
 
-    public void testSubstitutionTrueTermination() throws Exception {
-        Substitution substitution1 = testHelper.createTerminator(substituted, substitutionCriteria_requester, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+    public void testSubstitutionTrueTermination() {
+        Substitution substitution1 = h.createTerminator(substituted, substitutionCriteria_requester, true);
+        Substitution substitution2 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_always, true);
-        Substitution substitution3 = testHelper.createActorSubstitutor(substituted,
+        Substitution substitution3 = h.createActorSubstitutor(substituted,
                 "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will heck precondition - no tasks to all actor's
@@ -422,7 +414,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
 
         {
             checkTaskList(substituted, 1);
@@ -449,8 +441,8 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
         List<WfTask> tasks;
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substituted, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substituted, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 1);
             checkTaskList(substitutor, 0);
@@ -469,22 +461,23 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
         setStatus(substitutor, true);
-        tasks = testHelper.getTaskService().getMyTasks(substituted, batchPresentation);
-        testHelper.getTaskService().completeTask(substitutor, tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        tasks = h.getTaskService().getMyTasks(substituted, batchPresentation);
+        h.getTaskService().completeTask(substitutor, tasks.get(0).getId(), null);
         {
             checkTaskList(substituted, 0);
             checkTaskList(substitutor, 0);
             checkTaskList(substitutor2, 0);
         }
-        testHelper.removeCriteriaFromSubstitution(substitution1);
-        testHelper.removeCriteriaFromSubstitution(substitution2);
-        testHelper.removeCriteriaFromSubstitution(substitution3);
+        h.removeCriteriaFromSubstitution(substitution1);
+        h.removeCriteriaFromSubstitution(substitution2);
+        h.removeCriteriaFromSubstitution(substitution3);
     }
 
-    private void checkTaskList(User user, int expectedLength) throws Exception {
-        List<WfTask> tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+    @SneakyThrows
+    private void checkTaskList(User user, int expectedLength) {
+        List<WfTask> tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         Thread.sleep(50);
-        tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         assertEquals("getTasks() returns wrong tasks number (expected " + expectedLength + ", but was " + tasks.size() + ")", expectedLength,
                 tasks.size());
         // Let's change actor status to check correct working.
@@ -494,37 +487,37 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         setStatus(user, !actorStatus);
         setStatus(user, actorStatus);
 
-        tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         Thread.sleep(50);
-        tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         assertEquals("getTasks() returns wrong tasks number (expected " + expectedLength + ", but was " + tasks.size() + ")", expectedLength,
                 tasks.size());
-        actorStatus = testHelper.getExecutorService().<Actor>getExecutor(testHelper.getAdminUser(), substituted.getActor().getId()).isActive();
+        actorStatus = h.getExecutorService().<Actor>getExecutor(h.getAdminUser(), substituted.getActor().getId()).isActive();
 
         setStatus(substituted, !actorStatus);
 
         if (!actorStatus) {
-            tasks = testHelper.getTaskService().getMyTasks(substitutor, batchPresentation);
+            tasks = h.getTaskService().getMyTasks(substitutor, batchPresentation);
             Thread.sleep(50);
-            tasks = testHelper.getTaskService().getMyTasks(substitutor, batchPresentation);
+            tasks = h.getTaskService().getMyTasks(substitutor, batchPresentation);
             assertEquals("getTasks() returns wrong tasks number (expected " + 0 + ", but was " + tasks.size() + ")", 0, tasks.size());
-            tasks = testHelper.getTaskService().getMyTasks(substitutor2, batchPresentation);
+            tasks = h.getTaskService().getMyTasks(substitutor2, batchPresentation);
             assertEquals("getTasks() returns wrong tasks number (expected " + 0 + ", but was " + tasks.size() + ")", 0, tasks.size());
         }
 
         setStatus(substituted, actorStatus);
 
-        tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         Thread.sleep(50);
-        tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         assertEquals("getTasks() returns wrong tasks number (expected " + expectedLength + ", but was " + tasks.size() + ")", expectedLength,
                 tasks.size());
     }
 
     private void setStatus(User user, boolean actorStatus) {
-        testHelper.getExecutorService().setStatus(testHelper.getAdminUser(), user.getActor(), actorStatus);
+        h.getExecutorService().setStatus(h.getAdminUser(), user.getActor(), actorStatus);
         // hibernate merge workaround
-        Actor actor = testHelper.createActorIfNotExist(user.getActor().getName(), PREFIX);
+        Actor actor = h.createActorIfNotExist(user.getActor().getName(), PREFIX);
         user.setActor(actor);
     }
 }

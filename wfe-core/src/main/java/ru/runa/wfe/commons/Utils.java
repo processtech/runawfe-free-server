@@ -16,7 +16,6 @@ import java.util.Set;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
@@ -146,6 +145,9 @@ public class Utils {
     }
 
     public static ObjectMessage sendBpmnMessage(Map<String, String> routingData, Map<String, Object> payloadData, long ttlInMilliSeconds) {
+        if (routingData.isEmpty()) {
+            throw new InternalApplicationException("Routing data is required");
+        }
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -158,7 +160,10 @@ public class Utils {
             for (Map.Entry<String, String> entry : routingData.entrySet()) {
                 message.setStringProperty(entry.getKey(), entry.getValue());
             }
-            sender.send(message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, ttlInMilliSeconds);
+            if (ttlInMilliSeconds >= 0) {
+                message.setLongProperty(BaseMessageNode.EXPIRATION_PROPERTY, System.currentTimeMillis() + ttlInMilliSeconds);
+            }
+            sender.send(message);
             sender.close();
             log.info("message sent: " + toString(message, false));
             return message;
@@ -185,7 +190,7 @@ public class Utils {
                 VariableMapping.USAGE_SELECTOR));
         variableMappings
                 .add(new VariableMapping(BaseMessageNode.ERROR_EVENT_MESSAGE, BaseMessageNode.ERROR_EVENT_MESSAGE, VariableMapping.USAGE_READ));
-        Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
+        Utils.sendBpmnMessage(variableMappings, variableProvider, 0);
     }
 
     public static String getMessageSelectorValue(VariableProvider variableProvider, BaseMessageNode messageNode, VariableMapping mapping) {
@@ -232,6 +237,9 @@ public class Utils {
         List<String> selectors = getObjectMessageSelectorSelectors(routingData);
         Set<String> result = Sets.newHashSet();
         for (Set<String> set : Sets.powerSet(Sets.newHashSet(selectors))) {
+            if (set.isEmpty()) {
+                continue;
+            }
             List<String> list = Lists.newArrayList(set);
             Collections.sort(list);
             result.add(Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(list));

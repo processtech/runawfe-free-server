@@ -25,9 +25,10 @@ public class CreateSubstitutionCriteriaAction extends BaseAction {
         }
 
         User user = Commons.getUser(request.getSession());
-        // TODO Was System / READ. Is this really *Create*SubstitutionCriteriaAction?
-        Permission permission = Permission.ALL;
-        SecuredObject object = SecuredSingleton.SUBSTITUTION_CRITERIAS;
+        // TODO Checking READ permission for CREATE operation?! See #1586-5, #1586-6.
+        //      BTW, UpdateSubstitutionCriteriaAction and DeleteSubstitutionCriteriasAction don't check any permissions at all.
+        Permission permission = Permission.READ;
+        SecuredObject object = SecuredSingleton.SYSTEM;
         boolean isAllowed = Delegates.getAuthorizationService().isAllowed(user, permission, object);
         if (!isAllowed) {
             throw new AuthorizationException(user + " does not have " + permission + " to " + object);

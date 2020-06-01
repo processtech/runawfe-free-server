@@ -10,6 +10,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.SubprocessStartLog;
+import ru.runa.wfe.audit.TaskAssignLog;
+import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.execution.dao.ProcessDao;
@@ -157,6 +160,8 @@ public class ProcessFactory {
         ExecutionContext executionContext = new ExecutionContext(processDefinition, rootToken);
         if (actor != null) {
             executionContext.addLog(new ProcessStartLog(actor));
+            executionContext.addLog(new TaskCreateLog(process, processDefinition.getStartStateNotNull()));
+            executionContext.addLog(new TaskAssignLog(process, processDefinition.getStartStateNotNull(), actor));
         }
         if (transientVariables != null) {
             for (Map.Entry<String, Object> entry : transientVariables.entrySet()) {
@@ -168,6 +173,7 @@ public class ProcessFactory {
             SwimlaneDefinition swimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
             Swimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
             swimlane.assignExecutor(executionContext, actor, false);
+            executionContext.addLog(new TaskEndLog(process, processDefinition.getStartStateNotNull(), actor));
         }
         return executionContext;
     }

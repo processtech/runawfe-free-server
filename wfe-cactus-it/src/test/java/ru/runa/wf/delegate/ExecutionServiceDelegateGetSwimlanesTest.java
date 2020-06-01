@@ -18,7 +18,6 @@
 package ru.runa.wf.delegate;
 
 import com.google.common.collect.Lists;
-import java.util.Collection;
 import java.util.List;
 import org.apache.cactus.ServletTestCase;
 import ru.runa.junit.ArrayAssert;
@@ -39,79 +38,76 @@ import ru.runa.wfe.service.delegate.Delegates;
  * @author kana <a href="mailto:kana@ptc.ru">
  */
 public class ExecutionServiceDelegateGetSwimlanesTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
-
-    private WfServiceTestHelper helper = null;
-
+    private BatchPresentation batchPresentation;
     private Long instanceId;
 
-    private BatchPresentation batchPresentation;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
+        batchPresentation = h.getProcessInstanceBatchPresentation();
 
-        helper.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
+        h.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(
+                Lists.newArrayList(Permission.START_PROCESS, Permission.READ, Permission.READ_PROCESS), WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
-        permissions = Lists.newArrayList(Permission.READ);
-        helper.setPermissionsToAuthorizedPerformer(permissions, helper.getAuthorizedPerformerActor());
+        h.setPermissionsToAuthorizedActor(Lists.newArrayList(Permission.READ), h.getAuthorizedActor());
 
         // instanceId =
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
-        batchPresentation = helper.getProcessInstanceBatchPresentation();
-        instanceId = executionService.getProcesses(helper.getAdminUser(), batchPresentation).get(0).getId();
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
+        instanceId = executionService.getProcesses(h.getAdminUser(), batchPresentation).get(0).getId();
 
-        helper.addExecutorToGroup(helper.getAuthorizedPerformerActor(), helper.getBossGroup());
-
-        super.setUp();
+        h.addExecutorToGroup(h.getAuthorizedActor(), h.getBossGroup());
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.releaseResources();
         executionService = null;
         batchPresentation = null;
-        super.tearDown();
     }
 
-    public void testGetSwimlanesByUnauthorizedSubject() throws Exception {
+    public void testGetSwimlanesByUnauthorizedUser() {
         try {
-            executionService.getProcessSwimlanes(helper.getUnauthorizedPerformerUser(), instanceId);
-            fail("testGetSwimlanesByUnauthorizedSubject(), no AuthorizationException");
+            executionService.getProcessSwimlanes(h.getUnauthorizedUser(), instanceId);
+            fail();
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testGetSwimlanesByFakeSubject() throws Exception {
+    public void testGetSwimlanesByFakeUser() {
         try {
-            executionService.getProcessSwimlanes(helper.getFakeUser(), instanceId);
-            fail("testGetSwimlanesByFakeSubject(), no AuthenticationException");
+            executionService.getProcessSwimlanes(h.getFakeUser(), instanceId);
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testGetSwimlanesByAuthorizedSubjectWithInvalidProcessId() throws Exception {
+    public void testGetSwimlanesByAuthorizedUserWithInvalidProcessId() {
         try {
-            executionService.getProcessSwimlanes(helper.getAuthorizedPerformerUser(), -1l);
-            fail("testGetSwimlanesByAuthorizedSubjectWithInvalidProcessId(), no ProcessInstanceDoesNotExistException");
+            executionService.getProcessSwimlanes(h.getAuthorizedUser(), -1L);
+            fail();
         } catch (ProcessDoesNotExistException e) {
+            // Expected.
         }
     }
 
-    public void testGetSwimlanesByAuthorizedSubject() throws Exception {
-        List<WfSwimlane> WfSwimlanes = executionService.getProcessSwimlanes(helper.getAuthorizedPerformerUser(), instanceId);
+    public void testGetSwimlanesByAuthorizedUser() {
+        List<WfSwimlane> WfSwimlanes = executionService.getProcessSwimlanes(h.getAuthorizedUser(), instanceId);
         List<String> expectedNames = Lists.newArrayList("boss", "requester", "erp operator");
         List<String> actualNames = Lists.newArrayList();
         for (WfSwimlane WfSwimlane : WfSwimlanes) {
             actualNames.add(WfSwimlane.getDefinition().getName());
             if (WfSwimlane.getDefinition().getName().equals("requester")) {
-                assertTrue("swimlane is not assigned", WfSwimlane.getExecutor() != null);
-                assertEquals("Actor differs from Assigned", helper.getAuthorizedPerformerActor(), WfSwimlane.getExecutor());
+                assertNotNull("swimlane is not assigned", WfSwimlane.getExecutor());
+                assertEquals("Actor differs from Assigned", h.getAuthorizedActor(), WfSwimlane.getExecutor());
             }
         }
         ArrayAssert.assertWeakEqualArrays("swimlane names are not equal", expectedNames, actualNames);

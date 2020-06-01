@@ -22,6 +22,7 @@
 package ru.runa.wfe.execution;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import java.util.Date;
 import java.util.List;
@@ -256,7 +257,7 @@ public class Process extends SecuredObjectBase {
 
         // flush just created tasks
         ApplicationContextFactory.getTaskDAO().flushPendingChanges();
-        boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();
+        boolean activeSuperProcessExists = isExistNotEndedParentProcessInHierarchy(executionContext);
         for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(this)) {
             BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
             if (taskNode.isAsync()) {
@@ -272,7 +273,7 @@ public class Process extends SecuredObjectBase {
             }
             task.end(executionContext, taskNode, taskCompletionInfo);
         }
-        if (parentNodeProcess == null) {
+        if (!activeSuperProcessExists) {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
             endSubprocessAndTasksOnMainProcessEndRecursively(executionContext, canceller);
         }
@@ -281,16 +282,10 @@ public class Process extends SecuredObjectBase {
                 swimlane.setExecutor(null);
             }
         }
-        for (Process subProcess : executionContext.getSubprocessesRecursively()) {
-            for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDAO().findByProcess(subProcess)) {
-                if (swimlane.getExecutor() instanceof TemporaryGroup) {
-                    swimlane.setExecutor(null);
-                }
-            }
-        }
         for (String processEndHandlerClassName : SystemProperties.getProcessEndHandlers()) {
             try {
                 ProcessEndHandler handler = ClassLoaderUtil.instantiate(processEndHandlerClassName);
+                ApplicationContextFactory.autowireBean(handler);
                 handler.execute(executionContext);
             } catch (Throwable th) {
                 Throwables.propagate(th);
@@ -308,6 +303,27 @@ public class Process extends SecuredObjectBase {
                 }
             }
         }
+    }
+
+    private boolean isExistNotEndedParentProcessInHierarchy(ExecutionContext executionContext) {
+        NodeProcess parentNodeProcess = executionContext.getParentNodeProcess();
+        boolean activeSuperProcessExists = true;
+        if (parentNodeProcess == null ) {
+            activeSuperProcessExists = false;
+        }else {
+            List<Long> processIds = ProcessHierarchyUtils.getProcessIds(hierarchyIds);
+            for (Long processId : processIds) {
+                if (ApplicationContextFactory.getProcessDAO().get(processId).hasEnded()) {
+                    if (Objects.equal(this.id, processId)) {
+                        activeSuperProcessExists = false;
+                        break;
+                    }
+                }else {
+                    break;
+                }
+            }
+        }
+        return activeSuperProcessExists;
     }
 
     private void endSubprocessAndTasksOnMainProcessEndRecursively(ExecutionContext executionContext, Actor canceller) {

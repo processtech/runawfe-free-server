@@ -167,11 +167,11 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
             if (!administrator) {
                 Executor executor = state.getTask().getExecutor();
                 if (executor instanceof Actor) {
-                    if (!permissionDao.permissionExists(actor, Permission.LIST, executor)) {
+                    if (!permissionDao.permissionExists(actor, Permission.READ, executor)) {
                         wfTask.setOwner(Actor.UNAUTHORIZED_ACTOR);
                     }
                 } else {
-                    if (!(executor instanceof TemporaryGroup) && !permissionDao.permissionExists(actor, Permission.LIST, executor)) {
+                    if (!(executor instanceof TemporaryGroup) && !permissionDao.permissionExists(actor, Permission.READ, executor)) {
                         wfTask.setOwner(Group.UNAUTHORIZED_GROUP);
                     }
                 }
