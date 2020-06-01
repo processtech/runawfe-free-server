@@ -30,6 +30,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     private String subProcessName;
     private boolean embedded;
     private boolean transactional;
+    private boolean validateAtStart;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
     private transient ProcessDefinitionLoader processDefinitionLoader;
@@ -79,6 +80,14 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
 
     public void setTransactional(boolean transactional) {
         this.transactional = transactional;
+    }
+
+    public boolean isValidateAtStart() {
+        return validateAtStart;
+    }
+
+    public void setValidateAtStart(boolean validateAtStart) {
+        this.validateAtStart = validateAtStart;
     }
 
     @Override
@@ -155,7 +164,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                 }
             }
         }
-        Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0);
+        Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0, isValidateAtStart());
         processFactory.startSubprocess(executionContext, new ExecutionContext(subProcessDefinition, subProcess));
         if (async) {
             log.debug("continue execution in async " + this);

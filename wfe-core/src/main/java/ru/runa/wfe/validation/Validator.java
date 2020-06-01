@@ -19,21 +19,17 @@ package ru.runa.wfe.validation;
 
 import com.google.common.base.MoreObjects;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 public abstract class Validator {
     protected final Log log = LogFactory.getLog(getClass());
-    private User user;
     private ExecutionContext executionContext;
     private VariableProvider oldVariableProvider;
     private VariableProvider variableProvider;
@@ -41,19 +37,14 @@ public abstract class Validator {
     private ValidatorContext validatorContext;
     private Map<String, Object> newVariables;
 
-    public void init(User user, ExecutionContext executionContext, VariableProvider variableProvider, ValidatorConfig config,
-            ValidatorContext validatorContext, Map<String, Object> variables) {
-        this.user = user;
+    public void init(ExecutionContext executionContext, VariableProvider variableProvider, ValidatorConfig config, ValidatorContext validatorContext,
+            Map<String, Object> variables) {
         this.executionContext = executionContext;
         this.oldVariableProvider = variableProvider;
         this.variableProvider = new MapDelegableVariableProvider(config.getParams(), new MapDelegableVariableProvider(variables, variableProvider));
         this.config = config;
         this.validatorContext = validatorContext;
         this.newVariables = variables;
-    }
-
-    protected User getUser() {
-        return user;
     }
 
     protected ExecutionContext getExecutionContext() {

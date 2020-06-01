@@ -119,7 +119,7 @@ public class TaskLogic extends WfCommonLogic {
                 }
             }
             VariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
-            validateVariables(user, executionContext, validationVariableProvider, processDefinition, task.getNodeId(), variables);
+            validateVariables(executionContext, validationVariableProvider, processDefinition, task.getNodeId(), variables);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
             Transition transition;
