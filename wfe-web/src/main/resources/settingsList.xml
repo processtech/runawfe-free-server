@@ -264,4 +264,43 @@
 		<property title="botstation.invocation.handler.timeout.milliseconds" pattern="\d*"/>
 	</property_file>
 	
+	<property_file title="security.check.properties">
+	
+		<property title="security.check.object.actor">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="security.check.object.process.definition">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="security.check.object.process.instance">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="security.check.object.report">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="security.check.object.relation">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="security.check.object.botstation">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="security.check.object.bot">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="security.check.object.datasource">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="security.check.object.system">
+			<value>true</value>
+			<value>false</value>
+		</property>
+	</property_file>
 </settings>
