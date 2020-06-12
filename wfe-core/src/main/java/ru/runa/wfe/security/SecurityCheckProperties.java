@@ -3,7 +3,7 @@ package ru.runa.wfe.security;
 import ru.runa.wfe.commons.PropertyResources;
 
 public class SecurityCheckProperties {
-	private static final PropertyResources RESOURCES = new PropertyResources("security.check.properties");
+	private static final PropertyResources RESOURCES = new PropertyResources("securitycheck.properties");
 
     public static PropertyResources getResources() {
         return RESOURCES;
@@ -32,15 +32,7 @@ public class SecurityCheckProperties {
     public static boolean getCheckBotStation() {
     	return RESOURCES.getBooleanProperty("security.check.object.botstation", false);
     }
-    
-    public static boolean getCheckBot() {
-    	return RESOURCES.getBooleanProperty("security.check.object.bot", false);
-    }
-    
-    public static boolean getCheckDataSource() {
-    	return RESOURCES.getBooleanProperty("security.check.object.datasource", false);
-    }
-    
+       
     public static boolean getCheckSystem() {
     	return RESOURCES.getBooleanProperty("security.check.object.system", false);
     }

@@ -50,6 +50,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.SecurityCheckUtil;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
@@ -148,6 +149,9 @@ public class PermissionDao extends CommonDao {
      * Throws if user has no permission to object.
      */
     public void checkAllowed(User user, Permission permission, SecuredObject object) {
+    	if (!SecurityCheckUtil.needCheckPermission(object.getSecuredObjectType())) {
+    		return;
+    	}
         if (!isAllowed(user, permission, object)) {
             throw new AuthorizationException(user + " does not have " + permission + " to " + object);
         }
@@ -157,6 +161,9 @@ public class PermissionDao extends CommonDao {
      * Throws if user has no permission to {type, id}.
      */
     public void checkAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
+    	if (!SecurityCheckUtil.needCheckPermission(type)) {
+    		return;
+    	}
         if (!isAllowed(user, permission, type, id)) {
             throw new AuthorizationException(user + " does not have " + permission + " to (" + type + ", " + id + ")");
         }
@@ -166,6 +173,9 @@ public class PermissionDao extends CommonDao {
      * Throws if user has no permission to {type, all given ids}.
      */
     public void checkAllowedForAll(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
+    	if (!SecurityCheckUtil.needCheckPermission(type)) {
+    		return;
+    	}
         Assert.notNull(ids);
         List<Long> notAllowed = CollectionUtil.diffList(ids, filterAllowedIds(user.getActor(), permission, type, ids));
         if (!notAllowed.isEmpty()) {
@@ -178,19 +188,31 @@ public class PermissionDao extends CommonDao {
      * Returns true if user have permission to object.
      */
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
+    	if (!SecurityCheckUtil.needCheckPermission(object.getSecuredObjectType())) {
+    		return true;
+    	}
         return isAllowed(user.getActor(), permission, object.getSecuredObjectType(), object.getIdentifiableId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
+    	if (!SecurityCheckUtil.needCheckPermission(type)) {
+    		return true;
+    	}
         return isAllowed(user.getActor(), permission, type, id);
     }
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObjectType type, Long id) {
+    	if (!SecurityCheckUtil.needCheckPermission(type)) {
+    		return true;
+    	}
         Assert.notNull(id);
         return !filterAllowedIds(executor, permission, type, Collections.singletonList(id)).isEmpty();
     }
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObject object, boolean checkPrivileged) {
+    	if (!SecurityCheckUtil.needCheckPermission(object.getSecuredObjectType())) {
+    		return true;
+    	}
         Long id = object.getIdentifiableId();
         SecuredObjectType type = object.getSecuredObjectType();
         Assert.notNull(id);
@@ -201,6 +223,9 @@ public class PermissionDao extends CommonDao {
      * Returns true if user have permission to {type, any id}.
      */
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType type) {
+    	if (!SecurityCheckUtil.needCheckPermission(type)) {
+    		return true;
+    	}
         return !filterAllowedIds(user.getActor(), permission, type, null).isEmpty();
     }
 
@@ -328,7 +353,11 @@ public class PermissionDao extends CommonDao {
                     .fetch());
         }
         for (int i = 0; i < securedObjects.size(); i++) {
-            result[i] = allowedIdentifiableIds.contains(securedObjects.get(i).getIdentifiableId());
+        	if (!SecurityCheckUtil.needCheckPermission(securedObjects.get(i).getSecuredObjectType())) {
+        		result[i] = true;
+        	} else {
+        		result[i] = allowedIdentifiableIds.contains(securedObjects.get(i).getIdentifiableId());
+        	}
         }
         return result;
     }
