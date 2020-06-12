@@ -98,32 +98,32 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
-   		return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getIdentifiableId());
+        return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getIdentifiableId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId) {
-   		return permissionDao.isAllowed(user, permission, securedObjectType, identifiableId);
+        return permissionDao.isAllowed(user, permission, securedObjectType, identifiableId);
     }
 
     public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects) {
         boolean[] resAllowed = permissionDao.isAllowed(user, permission, securedObjects);
         int i = 0;
         for (T securedObject: securedObjects) {
-        	if (!SecurityCheckUtil.needCheckPermission(securedObject.getSecuredObjectType())) {
-        		resAllowed[i] = true;
-        	}
+            if (!SecurityCheckUtil.needCheckPermission(securedObject.getSecuredObjectType())) {
+                resAllowed[i] = true;
+            }
         	i++;
         }
         return resAllowed;
     }
 
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType) {
-   		return permissionDao.isAllowedForAny(user, permission, securedObjectType);
+   	    return permissionDao.isAllowedForAny(user, permission, securedObjectType);
     }
 
     public List<Permission> getIssuedPermissions(User user, Executor performer, SecuredObject securedObject) {
         checkPermissionsOnExecutor(user, performer, Permission.READ);
-       	permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
+        permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
         return permissionDao.getIssuedPermissions(performer, securedObject);
     }
 
