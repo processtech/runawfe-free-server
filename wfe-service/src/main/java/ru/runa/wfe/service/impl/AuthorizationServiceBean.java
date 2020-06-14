@@ -69,20 +69,20 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @Override
     @WebMethod(exclude = true)
     public void checkAllowed(@NonNull User user, @NonNull Permission permission, @NonNull SecuredObject securedObject) {
-   		permissionDao.checkAllowed(user, permission, securedObject);
+        permissionDao.checkAllowed(user, permission, securedObject);
     }
 
     @Override
     @WebMethod(exclude = true)
     public void checkAllowed(@NonNull User user, @NonNull Permission permission, @NonNull SecuredObjectType type, @NonNull Long id) {
-   		permissionDao.checkAllowed(user, permission, type, id);
+        permissionDao.checkAllowed(user, permission, type, id);
     }
 
     @Override
     @WebResult(name = "result")
     public boolean isAllowed(@WebParam(name = "user") @NonNull User user, @WebParam(name = "permission") @NonNull Permission permission,
             @WebParam(name = "identifiable") @NonNull SecuredObject securedObject) {
-   		return permissionDao.isAllowed(user, permission, securedObject);
+        return permissionDao.isAllowed(user, permission, securedObject);
     }
 
     @WebMethod(exclude = true)
@@ -193,8 +193,7 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebResult(name = "result")
     public <T extends Object> List<T> getPersistentObjects(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "batchPresentation") @NonNull BatchPresentation batchPresentation,
-            @WebParam(name = "persistentClass") @NonNull Class<T> persistentClass,
-            @WebParam(name = "permission") @NonNull Permission permission,
+            @WebParam(name = "persistentClass") @NonNull Class<T> persistentClass, @WebParam(name = "permission") @NonNull Permission permission,
             @WebParam(name = "securedObjectTypes") @NonNull SecuredObjectType[] securedObjectTypes,
             @WebParam(name = "enablePaging") boolean enablePaging) {
         return (List<T>) authorizationLogic.getPersistentObjects(user, batchPresentation, permission, securedObjectTypes, enablePaging);

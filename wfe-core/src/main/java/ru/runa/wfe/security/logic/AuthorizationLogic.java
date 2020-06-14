@@ -66,6 +66,7 @@ import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 public class AuthorizationLogic extends CommonLogic {
     @Autowired
     private SecuredObjectFactory securedObjectFactory;
+
     /**
      * Used by addPermissions() and setPermissions(), to avoid duplicated rows in table "permission_mapping".
      */
@@ -87,8 +88,7 @@ public class AuthorizationLogic extends CommonLogic {
                 return false;
             }
             IdAndPermission that = (IdAndPermission) o;
-            return Objects.equals(id, that.id) &&
-                    Objects.equals(permission, that.permission);
+            return Objects.equals(id, that.id) && Objects.equals(permission, that.permission);
         }
 
         @Override
@@ -108,17 +108,17 @@ public class AuthorizationLogic extends CommonLogic {
     public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects) {
         boolean[] resAllowed = permissionDao.isAllowed(user, permission, securedObjects);
         int i = 0;
-        for (T securedObject: securedObjects) {
+        for (T securedObject : securedObjects) {
             if (!SecurityCheckUtil.needCheckPermission(securedObject.getSecuredObjectType())) {
                 resAllowed[i] = true;
             }
-        	i++;
+            i++;
         }
         return resAllowed;
     }
 
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType) {
-   	    return permissionDao.isAllowedForAny(user, permission, securedObjectType);
+        return permissionDao.isAllowedForAny(user, permission, securedObjectType);
     }
 
     public List<Permission> getIssuedPermissions(User user, Executor performer, SecuredObject securedObject) {
@@ -126,7 +126,6 @@ public class AuthorizationLogic extends CommonLogic {
         permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
         return permissionDao.getIssuedPermissions(performer, securedObject);
     }
-
 
     /**
      * Exports permissions to xml, see: ExportDataFileAction.
@@ -149,19 +148,19 @@ public class AuthorizationLogic extends CommonLogic {
                     singletonTypes.add(t);
                 }
             }
-            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType)
-                    .from(pm, e)
-                    .where(pm.objectType.in(singletonTypes).and(pm.objectId.eq(0L)).and(pm.executor.eq(e)))
-                    .orderBy(pm.objectType.asc(), e.name.asc(), pm.permission.asc()));
+            exportDataFilePermissions(parentElement,
+                    queryFactory.select(pm.permission, e.name, pm.objectType).from(pm, e)
+                            .where(pm.objectType.in(singletonTypes).and(pm.objectId.eq(0L)).and(pm.executor.eq(e)))
+                            .orderBy(pm.objectType.asc(), e.name.asc(), pm.permission.asc()));
         }
 
         // Export ACTOR and GROUP permissions.
         {
-            QExecutor e2 = new QExecutor("e2");  // same table as `e`, but different alias
-            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, e2.name)
-                    .from(pm, e, e2)
-                    .where(pm.objectType.eq(EXECUTOR).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
-                    .orderBy(pm.objectType.asc(), e2.name.asc(), e.name.asc(), pm.permission.asc()));
+            QExecutor e2 = new QExecutor("e2"); // same table as `e`, but different alias
+            exportDataFilePermissions(parentElement,
+                    queryFactory.select(pm.permission, e.name, pm.objectType, e2.name).from(pm, e, e2)
+                            .where(pm.objectType.eq(EXECUTOR).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
+                            .orderBy(pm.objectType.asc(), e2.name.asc(), e.name.asc(), pm.permission.asc()));
         }
 
         // Export DEFINITION permissions.
@@ -178,12 +177,10 @@ public class AuthorizationLogic extends CommonLogic {
                 definitionNamesByIdentifiableIds.put((long) name.hashCode(), name);
             }
 
-            val tuples = queryFactory.select(pm.permission, e.name, pm.objectType, pm.objectId)
-                    .from(pm, e)
+            val tuples = queryFactory.select(pm.permission, e.name, pm.objectType, pm.objectId).from(pm, e)
                     .where(pm.objectType.eq(DEFINITION).and(pm.executor.eq(e)))
                     // exportDataFilePermissions() requires that rows are ordered by (object, executor) first, permission last.
-                    .orderBy(pm.objectId.asc(), e.name.asc(), pm.permission.asc())
-                    .fetch();
+                    .orderBy(pm.objectId.asc(), e.name.asc(), pm.permission.asc()).fetch();
             val rows = new ArrayList<ExportDataFilePermissionRow>(tuples.size());
             for (val t : tuples) {
                 val objectName = definitionNamesByIdentifiableIds.get(t.get(3, Long.class));
@@ -215,8 +212,8 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     /**
-     * @param parentElement  Parent for "addPermissions" elements.
-     * @param query  Must return fields in order: permission, executorName, objectType, [objectName].
+     * @param parentElement Parent for "addPermissions" elements.
+     * @param query         Must return fields in order: permission, executorName, objectType, [objectName].
      */
     private void exportDataFilePermissions(Element parentElement, JPQLQuery<Tuple> query) {
         try (final CloseableIterator<Tuple> it = query.iterate()) {
@@ -268,14 +265,14 @@ public class AuthorizationLogic extends CommonLogic {
             val row = it.next();
 
             // Manually group by objectType, objectName, executorName.
-            if (row.objectType != lastObjectType || !Objects.equals(row.objectName, lastObjectName) || !Objects.equals(row.executorName,
-                    lastExecutorName)) {
+            if (row.objectType != lastObjectType || !Objects.equals(row.objectName, lastObjectName)
+                    || !Objects.equals(row.executorName, lastExecutorName)) {
                 lastObjectType = row.objectType;
                 lastObjectName = row.objectName;
                 lastExecutorName = row.executorName;
 
                 addPermissionsElement = parentElement.addElement("addPermissions", XmlUtils.RUNA_NAMESPACE);
-                //noinspection ConstantConditions
+                // noinspection ConstantConditions
                 addPermissionsElement.addAttribute("type", row.objectType.getName());
                 if (row.objectName != null) {
                     addPermissionsElement.addAttribute("name", row.objectName);
@@ -283,7 +280,7 @@ public class AuthorizationLogic extends CommonLogic {
                 addPermissionsElement.addAttribute("executor", row.executorName);
             }
 
-            //noinspection ConstantConditions
+            // noinspection ConstantConditions
             addPermissionsElement.addElement("permission", XmlUtils.RUNA_NAMESPACE).addAttribute("name", row.permission.getName());
         }
     }
@@ -304,7 +301,7 @@ public class AuthorizationLogic extends CommonLogic {
 
     private void setPermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions,
             boolean deleteExisting) {
-        Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
+        Executor executor = executorDao.getExecutor(executorName); // [QSL] Only id is needed, or maybe even join would be enough.
         permissionDao.checkAllowed(user, Permission.READ, executor);
 
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
@@ -332,13 +329,8 @@ public class AuthorizationLogic extends CommonLogic {
                 permissionDao.checkAllowedForAll(user, Permission.UPDATE_PERMISSIONS, type, objectIds);
 
                 HashSet<IdAndPermission> existing = new HashSet<>();
-                try (CloseableIterator<Tuple> i = queryFactory.select(pm.objectId, pm.permission)
-                        .from(pm)
-                        .where(pm.executor.eq(executor)
-                                .and(pm.objectType.eq(type))
-                                .and(pm.objectId.in(objectIds)))
-                        .iterate()
-                ) {
+                try (CloseableIterator<Tuple> i = queryFactory.select(pm.objectId, pm.permission).from(pm)
+                        .where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(pm.objectId.in(objectIds))).iterate()) {
                     while (i.hasNext()) {
                         Tuple t = i.next();
                         existing.add(new IdAndPermission(t.get(0, Long.class), t.get(1, Permission.class)));
@@ -388,7 +380,7 @@ public class AuthorizationLogic extends CommonLogic {
      * @param permissions Null if called from removeAllPermissions().
      */
     private void removePermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
+        Executor executor = executorDao.getExecutor(executorName); // [QSL] Only id is needed, or maybe even join would be enough.
         permissionDao.checkAllowed(user, Permission.READ, executor);
 
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
@@ -445,7 +437,7 @@ public class AuthorizationLogic extends CommonLogic {
     public void setPermissions(User user, Executor executor, Collection<Permission> permissions, SecuredObject securedObject) {
         checkPermissionsOnExecutor(user, executor, Permission.READ);
         if (SecurityCheckUtil.needCheckPermission(securedObject.getSecuredObjectType())) {
-        	permissionDao.checkAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
+            permissionDao.checkAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
         }
         permissionDao.setPermissions(executor, permissions, securedObject);
     }
@@ -453,19 +445,16 @@ public class AuthorizationLogic extends CommonLogic {
     /**
      * Load executor's which already has (or not has) some permission on specified securedObject. This query using paging.
      * 
-     * @param user
-     *            Current actor {@linkplain User}.
-     * @param securedObject
-     *            {@linkplain SecuredObject} to load executors, which has (or not) permission on this securedObject.
-     * @param batchPresentation
-     *            {@linkplain BatchPresentation} for loading executors.
-     * @param hasPermission
-     *            Flag equals true to load executors with permissions on {@linkplain SecuredObject}; false to load executors without permissions.
+     * @param user              Current actor {@linkplain User}.
+     * @param securedObject     {@linkplain SecuredObject} to load executors, which has (or not) permission on this securedObject.
+     * @param batchPresentation {@linkplain BatchPresentation} for loading executors.
+     * @param hasPermission     Flag equals true to load executors with permissions on {@linkplain SecuredObject}; false to load executors without
+     *                          permissions.
      * @return Executors with or without permission on {@linkplain SecuredObject} .
      */
     public List<? extends Executor> getExecutorsWithPermission(User user, SecuredObject securedObject, BatchPresentation batchPresentation,
             boolean hasPermission) {
-   		permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
+        permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createExecutorWithPermissionCompiler(user, securedObject,
                 batchPresentation, hasPermission);
         List<Executor> executors = compiler.getBatch();
@@ -473,9 +462,9 @@ public class AuthorizationLogic extends CommonLogic {
             if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
                     && permissionDao.isAllowed(user, Permission.READ, privelegedExecutor)) {
                 if (hasPermission)
-                  executors.add(0, privelegedExecutor);
+                    executors.add(0, privelegedExecutor);
                 else
-                  executors.remove(privelegedExecutor);
+                    executors.remove(privelegedExecutor);
             }
         }
         return executors;
@@ -484,18 +473,15 @@ public class AuthorizationLogic extends CommonLogic {
     /**
      * Load executor's count which already has (or not has) some permission on specified securedObject.
      * 
-     * @param user
-     *            Current actor {@linkplain User}.
-     * @param securedObject
-     *            {@linkplain SecuredObject} to load executors, which has (or not) permission on this securedObject.
-     * @param batchPresentation
-     *            {@linkplain BatchPresentation} for loading executors.
-     * @param hasPermission
-     *            Flag equals true to load executors with permissions on {@linkplain SecuredObject}; false to load executors without permissions.
+     * @param user              Current actor {@linkplain User}.
+     * @param securedObject     {@linkplain SecuredObject} to load executors, which has (or not) permission on this securedObject.
+     * @param batchPresentation {@linkplain BatchPresentation} for loading executors.
+     * @param hasPermission     Flag equals true to load executors with permissions on {@linkplain SecuredObject}; false to load executors without
+     *                          permissions.
      * @return Count of executors with or without permission on {@linkplain SecuredObject}.
      */
     public int getExecutorsWithPermissionCount(User user, SecuredObject securedObject, BatchPresentation batchPresentation, boolean hasPermission) {
-   		permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
+        permissionDao.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createExecutorWithPermissionCompiler(user, securedObject,
                 batchPresentation, hasPermission);
         return compiler.getCount();

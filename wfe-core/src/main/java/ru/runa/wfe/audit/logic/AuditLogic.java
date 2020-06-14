@@ -83,10 +83,8 @@ public class AuditLogic extends CommonLogic {
     /**
      * Load system logs according to {@link BatchPresentation}.
      * 
-     * @param user
-     *            Requester user.
-     * @param batchPresentation
-     *            {@link BatchPresentation} to load logs.
+     * @param user              Requester user.
+     * @param batchPresentation {@link BatchPresentation} to load logs.
      * @return Loaded system logs.
      */
     public List<SystemLog> getSystemLogs(User user, BatchPresentation batchPresentation) {
@@ -98,10 +96,8 @@ public class AuditLogic extends CommonLogic {
     /**
      * Load system logs count according to {@link BatchPresentation}.
      * 
-     * @param user
-     *            Requester user.
-     * @param batchPresentation
-     *            {@link BatchPresentation} to load logs count.
+     * @param user              Requester user.
+     * @param batchPresentation {@link BatchPresentation} to load logs count.
      * @return System logs count.
      */
     public int getSystemLogsCount(User user, BatchPresentation batchPresentation) {
