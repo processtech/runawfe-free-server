@@ -133,7 +133,7 @@ public class DataSourceTableBuilder {
         switch (ds.getType()) {
         case Excel:
             ExcelDataSource eds = (ExcelDataSource) ds;
-            attributes += "filePath: " + eds.getFilePath() + ", fileName: " + eds.getFileName();
+            attributes += "dirPath: " + eds.getFilePath();
             break;
         case JNDI:
             attributes += "jndiName: " + ((JndiDataSource) ds).getJndiName();
