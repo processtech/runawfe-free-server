@@ -192,7 +192,8 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebResult(name = "result")
     public <T extends Object> List<T> getPersistentObjects(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "batchPresentation") @NonNull BatchPresentation batchPresentation,
-            @WebParam(name = "persistentClass") @NonNull Class<T> persistentClass, @WebParam(name = "permission") @NonNull Permission permission,
+            @WebParam(name = "persistentClass") @NonNull Class<T> persistentClass,
+            @WebParam(name = "permission") @NonNull Permission permission,
             @WebParam(name = "securedObjectTypes") @NonNull SecuredObjectType[] securedObjectTypes,
             @WebParam(name = "enablePaging") boolean enablePaging) {
         return (List<T>) authorizationLogic.getPersistentObjects(user, batchPresentation, permission, securedObjectTypes, enablePaging);
