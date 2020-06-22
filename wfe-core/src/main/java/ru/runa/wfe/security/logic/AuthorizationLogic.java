@@ -118,6 +118,7 @@ public class AuthorizationLogic extends CommonLogic {
         return permissionDao.getIssuedPermissions(performer, securedObject);
     }
 
+
     /**
      * Exports permissions to xml, see: ExportDataFileAction.
      * <p>
