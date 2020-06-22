@@ -346,8 +346,12 @@ public class PermissionDao extends CommonDao {
             if (identifiableIds.isEmpty()) {
                 break;
             }
-            allowedIdentifiableIds.addAll(queryFactory.selectDistinct(pm.objectId).from(pm).where(pm.executor.in(executorWithGroups)
-                    .and(pm.objectType.eq(type)).and(pm.objectId.in(identifiableIds)).and(pm.permission.in(subst.selfPermissions))).fetch());
+            allowedIdentifiableIds.addAll(queryFactory.selectDistinct(pm.objectId).from(pm)
+                    .where(pm.executor.in(executorWithGroups)
+                            .and(pm.objectType.eq(type))
+                            .and(pm.objectId.in(identifiableIds))
+                            .and(pm.permission.in(subst.selfPermissions)))
+                    .fetch());
         }
         for (int i = 0; i < securedObjects.size(); i++) {
             if (!SecurityCheckProperties.isPermissionCheckRequired(securedObjects.get(i).getSecuredObjectType())) {
