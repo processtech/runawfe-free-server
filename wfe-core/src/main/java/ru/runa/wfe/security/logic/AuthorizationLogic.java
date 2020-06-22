@@ -172,7 +172,8 @@ public class AuthorizationLogic extends CommonLogic {
                     .from(pm, e)
                     .where(pm.objectType.eq(DEFINITION).and(pm.executor.eq(e)))
                     // exportDataFilePermissions() requires that rows are ordered by (object, executor) first, permission last.
-                    .orderBy(pm.objectId.asc(), e.name.asc(), pm.permission.asc()).fetch();
+                    .orderBy(pm.objectId.asc(), e.name.asc(), pm.permission.asc())
+                    .fetch();
             val rows = new ArrayList<ExportDataFilePermissionRow>(tuples.size());
             for (val t : tuples) {
                 val objectName = definitionNamesByIdentifiableIds.get(t.get(3, Long.class));
@@ -204,8 +205,8 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     /**
-     * @param parentElement Parent for "addPermissions" elements.
-     * @param query         Must return fields in order: permission, executorName, objectType, [objectName].
+     * @param parentElement  Parent for "addPermissions" elements.
+     * @param query  Must return fields in order: permission, executorName, objectType, [objectName].
      */
     private void exportDataFilePermissions(Element parentElement, JPQLQuery<Tuple> query) {
         try (final CloseableIterator<Tuple> it = query.iterate()) {
@@ -257,7 +258,8 @@ public class AuthorizationLogic extends CommonLogic {
             val row = it.next();
 
             // Manually group by objectType, objectName, executorName.
-            if (row.objectType != lastObjectType || !Objects.equals(row.objectName, lastObjectName)
+            if (row.objectType != lastObjectType 
+                    || !Objects.equals(row.objectName, lastObjectName)
                     || !Objects.equals(row.executorName, lastExecutorName)) {
                 lastObjectType = row.objectType;
                 lastObjectName = row.objectName;
