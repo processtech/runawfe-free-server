@@ -260,11 +260,12 @@ public class PermissionDao extends CommonDao {
         // ATTENTION!!! Also, HQL query with two conditions (on both type and listType) always returns empty rowset. :(
         //              (Both here with QueryDSL and in HibernateCompilerHQLBuilder.addSecureCheck() with raw HQL.)
         if (!subst.listPermissions.isEmpty() && queryFactory.select(pm.id).from(pm)
-                                                                .where(pm.executor.in(executorWithGroups)
-                                                                        .and(pm.objectType.eq(type.getListType()))
-                                                                        .and(pm.objectId.eq(0L))
-                                                                        .and(pm.permission.in(subst.listPermissions)))
-                                                                .fetchFirst() != null) {
+                .where(pm.executor.in(executorWithGroups)
+                        .and(pm.objectType.eq(type.getListType()))
+                        .and(pm.objectId.eq(0L))
+                        .and(pm.permission.in(subst.listPermissions)))
+                .fetchFirst() != null) {
+
             return haveIds ? new HashSet<>(idsOrNull) : nonEmptySet;
         }
 
