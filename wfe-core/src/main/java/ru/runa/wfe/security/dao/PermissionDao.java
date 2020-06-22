@@ -391,7 +391,8 @@ public class PermissionDao extends CommonDao {
     public Set<Executor> getExecutorsWithPermission(SecuredObject obj) {
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
         List<Executor> list = queryFactory.selectDistinct(pm.executor).from(pm)
-                .where(pm.objectType.eq(obj.getSecuredObjectType()).and(pm.objectId.eq(obj.getIdentifiableId()))).fetch();
+                .where(pm.objectType.eq(obj.getSecuredObjectType()).and(pm.objectId.eq(obj.getIdentifiableId())))
+                .fetch();
         Set<Executor> result = new HashSet<>(list);
         result.addAll(getPrivilegedExecutors(obj.getSecuredObjectType()));
         return result;
@@ -515,8 +516,7 @@ public class PermissionDao extends CommonDao {
      *            {@linkplain SecuredObjectType} types, used to check permissions.
      * @return Count of {@link SecuredObject}'s for which executors have permission on.
      */
-    public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission,
-            SecuredObjectType[] securedObjectTypes) {
+    public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission, SecuredObjectType[] securedObjectTypes) {
         TimeMeasurer timeMeasurer = new TimeMeasurer(logger, 1000);
         timeMeasurer.jobStarted();
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, permission, securedObjectTypes);
@@ -528,7 +528,11 @@ public class PermissionDao extends CommonDao {
 
     public boolean permissionExists(final Executor executor, final Permission permission, final SecuredObject object) {
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
-        return queryFactory.select(pm.id).from(pm).where(pm.executor.eq(executor).and(pm.objectType.eq(object.getSecuredObjectType()))
-                .and(pm.objectId.eq(object.getIdentifiableId())).and(pm.permission.eq(permission))).fetchFirst() != null;
+        return queryFactory.select(pm.id).from(pm)
+                .where(pm.executor.eq(executor)
+                        .and(pm.objectType.eq(object.getSecuredObjectType()))
+                        .and(pm.objectId.eq(object.getIdentifiableId()))
+                        .and(pm.permission.eq(permission)))
+                .fetchFirst() != null;
     }
 }
