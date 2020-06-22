@@ -258,7 +258,7 @@ public class AuthorizationLogic extends CommonLogic {
             val row = it.next();
 
             // Manually group by objectType, objectName, executorName.
-            if (row.objectType != lastObjectType || !Objects.equals(row.objectName, lastObjectName) || !Objects.equals(row.executorName, 
+            if (row.objectType != lastObjectType || !Objects.equals(row.objectName, lastObjectName) || !Objects.equals(row.executorName,
                     lastExecutorName)) {
                 lastObjectType = row.objectType;
                 lastObjectName = row.objectName;
@@ -322,8 +322,13 @@ public class AuthorizationLogic extends CommonLogic {
                 permissionDao.checkAllowedForAll(user, Permission.UPDATE_PERMISSIONS, type, objectIds);
 
                 HashSet<IdAndPermission> existing = new HashSet<>();
-                try (CloseableIterator<Tuple> i = queryFactory.select(pm.objectId, pm.permission).from(pm)
-                        .where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(pm.objectId.in(objectIds))).iterate()) {
+                try (CloseableIterator<Tuple> i = queryFactory.select(pm.objectId, pm.permission)
+                        .from(pm)
+                        .where(pm.executor.eq(executor)
+                                .and(pm.objectType.eq(type))
+                                .and(pm.objectId.in(objectIds)))
+                        .iterate()
+                ) {
                     while (i.hasNext()) {
                         Tuple t = i.next();
                         existing.add(new IdAndPermission(t.get(0, Long.class), t.get(1, Permission.class)));
@@ -373,7 +378,7 @@ public class AuthorizationLogic extends CommonLogic {
      * @param permissions Null if called from removeAllPermissions().
      */
     private void removePermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        Executor executor = executorDao.getExecutor(executorName); // [QSL] Only id is needed, or maybe even join would be enough.
+        Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
         permissionDao.checkAllowed(user, Permission.READ, executor);
 
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
