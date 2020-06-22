@@ -64,7 +64,6 @@ import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 public class AuthorizationLogic extends CommonLogic {
     @Autowired
     private SecuredObjectFactory securedObjectFactory;
-
     /**
      * Used by addPermissions() and setPermissions(), to avoid duplicated rows in table "permission_mapping".
      */
