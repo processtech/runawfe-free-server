@@ -54,6 +54,8 @@ import ru.runa.wfe.security.SecurityCheckProperties;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
+
+
 /**
  * Permission DAO level implementation via Hibernate.
  *
@@ -135,11 +137,11 @@ public class PermissionDao extends CommonDao {
         if (!toDelete.isEmpty()) {
             QPermissionMapping pm = QPermissionMapping.permissionMapping;
             queryFactory.delete(pm)
-                .where(pm.objectType.eq(object.getSecuredObjectType())
-                        .and(pm.objectId.eq(object.getIdentifiableId()))
-                        .and(pm.executor.eq(executor))
-                        .and(pm.permission.in(toDelete)))
-                .execute();
+                    .where(pm.objectType.eq(object.getSecuredObjectType())
+                            .and(pm.objectId.eq(object.getIdentifiableId()))
+                            .and(pm.executor.eq(executor))
+                            .and(pm.permission.in(toDelete)))
+                    .execute();
         }
     }
 
@@ -232,7 +234,7 @@ public class PermissionDao extends CommonDao {
     }
 
     /**
-     * Returns subset of `idsOrNull` for which `actor` has `permission`. If `idsOrNull` is null (e.g. when called from isAllowedForAny()), 
+     * Returns subset of `idsOrNull` for which `actor` has `permission`. If `idsOrNull` is null (e.g. when called from isAllowedForAny()),
      * non-empty set (containing arbitrary value) means positive check result.
      *
      * @param checkPrivileged If false, only permission_mapping table is checked, but not privileged_mapping.
@@ -256,17 +258,22 @@ public class PermissionDao extends CommonDao {
 
         // Same type for all objects, thus same listType. I believe it would be faster to perform separate query here.
         // ATTENTION!!! Also, HQL query with two conditions (on both type and listType) always returns empty rowset. :(
-        // (Both here with QueryDSL and in HibernateCompilerHQLBuilder.addSecureCheck() with raw HQL.)
-        if (!subst.listPermissions.isEmpty()
-                && queryFactory.select(pm.id).from(pm).where(pm.executor.in(executorWithGroups).and(pm.objectType.eq(type.getListType()))
-                        .and(pm.objectId.eq(0L)).and(pm.permission.in(subst.listPermissions))).fetchFirst() != null) {
+        //              (Both here with QueryDSL and in HibernateCompilerHQLBuilder.addSecureCheck() with raw HQL.)
+        if (!subst.listPermissions.isEmpty() && queryFactory.select(pm.id).from(pm)
+                                                                .where(pm.executor.in(executorWithGroups)
+                                                                        .and(pm.objectType.eq(type.getListType()))
+                                                                        .and(pm.objectId.eq(0L))
+                                                                        .and(pm.permission.in(subst.listPermissions)))
+                                                                .fetchFirst() != null) {
             return haveIds ? new HashSet<>(idsOrNull) : nonEmptySet;
         }
 
         Set<Long> result = new HashSet<>();
         for (List<Long> idsPart : haveIds ? Lists.partition(idsOrNull, SystemProperties.getDatabaseParametersCount()) : nonEmptyListList) {
             JPQLQuery<Long> q = queryFactory.select(pm.id).from(pm)
-                    .where(pm.executor.in(executorWithGroups).and(pm.objectType.eq(type)).and(pm.permission.in(subst.selfPermissions)));
+                    .where(pm.executor.in(executorWithGroups)
+                            .and(pm.objectType.eq(type))
+                            .and(pm.permission.in(subst.selfPermissions)));
             if (haveIds) {
                 result.addAll(q.where(pm.objectId.in(idsPart)).fetch());
             } else if (q.fetchFirst() != null) {
