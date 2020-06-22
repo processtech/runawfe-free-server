@@ -118,7 +118,6 @@ public class AuthorizationLogic extends CommonLogic {
         return permissionDao.getIssuedPermissions(performer, securedObject);
     }
 
-    
     /**
      * Exports permissions to xml, see: ExportDataFileAction.
      * <p>
@@ -148,11 +147,11 @@ public class AuthorizationLogic extends CommonLogic {
 
         // Export ACTOR and GROUP permissions.
         {
-            QExecutor e2 = new QExecutor("e2"); // same table as `e`, but different alias
-            exportDataFilePermissions(parentElement,
-                    queryFactory.select(pm.permission, e.name, pm.objectType, e2.name).from(pm, e, e2)
-                            .where(pm.objectType.eq(EXECUTOR).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
-                            .orderBy(pm.objectType.asc(), e2.name.asc(), e.name.asc(), pm.permission.asc()));
+            QExecutor e2 = new QExecutor("e2");  // same table as `e`, but different alias
+            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, e2.name)
+                    .from(pm, e, e2)
+                    .where(pm.objectType.eq(EXECUTOR).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
+                    .orderBy(pm.objectType.asc(), e2.name.asc(), e.name.asc(), pm.permission.asc()));
         }
 
         // Export DEFINITION permissions.
@@ -169,7 +168,8 @@ public class AuthorizationLogic extends CommonLogic {
                 definitionNamesByIdentifiableIds.put((long) name.hashCode(), name);
             }
 
-            val tuples = queryFactory.select(pm.permission, e.name, pm.objectType, pm.objectId).from(pm, e)
+            val tuples = queryFactory.select(pm.permission, e.name, pm.objectType, pm.objectId)
+                    .from(pm, e)
                     .where(pm.objectType.eq(DEFINITION).and(pm.executor.eq(e)))
                     // exportDataFilePermissions() requires that rows are ordered by (object, executor) first, permission last.
                     .orderBy(pm.objectId.asc(), e.name.asc(), pm.permission.asc()).fetch();
