@@ -441,11 +441,14 @@ public class AuthorizationLogic extends CommonLogic {
     /**
      * Load executor's which already has (or not has) some permission on specified securedObject. This query using paging.
      * 
-     * @param user              Current actor {@linkplain User}.
-     * @param securedObject     {@linkplain SecuredObject} to load executors, which has (or not) permission on this securedObject.
-     * @param batchPresentation {@linkplain BatchPresentation} for loading executors.
-     * @param hasPermission     Flag equals true to load executors with permissions on {@linkplain SecuredObject}; false to load executors without
-     *                          permissions.
+     * @param user
+     *            Current actor {@linkplain User}.
+     * @param securedObject
+     *            {@linkplain SecuredObject} to load executors, which has (or not) permission on this securedObject.
+     * @param batchPresentation
+     *            {@linkplain BatchPresentation} for loading executors.
+     * @param hasPermission
+     *            Flag equals true to load executors with permissions on {@linkplain SecuredObject}; false to load executors without permissions.
      * @return Executors with or without permission on {@linkplain SecuredObject} .
      */
     public List<? extends Executor> getExecutorsWithPermission(User user, SecuredObject securedObject, BatchPresentation batchPresentation,
@@ -458,9 +461,9 @@ public class AuthorizationLogic extends CommonLogic {
             if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
                     && permissionDao.isAllowed(user, Permission.READ, privelegedExecutor)) {
                 if (hasPermission)
-                    executors.add(0, privelegedExecutor);
+                  executors.add(0, privelegedExecutor);
                 else
-                    executors.remove(privelegedExecutor);
+                  executors.remove(privelegedExecutor);
             }
         }
         return executors;
@@ -469,11 +472,14 @@ public class AuthorizationLogic extends CommonLogic {
     /**
      * Load executor's count which already has (or not has) some permission on specified securedObject.
      * 
-     * @param user              Current actor {@linkplain User}.
-     * @param securedObject     {@linkplain SecuredObject} to load executors, which has (or not) permission on this securedObject.
-     * @param batchPresentation {@linkplain BatchPresentation} for loading executors.
-     * @param hasPermission     Flag equals true to load executors with permissions on {@linkplain SecuredObject}; false to load executors without
-     *                          permissions.
+     * @param user
+     *            Current actor {@linkplain User}.
+     * @param securedObject
+     *            {@linkplain SecuredObject} to load executors, which has (or not) permission on this securedObject.
+     * @param batchPresentation
+     *            {@linkplain BatchPresentation} for loading executors.
+     * @param hasPermission
+     *            Flag equals true to load executors with permissions on {@linkplain SecuredObject}; false to load executors without permissions.
      * @return Count of executors with or without permission on {@linkplain SecuredObject}.
      */
     public int getExecutorsWithPermissionCount(User user, SecuredObject securedObject, BatchPresentation batchPresentation, boolean hasPermission) {
