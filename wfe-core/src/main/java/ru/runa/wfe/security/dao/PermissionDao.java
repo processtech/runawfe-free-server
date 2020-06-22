@@ -54,7 +54,6 @@ import ru.runa.wfe.security.SecurityCheckProperties;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
-
 /**
  * Permission DAO level implementation via Hibernate.
  *
@@ -135,8 +134,12 @@ public class PermissionDao extends CommonDao {
         }
         if (!toDelete.isEmpty()) {
             QPermissionMapping pm = QPermissionMapping.permissionMapping;
-            queryFactory.delete(pm).where(pm.objectType.eq(object.getSecuredObjectType()).and(pm.objectId.eq(object.getIdentifiableId()))
-                    .and(pm.executor.eq(executor)).and(pm.permission.in(toDelete))).execute();
+            queryFactory.delete(pm)
+                .where(pm.objectType.eq(object.getSecuredObjectType())
+                        .and(pm.objectId.eq(object.getIdentifiableId()))
+                        .and(pm.executor.eq(executor))
+                        .and(pm.permission.in(toDelete)))
+                .execute();
         }
     }
 
@@ -229,14 +232,12 @@ public class PermissionDao extends CommonDao {
     }
 
     /**
-     * Returns subset of `idsOrNull` for which `actor` has `permission`. If `idsOrNull` is null (e.g. when called from isAllowedForAny()), non-empty
-     * set (containing arbitrary value) means positive check result.
+     * Returns subset of `idsOrNull` for which `actor` has `permission`. If `idsOrNull` is null (e.g. when called from isAllowedForAny()), 
+     * non-empty set (containing arbitrary value) means positive check result.
      *
-     * @param checkPrivileged
-     *            If false, only permission_mapping table is checked, but not privileged_mapping.
+     * @param checkPrivileged If false, only permission_mapping table is checked, but not privileged_mapping.
      */
-    public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType type, List<Long> idsOrNull,
-            boolean checkPrivileged) {
+    public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType type, List<Long> idsOrNull, boolean checkPrivileged) {
         ApplicablePermissions.check(type, permission);
         boolean haveIds = idsOrNull != null;
 
