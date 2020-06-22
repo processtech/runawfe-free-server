@@ -98,16 +98,21 @@ public class PermissionDao extends CommonDao {
     public List<Permission> getIssuedPermissions(Executor executor, SecuredObject object) {
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
         return queryFactory.select(pm.permission).from(pm)
-                .where(pm.objectType.eq(object.getSecuredObjectType()).and(pm.objectId.eq(object.getIdentifiableId())).and(pm.executor.eq(executor)))
+                .where(pm.objectType.eq(object.getSecuredObjectType())
+                        .and(pm.objectId.eq(object.getIdentifiableId()))
+                        .and(pm.executor.eq(executor)))
                 .fetch();
     }
 
     /**
      * Sets permissions for executor on securedObject.
      *
-     * @param executor    Executor, which got permissions.
-     * @param permissions Permissions for executor.
-     * @param object      Secured object to set permission on.
+     * @param executor
+     *            Executor, which got permissions.
+     * @param permissions
+     *            Permissions for executor.
+     * @param object
+     *            Secured object to set permission on.
      */
     public void setPermissions(Executor executor, Collection<Permission> permissions, SecuredObject object) {
         ApplicablePermissions.check(object, permissions);
@@ -227,7 +232,8 @@ public class PermissionDao extends CommonDao {
      * Returns subset of `idsOrNull` for which `actor` has `permission`. If `idsOrNull` is null (e.g. when called from isAllowedForAny()), non-empty
      * set (containing arbitrary value) means positive check result.
      *
-     * @param checkPrivileged If false, only permission_mapping table is checked, but not privileged_mapping.
+     * @param checkPrivileged
+     *            If false, only permission_mapping table is checked, but not privileged_mapping.
      */
     public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType type, List<Long> idsOrNull,
             boolean checkPrivileged) {
@@ -272,9 +278,12 @@ public class PermissionDao extends CommonDao {
     /**
      * Checks whether executor has permission on securedObject's. Create result array in same order, as securedObject's.
      *
-     * @param user           Executor, which permission must be check.
-     * @param permission     Checking permission.
-     * @param securedObjects Secured objects to check permission on.
+     * @param user
+     *            Executor, which permission must be check.
+     * @param permission
+     *            Checking permission.
+     * @param securedObjects
+     *            Secured objects to check permission on.
      * @return Array of: true if executor has requested permission on securedObject; false otherwise.
      * @deprecated Use filterAllowedIds() which takes list of IDs, not of whole entities.
      */
@@ -409,8 +418,10 @@ public class PermissionDao extends CommonDao {
     /**
      * Check if executor is privileged executor for given object.
      *
-     * @param executor {@linkplain Executor}, to check if privileged.
-     * @param object   {@linkplain SecuredObject} object, to check if executor is privileged to it.
+     * @param executor
+     *            {@linkplain Executor}, to check if privileged.
+     * @param object
+     *            {@linkplain SecuredObject} object, to check if executor is privileged to it.
      * @return true if executor is privileged for given object and false otherwise.
      */
     private boolean isPrivilegedExecutor(SecuredObject object, Executor executor) {
@@ -430,8 +441,10 @@ public class PermissionDao extends CommonDao {
     /**
      * Adds new record in <i>dictionary</i> tables describing new SecuredObject type.
      *
-     * @param type      Type of SecuredObject.
-     * @param executors Privileged executors for target class.
+     * @param type
+     *            Type of SecuredObject.
+     * @param executors
+     *            Privileged executors for target class.
      */
     public void addType(SecuredObjectType type, List<? extends Executor> executors) {
         for (Executor executor : executors) {
@@ -445,11 +458,16 @@ public class PermissionDao extends CommonDao {
     /**
      * Load list of {@linkplain SecuredObject} for which executors have permission on.
      *
-     * @param user               User which must have permission on loaded {@linkplain SecuredObject} (at least one).
-     * @param batchPresentation  {@linkplain BatchPresentation} with parameters for loading {@linkplain SecuredObject}'s.
-     * @param permission         {@linkplain Permission}, which executors must has on {@linkplain SecuredObject}.
-     * @param securedObjectTypes {@linkplain SecuredObjectType} types, used to check permissions.
-     * @param enablePaging       Flag, equals true, if paging must be enabled and false otherwise.
+     * @param user
+     *            User which must have permission on loaded {@linkplain SecuredObject} (at least one).
+     * @param batchPresentation
+     *            {@linkplain BatchPresentation} with parameters for loading {@linkplain SecuredObject}'s.
+     * @param permission
+     *            {@linkplain Permission}, which executors must has on {@linkplain SecuredObject}.
+     * @param securedObjectTypes
+     *            {@linkplain SecuredObjectType} types, used to check permissions.
+     * @param enablePaging
+     *            Flag, equals true, if paging must be enabled and false otherwise.
      * @return List of {@link SecuredObject}'s for which executors have permission on.
      */
     public List<? extends SecuredObject> getPersistentObjects(User user, BatchPresentation batchPresentation, Permission permission,
@@ -471,10 +489,14 @@ public class PermissionDao extends CommonDao {
     /**
      * Load count of {@linkplain SecuredObject} for which executors have permission on.
      *
-     * @param user               User which must have permission on loaded {@linkplain SecuredObject} (at least one).
-     * @param batchPresentation  {@linkplain BatchPresentation} with parameters for loading {@linkplain SecuredObject}'s.
-     * @param permission         {@linkplain Permission}, which executors must have on {@linkplain SecuredObject}.
-     * @param securedObjectTypes {@linkplain SecuredObjectType} types, used to check permissions.
+     * @param user
+     *            User which must have permission on loaded {@linkplain SecuredObject} (at least one).
+     * @param batchPresentation
+     *            {@linkplain BatchPresentation} with parameters for loading {@linkplain SecuredObject}'s.
+     * @param permission
+     *            {@linkplain Permission}, which executors must have on {@linkplain SecuredObject}.
+     * @param securedObjectTypes
+     *            {@linkplain SecuredObjectType} types, used to check permissions.
      * @return Count of {@link SecuredObject}'s for which executors have permission on.
      */
     public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission,
