@@ -86,7 +86,8 @@ public class AuthorizationLogic extends CommonLogic {
                 return false;
             }
             IdAndPermission that = (IdAndPermission) o;
-            return Objects.equals(id, that.id) && Objects.equals(permission, that.permission);
+            return Objects.equals(id, that.id) &&
+                    Objects.equals(permission, that.permission);
         }
 
         @Override
@@ -117,6 +118,7 @@ public class AuthorizationLogic extends CommonLogic {
         return permissionDao.getIssuedPermissions(performer, securedObject);
     }
 
+    
     /**
      * Exports permissions to xml, see: ExportDataFileAction.
      * <p>
@@ -138,10 +140,10 @@ public class AuthorizationLogic extends CommonLogic {
                     singletonTypes.add(t);
                 }
             }
-            exportDataFilePermissions(parentElement,
-                    queryFactory.select(pm.permission, e.name, pm.objectType).from(pm, e)
-                            .where(pm.objectType.in(singletonTypes).and(pm.objectId.eq(0L)).and(pm.executor.eq(e)))
-                            .orderBy(pm.objectType.asc(), e.name.asc(), pm.permission.asc()));
+            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType)
+                    .from(pm, e)
+                    .where(pm.objectType.in(singletonTypes).and(pm.objectId.eq(0L)).and(pm.executor.eq(e)))
+                    .orderBy(pm.objectType.asc(), e.name.asc(), pm.permission.asc()));
         }
 
         // Export ACTOR and GROUP permissions.
