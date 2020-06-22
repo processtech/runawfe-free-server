@@ -34,7 +34,6 @@ import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecuredSingleton;
-import ru.runa.wfe.security.SecurityCheckUtil;
 import ru.runa.wfe.user.User;
 
 /**

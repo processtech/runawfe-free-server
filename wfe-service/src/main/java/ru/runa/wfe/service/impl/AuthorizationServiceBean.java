@@ -40,7 +40,6 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.SecurityCheckUtil;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.security.logic.AuthorizationLogic;
 import ru.runa.wfe.service.decl.AuthorizationServiceLocal;

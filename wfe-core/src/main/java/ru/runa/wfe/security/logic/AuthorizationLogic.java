@@ -49,8 +49,6 @@ import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectFactory;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecuredSingleton;
-import ru.runa.wfe.security.SecurityCheckProperties;
-import ru.runa.wfe.security.SecurityCheckUtil;
 import ru.runa.wfe.security.dao.PermissionMapping;
 import ru.runa.wfe.security.dao.QPermissionMapping;
 import ru.runa.wfe.user.Executor;
@@ -106,15 +104,7 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects) {
-        boolean[] resAllowed = permissionDao.isAllowed(user, permission, securedObjects);
-        int i = 0;
-        for (T securedObject : securedObjects) {
-            if (!SecurityCheckUtil.needCheckPermission(securedObject.getSecuredObjectType())) {
-                resAllowed[i] = true;
-            }
-            i++;
-        }
-        return resAllowed;
+        return permissionDao.isAllowed(user, permission, securedObjects);
     }
 
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType) {
@@ -436,9 +426,7 @@ public class AuthorizationLogic extends CommonLogic {
 
     public void setPermissions(User user, Executor executor, Collection<Permission> permissions, SecuredObject securedObject) {
         checkPermissionsOnExecutor(user, executor, Permission.READ);
-        if (SecurityCheckUtil.needCheckPermission(securedObject.getSecuredObjectType())) {
-            permissionDao.checkAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
-        }
+        permissionDao.checkAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
         permissionDao.setPermissions(executor, permissions, securedObject);
     }
 

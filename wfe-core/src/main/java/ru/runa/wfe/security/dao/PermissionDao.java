@@ -50,7 +50,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.SecurityCheckUtil;
+import ru.runa.wfe.security.SecurityCheckProperties;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
@@ -139,7 +139,7 @@ public class PermissionDao extends CommonDao {
      * Throws if user has no permission to object.
      */
     public void checkAllowed(User user, Permission permission, SecuredObject object) {
-        if (!SecurityCheckUtil.needCheckPermission(object.getSecuredObjectType())) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
             return;
         }
         if (!isAllowed(user, permission, object)) {
@@ -151,7 +151,7 @@ public class PermissionDao extends CommonDao {
      * Throws if user has no permission to {type, id}.
      */
     public void checkAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
-        if (!SecurityCheckUtil.needCheckPermission(type)) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
             return;
         }
         if (!isAllowed(user, permission, type, id)) {
@@ -163,7 +163,7 @@ public class PermissionDao extends CommonDao {
      * Throws if user has no permission to {type, all given ids}.
      */
     public void checkAllowedForAll(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
-        if (!SecurityCheckUtil.needCheckPermission(type)) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
             return;
         }
         Assert.notNull(ids);
@@ -178,21 +178,21 @@ public class PermissionDao extends CommonDao {
      * Returns true if user have permission to object.
      */
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
-        if (!SecurityCheckUtil.needCheckPermission(object.getSecuredObjectType())) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
             return true;
         }
         return isAllowed(user.getActor(), permission, object.getSecuredObjectType(), object.getIdentifiableId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
-        if (!SecurityCheckUtil.needCheckPermission(type)) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
             return true;
         }
         return isAllowed(user.getActor(), permission, type, id);
     }
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObjectType type, Long id) {
-        if (!SecurityCheckUtil.needCheckPermission(type)) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
             return true;
         }
         Assert.notNull(id);
@@ -200,7 +200,7 @@ public class PermissionDao extends CommonDao {
     }
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObject object, boolean checkPrivileged) {
-        if (!SecurityCheckUtil.needCheckPermission(object.getSecuredObjectType())) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
             return true;
         }
         Long id = object.getIdentifiableId();
@@ -213,7 +213,7 @@ public class PermissionDao extends CommonDao {
      * Returns true if user have permission to {type, any id}.
      */
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType type) {
-        if (!SecurityCheckUtil.needCheckPermission(type)) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
             return true;
         }
         return !filterAllowedIds(user.getActor(), permission, type, null).isEmpty();
@@ -329,7 +329,7 @@ public class PermissionDao extends CommonDao {
                     .and(pm.objectType.eq(type)).and(pm.objectId.in(identifiableIds)).and(pm.permission.in(subst.selfPermissions))).fetch());
         }
         for (int i = 0; i < securedObjects.size(); i++) {
-            if (!SecurityCheckUtil.needCheckPermission(securedObjects.get(i).getSecuredObjectType())) {
+            if (!SecurityCheckProperties.isPermissionCheckRequired(securedObjects.get(i).getSecuredObjectType())) {
                 result[i] = true;
             } else {
                 result[i] = allowedIdentifiableIds.contains(securedObjects.get(i).getIdentifiableId());

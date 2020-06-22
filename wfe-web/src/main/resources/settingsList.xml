@@ -266,31 +266,31 @@
 	
 	<property_file title="securitycheck.properties">
 	
-		<property title="security.check.object.actor">
+		<property title="permission.check.required.EXECUTOR">
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="security.check.object.process.definition">
+		<property title="permission.check.required.DEFINITION">
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="security.check.object.process.instance">
+		<property title="permission.check.required.PROCESS">
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="security.check.object.report">
+		<property title="permission.check.required.REPORT">
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="security.check.object.relation">
+		<property title="permission.check.required.RELATION">
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="security.check.object.botstation">
+		<property title="permission.check.required.BOTSTATIONS">
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="security.check.object.system">
+		<property title="permission.check.required.SYSTEM">
 			<value>true</value>
 			<value>false</value>
 		</property>
