@@ -319,9 +319,12 @@ public class PermissionDao extends CommonDao {
         PermissionSubstitutions.ForCheck subst = PermissionSubstitutions.getForCheck(type, permission);
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
         // Same type for all objects, thus same listType. I believe it would be faster to perform separate query here.
-        if (!subst.listPermissions.isEmpty()
-                && queryFactory.select(pm.id).from(pm).where(pm.executor.in(executorWithGroups).and(pm.objectType.eq(type.getListType()))
-                        .and(pm.objectId.eq(0L)).and(pm.permission.in(subst.listPermissions))).fetchFirst() != null) {
+        if (!subst.listPermissions.isEmpty() && queryFactory.select(pm.id).from(pm)
+                .where(pm.executor.in(executorWithGroups)
+                        .and(pm.objectType.eq(type.getListType()))
+                        .and(pm.objectId.eq(0L))
+                        .and(pm.permission.in(subst.listPermissions)))
+                .fetchFirst() != null) {
             Arrays.fill(result, true);
             return result;
         }
