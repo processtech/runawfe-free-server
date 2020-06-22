@@ -29,6 +29,8 @@ public interface DataSourceStuff {
 
     String JNDI_NAME_SAMPLE = "jboss/datasources/<DS>";
 
+    String INTERNAL_STORAGE_DATA_SOURCE_NAME = "InternalStorage";
+
     static String adjustUrl(JdbcDataSource jds) {
         String url = jds.getUrl();
         String dbName = Strings.isNullOrEmpty(jds.getDbName()) ? "__DB_UNDEFINED__" : jds.getDbName();
