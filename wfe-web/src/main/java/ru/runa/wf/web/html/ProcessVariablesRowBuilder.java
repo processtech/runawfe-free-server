@@ -62,6 +62,11 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
             nameTd.setStyle("color: #aaaaaa;");
         }
         tr.addElement(nameTd.setClass(Resources.CLASS_LIST_TABLE_TD));
+
+        TD globalTD = new TD(variable.getDefinition().isGlobal() ? /*√*/"&#x221A;" : "");
+        tr.addElement(globalTD);
+        globalTD.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
+
         String fl = variable.getDefinition() != null ? variable.getDefinition().getFormatLabel() : "-";
         tr.addElement(new TD(fl).setClass(Resources.CLASS_LIST_TABLE_TD));
         if (WebResources.isDisplayVariablesJavaType()) {

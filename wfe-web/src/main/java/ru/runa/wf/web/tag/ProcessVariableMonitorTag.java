@@ -109,6 +109,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
+        headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
         if (WebResources.isDisplayVariablesJavaType()) {
             headerNames.add("Java " + MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
