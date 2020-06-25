@@ -1,17 +1,12 @@
 package ru.runa.common.web.tag;
 
 import com.google.common.base.Throwables;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.Commons;
@@ -21,8 +16,8 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
-@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "viewSheets")
-public class ViewSheetsTag extends TagSupport {
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "viewWorkbooks")
+public class ViewWorkbooksTag extends TagSupport {
     private static final long serialVersionUID = 1L;
     private String workbookPath;
 
@@ -42,29 +37,32 @@ public class ViewSheetsTag extends TagSupport {
         }
         try {
             StringBuilder html = new StringBuilder();
-            try (InputStream is = new FileInputStream(workbookPath)) {
-                Workbook wb = null;
-                if (workbookPath.endsWith(".xls")) {
-                    wb = new HSSFWorkbook(is);
-                } else if (workbookPath.endsWith(".xlsx")) {
-                    wb = new XSSFWorkbook(is);
-                } else {
-                    throw new IllegalArgumentException("excel file extension is incorrect");
-                }
-                for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-                    Sheet sheet = wb.getSheetAt(i);
+            File internalStorage = new File(workbookPath);
+            if (internalStorage.exists() && internalStorage.isDirectory()) {
+                String[] workbookNameList = internalStorage.list((dir, name) -> {
+                    return name.endsWith(".xls") || name.endsWith(".xlsx");
+                });
+                for (int i = 0; i < workbookNameList.length; i++) {
                     Map<String, String> params = new HashMap<>();
-                    params.put("sheetName", sheet.getSheetName());
+                    params.put("workbookName", workbookNameList[i]);
                     String href = Commons.getActionUrl(ViewInternalStorageAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
-                    html.append("<a href=\"").append(href).append("\">").append(sheet.getSheetName()).append("</a>&nbsp;&nbsp;&nbsp;");
+                    html.append("<a href=\"").append(href).append("\">").append(withoutExtension(workbookNameList[i]))
+                            .append("</a>&nbsp;&nbsp;&nbsp;");
                 }
-                wb.close();
             }
             pageContext.getOut().write(html.toString());
             return Tag.SKIP_BODY;
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
+    }
+
+    private String withoutExtension(String fileName) {
+        int lastDotIndex = fileName.indexOf(".");
+        if (lastDotIndex > 0) {
+            return fileName.substring(0, lastDotIndex);
+        }
+        return fileName;
     }
 
     private User getUser() {

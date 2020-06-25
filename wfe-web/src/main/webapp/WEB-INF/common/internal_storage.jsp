@@ -8,7 +8,8 @@
 
 <%
 	String workbookPath = (String) request.getAttribute("workbookPath");
-	String sheetContent = (String) request.getAttribute("sheetContent");
+	String workbookName = (String) request.getAttribute("workbookName");
+	String workbookContent = (String) request.getAttribute("workbookContent");
 %>
 
 <tiles:put name="head" type="string">
@@ -36,16 +37,17 @@
 
 <tiles:put name="body" type="string" >
 	<b><%= workbookPath %></b><br />
-	<wf:viewSheets workbookPath="<%= workbookPath %>" />
-	<% if (sheetContent != null) { %>
+	<wf:viewWorkbooks workbookPath="<%= workbookPath %>" />
+	<% if (workbookContent != null) { %>
 		<html:form styleId="downloadForm" action="/viewInternalStorage" method="get">
 			<html:hidden property="workbookPath" />
+			<html:hidden property="workbookName" />
 			<input type="hidden" name="mode" value="5" />
 			<table class="box"><tr><th class="box">
-				<a href="javascript:$('#downloadForm').submit();" style="color: white;"><bean:write name="viewInternalStorageForm" property="sheetName" />
+				<a href="javascript:$('#downloadForm').submit();" style="color: white;"><bean:write name="viewInternalStorageForm" property="workbookName" />
 			</th></tr></table>
 		</html:form>
-		<%= sheetContent %>
+		<%= workbookContent %>
 	<% } %>
  </tiles:put>
  

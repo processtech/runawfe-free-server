@@ -44,29 +44,30 @@ public class ViewInternalStorageAction extends ActionBase {
             DataSource ds = DataSourceStorage.getDataSource(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME);
             if (ds instanceof ExcelDataSource) {
                 ExcelDataSource eds = (ExcelDataSource) ds;
-                workbookPath = eds.getFilePath() + "/" + eds.getFileName();
+                workbookPath = eds.getFilePath();
                 request.setAttribute("workbookPath", workbookPath);
                 if (form.getMode() == ViewInternalStorageForm.MODE_DOWNLOAD) {
-                    String encodedFileName = HTMLUtils.encodeFileName(request, eds.getFileName());
+                    String encodedFileName = HTMLUtils.encodeFileName(request, form.getWorkbookName());
                     response.setHeader("Content-disposition", "attachment; filename=\"" + encodedFileName + "\"");
                     OutputStream os = response.getOutputStream();
-                    Files.copy(new File(form.getWorkbookPath()), os);
+                    Files.copy(new File(form.getWorkbookPath() + "/" + form.getWorkbookName()), os);
                     os.flush();
                     return null;
                 }
             }
             form.setWorkbookPath(workbookPath);
-            if (!Strings.isNullOrEmpty(workbookPath) && !Strings.isNullOrEmpty(form.getSheetName())) {
-                try (InputStream is = new FileInputStream(workbookPath)) {
+            String workbookName = form.getWorkbookName();
+            if (!Strings.isNullOrEmpty(workbookPath) && !Strings.isNullOrEmpty(workbookName)) {
+                try (InputStream is = new FileInputStream(workbookPath + "/" + workbookName)) {
                     Workbook wb = null;
-                    if (workbookPath.endsWith(".xls")) {
+                    if (workbookName.endsWith(".xls")) {
                         wb = new HSSFWorkbook(is);
-                    } else if (workbookPath.endsWith(".xlsx")) {
+                    } else if (workbookName.endsWith(".xlsx")) {
                         wb = new XSSFWorkbook(is);
                     } else {
                         throw new IllegalArgumentException("excel file extension is incorrect");
                     }
-                    Sheet sheet = wb.getSheet(form.getSheetName());
+                    Sheet sheet = wb.getSheetAt(0);
                     List<List<Cell>> data = new ArrayList<>();
                     int columnNumber = getSheetContent(sheet, data);
                     StringBuffer sheetContent = new StringBuffer();
@@ -82,11 +83,8 @@ public class ViewInternalStorageAction extends ActionBase {
                             sheetContent.append("</tr>");
                         }
                         sheetContent.append("</table>");
-                    } else {
-                        sheetContent.append("Empty sheet");
-
                     }
-                    request.setAttribute("sheetContent", sheetContent.toString());
+                    request.setAttribute("workbookContent", sheetContent.toString());
                     wb.close();
                 }
             }
@@ -127,8 +125,12 @@ public class ViewInternalStorageAction extends ActionBase {
         for (int r = 0; r <= sheet.getLastRowNum(); r++) {
             List<Cell> cells = new ArrayList<>();
             Row row = sheet.getRow(r);
-            for (int c = 0; c < row.getLastCellNum(); c++) {
-                cells.add(row.getCell(c));
+            if (row == null) {
+                break;
+            } else {
+                for (int c = 0; c < row.getLastCellNum(); c++) {
+                    cells.add(row.getCell(c));
+                }
             }
             data.add(cells);
             columnNumber = Math.max(columnNumber, cells.size());

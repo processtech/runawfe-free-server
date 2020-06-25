@@ -12,7 +12,7 @@ public class ViewInternalStorageForm extends ActionForm {
 
     private int mode;
     private String workbookPath;
-    private String sheetName;
+    private String workbookName;
 
     public String getWorkbookPath() {
         return workbookPath;
@@ -22,12 +22,12 @@ public class ViewInternalStorageForm extends ActionForm {
         this.workbookPath = workbookPath;
     }
 
-    public String getSheetName() {
-        return sheetName;
+    public String getWorkbookName() {
+        return workbookName;
     }
 
-    public void setSheetName(String sheetName) {
-        this.sheetName = sheetName;
+    public void setWorkbookName(String workbookName) {
+        this.workbookName = workbookName;
     }
 
     public int getMode() {
