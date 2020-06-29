@@ -1173,9 +1173,9 @@ function getPosition(e){
 
 dragMaster.dragWindow(tagetDrug,windowChat);
 //расстягивание
-$("#modalFooter").append("<div class=\"ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se ui-icon-grip-diagonal-se\"><img id='resizeImg' src='/wfe/images/resize.png'></div>")
-//var resizeHandle = document.getElementById("resizableTarget");
-//resizeHandle.addEventListener("mousedown", initialResizing, false);
+$("#modalFooter").append("<div id=\"resizableTarget\"><img id='resizeImg' src='/wfe/images/resize.png'></div>")
+var resizeHandle = document.getElementById("resizableTarget");
+resizeHandle.addEventListener("mousedown", initialResizing, false);
 
 function initialResizing(e){
 	window.addEventListener("mousemove",startResizing,false);
