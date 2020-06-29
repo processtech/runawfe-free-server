@@ -203,7 +203,7 @@ public abstract class JdbcStoreService implements StoreService {
     public void update(Properties properties, WfVariable variable, String condition) throws Exception {
         Preconditions.checkArgument(checkVariableType(variable),
                 "Variable '" + variable.getDefinition().getName() + "' must be user type or list of user types.");
-        initParams(properties, variable.getDefinition().getUserType());
+        initParams(properties, userType(variable));
 
         String columns = "";
         for (VariableDefinition vd : variable.getDefinition().getUserType().getAttributes()) {
@@ -265,7 +265,7 @@ public abstract class JdbcStoreService implements StoreService {
     public void save(Properties properties, WfVariable variable, boolean appendTo) throws Exception {
         Preconditions.checkArgument(checkVariableType(variable),
                 "Variable '" + variable.getDefinition().getName() + "' must be user type or list of user types.");
-        initParams(properties, variable.getDefinition().getUserType());
+        initParams(properties, userType(variable));
 
         List<UserTypeMap> data = Lists.newArrayList();
         if (variable.getDefinition().isUserType()) {
@@ -304,5 +304,10 @@ public abstract class JdbcStoreService implements StoreService {
             toAppend = sqlValue(wfVariable.getValue(), wfVariable.getDefinition().getFormatNotNull());
         }
         return toAppend;
+    }
+
+    protected UserType userType(WfVariable variable) {
+        return variable.getDefinition().isUserType() ? variable.getDefinition().getUserType()
+                : variable.getDefinition().getFormatComponentUserTypes()[0];
     }
 }

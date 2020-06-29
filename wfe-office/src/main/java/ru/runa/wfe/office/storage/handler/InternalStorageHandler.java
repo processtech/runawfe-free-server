@@ -7,6 +7,7 @@ import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.office.storage.StoreHelper;
 import ru.runa.wfe.office.storage.StoreService;
+import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
 import ru.runa.wfe.office.storage.services.StoreHelperImpl;
 import ru.runa.wfe.var.VariableProvider;
@@ -25,10 +26,12 @@ public class InternalStorageHandler extends ExternalStorageHandler {
         );
         final StoreHelper storeHelper = new StoreHelperImpl(config, variableProvider, storeService);
 
-        final ExecutionResult executionResult = execute(variableProvider, Iterables.getOnlyElement(config.getBindings()), storeHelper);
+        final DataBinding binding = Iterables.getOnlyElement(config.getBindings());
+        final ExecutionResult executionResult = execute(variableProvider, binding, storeHelper);
 
         if (executionResult.isNeedReturn()) {
-            result.put(config.getOutputFileVariableName(), executionResult.getValue());
+            result.put(config.getOutputFileVariableName() != null ?
+                    config.getOutputFileVariableName() : binding.getVariableName(), executionResult.getValue());
         }
         return result;
     }
