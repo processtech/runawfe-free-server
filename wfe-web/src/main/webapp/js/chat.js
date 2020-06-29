@@ -439,6 +439,7 @@ function sendMessage() {
 			$("#checkBoxPrivateMessage").prop("checked",false);
 			$("#messReplyTable").empty();
 			$(".warningText").text("0/1024");
+			$("#message").keyup(keyupUserNames);
 			$("#fileInput").val("");
 			$("#tablePrivate table").empty();
 			$("#privateBlock").css("display","none");
@@ -658,7 +659,8 @@ function updateUserNameTable(enterUserName){
 	$("#idListUserNameTr"+0).addClass("selected");
 }
 $("#message").keydown(firstKeyCheck);
-$("#message").keyup(function keyupUserNames(event){
+$("#message").keyup(keyupUserNames);
+function keyupUserNames(event){
 	$(".warningText").html($("#message").val().length+"/"+characterSize);
 	if($("#message").val().length>characterSize){
 		$(".warningText").css({"color":"red"});
@@ -666,7 +668,7 @@ $("#message").keyup(function keyupUserNames(event){
 	else{
 		$(".warningText").css({"color":"black"});
 	}
-});
+}
 let privateBlock=$("<div/>");
 privateBlock.attr("id","privateBlock");
 let headTablePrivate=$("<div/>");
@@ -1171,9 +1173,9 @@ function getPosition(e){
 
 dragMaster.dragWindow(tagetDrug,windowChat);
 //расстягивание
-$("#modalFooter").append("<div id=\"resizableTarget\"><img id='resizeImg' src='/wfe/images/resize.png'></div>")
-var resizeHandle = document.getElementById("resizableTarget");
-resizeHandle.addEventListener("mousedown", initialResizing, false);
+$("#modalFooter").append("<div class=\"ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se ui-icon-grip-diagonal-se\"><img id='resizeImg' src='/wfe/images/resize.png'></div>")
+//var resizeHandle = document.getElementById("resizableTarget");
+//resizeHandle.addEventListener("mousedown", initialResizing, false);
 
 function initialResizing(e){
 	window.addEventListener("mousemove",startResizing,false);
