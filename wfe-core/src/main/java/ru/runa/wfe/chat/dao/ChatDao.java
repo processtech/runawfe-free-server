@@ -29,7 +29,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
 
     public void deleteFile(User user, Long id) {
         QChatMessageFile f = QChatMessageFile.chatMessageFile;
-        queryFactory.delete(f).where(f.id.eq(id));
+        queryFactory.delete(f).where(f.id.eq(id)).execute();
     }
 
     public ChatMessageDto saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<ChatMessageFile> files, Set<Executor> executors,
@@ -135,7 +135,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
     public List<ChatMessageDto> getNewMessages(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Long lastMessageId = getLastReadMessage(user, processId);
-        if (lastMessageId == null) {
+        if (lastMessageId == -1L) {
             return new ArrayList<ChatMessageDto>();
         }
         List<ChatMessage> messages = queryFactory.select(cr.message).from(cr)
