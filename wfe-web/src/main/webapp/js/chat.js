@@ -381,10 +381,29 @@ function closeChat() {
 	document.getElementById("ChatForm").style.display = "none";
 	switchCheak=0;
 }
+function checkBrowser(){
+	var userAgent = navigator.userAgent.toLowerCase();
+	var Mozila = /firefox/.test(userAgent);
+	var Chrome = /chrome/.test(userAgent);
+	var Opera  = /opera/.test(userAgent);
+	if(Mozila==true){
+		alert("ok");
+	}
+}
+function checkEmptyMessage(message,attachedFiles,attachedPosts){
+	if((message.value=="")&&(attachedPosts.length==0)&&(attachedFiles.length==0)){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 //кнопка "отправить"
 function sendMessage() {
+	checkBrowser();
 	deleteUserNameTable();
 	if(lockFlag == false){
+		if(checkEmptyMessage(message,attachedFiles,attachedPosts)==false){
 		if(editMessageFlag == false){
 			lockFlag=true;
 			let message = document.getElementById("message").value;
@@ -426,6 +445,7 @@ function sendMessage() {
 				newMessage.haveFile=false;
 				lockFlag = false
 			}
+			
 			//отправка
 			chatSocket.send(JSON.stringify(newMessage));
 			$("#message").val("");
@@ -468,6 +488,7 @@ function sendMessage() {
 				editMessageId=-1;
 				editMessageFlag=false;
 			}
+		}
 		}
 	}
 	return 0;
