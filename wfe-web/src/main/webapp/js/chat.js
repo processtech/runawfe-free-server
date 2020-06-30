@@ -390,7 +390,7 @@ function checkBrowser(){
 		alert("ok");
 	}
 }
-function checkEmptyMessage(message,attachedFiles,attachedPosts){
+function checkEmptyMessage(){
 	if((message.value=="")&&(attachedPosts.length==0)&&(attachedFiles.length==0)){
 		return true;
 	}
@@ -403,7 +403,7 @@ function sendMessage() {
 	checkBrowser();
 	deleteUserNameTable();
 	if(lockFlag == false){
-		if(checkEmptyMessage(message,attachedFiles,attachedPosts)==false){
+		if(checkEmptyMessage()==false){
 		if(editMessageFlag == false){
 			lockFlag=true;
 			let message = document.getElementById("message").value;
@@ -435,17 +435,19 @@ function sendMessage() {
 			if(attachedFiles.length > 0){
 				newMessage.haveFile=true;
 				let fileNames = [];
+				let fileSizes = [];
 				for(let i=0; i<attachedFiles.length; i++){
 					fileNames.push(attachedFiles[i].name);
+					fileSizes.push(attachedFiles[i].size);
 				}
 				newMessage.fileNames = fileNames;
+				newMessage.fileSizes = fileSizes;
 				lockFlag = true;
 			}
 			else{
 				newMessage.haveFile=false;
 				lockFlag = false
 			}
-			
 			//отправка
 			chatSocket.send(JSON.stringify(newMessage));
 			$("#message").val("");
