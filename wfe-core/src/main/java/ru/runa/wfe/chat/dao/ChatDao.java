@@ -49,14 +49,8 @@ public class ChatDao extends GenericDao<ChatMessage> {
     public void readMessage(Actor user, Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Date date = new Date(Calendar.getInstance().getTime().getTime());
-        List<ChatMessageRecipient> recipients = queryFactory.selectFrom(cr)
-                .where(cr.executor.eq(user).and(cr.message.id.lt(messageId)).and(cr.readDate.isNull())).fetch();
-        // TODO make batch update
-        // queryFactory.update(cr).where(cr.executorId.eq(user.getId()).and(cr.message.id.lt(messageId))).set(cr.readDate, date);
-        for (ChatMessageRecipient recipient : recipients) {
-            recipient.setReadDate(date);
-            sessionFactory.getCurrentSession().merge(recipient);
-        }
+        queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.lt(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
+                .execute();
     }
 
     public Long getLastReadMessage(Actor user, Long processId) {
@@ -90,7 +84,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         for (int i = 0; i < processIds.size(); i++) {
             ret.add(getNewMessagesCount(user, processIds.get(i)));
             if (queryFactory.selectFrom(cr)
-.where(cr.executor.eq(user).and(cr.message.process.id.eq(processIds.get(i))).and(cr.mentioned.eq(true)))
+                    .where(cr.executor.eq(user).and(cr.message.process.id.eq(processIds.get(i))).and(cr.mentioned.eq(true)))
                     .fetchFirst() != null) {
                 isMentions.add(true);
             }
