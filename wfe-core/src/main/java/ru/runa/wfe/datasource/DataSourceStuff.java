@@ -11,7 +11,6 @@ public interface DataSourceStuff {
 
     String ELEMENT_DATA_SOURCE = "dataSource";
     String ELEMENT_FILE_PATH = "filePath";
-    String ELEMENT_FILE_NAME = "fileName";
     String ELEMENT_JNDI_NAME = "jndiName";
     String ELEMENT_DB_TYPE = "dbType";
     String ELEMENT_DB_URL = "dbUrl";
