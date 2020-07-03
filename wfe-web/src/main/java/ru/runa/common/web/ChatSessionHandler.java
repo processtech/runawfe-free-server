@@ -88,7 +88,7 @@ public class ChatSessionHandler {
     public void sendOnlyNewMessagesSessions(JSONObject message, Long processId, Actor coreUser, HashSet<Actor> mentionedActors, boolean isPrivate)
             throws IOException {
         for (Session session : onlyNewMessagesSessions) {
-            JSONObject sendObject = (JSONObject) message.clone(); // проверить клон!
+            JSONObject sendObject = (JSONObject) message.clone();
             if (((HashSet<Long>) session.getUserProperties().get("processIds")).contains(processId)) {
                 Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
                 if (thisActor.equals(coreUser)) {

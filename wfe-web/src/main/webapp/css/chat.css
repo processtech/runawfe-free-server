@@ -65,7 +65,7 @@ font-weight: bold;
     overflow: auto;
 }
 .countNewMessages{
-width: max-content;
+	width: max-content;
     font-family: inherit;
     display: -webkit-inline-box;
     font-size: 10pt;
@@ -188,14 +188,10 @@ width: max-content;
 	animation-name: animatetop;
 	animation-duration: 0.4s;
 	width: 346px;
-	min-width:300px;
-	max-width: 50vw;
-	min-height:586px;
 	/*max-height: 67vh;
 	min-height: 67vh;
 	top: 380px;*/
 	height:586px;
-	max-height:870px;
 	padding-top: 0px;
 	margin-bottom: 0px;
 	display: block;
@@ -316,6 +312,8 @@ width: max-content;
 #attachedArea{
 	height: 100px;
 	width: 100%;
+	max-width:100%;
+	min-width:100%;
 	overflow: auto;
 	margin-top: 5px;
 	background-color: white;
