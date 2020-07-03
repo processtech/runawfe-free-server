@@ -31,6 +31,31 @@ $(document).ready(function() {
 	$("#hideSystemMenu").click(function() {
 		setSystemMenuVisible(false, true);
 	});
+	//switchChatTable
+	$('a:contains("!swich_chats!")').html("Чаты").attr("id","switch_chats");
+	let divTableChats=$("<div/>");
+	let divTableMain=$("<div/>");
+	divTableMain.attr("id","mainTableSwitchChats");
+	divTableChats.attr("class","modalSwitchingWindow");
+	divTableMain.append(divTableChats);
+	let divTableHeaderChats=$("<div/>");
+	divTableHeaderChats.attr("class","headTableSwitchChat")
+	divTableHeaderChats.append("<div style='padding-left:5px;'>Переключение между чатами</div>");
+	divTableMain.append(divTableHeaderChats);
+	divTableMain.append(divTableChats);
+	$("body > table > tbody > tr:nth-child(2) > td.systemMenu > table.tab > tbody").append(divTableMain);
+	$('#switch_chats').click(function() {
+		$(".modalSwitchingWindow").html();
+		if($("#mainTableSwitchChats").css("display")=="none"){
+			$("#mainTableSwitchChats").css({"display":"block"});
+		}	
+		else{
+			$("#mainTableSwitchChats").css({"display":"none"});
+		}
+	
+		return false;
+	});
+	showChatMenu();
 });
 
 function initComponents(container) {
@@ -315,4 +340,53 @@ function saveRangeFilterCriteria(inputTextId) {
 		alert(e);
 	}
 	destroyFilterCriteriaEditor();
+}
+function showChatMenu(){
+	let urlString = "/wfe/ajaxcmd?command=SwitchChatsInitialize";	
+	return $.ajax({
+		type: "POST",
+		url: urlString,
+		dataType: "json",
+		contentType: "application/json; charset=UTF-8",
+		processData: false,
+		success: function(data) {
+			getAllChat(data);
+			
+		}
+	});
+}
+function getAllChat(data){
+	let messagesStep=20;
+	$(".modalSwitchingWindow").append("<tr><th class='list'>Список чатов</th><th  class='list'>Количество сообщений</th></tr>");
+	//$(".modalSwitchingWindowBody").html("");
+	let idRowListChats=$("<tr/>");
+	idRowListChats.attr("id",0);
+	let numUnredaMes=$("<td/>").attr("class","readMes");
+	idRowListChats.append($("<td/>"));
+	idRowListChats.append(numUnredaMes);
+	for(let i=0;i<data.length;i++){
+		let cloneIdRowListChats=idRowListChats.clone();
+		cloneIdRowListChats.attr("id","switchChat"+data[i].processId);
+		cloneIdRowListChats.attr("processId",data[i].processId);
+		let linkProcess=$("<a/>");
+		linkProcess.attr("href","/wfe/manage_process.do?id="+data[i].processId);
+		linkProcess.append("processId "+data[i].processId);
+		cloneIdRowListChats.children().first().append(linkProcess);
+		cloneIdRowListChats.children(".readMes").append(data[i].countMessage);
+		cloneIdRowListChats.children(".readMes").attr("id","numberNewMessages"+data[i].processId)
+		if(data[i].countMessage>0){
+			if(data[i].isMention===true){
+				cloneIdRowListChats.children(".readMes").attr("class","isMentionChats");
+			}
+			else{
+				cloneIdRowListChats.children(".readMes").attr("class","newMessagesChatClass");
+			}
+		}
+		else{
+			cloneIdRowListChats.children(".readMes").attr("class","noNewMessagesChatClass");
+		}
+		//$(".modalSwitchingWindowBody").append(cloneIdRowListChats);
+		$(".modalSwitchingWindow").append(cloneIdRowListChats);
+	}
+	$(".modalSwitchingWindow td").addClass("list");
 }

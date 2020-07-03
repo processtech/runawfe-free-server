@@ -73,6 +73,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS, SecuredSingleton.LOGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_CHATS));
     }
 
     @Attribute

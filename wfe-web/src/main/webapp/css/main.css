@@ -330,3 +330,6 @@ tr.executor_group {
 	opacity: 0.3;
 	cursor: pointer;
 }
+#mainTableSwitchChats{
+	display:none;
+}

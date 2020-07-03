@@ -98,6 +98,7 @@
 		<forward name="manage_data_sources" path="/manage_data_sources.do?tabForwardName=manage_data_sources" />
 		<forward name="edit_settings" path="/edit_settings.do" />
 		<forward name="drop_settings" path="/drop_settings.do" />
+		<forward name="swich_chats" path="" redirect="no"  />
 	</global-forwards>
 
 	<!-- ========== Action Mapping Definitions =================================== -->
