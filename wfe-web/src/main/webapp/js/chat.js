@@ -8,6 +8,7 @@ if(document.location.protocol == "https:"){
 else{
 	socketProtocol = "ws:";
 }
+/*
 // id процесса для чата на форме
 if($("input[name='one_task_hidden_field']").val() == "one_task_hidden_field"){
 	var pidff = $("a[href^='/wfe/manage_process.do?id=']").text();
@@ -15,7 +16,7 @@ if($("input[name='one_task_hidden_field']").val() == "one_task_hidden_field"){
 	$("#ChatForm").attr("processId", pidff);
 }
 //TODO id процесса на submit_task.jsp
-
+*/
 //шаблон модального окна чата
 var textLoadOldMessage = "Загрузить сообщения выше";
 var textPprivateMessage = "Приватное сообщение:";
@@ -33,6 +34,13 @@ $(".modal-body").html('<button id="loadNewBessageButton" type="button">' + textL
 
 $(".modal-content").append('<div id="modalFooter" class="modal-footer"/>');
 $(".modal-footer").append(modalFooterChat);
+
+$(".modal-content").resizable({
+	handles: "s, e, w, se",
+	minWidth: 267,
+    minHeight: 587,
+	alsoResize: "#attachedArea"
+});
 
 var rowSMCount = $('.tab tr').size();
 if (rowSMCount>9) {
@@ -1195,40 +1203,6 @@ function getPosition(e){
 }
 
 dragMaster.dragWindow(tagetDrug,windowChat);
-//расстягивание
-$("#modalFooter").append("<div id=\"resizableTarget\"><img id='resizeImg' src='/wfe/images/resize.png'></div>")
-var resizeHandle = document.getElementById("resizableTarget");
-resizeHandle.addEventListener("mousedown", initialResizing, false);
-
-function initialResizing(e){
-	window.addEventListener("mousemove",startResizing,false);
-	window.addEventListener("mouseup",stopResizing,false);
-}
-
-function startResizing(e){
-	windowChat.style.width = (e.clientX - windowChat.offsetLeft) + "px";
-	windowChat.style.height = (e.clientY - windowChat.offsetTop) + "px";
-	if(parseInt($(".modal-content").css("height"))>840){
-		$(".modal-body").css({"height":"67%"});	
-	}
-	else if(parseInt($(".modal-content").css("height"))>=725){
-		$(".modal-body").css({"height":"60%"});	
-	}else{
-		$(".modal-body").css({"height":"50%"});	
-	}
-}
-
-function stopResizing(e){
-	window.removeEventListener("mousemove", startResizing, false);
-	window.removeEventListener("mouseup", stopResizing, false);
-	if(numberNewMessages>0){
-		newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlicePx("padding"));
-	}
-	else{
-		newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
-	}
-}
-//----------------------------------------------------------------------
 //функции переключения между чатами
 $(".modalSwitchingWindowButton").click(function (){
 	if(lockFlag == false){
@@ -1387,7 +1361,6 @@ function ajaxLocale(){
 		});
 }
 
-
 function LocaleText(data){
 	$("#openChatButton").first(data.openChatButton);
 	//$(".modalSwitchingWindowButton").text(data.switchChatButton);
@@ -1437,10 +1410,6 @@ function fillingPrivateMessageRecipientTable(data){
 		}
 	}
 }
-
-
-
-
 
 //----------------------------------------------
 //начальные действия

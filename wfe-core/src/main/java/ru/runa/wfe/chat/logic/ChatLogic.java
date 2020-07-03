@@ -118,6 +118,10 @@ public class ChatLogic extends WfCommonLogic {
                 }
             }
         }
+        //
+        {
+
+        }
         return result;
     }
 

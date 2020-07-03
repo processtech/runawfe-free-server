@@ -1,3 +1,4 @@
+<%@page import="ru.runa.wfe.service.delegate.Delegates"%>
 <%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
@@ -52,7 +53,7 @@
 <div style="float:left; max-width: 150px; margin-top: -25px;">
 	<a id="openChatButton" onclick="openChat()">Открыть чат <span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 </div>
-<div id="ChatForm"></div>
+<div id="ChatForm"  processId="<%= Delegates.getTaskService().getTask(Commons.getUser(request.getSession()), taskId).getProcessId() %>"></div>
 <% }%>
 <% if (WebResources.isTaskDelegationEnabled()) { %>
 	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
