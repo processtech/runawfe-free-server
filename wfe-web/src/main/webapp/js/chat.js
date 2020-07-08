@@ -395,7 +395,6 @@ function checkBrowser(){
 	var Chrome = /chrome/.test(userAgent);
 	var Opera  = /opera/.test(userAgent);
 	if(Mozila==true){
-		alert("ok");
 	}
 }
 function checkEmptyMessage(){
@@ -408,7 +407,6 @@ function checkEmptyMessage(){
 }
 //кнопка "отправить"
 function sendMessage() {
-	checkBrowser();
 	deleteUserNameTable();
 	if(lockFlag == false){
 		if(checkEmptyMessage()==false){
