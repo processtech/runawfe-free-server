@@ -232,6 +232,13 @@ public class PermissionDao extends CommonDao {
     public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType type, List<Long> idsOrNull) {
         return filterAllowedIds(executor, permission, type, idsOrNull, true);
     }
+    
+    private static List<PermissionRule> requiredRules = new ArrayList(10);
+    
+    static {
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.CREATE_EXECUTOR, true));
+    }
 
     /**
      * Returns subset of `idsOrNull` for which `actor` has `permission`. If `idsOrNull` is null (e.g. when called from isAllowedForAny()),

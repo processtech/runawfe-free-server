@@ -203,4 +203,6 @@ public final class Permission implements Serializable, Comparable<Permission> {
     public static final Permission UPDATE_PERMISSIONS = new Permission("UPDATE_PERMISSIONS");
 
     public static final Permission VIEW_TASKS = new Permission("VIEW_TASKS");
+    
+    public static final Permission ADD_ACTOR_TO_GROUP = new Permission("ADD_ACTOR_TO_GROUP");
 }

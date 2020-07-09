@@ -318,7 +318,7 @@ public class HibernateCompilerHqlBuider {
     // TODO Largely duplicates PermissionDAO logic. After (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
     private List<String> addSecureCheck() {
         List<String> result = new LinkedList<>();
-        RestrictionsToPermissions pp = parameters.getPermissionRestrictions();
+        RestrictionsToPermissions pp = parameters.getPermissionRestrictions().cloneCheckRequired();
         if (pp == null) {
             return result;
         }
