@@ -1,6 +1,7 @@
 package ru.runa.wfe.office.doc;
 
 import com.google.common.collect.Maps;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -11,10 +12,15 @@ import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFHyperlinkRun;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFPicture;
 import org.apache.poi.xwpf.usermodel.XWPFRelation;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFStyle;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHyperlink;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyle;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTbl;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.office.doc.MergeDocxConfig.DocxInfo;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
@@ -49,6 +55,7 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
                         XWPFParagraph paragraph = (XWPFParagraph) bodyElement;
                         List<XWPFRun> runs = paragraph.getRuns();
                         XWPFParagraph newParagraph = document.createParagraph();
+                        newParagraph.setStyle(paragraph.getStyle());
                         XWPFRun newRun = null;
                         for (XWPFRun run : runs) {
                             if (run instanceof XWPFHyperlinkRun) {
@@ -65,7 +72,15 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
                                 newParagraph.addRun(newRun);
                             } else {
                                 newRun = newParagraph.createRun();
-                                newRun.getCTR().set(run.getCTR());
+                                newRun.getCTR().set(run.getCTR().copy());
+                            }
+                            newRun.getEmbeddedPictures().clear();
+                            newRun.getCTR().getDrawingList().clear();
+                            for (XWPFPicture picture : run.getEmbeddedPictures()) {
+                                byte[] data = picture.getPictureData().getData();
+                                newRun.addPicture(new ByteArrayInputStream(data), picture.getPictureData().getPictureType(),
+                                        picture.getPictureData().getFileName(), (int) picture.getCTPicture().getSpPr().getXfrm().getExt().getCx(),
+                                        (int) picture.getCTPicture().getSpPr().getXfrm().getExt().getCy());
                             }
                         }
                         if (docxInfo.addBreak) {
@@ -73,10 +88,14 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
                             docxInfo.addBreak = false;
                         }
                     } else if (bodyElement instanceof XWPFTable) {
-                        XWPFTable table = (XWPFTable) bodyElement;
+                        XmlObject xmlo = ((XWPFTable) bodyElement).getCTTbl().copy();
+                        XWPFTable table = new XWPFTable((CTTbl) xmlo, document);
                         document.createTable();
                         document.setTable(document.getTables().size() - 1, table);
                     }
+                }
+                for (CTStyle style : mergingDocument.getStyle().getStyleList()) {
+                    document.getStyles().addStyle(new XWPFStyle((CTStyle) style.copy()));
                 }
             }
         }
