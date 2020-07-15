@@ -298,6 +298,10 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="permission.check.required.DATASOURCES">
+			<value>true</value>
+			<value>false</value>
+		</property>
 		<property title="permission.check.required.SYSTEM">
 			<value>true</value>
 			<value>false</value>
