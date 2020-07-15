@@ -237,6 +237,9 @@ public class PermissionDao extends CommonDao {
     
     static {
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE_ACTOR_STATUS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.VIEW_TASKS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_EXECUTOR, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.UPDATE, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
