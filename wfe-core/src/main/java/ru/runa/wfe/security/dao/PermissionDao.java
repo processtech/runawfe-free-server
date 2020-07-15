@@ -51,6 +51,7 @@ import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecurityCheckProperties;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
@@ -149,9 +150,6 @@ public class PermissionDao extends CommonDao {
      * Throws if user has no permission to object.
      */
     public void checkAllowed(User user, Permission permission, SecuredObject object) {
-        if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
-            return;
-        }
         if (!isAllowed(user, permission, object)) {
             throw new AuthorizationException(user + " does not have " + permission + " to " + object);
         }
@@ -161,9 +159,6 @@ public class PermissionDao extends CommonDao {
      * Throws if user has no permission to {type, id}.
      */
     public void checkAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
-        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
-            return;
-        }
         if (!isAllowed(user, permission, type, id)) {
             throw new AuthorizationException(user + " does not have " + permission + " to (" + type + ", " + id + ")");
         }
@@ -174,6 +169,11 @@ public class PermissionDao extends CommonDao {
      */
     public void checkAllowedForAll(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
         if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
+            for (Long id: ids) {
+                if (!checkRequiredRules(user.getActor(), permission, type, id) ) {
+                    throw new AuthorizationException("User " + user + " does not have " + permission + " on all of (" + type + ", " + id + ")");        
+                }
+            }
             return;
         }
         Assert.notNull(ids);
@@ -189,21 +189,21 @@ public class PermissionDao extends CommonDao {
      */
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
         if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
-            return true;
+            return checkRequiredRules(user.getActor(), permission, object.getSecuredObjectType(), object.getIdentifiableId());
         }
         return isAllowed(user.getActor(), permission, object.getSecuredObjectType(), object.getIdentifiableId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
         if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
-            return true;
+            return checkRequiredRules(user.getActor(), permission, type, id);
         }
         return isAllowed(user.getActor(), permission, type, id);
     }
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObjectType type, Long id) {
         if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
-            return true;
+            return checkRequiredRules(executor, permission, type, id);
         }
         Assert.notNull(id);
         return !filterAllowedIds(executor, permission, type, Collections.singletonList(id)).isEmpty();
@@ -211,7 +211,7 @@ public class PermissionDao extends CommonDao {
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObject object, boolean checkPrivileged) {
         if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
-            return true;
+            return checkRequiredRules(executor, permission, object.getSecuredObjectType(), object.getIdentifiableId());
         }
         Long id = object.getIdentifiableId();
         SecuredObjectType type = object.getSecuredObjectType();
@@ -224,7 +224,7 @@ public class PermissionDao extends CommonDao {
      */
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType type) {
         if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
-            return true;
+            return checkRequiredRules(user.getActor(), permission, type, null);
         }
         return !filterAllowedIds(user.getActor(), permission, type, null).isEmpty();
     }
@@ -237,7 +237,27 @@ public class PermissionDao extends CommonDao {
     
     static {
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE, true));
-        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.CREATE_EXECUTOR, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_EXECUTOR, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_DEFINITION, true));
+    }
+    
+    private boolean checkRequiredRules(Executor executor, Permission permission, SecuredObjectType type, Long idOrNull) {
+        boolean isAdmin = false;
+        if (executor instanceof Actor) {
+             isAdmin =executorDao.isAdministrator((Actor) executor); 
+        }
+        for (PermissionRule r: requiredRules) {
+            if (permission.equals(r.getPermission()) && type.equals(r.getObjectType())) {
+                if ( !r.isAllowed(type, idOrNull, isAdmin, permission)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -362,7 +382,7 @@ public class PermissionDao extends CommonDao {
         }
         for (int i = 0; i < securedObjects.size(); i++) {
             if (!SecurityCheckProperties.isPermissionCheckRequired(securedObjects.get(i).getSecuredObjectType())) {
-                result[i] = true;
+                result[i] = checkRequiredRules(user.getActor(), permission, securedObjects.get(i).getSecuredObjectType(), securedObjects.get(i).getIdentifiableId());
             } else {
                 result[i] = allowedIdentifiableIds.contains(securedObjects.get(i).getIdentifiableId());
             }
