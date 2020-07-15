@@ -241,11 +241,22 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.VIEW_TASKS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_EXECUTOR, true));
+        
         requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.UPDATE, true));
+        
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
+        
         requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.UPDATE, true));
-        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.UPDATE, true));
+        
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_DEFINITION, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.START_PROCESS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.CANCEL_PROCESS, true));
+        
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.START_PROCESS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.CANCEL_PROCESS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.CANCEL, true));
+        
     }
     
     private boolean checkRequiredRules(Executor executor, Permission permission, SecuredObjectType type, Long idOrNull) {
