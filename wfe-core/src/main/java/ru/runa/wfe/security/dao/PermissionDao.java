@@ -244,11 +244,20 @@ public class PermissionDao extends CommonDao {
         
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.LOGIN, null));
         
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.READ_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.DELETE, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
         
+        requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.READ, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.READ_PERMISSIONS, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_DEFINITION, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.UPDATE, true));
@@ -310,7 +319,7 @@ public class PermissionDao extends CommonDao {
                         .and(pm.objectId.eq(0L))
                         .and(pm.permission.in(subst.listPermissions)))
                 .fetchFirst() != null) {
-
+            
             return haveIds ? new HashSet<>(idsOrNull) : nonEmptySet;
         }
 
