@@ -14,6 +14,8 @@ import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.service.delegate.ExecutorServiceDelegate;
@@ -25,6 +27,11 @@ import ru.runa.wfe.service.delegate.ExecutorServiceDelegate;
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "taskFormDelegationButton")
 public class TaskFormDelegationTag extends VisibleTag {
+    @Override
+    protected boolean isVisible() {
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DELEGATE_TASKS, SecuredObjectType.EXECUTOR, null); 
+    }
+
     private static final long serialVersionUID = 1L;
 
     private Long taskId;

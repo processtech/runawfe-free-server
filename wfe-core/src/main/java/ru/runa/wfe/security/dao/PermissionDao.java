@@ -238,8 +238,10 @@ public class PermissionDao extends CommonDao {
     static {
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE_ACTOR_STATUS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.READ_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.VIEW_TASKS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.DELEGATE_TASKS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_EXECUTOR, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.LOGIN, null));
@@ -252,6 +254,8 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.UPDATE_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.DELETE, true));
         
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.READ, true));
