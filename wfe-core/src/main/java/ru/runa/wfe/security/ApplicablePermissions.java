@@ -244,5 +244,9 @@ public final class ApplicablePermissions {
         add(SecuredObjectType.SYSTEM, READ, UPDATE_PERMISSIONS, LOGIN, CHANGE_SELF_PASSWORD, CREATE_EXECUTOR, CREATE_DEFINITION, VIEW_LOGS)
                 .defaults(LOGIN)
                 .hidden(READ_PERMISSIONS);
+        
+        add(SecuredObjectType.DATASOURCES, READ, UPDATE_PERMISSIONS, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);        
     }
 }

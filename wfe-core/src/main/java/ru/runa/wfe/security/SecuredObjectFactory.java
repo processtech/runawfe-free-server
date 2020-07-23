@@ -232,8 +232,10 @@ public class SecuredObjectFactory {
                 QReportDefinition rd = QReportDefinition.reportDefinition;
                 return new WfReport(getQueryFactory().selectFrom(rd).where(rd.id.eq(id)).fetchFirst());
             }
-        });
+        });        
 
         add(SecuredSingleton.SYSTEM);
+        
+        add(SecuredSingleton.DATASOURCES);
     }
 }
