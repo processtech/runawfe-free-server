@@ -47,14 +47,18 @@ public abstract class BaseTdBuilder implements TdBuilder {
     }
 
     protected boolean isEnabled(Object object, Env env) {
-        if (permission == null) {
+        return isEnabledFor(object, env, permission);
+    }
+    
+    protected boolean isEnabledFor(Object object, Env env, Permission perm) {
+        if (perm == null) {
             return false;
         }
-        if (permission == Permission.START_PROCESS) {
+        if (perm == Permission.START_PROCESS) {
             return ((WfDefinition) object).isCanBeStarted();
         }
-        return env.isAllowed(permission, securedObjectExtractor);
-    }
+        return env.isAllowed(perm, securedObjectExtractor);
+    }    
 
     protected String readProperty(Object object, String propertyName, boolean isExceptionOnAbsent) {
         try {
