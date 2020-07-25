@@ -224,7 +224,7 @@ public class PermissionDao extends CommonDao {
      */
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType type) {
         if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
-            return checkRequiredRules(user.getActor(), permission, type, null);
+            return checkRequiredRules(user.getActor(), permission, type, (Long)null);
         }
         return !filterAllowedIds(user.getActor(), permission, type, null).isEmpty();
     }
@@ -247,6 +247,7 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_EXECUTOR, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.LOGIN, null));
+        requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.READ, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.UPDATE_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.READ_PERMISSIONS, true));
@@ -258,7 +259,10 @@ public class PermissionDao extends CommonDao {
         
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.READ_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE_PERMISSIONS, true));
-        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
+//        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.READ, null));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.DELETE, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.READ, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.UPDATE, true));
@@ -280,6 +284,12 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE, true));
         
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.READ_PERMISSIONS, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE_PERMISSIONS, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.UPDATE, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.DELETE, true));
+        
         implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE, true));
         implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ, true));
         implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ_PERMISSIONS, true));
@@ -299,6 +309,40 @@ public class PermissionDao extends CommonDao {
             }
         }
         return true;
+    }
+    
+    private Set<Long> checkRequiredRules(Executor executor, Permission permission, SecuredObjectType type, Collection<Long> idsOrNull) {
+        boolean isAdmin = false;
+        if (executor instanceof Actor) {
+             isAdmin =executorDao.isAdministrator((Actor) executor); 
+        }
+        if (idsOrNull == null) {
+            for (PermissionRule r: requiredRules) {
+                if (permission.equals(r.getPermission()) && type.equals(r.getObjectType())) {
+                    if ( !r.isAllowed(type, null, isAdmin, permission)) {
+                        return Collections.emptySet();
+                    }
+                }
+            }
+            return Collections.emptySet();
+        }       
+        
+        Set<Long> res = new HashSet<Long>(idsOrNull.size());
+        for (Long idOrNull: idsOrNull) {
+            boolean bOk = true;
+            for (PermissionRule r: requiredRules) {
+                if (permission.equals(r.getPermission()) && type.equals(r.getObjectType())) {
+                    if ( !r.isAllowed(type, idOrNull, isAdmin, permission)) {
+                        bOk = false;
+                        break;
+                    }
+                }
+            }
+            if (bOk) {
+                res.add(idOrNull);
+            }
+        }
+        return res;
     }
     
     private Set<Long> checkImplicitRules(Executor executor, Permission permission, SecuredObjectType type, Collection<Long> idsOrNull) {
@@ -345,7 +389,7 @@ public class PermissionDao extends CommonDao {
         boolean bOk = true;
         for (PermissionRule r: implicitRules) {
             if (permission.equals(r.getPermission()) && type.equals(r.getObjectType())) {
-                if ( !r.isAllowed(type, idOrNull, isAdmin, permission)) {
+                if ( !r.isAllowed(type, idOrNull, isAdmin, permission) ) {
                     bOk = false;
                     break;
                 }
@@ -356,7 +400,14 @@ public class PermissionDao extends CommonDao {
         }
 
         return res;
-    }    
+    }
+    
+    public Set<Long> selectAllowedIds(Executor executor, Permission permission, SecuredObjectType type, List<Long> idsOrNull, boolean checkPrivileged) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
+            return checkRequiredRules(executor, permission, type, idsOrNull);
+        }
+        return filterAllowedIds(executor, permission, type, idsOrNull, checkPrivileged);        
+    }
     
 
     /**
@@ -397,7 +448,7 @@ public class PermissionDao extends CommonDao {
 
         Set<Long> result = new HashSet<>();
         for (List<Long> idsPart : haveIds ? Lists.partition(idsOrNull, SystemProperties.getDatabaseParametersCount()) : nonEmptyListList) {
-            JPQLQuery<Long> q = queryFactory.select(pm.id).from(pm)
+            JPQLQuery<Long> q = queryFactory.select(pm.objectId).from(pm)
                     .where(pm.executor.in(executorWithGroups)
                             .and(pm.objectType.eq(type))
                             .and(pm.permission.in(subst.selfPermissions)));
@@ -407,8 +458,7 @@ public class PermissionDao extends CommonDao {
                 return nonEmptySet;
             }
         }
-        result.addAll(checkImplicitRules(executor, permission, type, idsOrNull));
-        return result;
+        return checkImplicitRules(executor, permission, type, result);
     }
 
     /**

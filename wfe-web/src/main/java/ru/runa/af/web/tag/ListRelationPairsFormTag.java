@@ -28,6 +28,7 @@ import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.common.web.html.BaseTdBuilder;
 import ru.runa.common.web.html.CheckboxTdBuilder;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
@@ -78,6 +79,11 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
             }
         };
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(new TdBuilder[] { checkboxBuilder }, batchPresentation, null);
+        for (TdBuilder td: builders) {
+            if (td instanceof BaseTdBuilder) {
+                ((BaseTdBuilder) td).setPermission(Permission.READ);
+            }
+        }        
         RowBuilder rowBuilder = new ReflectionRowBuilder(relationPairs, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
                 getReturnAction(), IdForm.ID_INPUT_NAME, builders);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, getReturnAction(), pageContext);

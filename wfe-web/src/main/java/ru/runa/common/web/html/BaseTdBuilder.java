@@ -30,7 +30,7 @@ import ru.runa.wfe.security.Permission;
  * @author Vitaliy S aka Yilativs
  */
 public abstract class BaseTdBuilder implements TdBuilder {
-    private final Permission permission;
+    private Permission permission;
     private SecuredObjectExtractor securedObjectExtractor;
 
     public BaseTdBuilder(Permission permission) {
@@ -86,4 +86,13 @@ public abstract class BaseTdBuilder implements TdBuilder {
     public int getSeparatedValuesCount(Object object, Env env) {
         return 1;
     }
+    
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
+    }
+    
 }

@@ -18,6 +18,9 @@
 package ru.runa.wfe.relation.logic;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -96,7 +99,7 @@ public class RelationLogic extends CommonLogic {
      */
     @SuppressWarnings("unchecked")
     public List<Relation> getRelations(User user, BatchPresentation batchPresentation) {
-        return new PresentationCompiler(batchPresentation).getBatch(CompilerParameters.create(false));
+        return new PresentationCompiler(batchPresentation).getBatch(CompilerParameters.create(false));        
     }
 
     /**
