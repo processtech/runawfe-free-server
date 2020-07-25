@@ -15,6 +15,7 @@
 
     <tiles:put name="body" type="string">
     	<wf:deployDataSource />
+    	<wf:managePermissionsLink securedObjectType="DATASOURCES" />
         <wf:dataSourceList buttonAlignment="right">        	
         </wf:dataSourceList>
     </tiles:put>
