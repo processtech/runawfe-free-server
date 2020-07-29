@@ -29,7 +29,7 @@ import ru.runa.wfe.service.delegate.ExecutorServiceDelegate;
 public class TaskFormDelegationTag extends VisibleTag {
     @Override
     protected boolean isVisible() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DELEGATE_TASKS, SecuredObjectType.EXECUTOR, null); 
+        return Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.DELEGATE_TASKS, SecuredObjectType.EXECUTOR); 
     }
 
     private static final long serialVersionUID = 1L;
