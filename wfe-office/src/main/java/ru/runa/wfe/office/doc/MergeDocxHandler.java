@@ -56,6 +56,11 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
                         List<XWPFRun> runs = paragraph.getRuns();
                         XWPFParagraph newParagraph = document.createParagraph();
                         newParagraph.setStyle(paragraph.getStyle());
+                        newParagraph.setSpacingAfter(paragraph.getSpacingAfter());
+                        newParagraph.setSpacingBefore(paragraph.getSpacingBefore());
+                        newParagraph.setSpacingAfterLines(paragraph.getSpacingAfterLines());
+                        newParagraph.setSpacingBeforeLines(paragraph.getSpacingBeforeLines());
+                        newParagraph.setSpacingBetween(paragraph.getSpacingBetween());
                         XWPFRun newRun = null;
                         for (XWPFRun run : runs) {
                             if (run instanceof XWPFHyperlinkRun) {
