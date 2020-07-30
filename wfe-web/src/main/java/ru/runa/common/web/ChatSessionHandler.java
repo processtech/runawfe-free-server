@@ -82,7 +82,7 @@ public class ChatSessionHandler {
     }
 
     public void sendToChats(JSONObject message, Long processId) throws IOException {
-        sendToChats(message, processId, null, null, false);
+        sendToChats(message, processId, null, new HashSet<Actor>(), false);
     }
 
     public void sendOnlyNewMessagesSessions(JSONObject message, Long processId, Actor coreUser, HashSet<Actor> mentionedActors, boolean isPrivate)
