@@ -254,13 +254,30 @@ public class LdapLogic {
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         Map<String, SearchResult> groupResultsByDistinguishedName = Maps.newHashMap();
         for (String ou : LdapProperties.getSynchronizationOrganizationUnits()) {
-            NamingEnumeration<SearchResult> list = dirContext.search(ou, OBJECT_CLASS_GROUP_FILTER, controls);
-            while (list.hasMore()) {
-                SearchResult searchResult = list.next();
-                if (searchResult.getAttributes().get(ATTR_GROUP_MEMBER) == null) {
-                    continue;
+            try {
+                NamingEnumeration<SearchResult> list = dirContext.search(ou, OBJECT_CLASS_GROUP_FILTER, controls);
+                while (list.hasMore()) {
+                    SearchResult searchResult = list.next();
+                    if (searchResult.getAttributes().get(ATTR_GROUP_MEMBER) == null) {
+                        continue;
+                    }
+                    groupResultsByDistinguishedName.put(searchResult.getNameInNamespace(), searchResult);
                 }
-                groupResultsByDistinguishedName.put(searchResult.getNameInNamespace(), searchResult);
+                list.close();
+            } catch (SizeLimitExceededException e) {
+                for (String y : ALPHABETS) {
+                    NamingEnumeration<SearchResult> list = dirContext.search(ou,
+                            MessageFormat.format(LOGIN_FIRST_LETTER_FILTER, ATTR_GROUP_NAME, y, y.toLowerCase(), OBJECT_CLASS_GROUP_FILTER),
+                            controls);
+                    while (list.hasMore()) {
+                        SearchResult searchResult = list.next();
+                        if (searchResult.getAttributes().get(ATTR_GROUP_MEMBER) == null) {
+                            continue;
+                        }
+                        groupResultsByDistinguishedName.put(searchResult.getNameInNamespace(), searchResult);
+                    }
+                    list.close();
+                }
             }
         }
         for (SearchResult searchResult : groupResultsByDistinguishedName.values()) {
