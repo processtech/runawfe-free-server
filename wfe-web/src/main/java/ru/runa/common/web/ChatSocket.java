@@ -279,8 +279,10 @@ public class ChatSocket {
     }
 
     void readMessage(Session session, JSONObject objectMessage) throws IOException {
-        Long currentMessageId = Long.parseLong((String) objectMessage.get("currentMessageId"));
-        Delegates.getChatService().readMessage(getUser(session), currentMessageId);
+    	if(!((String) objectMessage.get("currentMessageId")).equals("undefined")) {
+    		Long currentMessageId = Long.parseLong((String) objectMessage.get("currentMessageId"));
+    		Delegates.getChatService().readMessage(getUser(session), currentMessageId);
+    	}
     }
 
     void editMessage(Session session, JSONObject objectMessage) throws IOException {
