@@ -17,31 +17,24 @@
  */
 package ru.runa.af.organizationfunction.impl;
 
+import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 /**
  * @author Gordienko_m
  * @author Vitaliy S aka Yilativs
  */
 public class OrganizationFunctionFactoryTest extends ServletTestCase {
-    private final static String PREFIX = OrganizationFunctionFactoryTest.class.getName();
-
-    private WfServiceTestHelper th;
-
+    private WfServiceTestHelper h;
     private Map<String, Object> legalVariables;
 
     public static Test suite() {
@@ -49,74 +42,71 @@ public class OrganizationFunctionFactoryTest extends ServletTestCase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
 
-        th = new WfServiceTestHelper(PREFIX);
+        h.addExecutorToGroup(h.getHrOperator(), h.getBossGroup());
 
-        th.addExecutorToGroup(th.getHrOperator(), th.getBossGroup());
+        h.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        th.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.START_PROCESS),
+                WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(Lists.newArrayList(Permission.START), WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.getExecutionService().startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
 
-        th.getExecutionService().startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
-
-        legalVariables = new HashMap<String, Object>();
+        legalVariables = new HashMap<>();
         legalVariables.put("approved", "true");
-
-        super.setUp();
-    }
-
-    private User getBossActorUser() {
-        return th.getHrOperatorUser();
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        th.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
-        th.releaseResources();
-        th = null;
-        super.tearDown();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.releaseResources();
+        h = null;
     }
 
-    public void testOrganizationFunction() throws Exception {
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), th.getTaskBatchPresentation());
+    private User getBossActorUser() {
+        return h.getHrOperatorUser();
+    }
+
+    public void testOrganizationFunction() {
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), h.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(getBossActorUser(), th.getTaskBatchPresentation());
+        tasks = h.getTaskService().getMyTasks(getBossActorUser(), h.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "evaluating", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(getBossActorUser(), tasks.get(0).getId(), legalVariables, null);
+        h.getTaskService().completeTask(getBossActorUser(), tasks.get(0).getId(), legalVariables);
 
-        tasks = th.getTaskService().getMyTasks(getBossActorUser(), th.getTaskBatchPresentation());
+        tasks = h.getTaskService().getMyTasks(getBossActorUser(), h.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), th.getTaskBatchPresentation());
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), h.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "updating erp asynchronously", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), tasks.get(0).getId(), legalVariables, null);
+        h.getTaskService().completeTask(h.getErpOperatorUser(), tasks.get(0).getId(), legalVariables);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "treating collegues on cake and pie", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), legalVariables, null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), legalVariables);
 
-        tasks = th.getTaskService().getMyTasks(getBossActorUser(), th.getTaskBatchPresentation());
+        tasks = h.getTaskService().getMyTasks(getBossActorUser(), h.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), th.getTaskBatchPresentation());
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), h.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "notify", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), tasks.get(0).getId(), legalVariables, null);
+        h.getTaskService().completeTask(h.getErpOperatorUser(), tasks.get(0).getId(), legalVariables);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 0, tasks.size());
     }
 }

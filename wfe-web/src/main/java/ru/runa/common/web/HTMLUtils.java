@@ -247,7 +247,7 @@ public class HTMLUtils {
     }
 
     public static ConcreteElement createExecutorElement(User user, PageContext pageContext, Executor executor) {
-        if (executor == null || !Delegates.getAuthorizationService().isAllowed(user, Permission.LIST, executor)) {
+        if (executor == null || !Delegates.getAuthorizationService().isAllowed(user, Permission.READ, executor)) {
             return new StringElement(getExecutorName(executor, pageContext));
         }
         return createExecutorElement(pageContext, executor);

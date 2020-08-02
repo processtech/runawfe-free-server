@@ -1,11 +1,9 @@
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
-import java.util.HashMap;
+import com.google.common.collect.Lists;
 import java.util.List;
-
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -25,8 +23,6 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 
-import com.google.common.collect.Lists;
-
 /**
  * This test class is to check substitution logic concerning "Assign task"
  * function.<br />
@@ -36,9 +32,6 @@ import com.google.common.collect.Lists;
  * @see ExecutionServiceDelegateAssignTaskTest
  */
 public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletTestCase {
-
-    private final static String PREFIX = ExecutionServiceDelegateSubstitutionAssignTaskTest.class.getName();
-
     private static final String PROCESS_NAME = WfServiceTestHelper.SWIMLANE_SAME_GROUP_SEQ_PROCESS_NAME;
 
     private final static String nameActor1 = "actor1";
@@ -50,6 +43,10 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
     private final static String pwdActor2 = "123";
     private final static String pwdSubstitute = "123";
 
+    private WfServiceTestHelper h;
+    private BatchPresentation batchPresentation;
+    private SubstitutionCriteria substitutionCriteria_always;
+
     private Actor actor1;
     private Actor actor2;
     private Group group;
@@ -59,61 +56,50 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
     private User actor2SUser = null;
     private User substituteUser = null;
 
-    private SubstitutionCriteria substitutionCriteria_always;
-
-    private WfServiceTestHelper testHelper;
-
-    private BatchPresentation batchPresentation;
-
     @Override
-    protected void setUp() throws Exception {
-        testHelper = new WfServiceTestHelper(PREFIX);
+    protected void setUp() {
+        val prefix = getClass().getName();
+        h = new WfServiceTestHelper(prefix);
+        batchPresentation = h.getTaskBatchPresentation();
+        substitutionCriteria_always = h.createSubstitutionCriteria(null);
 
-        actor1 = testHelper.createActorIfNotExist(nameActor1, PREFIX);
-        testHelper.getExecutorService().setPassword(testHelper.getAdminUser(), actor1, pwdActor1);
-        actor2 = testHelper.createActorIfNotExist(nameActor2, PREFIX);
-        testHelper.getExecutorService().setPassword(testHelper.getAdminUser(), actor2, pwdActor2);
-        group = testHelper.createGroupIfNotExist(nameGroup, "description");
-        testHelper.addExecutorToGroup(actor1, group);
-        testHelper.addExecutorToGroup(actor2, group);
-        substitute = testHelper.createActorIfNotExist(nameSubstitute, PREFIX);
-        testHelper.getExecutorService().setPassword(testHelper.getAdminUser(), substitute, pwdSubstitute);
+        actor1 = h.createActorIfNotExist(nameActor1, prefix);
+        h.getExecutorService().setPassword(h.getAdminUser(), actor1, pwdActor1);
+        actor2 = h.createActorIfNotExist(nameActor2, prefix);
+        h.getExecutorService().setPassword(h.getAdminUser(), actor2, pwdActor2);
+        group = h.createGroupIfNotExist(nameGroup, "description");
+        h.addExecutorToGroup(actor1, group);
+        h.addExecutorToGroup(actor2, group);
+        substitute = h.createActorIfNotExist(nameSubstitute, prefix);
+        h.getExecutorService().setPassword(h.getAdminUser(), substitute, pwdSubstitute);
 
         {
-            Collection<Permission> perm = Lists.newArrayList(Permission.LOGIN);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), group.getId(), perm, SecuredSingleton.EXECUTORS);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), perm, SecuredSingleton.EXECUTORS);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor2.getId(), perm, SecuredSingleton.EXECUTORS);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitute.getId(), perm, SecuredSingleton.EXECUTORS);
+            val pp = Lists.newArrayList(Permission.LOGIN);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), group.getId(), pp, SecuredSingleton.SYSTEM);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), actor1.getId(), pp, SecuredSingleton.SYSTEM);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), actor2.getId(), pp, SecuredSingleton.SYSTEM);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), substitute.getId(), pp, SecuredSingleton.SYSTEM);
         }
         {
-            Collection<Permission> perm = Lists.newArrayList(Permission.READ);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), perm, substitute);
-            testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), substitute.getId(), perm, actor1);
+            val pp = Lists.newArrayList(Permission.READ);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), actor1.getId(), pp, substitute);
+            h.getAuthorizationService().setPermissions(h.getAdminUser(), substitute.getId(), pp, actor1);
         }
-        actor1User = testHelper.getAuthenticationService().authenticateByLoginPassword(nameActor1, pwdActor1);
-        actor2SUser = testHelper.getAuthenticationService().authenticateByLoginPassword(nameActor2, pwdActor2);
-        substituteUser = testHelper.getAuthenticationService().authenticateByLoginPassword(nameSubstitute, pwdSubstitute);
-
-        substitutionCriteria_always = null;
-        substitutionCriteria_always = testHelper.createSubstitutionCriteria(substitutionCriteria_always);
+        actor1User = h.getAuthenticationService().authenticateByLoginPassword(nameActor1, pwdActor1);
+        actor2SUser = h.getAuthenticationService().authenticateByLoginPassword(nameActor2, pwdActor2);
+        substituteUser = h.getAuthenticationService().authenticateByLoginPassword(nameSubstitute, pwdSubstitute);
 
         byte[] parBytes = WfServiceTestHelper.readBytesFromFile(PROCESS_NAME + ".par");
-        testHelper.getDefinitionService().deployProcessDefinition(testHelper.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
-        WfDefinition definition = testHelper.getDefinitionService().getLatestProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME);
-        Collection<Permission> definitionPermission = Lists.newArrayList(Permission.START);
-        testHelper.getAuthorizationService().setPermissions(testHelper.getAdminUser(), actor1.getId(), definitionPermission, definition);
-
-        batchPresentation = testHelper.getTaskBatchPresentation();
-        super.setUp();
+        h.getDefinitionService().deployProcessDefinition(h.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
+        WfDefinition definition = h.getDefinitionService().getLatestProcessDefinition(h.getAdminUser(), PROCESS_NAME);
+        h.getAuthorizationService().setPermissions(h.getAdminUser(), actor1.getId(), Lists.newArrayList(Permission.START_PROCESS), definition);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        testHelper.getDefinitionService().undeployProcessDefinition(testHelper.getAdminUser(), PROCESS_NAME, null);
-        testHelper.releaseResources();
-        testHelper.removeSubstitutionCriteria(substitutionCriteria_always);
-        super.tearDown();
+    protected void tearDown() {
+        h.getDefinitionService().undeployProcessDefinition(h.getAdminUser(), PROCESS_NAME, null);
+        h.releaseResources();
+        h.removeSubstitutionCriteria(substitutionCriteria_always);
     }
 
     /**
@@ -123,37 +109,35 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
      * <li>User 1 tries to assign the task</li>
      * <li>User 2 tries to assign the task</li>
      * </ul>
-     * 
-     * @throws Exception
      */
     // rask:
-    public void testAssignAssigned() throws Exception {
+    public void testAssignAssigned() {
         WfTask[] actor1Tasks;
         WfTask[] actor2Tasks;
         WfTask[] substituteTasks;
 
-        Substitution substitution1 = testHelper.createActorSubstitutor(actor1User, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
+        Substitution substitution1 = h.createActorSubstitutor(actor1User, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
                 + nameSubstitute + ")", substitutionCriteria_always, true);
         {
             actor1Tasks = checkTaskList(actor1User, 0);
             actor2Tasks = checkTaskList(actor2SUser, 0);
             substituteTasks = checkTaskList(substituteUser, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
         {
             checkTaskList(actor1User, 1);
             checkTaskList(actor2SUser, 1);
             checkTaskList(substituteUser, 0);
         }
-        testHelper.setActorStatus(actor1, false);
-        testHelper.setActorStatus(actor2, false);
+        h.setActorStatus(actor1, false);
+        h.setActorStatus(actor2, false);
         {
             actor1Tasks = checkTaskList(actor1User, 1);
             actor2Tasks = checkTaskList(actor2SUser, 1);
             substituteTasks = checkTaskList(substituteUser, 1);
         }
         Actor actor = substituteUser.getActor();
-        testHelper.getTaskService().assignTask(substituteUser, substituteTasks[0].getId(), substituteTasks[0].getOwner(), actor);
+        h.getTaskService().assignTask(substituteUser, substituteTasks[0].getId(), substituteTasks[0].getOwner(), actor);
         {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2SUser, 0);
@@ -161,8 +145,8 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         }
         assertExceptionThrownOnAssign(actor1User, actor1Tasks[0]);
         assertExceptionThrownOnAssign(actor2SUser, actor2Tasks[0]);
-        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>(), null);
-        testHelper.removeCriteriaFromSubstitution(substitution1);
+        h.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), null);
+        h.removeCriteriaFromSubstitution(substitution1);
     }
 
     /**
@@ -172,35 +156,33 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
      * <li>User 1 tries to assign the task</li>
      * <li>User 2 tries to assign the task</li>
      * </ul>
-     * 
-     * @throws Exception
      */
-    public void testAssignMoved() throws Exception {
+    public void testAssignMoved() {
         WfTask[] actor1Tasks;
         WfTask[] actor2Tasks;
         WfTask[] substituteTasks;
 
-        Substitution substitution1 = testHelper.createActorSubstitutor(actor1User, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
+        Substitution substitution1 = h.createActorSubstitutor(actor1User, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
                 + nameSubstitute + ")", substitutionCriteria_always, true);
         {
             actor1Tasks = checkTaskList(actor1User, 0);
             actor2Tasks = checkTaskList(actor2SUser, 0);
             substituteTasks = checkTaskList(substituteUser, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
         {
             checkTaskList(actor1User, 1);
             checkTaskList(actor2SUser, 1);
             checkTaskList(substituteUser, 0);
         }
-        testHelper.setActorStatus(actor1, false);
-        testHelper.setActorStatus(actor2, false);
+        h.setActorStatus(actor1, false);
+        h.setActorStatus(actor2, false);
         {
             actor1Tasks = checkTaskList(actor1User, 1);
             actor2Tasks = checkTaskList(actor2SUser, 1);
             substituteTasks = checkTaskList(substituteUser, 1);
         }
-        testHelper.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(substituteUser, substituteTasks[0].getId(), null);
         {
             checkTaskList(actor1User, actor1Tasks[0]);
             checkTaskList(actor2SUser, actor2Tasks[0]);
@@ -208,7 +190,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         }
         assertExceptionThrownOnAssign(actor1User, actor1Tasks[0]);
         assertExceptionThrownOnAssign(actor2SUser, actor2Tasks[0]);
-        testHelper.removeCriteriaFromSubstitution(substitution1);
+        h.removeCriteriaFromSubstitution(substitution1);
     }
 
     /**
@@ -218,36 +200,34 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
      * <li>User 1 tries to execute the task</li>
      * <li>User 2 tries to execute the task</li>
      * </ul>
-     * 
-     * @throws Exception
      */
-    public void testMoveAssigned() throws Exception {
+    public void testMoveAssigned() {
         WfTask[] actor1Tasks;
         WfTask[] actor2Tasks;
         WfTask[] substituteTasks;
 
-        Substitution substitution1 = testHelper.createActorSubstitutor(actor1User, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
+        Substitution substitution1 = h.createActorSubstitutor(actor1User, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
                 + nameSubstitute + ")", substitutionCriteria_always, true);
         {
             actor1Tasks = checkTaskList(actor1User, 0);
             actor2Tasks = checkTaskList(actor2SUser, 0);
             substituteTasks = checkTaskList(substituteUser, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        h.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
         {
             checkTaskList(actor1User, 1);
             checkTaskList(actor2SUser, 1);
             checkTaskList(substituteUser, 0);
         }
-        testHelper.setActorStatus(actor1, false);
-        testHelper.setActorStatus(actor2, false);
+        h.setActorStatus(actor1, false);
+        h.setActorStatus(actor2, false);
         {
             actor1Tasks = checkTaskList(actor1User, 1);
             actor2Tasks = checkTaskList(actor2SUser, 1);
             substituteTasks = checkTaskList(substituteUser, 1);
         }
         Actor actor = substituteUser.getActor();
-        testHelper.getTaskService().assignTask(substituteUser, substituteTasks[0].getId(), substituteTasks[0].getOwner(), actor);
+        h.getTaskService().assignTask(substituteUser, substituteTasks[0].getId(), substituteTasks[0].getOwner(), actor);
         {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2SUser, 0);
@@ -255,12 +235,12 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         }
         assertExceptionThrownOnExecute(actor1User, actor1Tasks[0]);
         assertExceptionThrownOnExecute(actor2SUser, actor2Tasks[0]);
-        testHelper.removeCriteriaFromSubstitution(substitution1);
+        h.removeCriteriaFromSubstitution(substitution1);
     }
 
-    private void assertExceptionThrownOnExecute(User user, WfTask task) throws InternalApplicationException {
+    private void assertExceptionThrownOnExecute(User user, WfTask task) {
         try {
-            testHelper.getTaskService().completeTask(user, task.getId(), new HashMap<String, Object>(), null);
+            h.getTaskService().completeTask(user, task.getId(), null);
             throw new InternalApplicationException("Exception not thrown. Actor shouldn't see assigned/executed task by another user...");
         } catch (AuthenticationException e) {
             throw new InternalApplicationException("Auth exception thrown");
@@ -274,10 +254,10 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         }
     }
 
-    private void assertExceptionThrownOnAssign(User user, WfTask task) throws InternalApplicationException, ExecutorDoesNotExistException {
+    private void assertExceptionThrownOnAssign(User user, WfTask task) {
         try {
             Actor actor = user.getActor();
-            testHelper.getTaskService().assignTask(user, task.getId(), task.getOwner(), actor);
+            h.getTaskService().assignTask(user, task.getId(), task.getOwner(), actor);
             throw new InternalApplicationException("Exception TaskAlreadyAcceptedException not thrown");
         } catch (TaskDoesNotExistException e) {
             // TODO this is unexpected, fix me!!!
@@ -287,9 +267,9 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         }
     }
 
-    private List<WfTask> checkTaskList(User user, WfTask task) throws Exception {
+    private List<WfTask> checkTaskList(User user, WfTask task) {
         boolean result = false;
-        List<WfTask> tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         for (WfTask taskStub : tasks) {
             if (taskStub.equals(task) && taskStub.getName().equals(task.getName())) {
                 result = true;
@@ -300,8 +280,8 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         return tasks;
     }
 
-    private WfTask[] checkTaskList(User user, int expectedLength) throws Exception {
-        List<WfTask> tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+    private WfTask[] checkTaskList(User user, int expectedLength) {
+        List<WfTask> tasks = h.getTaskService().getMyTasks(user, batchPresentation);
         assertEquals("getTasks() returns wrong tasks number (expected " + expectedLength + ", but was " + tasks.size() + ")", expectedLength,
                 tasks.size());
         return tasks.toArray(new WfTask[tasks.size()]);

@@ -17,16 +17,15 @@
  */
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
+import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import lombok.val;
+import lombok.var;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -38,90 +37,82 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.var.dto.WfVariable;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 23.04.2005
  * 
  * @author Gritsenko_S
  */
 public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
-
-    private WfServiceTestHelper helper = null;
-
     private Map<String, Object> startVariables;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
-        helper.createDefaultExecutorsMap();
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
 
-        helper.deployValidProcessDefinition();
+        h.createDefaultExecutorsMap();
+        h.deployValidProcessDefinition();
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(
+                Lists.newArrayList(Permission.UPDATE_PERMISSIONS, Permission.START_PROCESS, Permission.READ_PROCESS),
+                WfServiceTestHelper.VALID_PROCESS_NAME);
 
-        Collection<Permission> startPermissions = Lists.newArrayList(Permission.UPDATE, Permission.START, Permission.READ_PROCESS);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(startPermissions, WfServiceTestHelper.VALID_PROCESS_NAME);
+        val pp = Lists.newArrayList(Permission.READ);
+        h.setPermissionsToAuthorizedActor(pp, h.getBaseGroupActor());
+        h.setPermissionsToAuthorizedActor(pp, h.getSubGroupActor());
 
-        helper.setPermissionsToAuthorizedPerformerOnExecutors(Lists.newArrayList(Permission.UPDATE));
-
-        Collection<Permission> executorPermission = Lists.newArrayList(Permission.READ);
-        helper.setPermissionsToAuthorizedPerformer(executorPermission, helper.getBaseGroupActor());
-        helper.setPermissionsToAuthorizedPerformer(executorPermission, helper.getSubGroupActor());
-
-        startVariables = new HashMap<String, Object>();
+        startVariables = new HashMap<>();
         startVariables.put("var1start", "var1Value");
-
-        super.setUp();
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition();
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         executionService = null;
-        super.tearDown();
     }
 
-    public void testStartProcessInstanceWithMapByUnauthorizedSubject() throws Exception {
+    public void testStartProcessInstanceWithMapByUnauthorizedUser() {
         try {
-            executionService.startProcess(helper.getUnauthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
-            fail("testStartProcessInstanceWithMapByUnauthorizedSubject(), no AuthorizationException");
+            executionService.startProcess(h.getUnauthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
+            fail();
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testStartProcessInstanceWithMapByFakeSubject() throws Exception {
+    public void testStartProcessInstanceWithMapByFakeUser() {
         try {
-            executionService.startProcess(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
-            fail("testStartProcessInstanceWithMapByFakeSubject(), no AuthenticationException");
+            executionService.startProcess(h.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testStartProcessInstanceWithMapByAuthorizedSubjectWithInvalidProcessDefinitionName() throws Exception {
+    public void testStartProcessInstanceWithMapByAuthorizedUserWithInvalidProcessDefinitionName() {
         try {
-            executionService.startProcess(helper.getAuthorizedPerformerUser(), "INVALID_PROCESS_NAME", startVariables);
-            assertTrue("testStartProcessInstanceWithMapByAuthorizedSubjectWithInvalidProcessDefinitionName(), no DefinitionDoesNotExistException",
-                    false);
+            executionService.startProcess(h.getAuthorizedUser(), "INVALID_PROCESS_NAME", startVariables);
+            fail();
         } catch (DefinitionDoesNotExistException e) {
+            // Expected.
         }
     }
 
-    public void testStartProcessInstanceWithMapByAuthorizedSubjectWithNullVariables() throws Exception {
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+    public void testStartProcessInstanceWithMapByAuthorizedUserWithNullVariables() {
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
     }
 
-    public void testStartProcessInstanceWithMapByAuthorizedSubject() throws Exception {
-        Long processId = executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
+    public void testStartProcessInstanceWithMapByAuthorizedUser() {
+        Long processId = executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
 
-        List<WfProcess> processInstances = executionService.getProcesses(helper.getAuthorizedPerformerUser(),
-                helper.getProcessInstanceBatchPresentation());
+        List<WfProcess> processInstances = executionService.getProcesses(h.getAuthorizedUser(), h.getProcessInstanceBatchPresentation());
         assertEquals("Process not started", 1, processInstances.size());
 
-        List<WfVariable> variables = executionService.getVariables(helper.getAuthorizedPerformerUser(), processId);
+        List<WfVariable> variables = executionService.getVariables(h.getAuthorizedUser(), processId);
 
-        HashMap<String, Object> actualVariables = new HashMap<String, Object>();
+        val actualVariables = new HashMap<String, Object>();
         for (WfVariable v : variables) {
             actualVariables.put(v.getDefinition().getName(), v.getValue());
         }
@@ -130,42 +121,40 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
             assertEquals("No predefined variable", actualVariables.get(entry.getKey()), entry.getValue());
         }
         // TODO assertEquals("No swimlane variable",
-        // String.valueOf(helper.getAuthorizedPerformerActor().getCode()),
+        // String.valueOf(h.getAuthorizedActor().getCode()),
         // actualVariables.get("requester"));
     }
 
-    public void testStartProcessInstanceWithMapInstancePermissions() throws Exception {
-        WfDefinition defintiion = helper.getDefinitionService().getLatestProcessDefinition(helper.getAuthorizedPerformerUser(),
+    public void testStartProcessInstanceWithMapInstancePermissions() {
+        WfDefinition defintiion = h.getDefinitionService().getLatestProcessDefinition(h.getAuthorizedUser(),
                 WfServiceTestHelper.VALID_PROCESS_NAME);
-        Collection<Permission> permissions = Lists.newArrayList(Permission.READ_PROCESS);
-        helper.getAuthorizationService().setPermissions(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor().getId(), permissions,
-                defintiion);
-        permissions = Lists.newArrayList(Permission.READ_PROCESS, Permission.CANCEL_PROCESS);
-        helper.getAuthorizationService().setPermissions(helper.getAuthorizedPerformerUser(), helper.getSubGroupActor().getId(), permissions,
-                defintiion);
 
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
+        h.getAuthorizationService().setPermissions(h.getAuthorizedUser(), h.getBaseGroupActor().getId(),
+                Lists.newArrayList(Permission.READ_PROCESS), defintiion);
+        h.getAuthorizationService().setPermissions(h.getAuthorizedUser(), h.getSubGroupActor().getId(),
+                Lists.newArrayList(Permission.READ_PROCESS, Permission.CANCEL_PROCESS), defintiion);
 
-        helper.getExecutionService().getProcesses(helper.getAuthorizedPerformerUser(), helper.getProcessInstanceBatchPresentation());
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
 
-        WfProcess instance = getInstance(WfServiceTestHelper.VALID_PROCESS_NAME);
-        Collection<Permission> actual = helper.getAuthorizationService().getIssuedPermissions(helper.getAuthorizedPerformerUser(),
-                helper.getBaseGroupActor(), instance);
-        Collection<Permission> expected = Lists.newArrayList(Permission.READ);
-        ArrayAssert.assertWeakEqualArrays("startProcessInstance() does not grant permissions on instance", expected, actual);
-        actual = helper.getAuthorizationService().getIssuedPermissions(helper.getAuthorizedPerformerUser(), helper.getSubGroupActor(), instance);
-        expected = Lists.newArrayList(Permission.READ, Permission.CANCEL);
-        ArrayAssert.assertWeakEqualArrays("startProcessInstance() does not grant permissions on instance", expected, actual);
-    }
-
-    private WfProcess getInstance(String definitionName) throws InternalApplicationException {
-        List<WfProcess> stubs = helper.getExecutionService().getProcesses(helper.getAuthorizedPerformerUser(),
-                helper.getProcessInstanceBatchPresentation());
+        WfProcess instance = null;
+        List<WfProcess> stubs = h.getExecutionService().getProcesses(h.getAuthorizedUser(), h.getProcessInstanceBatchPresentation());
         for (WfProcess processInstance : stubs) {
-            if (definitionName.equals(processInstance.getName())) {
-                return processInstance;
+            if (WfServiceTestHelper.VALID_PROCESS_NAME.equals(processInstance.getName())) {
+                instance = processInstance;
+                break;
             }
         }
-        throw new ProcessDoesNotExistException(definitionName);
+        if (instance == null) {
+            throw new ProcessDoesNotExistException(WfServiceTestHelper.VALID_PROCESS_NAME);
+        }
+
+        var actual = h.getAuthorizationService().getIssuedPermissions(h.getAuthorizedUser(),
+                h.getBaseGroupActor(), instance);
+        ArrayAssert.assertWeakEqualArrays("startProcessInstance() does not grant permissions on instance",
+                Lists.newArrayList(Permission.READ), actual);
+
+        actual = h.getAuthorizationService().getIssuedPermissions(h.getAuthorizedUser(), h.getSubGroupActor(), instance);
+        ArrayAssert.assertWeakEqualArrays("startProcessInstance() does not grant permissions on instance",
+                Lists.newArrayList(Permission.READ, Permission.CANCEL), actual);
     }
 }

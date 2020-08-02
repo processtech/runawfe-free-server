@@ -17,16 +17,13 @@
  */
 package ru.runa.wf.jpdl;
 
-import java.util.Collection;
+import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -35,20 +32,14 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 14.05.2005
  * 
  * @author Gritsenko_S
  */
 public class DecisionTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
-
-    private WfServiceTestHelper th = null;
-
-    private Map<String, Object> startVariables;
-
     private BatchPresentation batchPresentation;
 
     public static Test suite() {
@@ -56,262 +47,257 @@ public class DecisionTest extends ServletTestCase {
     }
 
     @Override
-    protected void setUp() throws Exception {
-        th = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
+        batchPresentation = h.getTaskBatchPresentation();
 
-        th.deployValidProcessDefinition(WfServiceTestHelper.DECISION_JPDL_PROCESS_FILE_NAME);
-
-        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME);
-
-        batchPresentation = th.getTaskBatchPresentation();
-
-        super.setUp();
+        h.deployValidProcessDefinition(WfServiceTestHelper.DECISION_JPDL_PROCESS_FILE_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(
+                Lists.newArrayList(Permission.START_PROCESS, Permission.READ, Permission.READ_PROCESS),
+                WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        th.undeployValidProcessDefinition(WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME);
-        th.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition(WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME);
+        h.releaseResources();
         executionService = null;
-        super.tearDown();
     }
 
-    public void testPath1() throws Exception {
-        startVariables = new HashMap<String, Object>();
-        startVariables.put("def_variable", "false");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
+    public void testPath1() {
+        val startVars = new HashMap<String, Object>();
+        startVars.put("def_variable", "false");
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVars);
 
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_2", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(h.getHrOperatorUser(), tasks.get(0).getId(), null);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
-        assertEquals("tasks length differs from expected", 0, tasks.size());
-    }
-
-    public void testPath2() throws Exception {
-        startVariables = new HashMap<String, Object>();
-        startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
-
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
-        assertEquals("tasks length differs from expected", 0, tasks.size());
-
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
-        assertEquals("tasks length differs from expected", 0, tasks.size());
-
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
-        assertEquals("tasks length differs from expected", 1, tasks.size());
-        assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
-
-        Map<String, Object> state1Variables = new HashMap<String, Object>();
-        state1Variables.put("monitoring_variable", "end");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
-
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
-        assertEquals("tasks length differs from expected", 0, tasks.size());
-
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
-        assertEquals("tasks length differs from expected", 0, tasks.size());
-
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
     }
 
-    public void testPath3() throws Exception {
-        startVariables = new HashMap<String, Object>();
-        startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
+    public void testPath2() {
+        val startVars = new HashMap<String, Object>();
+        startVars.put("def_variable", "true");
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVars);
 
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
 
-        Map<String, Object> state1Variables = new HashMap<String, Object>();
-        state1Variables.put("monitoring_variable", "2");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+        val state1Vars = new HashMap<String, Object>();
+        state1Vars.put("monitoring_variable", "end");
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), state1Vars);
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
+        assertEquals("tasks length differs from expected", 0, tasks.size());
+    }
+
+    public void testPath3() {
+        val startVars = new HashMap<String, Object>();
+        startVars.put("def_variable", "true");
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVars);
+
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
+        assertEquals("tasks length differs from expected", 0, tasks.size());
+
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
+        assertEquals("tasks length differs from expected", 0, tasks.size());
+
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
+        assertEquals("tasks length differs from expected", 1, tasks.size());
+        assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
+
+        val state1Vars = new HashMap<String, Object>();
+        state1Vars.put("monitoring_variable", "2");
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), state1Vars);
+
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
+        assertEquals("tasks length differs from expected", 0, tasks.size());
+
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
+        assertEquals("tasks length differs from expected", 0, tasks.size());
+
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_2", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getHrOperatorUser(), tasks.get(0).getId(), state1Variables, null);
+        h.getTaskService().completeTask(h.getHrOperatorUser(), tasks.get(0).getId(), state1Vars);
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
     }
 
-    public void testPath4() throws Exception {
-        startVariables = new HashMap<String, Object>();
-        startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
+    public void testPath4() {
+        val startVars = new HashMap<String, Object>();
+        startVars.put("def_variable", "true");
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVars);
 
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
 
-        Map<String, Object> state1Variables = new HashMap<String, Object>();
-        state1Variables.put("monitoring_variable", "3");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+        val state1Vars = new HashMap<String, Object>();
+        state1Vars.put("monitoring_variable", "3");
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), state1Vars);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_3", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getErpOperatorUser(), tasks.get(0).getId(), state1Variables, null);
+        h.getTaskService().completeTask(h.getErpOperatorUser(), tasks.get(0).getId(), state1Vars);
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
     }
 
-    public void testPath5() throws Exception {
-        startVariables = new HashMap<String, Object>();
-        startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
+    public void testPath5() {
+        val startVars = new HashMap<String, Object>();
+        startVars.put("def_variable", "true");
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVars);
 
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
 
-        Map<String, Object> state1Variables = new HashMap<String, Object>();
-        state1Variables.put("monitoring_variable", "1");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+        val state1Vars = new HashMap<String, Object>();
+        state1Vars.put("monitoring_variable", "1");
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), state1Vars);
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
 
-        state1Variables.clear();
-        state1Variables.put("monitoring_variable", "1");
+        state1Vars.clear();
+        state1Vars.put("monitoring_variable", "1");
         for (int i = 0; i < 7; i++) {
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
-            tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+            h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), state1Vars);
+            tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
             assertEquals("tasks length differs from expected", 0, tasks.size());
-            tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+            tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
             assertEquals("tasks length differs from expected", 0, tasks.size());
-            tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+            tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
             assertEquals("tasks length differs from expected", 1, tasks.size());
             assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
         }
 
-        state1Variables.clear();
-        state1Variables.put("monitoring_variable", "4");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
+        state1Vars.clear();
+        state1Vars.put("monitoring_variable", "4");
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), state1Vars);
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
     }
 
-    public void testPath6() throws Exception {
+    public void testPath6() {
         try {
-            startVariables = new HashMap<String, Object>();
-            startVariables.put("def_variable", "Error_Var");
-            executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
+            val startVars = new HashMap<String, Object>();
+            startVars.put("def_variable", "Error_Var");
+            executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVars);
 
-            List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+            List<WfTask> tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
             assertEquals("tasks length differs from expected", 0, tasks.size());
 
-            tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+            tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
             assertEquals("tasks length differs from expected", 1, tasks.size());
 
-            tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+            tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
             assertEquals("tasks length differs from expected", 0, tasks.size());
         } catch (InternalApplicationException e) {
-            // may be throwed in future
+            // may be thrown in the future
         }
     }
 
-    public void testPath7() throws Exception {
-        startVariables = new HashMap<String, Object>();
-        startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
+    public void testPath7() {
+        val startVars = new HashMap<String, Object>();
+        startVars.put("def_variable", "true");
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVars);
 
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
 
-        Map<String, Object> state1Variables = new HashMap<String, Object>();
-        state1Variables.put("monitoring_variable", "Error_Var2");
-
+        val state1Vars = new HashMap<String, Object>();
+        state1Vars.put("monitoring_variable", "Error_Var2");
         try {
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), state1Variables, null);
-            assertFalse(" Integer in decision parsed value 'Error_Var2' ", true);
+            h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), state1Vars);
+            fail(" Integer in decision parsed value 'Error_Var2' ");
         } catch (Exception e) {
             // expected
         }

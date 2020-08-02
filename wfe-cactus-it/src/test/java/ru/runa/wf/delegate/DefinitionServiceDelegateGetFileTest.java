@@ -17,10 +17,8 @@
  */
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
-
+import com.google.common.collect.Lists;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
@@ -29,82 +27,71 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.collect.Lists;
-
 /**
  * Powered by Dofs
  */
 public class DefinitionServiceDelegateGetFileTest extends ServletTestCase {
+    private static final String VALID_FILE_NAME = "description.txt";
+    private static final String INVALID_FILE_NAME = "processdefinitioninvalid.xml";
 
+    private WfServiceTestHelper h = null;
     private DefinitionService definitionService = null;
-
-    private WfServiceTestHelper helper = null;
 
     private long definitionId;
 
-    private final String VALID_FILE_NAME = "description.txt";
-
-    private final String INVALID_FILE_NAME = "processdefinitioninvalid.xml";
-
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
 
-        helper.deployValidProcessDefinition();
-
-        Collection<Permission> permissions = Lists.newArrayList(Permission.READ);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
-
-        definitionId = definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME)
-                .getId();
-
-        super.setUp();
+        h.deployValidProcessDefinition();
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.READ), WfServiceTestHelper.VALID_PROCESS_NAME);
+        definitionId = definitionService.getLatestProcessDefinition(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME).getId();
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition();
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         definitionService = null;
-        super.tearDown();
     }
 
-    public void testGetFileTestByAuthorizedSubject() throws Exception {
-        byte[] fileBytes = definitionService.getProcessDefinitionFile(helper.getAuthorizedPerformerUser(), definitionId, VALID_FILE_NAME);
+    public void testGetFileTestByAuthorizedUser() {
+        byte[] fileBytes = definitionService.getProcessDefinitionFile(h.getAuthorizedUser(), definitionId, VALID_FILE_NAME);
         assertNotNull("file bytes is null", fileBytes);
     }
 
     /*
-     * We allowing that now public void testGetFileTestByUnauthorizedSubject() throws Exception { try {
-     * definitionDelegate.getFile(helper.getUnauthorizedPerformerUser(), definitionId, VALID_FILE_NAME);
-     * assertTrue("testGetFileTestByUnauthorizedSubject , no AuthorizationException" , false); } catch (AuthorizationException e) { } }
+     * We allowing that now public void testGetFileTestByUnauthorizedUser() { try {
+     * definitionDelegate.getFile(h.getUnauthorizedUser(), definitionId, VALID_FILE_NAME);
+     * fail(); } catch (AuthorizationException e) { } }
      */
 
-    public void testGetFileTestByFakeSubject() throws Exception {
+    public void testGetFileTestByFakeUser() {
         try {
-            definitionService.getProcessDefinitionFile(helper.getFakeUser(), definitionId, VALID_FILE_NAME);
-            assertTrue("testGetFileTestByFakeSubject , no AuthenticationException", false);
+            definitionService.getProcessDefinitionFile(h.getFakeUser(), definitionId, VALID_FILE_NAME);
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testGetFileTestByAuthorizedSubjectWithInvalidDefinitionId() throws Exception {
+    public void testGetFileTestByAuthorizedUserWithInvalidDefinitionId() {
         try {
-            definitionService.getProcessDefinitionFile(helper.getAuthorizedPerformerUser(), -1L, VALID_FILE_NAME);
-            fail("testGetFileTestByAuthorizedSubjectWithInvalidDefinitionId, no DefinitionDoesNotExistException");
+            definitionService.getProcessDefinitionFile(h.getAuthorizedUser(), -1L, VALID_FILE_NAME);
+            fail();
         } catch (DefinitionDoesNotExistException e) {
-            // expected
+            // Expected.
         }
     }
 
-    public void testGetFileTestByAuthorizedSubjectWithInvalidFileName() throws Exception {
+    public void testGetFileTestByAuthorizedUserWithInvalidFileName() {
         try {
-            definitionService.getProcessDefinitionFile(helper.getAuthorizedPerformerUser(), definitionId, INVALID_FILE_NAME);
+            definitionService.getProcessDefinitionFile(h.getAuthorizedUser(), definitionId, INVALID_FILE_NAME);
             // TODO
-            // fail("testGetFileTestByAuthorizedSubjectWithInvalidFileName, no ProcessDefinitionFileNotFoundException");
+            // fail();
         } catch (DefinitionFileDoesNotExistException e) {
-            // expected
+            // Expected.
             fail("TODO trap");
         }
     }

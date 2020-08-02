@@ -20,6 +20,9 @@
 			<td align="left">
 				<wf:createRelationPairLink relationId="<%= relationId %>"/>
 			</td>
+			<td align="right">
+				<wf:managePermissionsLink securedObjectType="RELATION" identifiableId="<%= relationId %>" />
+			</td>
 		</tr>
 	</table>
 </wf:listRelationPairsForm>

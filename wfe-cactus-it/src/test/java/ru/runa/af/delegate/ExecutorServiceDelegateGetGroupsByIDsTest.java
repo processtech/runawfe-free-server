@@ -23,8 +23,6 @@ import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.service.ExecutorService;
-import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.*;
 
 import java.util.List;
@@ -33,76 +31,69 @@ import java.util.List;
  * Created on 16.02.2005
  */
 public class ExecutorServiceDelegateGetGroupsByIDsTest extends ServletTestCase {
-    private ServiceTestHelper th;
-
-    private ExecutorService executorService;
-
-    private static String testPrefix = ExecutorServiceDelegateAddManyExecutorsToGroupsTest.class.getName();
-
+    private ServiceTestHelper h;
     private List<Group> additionalGroups;
     private List<Long> additionalGroupsIDs;
 
     private final List<Permission> readPermissions = Lists.newArrayList(Permission.READ);
 
-    protected void setUp() throws Exception {
-        executorService = Delegates.getExecutorService();
-        th = new ServiceTestHelper(testPrefix);
-        additionalGroups = th.createGroupArray("additionalG", "Additional Group");
-        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additionalGroups);
+    @Override
+    protected void setUp() {
+        h = new ServiceTestHelper(getClass().getName());
+        additionalGroups = h.createGroupArray("additionalG", "Additional Group");
+        h.setPermissionsToAuthorizedActor(readPermissions, additionalGroups);
 
         additionalGroupsIDs = Lists.newArrayList();
         for (Group group : additionalGroups) {
             additionalGroupsIDs.add(group.getId());
         }
-        super.setUp();
     }
 
-    public void testGetGroupsByAuthorizedPerformer() throws Exception {
-        List<Group> returnedGroups = th.getExecutors(th.getAuthorizedPerformerUser(), additionalGroupsIDs);
+    @Override
+    protected void tearDown() {
+        h.releaseResources();
+        additionalGroupsIDs = null;
+        additionalGroups = null;
+    }
+
+    public void testGetGroupsByAuthorizedUser() {
+        List<Group> returnedGroups = h.getExecutors(h.getAuthorizedUser(), additionalGroupsIDs);
         ArrayAssert.assertWeakEqualArrays("Groups retuned by businessDelegate differes with expected", returnedGroups, additionalGroups);
     }
 
-    public void testGetGroupsByUnauthorizedPerformer() throws Exception {
+    public void testGetGroupsByUnauthorizedUser() {
         try {
-            th.getExecutors(th.getUnauthorizedPerformerUser(), additionalGroupsIDs);
-            assertTrue("businessDelegate allow to getGroups() with UnauthorizedPerformerSubject", false);
+            h.getExecutors(h.getUnauthorizedUser(), additionalGroupsIDs);
+            fail();
         } catch (AuthorizationException e) {
-            // That's what we expect
+            // Expected.
         }
     }
 
-    public void testGetUnexistedGroupByAuthorizedPerformer() throws Exception {
+    public void testGetUnexistedGroupByAuthorizedUser() {
         additionalGroupsIDs = Lists.newArrayList(-1L, -2L, -3L);
         try {
-            th.getExecutors(th.getAuthorizedPerformerUser(), additionalGroupsIDs);
-            assertTrue("businessDelegate does not throw Exception to getGroups() for unexisting groups", false);
+            h.getExecutors(h.getAuthorizedUser(), additionalGroupsIDs);
+            fail("businessDelegate does not throw Exception to getGroups() for unexisting groups");
         } catch (ExecutorDoesNotExistException e) {
-            // That's what we expect
+            // Expected.
         }
     }
 
-    public void testGetActorsInsteadOfGroups() throws Exception {
-        List<Executor> additional = th.createMixedActorsGroupsArray("mixed", "Additional mixed");
-        th.setPermissionsToAuthorizedPerformerOnExecutorsList(readPermissions, additional);
+    public void testGetActorsInsteadOfGroups() {
+        List<Executor> additional = h.createMixedActorsGroupsArray("mixed", "Additional mixed");
+        h.setPermissionsToAuthorizedActor(readPermissions, additional);
 
         additionalGroupsIDs = Lists.newArrayList();
         for (Executor executor : additional) {
             additionalGroupsIDs.add(executor.getId());
         }
         try {
-            List<Actor> actors = th.<Actor>getExecutors(th.getAuthorizedPerformerUser(), additionalGroupsIDs);
+            List<Actor> actors = h.<Actor>getExecutors(h.getAuthorizedUser(), additionalGroupsIDs);
             // TODO assertTrue("businessDelegate allow to getGroup() where the actor really is returned.", false);
         } catch (ExecutorDoesNotExistException e) {
-            // That's what we expect
+            // Expected.
             fail("TODO trap");
         }
-    }
-
-    protected void tearDown() throws Exception {
-        th.releaseResources();
-        executorService = null;
-        additionalGroupsIDs = null;
-        additionalGroups = null;
-        super.tearDown();
     }
 }

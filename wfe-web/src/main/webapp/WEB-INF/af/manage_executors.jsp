@@ -40,8 +40,6 @@ $(document).ready(function() {
 	<wf:createActorLink />
 	&nbsp;&nbsp;&nbsp;
 	<wf:createGroupLink />
-	&nbsp;&nbsp;&nbsp;
-	<wf:managePermissionsLink securedObjectType="EXECUTORS" />
 <%
 if (ru.runa.wfe.security.logic.LdapProperties.isSynchronizationEnabled()) {
 %>

@@ -102,12 +102,12 @@ public class WfCommonLogic extends CommonLogic {
         return processDefinitionLoader.getLatestDefinition(definitionName);
     }
 
-    protected void validateVariables(User user, ExecutionContext executionContext, VariableProvider variableProvider,
+    protected void validateVariables(ExecutionContext executionContext, VariableProvider variableProvider,
             ProcessDefinition processDefinition, String nodeId, Map<String, Object> variables) throws ValidationException {
         Interaction interaction = processDefinition.getInteractionNotNull(nodeId);
         if (interaction.getValidationData() != null) {
-            ValidatorContext context = ValidatorManager.getInstance().validate(user, executionContext, variableProvider,
-                    interaction.getValidationData(), variables);
+            ValidatorContext context = ValidatorManager.getInstance().validate(executionContext, variableProvider, interaction.getValidationData(),
+                    variables);
             if (context.hasGlobalErrors() || context.hasFieldErrors()) {
                 throw new ValidationException(context.getFieldErrors(), context.getGlobalErrors());
             }

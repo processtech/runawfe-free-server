@@ -55,7 +55,7 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
         ConcreteElement link = new StringElement(processId.toString());
         boolean isAllowed = false;
         try {
-            isAllowed = env.isAllowed(Permission.LIST, new SecuredObjectExtractor() {
+            isAllowed = env.isAllowed(Permission.READ, new SecuredObjectExtractor() {
                 private static final long serialVersionUID = 1L;
 
                 @Override

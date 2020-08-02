@@ -122,6 +122,7 @@ public class BpmnXmlReader {
     private static final String EVENT_TYPE = "eventType";
     private static final String COLOR = "color";
     private static final String GLOBAL = "global";
+    private static final String VALIDATE_AT_START = "validateAtStart";
 
     @Autowired
     private LocalizationDao localizationDao;
@@ -314,6 +315,9 @@ public class BpmnXmlReader {
             }
             if (properties.containsKey(ASYNC_COMPLETION_MODE)) {
                 subprocessNode.setCompletionMode(AsyncCompletionMode.valueOf(properties.get(ASYNC_COMPLETION_MODE)));
+            }
+            if (properties.containsKey(VALIDATE_AT_START)) {
+                subprocessNode.setValidateAtStart(Boolean.parseBoolean(properties.get(VALIDATE_AT_START)));
             }
             if (node instanceof MultiSubprocessNode && properties.containsKey(DISCRIMINATOR_CONDITION)) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(properties.get(DISCRIMINATOR_CONDITION));

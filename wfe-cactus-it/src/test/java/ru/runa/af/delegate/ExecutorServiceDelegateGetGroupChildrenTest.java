@@ -18,12 +18,11 @@
 
 package ru.runa.af.delegate;
 
-import java.util.Collection;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
-
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wfe.security.AuthenticationException;
@@ -34,92 +33,82 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 public class ExecutorServiceDelegateGetGroupChildrenTest extends ServletTestCase {
-    private ServiceTestHelper th;
-
+    private ServiceTestHelper h;
     private ExecutorService executorService;
 
-    private static String testPrefix = ExecutorServiceDelegateGetGroupChildrenTest.class.getName();
-
     private Group group;
-
     private Group subGroup;
-
     private Actor actor;
 
     private Map<String, Executor> executorsMap;
 
     @Override
-    protected void setUp() throws Exception {
+    protected void setUp() {
+        h = new ServiceTestHelper(getClass().getName());
         executorService = Delegates.getExecutorService();
-        th = new ServiceTestHelper(testPrefix);
-        th.createDefaultExecutorsMap();
-        Collection<Permission> readPermissions = Lists.newArrayList(Permission.READ);
-        executorsMap = th.getDefaultExecutorsMap();
+        
+        h.createDefaultExecutorsMap();
+        executorsMap = h.getDefaultExecutorsMap();
 
         actor = (Actor) executorsMap.get(ServiceTestHelper.BASE_GROUP_ACTOR_NAME);
-        th.setPermissionsToAuthorizedPerformer(readPermissions, actor);
         group = (Group) executorsMap.get(ServiceTestHelper.BASE_GROUP_NAME);
-        th.setPermissionsToAuthorizedPerformer(readPermissions, group);
         subGroup = (Group) executorsMap.get(ServiceTestHelper.SUB_GROUP_NAME);
-        th.setPermissionsToAuthorizedPerformer(readPermissions, subGroup);
 
-        actor = executorService.getExecutor(th.getAdminUser(), actor.getId());
-        group = executorService.getExecutor(th.getAdminUser(), group.getId());
-        subGroup = executorService.getExecutor(th.getAdminUser(), subGroup.getId());
+        val pp = Lists.newArrayList(Permission.READ);
+        h.setPermissionsToAuthorizedActor(pp, actor);
+        h.setPermissionsToAuthorizedActor(pp, group);
+        h.setPermissionsToAuthorizedActor(pp, subGroup);
 
-        super.setUp();
+        actor = executorService.getExecutor(h.getAdminUser(), actor.getId());
+        group = executorService.getExecutor(h.getAdminUser(), group.getId());
+        subGroup = executorService.getExecutor(h.getAdminUser(), subGroup.getId());
     }
 
-    final public void testGetGroupChildrenByAuthorizedPerformer() throws Exception {
-        List<Executor> calculatedGroupChildren = executorService.getGroupChildren(th.getAuthorizedPerformerUser(), group,
-                th.getExecutorBatchPresentation(), false);
-        List<Executor> realGroupChildren = Lists.newArrayList(th.getBaseGroupActor(), th.getSubGroup());
+    @Override
+    protected void tearDown() {
+        h.releaseResources();
+        h = null;
+        executorsMap = null;
+        executorService = null;
+        actor = null;
+        group = null;
+        subGroup = null;
+    }
+
+    final public void testGetGroupChildrenByAuthorizedUser() {
+        List<Executor> calculatedGroupChildren = executorService.getGroupChildren(h.getAuthorizedUser(), group,
+                h.getExecutorBatchPresentation(), false);
+        List<Executor> realGroupChildren = Lists.newArrayList(h.getBaseGroupActor(), h.getSubGroup());
         ArrayAssert.assertWeakEqualArrays("businessDelegate.getExecutorGroups() returns wrong group set", realGroupChildren, calculatedGroupChildren);
     }
 
-    public void testGetExecutorGroupsByUnauthorizedPerformer() throws Exception {
+    public void testGetExecutorGroupsByUnauthorizedUser() {
         try {
-            executorService.getGroupChildren(th.getUnauthorizedPerformerUser(), group, th.getExecutorBatchPresentation(), false);
-            fail("businessDelegate.getGroupChildrenByUnauthorizedPerformer() no AuthorizationFailedException");
+            executorService.getGroupChildren(h.getUnauthorizedUser(), group, h.getExecutorBatchPresentation(), false);
+            fail();
         } catch (AuthorizationException e) {
             // That's what we expect
         }
     }
 
-    public void testGetExecutorGroupsWithoutPermission() throws Exception {
+    public void testGetExecutorGroupsWithoutPermission() {
         try {
-            th.setPermissionsToAuthorizedPerformer(Lists.newArrayList(), group);
-            executorService.getGroupChildren(th.getAuthorizedPerformerUser(), group, th.getExecutorBatchPresentation(), false);
+            h.setPermissionsToAuthorizedActor(Lists.newArrayList(), group);
+            executorService.getGroupChildren(h.getAuthorizedUser(), group, h.getExecutorBatchPresentation(), false);
             fail("testGetGroupChildrenwithoutPermission no Exception");
         } catch (AuthorizationException e) {
             // That's what we expect
         }
     }
 
-    public void testGetExecutorGroupsWithFakeSubject() throws Exception {
+    public void testGetExecutorGroupsWithFakeUser() {
         try {
-            User fakeUser = th.getFakeUser();
-            executorService.getGroupChildren(fakeUser, group, th.getExecutorBatchPresentation(), false);
-            fail("testGetExecutorGroupsWithFakeSubject no Exception");
+            executorService.getGroupChildren(h.getFakeUser(), group, h.getExecutorBatchPresentation(), false);
+            fail();
         } catch (AuthenticationException e) {
             // That's what we expect
         }
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        th.releaseResources();
-        th = null;
-        executorsMap = null;
-        executorService = null;
-        actor = null;
-        group = null;
-        subGroup = null;
-        super.tearDown();
     }
 }

@@ -123,11 +123,11 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public int getProcessesCount(User user, BatchPresentation batchPresentation) {
-        return getPersistentObjectCount(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES);
+        return getPersistentObjectCount(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES);
     }
 
     public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation) {
-        List<Process> data = getPersistentObjects(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES, true);
+        List<Process> data = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, true);
         return toWfProcesses(data, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
@@ -153,7 +153,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public WfProcess getProcess(User user, Long id) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(id);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         return new WfProcess(process, getProcessErrors(process));
     }
 
@@ -174,13 +174,13 @@ public class ExecutionLogic extends WfCommonLogic {
         } else {
             subprocesses = nodeProcessDao.getSubprocesses(process);
         }
-        subprocesses = filterSecuredObject(user, subprocesses, Permission.LIST);
+        subprocesses = filterSecuredObject(user, subprocesses, Permission.READ);
         return toWfProcesses(subprocesses, null);
     }
 
     public List<WfJob> getJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         List<Job> jobs = jobDao.findByProcess(process);
         if (recursive) {
             List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
@@ -197,7 +197,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public List<WfToken> getTokens(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         List<WfToken> result = Lists.newArrayList();
         result.addAll(getTokens(process));
         if (recursive) {
@@ -219,7 +219,7 @@ public class ExecutionLogic extends WfCommonLogic {
         }
         ProcessDefinition processDefinition = getDefinition(definitionId);
         if (SystemProperties.isCheckProcessStartPermissions()) {
-            permissionDao.checkAllowed(user, Permission.START, processDefinition.getDeployment());
+            permissionDao.checkAllowed(user, Permission.START_PROCESS, processDefinition.getDeployment());
         }
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
         Map<String, Object> extraVariablesMap = Maps.newHashMap();
@@ -231,7 +231,7 @@ public class ExecutionLogic extends WfCommonLogic {
         if (!variables.containsKey(startTaskSwimlaneName)) {
             variables.put(startTaskSwimlaneName, user.getActor());
         }
-        validateVariables(user, null, variableProvider, processDefinition, startNode.getNodeId(), variables);
+        validateVariables(null, variableProvider, processDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
         Process process = processFactory.startProcess(processDefinition, variables, user.getActor(), transitionName, transientVariables);
@@ -249,7 +249,7 @@ public class ExecutionLogic extends WfCommonLogic {
     public byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId) {
         try {
             Process process = processDao.getNotNull(processId);
-            permissionDao.checkAllowed(user, Permission.LIST, process);
+            permissionDao.checkAllowed(user, Permission.READ, process);
             ProcessDefinition processDefinition = getDefinition(process);
             Token highlightedToken = null;
             if (taskId != null) {
@@ -319,7 +319,7 @@ public class ExecutionLogic extends WfCommonLogic {
     public byte[] getProcessHistoryDiagram(User user, Long processId, Long taskId, String subprocessId) throws ProcessDoesNotExistException {
         try {
             Process process = processDao.getNotNull(processId);
-            permissionDao.checkAllowed(user, Permission.LIST, process);
+            permissionDao.checkAllowed(user, Permission.READ, process);
             ProcessDefinition processDefinition = getDefinition(process);
             List<ProcessLog> logs = processLogDao.getAll(processId);
             List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
@@ -333,7 +333,7 @@ public class ExecutionLogic extends WfCommonLogic {
             throws ProcessDoesNotExistException {
         try {
             Process process = processDao.getNotNull(processId);
-            permissionDao.checkAllowed(user, Permission.LIST, process);
+            permissionDao.checkAllowed(user, Permission.READ, process);
             ProcessDefinition processDefinition = getDefinition(process);
             List<ProcessLog> logs = processLogDao.getAll(processId);
             List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
@@ -387,14 +387,14 @@ public class ExecutionLogic extends WfCommonLogic {
     public List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         Process process = processDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.READ, process);
         List<SwimlaneDefinition> swimlanes = processDefinition.getSwimlanes();
         List<WfSwimlane> result = Lists.newArrayListWithExpectedSize(swimlanes.size());
         for (SwimlaneDefinition swimlaneDefinition : swimlanes) {
             Swimlane swimlane = swimlaneDao.findByProcessAndName(process, swimlaneDefinition.getName());
             Executor assignedExecutor = null;
             if (swimlane != null && swimlane.getExecutor() != null) {
-                if (permissionDao.isAllowed(user, Permission.LIST, swimlane.getExecutor())) {
+                if (permissionDao.isAllowed(user, Permission.READ, swimlane.getExecutor())) {
                     assignedExecutor = swimlane.getExecutor();
                 } else {
                     assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
@@ -412,7 +412,7 @@ public class ExecutionLogic extends WfCommonLogic {
             ProcessDefinition processDefinition = getDefinition(swimlane.getProcess());
             SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlane.getName());
             Executor assignedExecutor = swimlane.getExecutor();
-            if (assignedExecutor == null || !permissionDao.isAllowed(user, Permission.LIST, assignedExecutor)) {
+            if (assignedExecutor == null || !permissionDao.isAllowed(user, Permission.READ, assignedExecutor)) {
                 assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
             }
             listSwimlanes.add(new WfSwimlane(swimlaneDefinition, swimlane, assignedExecutor));
@@ -473,7 +473,7 @@ public class ExecutionLogic extends WfCommonLogic {
         BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
         int index = batchPresentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_EXECUTION_STATUS);
         batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
-        List<Process> processes = getPersistentObjects(user, batchPresentation, Permission.LIST, PROCESS_EXECUTION_CLASSES, false);
+        List<Process> processes = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, false);
         return toWfProcesses(processes, null);
     }
 
@@ -604,7 +604,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
     private List<Process> getProcessesInternal(User user, ProcessFilter filter) {
         List<Process> processes = processDao.getProcesses(filter);
-        processes = filterSecuredObject(user, processes, Permission.LIST);
+        processes = filterSecuredObject(user, processes, Permission.READ);
         return processes;
     }
 

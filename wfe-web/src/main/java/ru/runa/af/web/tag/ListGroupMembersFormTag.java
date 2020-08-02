@@ -76,7 +76,7 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return Permission.LIST;
+        return Permission.READ;
     }
 
     @Override

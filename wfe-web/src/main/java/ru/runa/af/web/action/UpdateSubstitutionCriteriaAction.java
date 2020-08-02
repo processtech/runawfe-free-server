@@ -42,7 +42,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 public class UpdateSubstitutionCriteriaAction extends ActionBase {
     public static final String UPDATE_ACTION = "/updateSubstitutionCriteria";
     public static final String EDIT_ACTION = "/editSubstitutionCriteria";
-    public static final String RETURN_ACTION = "/manage_substitution_criteria.do";
+    public static final String RETURN_ACTION = "/manage_system.do";
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
