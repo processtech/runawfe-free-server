@@ -236,7 +236,7 @@
 			</list>
 		</property>
 	</bean>
-
+	
 	<bean id="authenticationLogic" class="ru.runa.wfe.security.logic.AuthenticationLogic">
 		<property name="loginHandlers">
 			<list>
