@@ -259,7 +259,7 @@ public class PermissionDao extends CommonDao {
         
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.READ_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE_PERMISSIONS, true));
-//        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.READ, null));
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.UPDATE, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.DELETE, true));

@@ -52,6 +52,17 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listRelationsForm")
 public class ListRelationsFormTag extends BatchReturningTitledFormTag {
+    
+    @Override
+    protected boolean isSubmitButtonEnabled() {
+        return Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.DELETE, SecuredObjectType.RELATION);
+    }
+    
+    @Override
+    protected boolean isSubmitButtonVisible() {
+        return Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.DELETE, SecuredObjectType.RELATION);
+    }   
+    
     private static final long serialVersionUID = 1L;
 
     @Override
