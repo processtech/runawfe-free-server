@@ -59,6 +59,7 @@ import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processInfoForm")
@@ -244,6 +245,9 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
     private Element addUpgradeLinkIfRequired(WfProcess process, Element versionElement) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
+            return versionElement;
+        }
+        if (! Delegates.getAuthorizationService().isAllowed(this.getUser(), Permission.UPDATE, SecuredObjectType.DEFINITION, process.getDefinitionId())) {
             return versionElement;
         }
         Div div = new Div();

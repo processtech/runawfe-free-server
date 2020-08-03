@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.service.delegate.Delegates;
 
 /**
  * Created on 30.09.2004
@@ -85,7 +86,7 @@ public class WebResources {
      * Used from JSP page
      */
     public static boolean isTaskDelegationEnabled() {
-        return RESOURCES.getBooleanProperty("task.delegation.enabled", true);
+        return Delegates.getTaskService().isTaskDelegationEnabled();
     }
 
     /**

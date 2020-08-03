@@ -28,6 +28,7 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.service.jaxb.Variable;
 import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
+import ru.runa.wfe.task.TaskProperties;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.logic.TaskLogic;
 import ru.runa.wfe.user.Executor;
@@ -149,5 +150,10 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @WebResult(name = "result")
     public List<WfTask> getUnassignedTasks(@WebParam(name = "user") @NonNull User user) {
         return taskLogic.getUnassignedTasks(user);
+    }
+    
+    @Override
+    public boolean isTaskDelegationEnabled() {
+        return TaskProperties.isTaskDelegationEnabled();
     }
 }

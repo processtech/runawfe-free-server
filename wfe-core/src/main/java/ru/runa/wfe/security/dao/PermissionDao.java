@@ -243,7 +243,7 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.READ_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.VIEW_TASKS, true));
-        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.DELEGATE_TASKS, true));
+        requiredRules.add(new DelegateTaskPermissionRule(SecuredObjectType.EXECUTOR, Permission.DELEGATE_TASKS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_EXECUTOR, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.LOGIN, null));
@@ -271,6 +271,7 @@ public class PermissionDao extends CommonDao {
         
         requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_DEFINITION, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.DELETE, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.START_PROCESS, null));
         requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.CANCEL_PROCESS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.READ_PERMISSIONS, true));
@@ -285,7 +286,7 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ, true));
         
-        implicitRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.DELEGATE_TASKS, true));
+        implicitRules.add(new DelegateTaskPermissionRule(SecuredObjectType.EXECUTOR, Permission.DELEGATE_TASKS, true));
         
         implicitRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.READ_PERMISSIONS, true));
         implicitRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE_PERMISSIONS, true));
