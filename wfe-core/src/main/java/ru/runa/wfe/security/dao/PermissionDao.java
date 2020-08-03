@@ -298,6 +298,8 @@ public class PermissionDao extends CommonDao {
         implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ, true));
         implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ_PERMISSIONS, true));
         implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE_PERMISSIONS, true));
+        
+        implicitRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.LOGIN, null));
     }
     
     private boolean checkRequiredRules(Executor executor, Permission permission, SecuredObjectType type, Long idOrNull) {
