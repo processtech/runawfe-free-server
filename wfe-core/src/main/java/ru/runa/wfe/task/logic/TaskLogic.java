@@ -44,6 +44,7 @@ import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.task.TaskCompletionBy;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskDoesNotExistException;
+import ru.runa.wfe.task.TaskProperties;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
@@ -77,6 +78,10 @@ public class TaskLogic extends WfCommonLogic {
     private TaskAssigner taskAssigner;
     @Autowired
     private ExecutorLogic executorLogic;
+    
+    public boolean isTaskDelegationEnabled() {
+        return TaskProperties.isTaskDelegationEnabled();
+    }
 
     public WfTask completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException {
         Task task = taskDao.getNotNull(taskId);

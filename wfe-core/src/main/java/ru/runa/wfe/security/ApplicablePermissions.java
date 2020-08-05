@@ -225,7 +225,7 @@ public final class ApplicablePermissions {
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.RELATION, READ, UPDATE_PERMISSIONS, UPDATE)
+        add(SecuredObjectType.RELATION, READ, UPDATE_PERMISSIONS, UPDATE, DELETE)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 

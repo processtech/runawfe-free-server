@@ -154,6 +154,6 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     
     @Override
     public boolean isTaskDelegationEnabled() {
-        return TaskProperties.isTaskDelegationEnabled();
+        return taskLogic.isTaskDelegationEnabled();
     }
 }

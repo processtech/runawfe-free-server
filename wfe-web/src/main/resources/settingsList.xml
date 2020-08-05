@@ -69,6 +69,13 @@
 		<value>DISABLED</value>
 	</properties_file>
 	
+	<properties_file title="task.properties">
+		<property title="task.delegation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+	</properties_file>
+	
 	<properties_file title="web.properties">
 		<property title="group.subprocess.enabled">
 			<value>true</value>
@@ -175,11 +182,7 @@
 		<property title="process.removal.enabled">
 			<value>true</value>
 			<value>false</value>
-		</property>
-		<property title="task.delegation.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
+		</property>		
 		<property title="process.swimlane.assignment.enabled">
 			<value>true</value>
 			<value>false</value>
