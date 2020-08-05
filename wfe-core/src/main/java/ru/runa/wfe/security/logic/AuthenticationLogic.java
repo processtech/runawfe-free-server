@@ -44,6 +44,7 @@ import ru.runa.wfe.user.User;
  * Created on 14.03.2005
  */
 public class AuthenticationLogic extends CommonLogic {
+    
     private List<LoginHandler> loginHandlers;
 
     @Required
@@ -61,6 +62,14 @@ public class AuthenticationLogic extends CommonLogic {
 
     public User authenticate(String name, String password) throws AuthenticationException {
         if (!SecurityCheckProperties.isPermissionCheckRequired(SecuredObjectType.SYSTEM)) {
+            Actor curActor = this.executorDao.getActor(name);
+            if (curActor != null) {
+                if (this.executorDao.hasPassword(curActor)) {
+                    return authenticate(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
+                } else {
+                    return authenticateByName(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
+                }
+            }
             return authenticateByName(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
         }
         return authenticate(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);

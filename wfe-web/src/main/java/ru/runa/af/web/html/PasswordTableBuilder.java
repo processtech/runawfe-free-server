@@ -38,9 +38,9 @@ public class PasswordTableBuilder {
     public Table build() {
         Table table = new Table();
         table.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE);
-        Input passwordInput = HTMLUtils.createInput(Input.PASSWORD, UpdatePasswordForm.PASSWORD_INPUT_NAME, "", enabled, true);
+        Input passwordInput = HTMLUtils.createInput(Input.PASSWORD, UpdatePasswordForm.PASSWORD_INPUT_NAME, "", enabled, false);
         table.addElement(HTMLUtils.createRow(MessagesCommon.PASSWORD.message(pageContext), passwordInput));
-        Input passwordConfirmInput = HTMLUtils.createInput(Input.PASSWORD, UpdatePasswordForm.PASSWORD_CONFIRM_INPUT_NAME, "", enabled, true);
+        Input passwordConfirmInput = HTMLUtils.createInput(Input.PASSWORD, UpdatePasswordForm.PASSWORD_CONFIRM_INPUT_NAME, "", enabled, false);
         table.addElement(HTMLUtils.createRow(MessagesCommon.PASSWORD_CONFIRM.message(pageContext), passwordConfirmInput));
         return table;
     }

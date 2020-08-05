@@ -309,14 +309,20 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
      *            New actor password.
      */
     public void setPassword(Actor actor, String password) {
-        Preconditions.checkNotNull(password, "Password must be specified.");
+//        Preconditions.checkNotNull(password, "Password must be specified.");
         ActorPassword actorPassword = getActorPassword(actor);
         if (actorPassword == null) {
-            actorPassword = new ActorPassword(actor, password);
-            sessionFactory.getCurrentSession().save(actorPassword);
+            if (password.length() > 0) {
+                actorPassword = new ActorPassword(actor, password);
+                sessionFactory.getCurrentSession().save(actorPassword);
+            }
         } else {
-            actorPassword.setPassword(password);
-            sessionFactory.getCurrentSession().merge(actorPassword);
+            if (password.length() > 0) {
+                actorPassword.setPassword(password);
+                sessionFactory.getCurrentSession().merge(actorPassword);
+            } else {
+                sessionFactory.getCurrentSession().delete(actorPassword);
+            }
         }
     }
 
@@ -620,6 +626,17 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         // #266#note-18
         executor = (Executor) sessionFactory.getCurrentSession().get(Executor.class, executor.getId());
         sessionFactory.getCurrentSession().delete(executor);
+    }
+    
+    public boolean hasPassword(Actor actor) {
+        ActorPassword actorPassword = this.getActorPassword(actor);
+        if (actorPassword == null) {
+            return false;
+        }
+        if (actorPassword.getPassword() == null) {
+            return false;
+        }
+        return (actorPassword.getPassword().length > 0);
     }
 
     /**

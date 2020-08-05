@@ -50,7 +50,7 @@ public class UpdatePasswordForm extends IdForm {
     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         ActionErrors errors = super.validate(mapping, request);
         if (Strings.isNullOrEmpty(password)) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_FILL_REQUIRED_VALUES.getKey()));
+//            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_FILL_REQUIRED_VALUES.getKey()));
         } else if (password.length() > WebResources.VALIDATOR_STRING_255) {
             errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         } else if (passwordConfirm == null || passwordConfirm.length() < 1) {
@@ -70,7 +70,11 @@ public class UpdatePasswordForm extends IdForm {
     }
 
     public void setPassword(String string) {
-        password = string;
+        if (string == null) {
+            password = null;
+        } else {
+            password = string.trim();
+        }
     }
 
     public void setPasswordConfirm(String string) {

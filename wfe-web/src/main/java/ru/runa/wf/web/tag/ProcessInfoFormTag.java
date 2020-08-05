@@ -247,7 +247,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             return versionElement;
         }
-        if (! Delegates.getAuthorizationService().isAllowed(this.getUser(), Permission.UPDATE, SecuredObjectType.DEFINITION, process.getDefinitionId())) {
+        if (! Delegates.getAuthorizationService().isAllowed(this.getUser(), Permission.UPDATE, SecuredObjectType.PROCESS, process.getDefinitionId())) {
             return versionElement;
         }
         Div div = new Div();
