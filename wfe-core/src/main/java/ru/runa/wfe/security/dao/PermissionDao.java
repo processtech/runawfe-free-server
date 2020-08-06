@@ -263,6 +263,8 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.READ, null));
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.UPDATE, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.DELETE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.UPDATE_PERMISSIONS, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.READ, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.UPDATE, true));
@@ -280,6 +282,8 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.START_PROCESS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.CANCEL_PROCESS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.CANCEL, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.UPDATE_PERMISSIONS, true));
         
         requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE_PERMISSIONS, true));
