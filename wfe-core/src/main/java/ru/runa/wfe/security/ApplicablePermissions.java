@@ -221,7 +221,7 @@ public final class ApplicablePermissions {
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.PROCESS, READ, UPDATE_PERMISSIONS, CANCEL)
+        add(SecuredObjectType.PROCESS, READ, UPDATE_PERMISSIONS, CANCEL, UPDATE, DELETE, START_PROCESS, CANCEL_PROCESS)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 
