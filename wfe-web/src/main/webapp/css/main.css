@@ -330,3 +330,6 @@ tr.executor_group {
 	opacity: 0.3;
 	cursor: pointer;
 }
+#hideSystemMenu.ui-icon-triangle-1-w {
+	background-image: url(images/ui-icons_ffffff_256x240.png) !important;
+}
