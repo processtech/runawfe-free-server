@@ -9,6 +9,10 @@
 		<property title="escalation.default.hierarchy.loader"/>
 		<property title="task.default.deadline" pattern="\s*[+\-]?\d+\s*(business|)\s*(seconds|minutes|hours|days|weeks|months|years)\s*" />
 		<property title="task.almostDeadlinePercents" pattern="\d*"/>
+		<property title="task.delegation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>		
 		<property title="token.maximum.depth" pattern="\d*"/>
 		<property title="file.variable.local.storage.enabled">
 			<value>true</value>
@@ -67,13 +71,6 @@
 		<value>ENABLED</value>
 		<value>HIDDEN</value>
 		<value>DISABLED</value>
-	</properties_file>
-	
-	<properties_file title="task.properties">
-		<property title="task.delegation.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
 	</properties_file>
 	
 	<properties_file title="web.properties">

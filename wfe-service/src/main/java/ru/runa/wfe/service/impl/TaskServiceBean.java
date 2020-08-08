@@ -28,7 +28,6 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.service.jaxb.Variable;
 import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
-import ru.runa.wfe.task.TaskProperties;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.logic.TaskLogic;
 import ru.runa.wfe.user.Executor;
