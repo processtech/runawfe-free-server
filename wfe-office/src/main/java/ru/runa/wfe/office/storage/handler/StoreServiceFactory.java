@@ -5,7 +5,6 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.ExcelDataSource;
 import ru.runa.wfe.datasource.JdbcDataSource;
-import ru.runa.wfe.office.storage.H2SqlStoreService;
 import ru.runa.wfe.office.storage.OracleStoreService;
 import ru.runa.wfe.office.storage.PostgreSqlStoreService;
 import ru.runa.wfe.office.storage.SqlServerStoreService;
@@ -31,8 +30,6 @@ public class StoreServiceFactory {
                     return new OracleStoreService(variableProvider);
                 case PostgreSql:
                     return new PostgreSqlStoreService(variableProvider);
-                case H2:
-                    return new H2SqlStoreService(variableProvider);
                 default:
                     throw new InternalApplicationException("Database type " + ((JdbcDataSource) dataSource).getDbType().name() + " not supported.");
             }
