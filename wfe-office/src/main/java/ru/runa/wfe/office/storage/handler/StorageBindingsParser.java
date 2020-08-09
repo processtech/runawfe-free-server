@@ -27,9 +27,6 @@ public class StorageBindingsParser extends FilesSupplierConfigParser<DataBinding
             String className = bindingElement.attributeValue("class");
             Preconditions.checkNotNull(className, "Missed 'class' attribute in binding element");
 
-            String variableName = bindingElement.attributeValue("variable");
-            Preconditions.checkNotNull(variableName, "Missed 'variable' attribute in binding element");
-
             ExcelConstraints constraints = ClassLoaderUtil.instantiate(className);
             Element configElement = bindingElement.element("config");
             Preconditions.checkNotNull(configElement, "Missed 'config' element in binding element");
@@ -44,6 +41,11 @@ public class StorageBindingsParser extends FilesSupplierConfigParser<DataBinding
             Element conditionsElement = bindingElement.element("conditions");
             if (bindings.getQueryType() == null) {
                 bindings.setQueryType(QueryType.valueOf(conditionsElement.attributeValue("type")));
+            }
+
+            String variableName = bindingElement.attributeValue("variable");
+            if (variableName == null && (bindings.getQueryType() == QueryType.INSERT || bindings.getQueryType() == QueryType.UPDATE)) {
+                throw new IllegalArgumentException("Missed 'variable' attribute in binding element");
             }
 
             DataBinding binding = new DataBinding();

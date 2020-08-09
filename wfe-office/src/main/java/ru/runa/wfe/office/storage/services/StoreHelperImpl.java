@@ -1,12 +1,11 @@
 package ru.runa.wfe.office.storage.services;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.office.storage.StoreHelper;
 import ru.runa.wfe.office.storage.StoreOperation;
@@ -15,15 +14,15 @@ import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.DataBindings;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
 import ru.runa.wfe.office.storage.binding.QueryType;
+import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 
+@CommonsLog
 public class StoreHelperImpl implements StoreHelper {
-
-    private static final Log log = LogFactory.getLog(StoreHelperImpl.class);
 
     private Map<QueryType, Method> invocationMap = Maps.newHashMap();
 
@@ -54,7 +53,7 @@ public class StoreHelperImpl implements StoreHelper {
     }
 
     @Override
-    public ExecutionResult execute(DataBinding binding, WfVariable variable) {
+    public ExecutionResult execute(DataBinding binding, WfVariable variable) throws InternalApplicationException {
         VariableDefinition vd = variable.getDefinition();
         if (!vd.isUserType() && (!vd.getFormatClassName().equals(ListFormat.class.getName()) || vd.getFormatComponentUserTypes() == null
                 || vd.getFormatComponentUserTypes().length == 0)) {
@@ -65,7 +64,19 @@ public class StoreHelperImpl implements StoreHelper {
             Method method = invocationMap.get(config.getQueryType());
             return (ExecutionResult) method.invoke(this, binding, variable, config.getCondition());
         } catch (Exception e) {
-            throw Throwables.propagate(Throwables.getRootCause(e));
+            log.error("Error while executing operation with DataStore", e);
+            throw new InternalApplicationException(e);
+        }
+    }
+
+    @Override
+    public ExecutionResult execute(DataBinding binding, UserType userType) throws InternalApplicationException {
+        try {
+            Method method = invocationMap.get(config.getQueryType());
+            return (ExecutionResult) method.invoke(this, binding, userType, config.getCondition());
+        } catch (Exception e) {
+            log.error("Error while executing operation with DataStore", e);
+            throw new InternalApplicationException(e);
         }
     }
 
@@ -76,8 +87,8 @@ public class StoreHelperImpl implements StoreHelper {
     }
 
     @StoreOperation(QueryType.SELECT)
-    public ExecutionResult findByFilter(DataBinding binding, WfVariable variable, String condition) throws Exception {
-        return storeService.findByFilter(extractProperties(binding), variable, condition);
+    public ExecutionResult findByFilter(DataBinding binding, UserType userType, String condition) throws Exception {
+        return storeService.findByFilter(extractProperties(binding), userType, condition);
     }
 
     @StoreOperation(QueryType.UPDATE)
@@ -87,8 +98,8 @@ public class StoreHelperImpl implements StoreHelper {
     }
 
     @StoreOperation(QueryType.DELETE)
-    public ExecutionResult delete(DataBinding binding, WfVariable variable, String condition) throws Exception {
-        storeService.delete(extractProperties(binding), variable, condition);
+    public ExecutionResult delete(DataBinding binding, UserType userType, String condition) throws Exception {
+        storeService.delete(extractProperties(binding), userType, condition);
         return ExecutionResult.EMPTY;
     }
 
@@ -98,7 +109,7 @@ public class StoreHelperImpl implements StoreHelper {
             StoreOperation annotation = method.getAnnotation(StoreOperation.class);
             if (annotation != null) {
                 Class<?>[] parameters = method.getParameterTypes();
-                if (parameters == null || parameters.length < 1) {
+                if (parameters.length < 1) {
                     log.warn("wrong parameters");
                     continue;
                 }
