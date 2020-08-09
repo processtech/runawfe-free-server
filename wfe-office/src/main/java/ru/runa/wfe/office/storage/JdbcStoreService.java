@@ -82,11 +82,6 @@ public abstract class JdbcStoreService implements StoreService {
         // Do nothing
     }
 
-    protected UserType userType(WfVariable variable) {
-        return variable.getDefinition().isUserType() ? variable.getDefinition().getUserType()
-                : variable.getDefinition().getFormatComponentUserTypes()[0];
-    }
-
     protected String tableName() {
         OnSheetConstraints osc = (OnSheetConstraints) constraints;
         String tableName = osc.getSheetName();
