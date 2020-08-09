@@ -159,7 +159,7 @@ public class BpmnXmlReader {
     public ProcessDefinition readProcessDefinition(ProcessDefinition processDefinition) {
         try {
             Element definitionsElement = document.getRootElement();
-            readDataStores(parsedProcessDefinition, definitionsElement.elements(DATA_STORE));
+            readDataStores(processDefinition, definitionsElement.elements(DATA_STORE));
             Element process = definitionsElement.element(PROCESS);
             processDefinition.setName(process.attributeValue(NAME));
             Map<String, String> processProperties = parseExtensionProperties(process);
@@ -527,11 +527,11 @@ public class BpmnXmlReader {
         }
     }
 
-    private void readDataStores(ParsedProcessDefinition parsedProcessDefinition, List<Element> dataStoreElements) {
+    private void readDataStores(ProcessDefinition processDefinition, List<Element> dataStoreElements) {
         for (Element dataStoreElement : dataStoreElements) {
             final Node node = ApplicationContextFactory.createAutowiredBean(nodeTypes.get(DATA_STORE));
-            node.setParsedProcessDefinition(parsedProcessDefinition);
-            readNode(parsedProcessDefinition, dataStoreElement, Collections.emptyMap(), node);
+            node.setProcessDefinition(processDefinition);
+            readNode(processDefinition, dataStoreElement, Collections.emptyMap(), node);
         }
     }
 }
