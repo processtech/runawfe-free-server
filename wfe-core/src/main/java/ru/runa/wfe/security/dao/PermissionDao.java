@@ -282,6 +282,7 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.START_PROCESS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.CANCEL_PROCESS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.CANCEL, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.UPDATE, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.READ_PERMISSIONS, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.UPDATE_PERMISSIONS, true));
         
