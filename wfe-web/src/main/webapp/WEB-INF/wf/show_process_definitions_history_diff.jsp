@@ -11,18 +11,43 @@
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
+<tiles:put name="head" type="string">
+	<style>
+		.diffView {
+			border: 1px solid #B6AD84;
+			width: 100%;
+			padding: 5px;
+		}
+		.diffView table td {
+			white-space: nowrap;
+			font-family: monospace;
+		}
+		.diffView table td pre {
+			margin: 0px;
+		}
+		.diffView table td.added {
+			color: darkcyan;
+		}
+		.diffView table td.deleted {
+			color: brown;
+		}
+		.diffView table td.unchanged {
+			color: gray;
+		}
+		.diffView table td.comment {
+			color: lightgray;
+		}
+		.diffView table td.error {
+			color: red;
+		}
+	</style>
+</tiles:put>
 <tiles:put name="body" type="string">
 
-<%
-	String returnAction = "/definitions_history.do";
-%>
-<wf:listDefinitionsHistoryForm batchPresentationId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" >
-	<div>
-		<wf:viewControlsHideableBlock hideableBlockId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" >
-			<wf:tableViewSetupForm batchPresentationId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" />
-		</wf:viewControlsHideableBlock>
+	<div class="diffView">
+		<%= request.getAttribute("diffContent") %>
 	</div>
-</wf:listDefinitionsHistoryForm>
+
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 </tiles:insert>
