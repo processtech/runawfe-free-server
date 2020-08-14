@@ -134,6 +134,16 @@ public class IoCommons {
         return path + "wfe.custom";
     }
 
+    public static String getExcelStorageDirPath() {
+        String path = IoCommons.getAppServerDirPath();
+        if (path != null) {
+            path += "/";
+        } else {
+            path = "";
+        }
+        return path + "wfe.excelstorage";
+    }
+
     public static File[] getJarFiles(File directory) {
         return directory.listFiles(new PatternFilenameFilter(".*\\.jar"));
     }

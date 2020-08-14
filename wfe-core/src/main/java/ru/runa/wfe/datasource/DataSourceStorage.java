@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -226,6 +227,10 @@ public class DataSourceStorage implements DataSourceStuff {
         try {
             return FileCopyUtils.copyToByteArray(new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX));
         } catch (IOException e) {
+            if (e instanceof FileNotFoundException && DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME.equals(dsName)) {
+                log.warn(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME + " does not exist. Creating one", e);
+                return ExcelStorageInitiator.init();
+            }
             throw new InternalApplicationException(e);
         }
     }
