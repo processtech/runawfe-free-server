@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -67,7 +68,7 @@ public class ViewInternalStorageAction extends ActionBase {
                     } else {
                         throw new IllegalArgumentException("excel file extension is incorrect");
                     }
-                    Sheet sheet = wb.getSheetAt(0);
+                    Sheet sheet = wb.getSheet(FilenameUtils.removeExtension(workbookName));
                     List<List<Cell>> data = new ArrayList<>();
                     int columnNumber = getSheetContent(sheet, data);
                     StringBuffer sheetContent = new StringBuffer();
