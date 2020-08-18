@@ -23,7 +23,6 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
-import org.hibernate.annotations.Type;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;

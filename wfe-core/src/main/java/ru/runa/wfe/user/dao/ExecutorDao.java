@@ -309,15 +309,14 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
      *            New actor password.
      */
     public void setPassword(Actor actor, String password) {
-//        Preconditions.checkNotNull(password, "Password must be specified.");
         ActorPassword actorPassword = getActorPassword(actor);
         if (actorPassword == null) {
-            if (password.length() > 0) {
+            if (!Strings.isNullOrEmpty(password)) {
                 actorPassword = new ActorPassword(actor, password);
                 sessionFactory.getCurrentSession().save(actorPassword);
             }
         } else {
-            if (password.length() > 0) {
+            if (!Strings.isNullOrEmpty(password)) {
                 actorPassword.setPassword(password);
                 sessionFactory.getCurrentSession().merge(actorPassword);
             } else {
@@ -629,14 +628,8 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
     
     public boolean hasPassword(Actor actor) {
-        ActorPassword actorPassword = this.getActorPassword(actor);
-        if (actorPassword == null) {
-            return false;
-        }
-        if (actorPassword.getPassword() == null) {
-            return false;
-        }
-        return (actorPassword.getPassword().length > 0);
+        ActorPassword actorPassword = getActorPassword(actor);
+        return actorPassword != null && actorPassword.getPassword().length > 0;
     }
 
     /**

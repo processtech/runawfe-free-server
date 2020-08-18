@@ -17,18 +17,15 @@
  */
 package ru.runa.af.web.form;
 
+import com.google.common.base.Strings;
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.MessagesException;
 import ru.runa.common.web.form.IdForm;
-
-import com.google.common.base.Strings;
 
 /**
  * Created on 24.08.2004
@@ -50,7 +47,7 @@ public class UpdatePasswordForm extends IdForm {
     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         ActionErrors errors = super.validate(mapping, request);
         if (Strings.isNullOrEmpty(password)) {
-//            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_FILL_REQUIRED_VALUES.getKey()));
+            // ok, allow empty passwords
         } else if (password.length() > WebResources.VALIDATOR_STRING_255) {
             errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         } else if (passwordConfirm == null || passwordConfirm.length() < 1) {
@@ -70,11 +67,7 @@ public class UpdatePasswordForm extends IdForm {
     }
 
     public void setPassword(String string) {
-        if (string == null) {
-            password = null;
-        } else {
-            password = string.trim();
-        }
+        password = Strings.nullToEmpty(string).trim();
     }
 
     public void setPasswordConfirm(String string) {

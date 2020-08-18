@@ -21,15 +21,12 @@ import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.BaseTdBuilder;
-import ru.runa.common.web.html.TdBuilder.Env;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.security.Permission;
 
@@ -57,7 +54,7 @@ public class ReportPropertiesTdBuilder extends BaseTdBuilder {
         TD td = new TD(startLink);
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         return td;
-    }   
+    }
 
     @Override
     public String getValue(Object object, Env env) {

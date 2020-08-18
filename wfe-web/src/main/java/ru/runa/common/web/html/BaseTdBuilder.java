@@ -58,7 +58,7 @@ public abstract class BaseTdBuilder implements TdBuilder {
             return ((WfDefinition) object).isCanBeStarted();
         }
         return env.isAllowed(perm, securedObjectExtractor);
-    }    
+    }
 
     protected String readProperty(Object object, String propertyName, boolean isExceptionOnAbsent) {
         try {

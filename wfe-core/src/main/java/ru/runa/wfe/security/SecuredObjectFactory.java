@@ -140,10 +140,11 @@ public class SecuredObjectFactory {
         Set<String> missingNames = new HashSet<>(names);
         boolean isDef = type.equals(SecuredObjectType.DEFINITION);
         for (Tuple t : tt) {
-            if(isDef)
+            if(isDef) {
                 foundIds.add(ApplicationContextFactory.getDeploymentDAO().getNotNull(t.get(0, Long.class)).getIdentifiableId());
-            else
+            } else {
                 foundIds.add(t.get(0, Long.class));
+            }
             missingNames.remove(t.get(1, String.class));
         }
         if (!missingNames.isEmpty()) {
@@ -232,7 +233,7 @@ public class SecuredObjectFactory {
                 QReportDefinition rd = QReportDefinition.reportDefinition;
                 return new WfReport(getQueryFactory().selectFrom(rd).where(rd.id.eq(id)).fetchFirst());
             }
-        });        
+        });
 
         add(SecuredSingleton.SYSTEM);
         
