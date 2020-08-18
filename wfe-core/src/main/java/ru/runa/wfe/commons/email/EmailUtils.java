@@ -218,7 +218,7 @@ public class EmailUtils {
 
     public static List<String> filterEmails(final List<String> emailsToSend, EmailsFilter includeFilter, EmailsFilter excludeFilter) {
         List<String> filteredEmailsToSend = new LinkedList<>(emailsToSend);
-        for (Iterator<String> i = filteredEmailsToSend.iterator(); i.hasNext();) {
+        for (Iterator<String> i = filteredEmailsToSend.iterator(); i.hasNext(); ) {
             String email = i.next();
             if ((includeFilter != null) && (!includeFilter.isMatching(email))) {
                 i.remove();
@@ -234,7 +234,7 @@ public class EmailUtils {
 
     /**
      * Validates and creates e-mail filter object
-     * 
+     *
      * @param pattern
      * @return filter object
      */
@@ -244,6 +244,20 @@ public class EmailUtils {
 
     public static ProcessNameFilter validateAndCreateProcessNameFilter(final List<String> filters) {
         return ProcessNameFilter.create(filters);
+    }
+
+    public static SwimlaneNameFilter validateAndCreateSwimlaneNameFilter(final List<String> filters) {
+        return SwimlaneNameFilter.create(filters);
+    }
+
+    public static boolean isSwimlaneNameMatching(String swimlaneName, SwimlaneNameFilter includeSwimlaneNameFiler, SwimlaneNameFilter excludeSwimlaneNameFiler) {
+        if (includeSwimlaneNameFiler != null && !includeSwimlaneNameFiler.isMatching(swimlaneName)) {
+            return false;
+        }
+        if (excludeSwimlaneNameFiler != null && excludeSwimlaneNameFiler.isMatching(swimlaneName)) {
+            return false;
+        }
+        return true;
     }
 
     private static class PasswordAuthenticator extends Authenticator {
@@ -323,6 +337,17 @@ public class EmailUtils {
 
         private static ProcessNameFilter create(List<String> filters) {
             return new ProcessNameFilter(filters);
+        }
+    }
+
+    public static final class SwimlaneNameFilter extends RegexFilter {
+
+        private SwimlaneNameFilter(final List<String> filters) {
+            super(filters);
+        }
+
+        private static SwimlaneNameFilter create(List<String> filters) {
+            return new SwimlaneNameFilter(filters);
         }
     }
 

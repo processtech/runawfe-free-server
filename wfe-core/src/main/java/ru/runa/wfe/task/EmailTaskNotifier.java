@@ -1,15 +1,15 @@
 package ru.runa.wfe.task;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.PostConstruct;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Required;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
@@ -19,12 +19,8 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.task.logic.TaskNotifier;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
+import ru.runa.wfe.var.VariableProvider;
 
 public class EmailTaskNotifier implements TaskNotifier {
     private static final Log log = LogFactory.getLog(EmailTaskNotifier.class);
@@ -38,6 +34,9 @@ public class EmailTaskNotifier implements TaskNotifier {
 
     private EmailUtils.ProcessNameFilter includeProcessNameFilter;
     private EmailUtils.ProcessNameFilter excludeProcessNameFilter;
+
+    private EmailUtils.SwimlaneNameFilter includeSwimlaneNameFilter;
+    private EmailUtils.SwimlaneNameFilter excludeSwimlaneNameFilter;
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -74,6 +73,14 @@ public class EmailTaskNotifier implements TaskNotifier {
         this.excludeProcessNameFilter = EmailUtils.validateAndCreateProcessNameFilter(excludeProcessNameFilter);
     }
 
+    public void setIncludeSwimlaneNameFilter(List<String> includeSwimlaneNameFilter) {
+        this.includeSwimlaneNameFilter = EmailUtils.validateAndCreateSwimlaneNameFilter(includeSwimlaneNameFilter);
+    }
+
+    public void setExcludeSwimlaneNameFilter(List<String> excludeSwimlaneNameFilter) {
+        this.excludeSwimlaneNameFilter = EmailUtils.validateAndCreateSwimlaneNameFilter(excludeSwimlaneNameFilter);
+    }
+
     @PostConstruct
     public void printConfigInfo() {
         log.info("Configured " + this);
@@ -91,6 +98,12 @@ public class EmailTaskNotifier implements TaskNotifier {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;
             }
+            final String swimlaneName = task.getSwimlaneName();
+            if (!EmailUtils.isSwimlaneNameMatching(swimlaneName, includeSwimlaneNameFilter, excludeSwimlaneNameFilter)) {
+                log.debug("Ignored due to excluded swimlane name " + swimlaneName);
+                return;
+            }
+
             EmailConfig config = EmailConfigParser.parse(configBytes);
             List<String> emailsToSend = EmailUtils.getEmails(task.getExecutor());
             List<String> emailsWereSent = EmailUtils.getEmails(previousExecutor);
@@ -122,6 +135,7 @@ public class EmailTaskNotifier implements TaskNotifier {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("enabled", enabled).add("onlyIfTaskActorEmailDefined", onlyIfTaskActorEmailDefined)
                 .add("configPath", configPath).add("includeEmailsFilter", includeEmailsFilter).add("excludeEmailsFilter", excludeEmailsFilter)
-                .add("includeProcessNameFilter", includeProcessNameFilter).add("excludeProcessNameFilter", excludeProcessNameFilter).toString();
+                .add("includeProcessNameFilter", includeProcessNameFilter).add("excludeProcessNameFilter", excludeProcessNameFilter)
+                .add("includeSwimlaneNameFilter", includeSwimlaneNameFilter).add("excludeSwimlaneNameFilter", excludeSwimlaneNameFilter).toString();
     }
 }
