@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
+import org.apache.commons.io.FilenameUtils;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.Commons;
@@ -46,7 +47,7 @@ public class ViewWorkbooksTag extends TagSupport {
                     Map<String, String> params = new HashMap<>();
                     params.put("workbookName", workbookNameList[i]);
                     String href = Commons.getActionUrl(ViewInternalStorageAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
-                    html.append("<a href=\"").append(href).append("\">").append(withoutExtension(workbookNameList[i]))
+                    html.append("<a href=\"").append(href).append("\">").append(FilenameUtils.removeExtension(workbookNameList[i]))
                             .append("</a>&nbsp;&nbsp;&nbsp;");
                 }
             }
@@ -55,14 +56,6 @@ public class ViewWorkbooksTag extends TagSupport {
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
-    }
-
-    private String withoutExtension(String fileName) {
-        int lastDotIndex = fileName.indexOf(".");
-        if (lastDotIndex > 0) {
-            return fileName.substring(0, lastDotIndex);
-        }
-        return fileName;
     }
 
     private User getUser() {
