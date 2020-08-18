@@ -60,7 +60,7 @@ public class ViewInternalStorageAction extends ActionBase {
             String workbookName = form.getWorkbookName();
             if (!Strings.isNullOrEmpty(workbookPath) && !Strings.isNullOrEmpty(workbookName)) {
                 try (InputStream is = new FileInputStream(workbookPath + "/" + workbookName)) {
-                    Workbook wb = null;
+                    Workbook wb;
                     if (workbookName.endsWith(".xls")) {
                         wb = new HSSFWorkbook(is);
                     } else if (workbookName.endsWith(".xlsx")) {
@@ -99,24 +99,24 @@ public class ViewInternalStorageAction extends ActionBase {
     private Object cellValue(Cell cell) {
         Object value;
         switch (cell.getCellTypeEnum()) {
-        case STRING:
-            value = cell.getRichStringCellValue().getString();
-            break;
-        case NUMERIC:
-            if (DateUtil.isCellDateFormatted(cell)) {
-                value = cell.getDateCellValue();
-            } else {
-                value = cell.getNumericCellValue();
-            }
-            break;
-        case BOOLEAN:
-            value = cell.getBooleanCellValue();
-            break;
-        case FORMULA:
-            value = cell.getCellFormula();
-            break;
-        default:
-            value = cell.getStringCellValue();
+            case STRING:
+                value = cell.getRichStringCellValue().getString();
+                break;
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    value = cell.getDateCellValue();
+                } else {
+                    value = cell.getNumericCellValue();
+                }
+                break;
+            case BOOLEAN:
+                value = cell.getBooleanCellValue();
+                break;
+            case FORMULA:
+                value = cell.getCellFormula();
+                break;
+            default:
+                value = cell.getStringCellValue();
         }
         return value;
     }
