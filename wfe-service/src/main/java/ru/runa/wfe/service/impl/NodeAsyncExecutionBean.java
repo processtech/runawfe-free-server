@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
@@ -86,6 +87,10 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     }
                     if (!Objects.equal(nodeId, token.getNodeId())) {
                         throw new InternalApplicationException(token + " expected to be in node " + nodeId);
+                    }
+                    if (token.getVersion() >= SystemProperties.getTokenMaximumLength()) {
+                        throw new InternalApplicationException("Maximum token length " + SystemProperties.getTokenMaximumLength()
+                                + " has been reached");
                     }
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                     Node node = processDefinition.getNodeNotNull(token.getNodeId());

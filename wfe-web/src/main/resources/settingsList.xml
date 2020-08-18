@@ -14,6 +14,7 @@
 			<value>false</value>
 		</property>		
 		<property title="token.maximum.depth" pattern="\d*"/>
+		<property title="token.maximum.length" pattern="\d*"/>
 		<property title="file.variable.local.storage.enabled">
 			<value>true</value>
 			<value>false</value>
