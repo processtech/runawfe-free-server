@@ -19,6 +19,7 @@
 package ru.runa.wfe.security.logic;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
@@ -27,6 +28,9 @@ import javax.security.auth.login.LoginContext;
 import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.security.AuthenticationException;
+import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.SecurityCheckProperties;
+import ru.runa.wfe.security.auth.InternalDbNameLoginModule;
 import ru.runa.wfe.security.auth.KerberosCallbackHandler;
 import ru.runa.wfe.security.auth.LoginModuleConfiguration;
 import ru.runa.wfe.security.auth.PasswordLoginModuleCallbackHandler;
@@ -40,6 +44,7 @@ import ru.runa.wfe.user.User;
  * Created on 14.03.2005
  */
 public class AuthenticationLogic extends CommonLogic {
+    
     private List<LoginHandler> loginHandlers;
 
     @Required
@@ -56,6 +61,17 @@ public class AuthenticationLogic extends CommonLogic {
     }
 
     public User authenticate(String name, String password) throws AuthenticationException {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(SecuredObjectType.SYSTEM)) {
+            Actor curActor = this.executorDao.getActor(name);
+            if (curActor != null) {
+                if (this.executorDao.hasPassword(curActor)) {
+                    return authenticate(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
+                } else {
+                    return authenticateByName(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
+                }
+            }
+            return authenticateByName(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
+        }
         return authenticate(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
     }
 
@@ -77,6 +93,24 @@ public class AuthenticationLogic extends CommonLogic {
             throw new AuthenticationException(e);
         }
     }
+    
+    private User authenticateByName(CallbackHandler callbackHandler, AuthType authType) throws AuthenticationException {
+        try {
+            ru.runa.wfe.security.auth.LoginModuleConfiguration config = new ru.runa.wfe.security.auth.LoginModuleConfiguration();
+            config.setLoginModuleClassNames(Collections.singletonList(InternalDbNameLoginModule.class.getName()));
+            
+            LoginContext loginContext = new LoginContext(LoginModuleConfiguration.APP_NAME, null, callbackHandler, config);
+            loginContext.login();
+            Subject subject = loginContext.getSubject();
+            User user = SubjectPrincipalsHelper.getUser(subject);
+            SubjectPrincipalsHelper.validateUser(user);
+            callHandlers(user.getActor(), authType);
+            log.debug(user.getName() + " successfully authenticated");
+            return user;
+        } catch (Exception e) {
+            throw new AuthenticationException(e);
+        }
+    }    
 
     private void callHandlers(Actor actor, AuthType type) {
         for (LoginHandler handler : loginHandlers) {
