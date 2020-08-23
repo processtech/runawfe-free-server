@@ -94,6 +94,10 @@ public class AuthorizationLogic extends CommonLogic {
             return Objects.hash(id, permission);
         }
     }
+    
+    public Set<Long> selectAllowedIds(Executor executor, Permission permission, SecuredObjectType securedObjectType, List<Long> idsOrNull) {
+        return permissionDao.selectAllowedIds(executor, permission, securedObjectType, idsOrNull, true);
+    }
 
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
         return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getIdentifiableId());
