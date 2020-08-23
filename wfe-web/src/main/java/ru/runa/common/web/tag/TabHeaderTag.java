@@ -33,6 +33,9 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.TabHttpSessionHelper;
 import ru.runa.wfe.commons.web.PortletUrlType;
+import ru.runa.wfe.datasource.DataSourceStorage;
+import ru.runa.wfe.datasource.DataSourceStuff;
+import ru.runa.wfe.datasource.ExcelDataSource;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -62,6 +65,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_RELATIONS, SecuredSingleton.RELATIONS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_BOT_STATION, SecuredSingleton.BOTSTATIONS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATA_SOURCES, SecuredSingleton.DATASOURCES));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SYSTEM, SecuredSingleton.SYSTEM));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS));
@@ -133,6 +137,13 @@ public class TabHeaderTag extends TagSupport {
     private boolean isMenuForwardVisible(MenuForward menuForward) {
         try {
             if (menuForward.forAdministratorOnly) {
+                if (menuForward.menuMessage.getKey().equals(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE.getKey())) {
+                    if (DataSourceStorage.getNames().contains(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)) {
+                        if (!(DataSourceStorage.getDataSource(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME) instanceof ExcelDataSource)) {
+                            return false;
+                        }
+                    }
+                }
                 return Delegates.getExecutorService().isAdministrator(getUser());
             }
             if (menuForward.menuMessage.getKey().equals("view_logs")) {
