@@ -178,7 +178,11 @@ public class WebResources {
     }
 
     public static boolean isUpdateProcessSwimlanesEnabled() {
-        return RESOURCES.getBooleanProperty("process.swimlane.assignment.enabled", false);
+        return RESOURCES.getBooleanProperty("process.swimlane.assignment.enabled", true);
+    }
+
+    public static boolean isUpdateProcessVariablesEnabled() {
+        return RESOURCES.getBooleanProperty("process.variable.assignment.enabled", true);
     }
 
     /**

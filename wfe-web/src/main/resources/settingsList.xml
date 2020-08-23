@@ -10,16 +10,13 @@
 		<property title="task.default.deadline" pattern="\s*[+\-]?\d+\s*(business|)\s*(seconds|minutes|hours|days|weeks|months|years)\s*" />
 		<property title="task.almostDeadlinePercents" pattern="\d*"/>
 		<property title="token.maximum.depth" pattern="\d*"/>
+		<property title="token.maximum.length" pattern="\d*"/>
 		<property title="file.variable.local.storage.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>
 		<property title="file.variable.local.storage.enableforfilesgreaterthan" pattern="\d*"/>
 		<property title="date.format.pattern" />
-		<property title="executionServiceAPI.updateVariables.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
 		<property title="scriptingServiceAPI.executeGroovyScript.enabled">
 			<value>true</value>
 			<value>false</value>
@@ -58,6 +55,10 @@
 		</property>
 		<property title="variables.invalid.default.values.allowed.before" />
 		<property title="datasource.password.export">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.execution.node.async.default">
 			<value>true</value>
 			<value>false</value>
 		</property>
@@ -181,6 +182,10 @@
 			<value>false</value>
 		</property>
 		<property title="process.swimlane.assignment.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.variable.assignment.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>

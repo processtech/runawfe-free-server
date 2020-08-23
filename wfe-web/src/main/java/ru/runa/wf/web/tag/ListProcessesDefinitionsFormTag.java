@@ -68,7 +68,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.ALL), new StartProcessTdBuilder() },
+                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.DELETE), new StartProcessTdBuilder() },
                 batchPresentation, new TdBuilder[] { new PropertiesProcessTdBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
@@ -90,14 +90,12 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     private boolean isUndeployAllowed(List<WfDefinition> definitions) {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.DEFINITIONS);
-        // TODO If (when) hidden types & permissions are implemented, uncomment and review/edit this.
-//        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UNDEPLOY_DEFINITION, definitions)) {
-//            if (undeploy) {
-//                return true;
-//            }
-//        }
-//        return false;
+        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DELETE, definitions)) {
+            if (undeploy) {
+                return true;
+            }
+        }
+        return false;
     }
 
     class EnvImpl extends EnvBaseImpl {

@@ -23,6 +23,8 @@ import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdatePasswordAction;
 import ru.runa.af.web.html.PasswordTableBuilder;
 import ru.runa.common.web.MessagesCommon;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.Actor;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updatePasswordForm")
@@ -52,7 +54,10 @@ public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return super.isSubmitButtonEnabled() || getUser().getActor().equals(getSecuredObject());
+        return super.isSubmitButtonEnabled() || (
+                getUser().getActor().equals(getSecuredObject()) &&
+                super.isSubmitButtonEnabled(SecuredSingleton.SYSTEM, Permission.CHANGE_SELF_PASSWORD)
+        );
     }
 
     @Override

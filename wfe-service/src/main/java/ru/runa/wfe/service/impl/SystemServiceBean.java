@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.service.impl;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -119,10 +118,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @Override
     @WebMethod(exclude = true)
     public List<ProcessError> getAllProcessErrors(@NonNull User user) {
-        List<ProcessError> result = Lists.newArrayList();
-        for (List<ProcessError> list : Errors.getProcessErrors().values()) {
-            result.addAll(list);
-        }
+        List<ProcessError> result = new ArrayList<>(Errors.getAllProcessErrors());
         List<WfProcess> processes = executionLogic.getFailedProcesses(user);
         for (WfProcess process : processes) {
             populateExecutionErrors(user, result, process.getId());
@@ -134,11 +130,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @Override
     @WebResult(name = "result")
     public List<ProcessError> getProcessErrors(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
-        List<ProcessError> list = new ArrayList<>();
-        List<ProcessError> cached = Errors.getProcessErrors(processId);
-        if (cached != null) {
-            list.addAll(cached);
-        }
+        List<ProcessError> list = new ArrayList<>(Errors.getProcessErrors(processId));
         populateExecutionErrors(user, list, processId);
         Collections.sort(list);
         return list;
@@ -147,9 +139,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @Override
     @WebResult(name = "result")
     public List<SystemError> getSystemErrors(@WebParam(name = "user") @NonNull User user) {
-        List<SystemError> list = Lists.newArrayList(Errors.getSystemErrors());
-        Collections.sort(list);
-        return list;
+        return Errors.getSystemErrors();
     }
 
     private void populateExecutionErrors(User user, List<ProcessError> list, Long processId) {

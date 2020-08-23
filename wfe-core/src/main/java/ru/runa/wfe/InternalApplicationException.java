@@ -24,7 +24,7 @@ import javax.ejb.ApplicationException;
  * 
  * @author Dofs
  */
-@ApplicationException(inherited = true, rollback = true)
+@ApplicationException(rollback = true)
 public class InternalApplicationException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 

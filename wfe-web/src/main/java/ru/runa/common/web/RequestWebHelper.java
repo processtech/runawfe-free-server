@@ -40,7 +40,7 @@ public class RequestWebHelper implements WebHelper {
 
     @Override
     public boolean useLinkForExecutor(User user, Executor executor) {
-        return Delegates.getAuthorizationService().isAllowed(user, Permission.LIST, executor);
+        return Delegates.getAuthorizationService().isAllowed(user, Permission.READ, executor);
     }
 
     @Override

@@ -17,88 +17,78 @@
  */
 package ru.runa.af.delegate;
 
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import lombok.val;
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.SystemLog;
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
-
-import com.google.common.collect.Lists;
-import com.itextpdf.text.log.SysoLogger;
 
 /**
- * Created on 20.08.2004
- * 
+ * Created on 20.08.2004.
  */
 public class AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest extends ServletTestCase {
-    private ServiceTestHelper helper;
-
+    private ServiceTestHelper h;
     private AuthorizationService authorizationService;
+    private BatchPresentation batchPresentation;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new ServiceTestHelper(AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest.class.getName());
-        helper.createDefaultExecutorsMap();
-
-        Collection<Permission> executorP = Lists.newArrayList(Permission.READ);
-        helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroupActor());
-        helper.setPermissionsToAuthorizedPerformer(executorP, helper.getBaseGroup());
-
+    protected void setUp() {
+        h = new ServiceTestHelper(AuthorizationServiceDelegateGetExecutorsWithoutPermissionTest.class.getName());
         authorizationService = Delegates.getAuthorizationService();
-        authorizationService.setPermissions(helper.getAdminUser(), helper.getBaseGroupActor().getId(), executorP, helper.getBaseGroupActor());
-        super.setUp();
+
+        batchPresentation = h.getExecutorBatchPresentation();
+
+        h.createDefaultExecutorsMap();
+
+        val pp = Lists.newArrayList(Permission.READ);
+        h.setPermissionsToAuthorizedActor(pp, h.getBaseGroupActor());
+        h.setPermissionsToAuthorizedActor(pp, h.getBaseGroup());
+        authorizationService.setPermissions(h.getAdminUser(), h.getBaseGroupActor().getId(), pp, h.getBaseGroupActor());
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.releaseResources();
+    protected void tearDown() {
+        h.releaseResources();
         authorizationService = null;
-        super.tearDown();
     }
 
-    public void testGetExecutorsWithoutPermissionFakeSubject() throws Exception {
+    public void testGetExecutorsWithoutPermissionFakeUser() {
         try {
-            authorizationService.getExecutorsWithPermission(helper.getFakeUser(), SecuredSingleton.EXECUTORS, helper.getExecutorBatchPresentation(), false);
+            authorizationService.getExecutorsWithPermission(h.getFakeUser(), h.getBaseGroupActor(), batchPresentation, false);
             fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows fake subject");
         } catch (AuthenticationException e) {
+            // Expected. Although we also can get here because user is not fake but is not allowed to read object's permissions.
         }
     }
 
-    public void testGetExecutorsWithoutPermissionFakeSecuredObject() throws Exception {
+    public void testGetExecutorsWithoutPermissionFakeObject() {
         try {
-            authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), helper.getFakeActor(),
-                    helper.getExecutorBatchPresentation(), false);
+            authorizationService.getExecutorsWithPermission(h.getAuthorizedUser(), h.getFakeActor(), batchPresentation, false);
             fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows fake SecuredObject");
         } catch (InternalApplicationException e) {
+            // Expected.
         }
     }
 
-    public void testGetExecutorsWithoutPermission() throws Exception {
-        List<Group> expected = Lists.newArrayList(helper.getBaseGroup());
-        List<Executor> actual = authorizationService.getExecutorsWithPermission(helper.getAuthorizedPerformerUser(), helper.getBaseGroupActor(),
-                helper.getExecutorBatchPresentation(), false);
+    public void testGetExecutorsWithoutPermission() {
+        val expected = Lists.newArrayList(h.getBaseGroup());
+        val actual = authorizationService.getExecutorsWithPermission(h.getAuthorizedUser(), h.getBaseGroupActor(), batchPresentation, false);
         ArrayAssert.assertWeakEqualArrays("AuthorizationDelegate.getExecutorsWithoutPermission() returns wrong executors", expected, actual);
     }
 
-    public void testGetExecutorsWithoutPermissionUnauthorized() throws Exception {
+    public void testGetExecutorsWithoutPermissionUnauthorized() {
         try {
-            authorizationService.getExecutorsWithPermission(helper.getUnauthorizedPerformerUser(), helper.getBaseGroupActor(),
-                    helper.getExecutorBatchPresentation(), false);
+            authorizationService.getExecutorsWithPermission(h.getUnauthorizedUser(), h.getBaseGroupActor(), batchPresentation, false);
             fail("AuthorizationDelegate.getExecutorsWithoutPermission() allows unauthorized operation");
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
-
 }

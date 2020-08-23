@@ -34,10 +34,10 @@ public class TokenDao extends GenericDao<Token> {
         return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.executionStatus.eq(status))).fetch();
     }
 
-    public List<Token> findByProcessAndNodeIdAndExecutionStatusIsFailed(ru.runa.wfe.execution.Process process, String nodeId) {
+    public List<Token> findByProcessAndNodeIdAndExecutionStatus(ru.runa.wfe.execution.Process process, String nodeId, ExecutionStatus status) {
         QToken t = QToken.token;
         return queryFactory.selectFrom(t)
-                .where(t.process.eq(process).and(t.nodeId.eq(nodeId)).and(t.executionStatus.eq(ExecutionStatus.FAILED)))
+                .where(t.process.eq(process).and(t.nodeId.eq(nodeId)).and(t.executionStatus.eq(status)))
                 .fetch();
     }
 

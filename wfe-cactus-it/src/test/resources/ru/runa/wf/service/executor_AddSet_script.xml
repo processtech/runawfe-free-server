@@ -21,15 +21,13 @@
 	</setPermissions>
 
 	<addPermissions type="EXECUTOR" name="employee" executor="dorothy">
-		<permission name="LIST"/>
-		<permission name="READ"/>
-		<permission name="VIEW_TASKS"/>
+		<permission name="UPDATE"/>
+		<permission name="UPDATE_PERMISSIONS"/>
 	</addPermissions>
 	
-	<setPermissions type="EXECUTOR" name="employee" executor="dorothy">		
-		<permission name="UPDATE"/>
-		<permission name="UPDATE_STATUS"/>
-		<permission name="DELETE"/>
+	<setPermissions type="EXECUTOR" name="employee" executor="dorothy">
+		<permission name="READ"/>
+		<permission name="VIEW_TASKS"/>
 	</setPermissions>
          
 	<addPermissions type="EXECUTOR" name="employee" executor="employee">
@@ -49,25 +47,14 @@
 		<permission name="UPDATE"/>
 	</setPermissions>
 
-	<addPermissions type="EXECUTORS" executor="employee">
-		<permission name="LOGIN"/>		
+	<addPermissions type="SYSTEM" executor="employee">
+		<permission name="LOGIN"/>
+		<permission name="CREATE_EXECUTOR"/>
+		<permission name="CREATE_DEFINITION"/>
 	</addPermissions>
 	
-	<setPermissions type="EXECUTORS" executor="employee">
-		<permission name="UPDATE"/>
-		<permission name="CREATE"/>
-	</setPermissions>
-	
-	<addPermissions type="DEFINITIONS" executor="employee">
-		<permission name="LIST"/>
-		<permission name="READ"/>		
-	</addPermissions>
-	
-	<setPermissions type="DEFINITIONS" executor="employee">
-		<permission name="CREATE"/>
-		<permission name="UPDATE"/>
-		<permission name="START"/>
-		<permission name="READ_PROCESS"/>
-		<permission name="CANCEL_PROCESS"/>		
+	<setPermissions type="SYSTEM" executor="employee">
+		<permission name="READ"/>
+		<permission name="VIEW_LOGS"/>
 	</setPermissions>
 </workflowScript>

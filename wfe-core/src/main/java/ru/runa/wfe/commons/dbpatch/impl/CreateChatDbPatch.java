@@ -61,4 +61,8 @@ public class CreateChatDbPatch extends DbPatch {
         sql.add(getDDLCreateIndex("CHAT_MESSAGE_RECIPIENT", "IX_CHAT_MESSAGE_RECIPIENT_E_R", "EXECUTOR_ID", "READ_DATE"));
         return sql;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> master

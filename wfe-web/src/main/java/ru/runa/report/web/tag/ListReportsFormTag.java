@@ -17,6 +17,7 @@
  */
 package ru.runa.report.web.tag;
 
+import com.google.common.primitives.Booleans;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.jsp.PageContext;
@@ -62,7 +63,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(reports);
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.ALL) },
+                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.UPDATE) },
                 batchPresentation,
                 new TdBuilder[] { new ReportPropertiesTdBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, reports);
@@ -85,14 +86,8 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
     }
 
     private boolean isUndeployAllowed(List<WfReport> reports) {
-        boolean hasGlobalDeployPermission = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.REPORTS);
-        // TODO If (when) hidden types & permissions are implemented, uncomment and review/edit this.
-//        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_REPORT, reports)) {
-//            if (undeploy || hasGlobalDeployPermission) {
-//                return true;
-//            }
-//        }
-        return false;
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.REPORTS) ||
+                Booleans.contains(Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, reports), true);
     }
 
     class EnvImpl extends EnvBaseImpl {

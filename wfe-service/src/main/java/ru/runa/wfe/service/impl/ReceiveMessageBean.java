@@ -21,6 +21,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ReceiveMessageLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
@@ -78,8 +78,6 @@ public class ReceiveMessageBean implements MessageListener {
     private TokenDao tokenDao;
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
-    private ProcessLogDao processLogDao;
     @Resource
     private MessageDrivenContext context;
 
@@ -153,7 +151,19 @@ public class ReceiveMessageBean implements MessageListener {
                 log.error(errorMessage);
                 Errors.addSystemError(new InternalApplicationException(errorMessage));
             } else {
-                throw new MessagePostponedException(messageString);
+                Date expiryDate = null;
+                try {
+                    if (message.propertyExists(BaseMessageNode.EXPIRATION_PROPERTY)) {
+                        expiryDate = new Date(message.getLongProperty(BaseMessageNode.EXPIRATION_PROPERTY));
+                    }
+                } catch (JMSException e) {
+                    Throwables.propagate(e);
+                }
+                if (expiryDate == null || expiryDate.after(new Date())) {
+                    throw new MessagePostponedException(messageString);
+                } else {
+                    log.debug("Rejecting message request " + messageString + ", already expired");
+                }
             }
         }
         for (ReceiveMessageData data : handlers) {
