@@ -27,6 +27,10 @@ public final class MessagesCommon {
     public static final StrutsMessage MAIN_MENU_ITEM_SETTINGS = new StrutsMessage("manage_settings");
     // Forward menu (left main menu items) -> Logs.
     public static final StrutsMessage MAIN_MENU_ITEM_LOGS = new StrutsMessage("view_logs");
+    
+    public static final StrutsMessage MAIN_MENU_ITEM_CHATS = new StrutsMessage("swich_chats");
+    
+    
 
     // Common buttons
 

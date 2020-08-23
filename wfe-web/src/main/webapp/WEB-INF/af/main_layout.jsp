@@ -91,7 +91,7 @@
 					<tr>
 						<th class="box" style="padding-right: 0px;">
 							<bean:message key="title.menu"/>
-							<span id="hideSystemMenu" class="ui-icon ui-icon-closethick ui-state-highlight" style="cursor: pointer; float: right; margin: 1px;"></span>
+							<span id="hideSystemMenu" class="ui-icon ui-icon-triangle-1-w" style="cursor: pointer; float: right; margin: 1px;"></span>
 						</th>
 					</tr>
 				</table>

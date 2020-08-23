@@ -185,6 +185,14 @@ public class SystemProperties {
         return RESOURCES.getIntegerProperty("token.maximum.depth", 100);
     }
 
+    public static long getTokenMaximumLength() {
+        int length = RESOURCES.getIntegerProperty("token.maximum.length", -1);
+        if (length == -1) {
+            return Long.MAX_VALUE;
+        }
+        return length;
+    }
+
     public static String getEARFileName() {
         return RESOURCES.getStringProperty("ear.filename", "runawfe.ear");
     }
@@ -400,5 +408,4 @@ public class SystemProperties {
     public static boolean showErrorsInGroovyExpressionValidator() {
         return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
     }
-
 }

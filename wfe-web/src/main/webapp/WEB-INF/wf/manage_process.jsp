@@ -1,3 +1,4 @@
+<%@page import="javax.jws.WebParam"%>
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.Version"%>
 <%@ page import="ru.runa.common.web.Commons"%>
@@ -16,7 +17,7 @@
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
 <script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
-<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
+
 <% if (WebResources.getDiagramRefreshInterval() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {
@@ -81,10 +82,14 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
+		<% if(WebResources.isChatEnabled()){%>
+		<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
+		<script type="text/javascript" src="/wfe/js/chat.js"></script>
 		<td align="right">
 			<a id="openChatButton" onclick="openChat()">Открыть чат <span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 			<div id="ChatForm" processId="<%=id %>"></div>
 		</td>
+		<% }%>
 		<td align="right">
 			<wf:showGraphHistoryLink identifiableId='<%=id %>' href='<%= "/show_graph_history.do?id=" + id %>'  />
 		</td>
@@ -93,7 +98,6 @@ function Reload() {
 		</td>
 	</tr>
 </table>
-<script type="text/javascript" src="/wfe/js/chat.js"></script>
 </wf:processInfoForm>
 
 <wf:processActiveTaskMonitor identifiableId='<%= id %>' />

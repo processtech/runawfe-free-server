@@ -95,6 +95,7 @@
 		<forward name="edit_settings" path="/edit_settings.do" />
 		<forward name="drop_settings" path="/drop_settings.do" />
 		<forward name="send_process_signal" path="/send_process_signal.do" />
+		<forward name="swich_chats" path="" redirect="no"  />
 	</global-forwards>
 
 	<!-- ========== Action Mapping Definitions =================================== -->

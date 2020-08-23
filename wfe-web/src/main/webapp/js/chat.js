@@ -1,18 +1,29 @@
 $(document).ready(function() {
 //-----------------------------------------
+//протокол
+var socketProtocol = "";
+if(document.location.protocol == "https:"){
+	socketProtocol = "wss:";
+}
+else{
+	socketProtocol = "ws:";
+}
+/*
 // id процесса для чата на форме
 if($("input[name='one_task_hidden_field']").val() == "one_task_hidden_field"){
 	var pidff = $("a[href^='/wfe/manage_process.do?id=']").text();
+	if (pidff === "") { pidff = $("a[href^='/wfe/show_process_graph.do?id=']").text();}
 	$("#ChatForm").attr("processId", pidff);
 }
 //TODO id процесса на submit_task.jsp
-
+*/
 //шаблон модального окна чата
 var textLoadOldMessage = "Загрузить сообщения выше";
 var textPprivateMessage = "Приватное сообщение:";
 var textEnterMessage = "Введите текст сообщения";
 var textDragFile = "Перетащите сюда файл";
 var textBtnSend = "Отправить";
+var textHeader = "Чат процесса ";
 var modalHeaderChat = '<table class="box"><tbody><tr><th class="box"><button id="btnOp" type="button"><img id="imgButton" alt="resize" src="/wfe/images/chat_roll_up.png"></button><div id="modal-header-dragg" class="modal-header-dragg"></div><span id="close" class="ui-icon ui-icon-closethick ui-state-highlight" style="cursor: pointer; float: right; margin: 1px;"></span></th></tr></tbody></table>';
 var modalFooterChat = '<div class="checkBoxContainer">' + textPprivateMessage + '<input type="checkbox" id="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
 
@@ -23,6 +34,13 @@ $(".modal-body").html('<button id="loadNewBessageButton" type="button">' + textL
 
 $(".modal-content").append('<div id="modalFooter" class="modal-footer"/>');
 $(".modal-footer").append(modalFooterChat);
+
+$(".modal-content").resizable({
+	handles: "s, e, w, se",
+	minWidth: 267,
+    minHeight: 587,
+	alsoResize: "#attachedArea"
+});
 
 var rowSMCount = $('.tab tr').size();
 if (rowSMCount>9) {
@@ -82,6 +100,12 @@ var chatsNewMessSocketUrl = null;
 //сокет основной
 var chatSocket = null;
 var chatSocketUrl = null;
+
+
+var languageText = (window.navigator.language ||
+        window.navigator.systemLanguage ||
+        window.navigator.userLanguage);
+languageText = languageText.substr(0, 2).toLowerCase();
 
 var editMessageButtonText="редактировать";
 var addReplyButtonText="Ответить";
@@ -343,7 +367,7 @@ function loadOldMessages(){
 //кнопка открытия чата
 function openChat() {
 	if(lockFlag==false){
-		$(".modal-header-dragg").text("Чат процесса " + $("#ChatForm").attr("processId"));
+		$(".modal-header-dragg").text(textHeader + $("#ChatForm").attr("processId"));
 		$(".warningText").text("0/1024");
 		if(document.getElementById("ChatForm") != null){
 			document.getElementById("ChatForm").style.display = "block";
@@ -365,10 +389,27 @@ function closeChat() {
 	document.getElementById("ChatForm").style.display = "none";
 	switchCheak=0;
 }
+function checkBrowser(){
+	var userAgent = navigator.userAgent.toLowerCase();
+	var Mozila = /firefox/.test(userAgent);
+	var Chrome = /chrome/.test(userAgent);
+	var Opera  = /opera/.test(userAgent);
+	if(Mozila==true){
+	}
+}
+function checkEmptyMessage(){
+	if((message.value=="")&&(attachedPosts.length==0)&&(attachedFiles.length==0)){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 //кнопка "отправить"
 function sendMessage() {
 	deleteUserNameTable();
 	if(lockFlag == false){
+		if(checkEmptyMessage()==false){
 		if(editMessageFlag == false){
 			lockFlag=true;
 			let message = document.getElementById("message").value;
@@ -400,10 +441,13 @@ function sendMessage() {
 			if(attachedFiles.length > 0){
 				newMessage.haveFile=true;
 				let fileNames = [];
+				let fileSizes = [];
 				for(let i=0; i<attachedFiles.length; i++){
 					fileNames.push(attachedFiles[i].name);
+					fileSizes.push(attachedFiles[i].size);
 				}
 				newMessage.fileNames = fileNames;
+				newMessage.fileSizes = fileSizes;
 				lockFlag = true;
 			}
 			else{
@@ -423,9 +467,10 @@ function sendMessage() {
 			$("#checkBoxPrivateMessage").prop("checked",false);
 			$("#messReplyTable").empty();
 			$(".warningText").text("0/1024");
+			$("#message").keyup(keyupUserNames);
 			$("#fileInput").val("");
 			$("#tablePrivate table").empty();
-			$("#tablePrivate").css("display","none");
+			$("#privateBlock").css("display","none");
 		}
 		else{//редактирование сообщения
 			if(confirm(warningEditMessage)){
@@ -451,6 +496,7 @@ function sendMessage() {
 				editMessageId=-1;
 				editMessageFlag=false;
 			}
+		}
 		}
 	}
 	return 0;
@@ -642,7 +688,8 @@ function updateUserNameTable(enterUserName){
 	$("#idListUserNameTr"+0).addClass("selected");
 }
 $("#message").keydown(firstKeyCheck);
-$("#message").keyup(function keyupUserNames(event){
+$("#message").keyup(keyupUserNames);
+function keyupUserNames(event){
 	$(".warningText").html($("#message").val().length+"/"+characterSize);
 	if($("#message").val().length>characterSize){
 		$(".warningText").css({"color":"red"});
@@ -650,18 +697,25 @@ $("#message").keyup(function keyupUserNames(event){
 	else{
 		$(".warningText").css({"color":"black"});
 	}
-});
+}
+let privateBlock=$("<div/>");
+privateBlock.attr("id","privateBlock");
+let headTablePrivate=$("<div/>");
+headTablePrivate.attr("class","headTable");
+headTablePrivate.append("<div style='padding-left:5px;'>Кому отправить</div>");
+privateBlock.append(headTablePrivate);
 let tablePrivateReply=$("<div/>");
 tablePrivateReply.append($("<table/>"));
 tablePrivateReply.attr("id","tablePrivate");
-$(".modal-content").append(tablePrivateReply);
+privateBlock.append(tablePrivateReply);
+$(".modal-content").append(privateBlock);
 $("#checkBoxPrivateMessage").change(function(){
 	if(this.checked){
-		$("#tablePrivate").css("display","flex");
+		$("#privateBlock").css("display","block");
 		getUsersNames().then(fillingPrivateMessageRecipientTable);
 	}
 	else{
-		$("#tablePrivate").css("display","none");
+		$("#privateBlock").css("display","none");
 		$("#tablePrivate table").empty();
 	}
 });
@@ -979,7 +1033,7 @@ function addMessages(data){
 					let editMessage0 = $("<a/>");
 					editMessage0.text(editMessageButtonText);
 					editMessage0.click(editMessage);
-					cloneMess.append($("<tr/>").append($("<td/>").append(editMessage0)));
+					cloneMess.find(".addReply").parent().parent().append($("<td/>").append(editMessage0));
 				}
 				// конец
 				// установка сообщения
@@ -1147,32 +1201,6 @@ function getPosition(e){
 }
 
 dragMaster.dragWindow(tagetDrug,windowChat);
-//расстягивание
-$(".modal-content").append("<div id=\"resizableTarget\"></div>")
-var resizeHandle = document.getElementById("resizableTarget");
-resizeHandle.addEventListener("mousedown", initialResizing, false);
-
-function initialResizing(e){
-	window.addEventListener("mousemove",startResizing,false);
-	window.addEventListener("mouseup",stopResizing,false);
-}
-
-function startResizing(e){
-	windowChat.style.width = (e.clientX - windowChat.offsetLeft) + "px";
-	windowChat.style.height = (e.clientY - windowChat.offsetTop) + "px";
-}
-
-function stopResizing(e){
-	window.removeEventListener("mousemove", startResizing, false);
-	window.removeEventListener("mouseup", stopResizing, false);
-	if(numberNewMessages>0){
-		newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - ($("#modal-body").height()+$("#messBody" + (newMessageIndex - numberNewMessages)).getSlicePx("padding"));
-	}
-	else{
-		newMessagesHeight = $("#modal-body")[0].scrollHeight - ($("#modal-body").height());
-	}
-}
-//----------------------------------------------------------------------
 //функции переключения между чатами
 $(".modalSwitchingWindowButton").click(function (){
 	if(lockFlag == false){
@@ -1268,7 +1296,7 @@ function ajaxInitializationChat(){
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
 				updatenumberNewMessages(0);
 			}
-			chatSocketUrl = "ws://" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + $("#ChatForm").attr("processId");
+			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + $("#ChatForm").attr("processId");
 			chatSocket = new WebSocket(chatSocketUrl);
 			chatSocket.binaryType = "arraybuffer";
 			chatSocket.onmessage = onMessage;
@@ -1302,7 +1330,7 @@ function ajaxAllInitializationChats(){
 		processData: false,
 		success: function(data) {
 			getAllChat(data);
-			chatsNewMessSocketUrl = "ws://" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
+			chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
 			chatsNewMessSocket = new WebSocket(chatsNewMessSocketUrl);
 			chatsNewMessSocket.onmessage = onChatsNewMessSocketMessage;
 			//действия при открытии сокета
@@ -1316,7 +1344,7 @@ function ajaxAllInitializationChats(){
 }
 
 function ajaxLocale(){
-	let urlString="/wfe/ajaxcmd?command=LocaleTextChat";
+	let urlString="/wfe/ajaxcmd?command=LocaleTextChat&language="+languageText;
 	$.ajax({
 		type: "POST",
 		url: urlString,
@@ -1324,6 +1352,7 @@ function ajaxLocale(){
 		contentType: "application/json; charset=UTF-8",
 		processData: false,
 		success: function(data) {
+			
 			LocaleText(data);
 			
 		}
@@ -1331,14 +1360,15 @@ function ajaxLocale(){
 }
 
 function LocaleText(data){
-	$(".modalSwitchingWindowButton").text(data.switchChatButton);
-	$("#message").attr("placeholder",data.textAreaMessagePalceholder);
-	$(".checkBoxContainer").first().text(data.privateMessageCheckbox);
-	$("#dropZ").text(data.dropBlock);
-	$("#newMessagesIndicator").first().text(data.newMessageIndicator);
-	$("#newMessagesIndicator").last().text();
-	btnOpenChat.innerHTML=data.buttonSendMessage;
-	btnLoadOldMessages.innerHTML=data.buttonLoadOldMessage;
+	$("#openChatButton").first(data.openChatButton);
+	//$(".modalSwitchingWindowButton").text(data.switchChatButton);
+	//$("#newMessagesIndicator").first().text(data.newMessageIndicator);
+	//$("#newMessagesIndicator").last().text();
+	textEnterMessage = data.textAreaMessagePalceholder;
+	textPprivateMessage = data.privateMessageCheckbox;
+	textDragFile = data.dropBlock;
+	textBtnSend=data.buttonSendMessage;
+	textLoadOldMessage=data.buttonLoadOldMessage;
 	editMessageButtonText=data.editMessageButton;
 	addReplyButtonText=data.addReplyInMessageButton;
 	attachedMessageSignature=data.attachedMessage;
@@ -1350,6 +1380,7 @@ function LocaleText(data){
 	quoteText=data.quoteText;
 	errorMessFilePart1=data.errorMessFilePart1;
 	errorMessFilePart2=data.errorMessFilePart2;
+	textHeader=data.textHeader;
 	
 }
 
@@ -1362,8 +1393,11 @@ function fillingPrivateMessageRecipientTable(data){
 		if(userList[i].trim()!=""){
 			let cloneTR=tr.clone();
 			let cloneTDUserName=td.clone();
+			
 			cloneTDUserName.attr("class","userNamePrivate");
+			cloneTDUserName.attr("title",userList[i]+"");
 			let cloneTDCheckBox=td.clone();
+			cloneTDCheckBox.css({"float":"left"});
 			let cloneInputCheckbox=inputCheckbox.clone();
 			cloneInputCheckbox.attr("type","checkbox");
 			cloneTDUserName.append(userList[i]+"");
@@ -1374,10 +1408,12 @@ function fillingPrivateMessageRecipientTable(data){
 		}
 	}
 }
+
 //----------------------------------------------
 //начальные действия
 //запрос на инициализацию
 ajaxInitializationChat();
+ajaxLocale();
 $("#btnCl").hide();
 btnOpenChat.onclick = openChat;
 btnLoadOldMessages.onclick = loadOldMessages;

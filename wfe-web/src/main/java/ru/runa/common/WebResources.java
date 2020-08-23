@@ -196,4 +196,8 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("import.export.enabled", true);
     }
 
+    public static boolean isChatEnabled() {
+        return RESOURCES.getBooleanProperty("chat.enabled", true);
+    }
+
 }

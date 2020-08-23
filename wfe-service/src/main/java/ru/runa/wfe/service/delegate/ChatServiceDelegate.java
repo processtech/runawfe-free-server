@@ -31,9 +31,9 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public Long saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-            Boolean isPrivate, ArrayList<Long> fileIds) {
-        return getChatService().saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, fileIds);
+    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+            Boolean isPrivate, ArrayList<ChatMessageFile> files) {
+        return getChatService().saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, files);
     }
 
     @Override
@@ -121,5 +121,9 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
         return getChatService().saveChatMessage(user, processId, message, mentionedExecutors, isPrivate);
     }
 
+    @Override
+    public Long getLastMessage(User user, Long processId) {
+        return getChatService().getLastMessage(user, processId);
+    }
 
 }

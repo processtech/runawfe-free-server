@@ -1,3 +1,4 @@
+<%@page import="ru.runa.wfe.service.delegate.Delegates"%>
 <%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
@@ -31,7 +32,6 @@
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/trumbowyg.css" />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/delegate.dialog.css?"+Version.getHash() %>' />">
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
 <% 
 	for (String url : WebResources.getTaskFormExternalJsLibs()) {
 %>
@@ -47,11 +47,14 @@
 	String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
 %>
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
+<% if(WebResources.isChatEnabled()){%>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
 <script type="text/javascript" src="/wfe/js/chat.js"></script>
 <div style="float:left; max-width: 150px; margin-top: -25px;">
 	<a id="openChatButton" onclick="openChat()">Открыть чат <span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 </div>
-<div id="ChatForm"></div>
+<div id="ChatForm"  processId="<%= Delegates.getTaskService().getTask(Commons.getUser(request.getSession()), taskId).getProcessId() %>"></div>
+<% }%>
 <% if (WebResources.isTaskDelegationEnabled()) { %>
 	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
 <% } %>

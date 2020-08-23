@@ -6,10 +6,11 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="escalation.default.hierarchy.loader"/>
+		<property title="escalation.default.hierarchy.loader"></property>
 		<property title="task.default.deadline" pattern="\s*[+\-]?\d+\s*(business|)\s*(seconds|minutes|hours|days|weeks|months|years)\s*" />
 		<property title="task.almostDeadlinePercents" pattern="\d*"/>
 		<property title="token.maximum.depth" pattern="\d*"/>
+		<property title="token.maximum.length" pattern="\d*"/>
 		<property title="file.variable.local.storage.enabled">
 			<value>true</value>
 			<value>false</value>
@@ -196,6 +197,9 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="chat.enabled">
+			<value>true</value>
+			<value>false</value></property>
 	</properties_file>
 	
 	<properties_file title="office.properties">
