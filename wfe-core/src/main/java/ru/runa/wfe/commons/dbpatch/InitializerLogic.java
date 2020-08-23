@@ -162,10 +162,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(RefactorPermissionsStep4.class);
         patches.add(EmptyPatch.class); // instead signals...
         patches.add(CreateChatDbPatch.class);
-<<<<<<< HEAD
-=======
         patches.add(RefactorPermissionsBack.class);
->>>>>>> master
         dbPatches = Collections.unmodifiableList(patches);
     }
 
