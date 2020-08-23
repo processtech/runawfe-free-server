@@ -32,6 +32,10 @@ public class SystemProperties {
     public static PropertyResources getResources() {
         return RESOURCES;
     }
+    
+    public static boolean isTaskDelegationEnabled() {
+        return RESOURCES.getBooleanProperty("task.delegation.enabled", true);
+    }       
 
     /**
      * Production or development mode?

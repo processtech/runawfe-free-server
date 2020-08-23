@@ -216,4 +216,13 @@ public class AuthorizationServiceDelegate extends Ejb3Delegate implements Author
             throw handleException(e);
         }
     }
+
+    @Override
+    public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType securedObjectType, List<Long> idsOrNull) {
+        try{
+            return getAuthorizationService().filterAllowedIds(executor, permission, securedObjectType, idsOrNull);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
 }
