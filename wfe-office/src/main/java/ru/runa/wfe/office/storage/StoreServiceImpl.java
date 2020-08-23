@@ -25,7 +25,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.DataSourceStorage;
-import ru.runa.wfe.datasource.DataSourceStuff;
 import ru.runa.wfe.datasource.ExcelDataSource;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
@@ -90,10 +89,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ExecutionResult findByFilter(Properties properties, WfVariable variable, String condition) throws Exception {
-        if (!existOutputParamByVariableName(variable)) {
-            throw new WrongParameterException(variable.getDefinition().getName());
-        }
+    public ExecutionResult findByFilter(Properties properties, UserType userType, String condition) throws Exception {
         if (!isConditionValid(condition)) {
             throw new WrongOperatorException(condition);
         }
@@ -107,34 +103,24 @@ public class StoreServiceImpl implements StoreService {
         initParams(properties);
         Workbook wb = getWorkbook(fullPath);
         update(wb, constraints, variable.getValue(), format, condition, false);
-        OutputStream os = null;
-        try {
-            os = new FileOutputStream(fullPath);
+        try (OutputStream os = new FileOutputStream(fullPath)) {
             wb.write(os);
         } catch (IOException e) {
             log.error("", e);
             throw new BlockedFileException(fullPath);
-        } finally {
-            os.close();
         }
     }
 
     @Override
-    public void delete(Properties properties, WfVariable variable, String condition) throws Exception {
+    public void delete(Properties properties, UserType userType, String condition) throws Exception {
         initParams(properties);
         Workbook wb = getWorkbook(fullPath);
-        update(wb, constraints, variable.getValue(), format, condition, true);
-        OutputStream os = null;
-        try {
-            os = new FileOutputStream(fullPath);
+        update(wb, constraints, null, format, condition, true);
+        try (OutputStream os = new FileOutputStream(fullPath)) {
             wb.write(os);
         } catch (IOException e) {
             log.error("", e);
             throw new BlockedFileException(fullPath);
-        } finally {
-            if (os != null) {
-                os.close();
-            }
         }
     }
 
@@ -143,17 +129,11 @@ public class StoreServiceImpl implements StoreService {
         initParams(properties);
         Workbook wb = getWorkbook(fullPath);
         save(wb, constraints, format, variable, appendTo);
-        OutputStream os = null;
-        try {
-            os = new FileOutputStream(fullPath);
+        try (OutputStream os = new FileOutputStream(fullPath)) {
             wb.write(os);
         } catch (IOException e) {
             log.error("", e);
             throw new BlockedFileException(fullPath);
-        } finally {
-            if (os != null) {
-                os.close();
-            }
         }
     }
 
@@ -162,18 +142,10 @@ public class StoreServiceImpl implements StoreService {
         constraints = (ExcelConstraints) properties.get(PROP_CONSTRAINTS);
         format = (VariableFormat) properties.get(PROP_FORMAT);
         fullPath = properties.getProperty(PROP_PATH);
-        if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) || fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
-            String dsName;
-            if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)) {
-                dsName = fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE.length());
-            } else {
-                dsName = (String) variableProvider.getValueNotNull(fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE.length()));
-            }
-            DataSource ds = DataSourceStorage.getDataSource(dsName);
-            if (ds instanceof ExcelDataSource) {
-                ExcelDataSource eds = (ExcelDataSource) ds;
-                fullPath = eds.getFilePath() + "/" + tableName() + XLSX_SUFFIX;
-            }
+        final DataSource dataSource = DataSourceStorage.parseDataSource(fullPath, variableProvider);
+        if (dataSource instanceof ExcelDataSource) {
+            final ExcelDataSource eds = (ExcelDataSource) dataSource;
+            fullPath = eds.getFilePath() + "/" + tableName() + XLSX_SUFFIX;
         }
         createFileIfNotExist(fullPath);
     }
@@ -181,17 +153,16 @@ public class StoreServiceImpl implements StoreService {
     @SuppressWarnings("unchecked")
     private void update(Workbook workbook, ExcelConstraints constraints, Object variable, VariableFormat variableFormat, String condition,
             boolean clear) {
-        List list = findAll(workbook, constraints, variableFormat);
+        List<?> list = findAll(workbook, constraints, variableFormat);
         boolean changed = false;
+        int i = 0;
         if (Strings.isNullOrEmpty(condition)) {
-            int i = 0;
             for (Object object : list) {
                 changeVariable(constraints, variable, clear, list, i, object);
                 i++;
             }
             changed = true;
         } else {
-            int i = 0;
             for (Object object : list) {
                 if (variableFormat instanceof UserTypeFormat) {
                     if (ConditionProcessor.filter(condition, (Map<String, Object>) object, variableProvider)) {
@@ -207,7 +178,7 @@ public class StoreServiceImpl implements StoreService {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void changeVariable(ExcelConstraints constraints, Object variable, boolean clear, List list, int i, Object object) {
         if (clear) {
             list.set(i, null);
@@ -487,7 +458,7 @@ public class StoreServiceImpl implements StoreService {
                 }
             }
         }
-        return false;
+        return variableProvider.getVariable(variable.getDefinition().getName()) != null;
     }
 
     private String tableName() {

@@ -10,15 +10,12 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.datasource.DataSourceStorage;
-import ru.runa.wfe.datasource.DataSourceStuff;
 import ru.runa.wfe.datasource.JdbcDataSource;
-import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.excel.OnSheetConstraints;
@@ -85,11 +82,6 @@ public abstract class JdbcStoreService implements StoreService {
         // Do nothing
     }
 
-    protected UserType userType(WfVariable variable) {
-        return variable.getDefinition().isUserType() ? variable.getDefinition().getUserType()
-                : variable.getDefinition().getFormatComponentUserTypes()[0];
-    }
-
     protected String tableName() {
         OnSheetConstraints osc = (OnSheetConstraints) constraints;
         String tableName = osc.getSheetName();
@@ -99,26 +91,7 @@ public abstract class JdbcStoreService implements StoreService {
         return adjustIdentifier(tableName);
     }
 
-    protected boolean existOutputParamByVariableName(WfVariable variable) {
-        Preconditions.checkNotNull(variable);
-        if (variableProvider instanceof ParamBasedVariableProvider) {
-            ParamsDef paramsDef = ((ParamBasedVariableProvider) variableProvider).getParamsDef();
-            if (paramsDef != null) {
-                Map<String, ParamDef> outputParams = paramsDef.getOutputParams();
-                if (outputParams != null) {
-                    for (Entry<String, ParamDef> entry : outputParams.entrySet()) {
-                        String variableName = entry.getValue().getVariableName();
-                        if (variable.getDefinition().getName().equals(variableName)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    protected boolean executeSql(String sql) throws Exception {
+    protected boolean executeSql(String sql) throws JdbcStoreException {
         log.info(sql);
         try (Connection conn = ds.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             return ps.execute() && ps.getResultSet().next() || ps.getUpdateCount() > 0;
@@ -160,30 +133,22 @@ public abstract class JdbcStoreService implements StoreService {
         return vd.isUserType() || vd.getFormatNotNull() instanceof ListFormat && components != null && components.length > 0;
     }
 
-    protected void initParams(Properties properties, WfVariable variable) throws Exception {
+    protected void initParams(Properties properties, UserType userType) throws Exception {
         Preconditions.checkNotNull(properties);
-        Preconditions.checkNotNull(variable);
-        Preconditions.checkArgument(checkVariableType(variable),
-                "Variable '" + variable.getDefinition().getName() + "' must be user type or list of user types.");
+        Preconditions.checkNotNull(userType);
         constraints = (ExcelConstraints) properties.get(PROP_CONSTRAINTS);
         fullPath = properties.getProperty(PROP_PATH);
-        if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) || fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
-            String dsName = null;
-            if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)) {
-                dsName = fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE.length());
-            } else {
-                dsName = (String) variableProvider.getValueNotNull(fullPath.substring(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE.length()));
-            }
-            ds = (JdbcDataSource) DataSourceStorage.getDataSource(dsName);
-            createTableIfNotExist(variable);
+        ds = (JdbcDataSource) DataSourceStorage.parseDataSource(fullPath, variableProvider);
+        if (ds != null) {
+            createTableIfNotExist(userType);
         }
     }
 
-    protected void createTableIfNotExist(WfVariable variable) throws Exception {
+    protected void createTableIfNotExist(UserType userType) throws Exception {
         String tableName = tableName();
         if (!executeSql(MessageFormat.format(tableExistsSql(), tableName))) {
             String columnDefinitions = "";
-            for (VariableDefinition vd : userType(variable).getAttributes()) {
+            for (VariableDefinition vd : userType.getAttributes()) {
                 columnDefinitions += (columnDefinitions.length() > 0 ? SQL_LIST_SEPARATOR : "") + MessageFormat.format(SQL_COLUMN_DEFINITION,
                         adjustIdentifier(vd.getName()), typeMap().get(vd.getFormatNotNull().getClass()));
             }
@@ -204,14 +169,10 @@ public abstract class JdbcStoreService implements StoreService {
     abstract protected Map<Class<? extends VariableFormat>, String> typeMap();
 
     @Override
-    public ExecutionResult findByFilter(Properties properties, WfVariable variable, String condition) throws Exception {
-        if (!existOutputParamByVariableName(variable)) {
-            throw new WrongParameterException(variable.getDefinition().getName());
-        }
-        initParams(properties, variable);
+    public ExecutionResult findByFilter(Properties properties, UserType userType, String condition) throws Exception {
+        initParams(properties, userType);
         String columns = "";
-        UserType ut = variable.getDefinition().getFormatComponentUserTypes()[0];
-        for (VariableDefinition vd : ut.getAttributes()) {
+        for (VariableDefinition vd : userType.getAttributes()) {
             String variableName = adjustIdentifier(vd.getName());
             columns += (columns.length() > 0 ? SQL_LIST_SEPARATOR : "") + MessageFormat.format(SQL_COLUMN, variableName);
         }
@@ -220,8 +181,8 @@ public abstract class JdbcStoreService implements StoreService {
                 try (ResultSet rs = ps.executeQuery()) {
                     List<UserTypeMap> utmList = Lists.newArrayList();
                     while (rs.next()) {
-                        UserTypeMap utm = new UserTypeMap(ut);
-                        for (VariableDefinition vd : ut.getAttributes()) {
+                        UserTypeMap utm = new UserTypeMap(userType);
+                        for (VariableDefinition vd : userType.getAttributes()) {
                             String variableName = vd.getName();
                             utm.put(variableName, adjustValue(rs.getObject(adjustIdentifier(variableName))));
                         }
@@ -235,7 +196,10 @@ public abstract class JdbcStoreService implements StoreService {
 
     @Override
     public void update(Properties properties, WfVariable variable, String condition) throws Exception {
-        initParams(properties, variable);
+        Preconditions.checkArgument(checkVariableType(variable),
+                "Variable '" + variable.getDefinition().getName() + "' must be user type or list of user types.");
+        initParams(properties, userType(variable));
+
         String columns = "";
         for (VariableDefinition vd : variable.getDefinition().getUserType().getAttributes()) {
             String variableName = vd.getName();
@@ -259,29 +223,21 @@ public abstract class JdbcStoreService implements StoreService {
             String token = st.nextToken();
             if (token.startsWith("[") && token.endsWith("]")) {
                 sb.append(SPACE);
-                sb.append('"').append(token.replace(ConditionProcessor.UNICODE_CHARACTER_OVERLINE, ' ').substring(1, token.length() - 1)).append('"');
+                sb.append('"').append(token.replace(ConditionProcessor.UNICODE_CHARACTER_OVERLINE, ' '), 1, token.length() - 1).append('"');
             } else if (token.equalsIgnoreCase(LIKE_LITERAL)) {
                 sb.append(SPACE);
                 sb.append(LIKE_LITERAL);
                 sb.append(SPACE);
-                sb.append(st.nextToken());
-            } else if (token.startsWith("@")) {
-                String variableName = token.substring(1);
-                String toAppend = "";
-                if (variableProvider instanceof ParamBasedVariableProvider) {
-                    ParamsDef paramsDef = ((ParamBasedVariableProvider) variableProvider).getParamsDef();
-                    if (paramsDef != null) {
-                        if (paramsDef.getInputParam(variableName) != null) {
-                            Object inputParamValue = paramsDef.getInputParamValue(variableName, variableProvider);
-                            toAppend = sqlValue(inputParamValue, variableProvider.getVariable(variableName).getDefinition().getFormatNotNull());
-                        } else {
-                            WfVariable wfVariable = variableProvider.getVariableNotNull(variableName);
-                            toAppend = sqlValue(wfVariable.getValue(), wfVariable.getDefinition().getFormatNotNull());
-                        }
+                if (st.hasMoreTokens()) {
+                    final String nextToken = st.nextToken();
+                    if (nextToken.startsWith("@")) {
+                        sb.append(extractVariableValue(nextToken));
+                    } else {
+                        sb.append(nextToken);
                     }
-                    sb.append(SPACE);
-                    sb.append(toAppend);
                 }
+            } else if (token.startsWith("@")) {
+                sb.append(SPACE).append(extractVariableValue(token));
             } else if (token.equals(DOUBLE_EQUALS)) {
                 sb.append(SPACE);
                 sb.append(EQUALS);
@@ -294,14 +250,18 @@ public abstract class JdbcStoreService implements StoreService {
     }
 
     @Override
-    public void delete(Properties properties, WfVariable variable, String condition) throws Exception {
-        initParams(properties, variable);
+    public void delete(Properties properties, UserType userType, String condition) throws Exception {
+        initParams(properties, userType);
         executeSql(MessageFormat.format(SQL_DELETE, tableName(), condition(condition)));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void save(Properties properties, WfVariable variable, boolean appendTo) throws Exception {
-        initParams(properties, variable);
+        Preconditions.checkArgument(checkVariableType(variable),
+                "Variable '" + variable.getDefinition().getName() + "' must be user type or list of user types.");
+        initParams(properties, userType(variable));
+
         List<UserTypeMap> data = Lists.newArrayList();
         if (variable.getDefinition().isUserType()) {
             data.add((UserTypeMap) variable.getValue());
@@ -320,4 +280,29 @@ public abstract class JdbcStoreService implements StoreService {
         }
     }
 
+    private String extractVariableValue(String token) {
+        final String variableName = token.substring(1);
+        String toAppend = "";
+        if (variableProvider instanceof ParamBasedVariableProvider) {
+            ParamsDef paramsDef = ((ParamBasedVariableProvider) variableProvider).getParamsDef();
+            if (paramsDef != null) {
+                if (paramsDef.getInputParam(variableName) != null) {
+                    Object inputParamValue = paramsDef.getInputParamValue(variableName, variableProvider);
+                    toAppend = sqlValue(inputParamValue, variableProvider.getVariable(variableName).getDefinition().getFormatNotNull());
+                } else {
+                    WfVariable wfVariable = variableProvider.getVariableNotNull(variableName);
+                    toAppend = sqlValue(wfVariable.getValue(), wfVariable.getDefinition().getFormatNotNull());
+                }
+            }
+        } else {
+            WfVariable wfVariable = variableProvider.getVariableNotNull(variableName);
+            toAppend = sqlValue(wfVariable.getValue(), wfVariable.getDefinition().getFormatNotNull());
+        }
+        return toAppend;
+    }
+
+    protected UserType userType(WfVariable variable) {
+        return variable.getDefinition().isUserType() ? variable.getDefinition().getUserType()
+                : variable.getDefinition().getFormatComponentUserTypes()[0];
+    }
 }
