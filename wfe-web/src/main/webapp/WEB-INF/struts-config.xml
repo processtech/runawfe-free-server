@@ -699,8 +699,14 @@
 			<forward name="success" path="/definitions_history.do" redirect="true" />
 			<forward name="failure" path="/definitions_history.do" redirect="true" />
 		</action>
+		<action path="/show_definitions_history_diff" type="ru.runa.wf.web.action.ShowDefinitionHistoryDiffAction">
+			<forward name="success" path="/definitions_history_diff.do" redirect="false" />
+			<forward name="failure" path="/definitions_history.do" redirect="true" />
+		</action>
 		<action path="/definitions_history" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/show_process_definitions_history.jsp" />
+		<action path="/definitions_history_diff" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_process_definitions_history_diff.jsp" />
 
 		<action path="/deploy_process_definition" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/deploy_process_definition.jsp" />
