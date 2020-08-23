@@ -9,7 +9,12 @@
 		<property title="escalation.default.hierarchy.loader"/>
 		<property title="task.default.deadline" pattern="\s*[+\-]?\d+\s*(business|)\s*(seconds|minutes|hours|days|weeks|months|years)\s*" />
 		<property title="task.almostDeadlinePercents" pattern="\d*"/>
+		<property title="task.delegation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>		
 		<property title="token.maximum.depth" pattern="\d*"/>
+		<property title="token.maximum.length" pattern="\d*"/>
 		<property title="file.variable.local.storage.enabled">
 			<value>true</value>
 			<value>false</value>
@@ -175,11 +180,7 @@
 		<property title="process.removal.enabled">
 			<value>true</value>
 			<value>false</value>
-		</property>
-		<property title="task.delegation.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
+		</property>		
 		<property title="process.swimlane.assignment.enabled">
 			<value>true</value>
 			<value>false</value>
@@ -264,4 +265,47 @@
 		<property title="botstation.invocation.handler.timeout.milliseconds" pattern="\d*"/>
 	</property_file>
 	
+	<property_file title="securitycheck.properties">
+	
+		<property title="permission.check.required.EXECUTOR">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.DEFINITION">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.PROCESS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.REPORTS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.REPORT">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.RELATIONS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.RELATION">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.BOTSTATIONS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.DATASOURCES">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.SYSTEM">
+			<value>true</value>
+			<value>false</value>
+		</property>
+	</property_file>
 </settings>

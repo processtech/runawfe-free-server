@@ -32,6 +32,10 @@ public class SystemProperties {
     public static PropertyResources getResources() {
         return RESOURCES;
     }
+    
+    public static boolean isTaskDelegationEnabled() {
+        return RESOURCES.getBooleanProperty("task.delegation.enabled", true);
+    }       
 
     /**
      * Production or development mode?
@@ -183,6 +187,14 @@ public class SystemProperties {
 
     public static int getTokenMaximumDepth() {
         return RESOURCES.getIntegerProperty("token.maximum.depth", 100);
+    }
+
+    public static long getTokenMaximumLength() {
+        int length = RESOURCES.getIntegerProperty("token.maximum.length", -1);
+        if (length == -1) {
+            return Long.MAX_VALUE;
+        }
+        return length;
     }
 
     public static String getEARFileName() {

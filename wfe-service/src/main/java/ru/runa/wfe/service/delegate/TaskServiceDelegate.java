@@ -132,4 +132,13 @@ public class TaskServiceDelegate extends Ejb3Delegate implements TaskService {
         }
     }
 
+    @Override
+    public boolean isTaskDelegationEnabled() {
+        try {
+            return getTaskService().isTaskDelegationEnabled();
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
 }
