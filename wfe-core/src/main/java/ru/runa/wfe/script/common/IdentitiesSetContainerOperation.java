@@ -31,7 +31,7 @@ public abstract class IdentitiesSetContainerOperation extends ScriptOperation {
 
     protected void validate(boolean requiredNotEmpty) {
         for (NamedIdentitySet set : identitySets) {
-            set.ensureType(this, identitiesType);
+            set.validate(this, identitiesType);
         }
         if (requiredNotEmpty) {
             if (identitySets.size() == 0) {
