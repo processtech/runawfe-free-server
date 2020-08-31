@@ -106,4 +106,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage PAYLOAD_PARAMETER_NAME = new StrutsMessage("label.payload_parameter_name");
     public static final StrutsMessage PAYLOAD_PARAMETER_VALUE = new StrutsMessage("label.payload_parameter_value");
     public static final StrutsMessage SIGNAL_MESSAGE_IS_SENT = new StrutsMessage("signal.message_is_sent");
+    public static final StrutsMessage BUTTON_VIEW_DIFFERENCES = new StrutsMessage("button.view_differences");
+    public static final StrutsMessage FAILED_VIEW_DIFFERENCES = new StrutsMessage("failed.view_differences");
+    public static final StrutsMessage LABEL_NO_DIFFERENCES_FOUND = new StrutsMessage("label.no_differences_found");
 }

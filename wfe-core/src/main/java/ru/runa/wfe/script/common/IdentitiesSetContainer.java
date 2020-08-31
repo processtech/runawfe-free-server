@@ -34,7 +34,7 @@ public class IdentitiesSetContainer {
 
     protected void validate(ScriptOperation scriptOperation, boolean requiredNotEmpty) {
         for (NamedIdentitySet set : identitySets) {
-            set.ensureType(scriptOperation, identitiesType);
+            set.validate(scriptOperation, identitiesType);
         }
         for (Identity identity : identities) {
             identity.validate(scriptOperation);
