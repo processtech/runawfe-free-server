@@ -45,7 +45,7 @@ public class CreateBotOperation extends ScriptOperation implements BotSystemScri
         if (context.getBotLogic().getBot(context.getUser(), station.getId(), name) != null) {
             return;
         }
-        Bot bot = new Bot(station, name, context.getDefaultPassword() != null ? context.getDefaultPassword() : password);
+        Bot bot = new Bot(station, name);
         bot.setSequentialExecution(sequentialExecution);
         context.getBotLogic().createBot(context.getUser(), bot);
     }
