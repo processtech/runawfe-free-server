@@ -62,4 +62,9 @@ public class StringFormat extends VariableFormat implements VariableDisplaySuppo
     public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
         return operation.onString(this, context);
     }
+
+    @Override
+    public String formatHtmlForExcelExport(User user, WebHelper webHelper, Long processId, String name, Object object) {
+        return formatHtml(user, webHelper, processId, name, object);
+    }
 }
