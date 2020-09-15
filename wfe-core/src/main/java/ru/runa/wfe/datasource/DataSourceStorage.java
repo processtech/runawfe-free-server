@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -26,6 +27,7 @@ import org.springframework.util.FileCopyUtils;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.var.VariableProvider;
 
 public class DataSourceStorage implements DataSourceStuff {
 
@@ -60,7 +62,7 @@ public class DataSourceStorage implements DataSourceStuff {
             if (urls.isEmpty()) {
                 return;
             }
-            URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[] {}));
+            URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[]{}));
             JdbcDataSourceType[] dsTypes = JdbcDataSourceType.values();
             for (JdbcDataSourceType dsType : dsTypes) {
                 if (!registeredDsTypes.contains(dsType)) {
@@ -137,6 +139,16 @@ public class DataSourceStorage implements DataSourceStuff {
         return dataSource;
     }
 
+    public static DataSource parseDataSource(String s, VariableProvider variableProvider) {
+        if (!s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) && !s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
+            return null;
+        }
+        final String dsName = s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) ?
+                s.substring(s.indexOf(':') + 1) :
+                (String) variableProvider.getValue(s.substring(s.indexOf(':') + 1));
+        return DataSourceStorage.getDataSource(dsName);
+    }
+
     public static List<DataSource> getAllDataSources() {
         List<DataSource> all = Lists.newArrayList();
         for (String dsName : getNames()) {
@@ -166,13 +178,10 @@ public class DataSourceStorage implements DataSourceStuff {
 
     /**
      * Saves the data source properties to the local storage.
-     * 
-     * @param content
-     *            - the data source properties content.
-     * @param force
-     *            - force to overwrite if the data source already exists.
-     * @param preservePassword
-     *            - if true is passed then the old data source password won't be changed.
+     *
+     * @param content          - the data source properties content.
+     * @param force            - force to overwrite if the data source already exists.
+     * @param preservePassword - if true is passed then the old data source password won't be changed.
      * @return true if the method succeed, false if the data source with the given name has existed and the force argument is false.
      */
     public static boolean save(byte[] content, boolean force, boolean preservePassword) {
@@ -217,6 +226,12 @@ public class DataSourceStorage implements DataSourceStuff {
     public static byte[] restore(String dsName) {
         try {
             return FileCopyUtils.copyToByteArray(new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX));
+        } catch (FileNotFoundException e) {
+            if (DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME.equals(dsName)) {
+                log.warn(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME + " does not exist. Creating one", e);
+                return ExcelStorageInitiator.init();
+            }
+            throw new InternalApplicationException(e);
         } catch (IOException e) {
             throw new InternalApplicationException(e);
         }

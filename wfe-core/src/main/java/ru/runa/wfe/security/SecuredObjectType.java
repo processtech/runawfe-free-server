@@ -132,6 +132,9 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
 
     public static final SecuredObjectType REPORTS = new SecuredObjectType("REPORTS", true);
     public static final SecuredObjectType REPORT = new SecuredObjectType("REPORT", REPORTS);
-
+    
     public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM", true);
+    
+    public static final SecuredObjectType DATASOURCES = new SecuredObjectType("DATASOURCES", true);
+
 }

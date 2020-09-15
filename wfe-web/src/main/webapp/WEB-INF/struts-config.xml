@@ -46,6 +46,7 @@
 		<form-bean name="batchPresentationForm" type="ru.runa.common.web.form.BatchPresentationForm" />
 		<form-bean name="settingsForm" type="ru.runa.wf.web.form.SettingsForm" />
 		<form-bean name="viewLogForm" type="ru.runa.common.web.form.ViewLogForm" />
+		<form-bean name="viewInternalStorageForm" type="ru.runa.common.web.form.ViewInternalStorageForm" />
 		<form-bean name="updateStatusForm" type="ru.runa.af.web.form.UpdateStatusForm" />
 		<form-bean name="pagingForm" type="ru.runa.wf.web.form.PagingForm" />
 		<form-bean name="adminScriptForm" type="ru.runa.common.web.form.AdminScriptForm" />
@@ -95,6 +96,7 @@
 		<forward name="edit_settings" path="/edit_settings.do" />
 		<forward name="drop_settings" path="/drop_settings.do" />
 		<forward name="send_process_signal" path="/send_process_signal.do" />
+		<forward name="view_internal_storage" path="/viewInternalStorage.do?tabForwardName=view_internal_storage" />
 		<forward name="swich_chats" path="" redirect="no"  />
 	</global-forwards>
 
@@ -368,6 +370,11 @@
 		<action path="/viewLogs" type="ru.runa.common.web.action.ViewLogsAction"
 			name="viewLogForm" scope="request" unknown="false" validate="false">
 			<forward name="success" path="/displayLogs.do" redirect="false" />
+			<forward name="failure" path="/messages_page.do" redirect="false" />
+		</action>
+		<action path="/viewInternalStorage" type="ru.runa.common.web.action.ViewInternalStorageAction"
+			name="viewInternalStorageForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/displayInternalStorage.do" redirect="false" />
 			<forward name="failure" path="/messages_page.do" redirect="false" />
 		</action>
 		<action path="/addExecutorToGroups" type="ru.runa.af.web.action.AddExecutorToGroupsAction"
@@ -693,8 +700,14 @@
 			<forward name="success" path="/definitions_history.do" redirect="true" />
 			<forward name="failure" path="/definitions_history.do" redirect="true" />
 		</action>
+		<action path="/show_definitions_history_diff" type="ru.runa.wf.web.action.ShowDefinitionHistoryDiffAction">
+			<forward name="success" path="/definitions_history_diff.do" redirect="false" />
+			<forward name="failure" path="/definitions_history.do" redirect="true" />
+		</action>
 		<action path="/definitions_history" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/show_process_definitions_history.jsp" />
+		<action path="/definitions_history_diff" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_process_definitions_history_diff.jsp" />
 
 		<action path="/deploy_process_definition" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/deploy_process_definition.jsp" />
@@ -799,6 +812,9 @@
 
 		<action path="/displayLogs" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/common/logs.jsp" />
+
+		<action path="/displayInternalStorage" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/common/internal_storage.jsp" />
 
 		<action path="/show_tasks_history" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/show_tasks_history.jsp" />

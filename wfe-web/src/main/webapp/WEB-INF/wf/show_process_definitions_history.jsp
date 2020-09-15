@@ -16,7 +16,7 @@
 <%
 	String returnAction = "/definitions_history.do";
 %>
-<wf:listDefinitionsHistoryForm  batchPresentationId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" >
+<wf:listDefinitionsHistoryForm batchPresentationId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" >
 	<div>
 		<wf:viewControlsHideableBlock hideableBlockId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" >
 			<wf:tableViewSetupForm batchPresentationId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" />

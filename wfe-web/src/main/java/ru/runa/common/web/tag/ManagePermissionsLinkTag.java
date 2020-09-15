@@ -13,6 +13,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "managePermissionsLink")
 public class ManagePermissionsLinkTag extends BaseLinkTag {
+
     private static final long serialVersionUID = 1L;
 
     private SecuredObjectType securedObjectType;
@@ -43,6 +44,11 @@ public class ManagePermissionsLinkTag extends BaseLinkTag {
                 getUser(), Permission.READ_PERMISSIONS, securedObjectType, identifiableId != null ? identifiableId : 0
         );
     }
+    
+    @Override
+    protected boolean isVisible() {
+        return isLinkEnabled();
+    }    
 
     @Override
     protected String getLinkText() {
