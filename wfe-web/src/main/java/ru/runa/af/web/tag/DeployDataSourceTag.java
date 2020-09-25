@@ -64,6 +64,7 @@ public class DeployDataSourceTag extends TitledFormTag {
         }
         getForm().setEncType(Form.ENC_UPLOAD);
         Input fileUploadInput = new Input(Input.FILE, FileForm.FILE_INPUT_NAME);
+        fileUploadInput.setAccept(".ds");
         fileUploadInput.setClass(Resources.CLASS_REQUIRED);
         tdFormElement.addElement(fileUploadInput);
     }

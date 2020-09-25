@@ -36,7 +36,7 @@ public class ImportDataFileTag extends TitledFormTag {
         }
         clearPasswordRow(table);
         clearPasswordForDataSourcesRow(table);
-        Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true);
+        Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true, ".datafile");
         table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE.message(pageContext), fileInput));
         tdFormElement.addElement(table);
     }

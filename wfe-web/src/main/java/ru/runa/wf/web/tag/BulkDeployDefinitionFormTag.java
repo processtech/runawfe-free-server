@@ -123,7 +123,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         TD labelTd = new TD(label);
         labelTd.setClass(Resources.CLASS_LIST_TABLE_TD);
         tr.addElement(labelTd);
-        String fileInput = ViewUtil.getFileInput(strutsWebHelper, name, true);
+        String fileInput = ViewUtil.getFileInput(strutsWebHelper, name, true, ".par");
         tr.addElement(new TD(fileInput).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
     }
