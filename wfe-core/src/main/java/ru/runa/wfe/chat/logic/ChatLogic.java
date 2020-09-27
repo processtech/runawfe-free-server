@@ -1,6 +1,7 @@
 package ru.runa.wfe.chat.logic;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -112,15 +113,13 @@ public class ChatLogic extends WfCommonLogic {
             for (ProcessLog processLog : processLogs) {
                 String actorName = ((TaskEndLog) processLog).getActorName();
                 try {
-                    result.add(executorDao.getActor(actorName));
+                    if (!Strings.isNullOrEmpty(actorName)) {
+                        result.add(executorDao.getActor(actorName));
+                    }
                 } catch (ExecutorDoesNotExistException e) {
                     log.debug("Ignored deleted actor " + actorName + " for chat message");
                 }
             }
-        }
-        //
-        {
-
         }
         return result;
     }

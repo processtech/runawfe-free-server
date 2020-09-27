@@ -17,7 +17,6 @@ public class LocaleTextChat extends JsonAjaxCommand {
         Properties propLanguage = null;
         if (language.equals("ru")) {
             propLanguage = ClassLoaderUtil.getProperties("chat.localization.ru.properties", false);
-
         }
         String buttonSendMessage = propLanguage.getProperty("buttonSendMessage");
         String textAreaMessagePalceholder = propLanguage.getProperty("textAreaMessagePalceholder");
