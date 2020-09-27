@@ -1,7 +1,6 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.user.Executor;
@@ -14,8 +13,7 @@ import ru.runa.wfe.var.file.FileVariable;
  * 
  * @author Dofs
  */
-@Entity
-@DiscriminatorValue(value = "+")
+@MappedSuperclass
 public abstract class CurrentVariableLog extends CurrentProcessLog implements VariableLog {
     private static final long serialVersionUID = 1L;
 

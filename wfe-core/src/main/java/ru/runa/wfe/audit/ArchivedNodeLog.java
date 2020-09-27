@@ -1,12 +1,10 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import ru.runa.wfe.lang.NodeType;
 
-@Entity
-@DiscriminatorValue(value = "H")
+@MappedSuperclass
 public abstract class ArchivedNodeLog extends ArchivedProcessLog implements NodeLog {
 
     @Override

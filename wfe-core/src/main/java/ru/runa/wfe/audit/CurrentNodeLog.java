@@ -1,7 +1,6 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -11,8 +10,7 @@ import ru.runa.wfe.lang.NodeType;
  *
  * @author Dofs
  */
-@Entity
-@DiscriminatorValue(value = "0")
+@MappedSuperclass
 public abstract class CurrentNodeLog extends CurrentProcessLog implements NodeLog {
     private static final long serialVersionUID = 1L;
 

@@ -1,11 +1,9 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
-@Entity
-@DiscriminatorValue(value = "J")
+@MappedSuperclass
 public abstract class ArchivedTaskLog extends ArchivedProcessLog implements TaskLog {
 
     @Override

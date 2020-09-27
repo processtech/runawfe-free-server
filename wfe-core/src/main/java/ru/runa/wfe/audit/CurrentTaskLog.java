@@ -1,7 +1,6 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.lang.StartNode;
@@ -12,8 +11,7 @@ import ru.runa.wfe.task.Task;
  *
  * @author Dofs
  */
-@Entity
-@DiscriminatorValue(value = "6")
+@MappedSuperclass
 public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLog {
     private static final long serialVersionUID = 1L;
 
