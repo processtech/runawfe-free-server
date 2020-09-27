@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
-import lombok.var;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.CacheImplementation;
@@ -14,6 +13,7 @@ import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.hibernate.HibernateUtil;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
 import ru.runa.wfe.definition.par.ProcessArchive;
@@ -65,9 +65,9 @@ class ProcessDefCacheImpl extends BaseCacheImpl {
             return parsed;
         }
         // }
-        var dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
-        var d = dwv.processDefinition;
-        var dv = dwv.processDefinitionVersion;
+        ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
+        ProcessDefinition d = dwv.processDefinition;
+        ProcessDefinitionVersion dv = dwv.processDefinitionVersion;
 
         // TODO Do we really need to unproxy? Maybe Hibernate.initialize(d), ...(dv) would be enoug? Cannot ParsedProcessDefinition hold detached proxies?
         dv = HibernateUtil.unproxy(dv);
@@ -144,7 +144,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl {
 
         } else if (changedObject.object instanceof ProcessDefinitionVersion) {
 
-            var dv = (ProcessDefinitionVersion) changedObject.object;
+        	ProcessDefinitionVersion dv = (ProcessDefinitionVersion) changedObject.object;
             Preconditions.checkArgument(dv.getId() != null);
             isLocked.set(true);
             versionIdToParsed.remove(dv.getId());

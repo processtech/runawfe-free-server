@@ -15,7 +15,6 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListener;
@@ -30,6 +29,7 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 /**
  * @since 4.3.0

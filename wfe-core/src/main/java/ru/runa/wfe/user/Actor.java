@@ -49,12 +49,6 @@ public class Actor extends Executor {
         this(name, description, null);
     }
 
-    @Override
-    @Column(name = "FULL_NAME", nullable = false, length = 1024)
-    public String getFullName() {
-        return super.getFullName();
-    }
-
     @Transient
     @Override
     public SecuredObjectType getSecuredObjectType() {

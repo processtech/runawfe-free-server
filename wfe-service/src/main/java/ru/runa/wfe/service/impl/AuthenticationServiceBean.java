@@ -13,13 +13,13 @@ import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.security.logic.AuthenticationLogic;
 import ru.runa.wfe.service.decl.AuthenticationServiceLocal;
 import ru.runa.wfe.service.decl.AuthenticationServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceSimpleObserver;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.user.User;
 
 /**

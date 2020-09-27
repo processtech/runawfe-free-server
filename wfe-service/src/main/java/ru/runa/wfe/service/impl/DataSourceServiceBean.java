@@ -20,7 +20,6 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.JdbcDataSource;
@@ -29,6 +28,7 @@ import ru.runa.wfe.service.decl.DataSourceServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
@@ -48,6 +48,7 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
         return DataSourceStorage.getNames();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @WebResult(name = "result")
     public void importDataSource(@WebParam(name = "user") User user, @WebParam(name = "archive") byte[] archive) {
@@ -69,6 +70,7 @@ public class DataSourceServiceBean implements DataSourceServiceLocal, DataSource
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @WebResult(name = "result")
     public byte[] exportDataSource(@WebParam(name = "user") User user, @WebParam(name = "name") String name) {

@@ -1,17 +1,21 @@
 
-    <!-- A : ru.runa.bpm.log.ActionLog -->
+    <!-- A : ru.runa.wfe.audit.ArchivedActionLog -->
     <!-- B : ru.runa.bpm.log.SubprocessStartLog -->
     <!-- C : ru.runa.bpm.log.CreateTimerLog -->
     <!-- D : ru.runa.bpm.log.VariableDeleteLog -->
     <!-- E : ru.runa.bpm.log.AdminActionLog -->
     <!-- F : ru.runa.bpm.log.TaskDelegationLog -->
+    <!-- G : ru.runa.wfe.audit.ArchivedProcessLog -->
+    <!-- H :  -->
     <!-- I : ru.runa.bpm.log.ProcessCreateLog -->
+    <!-- J :  -->
     <!-- K : ru.runa.bpm.log.TaskEndByAdminLog -->
     <!-- L : ru.runa.bpm.log.NodeLeaveLog -->
     <!-- M : ru.runa.bpm.log.TaskRemovedOnProcessEndLog -->
     <!-- N : ru.runa.bpm.log.NodeEnterLog -->
     <!-- O : ru.runa.bpm.log.TaskCancelledLog -->
     <!-- P :  -->
+    <!-- Q : ru.runa.wfe.audit.CurrentProcessLog -->
     <!-- R : ru.runa.bpm.log.VariableCreateLog -->
     <!-- S : ru.runa.bpm.log.TaskEndBySubstitutorLog -->
     <!-- T : ru.runa.bpm.log.TransitionLog -->
@@ -21,7 +25,7 @@
     <!-- X : ru.runa.bpm.log.ProcessEndLog -->
     <!-- Y : ru.runa.bpm.log.ProcessCancelLog -->
     <!-- Z : ru.runa.bpm.log.SubprocessEndLog -->
-    <!-- 0 : ru.runa.wfe.audit.ProcessLog & abstract subclasses -->
+    <!-- 0 :  -->
     <!-- 1 : ru.runa.bpm.log.TaskCreateLog -->
     <!-- 2 : ru.runa.bpm.log.TaskAssignLog -->
     <!-- 3 : ru.runa.bpm.log.TaskEndLog -->

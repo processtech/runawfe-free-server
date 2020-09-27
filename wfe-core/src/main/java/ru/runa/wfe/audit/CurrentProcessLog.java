@@ -1,7 +1,6 @@
 package ru.runa.wfe.audit;
 
 import com.google.common.base.MoreObjects;
-import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -32,7 +31,7 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 @Table(name = "BPM_LOG")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
-@DiscriminatorValue(value = "0")
+@DiscriminatorValue(value = "Q")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class CurrentProcessLog extends BaseProcessLog {

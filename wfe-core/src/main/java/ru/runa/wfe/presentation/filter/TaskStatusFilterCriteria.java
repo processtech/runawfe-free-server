@@ -1,5 +1,6 @@
 package ru.runa.wfe.presentation.filter;
 
+import ru.runa.wfe.audit.aggregated.TaskEndReason;
 import ru.runa.wfe.commons.SqlCommons;
 import ru.runa.wfe.commons.SqlCommons.StringEqualsExpression;
 import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
@@ -32,20 +33,24 @@ public class TaskStatusFilterCriteria extends FilterCriteria {
         placeholders.add(alias, expression.getValue());
 
         int taskStatus = TASK_STATUS_ACTIVE;
-        if (!getFilterTemplate(1).isEmpty())
-        	taskStatus = Integer.parseInt(getFilterTemplate(1));
+        if (!getFilterTemplate(1).isEmpty()) {
+            taskStatus = Integer.parseInt(getFilterTemplate(1));
+        }
         StringBuilder where = new StringBuilder("( ");
         where.append(aliasedFieldName).append(paramStringBuilder);
 
         switch (taskStatus) {
             case TASK_STATUS_ACTIVE:
-                where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = 0");
+            where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = '").append(TaskEndReason.PROCESSING.name())
+                    .append("'");
                 break;
             case TASK_STATUS_HAS_ASSIGNED:
-                where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = 1");
+            where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = '").append(TaskEndReason.COMPLETED.name())
+                    .append("'");
                 break;
             case TASK_STATUS_HAS_NOT_STARTED:
-                where.delete(0, where.length()).append("subQuery.processId NOT IN (SELECT subquery2.processId FROM ru.runa.wfe.audit.aggregated.TaskAggregatedLog as subquery2 WHERE (subquery2.taskName=:subQuerytaskName)");
+            where.delete(0, where.length()).append(
+                    "subQuery.processId NOT IN (SELECT subquery2.processId FROM ru.runa.wfe.audit.aggregated.TaskAggregatedLog as subquery2 WHERE (subquery2.taskName=:subQuerytaskName)");
         }
 
         where.append(")");

@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.Dialect;
@@ -73,7 +74,13 @@ public abstract class DbMigration {
      */
     @Deprecated
     public void executeDML(Session session) throws Exception {
-        executeDML(session.connection());
+        session.doWork(connection -> {
+            try {
+                executeDML(connection);
+            } catch (Exception e) {
+                throw new HibernateException(e);
+            }
+        });
     }
 
     public void executeDML(Connection conn) throws Exception {
@@ -144,8 +151,7 @@ public abstract class DbMigration {
      * @return Result of last update.
      */
     protected final int executeUpdates(String... queries) {
-        try {
-            val conn = currentSession.get().connection();
+        return currentSession.get().doReturningWork(conn -> {
             val category = currentCategory.get();
             try (val stmt = conn.createStatement()) {
                 int result = 0;
@@ -154,9 +160,7 @@ public abstract class DbMigration {
                 }
                 return result;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     /**
@@ -166,8 +170,7 @@ public abstract class DbMigration {
      */
     @SafeVarargs
     protected final int executeUpdates(List<String>... queries) {
-        try {
-            val conn = currentSession.get().connection();
+        return currentSession.get().doReturningWork(conn -> {
             val category = currentCategory.get();
             try (val stmt = conn.createStatement()) {
                 int result = 0;
@@ -180,9 +183,7 @@ public abstract class DbMigration {
                 }
                 return result;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     private static void checkIndentifierLength(String id) {
@@ -194,44 +195,52 @@ public abstract class DbMigration {
     protected final List<String> getDDLCreateSequence(String sequenceName) {
         checkIndentifierLength(sequenceName);
         switch (dbType) {
-            case ORACLE:
-            case POSTGRESQL:
-                return list("create sequence " + sequenceName);
-            default:
-                return null;
+        case ORACLE:
+        case POSTGRESQL:
+        case H2:
+        case MYSQL:
+            return list("create sequence " + sequenceName);
+        default:
+            return null;
         }
     }
 
     protected final List<String> getDDLCreateSequence(String sequenceName, long nextValue) {
         checkIndentifierLength(sequenceName);
         switch (dbType) {
-            case ORACLE:
-            case POSTGRESQL:
-                return list("create sequence " + sequenceName + " start with " + nextValue);
-            default:
-                return null;
+        case ORACLE:
+        case POSTGRESQL:
+        case H2:
+        case MYSQL:
+            return list("create sequence " + sequenceName + " start with " + nextValue);
+        default:
+            return null;
         }
     }
 
     protected final List<String> getDDLDropSequence(String sequenceName) {
         switch (dbType) {
-            case ORACLE:
-            case POSTGRESQL:
-                return list("drop sequence " + sequenceName);
-            default:
-                return null;
+        case ORACLE:
+        case POSTGRESQL:
+        case H2:
+        case MYSQL:
+            return list("drop sequence " + sequenceName);
+        default:
+            return null;
         }
     }
 
     protected final List<String> getDDLRenameSequence(String sequenceName, String newName) {
         checkIndentifierLength(newName);
         switch (dbType) {
-            case ORACLE:
-                return list("rename " + sequenceName + " to " + newName);
-            case POSTGRESQL:
-                return list("alter sequence " + sequenceName + " rename to " + newName);
-            default:
-                return null;
+        case ORACLE:
+            return list("rename " + sequenceName + " to " + newName);
+        case POSTGRESQL:
+            return list("alter sequence " + sequenceName + " rename to " + newName);
+        case H2:
+            return list("drop sequence " + sequenceName, "create sequence " + newName);
+        default:
+            return null;
         }
     }
 

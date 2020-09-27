@@ -15,7 +15,6 @@ import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.dao.Localization;
@@ -31,6 +30,7 @@ import ru.runa.wfe.service.decl.SystemServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.user.User;
 
 /**

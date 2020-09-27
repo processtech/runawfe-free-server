@@ -22,6 +22,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.jaxb.ExecutorAdapter;
@@ -34,7 +35,7 @@ import ru.runa.wfe.user.jaxb.ExecutorAdapter;
  * 
  */
 @Entity
-@org.hibernate.annotations.Entity(polymorphism = PolymorphismType.EXPLICIT)
+@Polymorphism(type = PolymorphismType.EXPLICIT)
 @Table(name = "EXECUTOR")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.STRING, length = 1)
@@ -104,7 +105,7 @@ public abstract class Executor extends SecuredObject implements Comparable<Execu
         this.version = version;
     }
 
-    @Column(name = "FULL_NAME", insertable = false, updatable = false, length = 1024)
+    @Column(name = "FULL_NAME", insertable = true, updatable = true, length = 1024)
     public String getFullName() {
         return fullName;
     }

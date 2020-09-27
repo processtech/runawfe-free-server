@@ -1,8 +1,5 @@
 package ru.runa.wfe.user.dao;
 
-import lombok.val;
-import ru.runa.wfe.user.ExecutorLoader;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -14,7 +11,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -612,7 +611,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
             queryFactory.delete(ap).where(ap.actorId.eq(executor.getId())).execute();
         }
         // #266#note-18
-        executor = (Executor) sessionFactory.getCurrentSession().get(Executor.class, executor.getId());
+        executor = sessionFactory.getCurrentSession().get(Executor.class, executor.getId());
         sessionFactory.getCurrentSession().delete(executor);
     }
     
@@ -773,7 +772,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         if (executor != null) {
             return clazz.isAssignableFrom(executor.getClass()) ? (T) executor : null;
         } else {
-            return (T) sessionFactory.getCurrentSession().get(clazz, id);
+            return sessionFactory.getCurrentSession().get(clazz, id);
         }
     }
 
@@ -782,7 +781,9 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         if (executor != null) {
             return (T) (clazz.isAssignableFrom(executor.getClass()) ? executor : null);
         } else {
-            return findFirstOrNull("from " + clazz.getName() + " where name=?", name);
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("name", name);
+            return findFirstOrNull("from " + clazz.getName() + " where name=:name", parameters);
         }
     }
 

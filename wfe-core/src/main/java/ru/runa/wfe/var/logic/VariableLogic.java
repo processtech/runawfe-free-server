@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -254,7 +255,7 @@ public class VariableLogic extends WfCommonLogic {
     private void removeSyncVariablesInBaseProcessMode(Map<Process, Map<String, Variable>> processStateOnTime,
             BaseProcessVariableLoader baseProcessVariableLoader) {
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
-        for (val entry : processStateOnTime.entrySet()) {
+        for (Entry<Process, Map<String, Variable>> entry : processStateOnTime.entrySet()) {
             Process process = entry.getKey();
             if (!baseProcessVariableLoader.getSubprocessSyncCache().isInBaseProcessIdMode(process)) {
                 continue;

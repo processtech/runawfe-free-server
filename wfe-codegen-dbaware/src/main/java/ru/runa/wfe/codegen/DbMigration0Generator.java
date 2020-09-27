@@ -3,7 +3,6 @@ package ru.runa.wfe.codegen;
 import java.io.File;
 import java.io.FileWriter;
 import lombok.val;
-import lombok.var;
 import ru.runa.wfe.codegen.DbStructureAnalyzer.Structure;
 
 class DbMigration0Generator {
@@ -36,7 +35,7 @@ class DbMigration0Generator {
                 "        executeUpdates(");
 
 
-        var firstSequence = true;
+        boolean firstSequence = true;
         for (val s : st.sequenceNames) {
             if (firstSequence) {
                 firstSequence = false;
@@ -48,7 +47,7 @@ class DbMigration0Generator {
         }
 
 
-        var firstTable = true;
+        boolean firstTable = true;
         for (val t : st.tables) {
             if (firstTable) {
                 firstTable = false;
@@ -57,7 +56,7 @@ class DbMigration0Generator {
                 w.write(",\n");
             }
             w.write("                getDDLCreateTable(\"" + t.name + "\", list(");
-            var firstColumn = true;
+            boolean firstColumn = true;
             for (val c : t.columns) {
                 if (firstColumn) {
                     firstColumn = false;
@@ -113,7 +112,7 @@ class DbMigration0Generator {
 
 
         // Creating indexes before UK and FK, to avoid automatic index creation by SQL server.
-        var firstIndex = true;
+        boolean firstIndex = true;
         for (val i : st.indexes) {
             if (firstIndex) {
                 firstIndex = false;
@@ -129,7 +128,7 @@ class DbMigration0Generator {
         }
 
 
-        var firstUk = true;
+        boolean firstUk = true;
         for (val uk : st.uniqueKeys) {
             if (firstUk) {
                 firstUk = false;
@@ -145,7 +144,7 @@ class DbMigration0Generator {
         }
 
 
-        var firstFk = true;
+        boolean firstFk = true;
         for (val fk : st.foreignKeys) {
             if (firstFk) {
                 firstFk = false;

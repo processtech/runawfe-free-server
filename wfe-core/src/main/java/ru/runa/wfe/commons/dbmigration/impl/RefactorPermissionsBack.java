@@ -65,7 +65,7 @@ public class RefactorPermissionsBack extends DbMigration {
     @SneakyThrows
     public void executeDML(Session session) {
 //        if (true) throw new Exception("DEBUG STOP");
-        Connection conn = session.connection();
+        session.doWork(conn -> {
 
         // Are we working with RunaWFE 4.3.0 (original RefactorPermissionsStep4 is not yet applied) or 4.4.0?
         boolean isV43;
@@ -83,6 +83,7 @@ public class RefactorPermissionsBack extends DbMigration {
         } else {
             executeDML_fromV44(session, conn);
         }
+        });
     }
 
 

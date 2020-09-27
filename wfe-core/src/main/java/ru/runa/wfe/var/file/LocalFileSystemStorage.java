@@ -3,6 +3,7 @@ package ru.runa.wfe.var.file;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
@@ -10,8 +11,9 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.Variable;
 
-public class LocalFileSystemStorage implements FileVariableStorage {
+public class LocalFileSystemStorage implements FileVariableStorage, Serializable {
 
+    private static final long serialVersionUID = 1L;
     static File storageDir;
 
     static synchronized File getLocalFileStorage() {

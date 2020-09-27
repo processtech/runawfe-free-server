@@ -1,11 +1,9 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
-@Entity
-@DiscriminatorValue(value = "0")
+@MappedSuperclass
 public abstract class ArchivedVariableLog extends ArchivedProcessLog implements VariableLog {
 
     @Override
@@ -44,6 +42,7 @@ public abstract class ArchivedVariableLog extends ArchivedProcessLog implements 
         return CurrentAndArchiveCommons.variableLog_getVariableNewValue(this);
     }
 
+    @Override
     @Transient
     public Object getVariableNewValueForPattern() {
         return CurrentAndArchiveCommons.variableLog_getVariableNewValueForPattern(this);

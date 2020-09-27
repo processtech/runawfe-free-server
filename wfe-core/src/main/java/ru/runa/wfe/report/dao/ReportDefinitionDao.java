@@ -1,8 +1,10 @@
 package ru.runa.wfe.report.dao;
 
 import com.google.common.collect.Lists;
+import java.util.HashMap;
 import java.util.List;
-import org.hibernate.classic.Session;
+import java.util.Map;
+import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -42,7 +44,9 @@ public class ReportDefinitionDao extends GenericDao<ReportDefinition> {
     }
 
     public ReportDefinition getReportDefinition(String reportName) {
-        return findFirstOrNull("from " + ReportDefinition.class.getName() + " where name=?", reportName);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("name", reportName);
+        return findFirstOrNull("from " + ReportDefinition.class.getName() + " where name=:name", parameters);
     }
 
     public void deployReport(ReportDefinition report) {

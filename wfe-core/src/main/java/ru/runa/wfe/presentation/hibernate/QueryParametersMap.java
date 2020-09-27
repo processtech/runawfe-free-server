@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
+import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.type.Type;
 
 public class QueryParametersMap {
@@ -17,15 +17,15 @@ public class QueryParametersMap {
     }
 
     public void add(String name, String value) {
-        map.put(name, new QueryParameterValue(value, Hibernate.STRING, false));
+        map.put(name, new QueryParameterValue(value, StandardBasicTypes.STRING, false));
     }
 
     public void add(String name, Long value) {
-        map.put(name, new QueryParameterValue(value, Hibernate.LONG, false));
+        map.put(name, new QueryParameterValue(value, StandardBasicTypes.LONG, false));
     }
 
     public void add(String name, Date value) {
-        map.put(name, new QueryParameterValue(value, Hibernate.TIMESTAMP, false));
+        map.put(name, new QueryParameterValue(value, StandardBasicTypes.TIMESTAMP, false));
     }
 
     public void add(String name, Collection<?> value) {
