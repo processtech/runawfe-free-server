@@ -19,6 +19,7 @@ import ru.runa.wf.web.MessagesDataSource;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.DataSourceStorage;
+import ru.runa.wfe.datasource.DataSourceStuff;
 import ru.runa.wfe.datasource.DataSourceType;
 import ru.runa.wfe.datasource.ExcelDataSource;
 import ru.runa.wfe.datasource.JdbcDataSource;
@@ -38,7 +39,9 @@ public class DataSourceTableBuilder {
         table.setWidth("100%");
         table.addElement(createTableHeaderTR());
         for (DataSource ds : DataSourceStorage.getAllDataSources()) {
-            table.addElement(createTR(ds));
+            if (!DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME.equals(ds.getName())) {
+                table.addElement(createTR(ds));
+            }
         }
         return table;
     }
@@ -116,7 +119,7 @@ public class DataSourceTableBuilder {
         switch (ds.getType()) {
         case Excel:
             ExcelDataSource eds = (ExcelDataSource) ds;
-            attributes += "filePath: " + eds.getFilePath() + ", fileName: " + eds.getFileName();
+            attributes += "dirPath: " + eds.getFilePath();
             break;
         case JNDI:
             attributes += "jndiName: " + ((JndiDataSource) ds).getJndiName();

@@ -18,6 +18,7 @@ import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
+import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
@@ -29,6 +30,10 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDao;
+import ru.runa.wfe.validation.ValidationException;
+import ru.runa.wfe.validation.ValidatorContext;
+import ru.runa.wfe.validation.ValidatorManager;
+import ru.runa.wfe.var.VariableProvider;
 
 @Component
 public class ProcessFactory {
@@ -96,13 +101,17 @@ public class ProcessFactory {
     }
 
     public CurrentProcess createSubprocess(ExecutionContext parentExecutionContext, ParsedProcessDefinition parsedProcessDefinition,
-            Map<String, Object> variables, int index) {
+            Map<String, Object> variables, int index, boolean validate) {
         CurrentProcess parentProcess = parentExecutionContext.getCurrentProcess();
         CurrentProcess rootProcess = currentNodeProcessDao.getRootProcessByParentProcess(parentProcess);
         Node subProcessNode = parentExecutionContext.getNode();
         ExecutionContext subExecutionContext = createProcessInternal(parsedProcessDefinition, variables, null, parentProcess, null);
         currentNodeProcessDao.create(new CurrentNodeProcess(subProcessNode, parentExecutionContext.getCurrentToken(), rootProcess,
                 subExecutionContext.getCurrentProcess(), index));
+        if (validate) {
+            validateVariables(subExecutionContext, new ExecutionVariableProvider(subExecutionContext), parsedProcessDefinition,
+                    parsedProcessDefinition.getStartStateNotNull().getNodeId(), variables);
+        }
         return subExecutionContext.getCurrentProcess();
     }
 
@@ -112,6 +121,18 @@ public class ProcessFactory {
         grantSubprocessPermissions(executionContext.getParsedProcessDefinition(), executionContext.getCurrentProcess(),
                 parentExecutionContext.getCurrentProcess());
         startProcessInternal(executionContext, null);
+    }
+
+    private void validateVariables(ExecutionContext executionContext, VariableProvider variableProvider,
+            ParsedProcessDefinition parsedProcessDefinition, String nodeId, Map<String, Object> variables) throws ValidationException {
+        Interaction interaction = parsedProcessDefinition.getInteractionNotNull(nodeId);
+        if (interaction.getValidationData() != null) {
+            ValidatorContext context = ValidatorManager.getInstance().validate(executionContext, variableProvider,
+                    interaction.getValidationData(), variables);
+            if (context.hasGlobalErrors() || context.hasFieldErrors()) {
+                throw new ValidationException(context.getFieldErrors(), context.getGlobalErrors());
+            }
+        }
     }
 
     private void grantSubprocessPermissions(ParsedProcessDefinition parsedProcessDefinition, Process subProcess, Process parentProcess) {
@@ -172,4 +193,5 @@ public class ProcessFactory {
         }
         startNode.leave(executionContext, transition);
     }
+
 }

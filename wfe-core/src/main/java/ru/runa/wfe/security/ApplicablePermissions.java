@@ -27,6 +27,7 @@ import static ru.runa.wfe.security.Permission.UPDATE_ACTOR_STATUS;
 import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.VIEW_LOGS;
 import static ru.runa.wfe.security.Permission.VIEW_TASKS;
+import static ru.runa.wfe.security.Permission.DELEGATE_TASKS;
 
 /**
  * Extracted from class Permission because permission-to-securedObjectType applicability is separate piece of logic,
@@ -199,15 +200,15 @@ public final class ApplicablePermissions {
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.EXECUTOR, READ, UPDATE_PERMISSIONS, UPDATE, UPDATE_ACTOR_STATUS, VIEW_TASKS)
+        add(SecuredObjectType.EXECUTOR, READ, UPDATE_PERMISSIONS, UPDATE, UPDATE_ACTOR_STATUS, VIEW_TASKS, DELEGATE_TASKS)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.PROCESS, READ, UPDATE_PERMISSIONS, CANCEL)
+        add(SecuredObjectType.PROCESS, READ, UPDATE_PERMISSIONS, CANCEL, UPDATE, DELETE, START_PROCESS, CANCEL_PROCESS)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 
-        add(SecuredObjectType.RELATION, READ, UPDATE_PERMISSIONS, UPDATE)
+        add(SecuredObjectType.RELATION, READ, UPDATE_PERMISSIONS, UPDATE, DELETE)
                 .defaults(READ)
                 .hidden(READ_PERMISSIONS);
 
@@ -226,5 +227,9 @@ public final class ApplicablePermissions {
         add(SecuredObjectType.SYSTEM, READ, UPDATE_PERMISSIONS, LOGIN, CHANGE_SELF_PASSWORD, CREATE_EXECUTOR, CREATE_DEFINITION, VIEW_LOGS)
                 .defaults(LOGIN)
                 .hidden(READ_PERMISSIONS);
+        
+        add(SecuredObjectType.DATASOURCES, READ, UPDATE_PERMISSIONS, UPDATE)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS);        
     }
 }

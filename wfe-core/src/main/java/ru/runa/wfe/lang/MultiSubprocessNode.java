@@ -113,7 +113,8 @@ public class MultiSubprocessNode extends SubprocessNode {
                     }
                 }
             }
-            CurrentProcess subProcess = processFactory.createSubprocess(executionContext, parsedSubProcessDefinition, variables, index);
+            CurrentProcess subProcess = processFactory.createSubprocess(executionContext, parsedSubProcessDefinition, variables, index,
+                    isValidateAtStart());
             subProcesses.add(subProcess);
         }
         for (CurrentProcess subprocess : subProcesses) {

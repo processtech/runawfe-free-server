@@ -10,6 +10,8 @@ import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesDataSource;
 import ru.runa.wfe.security.AuthorizationException;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deployDataSource")
@@ -19,7 +21,7 @@ public class DeployDataSourceTag extends TitledFormTag {
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return Delegates.getExecutorService().isAdministrator(getUser());
+        return Delegates.getExecutorService().isAdministrator(getUser()) && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.DATASOURCES);
     }
 
     @Override

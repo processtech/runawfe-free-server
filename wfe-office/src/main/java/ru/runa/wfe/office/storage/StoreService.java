@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
+import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.dto.WfVariable;
 
 public interface StoreService {
@@ -17,11 +18,11 @@ public interface StoreService {
 
     void createFileIfNotExist(String path) throws Exception;
 
-    ExecutionResult findByFilter(Properties properties, WfVariable variable, String condition) throws Exception;
+    ExecutionResult findByFilter(Properties properties, UserType userType, String condition) throws Exception;
 
     void update(Properties properties, WfVariable variable, String condition) throws Exception;
 
-    void delete(Properties properties, WfVariable variable, String condition) throws Exception;
+    void delete(Properties properties, UserType userType, String condition) throws Exception;
 
     void save(Properties properties, WfVariable variable, boolean appendTo) throws Exception;
 

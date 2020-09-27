@@ -14,8 +14,9 @@
 	</tiles:put>
 
     <tiles:put name="body" type="string">
-	    <wf:deployDataSource />
-        <wf:dataSourceList buttonAlignment="right">
+    	<wf:deployDataSource />
+    	<wf:managePermissionsLink securedObjectType="DATASOURCES" />
+        <wf:dataSourceList buttonAlignment="right">        	
         </wf:dataSourceList>
     </tiles:put>
     <tiles:put name="messages" value="../common/messages.jsp"/>

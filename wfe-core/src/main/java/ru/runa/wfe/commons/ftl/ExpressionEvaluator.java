@@ -82,7 +82,7 @@ public class ExpressionEvaluator {
     public static long evaluateDuration(VariableProvider variableProvider, String expression) {
         Date dueDate = evaluateDueDate(variableProvider, expression);
         long duration = new CalendarInterval(new Date(), dueDate).getLengthInMillis();
-        return duration > 0 ? duration : 0;
+        return duration;
     }
 
     public static Object evaluateVariableNotNull(VariableProvider variableProvider, String expression) {

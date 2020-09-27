@@ -47,6 +47,10 @@ public abstract class FilesSupplierConfig {
         this.outputFileVariableName = outputFileVariableName;
     }
 
+    public String getOutputFileVariableName() {
+        return outputFileVariableName;
+    }
+
     protected abstract MediaType getContentType();
 
     public abstract String getDefaultOutputFileName();

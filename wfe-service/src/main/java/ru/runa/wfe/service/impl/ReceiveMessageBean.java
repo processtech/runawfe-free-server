@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -134,7 +135,19 @@ public class ReceiveMessageBean implements MessageListener {
                 log.error(errorMessage);
                 Errors.addSystemError(new InternalApplicationException(errorMessage));
             } else {
-                throw new MessagePostponedException(messageString);
+                Date expiryDate = null;
+                try {
+                    if (message.propertyExists(BaseMessageNode.EXPIRATION_PROPERTY)) {
+                        expiryDate = new Date(message.getLongProperty(BaseMessageNode.EXPIRATION_PROPERTY));
+                    }
+                } catch (JMSException e) {
+                    Throwables.propagate(e);
+                }
+                if (expiryDate == null || expiryDate.after(new Date())) {
+                    throw new MessagePostponedException(messageString);
+                } else {
+                    log.debug("Rejecting message request " + messageString + ", already expired");
+                }
             }
         }
         for (ReceiveMessageData data : handlers) {

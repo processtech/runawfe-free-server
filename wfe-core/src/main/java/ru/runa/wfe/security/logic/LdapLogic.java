@@ -16,10 +16,12 @@ import java.util.regex.Pattern;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.SizeLimitExceededException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.PagedResultsControl;
+import javax.naming.ldap.PagedResultsResponseControl;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import lombok.extern.apachecommons.CommonsLog;
@@ -54,12 +56,7 @@ public class LdapLogic {
     private static final String ATTR_ACCOUNT_NAME = LdapProperties.getSynchronizationAccountNameAttribute();
     private static final String ATTR_GROUP_NAME = LdapProperties.getSynchronizationGroupNameAttribute();
     private static final String ATTR_GROUP_MEMBER = LdapProperties.getSynchronizationGroupMemberAttribute();
-    // for paging
-    private static final String LOGIN_FIRST_LETTER_FILTER = "(&(|({0}={1}*)({0}={2}*)){3})";
-    private static final String[] ALPHABETS = { "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У",
-            "Ф", "Х", "Ч", "Ц", "Ш", "Щ", "Э", "Ю", "Я", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R",
-            "S", "T", "U", "V", "W", "X", "Y", "Z" };
-
+    private static int pageSize = LdapProperties.getLdapPageSize();
     @Autowired
     protected ExecutorDao executorDao;
     @Autowired
@@ -75,15 +72,15 @@ public class LdapLogic {
         }
         log.info("Synchronizing executors");
         try {
-            importGroup = loadGroup(new Group(LdapProperties.getSynchronizationImportGroupName(),
-                    LdapProperties.getSynchronizationImportGroupDescription()));
-            wasteGroup = loadGroup(new Group(LdapProperties.getSynchronizationWasteGroupName(),
-                    LdapProperties.getSynchronizationWasteGroupDescription()));
-            DirContext dirContext = getContext();
+            importGroup = loadGroup(
+                    new Group(LdapProperties.getSynchronizationImportGroupName(), LdapProperties.getSynchronizationImportGroupDescription()));
+            wasteGroup = loadGroup(
+                    new Group(LdapProperties.getSynchronizationWasteGroupName(), LdapProperties.getSynchronizationWasteGroupDescription()));
+            LdapContext ldapContext = getContext();
             Map<String, Actor> actorsByDistinguishedName = Maps.newHashMap();
-            int changesCount = synchronizeActors(dirContext, actorsByDistinguishedName);
-            changesCount += synchronizeGroups(dirContext, actorsByDistinguishedName);
-            dirContext.close();
+            int changesCount = synchronizeActors(ldapContext, actorsByDistinguishedName);
+            changesCount += synchronizeGroups(ldapContext, actorsByDistinguishedName);
+            ldapContext.close();
             return changesCount;
         } catch (Exception e) {
             log.error("", e);
@@ -92,7 +89,7 @@ public class LdapLogic {
         }
     }
 
-    private int synchronizeActors(DirContext dirContext, Map<String, Actor> actorsByDistinguishedName) throws Exception {
+    private int synchronizeActors(LdapContext ldapContext, Map<String, Actor> actorsByDistinguishedName) throws Exception {
         int changesCount = 0;
         List<Actor> existingActorsList = executorDao.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged());
         Map<String, Actor> existingActorsMap = Maps.newHashMap();
@@ -103,30 +100,32 @@ public class LdapLogic {
         if (LdapProperties.isSynchronizationDeleteExecutors()) {
             ldapActorsToDelete.addAll(executorDao.getGroupActors(importGroup));
         }
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         for (String ou : LdapProperties.getSynchronizationOrganizationUnits()) {
             List<SearchResult> resultList = Lists.newArrayList();
-            try {
-                NamingEnumeration<SearchResult> list = dirContext.search(ou, OBJECT_CLASS_USER_FILTER, controls);
-                while (list.hasMore()) {
-                    SearchResult searchResult = list.next();
-                    resultList.add(searchResult);
+            byte[] cookie = null;
+            ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.NONCRITICAL) });
+            do {
+                NamingEnumeration<SearchResult> results = ldapContext.search(ou, OBJECT_CLASS_USER_FILTER, searchControls);
+                while (results.hasMoreElements()) {
+                    SearchResult result = results.nextElement();
+                    resultList.add(result);
                 }
-                list.close();
-            } catch (SizeLimitExceededException e) {
-                resultList.clear();
-                for (String y : ALPHABETS) {
-                    NamingEnumeration<SearchResult> list = dirContext.search(ou,
-                            MessageFormat.format(LOGIN_FIRST_LETTER_FILTER, ATTR_ACCOUNT_NAME, y, y.toLowerCase(), OBJECT_CLASS_USER_FILTER),
-                            controls);
-                    while (list.hasMore()) {
-                        SearchResult searchResult = list.next();
-                        resultList.add(searchResult);
+                results.close();
+                Control[] controls = ldapContext.getResponseControls();
+                if (controls != null) {
+                    for (Control control : controls) {
+                        if (control instanceof PagedResultsResponseControl) {
+                            PagedResultsResponseControl response = (PagedResultsResponseControl) control;
+                            cookie = response.getCookie();
+                        }
                     }
-                    list.close();
+                } else {
+                    log.warn("Ldap server did not send controls for paging");
                 }
-            }
+                ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, cookie, Control.CRITICAL) });
+            } while (cookie != null);
             for (SearchResult searchResult : resultList) {
                 String name = getStringAttribute(searchResult, ATTR_ACCOUNT_NAME);
                 String description = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserDescriptionAttribute());
@@ -216,7 +215,7 @@ public class LdapLogic {
         return changesCount;
     }
 
-    private int synchronizeGroups(DirContext dirContext, Map<String, Actor> actorsByDistinguishedName) throws NamingException {
+    private int synchronizeGroups(LdapContext ldapContext, Map<String, Actor> actorsByDistinguishedName) throws Exception {
         int changesCount = 0;
         List<Group> existingGroupsList = executorDao.getAllGroups();
         Map<String, Group> existingGroupsByLdapNameMap = Maps.newHashMap();
@@ -234,18 +233,35 @@ public class LdapLogic {
                 }
             }
         }
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         Map<String, SearchResult> groupResultsByDistinguishedName = Maps.newHashMap();
         for (String ou : LdapProperties.getSynchronizationOrganizationUnits()) {
-            NamingEnumeration<SearchResult> list = dirContext.search(ou, OBJECT_CLASS_GROUP_FILTER, controls);
-            while (list.hasMore()) {
-                SearchResult searchResult = list.next();
-                if (searchResult.getAttributes().get(ATTR_GROUP_MEMBER) == null) {
-                    continue;
+            byte[] cookie = null;
+            ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, Control.NONCRITICAL) });
+            do {
+                NamingEnumeration<SearchResult> results = ldapContext.search(ou, OBJECT_CLASS_GROUP_FILTER, searchControls);
+                while (results.hasMoreElements()) {
+                    SearchResult searchResult = results.nextElement();
+                    if (searchResult.getAttributes().get(ATTR_GROUP_MEMBER) == null) {
+                        continue;
+                    }
+                    groupResultsByDistinguishedName.put(searchResult.getNameInNamespace(), searchResult);
                 }
-                groupResultsByDistinguishedName.put(searchResult.getNameInNamespace(), searchResult);
-            }
+                results.close();
+                Control[] controls = ldapContext.getResponseControls();
+                if (controls != null) {
+                    for (Control control : controls) {
+                        if (control instanceof PagedResultsResponseControl) {
+                            PagedResultsResponseControl response = (PagedResultsResponseControl) control;
+                            cookie = response.getCookie();
+                        }
+                    }
+                } else {
+                    log.warn("Ldap server did not send controls for paging");
+                }
+                ldapContext.setRequestControls(new Control[] { new PagedResultsControl(pageSize, cookie, Control.CRITICAL) });
+            } while (cookie != null);
         }
         for (SearchResult searchResult : groupResultsByDistinguishedName.values()) {
             String name = getStringAttribute(searchResult, ATTR_GROUP_NAME);
@@ -290,7 +306,7 @@ public class LdapLogic {
             Set<Actor> actorsToDelete = Sets.newHashSet(executorDao.getGroupActors(group));
             Set<Actor> actorsToAdd = Sets.newHashSet();
             Set<Actor> groupTargetActors = Sets.newHashSet();
-            fillTargetActorsRecursively(dirContext, groupTargetActors, searchResult, groupResultsByDistinguishedName, actorsByDistinguishedName);
+            fillTargetActorsRecursively(ldapContext, groupTargetActors, searchResult, groupResultsByDistinguishedName, actorsByDistinguishedName);
             for (Actor targetActor : groupTargetActors) {
                 if (!actorsToDelete.remove(targetActor)) {
                     actorsToAdd.add(targetActor);
@@ -331,9 +347,9 @@ public class LdapLogic {
         return patternForMissedPeople;
     }
 
-    private DirContext getContext() throws NamingException {
+    private LdapContext getContext() throws NamingException {
         Hashtable<String, String> env = new Hashtable<>(LdapProperties.getAllProperties());
-        return new InitialDirContext(env);
+        return new InitialLdapContext(env, null);
     }
 
     private Group loadGroup(Group group) {
@@ -357,14 +373,14 @@ public class LdapLogic {
         return null;
     }
 
-    private void fillTargetActorsRecursively(DirContext dirContext, Set<Actor> recursiveActors, SearchResult searchResult,
+    private void fillTargetActorsRecursively(LdapContext ldapContext, Set<Actor> recursiveActors, SearchResult searchResult,
             Map<String, SearchResult> groupResultsByDistinguishedName, Map<String, Actor> actorsByDistinguishedName) throws NamingException {
         NamingEnumeration<String> namingEnum = (NamingEnumeration<String>) searchResult.getAttributes().get(ATTR_GROUP_MEMBER).getAll();
         while (namingEnum.hasMore()) {
             String executorDistinguishedName = namingEnum.next();
             SearchResult groupSearchResult = groupResultsByDistinguishedName.get(executorDistinguishedName);
             if (groupSearchResult != null) {
-                fillTargetActorsRecursively(dirContext, recursiveActors, groupSearchResult, groupResultsByDistinguishedName,
+                fillTargetActorsRecursively(ldapContext, recursiveActors, groupSearchResult, groupResultsByDistinguishedName,
                         actorsByDistinguishedName);
             } else {
                 Actor actor = actorsByDistinguishedName.get(executorDistinguishedName);
@@ -373,7 +389,7 @@ public class LdapLogic {
                 } else {
                     Matcher m = getPatternForMissedPeople().matcher(executorDistinguishedName);
                     String executorPath = m.replaceAll("");
-                    Attribute samAttribute = dirContext.getAttributes(executorPath).get(ATTR_ACCOUNT_NAME);
+                    Attribute samAttribute = ldapContext.getAttributes(executorPath).get(ATTR_ACCOUNT_NAME);
                     if (samAttribute != null) {
                         String executorName = samAttribute.get().toString();
                         log.debug("Executor name " + executorDistinguishedName + " fetched by invocation: " + executorName);

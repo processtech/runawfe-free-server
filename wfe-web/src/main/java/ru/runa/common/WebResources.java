@@ -9,6 +9,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.service.delegate.Delegates;
 
 /**
  * Created on 30.09.2004
@@ -69,7 +70,7 @@ public class WebResources {
      * Used from JSP page
      */
     public static boolean isTaskDelegationEnabled() {
-        return RESOURCES.getBooleanProperty("task.delegation.enabled", true);
+        return Delegates.getTaskService().isTaskDelegationEnabled();
     }
 
     /**
@@ -162,7 +163,11 @@ public class WebResources {
     }
 
     public static boolean isUpdateProcessSwimlanesEnabled() {
-        return RESOURCES.getBooleanProperty("process.swimlane.assignment.enabled", false);
+        return RESOURCES.getBooleanProperty("process.swimlane.assignment.enabled", true);
+    }
+
+    public static boolean isUpdateProcessVariablesEnabled() {
+        return RESOURCES.getBooleanProperty("process.variable.assignment.enabled", true);
     }
 
     /**

@@ -106,6 +106,7 @@ public class JpdlXmlReader {
     private static final String BEHAVIOUR_TERMINATE = "TERMINATE";
     private static final String EXECUTION_CONDITION = "executionCondition";
     private static final String GLOBAL = "global";
+    private static final String VALIDATE_AT_START = "validateAtStart";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
@@ -337,6 +338,7 @@ public class JpdlXmlReader {
                 subprocessNode.setSubProcessName(subProcessElement.attributeValue(NAME_ATTR));
                 subprocessNode.setEmbedded(Boolean.parseBoolean(subProcessElement.attributeValue(EMBEDDED, "false")));
                 subprocessNode.setTransactional(Boolean.parseBoolean(subProcessElement.attributeValue(TRANSACTIONAL, "false")));
+                subprocessNode.setValidateAtStart(Boolean.parseBoolean(subProcessElement.attributeValue(VALIDATE_AT_START, "false")));
             }
             if (node instanceof MultiSubprocessNode) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(element.attributeValue(EXECUTION_CONDITION));

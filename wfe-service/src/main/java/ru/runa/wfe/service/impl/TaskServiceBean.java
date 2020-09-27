@@ -150,4 +150,9 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     public List<WfTask> getUnassignedTasks(@WebParam(name = "user") @NonNull User user) {
         return taskLogic.getUnassignedTasks(user);
     }
+    
+    @Override
+    public boolean isTaskDelegationEnabled() {
+        return taskLogic.isTaskDelegationEnabled();
+    }
 }

@@ -22,7 +22,7 @@ import ru.runa.wfe.user.logic.ProfileLogic;
 public class ScriptExecutionContext {
 
     @Autowired
-    ExecutorLogic executorLogic;
+    private ExecutorLogic executorLogic;
     @Autowired
     private RelationLogic relationLogic;
     @Autowired

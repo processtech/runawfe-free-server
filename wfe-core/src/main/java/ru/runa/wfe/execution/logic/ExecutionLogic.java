@@ -30,7 +30,6 @@ import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessLog.Type;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.Errors;
@@ -59,9 +58,11 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.ProcessHierarchyUtils;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
@@ -124,7 +125,7 @@ public class ExecutionLogic extends WfCommonLogic {
     @Autowired
     private NodeAsyncExecutor nodeAsyncExecutor;
     @Autowired
-    private ProcessLogDao processLogDao;
+    private CurrentProcessDao currentProcessDao;
     @Autowired
     private JobDao jobDao;
 
@@ -236,7 +237,7 @@ public class ExecutionLogic extends WfCommonLogic {
         jobDao.deleteByProcess(process);
         // flush just created tasks
         ApplicationContextFactory.getTaskDao().flushPendingChanges();
-        boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();
+        boolean activeSuperProcessExists = isExistNotEndedParentProcessInHierarchy(executionContext);
         for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(process)) {
             BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNodeNotNull(task.getNodeId());
             if (taskNode.isAsync()) {
@@ -252,7 +253,7 @@ public class ExecutionLogic extends WfCommonLogic {
             }
             task.end(executionContext, taskNode, taskCompletionInfo);
         }
-        if (parentNodeProcess == null) {
+        if (!activeSuperProcessExists) {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
             endSubprocessAndTasksOnMainProcessEndRecursively(process, executionContext, canceller);
         }
@@ -282,6 +283,28 @@ public class ExecutionLogic extends WfCommonLogic {
                 }
             }
         }
+    }
+
+    private boolean isExistNotEndedParentProcessInHierarchy(ExecutionContext executionContext) {
+        CurrentProcess process = executionContext.getCurrentProcess();
+        CurrentNodeProcess parentNodeProcess = executionContext.getCurrentParentNodeProcess();
+        boolean activeSuperProcessExists = true;
+        if (parentNodeProcess == null) {
+            activeSuperProcessExists = false;
+        } else {
+            List<Long> processIds = ProcessHierarchyUtils.getProcessIds(process.getHierarchyIds());
+            for (Long processId : processIds) {
+                if (currentProcessDao.get(processId).hasEnded()) {
+                    if (Objects.equal(process.getId(), processId)) {
+                        activeSuperProcessExists = false;
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        return activeSuperProcessExists;
     }
 
     private void endSubprocessAndTasksOnMainProcessEndRecursively(CurrentProcess process, ExecutionContext executionContext, Actor canceller) {
@@ -466,7 +489,7 @@ public class ExecutionLogic extends WfCommonLogic {
         if (!variables.containsKey(startTaskSwimlaneName)) {
             variables.put(startTaskSwimlaneName, user.getActor());
         }
-        validateVariables(user, null, variableProvider, parsedProcessDefinition, startNode.getNodeId(), variables);
+        validateVariables(null, variableProvider, parsedProcessDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
         CurrentProcess process = processFactory.startProcess(parsedProcessDefinition, variables, user.getActor(), transitionName, transientVariables);
