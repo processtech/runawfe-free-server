@@ -1,19 +1,15 @@
 package ru.runa.common.web.html;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
@@ -41,18 +37,31 @@ public class SortingHeaderBuilder implements HeaderBuilder {
     private final String[] prefixNames;
     private final String[] suffixNames;
     private final String returnActionName;
+    private final boolean addSelectAllToFirstPrefixCell;
 
     private static String[] createEmptyStrings(int size) {
         return (String[]) ArraysCommons.fillArray(new String[size], Entities.NBSP);
     }
 
     public SortingHeaderBuilder(BatchPresentation batchPresentation, String[] prefixNames, String[] suffixNames, String returnActionName,
-            PageContext pageContext) {
+            PageContext pageContext, boolean addSelectAllToFirstPrefixCell) {
         this.batchPresentation = batchPresentation;
         this.prefixNames = prefixNames;
         this.suffixNames = suffixNames;
         this.returnActionName = returnActionName;
         this.pageContext = pageContext;
+        this.addSelectAllToFirstPrefixCell = addSelectAllToFirstPrefixCell;
+    }
+
+    public SortingHeaderBuilder(BatchPresentation batchPresentation, String[] prefixNames, String[] suffixNames, String returnActionName,
+            PageContext pageContext) {
+        this(batchPresentation, prefixNames, suffixNames, returnActionName, pageContext, true);
+    }
+
+    public SortingHeaderBuilder(BatchPresentation batchPresentation, int numberOfPrefixCells, int numberOfSuffixCells, String returnActionName,
+            PageContext pageContext, boolean addSelectAllToFirstPrefixCell) {
+        this(batchPresentation, createEmptyStrings(numberOfPrefixCells), createEmptyStrings(numberOfSuffixCells), returnActionName, pageContext,
+                addSelectAllToFirstPrefixCell);
     }
 
     public SortingHeaderBuilder(BatchPresentation batchPresentation, int numberOfPrefixCells, int numberOfSuffixCells, String returnActionName,
@@ -70,7 +79,7 @@ public class SortingHeaderBuilder implements HeaderBuilder {
         }
         TR tr = new TR();
         createCells(tr, createEmptyStrings(getAditionalNumberOfPrefixEmptyCells()));
-        if (prefixNames.length > 0) {
+        if (addSelectAllToFirstPrefixCell && prefixNames.length > 0) {
             prefixNames[0] = Entities.PLUSMN;
         }
         createCells(tr, prefixNames);

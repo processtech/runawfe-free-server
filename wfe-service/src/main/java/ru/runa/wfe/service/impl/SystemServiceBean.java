@@ -14,7 +14,6 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.audit.logic.AuditLogic;
@@ -102,10 +101,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @Override
     @WebMethod(exclude = true)
     public List<ProcessError> getAllProcessErrors(@NonNull User user) {
-        val result = new ArrayList<ProcessError>();
-        for (List<ProcessError> cached : Errors.getProcessErrors().values()) {
-            result.addAll(cached);
-        }
+        List<ProcessError> result = new ArrayList<>(Errors.getAllProcessErrors());
         List<WfProcess> processes = executionLogic.getFailedProcesses(user);
         for (WfProcess process : processes) {
             populateExecutionErrors(user, result, process.getId());
@@ -117,22 +113,16 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @Override
     @WebResult(name = "result")
     public List<ProcessError> getProcessErrors(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
-        val result = new ArrayList<ProcessError>();
-        List<ProcessError> cached = Errors.getProcessErrors(processId);
-        if (cached != null) {
-            result.addAll(cached);
-        }
-        populateExecutionErrors(user, result, processId);
-        Collections.sort(result);
-        return result;
+        List<ProcessError> list = new ArrayList<>(Errors.getProcessErrors(processId));
+        populateExecutionErrors(user, list, processId);
+        Collections.sort(list);
+        return list;
     }
 
     @Override
     @WebResult(name = "result")
     public List<SystemError> getSystemErrors(@WebParam(name = "user") @NonNull User user) {
-        val result = new ArrayList<SystemError>(Errors.getSystemErrors());
-        Collections.sort(result);
-        return result;
+        return Errors.getSystemErrors();
     }
 
     private void populateExecutionErrors(User user, List<ProcessError> list, Long processId) {

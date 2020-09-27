@@ -82,6 +82,10 @@ public class TaskLogic extends WfCommonLogic {
     private TaskAssigner taskAssigner;
     @Autowired
     private ExecutorLogic executorLogic;
+    
+    public boolean isTaskDelegationEnabled() {
+        return SystemProperties.isTaskDelegationEnabled();
+    }
 
     public WfTask completeTask(User user, Long taskId, Map<String, Object> variables) throws TaskDoesNotExistException {
         Task task = taskDao.getNotNull(taskId);
@@ -124,7 +128,7 @@ public class TaskLogic extends WfCommonLogic {
                 }
             }
             VariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
-            validateVariables(user, executionContext, validationVariableProvider, parsedProcessDefinition, task.getNodeId(), variables);
+            validateVariables(executionContext, validationVariableProvider, parsedProcessDefinition, task.getNodeId(), variables);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
             Transition transition;

@@ -3,7 +3,7 @@ if (!window.console) {
 	console = {log: function() {}};
 };
 
-const SYSTEM_MENU_VISIBLE = "system_menu_visible";
+var SYSTEM_MENU_VISIBLE = "system_menu_visible";
 
 $(document).ready(function() {
 	// http://jqueryui.com/tooltip/	

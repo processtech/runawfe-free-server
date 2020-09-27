@@ -35,6 +35,8 @@ import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecuredObjectUtil;
+import ru.runa.wfe.security.SecurityCheckProperties;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
@@ -60,7 +62,78 @@ public class PermissionDao extends CommonDao {
 
     private final Map<SecuredObjectType, Set<Executor>> privelegedExecutors = new HashMap<>();
     private final Set<Long> privelegedExecutorIds = new HashSet<>();
+    private static final List<PermissionRule> requiredRules = new ArrayList<>();
+    private static final List<PermissionRule> implicitRules = new ArrayList<>();
 
+    static {
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE_ACTOR_STATUS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.EXECUTOR, Permission.VIEW_TASKS, true));
+        requiredRules.add(new DelegateTaskPermissionRule(SecuredObjectType.EXECUTOR, Permission.DELEGATE_TASKS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_EXECUTOR, true));
+
+        requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.LOGIN, null));
+        requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.READ, true));
+
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORTS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.REPORT, Permission.DELETE, true));
+
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.READ, null));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.DELETE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.UPDATE_PERMISSIONS, true));
+
+        requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.READ, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.BOTSTATIONS, Permission.READ_PERMISSIONS, true));
+
+        requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_DEFINITION, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.DELETE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.START_PROCESS, null));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.CANCEL_PROCESS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DEFINITION, Permission.UPDATE_PERMISSIONS, true));
+
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.START_PROCESS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.CANCEL_PROCESS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.CANCEL, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.PROCESS, Permission.UPDATE_PERMISSIONS, true));
+
+        requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ, true));
+
+        implicitRules.add(new DelegateTaskPermissionRule(SecuredObjectType.EXECUTOR, Permission.DELEGATE_TASKS, true));
+
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.READ_PERMISSIONS, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE_PERMISSIONS, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.UPDATE, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.UPDATE, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.RELATION, Permission.DELETE, true));
+
+        implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ_PERMISSIONS, true));
+        implicitRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE_PERMISSIONS, true));
+
+        implicitRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.LOGIN, null));
+    }
     public PermissionDao() {
         for (SecuredObjectType type : SecuredObjectType.values()) {
             privelegedExecutors.put(type, new HashSet<>());
@@ -152,6 +225,14 @@ public class PermissionDao extends CommonDao {
      * Throws if user has no permission to {type, all given ids}.
      */
     public void checkAllowedForAll(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
+            for (Long id: ids) {
+                if (!checkRequiredRules(user.getActor(), permission, type, id) ) {
+                    throw new AuthorizationException("User " + user + " does not have " + permission + " on all of (" + type + ", " + id + ")");        
+                }
+            }
+            return;
+        }
         Assert.notNull(ids);
         List<Long> notAllowed = CollectionUtil.diffList(ids, filterAllowedIds(user.getActor(), permission, type, ids));
         if (!notAllowed.isEmpty()) {
@@ -164,36 +245,139 @@ public class PermissionDao extends CommonDao {
      * Returns true if user have permission to object.
      */
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
+            return checkRequiredRules(user.getActor(), permission, object.getSecuredObjectType(), object.getId());
+        }
         return isAllowed(user.getActor(), permission, object.getSecuredObjectType(), object.getId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
+            return checkRequiredRules(user.getActor(), permission, type, id);
+        }
         return isAllowed(user.getActor(), permission, type, id);
     }
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObjectType type, Long id) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
+            return checkRequiredRules(executor, permission, type, id);
+        }
         Assert.notNull(id);
         return !filterAllowedIds(executor, permission, type, Collections.singletonList(id)).isEmpty();
     }
 
     public boolean isAllowed(Executor executor, Permission permission, SecuredObject object, boolean checkPrivileged) {
         Long id = object.getId();
+        if (!SecurityCheckProperties.isPermissionCheckRequired(object.getSecuredObjectType())) {
+            return checkRequiredRules(executor, permission, object.getSecuredObjectType(), id);
+        }
         SecuredObjectType type = object.getSecuredObjectType();
         Assert.notNull(id);
-        return !filterAllowedIds(executor, permission, type, Collections.singletonList(id), checkPrivileged).isEmpty();
+        return !(filterAllowedIds(executor, permission, type, Collections.singletonList(id), checkPrivileged)).isEmpty();
     }
 
     /**
      * Returns true if user have permission to {type, any id}.
      */
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType type) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
+            return checkRequiredRules(user.getActor(), permission, type, (Long)null);
+        }
         return !filterAllowedIds(user.getActor(), permission, type, null).isEmpty();
     }
-
+    
     public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType type, List<Long> idsOrNull) {
         return filterAllowedIds(executor, permission, type, idsOrNull, true);
     }
+        
+    private boolean checkRequiredRules(Executor executor, Permission permission, SecuredObjectType type, Long idOrNull) {
+        boolean isAdmin = false;
+        if (executor instanceof Actor) {
+            isAdmin = executorDao.isAdministrator((Actor) executor);
+        }
+        for (PermissionRule r : requiredRules) {
+            if (permission.equals(r.getPermission()) && type.equals(r.getObjectType())) {
+                if (!r.isAllowed(type, idOrNull, isAdmin, permission)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+        
+    private Set<Long> checkRequiredRules(Executor executor, Permission permission, SecuredObjectType type, Collection<Long> idsOrNull) {
+        boolean isAdmin = false;
+        if (executor instanceof Actor) {
+            isAdmin = executorDao.isAdministrator((Actor) executor);
+        }
+        if (idsOrNull == null) {
+            for (PermissionRule r : requiredRules) {
+                if (permission.equals(r.getPermission()) && type.equals(r.getObjectType())) {
+                    if (!r.isAllowed(type, null, isAdmin, permission)) {
+                        return Collections.emptySet();
+                    }
+                }
+            }
+            return Collections.emptySet();
+        }
+        Set<Long> res = new HashSet<Long>(idsOrNull.size());
+        for (Long idOrNull : idsOrNull) {
+            boolean bOk = true;
+            for (PermissionRule r : requiredRules) {
+                if (permission.equals(r.getPermission()) && type.equals(r.getObjectType())) {
+                    if (!r.isAllowed(type, idOrNull, isAdmin, permission)) {
+                        bOk = false;
+                        break;
+                    }
+                }
+            }
+            if (bOk) {
+                res.add(idOrNull);
+            }
+        }
+        return res;
+    }
 
+    private Set<Long> checkImplicitRules(Executor executor, Permission permission, SecuredObjectType type, Collection<Long> idsOrNull) {
+        boolean isAdmin = false;
+        if (executor instanceof Actor) {
+            isAdmin = executorDao.isAdministrator((Actor) executor);
+        }
+        if (idsOrNull == null) {
+            for (PermissionRule r : implicitRules) {
+                if (permission.equals(r.getPermission()) && type.equals(r.getObjectType())) {
+                    if (!r.isAllowed(type, null, isAdmin, permission)) {
+                        return Collections.emptySet();
+                    }
+                }
+            }
+            return Collections.emptySet();
+        }
+        Set<Long> res = new HashSet<Long>(idsOrNull.size());
+        for (Long idOrNull : idsOrNull) {
+            boolean bOk = true;
+            for (PermissionRule r : implicitRules) {
+                if (permission.equals(r.getPermission()) && type.equals(r.getObjectType())) {
+                    if (!r.isAllowed(type, idOrNull, isAdmin, permission)) {
+                        bOk = false;
+                        break;
+                    }
+                }
+            }
+            if (bOk) {
+                res.add(idOrNull);
+            }
+        }
+        return res;
+    }
+
+    public Set<Long> selectAllowedIds(Executor executor, Permission permission, SecuredObjectType type, List<Long> idsOrNull, boolean checkPrivileged) {
+        if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
+            return checkRequiredRules(executor, permission, type, idsOrNull);
+        }
+        return filterAllowedIds(executor, permission, type, idsOrNull, checkPrivileged);
+    }
+        
     /**
      * Returns subset of `idsOrNull` for which `actor` has `permission`. If `idsOrNull` is null (e.g. when called from isAllowedForAny()),
      * non-empty set (containing arbitrary value) means positive check result.
@@ -206,7 +390,7 @@ public class PermissionDao extends CommonDao {
 
         if (permission == Permission.NONE) {
             // Optimization; see comments at NONE definition.
-            return Collections.emptySet();
+            return checkImplicitRules(executor, permission, type, idsOrNull);
         }
 
         final Set<Executor> executorWithGroups = getExecutorWithAllHisGroups(executor);
@@ -233,7 +417,7 @@ public class PermissionDao extends CommonDao {
         val typesToCheck = new HashSet<SecuredObjectType>();
         typesToCheck.add(type);
         for (List<Long> idsPart : haveIds ? Lists.partition(idsOrNull, SystemProperties.getDatabaseParametersCount()) : nonEmptyListList) {
-            JPQLQuery<Long> q = queryFactory.select(pm.id).from(pm)
+            JPQLQuery<Long> q = queryFactory.select(pm.objectId).from(pm)
                     .where(pm.executor.in(executorWithGroups)
                             .and(pm.objectType.in(typesToCheck))
                             .and(pm.permission.in(subst.selfPermissions)));
@@ -243,7 +427,7 @@ public class PermissionDao extends CommonDao {
                 return nonEmptySet;
             }
         }
-        return result;
+        return checkImplicitRules(executor, permission, type, result);
     }
 
     /**
@@ -313,7 +497,11 @@ public class PermissionDao extends CommonDao {
                     .fetch());
         }
         for (int i = 0; i < ids.size(); i++) {
-            result[i] = allowedIdentifiableIds.contains(ids.get(i));
+            if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
+                result[i] = checkRequiredRules(user.getActor(), permission, type, ids.get(i));
+            } else {
+                result[i] = allowedIdentifiableIds.contains(ids.get(i));
+            }
         }
         return result;
     }

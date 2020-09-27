@@ -23,7 +23,6 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessVariablesRowBuilder;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -72,7 +71,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
             historyFilter.setCreateDateFrom(historicalDateFrom);
             variables = Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
         }
-        if (SystemProperties.isUpdateProcessVariablesInAPIEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
+        if (WebResources.isUpdateProcessVariablesEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
             Table table = new Table();
             tdFormElement.addElement(table);
             table.addAttribute("width", "100%");

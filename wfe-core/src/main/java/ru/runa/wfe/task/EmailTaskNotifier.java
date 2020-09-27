@@ -34,6 +34,9 @@ public class EmailTaskNotifier implements TaskNotifier {
     private EmailUtils.ProcessNameFilter includeProcessNameFilter;
     private EmailUtils.ProcessNameFilter excludeProcessNameFilter;
 
+    private EmailUtils.SwimlaneNameFilter includeSwimlaneNameFilter;
+    private EmailUtils.SwimlaneNameFilter excludeSwimlaneNameFilter;
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
@@ -69,6 +72,14 @@ public class EmailTaskNotifier implements TaskNotifier {
         this.excludeProcessNameFilter = EmailUtils.validateAndCreateProcessNameFilter(excludeProcessNameFilter);
     }
 
+    public void setIncludeSwimlaneNameFilter(List<String> includeSwimlaneNameFilter) {
+        this.includeSwimlaneNameFilter = EmailUtils.validateAndCreateSwimlaneNameFilter(includeSwimlaneNameFilter);
+    }
+
+    public void setExcludeSwimlaneNameFilter(List<String> excludeSwimlaneNameFilter) {
+        this.excludeSwimlaneNameFilter = EmailUtils.validateAndCreateSwimlaneNameFilter(excludeSwimlaneNameFilter);
+    }
+
     @PostConstruct
     public void printConfigInfo() {
         log.info("Configured " + this);
@@ -86,6 +97,12 @@ public class EmailTaskNotifier implements TaskNotifier {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;
             }
+            final String swimlaneName = task.getSwimlaneName();
+            if (!EmailUtils.isSwimlaneNameMatching(swimlaneName, includeSwimlaneNameFilter, excludeSwimlaneNameFilter)) {
+                log.debug("Ignored due to excluded swimlane name " + swimlaneName);
+                return;
+            }
+
             EmailConfig config = EmailConfigParser.parse(configBytes);
             List<String> emailsToSend = EmailUtils.getEmails(task.getExecutor());
             List<String> emailsWereSent = EmailUtils.getEmails(previousExecutor);
@@ -117,6 +134,7 @@ public class EmailTaskNotifier implements TaskNotifier {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("enabled", enabled).add("onlyIfTaskActorEmailDefined", onlyIfTaskActorEmailDefined)
                 .add("configPath", configPath).add("includeEmailsFilter", includeEmailsFilter).add("excludeEmailsFilter", excludeEmailsFilter)
-                .add("includeProcessNameFilter", includeProcessNameFilter).add("excludeProcessNameFilter", excludeProcessNameFilter).toString();
+                .add("includeProcessNameFilter", includeProcessNameFilter).add("excludeProcessNameFilter", excludeProcessNameFilter)
+                .add("includeSwimlaneNameFilter", includeSwimlaneNameFilter).add("excludeSwimlaneNameFilter", excludeSwimlaneNameFilter).toString();
     }
 }

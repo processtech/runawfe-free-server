@@ -19,9 +19,9 @@ public class ConditionProcessor {
 
     public static final char UNICODE_CHARACTER_OVERLINE = '\u203E';
 
-    private static final String LIKE_EXPR_END = ".toLowerCase()) >= 0";
+    private static final String LIKE_EXPR_END = ") != null";
 
-    private static final String LIKE_EXPR_START = ".toLowerCase().indexOf(";
+    private static final String LIKE_EXPR_START = ".match(";
 
     private static final String LIKE_LITERAL = "like";
 
@@ -41,6 +41,7 @@ public class ConditionProcessor {
     private static String previousOperator = "";
 
     private static ScriptEngine engine;
+
     static {
         ScriptEngineManager engineManager = new ScriptEngineManager();
         engine = engineManager.getEngineByName("JavaScript");
@@ -81,16 +82,16 @@ public class ConditionProcessor {
                 sb = appendAttribute(sb, attributes, token.replace(UNICODE_CHARACTER_OVERLINE, ' '));
             } else if (token.equalsIgnoreCase(LIKE_LITERAL)) {
                 previousOperator = LIKE_LITERAL;
-                sb.append(LIKE_EXPR_START);
+                sb.append(LIKE_EXPR_START).append("/");
                 token = st.nextToken();
-                sb.append(token);
-                sb.append(LIKE_EXPR_END);
+                if (token.startsWith("@")) {
+                    sb.append(extractVariableValue(token, variableProvider, false).replace("%", ".*"));
+                } else {
+                    sb.append(token.replace("%", ".*"));
+                }
+                sb.append("/g").append(LIKE_EXPR_END);
             } else if (token.startsWith("@")) {
-                String variableName = token.substring(1);
-                Object value = variableProvider.getValue(variableName);
-                String toAppend = formatParameterValue(value);
-                sb.append(SPACE);
-                sb.append(toAppend);
+                sb.append(SPACE).append(extractVariableValue(token, variableProvider, true));
             } else {
                 sb.append(SPACE);
                 if (previousAttributeValue != null && previousAttributeValue instanceof Date && operators.contains(previousOperator)) {
@@ -105,6 +106,12 @@ public class ConditionProcessor {
             }
         }
         return sb.toString();
+    }
+
+    private static String extractVariableValue(String token, VariableProvider variableProvider, boolean adjustValue) {
+        final String variableName = token.substring(1);
+        final Object value = variableProvider.getValue(variableName);
+        return formatParameterValue(value, adjustValue);
     }
 
     private static long getTime(String source) {
@@ -129,14 +136,18 @@ public class ConditionProcessor {
     }
 
     private static String formatParameterValue(Object value) {
+        return formatParameterValue(value, true);
+    }
+
+    private static String formatParameterValue(Object value, boolean adjustValue) {
         if (value instanceof Number) {
             return value.toString();
         } else if (value instanceof Date) {
             return String.valueOf(((Date) value).getTime());
         } else if (value instanceof Executor) {
-            return "'" + ((Executor) value).getName() + "'";
+            return adjustValue ? "'" + ((Executor) value).getName() + "'" : ((Executor) value).getName();
         }
-        return "'" + value + "'";
+        return adjustValue ? "'" + value + "'" : value.toString();
     }
 
     public static String hideSpacesInAttributeNames(String condition) {

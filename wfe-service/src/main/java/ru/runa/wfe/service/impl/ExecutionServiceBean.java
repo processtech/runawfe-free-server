@@ -14,9 +14,7 @@ import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.ProcessDefinitionLogic;
@@ -217,10 +215,6 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @WebMethod(exclude = true)
     @Override
     public void updateVariables(@NonNull User user, @NonNull Long processId, @NonNull Map<String, Object> variables) {
-        if (!SystemProperties.isUpdateProcessVariablesInAPIEnabled()) {
-            throw new ConfigurationException(
-                    "In order to enable script execution set property 'executionServiceAPI.updateVariables.enabled' to 'true' in system.properties or wfe.custom.system.properties");
-        }
         FileVariablesUtil.unproxyFileVariables(user, processId, null, variables);
         variableLogic.updateVariables(user, processId, variables);
     }

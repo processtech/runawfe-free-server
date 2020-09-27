@@ -1,27 +1,23 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.execution.ExecutionContext;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class GraphElement implements Serializable, Cloneable {
     private static final long serialVersionUID = 1L;
-    protected static final Log log = LogFactory.getLog("wfelang");
+    protected static final Log log = LogFactory.getLog("ru.runa.wfe.lang");
 
     private String nodeId;
     protected String name;

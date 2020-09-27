@@ -168,4 +168,7 @@ public interface TaskService {
      * Gets tasks with executor == NULL
      */
     List<WfTask> getUnassignedTasks(User user);
+
+    boolean isTaskDelegationEnabled();
+
 }

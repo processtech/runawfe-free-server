@@ -236,5 +236,7 @@ public class SecuredObjectFactory {
         });
 
         add(SecuredSingleton.SYSTEM);
+        
+        add(SecuredSingleton.DATASOURCES);
     }
 }

@@ -1,7 +1,6 @@
 package ru.runa.wf.web.tag;
 
 import java.util.List;
-
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
@@ -12,13 +11,12 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
+import ru.runa.common.WebResources;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UpdateProcessVariableAction;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.var.VariableDefinition;
@@ -44,7 +42,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getProcessId());
         List<VariableDefinition> variables = Delegates.getDefinitionService().getVariableDefinitions(getUser(), process.getDefinitionVersionId());
         if (!variables.isEmpty()) {
-            if (SystemProperties.isUpdateProcessVariablesInAPIEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
+            if (WebResources.isUpdateProcessVariablesEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
                 getForm().setEncType(Form.ENC_UPLOAD);
                 String labelTDWidth = "150px";
 

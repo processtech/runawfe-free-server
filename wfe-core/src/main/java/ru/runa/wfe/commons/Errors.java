@@ -1,14 +1,17 @@
 package ru.runa.wfe.commons;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
@@ -21,8 +24,8 @@ import ru.runa.wfe.var.VariableProvider;
 
 @CommonsLog
 public class Errors {
-    private static Set<SystemError> systemErrors = Sets.newConcurrentHashSet();
-    private static Map<Long, List<ProcessError>> processErrors = Maps.newConcurrentMap();
+    private static Set<SystemError> systemErrors = Collections.synchronizedSet(new HashSet<>());
+    private static ConcurrentHashMap<Long, Set<ProcessError>> processErrors = new ConcurrentHashMap<>();
     private static byte[] emailNotificationConfigBytes;
 
     static {
@@ -42,16 +45,32 @@ public class Errors {
         }
     }
 
-    public static Set<SystemError> getSystemErrors() {
-        return systemErrors;
+    public static List<SystemError> getSystemErrors() {
+        synchronized (systemErrors) {
+            List<SystemError> list = new ArrayList<>(systemErrors);
+            Collections.sort(list);
+            return list;
+        }
     }
 
-    public static Map<Long, List<ProcessError>> getProcessErrors() {
-        return processErrors;
+    public static List<ProcessError> getAllProcessErrors() {
+        List<ProcessError> result = new ArrayList<>();
+        for (Set<ProcessError> errors : processErrors.values()) {
+            synchronized (errors) {
+                result.addAll(errors);
+            }
+        }
+        return result;
     }
 
     public static List<ProcessError> getProcessErrors(Long processId) {
-        return processErrors.get(processId);
+        Set<ProcessError> errors = processErrors.get(processId);
+        if (errors != null) {
+            synchronized (errors) {
+                return new ArrayList<>(errors);
+            }
+        }
+        return new ArrayList<>();
     }
 
     public static void addSystemError(Throwable throwable) {
@@ -63,10 +82,12 @@ public class Errors {
     }
 
     public static void removeSystemError(String errorMessage) {
-        for (SystemError systemError : systemErrors) {
-            if (Objects.equal(systemError.getMessage(), errorMessage)) {
-                systemErrors.remove(systemError);
-                break;
+        synchronized (systemErrors) {
+            for (SystemError systemError : systemErrors) {
+                if (Objects.equal(systemError.getMessage(), errorMessage)) {
+                    systemErrors.remove(systemError);
+                    break;
+                }
             }
         }
     }
@@ -74,21 +95,21 @@ public class Errors {
     public static boolean addProcessError(ProcessError processError, String nodeName, Throwable throwable) {
         processError.setNodeName(nodeName);
         processError.setThrowable(throwable);
-        List<ProcessError> list = processErrors.get(processError.getProcessId());
-        if (list == null) {
-            list = Lists.newArrayList();
-            processErrors.put(processError.getProcessId(), list);
-        }
-        boolean alreadyExists = list.remove(processError);
-        list.add(processError);
-        if (!alreadyExists) {
+        Set<ProcessError> errors = processErrors.computeIfAbsent(processError.getProcessId(), new Function<Long, Set<ProcessError>>() {
+            @Override
+            public Set<ProcessError> apply(Long t) {
+                return Collections.synchronizedSet(new HashSet<>());
+            }
+        });
+        boolean added = errors.add(processError);
+        if (added) {
             sendEmailNotification(processError);
         }
-        return !alreadyExists;
+        return added;
     }
 
     public static void removeProcessError(ProcessError processError) {
-        List<ProcessError> list = processErrors.get(processError.getProcessId());
+        Set<ProcessError> list = processErrors.get(processError.getProcessId());
         if (list != null) {
             list.remove(processError);
             if (list.isEmpty()) {

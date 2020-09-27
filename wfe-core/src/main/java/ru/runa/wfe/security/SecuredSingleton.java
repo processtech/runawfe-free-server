@@ -41,4 +41,5 @@ public final class SecuredSingleton extends SecuredObject {
     public static final SecuredSingleton RELATIONS = new SecuredSingleton(SecuredObjectType.RELATIONS);
     public static final SecuredSingleton REPORTS = new SecuredSingleton(SecuredObjectType.REPORTS);
     public static final SecuredSingleton SYSTEM = new SecuredSingleton(SecuredObjectType.SYSTEM);
+    public static final SecuredSingleton DATASOURCES = new SecuredSingleton(SecuredObjectType.DATASOURCES);
 }

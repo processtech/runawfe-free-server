@@ -18,6 +18,7 @@ import ru.runa.wfe.user.User;
  * @since 2.0
  */
 public interface AuthorizationService {
+    public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType securedObjectType, List<Long> idsOrNull);
 
     void checkAllowed(User user, Permission permission, SecuredObject securedObject);
 

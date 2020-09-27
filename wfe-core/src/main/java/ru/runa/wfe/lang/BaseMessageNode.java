@@ -9,6 +9,7 @@ public abstract class BaseMessageNode extends VariableContainerNode {
     public static final String ERROR_EVENT_NODE_ID = "processNodeId";
     public static final String ERROR_EVENT_TOKEN_ID = "tokenId";
     public static final String ERROR_EVENT_MESSAGE = "error_event_message";
+    public static final String EXPIRATION_PROPERTY = "_expiration";
     private MessageEventType eventType = MessageEventType.message;
 
     public MessageEventType getEventType() {

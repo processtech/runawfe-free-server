@@ -26,19 +26,15 @@ public abstract class ChangePermissionsOperation extends ScriptOperation {
     @XmlAttribute(name = "executor", required = true)
     protected String xmlExecutor;
 
-    @SuppressWarnings("unused")
     @XmlAttribute(name = "type")
     private String xmlType;
 
-    @SuppressWarnings("unused")
     @XmlAttribute(name = "name")
     private String xmlName;
 
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     @XmlElement(name = "namedIdentitySet", namespace = AdminScriptConstants.NAMESPACE)
     private List<NamedIdentitySet> xmlNamedIdentitySets = Lists.newArrayList();
 
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     @XmlElement(name = "permission", namespace = AdminScriptConstants.NAMESPACE)
     private List<ru.runa.wfe.script.permission.Permission> xmlPermissions = new ArrayList<>();
 

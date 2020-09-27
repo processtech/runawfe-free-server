@@ -32,7 +32,6 @@ public class ExpiredTasksNotifier {
     private EmailUtils.ProcessNameFilter excludeProcessNameFilter;
     @Autowired
     private TaskDao taskDao;
-    @Autowired
     private long scheduledTimerTaskPeriod;
 
     @Required
