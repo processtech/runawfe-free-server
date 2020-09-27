@@ -45,7 +45,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_PROCESSES));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_ARCHIVED_PROCESSES));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_EXECUTORS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_REPORTS, SecuredSingleton.REPORTS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_REPORTS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_RELATIONS, SecuredSingleton.RELATIONS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_BOT_STATION, SecuredSingleton.BOTSTATIONS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATA_SOURCES, SecuredSingleton.DATASOURCES));

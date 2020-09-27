@@ -387,7 +387,7 @@ public interface ExecutionService {
      * 
      * @see https://runawfe.org/doc/BPMNImplementation#messages, https://runawfe.org/rus/doc/BPMNImplementation#messages
      */
-    void sendSignal(User user, Map<String, String> routingData, Map<String, Object> payloadData, long ttlInSeconds);
+    void sendSignal(User user, Map<String, String> routingData, Map<String, ?> payloadData, long ttlInSeconds);
 
     /**
      * Check whether signal can be handled immediately (there are exist at least one matching active CatchEventNode).
