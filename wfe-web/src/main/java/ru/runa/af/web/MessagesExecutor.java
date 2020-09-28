@@ -16,6 +16,8 @@ public final class MessagesExecutor {
     public static final StrutsMessage ACTOR_CODE = new StrutsMessage("label.actor_code");
     public static final StrutsMessage ACTOR_IS_ACTIVE = new StrutsMessage("label.actor_is_active");
     public static final StrutsMessage ACTOR_EMAIL = new StrutsMessage("label.actor_email");
+    public static final StrutsMessage ACTOR_NOTIFY_ABOUT_TASKS = new StrutsMessage("label.actor_notify_about_tasks");
+    public static final StrutsMessage ACTOR_NOTIFY_ABOUT_CHAT_MESSAGE = new StrutsMessage("label.actor_notify_about_chat_message");
     public static final StrutsMessage ACTOR_PHONE = new StrutsMessage("label.actor_phone");
     public static final StrutsMessage ACTOR_TITLE = new StrutsMessage("label.actor_title");
     public static final StrutsMessage ACTOR_DEPARTMENT = new StrutsMessage("label.actor_department");

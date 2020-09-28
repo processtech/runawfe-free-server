@@ -17,16 +17,13 @@
  */
 package ru.runa.wfe.user;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import org.hibernate.annotations.Index;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
-
 import ru.runa.wfe.security.SecuredObjectType;
 
 /**
@@ -44,6 +41,8 @@ public class Actor extends Executor {
     private String phone;
     private String title;
     private String department;
+    private boolean notifyTasks;
+    private boolean notifyChatMessage;
 
     protected Actor() {
     }
@@ -185,6 +184,28 @@ public class Actor extends Executor {
             }
         }
         return "";
+    }
+
+    // @Transient
+    @Column(name = "IS_NOTIFY_TASKS")
+    public boolean isNotifyTasks() {
+        return notifyTasks;
+    }
+
+    // @Transient
+    public void setNotifyTasks(boolean notifyTasks) {
+        this.notifyTasks = notifyTasks;
+    }
+
+    // @Transient
+    @Column(name = "IS_NOTIFY_CHAT")
+    public boolean isNotifyChatMessage() {
+        return notifyChatMessage;
+    }
+
+    // @Transient
+    public void setNotifyChatMessage(boolean notifyChatMessage) {
+        this.notifyChatMessage = notifyChatMessage;
     }
 
 }

@@ -61,41 +61,44 @@ public class ChatSocket {
 
     @OnMessage
     public void uploadFile(ByteBuffer msg, boolean last, Session session) throws IOException {
-        byte[] loadedBytes = ((byte[]) session.getUserProperties().get("activeLoadFile"));
-        int filePosition = (int) session.getUserProperties().get("activeFilePosition");
-        session.getUserProperties().put("activeFilePosition", filePosition + msg.remaining());
-        msg.get(loadedBytes, filePosition, msg.remaining());
-        if (last) {
-            Integer fileNumber = -1;
-            JSONObject sendObject;
-            try {
-                fileNumber = (Integer) session.getUserProperties().get("activeFileNumber");
-                ChatMessageFile chatMessageFile = new ChatMessageFile();
-                chatMessageFile.setFileName((String) ((JSONArray) session.getUserProperties().get("activeFileNames")).get(fileNumber));
-                chatMessageFile.setBytes(loadedBytes);
-                ((ArrayList<ChatMessageFile>) session.getUserProperties().get("activeFiles")).add(chatMessageFile);
-                // send "ok"
-                sendObject = new JSONObject();
-                sendObject.put("fileLoaded", true);
-                sendObject.put("messType", "nextStepLoadFile");
-                sendObject.put("number", fileNumber);
-            } catch (Exception e) {
-                log.error("uploadFile failed", e);
-                sendObject = new JSONObject();
-                sendObject.put("fileLoaded", false);
-                sendObject.put("messType", "nextStepLoadFile");
-                sendObject.put("number", fileNumber);
+        if (!Delegates.getExecutionService()
+                .getProcess((User) session.getUserProperties().get("user"), (Long) session.getUserProperties().get("processId")).isEnded()) {
+            byte[] loadedBytes = ((byte[]) session.getUserProperties().get("activeLoadFile"));
+            int filePosition = (int) session.getUserProperties().get("activeFilePosition");
+            session.getUserProperties().put("activeFilePosition", filePosition + msg.remaining());
+            msg.get(loadedBytes, filePosition, msg.remaining());
+            if (last) {
+                Integer fileNumber = -1;
+                JSONObject sendObject;
+                try {
+                    fileNumber = (Integer) session.getUserProperties().get("activeFileNumber");
+                    ChatMessageFile chatMessageFile = new ChatMessageFile();
+                    chatMessageFile.setFileName((String) ((JSONArray) session.getUserProperties().get("activeFileNames")).get(fileNumber));
+                    chatMessageFile.setBytes(loadedBytes);
+                    ((ArrayList<ChatMessageFile>) session.getUserProperties().get("activeFiles")).add(chatMessageFile);
+                    // send "ok"
+                    sendObject = new JSONObject();
+                    sendObject.put("fileLoaded", true);
+                    sendObject.put("messType", "nextStepLoadFile");
+                    sendObject.put("number", fileNumber);
+                } catch (Exception e) {
+                    log.error("uploadFile failed", e);
+                    sendObject = new JSONObject();
+                    sendObject.put("fileLoaded", false);
+                    sendObject.put("messType", "nextStepLoadFile");
+                    sendObject.put("number", fileNumber);
+                }
+                if (((JSONArray) session.getUserProperties().get("activeFileNames")).size() > fileNumber + 1) {
+                    loadedBytes = new byte[((Long) ((JSONArray) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1)).intValue()];
+                } else {
+                    loadedBytes = null;
+                }
+                session.getUserProperties().put("activeFileNumber", fileNumber + 1);
+                session.getUserProperties().put("activeFilePosition", 0);
+                sessionHandler.sendToSession(session, sendObject);
             }
-            if (((JSONArray) session.getUserProperties().get("activeFileNames")).size() > fileNumber + 1) {
-                loadedBytes = new byte[((Long) ((JSONArray) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1)).intValue()];
-            } else {
-                loadedBytes = null;
-            }
-            session.getUserProperties().put("activeFileNumber", fileNumber + 1);
-            session.getUserProperties().put("activeFilePosition", 0);
-            sessionHandler.sendToSession(session, sendObject);
+            session.getUserProperties().put("activeLoadFile", loadedBytes);
         }
-        session.getUserProperties().put("activeLoadFile", loadedBytes);
     }
 
     @OnMessage
@@ -107,24 +110,36 @@ public class ChatSocket {
             String typeMessage = (String) objectMessage.get("type");
             switch (typeMessage) {
             case "newMessage":
-                addNewMessage(session, objectMessage);
+                if (!Delegates.getExecutionService()
+                        .getProcess((User) session.getUserProperties().get("user"), (Long) session.getUserProperties().get("processId")).isEnded()) {
+                    addNewMessage(session, objectMessage);
+                }
                 break;
             case "getMessages":
                 getMessages(session, objectMessage);
                 break;
             case "deleteMessage":
-                if (Delegates.getExecutorService().isAdministrator(getUser(session))) {
-                    Delegates.getChatService().deleteChatMessage(getUser(session), Long.parseLong((String) objectMessage.get("messageId")));
+                if (!Delegates.getExecutionService()
+                        .getProcess((User) session.getUserProperties().get("user"), (Long) session.getUserProperties().get("processId")).isEnded()) {
+                    if (Delegates.getExecutorService().isAdministrator(getUser(session))) {
+                        Delegates.getChatService().deleteChatMessage(getUser(session), Long.parseLong((String) objectMessage.get("messageId")));
+                    }
                 }
                 break;
             case "readMessage":
                 readMessage(session, objectMessage);
                 break;
             case "editMessage":
-                editMessage(session, objectMessage);
+                if (!Delegates.getExecutionService()
+                        .getProcess((User) session.getUserProperties().get("user"), (Long) session.getUserProperties().get("processId")).isEnded()) {
+                    editMessage(session, objectMessage);
+                }
                 break;
             case "endLoadFiles":
-                endLoadFiles(session, objectMessage);
+                if (!Delegates.getExecutionService()
+                        .getProcess((User) session.getUserProperties().get("user"), (Long) session.getUserProperties().get("processId")).isEnded()) {
+                    endLoadFiles(session, objectMessage);
+                }
                 break;
             default:
                 break;

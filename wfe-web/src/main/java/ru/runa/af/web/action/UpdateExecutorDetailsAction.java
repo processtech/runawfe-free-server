@@ -19,11 +19,9 @@ package ru.runa.af.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.af.web.form.UpdateExecutorDetailsForm;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
@@ -61,6 +59,8 @@ public class UpdateExecutorDetailsAction extends ActionBase {
                 actor.setCode(form.getCode());
                 actor.setPhone(form.getPhone());
                 actor.setEmail(form.getEmail());
+                actor.setNotifyTasks(form.isNotifyTasks());
+                actor.setNotifyChatMessage(form.isNotifyChatMessage());
                 actor.setTitle(form.getTitle());
                 actor.setDepartment(form.getDepartment());
             } else {
