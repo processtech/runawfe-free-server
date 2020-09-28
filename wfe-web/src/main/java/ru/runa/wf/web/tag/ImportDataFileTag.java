@@ -15,6 +15,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.action.ImportDataFileAction;
+import ru.runa.wf.web.datafile.builder.DataFileBuilder;
 import ru.runa.wfe.commons.SystemProperties;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "importDataFile")
@@ -36,7 +37,7 @@ public class ImportDataFileTag extends TitledFormTag {
         }
         clearPasswordRow(table);
         clearPasswordForDataSourcesRow(table);
-        Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true, ".datafile");
+        Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true, DataFileBuilder.FILE_EXT);
         table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE.message(pageContext), fileInput));
         tdFormElement.addElement(table);
     }
