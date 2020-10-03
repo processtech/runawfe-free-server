@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service;
 
+import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.user.User;
 
@@ -65,4 +66,14 @@ public interface AuthenticationService {
      * @since 4.2.0
      */
     public User authenticateByTrustedPrincipal(User serviceUser, String login) throws AuthenticationException;
+    
+    /**
+     * Trusted authentication for bots using service account with administrator
+     * privileges.
+     * 
+     * @return authenticated user
+     * @throws AuthenticationException
+     * @since 4.4.2
+     */
+    public User authenticateBot(User botStationUser, Bot bot) throws AuthenticationException;
 }

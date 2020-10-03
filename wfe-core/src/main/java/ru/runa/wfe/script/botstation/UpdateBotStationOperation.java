@@ -22,9 +22,6 @@ public class UpdateBotStationOperation extends ScriptOperation {
     @XmlAttribute(name = AdminScriptConstants.NEW_NAME_ATTRIBUTE_NAME, required = false)
     public String newName;
 
-    @XmlAttribute(name = AdminScriptConstants.ADDRESS_ATTRIBUTE_NAME, required = false)
-    public String address;
-
     @Override
     public void validate(ScriptExecutionContext context) {
         ScriptValidation.requiredAttribute(this, AdminScriptConstants.NAME_ATTRIBUTE_NAME, name);
@@ -35,9 +32,6 @@ public class UpdateBotStationOperation extends ScriptOperation {
         BotStation station = context.getBotLogic().getBotStationNotNull(name);
         if (!Strings.isNullOrEmpty(newName)) {
             station.setName(newName);
-        }
-        if (!Strings.isNullOrEmpty(address)) {
-            station.setAddress(address);
         }
         context.getBotLogic().updateBotStation(context.getUser(), station);
     }
