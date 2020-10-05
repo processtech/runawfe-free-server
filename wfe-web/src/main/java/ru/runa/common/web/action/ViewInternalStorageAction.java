@@ -24,6 +24,7 @@ import org.apache.struts.action.ActionMapping;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.ViewInternalStorageForm;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceStuff;
@@ -55,6 +56,8 @@ public class ViewInternalStorageAction extends ActionBase {
                     os.flush();
                     return null;
                 }
+            } else {
+                throw new InternalApplicationException("Excel internal storage allowed only");
             }
             form.setWorkbookPath(workbookPath);
             String workbookName = form.getWorkbookName();
