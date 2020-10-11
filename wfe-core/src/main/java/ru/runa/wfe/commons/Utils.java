@@ -395,6 +395,9 @@ public class Utils {
             @Override
             protected void doExecuteInTransaction() throws Exception {
                 Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
+                if (token.hasEnded()) {
+                    return;
+                }
                 boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
                 if (stateChanged) {
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
