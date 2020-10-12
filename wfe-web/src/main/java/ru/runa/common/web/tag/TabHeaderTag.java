@@ -28,7 +28,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Represents tabs for managing different secured objects types. Created on 04.10.2004
- * 
+ *
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
  */
@@ -39,6 +39,7 @@ public class TabHeaderTag extends TagSupport {
     private boolean isVertical = true;
 
     private static final List<MenuForward> FORWARDS = new ArrayList<>();
+
     static {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_TASKS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DEFINITIONS));
@@ -122,10 +123,12 @@ public class TabHeaderTag extends TagSupport {
         try {
             if (menuForward.forAdministratorOnly) {
                 if (menuForward.menuMessage.getKey().equals(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE.getKey())) {
-                    if (DataSourceStorage.getNames().contains(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)) {
-                        if (!(DataSourceStorage.getDataSource(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME) instanceof ExcelDataSource)) {
-                            return false;
-                        }
+                    final boolean isInternalStoragePresent = DataSourceStorage.getNames().contains(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME);
+                    if (!isInternalStoragePresent) {
+                        return false;
+                    }
+                    if (!(DataSourceStorage.getDataSource(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME) instanceof ExcelDataSource)) {
+                        return false;
                     }
                 }
                 return Delegates.getExecutorService().isAdministrator(getUser());
