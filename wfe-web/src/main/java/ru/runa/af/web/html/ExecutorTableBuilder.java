@@ -83,12 +83,6 @@ public class ExecutorTableBuilder {
             Input emailInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.EMAIL_INPUT_NAME, actor.getEmail(), enabled, false);
             table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_EMAIL.message(pageContext), emailInput));
 
-            table.addElement(HTMLUtils.createCheckboxRow(MessagesExecutor.ACTOR_NOTIFY_ABOUT_TASKS.message(pageContext),
-                    UpdateExecutorDetailsForm.NOTIFY_ABOUT_TASKS_INPUT_NAME, actor.isNotifyTasks(), enabled, false));
-
-            table.addElement(HTMLUtils.createCheckboxRow(MessagesExecutor.ACTOR_NOTIFY_ABOUT_CHAT_MESSAGE.message(pageContext),
-                    UpdateExecutorDetailsForm.NOTIFY_ABOUT_CHAT_MESSAGE_INPUT_NAME, actor.isNotifyChatMessage(), enabled, false));
-
             Input phoneInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.PHONE_INPUT_NAME, actor.getPhone(), enabled, false);
             table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_PHONE.message(pageContext), phoneInput));
 

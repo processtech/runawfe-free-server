@@ -203,7 +203,7 @@ public class ChatLogic extends WfCommonLogic {
         try {
             Set<String> emails = new HashSet<String>();
             for (Executor executor : executors) {
-                if (executor instanceof Actor && StringUtils.isNotBlank(((Actor) executor).getEmail()) && ((Actor) executor).isNotifyChatMessage()) {
+                if (executor instanceof Actor && StringUtils.isNotBlank(((Actor) executor).getEmail())) {
                     emails.add(((Actor) executor).getEmail());
                 }
             }

@@ -59,8 +59,6 @@ public class UpdateExecutorDetailsAction extends ActionBase {
                 actor.setCode(form.getCode());
                 actor.setPhone(form.getPhone());
                 actor.setEmail(form.getEmail());
-                actor.setNotifyTasks(form.isNotifyTasks());
-                actor.setNotifyChatMessage(form.isNotifyChatMessage());
                 actor.setTitle(form.getTitle());
                 actor.setDepartment(form.getDepartment());
             } else {

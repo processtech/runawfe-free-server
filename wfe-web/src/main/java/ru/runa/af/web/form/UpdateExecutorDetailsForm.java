@@ -51,10 +51,6 @@ public class UpdateExecutorDetailsForm extends IdForm {
 
     private String email;
 
-    private boolean notifyTasks;
-
-    private boolean notifyChatMessage;
-
     private String phone;
 
     private String title;
@@ -62,10 +58,6 @@ public class UpdateExecutorDetailsForm extends IdForm {
     private String department;
 
     public static final String EMAIL_INPUT_NAME = "email";
-
-    public static final String NOTIFY_ABOUT_TASKS_INPUT_NAME = "notifyTasks";
-
-    public static final String NOTIFY_ABOUT_CHAT_MESSAGE_INPUT_NAME = "notifyChatMessage";
 
     public static final String PHONE_INPUT_NAME = "phone";
 
@@ -103,22 +95,6 @@ public class UpdateExecutorDetailsForm extends IdForm {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public boolean isNotifyTasks() {
-        return notifyTasks;
-    }
-
-    public void setNotifyTasks(boolean notifyTasks) {
-        this.notifyTasks = notifyTasks;
-    }
-
-    public boolean isNotifyChatMessage() {
-        return notifyChatMessage;
-    }
-
-    public void setNotifyChatMessage(boolean notifyChatMessage) {
-        this.notifyChatMessage = notifyChatMessage;
     }
 
     public String getPhone() {
@@ -181,8 +157,6 @@ public class UpdateExecutorDetailsForm extends IdForm {
         setFullName("");
         setCode(null);
         setEmail("");
-        setNotifyTasks(false);
-        setNotifyChatMessage(false);
     }
 
     public Long getCode() {
@@ -192,5 +166,4 @@ public class UpdateExecutorDetailsForm extends IdForm {
     public void setCode(Long code) {
         this.code = code;
     }
-
 }

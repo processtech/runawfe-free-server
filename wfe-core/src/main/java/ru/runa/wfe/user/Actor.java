@@ -41,8 +41,6 @@ public class Actor extends Executor {
     private String phone;
     private String title;
     private String department;
-    private boolean notifyTasks;
-    private boolean notifyChatMessage;
 
     protected Actor() {
     }
@@ -185,27 +183,4 @@ public class Actor extends Executor {
         }
         return "";
     }
-
-    // @Transient
-    @Column(name = "IS_NOTIFY_TASKS")
-    public boolean isNotifyTasks() {
-        return notifyTasks;
-    }
-
-    // @Transient
-    public void setNotifyTasks(boolean notifyTasks) {
-        this.notifyTasks = notifyTasks;
-    }
-
-    // @Transient
-    @Column(name = "IS_NOTIFY_CHAT")
-    public boolean isNotifyChatMessage() {
-        return notifyChatMessage;
-    }
-
-    // @Transient
-    public void setNotifyChatMessage(boolean notifyChatMessage) {
-        this.notifyChatMessage = notifyChatMessage;
-    }
-
 }
