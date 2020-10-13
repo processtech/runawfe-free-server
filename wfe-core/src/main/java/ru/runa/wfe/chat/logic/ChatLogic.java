@@ -121,6 +121,18 @@ public class ChatLogic extends WfCommonLogic {
                 }
             }
         }
+        {
+            // пользователи имеющие права на чтение
+            Set<Executor> executorWithPermission = permissionDao.getExecutorsWithPermission(process);
+            for (Executor executor : executorWithPermission) {
+                if (executor instanceof Group) {
+                    // TODO Do we want to store actor or group links?
+                    result.addAll(executorDao.getGroupActors(((Group) executor)));
+                } else if (executor instanceof Actor) {
+                    result.add(executor);
+                }
+            }
+        }
         return result;
     }
 
@@ -191,7 +203,7 @@ public class ChatLogic extends WfCommonLogic {
         try {
             Set<String> emails = new HashSet<String>();
             for (Executor executor : executors) {
-                if (executor instanceof Actor && StringUtils.isNotBlank(((Actor) executor).getEmail())) {
+                if (executor instanceof Actor && StringUtils.isNotBlank(((Actor) executor).getEmail()) && ((Actor) executor).isNotifyChatMessage()) {
                     emails.add(((Actor) executor).getEmail());
                 }
             }
