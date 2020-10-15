@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -389,7 +390,8 @@ public class Utils {
         return string1.trim().equals(string2.trim());
     }
 
-    public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
+    public static boolean failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
+        final AtomicBoolean needReprocessing = new AtomicBoolean(false);
         new TransactionalExecutor(transaction) {
 
             @Override
@@ -399,14 +401,16 @@ public class Utils {
                     return;
                 }
                 boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
-                if (stateChanged) {
+                if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
                     ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
                     processError.setThrowable(throwable);
                     Errors.sendEmailNotification(processError);
+                    needReprocessing.set(true);
                 }
             }
         }.executeInTransaction(true);
+        return needReprocessing.get();
     }
 
     public static String getCuttedString(String string, int limit) {
