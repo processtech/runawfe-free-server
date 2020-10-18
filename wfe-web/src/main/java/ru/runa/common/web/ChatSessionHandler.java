@@ -1,6 +1,7 @@
 package ru.runa.common.web;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -25,7 +26,7 @@ public class ChatSessionHandler {
             break;
         case "chatsNewMess":
             List<WfProcess> processes = Delegates.getExecutionService().getProcesses((User) session.getUserProperties().get("user"), null);
-            HashSet<Long> processIds = new HashSet<Long>();
+            Collection<Long> processIds = new HashSet<Long>();
             for (WfProcess proc : processes) {
                 processIds.add(proc.getId());
             }
@@ -53,7 +54,7 @@ public class ChatSessionHandler {
         }
     }
 
-    public void sendToChats(JSONObject message, Long processId, Actor coreUser, HashSet<Actor> mentionedActors, boolean isPrivate)
+    public void sendToChats(JSONObject message, Long processId, Actor coreUser, Collection<Actor> mentionedActors, boolean isPrivate)
             throws IOException {
         for (Session session : sessions) {
             JSONObject sendObject = (JSONObject) message.clone(); // проверить клон!
@@ -85,7 +86,7 @@ public class ChatSessionHandler {
         sendToChats(message, processId, null, new HashSet<Actor>(), false);
     }
 
-    public void sendOnlyNewMessagesSessions(JSONObject message, Long processId, Actor coreUser, HashSet<Actor> mentionedActors, boolean isPrivate)
+    public void sendOnlyNewMessagesSessions(JSONObject message, Long processId, Actor coreUser, Collection<Actor> mentionedActors, boolean isPrivate)
             throws IOException {
         for (Session session : onlyNewMessagesSessions) {
             JSONObject sendObject = (JSONObject) message.clone();

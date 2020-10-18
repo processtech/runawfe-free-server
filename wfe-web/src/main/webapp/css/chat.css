@@ -629,3 +629,17 @@ button, input, checkbox {
 	max-width: 75px;
 	overflow: hidden;
 }
+
+.listChats{
+	display:block;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	margin-bottom:20px;
+	overflow-y:scroll;
+	max-height: 60px;
+}
+
+.select-chat{
+	display:table;
+	width:100%;
+}
