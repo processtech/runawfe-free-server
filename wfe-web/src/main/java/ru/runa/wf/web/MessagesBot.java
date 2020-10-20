@@ -19,8 +19,6 @@ public final class MessagesBot {
     public static final StrutsMessage TITLE_ADD_BOT_STATION = new StrutsMessage("title.add_bot_station");
     public static final StrutsMessage TITLE_ADD_BOT = new StrutsMessage("title.add_bot");
     public static final StrutsMessage LABEL_BOT_STATION_NAME = new StrutsMessage("label.bot_station_name");
-    public static final StrutsMessage LABEL_BOT_STATION_ADDRESS = new StrutsMessage("label.bot_station_address");
-    public static final StrutsMessage LABEL_BOT_PASSWORD = new StrutsMessage("label.bot_password");
     public static final StrutsMessage LABEL_BOT_NAME = new StrutsMessage("label.bot_name");
     public static final StrutsMessage LABEL_BOT_SEQUENTIAL = new StrutsMessage("label.bot_sequential");
     public static final StrutsMessage LABEL_BOT_TRANSACTIONAL = new StrutsMessage("label.bot_transactional");

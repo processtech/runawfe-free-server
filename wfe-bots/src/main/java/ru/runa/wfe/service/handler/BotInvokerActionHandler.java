@@ -23,16 +23,7 @@ public class BotInvokerActionHandler extends ActionHandlerBase {
             List<BotStation> botStations = Delegates.getBotService().getBotStations();
             BotStation botStation = null;
             if (!Strings.isNullOrEmpty(configuration)) {
-                // old way: search by address
-                for (BotStation bs : botStations) {
-                    if (configuration.equals(bs.getAddress())) {
-                        botStation = bs;
-                        break;
-                    }
-                }
-                if (botStation == null) {
-                    botStation = Delegates.getBotService().getBotStationByName(configuration);
-                }
+                botStation = Delegates.getBotService().getBotStationByName(configuration);
             } else {
                 if (botStations.size() > 0) {
                     botStation = botStations.get(0);

@@ -29,7 +29,6 @@ public class UpdateBotStationAction extends ActionBase {
             BotService botService = Delegates.getBotService();
             BotStation botStation = botService.getBotStation(botStationForm.getBotStationId());
             botStation.setName(botStationForm.getBotStationName());
-            botStation.setAddress(botStationForm.getBotStationRMIAddress());
             botService.updateBotStation(getLoggedUser(request), botStation);
         } catch (Exception e) {
             addError(request, e);

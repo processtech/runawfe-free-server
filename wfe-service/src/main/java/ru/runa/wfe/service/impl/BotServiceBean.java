@@ -168,7 +168,6 @@ public class BotServiceBean implements BotServiceLocal, BotServiceRemote {
             zipStream.putNextEntry(new ZipEntry("botstation"));
             zipStream.write(botStation.getName().getBytes(Charsets.UTF_8));
             zipStream.write('\n');
-            zipStream.write((botStation.getAddress() != null ? botStation.getAddress() : "").getBytes(Charsets.UTF_8));
             for (Bot bot : getBots(user, botStation.getId())) {
                 zipStream.putNextEntry(new ZipEntry(bot.getUsername() + ".bot"));
                 byte[] botArchive = exportBot(user, bot);
@@ -225,7 +224,7 @@ public class BotServiceBean implements BotServiceLocal, BotServiceRemote {
                     String addr = r.readLine();
                     station = getBotStationByName(name);
                     if (station == null) {
-                        station = createBotStation(user, new BotStation(name, addr));
+                        station = createBotStation(user, new BotStation(name));
                     }
                     continue;
                 }

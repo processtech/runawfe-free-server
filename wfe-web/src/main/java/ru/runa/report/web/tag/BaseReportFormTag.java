@@ -107,7 +107,7 @@ public abstract class BaseReportFormTag extends TitledFormTag {
         String description = (String) pageContext.getRequest().getAttribute(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM);
         Input reportDescription = HTMLUtils.createInput(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM, description == null ? "" : description);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_DESCRIPTION.message(pageContext), reportDescription));
-        String fileInput = ViewUtil.getFileInput(new StrutsWebHelper(pageContext), FileForm.FILE_INPUT_NAME, false);
+        String fileInput = ViewUtil.getFileInput(new StrutsWebHelper(pageContext), FileForm.FILE_INPUT_NAME, false, ".jasper");
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_FILE.message(pageContext), new TD(fileInput)));
         ReportTypesIterator iterator = new ReportTypesIterator(getUser());
         TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, entityType, pageContext);

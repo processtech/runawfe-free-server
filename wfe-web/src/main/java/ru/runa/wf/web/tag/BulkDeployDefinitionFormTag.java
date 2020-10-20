@@ -23,6 +23,7 @@ import ru.runa.wf.web.action.RedeployProcessDefinitionAction;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
@@ -131,7 +132,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         TD labelTd = new TD(label);
         labelTd.setClass(Resources.CLASS_LIST_TABLE_TD);
         tr.addElement(labelTd);
-        String fileInput = ViewUtil.getFileInput(strutsWebHelper, name, true);
+        String fileInput = ViewUtil.getFileInput(strutsWebHelper, name, true, "." + FileDataProvider.PAR_FILE);
         tr.addElement(new TD(fileInput).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
     }

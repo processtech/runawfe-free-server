@@ -29,7 +29,6 @@ public class Bot implements Serializable {
     private Long version;
     private BotStation botStation;
     private String username;
-    private String password;
     private Date createDate;
     /**
      * Whether should all bot tasks be executed sequentially. False for parallel execution.
@@ -61,10 +60,9 @@ public class Bot implements Serializable {
     public Bot() {
     }
 
-    public Bot(BotStation botStation, String username, String password) {
+    public Bot(BotStation botStation, String username) {
         this.botStation = botStation;
         this.username = username;
-        this.password = password;
         this.createDate = new Date();
     }
 
@@ -110,15 +108,6 @@ public class Bot implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    @Column(name = "PASSWORD", length = 1024)
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     @Column(name = "CREATE_DATE", nullable = false)

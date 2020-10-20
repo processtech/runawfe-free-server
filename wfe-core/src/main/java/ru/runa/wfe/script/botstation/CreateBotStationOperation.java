@@ -17,17 +17,13 @@ public class CreateBotStationOperation extends ScriptOperation {
     @XmlAttribute(name = AdminScriptConstants.NAME_ATTRIBUTE_NAME, required = true)
     public String name;
 
-    @XmlAttribute(name = AdminScriptConstants.ADDRESS_ATTRIBUTE_NAME, required = true)
-    public String address;
-
     @Override
     public void validate(ScriptExecutionContext context) {
         ScriptValidation.requiredAttribute(this, AdminScriptConstants.NAME_ATTRIBUTE_NAME, name);
-        ScriptValidation.requiredAttribute(this, AdminScriptConstants.ADDRESS_ATTRIBUTE_NAME, address);
     }
 
     @Override
     public void execute(ScriptExecutionContext context) {
-        context.getBotLogic().createBotStation(context.getUser(), new BotStation(name, address));
+        context.getBotLogic().createBotStation(context.getUser(), new BotStation(name));
     }
 }

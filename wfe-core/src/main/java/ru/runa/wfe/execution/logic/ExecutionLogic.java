@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.transaction.UserTransaction;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,21 +166,27 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    public void failProcessExecution(UserTransaction transaction, Long tokenId, Throwable throwable) {
+    public boolean failProcessExecution(UserTransaction transaction, Long tokenId, Throwable throwable) {
+        final AtomicBoolean needReprocessing = new AtomicBoolean(false);
         new TransactionalExecutor(transaction) {
 
             @Override
             protected void doExecuteInTransaction() {
                 CurrentToken token = ApplicationContextFactory.getCurrentTokenDao().getNotNull(tokenId);
+                if (token.hasEnded()) {
+                    return;
+                }
                 boolean stateChanged = failToken(token, Throwables.getRootCause(throwable));
-                if (stateChanged) {
+                if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
                     ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
                     processError.setThrowable(throwable);
                     Errors.sendEmailNotification(processError);
+                    needReprocessing.set(true);
                 }
             }
         }.executeInTransaction(true);
+        return needReprocessing.get();
     }
 
     public boolean failToken(CurrentToken token, Throwable throwable) {

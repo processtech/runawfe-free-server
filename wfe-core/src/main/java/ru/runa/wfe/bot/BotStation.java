@@ -39,9 +39,6 @@ public class BotStation implements Serializable {
     @Column(name = "NAME", unique = true, nullable = false, length = 1024)
     private String name;
 
-    @Column(name = "ADDRESS", length = 1024)
-    private String address;
-
     @Column(name = "CREATE_DATE", nullable = false)
     private Date createDate;
 
@@ -52,11 +49,6 @@ public class BotStation implements Serializable {
         this.name = name;
         this.version = 0L;
         this.createDate = new Date();
-    }
-
-    public BotStation(String name, String address) {
-        this(name);
-        this.address = address;
     }
 
     public BotStation(Long id) {
@@ -79,6 +71,6 @@ public class BotStation implements Serializable {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).add("address", address).toString();
+        return MoreObjects.toStringHelper(this).add("id", id).add("name", name).toString();
     }
 }

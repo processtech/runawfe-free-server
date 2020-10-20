@@ -1,5 +1,6 @@
 package ru.runa.wfe.service.delegate;
 
+import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.service.AuthenticationService;
 import ru.runa.wfe.user.User;
 
@@ -44,6 +45,15 @@ public class AuthenticationServiceDelegate extends Ejb3Delegate implements Authe
     public User authenticateByTrustedPrincipal(User serviceUser, String login) {
         try {
             return getAuthenticationService().authenticateByTrustedPrincipal(serviceUser, login);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override    
+    public User authenticateBot(User botStationUser, Bot bot) {
+        try {
+            return getAuthenticationService().authenticateBot(botStationUser, bot);
         } catch (Exception e) {
             throw handleException(e);
         }

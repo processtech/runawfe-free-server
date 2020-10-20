@@ -123,7 +123,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
                     String botErrorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_CONFIGURATION_ERROR, bot.getUsername());
                     try {
                         log.info("Configuring " + bot.getUsername());
-                        User user = Delegates.getAuthenticationService().authenticateByLoginPassword(bot.getUsername(), bot.getPassword());
+                        User user = Delegates.getAuthenticationService().authenticateBot(botStationUser, bot);
                         List<BotTask> tasks = Delegates.getBotService().getBotTasks(user, bot.getId());
                         if (existingBotExecutors.containsKey(bot) && bot.getId().equals(existingBotExecutors.get(bot).getBot().getId())) {
                             WorkflowBotExecutor botExecutor = existingBotExecutors.get(bot);

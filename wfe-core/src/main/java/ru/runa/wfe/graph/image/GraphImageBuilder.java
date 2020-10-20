@@ -89,7 +89,8 @@ public class GraphImageBuilder {
             }
         }
         NodeEnterLog lastNodeEnterLog = logs.getLastOrNull(NodeEnterLog.class);
-        String lastNodeId = lastNodeEnterLog == null ? null : lastNodeEnterLog.getNodeId();
+        String lastSubprocessNodeId = lastNodeEnterLog != null && lastNodeEnterLog.getNodeType() == NodeType.SUBPROCESS ? lastNodeEnterLog
+                .getNodeId() : null;
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(parsedProcessDefinition);
             if (transition != null) {
@@ -99,7 +100,7 @@ public class GraphImageBuilder {
                 nodeFigures.put(nodeModelFrom, renderHits);
                 // Mark 'to' block as PASSED
                 AbstractFigure nodeModelTo = allNodeFigures.get(transition.getTo().getTransitionNodeId(true));
-                if (lastNodeId != null && lastNodeId.equals(nodeModelTo.getNode().getNodeId())) {
+                if (lastSubprocessNodeId != null && lastSubprocessNodeId.equals(nodeModelTo.getNode().getNodeId())) {
                     renderHits = new RenderHits(DrawProperties.getHighlightColor(), true, true);
                 }
                 nodeFigures.put(nodeModelTo, renderHits);
