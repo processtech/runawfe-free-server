@@ -1,14 +1,8 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
-import java.util.List;
-
 import org.hibernate.Session;
-
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
-
-import com.google.common.collect.Lists;
 
 public class PerformancePatch401 extends DbMigration {
 
@@ -39,37 +33,36 @@ public class PerformancePatch401 extends DbMigration {
     };
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = Lists.newArrayList();
-        sql.add(getDDLCreateColumn("PERMISSION_MAPPING", new ColumnDef("TYPE_ID", Types.BIGINT)));
-        sql.add(getDDLRemoveColumn("PERMISSION_MAPPING", "VERSION"));
-        return sql;
+    protected void executeDDLBefore() {
+        executeUpdates(
+                getDDLCreateColumn("PERMISSION_MAPPING", new BigintColumnDef("TYPE_ID")),
+                getDDLDropColumn("PERMISSION_MAPPING", "VERSION")
+        );
     }
 
     @Override
-    protected List<String> getDDLQueriesAfter() {
-        List<String> sql = Lists.newArrayList();
-        sql.add(getDDLRemoveIndex("PERMISSION_MAPPING", "IX_PERMISSION_IDENTIFIABLE_ID"));
-        sql.add(getDDLRemoveIndex("PERMISSION_MAPPING", "IX_PERMISSION_TYPE"));
-        sql.add(getDDLRemoveIndex("PERMISSION_MAPPING", "IX_PERMISSION_EXECUTOR"));
-        sql.add(getDDLRemoveColumn("PERMISSION_MAPPING", "TYPE"));
-        sql.add(getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_EXECUTOR", "EXECUTOR_ID", "TYPE_ID", "MASK", "IDENTIFIABLE_ID"));
-        sql.add(getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_IDENTIFIABLE", "IDENTIFIABLE_ID", "TYPE_ID", "MASK", "EXECUTOR_ID"));
+    protected void executeDDLAfter() {
+        executeUpdates(
+                getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_IDENTIFIABLE_ID"),
+                getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_TYPE"),
+                getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_EXECUTOR"),
+                getDDLDropColumn("PERMISSION_MAPPING", "TYPE"),
+                getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_EXECUTOR", "EXECUTOR_ID", "TYPE_ID", "MASK", "IDENTIFIABLE_ID"),
+                getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_IDENTIFIABLE", "IDENTIFIABLE_ID", "TYPE_ID", "MASK", "EXECUTOR_ID")
+        );
         //
         if (dbType == DbType.MSSQL) {
-            sql.add("CREATE NONCLUSTERED INDEX IX_VARIABLE_NAME ON BPM_VARIABLE (NAME) INCLUDE (PROCESS_ID, STRINGVALUE)");
+            executeUpdates("CREATE NONCLUSTERED INDEX IX_VARIABLE_NAME ON BPM_VARIABLE (NAME) INCLUDE (PROCESS_ID, STRINGVALUE)");
         } else {
-            sql.add(getDDLCreateIndex("BPM_VARIABLE", "IX_VARIABLE_NAME", "NAME"));
+            executeUpdates(getDDLCreateIndex("BPM_VARIABLE", "IX_VARIABLE_NAME", "NAME"));
         }
-        return sql;
     }
 
     @Override
-    public void executeDML(Session session) throws Exception {
+    public void executeDML(Session session) {
         for (Match m : matches) {
             String q = "UPDATE PERMISSION_MAPPING SET TYPE_ID=" + m.typeId + " WHERE TYPE='" + m.typeName + "'";
             log.info("Updated permission mappings (" + m.typeName + " --> " + m.typeId + "): " + session.createSQLQuery(q).executeUpdate());
         }
     }
-
 }
