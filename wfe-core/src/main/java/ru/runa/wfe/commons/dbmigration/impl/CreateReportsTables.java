@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dbmigration.DbPatch;
-import ru.runa.wfe.commons.dbmigration.DbPatchPostProcessor;
+import ru.runa.wfe.commons.dbmigration.DbMigrationPostProcessor;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -17,7 +17,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
-public class CreateReportsTables extends DbPatch implements DbPatchPostProcessor {
+public class CreateReportsTables extends DbPatch implements DbMigrationPostProcessor {
 
     @Autowired
     protected ExecutorDao executorDao;

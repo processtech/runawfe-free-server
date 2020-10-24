@@ -46,7 +46,7 @@ public abstract class DbPatch {
      * 
      * It's allowed to use only raw SQL because hibernate mappings could not work in old DB version.
      * 
-     * This is preferable way to patch database (@see {@link DbPatchPostProcessor}).
+     * This is preferable way to patch database (@see {@link DbMigrationPostProcessor}).
      */
     public void executeDML(Session session) throws Exception {
 

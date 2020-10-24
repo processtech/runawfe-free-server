@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dbmigration.DbPatch;
-import ru.runa.wfe.commons.dbmigration.DbPatchPostProcessor;
+import ru.runa.wfe.commons.dbmigration.DbMigrationPostProcessor;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
@@ -13,7 +13,7 @@ import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.ProcessDefinition;
 
-public class AddTokenMessageSelectorPatch extends DbPatch implements DbPatchPostProcessor {
+public class AddTokenMessageSelectorPatch extends DbPatch implements DbMigrationPostProcessor {
     @Autowired
     TokenDao tokenDao;
     @Autowired
