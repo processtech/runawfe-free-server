@@ -521,28 +521,28 @@ public abstract class DbMigration {
         }
     }
 
-    @SuppressWarnings({ "WeakerAccess", "deprecation" })
+    @SuppressWarnings({ "WeakerAccess" })
     public class BigintColumnDef extends ColumnDef {
         public BigintColumnDef(String name) {
             super(name, dialect.getTypeName(Types.BIGINT));
         }
     }
 
-    @SuppressWarnings({ "unused", "WeakerAccess", "deprecation" })
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class BlobColumnDef extends ColumnDef {
         public BlobColumnDef(String name) {
             super(name, dialect.getTypeName(Types.BLOB));
         }
     }
 
-    @SuppressWarnings({ "unused", "WeakerAccess", "deprecation" })
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class BooleanColumnDef extends ColumnDef {
         public BooleanColumnDef(String name) {
             super(name, dialect.getTypeName(Types.BIT));
         }
     }
 
-    @SuppressWarnings({ "unused", "WeakerAccess", "deprecation" })
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class CharColumnDef extends ColumnDef {
         public CharColumnDef(String name, int length) {
             super(name, dialect.getTypeName(Types.CHAR, length, length, length));
@@ -561,28 +561,28 @@ public abstract class DbMigration {
     }
 
 
-    @SuppressWarnings({ "unused", "WeakerAccess", "deprecation" })
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class DoubleColumnDef extends ColumnDef {
         public DoubleColumnDef(String name) {
             super(name, dialect.getTypeName(Types.DOUBLE));
         }
     }
 
-    @SuppressWarnings({ "unused", "WeakerAccess", "deprecation" })
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class IntColumnDef extends ColumnDef {
         public IntColumnDef(String name) {
             super(name, dialect.getTypeName(Types.INTEGER));
         }
     }
 
-    @SuppressWarnings({ "unused", "WeakerAccess", "deprecation" })
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class TimestampColumnDef extends ColumnDef {
         public TimestampColumnDef(String name) {
             super(name, dialect.getTypeName(Types.TIMESTAMP));
         }
     }
 
-    @SuppressWarnings({ "unused", "WeakerAccess", "deprecation" })
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class VarcharColumnDef extends ColumnDef {
         public VarcharColumnDef(String name, int length) {
             super(name, dialect.getTypeName(Types.VARCHAR, length, length, length));
