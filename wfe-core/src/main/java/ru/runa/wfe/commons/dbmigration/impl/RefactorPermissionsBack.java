@@ -362,28 +362,6 @@ public class RefactorPermissionsBack extends DbMigration {
         }
     }
 
-
-    private String insertPkColumn() {
-        switch (dbType) {
-            case ORACLE:
-            case POSTGRESQL:
-                return "id, ";
-            default:
-                return "";
-        }
-    }
-
-    private String insertPkNextVal(String tableName) {
-        switch (dbType) {
-            case ORACLE:
-                return "seq_" + tableName + ".nextval, ";
-            case POSTGRESQL:
-                return "nextval('seq_" + tableName + "'), ";
-            default:
-                return "";
-        }
-    }
-
     /**
      * Delete permission_mapping rows which still contain illegal (object type, permission name) combinations.
      */
