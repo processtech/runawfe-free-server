@@ -18,6 +18,7 @@
 package ru.runa.wfe.commons.dbmigration;
 
 import com.google.common.base.Throwables;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.apachecommons.CommonsLog;
@@ -38,7 +39,7 @@ import ru.runa.wfe.commons.PropertyResources;
 @CommonsLog
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
     @Autowired
-    private List<Class<? extends DbMigration>> dbPatches;
+    private ArrayList<Class<? extends DbMigration>> dbMigrations;
     @Autowired
     private DbTransactionalInitializer dbTransactionalInitializer;
     @Autowired
@@ -54,7 +55,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
                 dbMigrationManager.runDbMigration0();
                 dbTransactionalInitializer.insertInitialData();
             }
-            val appliedMigrations = dbMigrationManager.runAll(mmContext, dbPatches);
+            val appliedMigrations = dbMigrationManager.runAll(mmContext, dbMigrations);
             dbTransactionalInitializer.initPermissions();
             postProcessPatches(appliedMigrations);
             dbTransactionalInitializer.initLocalizations();
