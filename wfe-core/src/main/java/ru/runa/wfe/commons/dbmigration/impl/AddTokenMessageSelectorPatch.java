@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.Utils;
@@ -20,15 +19,15 @@ public class AddTokenMessageSelectorPatch extends DbMigration implements DbMigra
     ProcessDefinitionLoader processDefinitionLoader;
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = super.getDDLQueriesBefore();
-        sql.add(getDDLCreateColumn("BPM_TOKEN", new ColumnDef("MESSAGE_SELECTOR", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))));
-        sql.add(getDDLCreateIndex("BPM_TOKEN", "IX_MESSAGE_SELECTOR", "MESSAGE_SELECTOR"));
-        return sql;
+    protected void executeDDLBefore() {
+        executeUpdates(
+                getDDLCreateColumn("BPM_TOKEN", new VarcharColumnDef("MESSAGE_SELECTOR", 1024)),
+                getDDLCreateIndex("BPM_TOKEN", "IX_MESSAGE_SELECTOR", "MESSAGE_SELECTOR")
+        );
     }
 
     @Override
-    public void postExecute() throws Exception {
+    public void postExecute() {
         List<Token> tokens = tokenDao.findByMessageSelectorIsNullAndExecutionStatusIsActive();
         log.info("Updating " + tokens.size() + " tokens message selector");
         for (Token token : tokens) {
