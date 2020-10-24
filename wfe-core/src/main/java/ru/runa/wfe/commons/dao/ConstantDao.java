@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.commons.dao;
@@ -28,8 +28,11 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 /**
  * DAO for database initialization and variables managing. Creates appropriate
  * tables (drops tables if such tables already exists) and records.
+ *
+ * @deprecated Do not use WFE_CONSTANTS to store constants. Table WFE_CONSTANTS will be dropped in the next major release.
  */
 @Component
+@Deprecated
 public class ConstantDao extends GenericDao<Constant> {
     private static final Log log = LogFactory.getLog(ConstantDao.class);
     private static final String DATABASE_VERSION_VARIABLE_NAME = "ru.runa.database_version";
@@ -61,9 +64,8 @@ public class ConstantDao extends GenericDao<Constant> {
 
     /**
      * Load constant value. Returns null, if constant is not present.
-     * 
-     * @param name
-     *            constant name.
+     *
+     * @param name constant name.
      * @return constant value.
      */
     public String getValue(String name) {
@@ -76,11 +78,9 @@ public class ConstantDao extends GenericDao<Constant> {
 
     /**
      * Save constant.
-     * 
-     * @param name
-     *            constant name.
-     * @param value
-     *            constant value.
+     *
+     * @param name  constant name.
+     * @param value constant value.
      */
     public void setValue(String name, String value) {
         Constant constant = get(name);
