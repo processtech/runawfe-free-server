@@ -4,13 +4,12 @@ import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.dao.ConstantDao;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.logic.LocalizationParser;
@@ -22,11 +21,10 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
+@Component
 @Transactional
+@CommonsLog
 public class DbTransactionalInitializer {
-    protected static final Log log = LogFactory.getLog(DbTransactionalInitializer.class);
-    @Autowired
-    private ConstantDao constantDao;
     @Autowired
     private ExecutorDao executorDao;
     @Autowired
@@ -34,33 +32,36 @@ public class DbTransactionalInitializer {
     @Autowired
     private LocalizationDao localizationDao;
 
-    public void execute(DbPatch dbPatch, int databaseVersion) throws Exception {
-        dbPatch.execute();
-        constantDao.setDatabaseVersion(databaseVersion);
-    }
-
-    public void postExecute(DbPatchPostProcessor dbPatch) throws Exception {
+    public void postExecute(DbMigrationPostProcessor dbPatch) throws Exception {
         dbPatch.postExecute();
     }
 
     /**
-     * Initialize empty database
+     * Inserts initial data into empty database.
      */
-    public void initialize(int version) {
+    public void insertInitialData() {
         try {
-            insertInitialData();
-            constantDao.setDatabaseVersion(version);
-        } catch (Throwable th) {
-            log.info("unable to insert initial data", th);
+            // Create privileged Executors.
+            String administratorName = SystemProperties.getAdministratorName();
+            Actor admin = new Actor(administratorName, administratorName, administratorName);
+            admin = executorDao.create(admin);
+            executorDao.setPassword(admin, SystemProperties.getAdministratorDefaultPassword());
+            String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
+            Group adminGroup = executorDao.create(new Group(administratorsGroupName, administratorsGroupName));
+            executorDao.create(new Group(SystemProperties.getBotsGroupName(), SystemProperties.getBotsGroupName()));
+            List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
+            executorDao.addExecutorToGroup(admin, adminGroup);
+            executorDao.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
+            for (SecuredObjectType t : SecuredObjectType.values()) {
+                permissionDao.addType(t, adminWithGroupExecutors);
+            }
+        } catch (Throwable e) {
+            log.error("unable to insert initial data", e);
         }
     }
 
-    public Integer getDatabaseVersion() throws Exception {
-        return constantDao.getDatabaseVersion();
-    }
-
     public void initPermissions() {
-        permissionDao.init();
+        permissionDao.preloadPrivilegedMapping();
     }
 
     public void initLocalizations() {
@@ -80,25 +81,4 @@ public class DbTransactionalInitializer {
         }
         localizationDao.saveLocalizations(localizations, false);
     }
-
-    /**
-     * Inserts initial data on database creation stage
-     */
-    private void insertInitialData() {
-        // create privileged Executors
-        String administratorName = SystemProperties.getAdministratorName();
-        Actor admin = new Actor(administratorName, administratorName, administratorName);
-        admin = executorDao.create(admin);
-        executorDao.setPassword(admin, SystemProperties.getAdministratorDefaultPassword());
-        String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-        Group adminGroup = executorDao.create(new Group(administratorsGroupName, administratorsGroupName));
-        executorDao.create(new Group(SystemProperties.getBotsGroupName(), SystemProperties.getBotsGroupName()));
-        List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
-        executorDao.addExecutorToGroup(admin, adminGroup);
-        executorDao.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
-        for (SecuredObjectType t : SecuredObjectType.values()) {
-            permissionDao.addType(t, adminWithGroupExecutors);
-        }
-    }
-
 }
