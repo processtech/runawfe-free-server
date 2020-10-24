@@ -89,9 +89,7 @@ public class TransitionLogPatch extends DbMigration {
     }
 
     @Override
-    protected List<String> getDDLQueriesAfter() {
-        List<String> sql = super.getDDLQueriesAfter();
-        sql.add(getDDLRemoveTable("JBPM_PASSTRANS"));
-        return sql;
+    protected void executeDDLAfter() {
+        executeUpdates(getDDLDropTable("JBPM_PASSTRANS"));
     }
 }
