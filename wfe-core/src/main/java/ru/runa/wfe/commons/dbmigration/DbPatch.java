@@ -24,7 +24,7 @@ import ru.runa.wfe.commons.DbType;
 public abstract class DbPatch {
     protected Log log = LogFactory.getLog(getClass());
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
-    protected final DbType dbType = ApplicationContextFactory.getDBType();
+    protected final DbType dbType = ApplicationContextFactory.getDbType();
     @Autowired
     protected SessionFactory sessionFactory;
 

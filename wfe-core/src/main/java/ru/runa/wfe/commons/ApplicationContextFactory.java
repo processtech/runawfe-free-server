@@ -133,7 +133,7 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return Dialect.getDialect(getConfiguration().getProperties());
     }
 
-    public static DbType getDBType() {
+    public static DbType getDbType() {
         if (dbType == null) {
             String hibernateDialect = getConfiguration().getProperty("hibernate.dialect");
             if (hibernateDialect.contains("HSQL")) {
