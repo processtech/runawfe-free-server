@@ -1,8 +1,6 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
 import com.google.common.collect.Lists;
-import java.sql.Types;
-import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.SystemProperties;
@@ -25,34 +23,28 @@ public class CreateReportsTables extends DbMigration implements DbMigrationPostP
     protected PermissionDao permissionDao;
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = super.getDDLQueriesBefore();
-        sql.addAll(createReportParametersTable());
-        sql.addAll(createReportsTable());
-        sql.add(getDDLCreateForeignKey("REPORT_PARAMETER", "FK_REPORT_PARAMETER_REPORT", "REPORT_ID", "REPORT", "ID"));
-        return sql;
+    protected void executeDDLBefore() {
+        createReportParametersTable();
+        createReportsTable();
+        executeUpdates(getDDLCreateForeignKey("REPORT_PARAMETER", "FK_REPORT_PARAMETER_REPORT", "REPORT_ID", "REPORT", "ID"));
     }
 
     /**
      * Creates table, indexes e.t.c for {@link ReportParameter}.
-     * 
-     * @return Returns list of sql commands for table creation.
      */
-    private List<String> createReportParametersTable() {
-        List<String> sql = new LinkedList<>();
-        List<ColumnDef> columns = new LinkedList<>();
-        ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
-        id.setPrimaryKey();
-        columns.add(id);
-        columns.add(new ColumnDef("REPORT_ID", Types.BIGINT, false));
-        columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
-        columns.add(new ColumnDef("TYPE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
-        columns.add(new ColumnDef("INNER_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
-        columns.add(new ColumnDef("REQUIRED", dialect.getTypeName(Types.BIT), false));
-        sql.add(getDDLCreateTable("REPORT_PARAMETER", columns, null));
-        sql.add(getDDLCreateSequence("SEQ_REPORT_PARAMETER"));
-        sql.add(getDDLCreateIndex("REPORT_PARAMETER", "IX_PARAMETER_REPORT_ID", "REPORT_ID"));
-        return sql;
+    private void createReportParametersTable() {
+        executeUpdates(
+                getDDLCreateTable("REPORT_PARAMETER", list(
+                        new BigintColumnDef("ID").primaryKey(),
+                        new BigintColumnDef("REPORT_ID").notNull(),
+                        new VarcharColumnDef("NAME", 1024).notNull(),
+                        new VarcharColumnDef("TYPE", 1024).notNull(),
+                        new VarcharColumnDef("INNER_NAME", 1024).notNull(),
+                        new BooleanColumnDef("REQUIRED").notNull()
+                )),
+                getDDLCreateSequence("SEQ_REPORT_PARAMETER"),
+                getDDLCreateIndex("REPORT_PARAMETER", "IX_PARAMETER_REPORT_ID", "REPORT_ID")
+        );
     }
 
     /**
@@ -60,22 +52,20 @@ public class CreateReportsTables extends DbMigration implements DbMigrationPostP
      * 
      * @return Returns list of sql commands for table creation.
      */
-    private List<String> createReportsTable() {
-        List<String> sql = new LinkedList<>();
-        List<ColumnDef> columns = new LinkedList<>();
-        ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
-        id.setPrimaryKey();
-        columns.add(id);
-        columns.add(new ColumnDef("VERSION", Types.BIGINT, false));
-        columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
-        columns.add(new ColumnDef("DESCRIPTION", dialect.getTypeName(Types.VARCHAR, 2048, 2048, 2048), true));
-        columns.add(new ColumnDef("COMPILED_REPORT", dialect.getTypeName(Types.BLOB), false));
-        columns.add(new ColumnDef("CONFIG_TYPE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
-        columns.add(new ColumnDef("CATEGORY", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true));
-        sql.add(getDDLCreateTable("REPORT", columns, null));
-        sql.add(getDDLCreateSequence("SEQ_REPORT"));
-        sql.add(getDDLCreateUniqueKey("REPORT", "IX_REPORT_NAME", "NAME"));
-        return sql;
+    private void createReportsTable() {
+        executeUpdates(
+                getDDLCreateTable("REPORT", list(
+                        new BigintColumnDef("ID").primaryKey(),
+                        new BigintColumnDef("VERSION").notNull(),
+                        new VarcharColumnDef("NAME", 1024).notNull(),
+                        new VarcharColumnDef("DESCRIPTION", 2048),
+                        new BlobColumnDef("COMPILED_REPORT").notNull(),
+                        new VarcharColumnDef("CONFIG_TYPE", 1024).notNull(),
+                        new VarcharColumnDef("CATEGORY", 1024)
+                )),
+                getDDLCreateSequence("SEQ_REPORT"),
+                getDDLCreateUniqueKey("REPORT", "IX_REPORT_NAME", "NAME")
+        );
     }
 
     @Override
