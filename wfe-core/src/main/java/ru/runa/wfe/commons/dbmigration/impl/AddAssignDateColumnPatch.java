@@ -1,31 +1,27 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
+import com.google.common.base.Objects;
 import java.sql.Types;
 import java.util.List;
-
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
-import com.google.common.base.Objects;
-
 public class AddAssignDateColumnPatch extends DbMigration {
     @Autowired
     private ProcessLogDao processLogDao;
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        List<String> sql = super.getDDLQueriesBefore();
-        sql.add(getDDLCreateColumn("BPM_TASK", new ColumnDef("ASSIGN_DATE", dialect.getTypeName(Types.TIMESTAMP))));
-        return sql;
+    protected void executeDDLBefore() {
+        executeUpdates(getDDLCreateColumn("BPM_TASK", new ColumnDef("ASSIGN_DATE", dialect.getTypeName(Types.TIMESTAMP))));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void executeDML(Session session) throws Exception {
         List<Object[]> rows = session.createSQLQuery("SELECT ID, PROCESS_ID, NODE_ID FROM BPM_TASK").list();
@@ -48,5 +44,4 @@ public class AddAssignDateColumnPatch extends DbMigration {
             }
         }
     }
-
 }
