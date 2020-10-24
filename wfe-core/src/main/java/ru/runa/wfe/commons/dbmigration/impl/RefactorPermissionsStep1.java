@@ -126,24 +126,23 @@ public class RefactorPermissionsStep1 extends DbMigration {
     };
 
     @Override
-    protected List<String> getDDLQueriesBefore() {
-        return new ArrayList<String>() {{
-            add(getDDLRenameTable("permission_mapping", "permission_mapping__old"));
-            add(getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("object_type", 32, true)));
-            add(getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("permission", 32, true)));
-
-            add(getDDLCreateTable(
-                    "permission_mapping",
-                    new ArrayList<ColumnDef>() {{
-                        add(new BigintColumnDef("id", false).setPrimaryKey());
-                        add(new BigintColumnDef("executor_id", false));
-                        add(new VarcharColumnDef("object_type", 32,false));
-                        add(new BigintColumnDef("object_id", false));
-                        add(new VarcharColumnDef("permission", 32, false));
-                    }},
-                    "(object_id, object_type, permission, executor_id)"
-            ));
-        }};
+    protected void executeDDLBefore() {
+        executeUpdates(
+                getDDLRenameTable("permission_mapping", "permission_mapping__old"),
+                getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("object_type", 32)),
+                getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("permission", 32)),
+                getDDLCreateTable(
+                        "permission_mapping",
+                        new ArrayList<ColumnDef>() {{
+                            add(new BigintColumnDef("id").primaryKey());
+                            add(new BigintColumnDef("executor_id").notNull());
+                            add(new VarcharColumnDef("object_type", 32).notNull());
+                            add(new BigintColumnDef("object_id").notNull());
+                            add(new VarcharColumnDef("permission", 32).notNull());
+                        }}
+                ),
+                getDDLCreateUniqueKey("permission_mapping", "uk_permission_mapping_4", "object_id", "object_type", "permission", "executor_id")
+        );
     }
 
     @Override
@@ -236,11 +235,11 @@ public class RefactorPermissionsStep1 extends DbMigration {
     }
 
     @Override
-    protected List<String> getDDLQueriesAfter() {
-        return new ArrayList<String>() {{
-            add(getDDLRemoveTable("permission_mapping__old"));
-            add(getDDLCreateIndex("permission_mapping", "ix_permission_mapping_data", "executor_id", "object_type", "permission", "object_id"));
-            add(getDDLCreateForeignKey("permission_mapping", "fk_permission_executor", "executor_id", "executor", "id"));
-        }};
+    protected void executeDDLAfter() {
+        executeUpdates(
+                getDDLDropTable("permission_mapping__old"),
+                getDDLCreateIndex("permission_mapping", "ix_permission_mapping_data", "executor_id", "object_type", "permission", "object_id"),
+                getDDLCreateForeignKey("permission_mapping", "fk_permission_executor", "executor_id", "executor", "id")
+        );
     }
 }
