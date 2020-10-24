@@ -34,8 +34,8 @@ public abstract class DbMigration {
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
     protected final DbType dbType = ApplicationContextFactory.getDbType();
 
-    private ThreadLocal<String> currentCategory = new ThreadLocal<>();
-    private ThreadLocal<Session> currentSession = new ThreadLocal<>();
+    private final ThreadLocal<String> currentCategory = new ThreadLocal<>();
+    private final ThreadLocal<Session> currentSession = new ThreadLocal<>();
 
     @Autowired
     protected SessionFactory sessionFactory;
