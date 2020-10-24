@@ -38,7 +38,7 @@ import ru.runa.wfe.commons.PropertyResources;
 @CommonsLog
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
     @Autowired
-    private List<Class<? extends DbPatch>> dbPatches;
+    private List<Class<? extends DbMigration>> dbPatches;
     @Autowired
     private DbTransactionalInitializer dbTransactionalInitializer;
     @Autowired

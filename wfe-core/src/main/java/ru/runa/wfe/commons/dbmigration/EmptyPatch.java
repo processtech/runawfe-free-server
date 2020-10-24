@@ -7,6 +7,6 @@ package ru.runa.wfe.commons.dbmigration;
  * @author Dofs
  * 
  */
-public class EmptyPatch extends DbPatch {
+public class EmptyPatch extends DbMigration {
 
 }

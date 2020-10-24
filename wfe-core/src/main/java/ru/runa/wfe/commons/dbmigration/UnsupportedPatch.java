@@ -8,7 +8,7 @@ import org.hibernate.Session;
  * @author Dofs
  * 
  */
-public class UnsupportedPatch extends DbPatch {
+public class UnsupportedPatch extends DbMigration {
 
     @Override
     public void executeDML(Session session) throws Exception {

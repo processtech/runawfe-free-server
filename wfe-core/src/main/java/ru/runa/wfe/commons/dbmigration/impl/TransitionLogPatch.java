@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
@@ -25,7 +25,7 @@ import ru.runa.wfe.lang.Transition;
 
 import com.google.common.collect.Maps;
 
-public class TransitionLogPatch extends DbPatch {
+public class TransitionLogPatch extends DbMigration {
 
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;

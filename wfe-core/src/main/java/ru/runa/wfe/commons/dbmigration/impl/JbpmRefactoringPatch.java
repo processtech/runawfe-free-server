@@ -15,7 +15,7 @@ import org.hibernate.Session;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.PropertyResources;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.lang.NodeType;
 
@@ -28,7 +28,7 @@ import ru.runa.wfe.lang.NodeType;
  * @author dofs
  * @since 4.0
  */
-public class JbpmRefactoringPatch extends DbPatch {
+public class JbpmRefactoringPatch extends DbMigration {
     private boolean jbpmIdTablesExist;
     private boolean jbpmCommentTableExists;
     private static final PropertyResources RESOURCES = new PropertyResources("JbpmRefactoringPatch.properties", false);

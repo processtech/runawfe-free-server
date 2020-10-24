@@ -3,7 +3,7 @@ package ru.runa.wfe.commons.dbmigration.impl;
 import java.sql.Types;
 import java.util.List;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
  * 
@@ -11,7 +11,7 @@ import ru.runa.wfe.commons.dbmigration.DbPatch;
  * 
  * @author kanaal @since 4.2.1
  */
-public class AddMultiTaskIndexToTaskPatch extends DbPatch {
+public class AddMultiTaskIndexToTaskPatch extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

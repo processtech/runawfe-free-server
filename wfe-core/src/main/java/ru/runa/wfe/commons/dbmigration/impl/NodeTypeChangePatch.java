@@ -7,12 +7,12 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.lang.NodeType;
 
 import com.google.common.collect.Maps;
 
-public class NodeTypeChangePatch extends DbPatch {
+public class NodeTypeChangePatch extends DbMigration {
     private static final Map<String, String> CHANGES = Maps.newHashMap();
     static {
         CHANGES.put("StartNode", NodeType.START_EVENT.name());

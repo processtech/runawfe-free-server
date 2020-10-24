@@ -5,12 +5,12 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
  * @author Alex Chernyshev
  */
-public class AddProcessAndTokenExecutionStatusPatch extends DbPatch {
+public class AddProcessAndTokenExecutionStatusPatch extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

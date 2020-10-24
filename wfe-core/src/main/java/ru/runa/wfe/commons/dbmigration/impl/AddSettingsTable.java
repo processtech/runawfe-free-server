@@ -4,14 +4,14 @@ import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
-public class AddSettingsTable extends DbPatch {
+public class AddSettingsTable extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = super.getDDLQueriesAfter();
-        List<ColumnDef> columns = new LinkedList<DbPatch.ColumnDef>();
+        List<ColumnDef> columns = new LinkedList<DbMigration.ColumnDef>();
         ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
         id.setPrimaryKey();
         columns.add(id);

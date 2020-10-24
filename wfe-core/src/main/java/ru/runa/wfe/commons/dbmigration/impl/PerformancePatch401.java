@@ -6,11 +6,11 @@ import java.util.List;
 import org.hibernate.Session;
 
 import ru.runa.wfe.commons.DbType;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 import com.google.common.collect.Lists;
 
-public class PerformancePatch401 extends DbPatch {
+public class PerformancePatch401 extends DbMigration {
 
     // Cannot rely on model in migrations, even on enums:
     // SecuredObjectType evolved to extensible pseudo-enum without ordinal() method.

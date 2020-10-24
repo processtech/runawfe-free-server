@@ -3,14 +3,14 @@ package ru.runa.wfe.commons.dbmigration.impl;
 import java.sql.Types;
 import java.util.List;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
  * 
  * @author artmikheev
  * 
  */
-public class AddEmbeddedFileForBotTask extends DbPatch {
+public class AddEmbeddedFileForBotTask extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

@@ -2,11 +2,11 @@ package ru.runa.wfe.commons.dbmigration.impl;
 
 import java.util.List;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 import com.google.common.collect.Lists;
 
-public class AddVariableUniqueKeyPatch extends DbPatch {
+public class AddVariableUniqueKeyPatch extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

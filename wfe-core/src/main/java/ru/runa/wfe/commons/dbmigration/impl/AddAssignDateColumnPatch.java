@@ -11,11 +11,11 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 import com.google.common.base.Objects;
 
-public class AddAssignDateColumnPatch extends DbPatch {
+public class AddAssignDateColumnPatch extends DbMigration {
     @Autowired
     private ProcessLogDao processLogDao;
 

@@ -1,9 +1,9 @@
 package ru.runa.wfe.commons;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
- * Enumeration contains databases for preliminary {@link DbPatch} support.
+ * Enumeration contains databases for preliminary {@link DbMigration} support.
  * 
  * @author Dofs
  */

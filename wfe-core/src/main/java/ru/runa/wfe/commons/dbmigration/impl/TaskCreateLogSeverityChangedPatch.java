@@ -4,9 +4,9 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
 import ru.runa.wfe.audit.Severity;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
-public class TaskCreateLogSeverityChangedPatch extends DbPatch {
+public class TaskCreateLogSeverityChangedPatch extends DbMigration {
 
     @Override
     public void executeDML(Session session) throws Exception {

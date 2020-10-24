@@ -8,7 +8,7 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.dao.ExecutorDao;
@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
  * @author Dofs
  * @since 4.1.0
  */
-public class TaskOpenedByExecutorsPatch extends DbPatch {
+public class TaskOpenedByExecutorsPatch extends DbMigration {
 
     @Autowired
     private ExecutorDao executorDao;

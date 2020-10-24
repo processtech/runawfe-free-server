@@ -54,8 +54,8 @@ import ru.runa.wfe.commons.dbmigration.impl.TransitionLogPatch;
 @Configuration
 public class DbPatchesConfig {
     @Bean
-    public List<Class<? extends DbPatch>> dbPatches() {
-        final List<Class<? extends DbPatch>> patches = new ArrayList<>(75); // please, update initial capacity on add/remove patch
+    public List<Class<? extends DbMigration>> dbPatches() {
+        final List<Class<? extends DbMigration>> patches = new ArrayList<>(75); // please, update initial capacity on add/remove patch
         patches.add(UnsupportedPatch.class);
         patches.add(UnsupportedPatch.class);
         patches.add(UnsupportedPatch.class);

@@ -3,9 +3,9 @@ package ru.runa.wfe.commons.dbmigration.impl;
 import java.sql.Types;
 import java.util.List;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
-public class ExpandDescriptionsPatch extends DbPatch {
+public class ExpandDescriptionsPatch extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

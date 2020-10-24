@@ -18,12 +18,12 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
  * See #1586 (reverting some significant changes in permissions UI), #1586-10.
  */
-public class RefactorPermissionsBack extends DbPatch {
+public class RefactorPermissionsBack extends DbMigration {
 
     private static class PMatch {
         final String type;

@@ -9,11 +9,11 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 import com.google.common.collect.Lists;
 
-public class AddCreateDateColumns extends DbPatch {
+public class AddCreateDateColumns extends DbMigration {
     private static final String COLUMN_CREATE_DATE = "CREATE_DATE";
     private static final List<String> TABLES_TO_ADD_COLUMN = Lists.newArrayList();
     static {

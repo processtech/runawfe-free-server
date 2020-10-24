@@ -6,9 +6,9 @@ import java.util.List;
 import org.hibernate.Session;
 
 import ru.runa.wfe.commons.DbType;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
-public class AddBatchPresentationIsSharedPatch extends DbPatch {
+public class AddBatchPresentationIsSharedPatch extends DbMigration {
     @Override
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = super.getDDLQueriesBefore();

@@ -8,7 +8,7 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.commons.xml.XmlUtils;
 
 import com.google.common.base.Strings;
@@ -19,7 +19,7 @@ import com.google.common.base.Strings;
  * @since 4.1.0
  * @author Dofs
  */
-public class AddNodeIdToProcessLogPatch extends DbPatch {
+public class AddNodeIdToProcessLogPatch extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

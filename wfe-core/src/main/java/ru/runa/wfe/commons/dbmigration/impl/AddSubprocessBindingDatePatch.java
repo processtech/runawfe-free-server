@@ -6,9 +6,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.audit.dao.ProcessLogDao;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
-public class AddSubprocessBindingDatePatch extends DbPatch {
+public class AddSubprocessBindingDatePatch extends DbMigration {
     @Autowired
     private ProcessLogDao processLogDao;
 

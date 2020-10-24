@@ -8,10 +8,10 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.execution.ProcessHierarchyUtils;
 
-public class AddParentProcessIdPatch extends DbPatch {
+public class AddParentProcessIdPatch extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

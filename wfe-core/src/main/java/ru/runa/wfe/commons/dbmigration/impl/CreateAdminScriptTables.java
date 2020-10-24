@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
-public class CreateAdminScriptTables extends DbPatch {
+public class CreateAdminScriptTables extends DbMigration {
 
     @Autowired
     protected ExecutorDao executorDao;
@@ -32,7 +32,7 @@ public class CreateAdminScriptTables extends DbPatch {
      */
     private List<String> createAdminScriptTable() {
         List<String> sql = new LinkedList<String>();
-        List<ColumnDef> columns = new LinkedList<DbPatch.ColumnDef>();
+        List<ColumnDef> columns = new LinkedList<DbMigration.ColumnDef>();
         columns.add(new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey());
         columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("CONTENT", dialect.getTypeName(Types.BLOB), false));

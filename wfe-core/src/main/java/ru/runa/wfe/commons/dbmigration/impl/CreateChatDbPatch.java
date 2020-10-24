@@ -3,13 +3,13 @@ package ru.runa.wfe.commons.dbmigration.impl;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import ru.runa.wfe.commons.dbmigration.DbPatch;
+import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
  * @since 02.02.2020
  * @author misharum
  */
-public class CreateChatDbPatch extends DbPatch {
+public class CreateChatDbPatch extends DbMigration {
 
     @Override
     protected List<String> getDDLQueriesBefore() {
