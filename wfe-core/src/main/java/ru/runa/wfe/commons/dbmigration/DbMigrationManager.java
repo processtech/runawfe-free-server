@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ManualTransactionManager;
 import ru.runa.wfe.commons.ManualTransactionManager.TxRunnable;
+import ru.runa.wfe.commons.dbmigration.impl.RemoveWfeConstants;
 
 @Component
 @CommonsLog
@@ -27,6 +28,10 @@ public class DbMigrationManager {
 
         public boolean isDbInitialized() {
             return appliedMigrationNames != null || oldDbVersion != null;
+        }
+
+        public boolean isWfeConstantsDropped() {
+            return appliedMigrationNames != null && appliedMigrationNames.contains(RemoveWfeConstants.class.getSimpleName());
         }
     }
 
@@ -93,7 +98,9 @@ public class DbMigrationManager {
     public Context checkDbInitialized() throws Exception {
         val ctx = new Context();
         ctx.appliedMigrationNames = queryAppliedMigrationNames();
-        ctx.oldDbVersion = queryOldDbVersion();
+        if (!ctx.isWfeConstantsDropped()) {
+            ctx.oldDbVersion = queryOldDbVersion();
+        }
         return ctx;
     }
 
@@ -125,7 +132,9 @@ public class DbMigrationManager {
         if (!ctx.isDbInitialized()) {
             // Might have been initialized by DbMigration0.
             ctx.appliedMigrationNames = queryAppliedMigrationNames();
-            ctx.oldDbVersion = queryOldDbVersion();
+            if (!ctx.isWfeConstantsDropped()) {
+                ctx.oldDbVersion = queryOldDbVersion();
+            }
         }
 
         // If table DB_MIGRATION does not exist, create it and populate with migrations already applied,

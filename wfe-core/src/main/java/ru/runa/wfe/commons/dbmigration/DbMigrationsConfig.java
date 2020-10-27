@@ -41,6 +41,7 @@ import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsBack;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep4;
+import ru.runa.wfe.commons.dbmigration.impl.RemoveWfeConstants;
 import ru.runa.wfe.commons.dbmigration.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbmigration.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbmigration.impl.TaskOpenedByExecutorsPatch;
@@ -131,6 +132,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(EmptyPatch.class); // instead signals...
         dbMigrations.add(CreateChatDbPatch.class);
         dbMigrations.add(RefactorPermissionsBack.class);
+        dbMigrations.add(RemoveWfeConstants.class);
         return dbMigrations;
     }
 }
