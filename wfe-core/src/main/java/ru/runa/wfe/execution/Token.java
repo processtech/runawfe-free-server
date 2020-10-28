@@ -295,9 +295,11 @@ public class Token implements Serializable {
         setErrorMessage(errorMessage);
 
         // Log error
-        final Node node = getNodeNotNull(ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process));
-        final NodeErrorLog errorLog = new NodeErrorLog(node, errorMessage);
-        ApplicationContextFactory.getProcessLogDAO().addLog(errorLog, process, this);
+        if (stateChanged) {
+            final Node node = getNodeNotNull(ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process));
+            final NodeErrorLog errorLog = new NodeErrorLog(node, errorMessage);
+            ApplicationContextFactory.getProcessLogDAO().addLog(errorLog, process, this);
+        }
 
         return stateChanged;
     }
