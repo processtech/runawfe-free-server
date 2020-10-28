@@ -53,6 +53,7 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.NodeErrorLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.lang.BaseTaskNode;
@@ -292,6 +293,12 @@ public class Token implements Serializable {
         String errorMessage = Utils.getCuttedString(throwable.toString(), 1024 / 2);
         stateChanged |= !Objects.equal(errorMessage, getErrorMessage());
         setErrorMessage(errorMessage);
+
+        // Log error
+        final Node node = getNodeNotNull(ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process));
+        final NodeErrorLog errorLog = new NodeErrorLog(node, errorMessage);
+        ApplicationContextFactory.getProcessLogDAO().addLog(errorLog, process, this);
+
         return stateChanged;
     }
 
@@ -317,9 +324,8 @@ public class Token implements Serializable {
 
     /**
      * ends this token and all of its children (if recursive).
-     * 
-     * @param canceller
-     *            actor who cancels process (if any), can be <code>null</code>
+     *
+     * @param canceller actor who cancels process (if any), can be <code>null</code>
      */
     public void end(ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
         ExecutionContext executionContext = new ExecutionContext(processDefinition, this);
