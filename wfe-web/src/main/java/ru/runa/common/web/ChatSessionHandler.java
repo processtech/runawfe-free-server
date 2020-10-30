@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.Session;
 import org.json.simple.JSONObject;
+import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 @ApplicationScoped
@@ -107,6 +110,24 @@ public class ChatSessionHandler {
                 session.getBasicRemote().sendText(sendObject.toString());
             }
         }
+    }
+
+    public void sendNewMessage(Set<Executor> mentionedExecutors, ChatMessageDto messageDto, Boolean isPrivate) throws IOException {
+        Collection<Actor> mentionedActors = new HashSet<Actor>();
+        for (Executor mentionedExecutor : mentionedExecutors) {
+            if (mentionedExecutor.getClass() == Actor.class) {
+                mentionedActors.add((Actor) mentionedExecutor);
+            }
+        }
+        messageDto.setOld(false);
+        JSONObject messageForOpenChat = messageDto.convert();
+        sendToChats(messageForOpenChat, messageDto.getMessage().getProcess().getId(), messageDto.getMessage().getCreateActor(), mentionedActors,
+                isPrivate);
+        JSONObject messageForCloseChat = new JSONObject();
+        messageForCloseChat.put("processId", messageDto.getMessage().getProcess().getId());
+        messageForCloseChat.put("messType", "newMessage");
+        sendOnlyNewMessagesSessions(messageForCloseChat, messageDto.getMessage().getProcess().getId(), messageDto.getMessage().getCreateActor(),
+                mentionedActors, isPrivate);
     }
 
 }

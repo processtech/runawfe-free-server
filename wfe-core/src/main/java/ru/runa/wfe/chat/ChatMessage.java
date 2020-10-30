@@ -1,5 +1,7 @@
 package ru.runa.wfe.chat;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +14,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import ru.runa.wfe.chat.jackson.serializers.ActorJacksonSerializer;
+import ru.runa.wfe.chat.jackson.serializers.DateJacksonSerializer;
+import ru.runa.wfe.chat.jackson.serializers.ProcessIdJacksonSerializer;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Actor;
 
@@ -25,6 +30,7 @@ public class ChatMessage {
     private String text;
     private String quotedMessageIds;
 
+    @JsonGetter("id")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE", allocationSize = 1)
@@ -37,6 +43,8 @@ public class ChatMessage {
         this.id = id;
     }
 
+    @JsonGetter("createDate")
+    @JsonSerialize(using = DateJacksonSerializer.class)
     @Column(name = "CREATE_DATE", nullable = false)
     public Date getCreateDate() {
         return createDate;
@@ -46,6 +54,8 @@ public class ChatMessage {
         this.createDate = createDate;
     }
 
+    @JsonGetter("createActor")
+    @JsonSerialize(using = ActorJacksonSerializer.class)
     @ManyToOne(optional = false)
     @JoinColumn(name = "CREATE_ACTOR_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_EXECUTOR_ID")
@@ -58,6 +68,8 @@ public class ChatMessage {
         this.createActor = createActor;
     }
 
+    @JsonGetter("process")
+    @JsonSerialize(using = ProcessIdJacksonSerializer.class)
     @ManyToOne(optional = false)
     @JoinColumn(name = "PROCESS_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_PROCESS_ID")
@@ -69,6 +81,7 @@ public class ChatMessage {
         this.process = process;
     }
 
+    @JsonGetter("text")
     @Column(name = "TEXT", length = 1024, nullable = false)
     public String getText() {
         return text;
@@ -78,6 +91,7 @@ public class ChatMessage {
         this.text = text;
     }
 
+    @JsonGetter("quotedMessageIds")
     @Column(name = "QUOTED_MESSAGE_IDS", length = 1024)
     public String getQuotedMessageIds() {
         return quotedMessageIds;
