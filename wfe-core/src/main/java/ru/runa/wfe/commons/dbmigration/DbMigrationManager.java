@@ -5,8 +5,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import lombok.val;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -139,6 +139,7 @@ public class DbMigrationManager {
                     String sqlTimestampTypeName;
                     switch (ApplicationContextFactory.getDbType()) {
                         case MSSQL:
+                        case MYSQL:
                             sqlTimestampTypeName = "datetime";
                             break;
                         default:
