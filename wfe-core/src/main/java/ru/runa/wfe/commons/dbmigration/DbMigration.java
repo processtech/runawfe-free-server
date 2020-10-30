@@ -197,7 +197,6 @@ public abstract class DbMigration {
         switch (dbType) {
         case ORACLE:
         case POSTGRESQL:
-        case MYSQL:
             return list("create sequence " + sequenceName);
         default:
             return null;
@@ -209,7 +208,6 @@ public abstract class DbMigration {
         switch (dbType) {
         case ORACLE:
         case POSTGRESQL:
-        case MYSQL:
             return list("create sequence " + sequenceName + " start with " + nextValue);
         default:
             return null;
@@ -220,7 +218,6 @@ public abstract class DbMigration {
         switch (dbType) {
         case ORACLE:
         case POSTGRESQL:
-        case MYSQL:
             return list("drop sequence " + sequenceName);
         default:
             return null;
