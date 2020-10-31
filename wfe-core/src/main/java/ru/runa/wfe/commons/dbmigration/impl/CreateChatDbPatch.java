@@ -7,45 +7,45 @@ public class CreateChatDbPatch extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(//
-                getDDLCreateTable("chat_message", list(//
-                        new BigintColumnDef("id").notNull().primaryKey(), //
-                        new TimestampColumnDef("create_date").notNull(), //
-                        new BigintColumnDef("create_actor_id").notNull(), //
-                        new BigintColumnDef("process_id").notNull(), //
-                        new VarcharColumnDef("text", 1024).notNull(), //
-                        new VarcharColumnDef("quoted_message_ids", 1024)) //
+                getDDLCreateTable("CHAT_MESSAGE", list(//
+                        new BigintColumnDef("ID").notNull().primaryKey(), //
+                        new TimestampColumnDef("CREATE_DATE").notNull(), //
+                        new BigintColumnDef("CREATE_ACTOR_ID").notNull(), //
+                        new BigintColumnDef("PROCESS_ID").notNull(), //
+                        new VarcharColumnDef("TEXT", 1024).notNull(), //
+                        new VarcharColumnDef("QUOTED_MESSAGE_IDS", 1024)) //
                 ), //
-                getDDLCreateSequence("seq_chat_message"), //
-                getDDLCreateTable("chat_message_file", list(//
-                        new BigintColumnDef("id").notNull().primaryKey(), //
-                        new BigintColumnDef("message_id"), //
-                        new VarcharColumnDef("file_name", 1024), //
-                        new BlobColumnDef("bytes")) //
+                getDDLCreateSequence("SEQ_CHAT_MESSAGE"), //
+                getDDLCreateTable("CHAT_MESSAGE_FILE", list(//
+                        new BigintColumnDef("ID").notNull().primaryKey(), //
+                        new BigintColumnDef("MESSAGE_ID"), //
+                        new VarcharColumnDef("FILE_NAME", 1024), //
+                        new BlobColumnDef("BYTES")) //
                 ),//
-                getDDLCreateSequence("seq_chat_message_file"), //
-                getDDLCreateTable("chat_message_recipient", list(//
-                        new BigintColumnDef("id").notNull().primaryKey(), //
-                        new BigintColumnDef("message_id").notNull(), //
-                        new BigintColumnDef("executor_id").notNull(),//
-                        new TimestampColumnDef("read_date"), //
-                        new BooleanColumnDef("mentioned").notNull(), //
-                        new VarcharColumnDef("file_name", 512))), //
-                getDDLCreateSequence("seq_chat_message_recipient")//
+                getDDLCreateSequence("SEQ_CHAT_MESSAGE_FILE"), //
+                getDDLCreateTable("CHAT_MESSAGE_RECIPIENT", list(//
+                        new BigintColumnDef("ID").notNull().primaryKey(), //
+                        new BigintColumnDef("MESSAGE_ID").notNull(), //
+                        new BigintColumnDef("EXECUTOR_ID").notNull(),//
+                        new TimestampColumnDef("READ_DATE"), //
+                        new BooleanColumnDef("MENTIONED").notNull(), //
+                        new VarcharColumnDef("FILE_NAME", 512))), //
+                getDDLCreateSequence("SEQ_CHAT_MESSAGE_RECIPIENT")//
         );
     }
 
     @Override
     protected void executeDDLAfter() {
         executeUpdates(//
-                getDDLCreateForeignKey("chat_message", "fk_chat_message_executor_id", "create_actor_id", "executor", "id"),//
-                getDDLCreateIndex("chat_message", "ix_chat_message_process_actor", "process_id", "create_actor_id"),//
-                getDDLCreateForeignKey("chat_message", "fk_chat_message_process_id", "process_id", "bpm_process", "id"),//
-                getDDLCreateForeignKey("chat_message_file", "fk_chat_message_file_id", "message_id", "chat_message", "id"), //
-                getDDLCreateIndex("chat_message_file", "ix_chat_message_file_message", "message_id"), //
-                getDDLCreateForeignKey("chat_message_recipient", "fk_chat_message_recipient_m_id", "message_id", "chat_message", "id"), //
-                getDDLCreateIndex("chat_message_recipient", "ix_chat_message_recipient_m_id", "message_id"), //
-                getDDLCreateForeignKey("chat_message_recipient", "fk_chat_message_recipient_e_id", "executor_id", "executor", "id"), //
-                getDDLCreateIndex("chat_message_recipient", "ix_chat_message_recipient_e_r", "executor_id", "read_date")//
+                getDDLCreateForeignKey("CHAT_MESSAGE", "FK_CHAT_MESSAGE_EXECUTOR_ID", "CREATE_ACTOR_ID", "EXECUTOR", "ID"),//
+                getDDLCreateIndex("CHAT_MESSAGE", "IX_CHAT_MESSAGE_PROCESS_ACTOR", "PROCESS_ID", "CREATE_ACTOR_ID"),//
+                getDDLCreateForeignKey("CHAT_MESSAGE", "FK_CHAT_MESSAGE_PROCESS_ID", "PROCESS_ID", "BPM_PROCESS", "ID"),//
+                getDDLCreateForeignKey("CHAT_MESSAGE_FILE", "FK_CHAT_MESSAGE_FILE_ID", "MESSAGE_ID", "CHAT_MESSAGE", "ID"), //
+                getDDLCreateIndex("CHAT_MESSAGE_FILE", "IX_CHAT_MESSAGE_FILE_MESSAGE", "MESSAGE_ID"), //
+                getDDLCreateForeignKey("CHAT_MESSAGE_RECIPIENT", "FK_CHAT_MESSAGE_RECIPIENT_M_ID", "MESSAGE_ID", "CHAT_MESSAGE", "ID"), //
+                getDDLCreateIndex("CHAT_MESSAGE_RECIPIENT", "IX_CHAT_MESSAGE_RECIPIENT_M_ID", "MESSAGE_ID"), //
+                getDDLCreateForeignKey("CHAT_MESSAGE_RECIPIENT", "FK_CHAT_MESSAGE_RECIPIENT_E_ID", "EXECUTOR_ID", "EXECUTOR", "ID"), //
+                getDDLCreateIndex("CHAT_MESSAGE_RECIPIENT", "IX_CHAT_MESSAGE_RECIPIENT_E_R", "EXECUTOR_ID", "READ_DATE")//
         );
     }
 
