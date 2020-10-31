@@ -343,6 +343,8 @@ public abstract class DbMigration {
             case ORACLE:
             case POSTGRESQL:
                 return list("alter index " + indexName + " rename to " + newIndexName);
+            case MYSQL:
+                return list("alter table " + tableName + " rename index " + indexName + " to " + newIndexName);
             default:
                 throw new NotImplementedException();  // TODO ...
         }
