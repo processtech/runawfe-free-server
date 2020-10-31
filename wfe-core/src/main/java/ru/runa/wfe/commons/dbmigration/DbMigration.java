@@ -271,11 +271,7 @@ public abstract class DbMigration {
                         primaryKeyModifier = "PRIMARY KEY";
                         break;
                     case MYSQL:
-                        if (columnDef.autoIncremented) {
-                            primaryKeyModifier = "NOT NULL PRIMARY KEY AUTO_INCREMENT";
-                        } else {
-                            primaryKeyModifier = "NOT NULL PRIMARY KEY";
-                        }
+                        primaryKeyModifier = "NOT NULL PRIMARY KEY AUTO_INCREMENT";
                         break;
                     case H2:
                         if (columnDef.autoIncremented) {
