@@ -271,11 +271,7 @@ public abstract class DbMigration {
                         primaryKeyModifier = "PRIMARY KEY";
                         break;
                     case MYSQL:
-                        if (columnDef.autoIncremented) {
-                            primaryKeyModifier = "NOT NULL PRIMARY KEY AUTO_INCREMENT";
-                        } else {
-                            primaryKeyModifier = "NOT NULL PRIMARY KEY";
-                        }
+                        primaryKeyModifier = "NOT NULL PRIMARY KEY AUTO_INCREMENT";
                         break;
                     case H2:
                         if (columnDef.autoIncremented) {
@@ -342,6 +338,8 @@ public abstract class DbMigration {
             case ORACLE:
             case POSTGRESQL:
                 return list("alter index " + indexName + " rename to " + newIndexName);
+            case MYSQL:
+                return list("alter table " + tableName + " rename index " + indexName + " to " + newIndexName);
             default:
                 throw new NotImplementedException();  // TODO ...
         }

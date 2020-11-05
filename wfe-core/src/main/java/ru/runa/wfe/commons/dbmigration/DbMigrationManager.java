@@ -148,6 +148,7 @@ public class DbMigrationManager {
                     String sqlTimestampTypeName;
                     switch (ApplicationContextFactory.getDbType()) {
                         case MSSQL:
+                        case MYSQL:
                             sqlTimestampTypeName = "datetime";
                             break;
                         default:
