@@ -1,7 +1,7 @@
 package ru.runa.wfe.commons.hibernate;
 
 import java.sql.Types;
-
+import org.hibernate.Hibernate;
 import org.hibernate.dialect.SQLServerDialect;
 
 /**
@@ -26,5 +26,7 @@ public class SqlServerUnicodeDialect extends SQLServerDialect {
          */
         registerColumnType(Types.VARCHAR, "nvarchar(MAX)");
         registerColumnType(Types.VARCHAR, MAX_LENGTH, "nvarchar($l)");
+
+        registerHibernateType(Types.NVARCHAR, Hibernate.STRING.getName()); // Should be removed after migration to Hibernate 5
     }
 }
