@@ -123,9 +123,4 @@ public class ListFormat extends VariableFormat implements VariableFormatContaine
         return operation.onList(this, context);
     }
 
-    @Override
-    public String formatHtmlForExcelExport(User user, WebHelper webHelper, Long processId, String name, Object object) {
-        return formatHtml(user, webHelper, processId, name, object);
-    }
-
 }

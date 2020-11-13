@@ -105,8 +105,4 @@ public class ExecutorFormat extends VariableFormat implements VariableDisplaySup
         return operation.onExecutor(this, context);
     }
 
-    @Override
-    public String formatHtmlForExcelExport(User user, WebHelper webHelper, Long processId, String name, Object object) {
-        return formatHtml(user, webHelper, processId, name, object);
-    }
 }

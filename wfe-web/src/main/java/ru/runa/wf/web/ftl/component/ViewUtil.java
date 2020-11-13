@@ -192,16 +192,6 @@ public class ViewUtil {
         }
     }
     
-    public static String getOutputForExcel(User user, WebHelper webHelper, Long processId, WfVariable variable) {
-        VariableFormat format = variable.getDefinition().getFormatNotNull();
-        if (format instanceof VariableDisplaySupport) {
-            VariableDisplaySupport displaySupport = (VariableDisplaySupport) format;
-            return displaySupport.formatHtmlForExcelExport(user, webHelper, processId, variable.getDefinition().getName(), variable.getValue());
-        } else {
-            return getOutput(user, webHelper, processId, variable);
-        }
-    }
-
     public static String generateTableHeader(List<WfVariable> variables, VariableProvider variableProvider, String operationsColumn) {
         StringBuffer header = new StringBuffer();
         header.append("<tr class=\"header\">");

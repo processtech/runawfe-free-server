@@ -103,9 +103,4 @@ public class FileFormat extends VariableFormat implements VariableDisplaySupport
         return operation.onFile(this, context);
     }
 
-    @Override
-    public String formatHtmlForExcelExport(User user, WebHelper webHelper, Long processId, String name, Object object) {
-        return formatHtml(user, webHelper, processId, name, object);
-    }
-
 }
