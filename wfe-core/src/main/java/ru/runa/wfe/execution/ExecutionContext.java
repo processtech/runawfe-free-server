@@ -381,7 +381,7 @@ public class ExecutionContext {
                 // order is valuable due to Timestamp.equals implementation
                 return null;
             }
-            if (ApplicationContextFactory.getDBType() == DbType.ORACLE && Utils.isNullOrEmpty(value) && Utils.isNullOrEmpty(variable.getValue())) {
+            if (ApplicationContextFactory.getDbType() == DbType.ORACLE && Utils.isNullOrEmpty(value) && Utils.isNullOrEmpty(variable.getValue())) {
                 // ignore changes "" -> " " for Oracle
                 return null;
             }
