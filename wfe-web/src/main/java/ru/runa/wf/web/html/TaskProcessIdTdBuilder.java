@@ -14,7 +14,7 @@ import ru.runa.common.web.html.TdBuilder.Env.SecuredObjectExtractor;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.ProcessHierarchyUtils;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -67,7 +67,9 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
                 params.put(IdForm.ID_INPUT_NAME, processId);
                 params.put(TaskIdForm.TASK_ID_INPUT_NAME, task.getId());
             } else {
-                params.put(IdForm.ID_INPUT_NAME, task.getProcessId());
+                Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(task.getProcessHierarchyIds());
+                link = new StringElement((rootProcessId == null ? task.getProcessId() : rootProcessId).toString());
+                params.put(IdForm.ID_INPUT_NAME, link);
                 params.put(TaskIdForm.TASK_ID_INPUT_NAME, task.getId());
             }
             String url = Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, env.getPageContext(), PortletUrlType.Render);

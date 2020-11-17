@@ -51,7 +51,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLDropTable("PROPERTY_IDS"),
                 getDDLDropTable("JBPM_TASKACTORPOOL"),
                 getDDLDropTable("JBPM_POOLEDACTOR"),
-        
+
                 // refactored batch presentations;
                 getDDLDropTable("ACTIVE_BATCH_PRESENTATIONS"),
                 getDDLDropTable("BP_DYNAMIC_FIELDS"),
@@ -64,7 +64,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLDropTable("SORTING_MODES"),
                 getDDLTruncateTable("BATCH_PRESENTATIONS"),
                 getDDLTruncateTableUsingDelete("PROFILES"),
-        
+
                 // ru.runa.wfe.user.Profile
                 getDDLRenameTable("PROFILES", "PROFILE"),
                 getDDLCreateForeignKey("PROFILE", "FK_PROFILE_ACTOR", "ACTOR_ID", "EXECUTORS", "ID"),
@@ -149,7 +149,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_EXECUTOR", "EXECUTOR_ID"),
                 getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_TYPE", "TYPE"),
                 getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_IDENTIFIABLE_ID", "IDENTIFIABLE_ID"),
-        
+
                 // ru.runa.wfe.ss.SubstitutionCriteria
                 getDDLRenameTable("SUBSTITUTION_CRITERIAS", "SUBSTITUTION_CRITERIA"),
                 getDDLRenameColumn("SUBSTITUTION_CRITERIA", "TYPE", new ColumnDef("DISCRIMINATOR", dialect.getTypeName(Types.VARCHAR))),
@@ -165,7 +165,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLRenameColumn("SYSTEM_LOG", "LOG_TYPE", new ColumnDef("DISCRIMINATOR", dialect.getTypeName(Types.VARCHAR))),
                 getDDLRenameColumn("SYSTEM_LOG", "ACTOR_CODE", new BigintColumnDef("ACTOR_ID")),
                 getDDLRenameColumn("SYSTEM_LOG", "PROCESS_INSTANCE", new BigintColumnDef("PROCESS_ID")),
-        
+
                 // ru.runa.wfe.definition.ProcessDefinition
                 getDDLRenameTable("JBPM_PROCESSDEFINITION", "BPM_PROCESS_DEFINITION"),
                 getDDLDropColumn("BPM_PROCESS_DEFINITION", "CLASS_"),
@@ -225,7 +225,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLCreateColumn("BPM_TOKEN", new VarcharColumnDef("NODE_TYPE", 255)),
                 getDDLCreateColumn("BPM_TOKEN", new VarcharColumnDef("NODE_ID", 255)),
                 getDDLCreateColumn("BPM_TOKEN", new VarcharColumnDef("TRANSITION_ID", 255)),
-        
+
                 // ru.runa.wfe.execution.Swimlane
                 getDDLRenameTable("JBPM_SWIMLANEINSTANCE", "BPM_SWIMLANE"),
                 getDDLDropForeignKey("BPM_SWIMLANE", getObjectName("FK_SWIMLANEINST_SL")),
@@ -285,7 +285,7 @@ public class JbpmRefactoringPatch extends DbMigration {
         executeUpdates(
                 getDDLDropIndex("BPM_TASK", getObjectName("IDX_TASK_ACTORID")),
                 getDDLDropIndex("BPM_TASK", getObjectName("IDX_TSKINST_TMINST")),
-        
+
                 // ru.runa.wfe.audit.ProcessLog
                 getDDLTruncateTable("JBPM_LOG"),
                 getDDLRenameTable("JBPM_LOG", "BPM_LOG"),
@@ -347,7 +347,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLCreateColumn("BPM_LOG", new VarcharColumnDef("CONTENT", 255)),
                 getDDLCreateColumn("BPM_LOG", new BigintColumnDef("PROCESS_ID")),
                 getDDLCreateColumn("BPM_LOG", new VarcharColumnDef("SEVERITY", 255)),
-        
+
                 // ru.runa.wfe.job.Job
                 getDDLRenameTable("JBPM_JOB", "BPM_JOB"),
                 getDDLDropColumn("BPM_JOB", "ISSUSPENDED_"),
@@ -377,7 +377,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLRenameColumn("BPM_JOB", "TRANSITIONNAME_", new ColumnDef("TRANSITION_NAME", dialect.getTypeName(Types.VARCHAR))),
                 getDDLCreateColumn("BPM_JOB", new VarcharColumnDef("REPEAT_DURATION", 255)),
                 getDDLRenameForeignKey(getObjectName("FK_JOB_PRINST"), "FK_JOB_PROCESS"),
-        
+
                 // ru.runa.wfe.var.Variable
                 getDDLRenameTable("JBPM_VARIABLEINSTANCE", "BPM_VARIABLE"),
                 getDDLDropIndex("BPM_VARIABLE", getObjectName("IDX_VARINST_TKVARMP")),
@@ -409,7 +409,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLRenameColumn("BPM_VARIABLE", "DOUBLEVALUE_", new ColumnDef("DOUBLEVALUE", dialect.getTypeName(Types.FLOAT))),
                 getDDLRenameColumn("BPM_VARIABLE", "BYTES_", new ColumnDef("BYTES", dialect.getTypeName(Types.VARBINARY))),
                 getDDLDropTable("JBPM_TOKENVARIABLEMAP"),
-        
+
                 // ru.runa.wfe.execution.NodeProcess
                 getDDLRenameTable("JBPM_NODE_SUBPROC", "BPM_SUBPROCESS"),
                 getDDLDropIndex("BPM_SUBPROCESS", getObjectName("IDX_NODE_SUBPROC_NODE")),
@@ -424,7 +424,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLCreateColumn("BPM_SUBPROCESS", new BigintColumnDef("PARENT_TOKEN_ID")),
                 getDDLCreateForeignKey("BPM_SUBPROCESS", "FK_SUBPROCESS_TOKEN", "PARENT_TOKEN_ID", "BPM_TOKEN", "ID"),
                 getDDLCreateColumn("BPM_SUBPROCESS", new VarcharColumnDef("PARENT_NODE_ID", 255)),
-        
+
                 getDDLDropTable("EXECUTOR_OPEN_TASKS"),
                 // for next patch
                 getDDLCreateColumn("JBPM_PASSTRANS", new VarcharColumnDef("NODE_ID", 255)),
@@ -433,7 +433,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLRenameColumn("JBPM_PASSTRANS", "PROCESSINSTANCE_", new BigintColumnDef("PROCESS_ID")),
                 getDDLDropForeignKey("JBPM_PASSTRANS", getObjectName("FK_PASSTRANS_PROCINST")),
                 getDDLDropForeignKey("JBPM_PASSTRANS", getObjectName("FK_PASSTRANS_TRANS")),
-        
+
                 getDDLDropIndex("PERMISSION_MAPPINGS", "PERM_MAPPINGS_SEC_OBJ_ID_IDX"),
                 getDDLDropIndex("PERMISSION_MAPPINGS", getObjectName("PERM_MAPPINGS_EXEC_ID_IDX"))
         );
@@ -457,7 +457,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLDropColumn("BPM_SWIMLANE", "ACTORID_"),
                 getDDLDropColumn("BPM_TASK", "ACTORID_"),
                 getDDLDropColumn("BPM_TASK", "TASKMGMTINSTANCE_"),
-        
+
                 getDDLDropForeignKey("JBPM_NODE", getObjectName("FK_NODE_ACTION")),
                 getDDLDropForeignKey("JBPM_NODE", getObjectName("FK_NODE_SCRIPT")),
                 getDDLDropForeignKey("JBPM_VARIABLEACCESS", getObjectName("FK_VARACC_PROCST")),
@@ -471,7 +471,7 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLDropColumn("JBPM_TASK", "TASKCONTROLLER_"),
                 getDDLDropForeignKey("JBPM_TRANSITION", getObjectName("FK_TRANSITION_FROM")),
                 getDDLDropForeignKey("JBPM_TRANSITION", getObjectName("FK_TRANSITION_TO")),
-        
+
                 getDDLDropTable("JBPM_DECISIONCONDITIONS"),
                 getDDLDropTable("JBPM_RUNTIMEACTION"),
                 getDDLDropTable("JBPM_ACTION"),
@@ -486,30 +486,30 @@ public class JbpmRefactoringPatch extends DbMigration {
                 getDDLDropTable("JBPM_EXCEPTIONHANDLER"),
                 getDDLDropTable("JBPM_TASKCONTROLLER"),
                 getDDLDropTable("JBPM_DELEGATION"),
-        
+
                 getDDLDropForeignKey("JBPM_MODULEDEFINITION", getObjectName("FK_TSKDEF_START")),
                 getDDLDropTable("JBPM_TASK"),
                 getDDLDropTable("JBPM_SWIMLANE"),
-        
+
                 getDDLDropTable("PERMISSION_MAPPINGS"),
                 getDDLDropTable("SECURED_OBJECT_TYPES"),
                 getDDLDropTable("SECURED_OBJECTS"),
-        
+
                 getDDLDropTable("PROCESS_TYPES"),
                 getDDLDropTable("PROCESS_DEFINITION_INFO"),
                 getDDLDropTable("JBPM_TRANSITION"),
-        
+
                 getDDLDropTable("JBPM_MODULEINSTANCE"),
                 getDDLDropTable("JBPM_MODULEDEFINITION"),
-        
+
                 getDDLDropColumn("BPM_TOKEN", "NODE_"),
                 getDDLDropColumn("BPM_TOKEN", "SUBPROCESSINSTANCE_"),
-        
+
                 getDDLDropColumn("BPM_TASK", "TASK_"),
                 getDDLDropColumn("BPM_JOB", "LOCKOWNER_"),
                 getDDLDropColumn("BPM_SUBPROCESS", "NODE_"),
                 getDDLDropColumn("BPM_PROCESS", "SUPERPROCESSTOKEN_"),
-        
+
                 getDDLCreateIndex("BPM_TASK", "IX_TASK_PROCESS", "PROCESS_ID"),
                 getDDLCreateIndex("BPM_TASK", "IX_TASK_EXECUTOR", "EXECUTOR_ID"),
                 getDDLCreateIndex("BPM_LOG", "IX_LOG_PROCESS", "PROCESS_ID"),

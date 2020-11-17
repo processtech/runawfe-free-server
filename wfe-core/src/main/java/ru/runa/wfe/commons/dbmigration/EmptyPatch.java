@@ -2,10 +2,11 @@ package ru.runa.wfe.commons.dbmigration;
 
 
 /**
- * This migration does nothing. Used for replacement deprecated migrations.
+ * This patch do nothing. Used for replacement deprecated patches.
  * 
  * @author Dofs
  * 
  */
 public class EmptyPatch extends DbMigration {
+
 }

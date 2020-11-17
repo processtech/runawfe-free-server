@@ -2,7 +2,6 @@ package ru.runa.wfe.report;
 
 import java.text.DateFormat;
 import java.util.Date;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 
 public class ReportTimeFormatterImpl implements ReportTimeFormatter {
 

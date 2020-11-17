@@ -1,17 +1,8 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
-import ru.runa.wfe.security.dao.PermissionDao;
-import ru.runa.wfe.user.dao.ExecutorDao;
 
 public class CreateAdminScriptTables extends DbMigration {
-
-    @Autowired
-    protected ExecutorDao executorDao;
-    @Autowired
-    protected PermissionDao permissionDao;
-
     @Override
     protected void executeDDLBefore() {
         executeUpdates(

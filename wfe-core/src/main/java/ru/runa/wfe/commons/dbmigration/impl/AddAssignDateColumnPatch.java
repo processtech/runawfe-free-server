@@ -23,6 +23,7 @@ public class AddAssignDateColumnPatch extends DbMigration {
         executeUpdates(getDDLCreateColumn("BPM_TASK", new ColumnDef("ASSIGN_DATE", dialect.getTypeName(Types.TIMESTAMP))));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void executeDML(Session session) {
         List<Object[]> rows = session.createSQLQuery("SELECT ID, PROCESS_ID, NODE_ID FROM BPM_TASK").list();

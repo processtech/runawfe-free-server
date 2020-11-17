@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.sql.Types;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -28,7 +27,7 @@ public class AddColumnsToSubstituteEscalatedTasksPatch extends DbMigration {
         for (Object[] bundle : bundles) {
             try {
                 log.info(String.format("applyPatch: id: %s set PROCESS_ID description: %s", bundle[0], bundle[1]));
-                Long pid = 0L;
+                long pid = 0L;
                 Matcher m;
                 if (bundle[1] != null && ((m = DECIMAL_LONG.matcher((CharSequence) bundle[1])).find())) {
                     MatchResult mr = m.toMatchResult();

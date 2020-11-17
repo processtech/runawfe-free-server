@@ -5,6 +5,14 @@ import org.hibernate.dialect.SQLServer2012Dialect;
 
 /**
  * Maps strings to nvarchar's and unicode support for other types in MSSQL server.
+=======
+import org.hibernate.Hibernate;
+import org.hibernate.dialect.SQLServerDialect;
+
+/**
+ * Maps strings to nvarchar's and unicode support for other types in MSSQL
+ * server.
+>>>>>>> master
  *
  * @author dofs
  * @since 3.5
@@ -14,7 +22,6 @@ public class SqlServerUnicodeDialect extends SQLServer2012Dialect {
      * {@link org.hibernate.dialect.SQLServer2005Dialect#MAX_LENGTH}
      */
     public static final int MAX_LENGTH = 8000;
-
 
     public SqlServerUnicodeDialect() {
         registerColumnType(Types.CHAR, "nchar(1)");

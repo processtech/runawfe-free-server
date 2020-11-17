@@ -5,7 +5,6 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
 public class AddSettingsTable extends DbMigration {
 
     @Override
-    @SuppressWarnings("ConstantConditions")
     protected void executeDDLBefore() {
         executeUpdates(
                 getDDLCreateTable("BPM_SETTING", list(

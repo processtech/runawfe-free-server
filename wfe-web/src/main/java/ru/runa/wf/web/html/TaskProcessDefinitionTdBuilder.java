@@ -9,7 +9,10 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.commons.web.PortletUrlType;
+import ru.runa.wfe.execution.ProcessHierarchyUtils;
+import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 
 /**
@@ -17,6 +20,7 @@ import ru.runa.wfe.task.dto.WfTask;
  * @author Vitaliy S aka Yilativs
  */
 public class TaskProcessDefinitionTdBuilder implements TdBuilder {
+
     public TaskProcessDefinitionTdBuilder() {
     }
 
@@ -26,8 +30,15 @@ public class TaskProcessDefinitionTdBuilder implements TdBuilder {
         TD td = new TD();
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         String definitionName = getValue(object, env);
-        if (env.hasProcessDefinitionPermission(Permission.READ, task.getDefinitionVersionId())) {
-            String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, task.getDefinitionVersionId(),
+        Long definitionVersionId = task.getDefinitionVersionId();
+        Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(task.getProcessHierarchyIds());
+        if (!rootProcessId.equals(task.getProcessId())) {
+            WfProcess wfp = Delegates.getExecutionService().getProcess(env.getUser(), rootProcessId);
+            definitionName = wfp.getName();
+            definitionVersionId = wfp.getDefinitionVersionId();
+        }
+        if (env.hasProcessDefinitionPermission(Permission.READ, definitionVersionId)) {
+            String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, definitionVersionId,
                     env.getPageContext(), PortletUrlType.Render);
             A definitionNameLink = new A(url, definitionName);
             td.addElement(definitionNameLink);

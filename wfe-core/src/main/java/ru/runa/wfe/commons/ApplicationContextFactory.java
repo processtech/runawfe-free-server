@@ -141,18 +141,18 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static DbType getDbType() {
         if (dbType == null) {
-            String hibernateDialect = getConfiguration().getProperty("hibernate.dialect");
-            if (hibernateDialect.contains("HSQL")) {
+            String hibernateDialect = getConfiguration().getProperty("hibernate.dialect").toLowerCase();
+            if (hibernateDialect.contains("hsql")) {
                 dbType = DbType.HSQL;
-            } else if (hibernateDialect.contains("Oracle")) {
+            } else if (hibernateDialect.contains("oracle")) {
                 dbType = DbType.ORACLE;
-            } else if (hibernateDialect.contains("Postgre")) {
+            } else if (hibernateDialect.contains("postgre")) {
                 dbType = DbType.POSTGRESQL;
-            } else if (hibernateDialect.contains("MySQL")) {
-                dbType = DbType.MYSQL;  // TODO Delete this enum item in WFE 5.
-            } else if (hibernateDialect.contains("SQLServer") || hibernateDialect.contains("SqlServer")) {
+            } else if (hibernateDialect.contains("mysql")) {
+                dbType = DbType.MYSQL;
+            } else if (hibernateDialect.contains("sqlserver")) {
                 dbType = DbType.MSSQL;
-            } else if (hibernateDialect.contains("H2")) {
+            } else if (hibernateDialect.contains("h2")) {
                 dbType = DbType.H2;
             } else {
                 throw new RuntimeException("Unsupported DB dialect: " + hibernateDialect);

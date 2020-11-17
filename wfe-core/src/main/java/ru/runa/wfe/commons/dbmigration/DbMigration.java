@@ -25,18 +25,18 @@ import ru.runa.wfe.commons.DbType;
 
 /**
  * Base class for database migration (which are applied at startup).
- * 
+ *
  * @author Dofs
  * @see DbMigrationManager
  */
-@SuppressWarnings({"unused", "SameParameterValue"})
+@SuppressWarnings({ "unused", "SameParameterValue" })
 public abstract class DbMigration {
     protected final Log log = LogFactory.getLog(getClass());
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
     protected final DbType dbType = ApplicationContextFactory.getDbType();
 
-    private ThreadLocal<String> currentCategory = new ThreadLocal<>();
-    private ThreadLocal<Session> currentSession = new ThreadLocal<>();
+    private final ThreadLocal<String> currentCategory = new ThreadLocal<>();
+    private final ThreadLocal<Session> currentSession = new ThreadLocal<>();
 
     @Autowired
     protected SessionFactory sessionFactory;
@@ -67,9 +67,9 @@ public abstract class DbMigration {
 
     /**
      * Execute migration's DML statements in one transaction.
-     * 
+     * <p>
      * It's allowed to use only raw SQL because hibernate mappings could not work in old DB version.
-     * 
+     *
      * @deprecated Use pure JDBC, by overriding {@link #executeDML(Connection)}.
      */
     @Deprecated
@@ -195,52 +195,44 @@ public abstract class DbMigration {
     protected final List<String> getDDLCreateSequence(String sequenceName) {
         checkIndentifierLength(sequenceName);
         switch (dbType) {
-        case ORACLE:
-        case POSTGRESQL:
-        case H2:
-        case MYSQL:
-            return list("create sequence " + sequenceName);
-        default:
-            return null;
+            case ORACLE:
+            case POSTGRESQL:
+                return list("create sequence " + sequenceName);
+            default:
+                return null;
         }
     }
 
     protected final List<String> getDDLCreateSequence(String sequenceName, long nextValue) {
         checkIndentifierLength(sequenceName);
         switch (dbType) {
-        case ORACLE:
-        case POSTGRESQL:
-        case H2:
-        case MYSQL:
-            return list("create sequence " + sequenceName + " start with " + nextValue);
-        default:
-            return null;
+            case ORACLE:
+            case POSTGRESQL:
+                return list("create sequence " + sequenceName + " start with " + nextValue);
+            default:
+                return null;
         }
     }
 
     protected final List<String> getDDLDropSequence(String sequenceName) {
         switch (dbType) {
-        case ORACLE:
-        case POSTGRESQL:
-        case H2:
-        case MYSQL:
-            return list("drop sequence " + sequenceName);
-        default:
-            return null;
+            case ORACLE:
+            case POSTGRESQL:
+                return list("drop sequence " + sequenceName);
+            default:
+                return null;
         }
     }
 
     protected final List<String> getDDLRenameSequence(String sequenceName, String newName) {
         checkIndentifierLength(newName);
         switch (dbType) {
-        case ORACLE:
-            return list("rename " + sequenceName + " to " + newName);
-        case POSTGRESQL:
-            return list("alter sequence " + sequenceName + " rename to " + newName);
-        case H2:
-            return list("drop sequence " + sequenceName, "create sequence " + newName);
-        default:
-            return null;
+            case ORACLE:
+                return list("rename " + sequenceName + " to " + newName);
+            case POSTGRESQL:
+                return list("alter sequence " + sequenceName + " rename to " + newName);
+            default:
+                return null;
         }
     }
 
@@ -265,37 +257,33 @@ public abstract class DbMigration {
 
                 String primaryKeyModifier;
                 switch (dbType) {
-                case HSQL:
-                case MSSQL:
-                    if (columnDef.autoIncremented) {
-                        primaryKeyModifier = "IDENTITY NOT NULL PRIMARY KEY";
-                    } else {
+                    case HSQL:
+                    case MSSQL:
+                        if (columnDef.autoIncremented) {
+                            primaryKeyModifier = "IDENTITY NOT NULL PRIMARY KEY";
+                        } else {
+                            primaryKeyModifier = "NOT NULL PRIMARY KEY";
+                        }
+                        break;
+                    case ORACLE:
                         primaryKeyModifier = "NOT NULL PRIMARY KEY";
-                    }
-                    break;
-                case ORACLE:
-                    primaryKeyModifier = "NOT NULL PRIMARY KEY";
-                    break;
-                case POSTGRESQL:
-                    primaryKeyModifier = "PRIMARY KEY";
-                    break;
-                case MYSQL:
-                    if (columnDef.autoIncremented) {
+                        break;
+                    case POSTGRESQL:
+                        primaryKeyModifier = "PRIMARY KEY";
+                        break;
+                    case MYSQL:
                         primaryKeyModifier = "NOT NULL PRIMARY KEY AUTO_INCREMENT";
-                    } else {
-                        primaryKeyModifier = "NOT NULL PRIMARY KEY";
-                    }
-                    break;
-                case H2:
-                    if (columnDef.autoIncremented) {
-                        primaryKeyModifier = "GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY";
-                    } else {
-                        primaryKeyModifier = "NOT NULL PRIMARY KEY";
-                    }
-                    break;
-                default:
-                    primaryKeyModifier = "PRIMARY KEY";
-                    break;
+                        break;
+                    case H2:
+                        if (columnDef.autoIncremented) {
+                            primaryKeyModifier = "GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY";
+                        } else {
+                            primaryKeyModifier = "NOT NULL PRIMARY KEY";
+                        }
+                        break;
+                    default:
+                        primaryKeyModifier = "PRIMARY KEY";
+                        break;
                 }
                 query.append(" ").append(primaryKeyModifier);
                 continue;
@@ -351,6 +339,8 @@ public abstract class DbMigration {
             case ORACLE:
             case POSTGRESQL:
                 return list("alter index " + indexName + " rename to " + newIndexName);
+            case MYSQL:
+                return list("alter table " + tableName + " rename index " + indexName + " to " + newIndexName);
             default:
                 throw new NotImplementedException();  // TODO ...
         }
@@ -530,28 +520,28 @@ public abstract class DbMigration {
         }
     }
 
-    @SuppressWarnings({"WeakerAccess", "deprecation"})
+    @SuppressWarnings({ "WeakerAccess" })
     public class BigintColumnDef extends ColumnDef {
         public BigintColumnDef(String name) {
             super(name, dialect.getTypeName(Types.BIGINT));
         }
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class BlobColumnDef extends ColumnDef {
         public BlobColumnDef(String name) {
             super(name, dialect.getTypeName(Types.BLOB));
         }
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class BooleanColumnDef extends ColumnDef {
         public BooleanColumnDef(String name) {
             super(name, dialect.getTypeName(Types.BIT));
         }
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class CharColumnDef extends ColumnDef {
         public CharColumnDef(String name, int length) {
             super(name, dialect.getTypeName(Types.CHAR, length, length, length));
@@ -562,7 +552,7 @@ public abstract class DbMigration {
      * @deprecated Use TimestampColumnDef: I believe it's effectively the same but more clear.
      */
     @Deprecated
-    @SuppressWarnings({"unused", "WeakerAccess"})
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class DateColumnDef extends ColumnDef {
         public DateColumnDef(String name) {
             super(name, dialect.getTypeName(Types.DATE));
@@ -570,28 +560,28 @@ public abstract class DbMigration {
     }
 
 
-    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class DoubleColumnDef extends ColumnDef {
         public DoubleColumnDef(String name) {
             super(name, dialect.getTypeName(Types.DOUBLE));
         }
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class IntColumnDef extends ColumnDef {
         public IntColumnDef(String name) {
             super(name, dialect.getTypeName(Types.INTEGER));
         }
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class TimestampColumnDef extends ColumnDef {
         public TimestampColumnDef(String name) {
             super(name, dialect.getTypeName(Types.TIMESTAMP));
         }
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    @SuppressWarnings({ "unused", "WeakerAccess" })
     public class VarcharColumnDef extends ColumnDef {
         public VarcharColumnDef(String name, int length) {
             super(name, dialect.getTypeName(Types.VARCHAR, length, length, length));

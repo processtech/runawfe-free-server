@@ -2,6 +2,10 @@ package ru.runa.wfe.commons.dbmigration.impl;
 
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
+/**
+ * @since 02.02.2020
+ * @author misharum
+ */
 public class CreateChatDbPatch extends DbMigration {
 
     @Override

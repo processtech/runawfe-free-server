@@ -11,7 +11,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * https://sourceforge.net/p/runawfe/bugs/378/
- * 
+ *
  * @author Dofs
  * @since 4.1.0
  */
@@ -44,7 +44,7 @@ public class TaskOpenedByExecutorsPatch extends DbMigration {
         ScrollableResults scrollableResults = session.createSQLQuery(q).scroll(ScrollMode.FORWARD_ONLY);
         int processed = 0;
         while (scrollableResults.next()) {
-            Long taskId = ((Number) scrollableResults.get(0)).longValue();
+            long taskId = ((Number) scrollableResults.get(0)).longValue();
             try {
                 Long executorId = ((Number) scrollableResults.get(1)).longValue();
                 Executor executor = executorDao.getExecutor(executorId);

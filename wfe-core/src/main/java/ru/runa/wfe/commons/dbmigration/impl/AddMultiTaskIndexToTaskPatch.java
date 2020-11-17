@@ -14,4 +14,5 @@ public class AddMultiTaskIndexToTaskPatch extends DbMigration {
     protected void executeDDLBefore() {
         executeUpdates(getDDLCreateColumn("BPM_TASK", new IntColumnDef("TASK_INDEX")));
     }
+
 }
