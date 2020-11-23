@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -136,8 +137,9 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 Object value = variableFormat.parse(stringDefaultValue);
                 variableDefinition.setDefaultValue(value);
             } catch (Exception e) {
+                Date createDate = processDefinition.getDeployment().getCreateDate();
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
-                        || processDefinition.getDeployment().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
+                        || (createDate == null ? new Date() : createDate).after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
                     throw new InternalApplicationException(
                             "Unable to parse default value '" + stringDefaultValue + "' for variable '" + variableDefinition.getName() + "'", e);
                 } else {
