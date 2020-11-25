@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDao;
@@ -140,8 +139,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 Date createDate = processDefinition.getDeployment().getCreateDate();
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
                         || (createDate == null ? new Date() : createDate).after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
-                    throw new InternalApplicationException(
-                            "Unable to parse default value '" + stringDefaultValue + "' for variable '" + variableDefinition.getName() + "'", e);
+                    throw e;
                 } else {
                     LogFactory.getLog(getClass()).error(
                             "Unable to format default value '" + stringDefaultValue + "' in " + processDefinition + ":" + variableDefinition, e);
