@@ -62,4 +62,5 @@ public class StringFormat extends VariableFormat implements VariableDisplaySuppo
     public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
         return operation.onString(this, context);
     }
+
 }

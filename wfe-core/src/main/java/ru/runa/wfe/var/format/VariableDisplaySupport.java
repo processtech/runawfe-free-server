@@ -15,5 +15,5 @@ public interface VariableDisplaySupport {
      * Generates HTML for variable value display.
      */
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object);
-
+    
 }
