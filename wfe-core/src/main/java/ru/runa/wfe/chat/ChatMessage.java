@@ -26,9 +26,9 @@ public class ChatMessage {
     private Long id;
     private Date createDate;
     private Actor createActor;
-    private Process process;
+    private Process process;// убрать из json
     private String text;
-    private String quotedMessageIds;
+    private String quotedMessageIds;// убрать из json
 
     @JsonGetter("id")
     @Id
@@ -43,7 +43,7 @@ public class ChatMessage {
         this.id = id;
     }
 
-    @JsonGetter("createDate")
+    @JsonGetter("dateTime")
     @JsonSerialize(using = DateJacksonSerializer.class)
     @Column(name = "CREATE_DATE", nullable = false)
     public Date getCreateDate() {
@@ -54,7 +54,7 @@ public class ChatMessage {
         this.createDate = createDate;
     }
 
-    @JsonGetter("createActor")
+    @JsonGetter("author")
     @JsonSerialize(using = ActorJacksonSerializer.class)
     @ManyToOne(optional = false)
     @JoinColumn(name = "CREATE_ACTOR_ID")

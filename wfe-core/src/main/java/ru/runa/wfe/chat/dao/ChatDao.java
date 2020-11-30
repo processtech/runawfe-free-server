@@ -32,7 +32,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         queryFactory.delete(f).where(f.id.eq(id)).execute();
     }
 
-    public ChatMessageDto saveMessageAndBindFiles(User user, ChatMessage message, ArrayList<ChatMessageFile> files, Set<Executor> executors,
+    public ChatMessageDto saveMessageAndBindFiles(ChatMessage message, ArrayList<ChatMessageFile> files, Set<Executor> executors,
             Set<Executor> mentionedExecutors) {
         Long mesId = save(message, executors, mentionedExecutors);
         message.setId(mesId);

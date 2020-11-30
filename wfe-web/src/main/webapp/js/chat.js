@@ -192,8 +192,8 @@ $("#modalFooter").append(progressBar);
 let messageBody=$("<table/>").addClass("selectionTextQuote");
 //date
 let dateTr0=$("<div/>");
-dateTr0.addClass("datetr").append(/*data.messages[ mes ].dateTime*/);
-messageBody.append($("<tr/>").append($("<td/>").append(dateTr0).append($("<div/>").addClass("author").text(/*data.messages[ mes ].author*/ ""+ ":")).append($("<div/>").addClass("messageText").attr("textMessagId", /*data.messages[ mes ].id*/0).attr("id","messageText"+/*mesIndex*/0).append(/*text0*/""))));
+dateTr0.addClass("datetr").append(/*data.message.dateTime*/);
+messageBody.append($("<tr/>").append($("<td/>").append(dateTr0).append($("<div/>").addClass("author").text(/*data.message.author*/ ""+ ":")).append($("<div/>").addClass("messageText").attr("textMessagId", /*data.message.id*/0).attr("id","messageText"+/*mesIndex*/0).append(/*text0*/""))));
 //"развернуть"
 let openHierarchyA0 = $("<a/>");
 openHierarchyA0.addClass("openHierarchy")
@@ -261,27 +261,25 @@ function hierarchyOpen(){
 // функция возвращающая массив блоков вложенных сообщений
 function getAttachedMessagesArray(data) {
 	let outputArray=[];
-	if(data.newMessage == 0){
-		for(let mes=0;mes<data.messages.length;mes++){
-			if(data.messages[ mes ].text != null){
-				let messageBody = $("<table/>").addClass("quote");
-				messageBody.append($("<tr/>").addClass("selectionTextAdditional").append($("<td/>").text(quoteText+":" + data.messages[ mes ].author)));
-				messageBody.append($("<tr/>").append($("<td/>").text(data.messages[ mes ].text)));
-				if(data.messages[ mes ].hierarchyMessageFlag == 1){
-					let openHierarchy0 = $("<a/>").addClass("openHierarchy");
-					openHierarchy0.attr("type", "button");
-					openHierarchy0.attr("mesId", data.messages[ mes ].id);
-					openHierarchy0.attr("loadFlag", 0);
-					openHierarchy0.attr("openFlag", 0);
-					openHierarchy0.text(openHierarchySignature);
-					openHierarchy0.click(hierarchyOpen);
-					messageBody.append($("<tr/>").append($("<td/>").append(openHierarchy0).append($("<div/>").addClass("loadedHierarchy"))));
-				}
-				outputArray.push(messageBody);
+	for(let mes=0;mes<data.messages.length;mes++){
+		if(data.messages[ mes ].text != null){
+			let messageBody = $("<table/>").addClass("quote");
+			messageBody.append($("<tr/>").addClass("selectionTextAdditional").append($("<td/>").text(quoteText+":" + data.messages[ mes ].author)));
+			messageBody.append($("<tr/>").append($("<td/>").text(data.messages[ mes ].text)));
+			if(data.messages[ mes ].hierarchyMessageFlag == 1){
+				let openHierarchy0 = $("<a/>").addClass("openHierarchy");
+				openHierarchy0.attr("type", "button");
+				openHierarchy0.attr("mesId", data.messages[ mes ].id);
+				openHierarchy0.attr("loadFlag", 0);
+				openHierarchy0.attr("openFlag", 0);
+				openHierarchy0.text(openHierarchySignature);
+				openHierarchy0.click(hierarchyOpen);
+				messageBody.append($("<tr/>").append($("<td/>").append(openHierarchy0).append($("<div/>").addClass("loadedHierarchy"))));
 			}
+			outputArray.push(messageBody);
 		}
-		return outputArray;
 	}
+	return outputArray;
 }
 //-----------------прикрепление цитат
 //функция для кнопки "ответить" (прикрепляет сообщение)
@@ -330,7 +328,7 @@ function deleteMessage(){
 			let newMessage={};
 			newMessage.messageId=$(this).closest(".selectionTextQuote").attr("mesId");
 			newMessage.processId=idProcess;
-			newMessage.type="deleteMessage";
+			newMessage.messType="deleteMessage";
 			chatSocket.send(JSON.stringify(newMessage));
 			$(this).closest(".selectionTextQuote").remove();
 		}
@@ -351,7 +349,7 @@ function editMessage(){
 function newxtMessages(count){
 	let newMessage={};
 	newMessage.processId=idProcess;
-	newMessage.type="getMessages";
+	newMessage.messType="getMessages";
 	newMessage.lastMessageId=minMassageId;
 	newMessage.count = count; // количество сообщений
 	let firstMessages = JSON.stringify(newMessage);
@@ -436,7 +434,7 @@ function sendMessage() {
 			newMessage.message=message;
 			newMessage.processId=idProcess;
 			newMessage.idHierarchyMessage = idHierarchyMessage;
-			newMessage.type="newMessage";
+			newMessage.messType="newMessage";
 			newMessage.isPrivate=$("#checkBoxPrivateMessage").prop("checked");
 			let namesPrivate="";
 			$("#tablePrivate table tr").each(function(row){
@@ -492,7 +490,7 @@ function sendMessage() {
 				let newMessage={};
 				newMessage.message=message;
 				newMessage.processId=idProcess;
-				newMessage.type="editMessage";
+				newMessage.messType="editMessage";
 				newMessage.editMessageId = editMessageId;
 				$("#message").val(""); 
 				chatSocket.send(JSON.stringify(newMessage));
@@ -628,7 +626,7 @@ function updatenumberNewMessages(numberNewMessages0){
 function updateLastReadMessage(){
 	let newSend0={};
 	newSend0.processId=idProcess;
-	newSend0.type="readMessage";
+	newSend0.messType="readMessage";
 	newSend0.currentMessageId=currentMessageId+"";
 	let sendObject0 = JSON.stringify(newSend0);
 	chatSocket.send(sendObject0);
@@ -976,17 +974,16 @@ function deleteAttachedFile(){
 //--------------------------------------------------------------
 //функции приема сообщений с сервера
 //функция установки нового сообщения пришедшего с сервера в чат
-function addMessages(data){
-	if((data != undefined) && (data.newMessage == 0)){
-		for(let mes=0; mes < data.messages.length; mes++){
-			if(data.messages[ mes ].text != null){
-				if((minMassageId > data.messages[ mes ].id) || (minMassageId == -1)){
-					minMassageId = data.messages[ mes ].id;
+function addMessage(data){
+	if((data != undefined)){
+			if(data.message.text != null){
+				if((minMassageId > data.message.id) || (minMassageId == -1)){
+					minMassageId = data.message.id;
 				}
-				if((maxMassageId < data.messages[ mes ].id)){
-					maxMassageId = data.messages[ mes ].id;
+				if((maxMassageId < data.message.id)){
+					maxMassageId = data.message.id;
 				}
-				let text0 = data.messages[ mes ].text;
+				let text0 = data.message.text;
 				let mesIndex = 0;
 				if(data.old == false){
 					mesIndex = newMessageIndex;
@@ -999,30 +996,30 @@ function addMessages(data){
 				//создаем сообщение
 				var cloneMess=messageBody.clone();
 				cloneMess.attr("id", "messBody"+mesIndex);
-				cloneMess.attr("mesId", data.messages[ mes ].id);
+				cloneMess.attr("mesId", data.message.id);
 				cloneMess.attr("messageIndex", mesIndex);
 				cloneMess.find(".datetr").text();
-				let date=data.messages[ mes ].dateTime;
+				let date=data.message.dateTime;
 				var d = new Date(date);
-				cloneMess.find(".author").text(data.messages[ mes ].author + ":");
+				cloneMess.find(".author").text(data.message.author + ":");
 				cloneMess.find(".datetr").text(d.getDate().toString()+"."+(d.getMonth()+1).toString()+"."+d.getFullYear()+" "+d.getHours().toString()+":"+d.getMinutes().toString());
-				cloneMess.find(".messageText").attr("textMessagId", data.messages[ mes ].id).attr("id","messageText"+mesIndex).html(text0);
+				cloneMess.find(".messageText").attr("textMessagId", data.message.id).attr("id","messageText"+mesIndex).html(text0);
 				// "развернуть"
-				if(data.messages[ mes ].hierarchyMessageFlag == 1){
-					cloneMess.find(".openHierarchy").attr("mesId", data.messages[ mes ].id)
+				if(data.hierarchyMessageFlag == 1){
+					cloneMess.find(".openHierarchy").attr("mesId", data.message.id)
 					.click(hierarchyOpen);
 				}else{
 					cloneMess.find(".openHierarchy").remove();
 				}
 				cloneMess.find(".addReply").click(messReplyClickFunction);
 				//файлы
-				if(data.messages[ mes ].haveFile == true){
+				if(data.haveFile == true){
 					let fileTr0 = $("<tr/>");
 					let fileTable = $("<table/>");
 					fileTable.addClass("fileHolder");
-					for(let i = 0; i < data.messages[ mes ].fileIdArray.length; i++){
+					for(let i = 0; i < data.fileIdArray.length; i++){
 						let fileIdTr = $("<tr/>");
-						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.messages[ mes ].fileIdArray[i].id + "' download='" + data.messages[ mes ].fileIdArray[i].name + "'>" + data.messages[ mes ].fileIdArray[i].name + "</a>"));
+						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.fileIdArray[i].id + "' download='" + data.fileIdArray[i].name + "'>" + data.fileIdArray[i].name + "</a>"));
 						fileTable.append(fileIdTr);
 					}
 					fileTr0.append($("<td/>").append(fileTable));
@@ -1073,7 +1070,6 @@ function addMessages(data){
 					newMessagesHeight += getElmHeight(cloneMess);
 				}
 			}
-		}
 	}
 }
 //отправка файла на сервер
@@ -1091,8 +1087,8 @@ function stepLoadFile(i){
 //приём с сервера
 function onMessage(event) {
 	let message0 = JSON.parse(event.data);
-	if(message0.messType == "newMessages"){
-		addMessages(message0);
+	if(message0.messType == "newMessage"){
+		addMessage(message0);
 	}
 	else if(message0.messType == "unblockOldMes"){
 		blocOldMes=0;
@@ -1112,7 +1108,7 @@ function onMessage(event) {
 		else{
 			let newMessage={};
 			newMessage.processId=idProcess;
-			newMessage.type="endLoadFiles";
+			newMessage.messType="endLoadFiles";
 			chatSocket.send(JSON.stringify(newMessage));
 			attachedFiles = [];
 			$("#progressBar").css({"display":"none"});
@@ -1300,10 +1296,10 @@ function ajaxInitializationChat(){
 			let reSwitchCheak=switchCheak;
 			switchCheak=0;
 			currentMessageId = data.lastMessageId;
-			addMessages(data.messages[0]);
+			addMessage(JSON.parse(data.messages[0]));
 			$("#modal-body").scrollTop(0);
 			for(let i=1; i<data.messages.length; i++){
-				addMessages(data.messages[i]);
+				addMessage(JSON.parse(data.messages[i]));
 			}
 			if(numberNewMessages == 0){
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();

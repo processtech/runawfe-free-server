@@ -57,7 +57,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     public ChatMessageDto saveMessageAndBindFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
             Boolean isPrivate, ArrayList<ChatMessageFile> files) {
-        return chatLogic.saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, files);
+        return chatLogic.saveMessageAndBindFiles(user.getActor(), processId, message, mentionedExecutors, isPrivate, files);
     }
 
     @WebMethod(exclude = false)
@@ -107,7 +107,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @Override
     @WebResult(name = "result")
     public void updateChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") ChatMessage message) {
-        chatLogic.updateMessage(message);
+        chatLogic.updateMessage(user.getActor(), message);
     }
 
     @WebMethod(exclude = false)
@@ -142,7 +142,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @Override
     @WebResult(name = "result")
     public ChatMessage getChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long messageId) {
-        return chatLogic.getMessage(messageId);
+        return chatLogic.getMessage(user.getActor(), messageId);
     }
 
     @WebMethod(exclude = false)
@@ -172,7 +172,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @Override
     @WebResult(name = "result")
     public void deleteChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messId") Long messId) {
-        chatLogic.deleteMessage(messId);
+        chatLogic.deleteMessage(user.getActor(), messId);
     }
 
     @WebMethod(exclude = false)
@@ -188,9 +188,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     public Long saveChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
             @WebParam(name = "isPrivate") Boolean isPrivate) {
-        Long id = chatLogic.saveMessage(processId, message, mentionedExecutors, isPrivate);
-        // chatLogic.sendNotifications(message, mentionedExecutors);
-        return id;
+        return chatLogic.saveMessage(user.getActor(), processId, message, mentionedExecutors, isPrivate);
     }
 
 }

@@ -13,12 +13,19 @@ import ru.runa.wfe.chat.ChatMessage;
 
 public class ChatMessageDto extends ChatDto {
     private ChatMessage message;
-    private List<String> fileNames = new ArrayList<String>();
-    private List<Long> fileIds = new ArrayList<Long>();
+    private List<String> fileNames = new ArrayList<String>(); // объединить в массив файлов
+    private List<Long> fileIds = new ArrayList<Long>(); //
     private boolean old = false;
+    private boolean mentionedFlag = false;
+    private boolean coreUserFlag = false;
 
     public ChatMessageDto(ChatMessage message) {
+        this();
         this.message = message;
+    }
+
+    public ChatMessageDto() {
+        this.setMessageType("newMessage");
     }
 
     @JsonGetter("message")
@@ -57,16 +64,44 @@ public class ChatMessageDto extends ChatDto {
         this.old = old;
     }
 
+    @JsonGetter("mentioned")
+    public boolean isMentioned() {
+        return mentionedFlag;
+    }
+
+    public void setMentionedFlag(boolean mentionedFlag) {
+        this.mentionedFlag = mentionedFlag;
+    }
+
+    @JsonGetter("coreUser")
+    public boolean isCoreUser() {
+        return coreUserFlag;
+    }
+
+    public void setCoreUserFlag(boolean coreUserFlag) {
+        this.coreUserFlag = coreUserFlag;
+    }
+
+    @JsonGetter("hierarchyMessageFlag")
+    public boolean isHierarchyMessageFlag() {
+        return StringUtils.isNotBlank(this.getMessage().getQuotedMessageIds());
+    }
+
+    @JsonGetter("haveFile")
+    public boolean haveFile() {
+        return this.getFileNames().size() > 0;
+    }
+
     @Override
-    public JSONObject convert() throws JsonProcessingException {
+    public String convert() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String testJSON = mapper.writeValueAsString(this);
+        String res = mapper.writeValueAsString(this);
         //
-        JSONObject testJSON1 = super.convert();
+        // JSONObject testJSON1 = super.convert();
         //
         JSONObject result = new JSONObject();
-        result.put("messType", "newMessages");
-        JSONArray messagesArrayObject = new JSONArray();
+        result.put("messType", "newMessage");
+        // JSONArray messagesArrayObject = new JSONArray();
         JSONObject messageObject = new JSONObject();
         messageObject.put("id", this.getMessage().getId());
         messageObject.put("text", this.getMessage().getText());
@@ -92,10 +127,14 @@ public class ChatMessageDto extends ChatDto {
         String createDateString = sdf.format(this.getMessage().getCreateDate());
         messageObject.put("dateTime", createDateString);
         messageObject.put("hierarchyMessageFlag", StringUtils.isNotBlank(this.getMessage().getQuotedMessageIds()));
-        messagesArrayObject.add(messageObject);
-        result.put("newMessage", 0);
-        result.put("messages", messagesArrayObject);
+        // messagesArrayObject.add(messageObject);
+        // result.put("newMessage", 0);
+        result.put("message", messageObject);
+        // result.put("messages", messagesArrayObject);
         result.put("old", old);
-        return result;
+        return res;
     }
+
+
+
 }

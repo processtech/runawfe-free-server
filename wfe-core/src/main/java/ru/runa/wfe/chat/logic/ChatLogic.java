@@ -47,7 +47,8 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteFile(user, id);
     }
 
-    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+    public ChatMessageDto saveMessageAndBindFiles(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+            Boolean isPrivate,
             ArrayList<ChatMessageFile> files) {
         message.setProcess(processDao.get(processId));
         Set<Executor> executors;
@@ -56,7 +57,7 @@ public class ChatLogic extends WfCommonLogic {
         } else {
             executors = new HashSet<Executor>(mentionedExecutors);
         }
-        return chatDao.saveMessageAndBindFiles(user, message, files, executors, mentionedExecutors);
+        return chatDao.saveMessageAndBindFiles(message, files, executors, mentionedExecutors);
     }
 
     public void readMessage(Actor user, Long messageId) {
@@ -144,7 +145,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessagesCount(user, processId);
     }
 
-    public ChatMessage getMessage(Long messageId) {
+    public ChatMessage getMessage(Actor actor, Long messageId) {
         return chatDao.getMessage(messageId);
     }
 
@@ -164,7 +165,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessages(user, processId);
     }
 
-    public Long saveMessage(Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+    public Long saveMessage(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
         message.setProcess(processDao.get(processId));
         if (!isPrivate) {
             Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
@@ -174,7 +175,7 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
-    public void deleteMessage(Long messId) {
+    public void deleteMessage(Actor actor, Long messId) {
         chatDao.deleteMessage(messId);
     }
 
@@ -190,7 +191,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getFile(actor, fileId);
     }
 
-    public void updateMessage(ChatMessage message) {
+    public void updateMessage(Actor actor, ChatMessage message) {
         chatDao.updateMessage(message);
     }
 
