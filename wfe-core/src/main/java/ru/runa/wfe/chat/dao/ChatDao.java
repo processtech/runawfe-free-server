@@ -13,6 +13,7 @@ import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageFile;
 import ru.runa.wfe.chat.QChatMessageRecipient;
+import ru.runa.wfe.chat.dto.ChatFileDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
@@ -40,8 +41,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         for (ChatMessageFile file : files) {
             file.setMessage(message);
             sessionFactory.getCurrentSession().save(file);
-            ret.getFileIds().add(file.getId());
-            ret.getFileNames().add(file.getFileName());
+            ret.getFilesDto().add(new ChatFileDto(file.getId(), file.getFileName()));
         }
         return ret;
     }
@@ -108,8 +108,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
             ChatMessageDto messageDto = new ChatMessageDto(message);
             List<Tuple> files = queryFactory.select(mf.fileName, mf.id).from(mf).where(mf.message.eq(message)).fetch();
             for (Tuple file : files) {
-                messageDto.getFileNames().add(file.get(0, String.class));
-                messageDto.getFileIds().add(file.get(1, Long.class));
+                messageDto.getFilesDto().add(new ChatFileDto(file.get(1, Long.class), file.get(0, String.class)));
             }
             messageDtos.add(messageDto);
         }
@@ -162,8 +161,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         List<Tuple> files = queryFactory.select(mf.fileName, mf.id).from(mf).where(mf.message.eq(message)).fetch();
         for (Tuple file : files) {
-            messageDto.getFileNames().add(file.get(0, String.class));
-            messageDto.getFileIds().add(file.get(1, Long.class));
+            messageDto.getFilesDto().add(new ChatFileDto(file.get(1, Long.class), file.get(0, String.class)));
         }
         return messageDto;
     }

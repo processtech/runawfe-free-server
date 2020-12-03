@@ -63,13 +63,13 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler {
             session.getUserProperties().put("activeIsPrivate", isPrivate);
             session.getUserProperties().put("activeMentionedExecutors", mentionedExecutors);
             session.getUserProperties().put("activeFileNames", message.getFileNames());// fileNames
-            session.getUserProperties().put("activeFileSizes", message.getActiveFileSizes());// fileSizes
+            session.getUserProperties().put("activeFileSizes", message.getFileSizes());// fileSizes
             session.getUserProperties().put("activeFilePosition", 0);
             Integer fileNumber = 0;
             session.getUserProperties().put("activeFileNumber", fileNumber);
             session.getUserProperties().put("errorFlag", false);
             session.getUserProperties().put("activeFiles", new ArrayList<ChatMessageFile>());
-            session.getUserProperties().put("activeLoadFile", new byte[(message.getActiveFileSizes()).get(0).intValue()]);
+            session.getUserProperties().put("activeLoadFile", new byte[(message.getFileSizes()).get(0).intValue()]);
             JSONObject sendObject = new JSONObject();
             sendObject.put("messType", "stepLoadFile");
             sessionHandler.sendToSession(session, sendObject.toString());

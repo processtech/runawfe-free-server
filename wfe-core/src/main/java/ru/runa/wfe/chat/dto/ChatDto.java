@@ -12,6 +12,7 @@ import java.io.IOException;
 
 @JsonPropertyOrder({ "messType" })
 @JsonIgnoreProperties(ignoreUnknown = true)
+// @JsonTypeInfo(use = JsonTypeInfo.Id.NAME) // правится
 public class ChatDto {
 
     private String messageType;

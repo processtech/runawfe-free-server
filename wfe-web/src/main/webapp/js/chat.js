@@ -1017,9 +1017,9 @@ function addMessage(data){
 					let fileTr0 = $("<tr/>");
 					let fileTable = $("<table/>");
 					fileTable.addClass("fileHolder");
-					for(let i = 0; i < data.fileIdArray.length; i++){
+					for(let i = 0; i < data.fileArray.length; i++){
 						let fileIdTr = $("<tr/>");
-						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.fileIdArray[i].id + "' download='" + data.fileIdArray[i].name + "'>" + data.fileIdArray[i].name + "</a>"));
+						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.fileArray[i].id + "' download='" + data.fileArray[i].name + "'>" + data.fileArray[i].name + "</a>"));
 						fileTable.append(fileIdTr);
 					}
 					fileTr0.append($("<td/>").append(fileTable));

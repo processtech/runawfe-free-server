@@ -13,7 +13,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import lombok.extern.apachecommons.CommonsLog;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
@@ -74,8 +73,8 @@ public class ChatSocket {
                 }
                 fileNumber = (Integer) session.getUserProperties().get("activeFileNumber");
                 ChatMessageFile chatMessageFile = new ChatMessageFile();
-                JSONArray activeFileNames = ((JSONArray) session.getUserProperties().get("activeFileNames"));
-                chatMessageFile.setFileName((String) activeFileNames.get(fileNumber));
+                List<String> activeFileNames = ((List<String>) session.getUserProperties().get("activeFileNames"));
+                chatMessageFile.setFileName(activeFileNames.get(fileNumber));
                 chatMessageFile.setBytes(loadedBytes);
                 ((ArrayList<ChatMessageFile>) session.getUserProperties().get("activeFiles")).add(chatMessageFile);
                 // send "ok"
@@ -84,7 +83,7 @@ public class ChatSocket {
                 sendObject.put("messType", "nextStepLoadFile");
                 sendObject.put("number", fileNumber);
                 if (activeFileNames.size() > fileNumber + 1) {
-                    loadedBytes = new byte[((Long) ((JSONArray) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1)).intValue()];
+                    loadedBytes = new byte[((List<Long>) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1).intValue()];
                 } else {
                     loadedBytes = null;
                 }
@@ -105,8 +104,8 @@ public class ChatSocket {
             sendObject.put("fileLoaded", false);
             sendObject.put("messType", "nextStepLoadFile");
             sendObject.put("number", fileNumber);
-            if (((JSONArray) session.getUserProperties().get("activeFileNames")).size() > fileNumber + 1) {
-                loadedBytes = new byte[((Long) ((JSONArray) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1)).intValue()];
+            if (((List<String>) session.getUserProperties().get("activeFileNames")).size() > fileNumber + 1) {
+                loadedBytes = new byte[((List<Long>) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1).intValue()];
             } else {
                 loadedBytes = null;
             }

@@ -11,10 +11,8 @@ public class ChatNewMessageDto extends ChatDto {
     private boolean isPrivate;
     private String privateNames;
     private String processId;
-    private String fileNames;
-    private List<String> activeFileNames;
-    private List<Long> activeFileSizes;
-    private byte activeLoadFile;
+    private List<String> fileNames;
+    private List<Long> fileSizes;
 
     @JsonGetter("message")
     public String getMessage() {
@@ -77,42 +75,23 @@ public class ChatNewMessageDto extends ChatDto {
     }
 
     @JsonGetter("fileNames")
-    public String getFileNames() {
+    public List<String> getFileNames() {
         return fileNames;
     }
 
     @JsonSetter("fileNames")
-    public void setFileNames(String fileNames) {
-        this.fileNames = fileNames;
+    public void setFileNames(List<String> activeFileNames) {
+        this.fileNames = activeFileNames;
     }
 
-    @JsonGetter("activeFileNames")
-    public List<String> getActiveFileNames() {
-        return activeFileNames;
+    @JsonGetter("fileSizes")
+    public List<Long> getFileSizes() {
+        return fileSizes;
     }
 
-    @JsonSetter("activeFileNames")
-    public void setActiveFileNames(List<String> activeFileNames) {
-        this.activeFileNames = activeFileNames;
+    @JsonSetter("fileSizes")
+    public void setFileSizes(List<Long> fileSizes) {
+        this.fileSizes = fileSizes;
     }
 
-    @JsonGetter("activeFileSizes")
-    public List<Long> getActiveFileSizes() {
-        return activeFileSizes;
-    }
-
-    @JsonSetter("activeFileSizes")
-    public void setActiveFileSizes(List<Long> activeFileSizes) {
-        this.activeFileSizes = activeFileSizes;
-    }
-
-    @JsonGetter("activeLoadFile")
-    public byte getActiveLoadFile() {
-        return activeLoadFile;
-    }
-
-    @JsonSetter("activeLoadFile")
-    public void setActiveLoadFile(byte activeLoadFile) {
-        this.activeLoadFile = activeLoadFile;
-    }
 }
