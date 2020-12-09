@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
@@ -122,21 +123,14 @@ public class ViewInternalStorageAction extends ActionBase {
     }
 
     private int getSheetContent(Sheet sheet, List<List<Cell>> data) {
-        int columnNumber = 0;
-        for (int r = 0; r <= sheet.getLastRowNum(); r++) {
-            List<Cell> cells = new ArrayList<>();
-            Row row = sheet.getRow(r);
-            if (row == null) {
-                break;
-            } else {
-                for (int c = 0; c < row.getLastCellNum(); c++) {
-                    cells.add(row.getCell(c));
-                }
-            }
-            data.add(cells);
-            columnNumber = Math.max(columnNumber, cells.size());
-        }
-        return columnNumber;
+        AtomicInteger columnNumber = new AtomicInteger();
+        sheet.forEach(row -> {
+            if (row != null) row.forEach(cell -> {
+                data.add((List<Cell>) cell);
+                columnNumber.set(Math.max(columnNumber.get(), row.getLastCellNum()));
+            });
+        });
+        return columnNumber.get();
     }
 
 }
