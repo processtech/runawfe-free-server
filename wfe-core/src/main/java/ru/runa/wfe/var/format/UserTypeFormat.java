@@ -140,4 +140,5 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
     public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
         return operation.onUserType(this, context);
     }
+
 }

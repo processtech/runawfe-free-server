@@ -81,7 +81,7 @@ public class SingleThreadBotInvoker implements BotInvoker {
                     String botErrorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_CONFIGURATION_ERROR, bot.getUsername());
                     try {
                         log.info("Configuring " + bot.getUsername());
-                        User user = Delegates.getAuthenticationService().authenticateByLoginPassword(bot.getUsername(), bot.getPassword());
+                        User user = Delegates.getAuthenticationService().authenticateBot(botStationUser, bot);
                         List<BotTask> tasks = Delegates.getBotService().getBotTasks(user, bot.getId());
                         botExecutors.add(new WorkflowBotExecutor(user, bot, tasks));
                         Errors.removeSystemError(botErrorMessage);

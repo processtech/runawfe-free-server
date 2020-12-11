@@ -35,7 +35,7 @@ public class CreateBotStationAction extends ActionBase {
                 addError(request, new ActionMessage(MessagesException.ERROR_FILL_REQUIRED_VALUES.getKey()));
                 return mapping.findForward(Resources.FORWARD_FAILURE);
             }
-            BotStation botStation = new BotStation(form.getBotStationName(), form.getBotStationRMIAddress());
+            BotStation botStation = new BotStation(form.getBotStationName());
             Delegates.getBotService().createBotStation(getLoggedUser(request), botStation);
         } catch (Exception e) {
             addError(request, e);

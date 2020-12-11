@@ -16,6 +16,8 @@ public interface ProcessLogVisitor {
 
     void onNodeLeaveLog(NodeLeaveLog nodeLeaveLog);
 
+    void onNodeErrorLog(NodeErrorLog nodeErrorLog);
+
     void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog);
 
     void onSendMessageLog(SendMessageLog sendMessageLog);

@@ -57,9 +57,6 @@ public class BotInvokerServiceDelegate extends Ejb3Delegate implements BotInvoke
 
     public static BotInvokerService getService(BotStation botStation) {
         BotInvokerServiceDelegate botInvokerService = Delegates.createDelegate(BotInvokerServiceDelegate.class);
-        if (botStation != null && !Strings.isNullOrEmpty(botStation.getAddress())) {
-            botInvokerService.setCustomProviderUrl(botStation.getAddress());
-        }
         return botInvokerService;
     }
 

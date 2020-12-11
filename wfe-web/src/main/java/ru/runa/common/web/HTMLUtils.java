@@ -218,6 +218,14 @@ public class HTMLUtils {
         return input;
     }
 
+    public static Input createInput(String type, String name, String value, boolean enabled, boolean required, String acceptTypes) {
+        Input input = createInput(type, name, value, enabled, required);
+        if (type == Input.FILE) {
+            input.setAccept(acceptTypes);
+        }
+        return input;
+    }
+
     public static TR createRow(String label, Element element) {
         TR tr = new TR();
         tr.addElement(new TD(label).setClass(Resources.CLASS_LIST_TABLE_TD));

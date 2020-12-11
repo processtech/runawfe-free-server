@@ -67,7 +67,6 @@ public class BotStationTableBuilder {
         String path = Commons.getActionUrl("bot_station.do", "botStationId", botStation.getId(), pageContext, PortletUrlType.Render);
         tr.addElement(new TD(input).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(new A(path, botStation.getName())).setClass(Resources.CLASS_LIST_TABLE_TD));
-        tr.addElement(new TD(new A(path, botStation.getAddress() != null ? botStation.getAddress() : "")).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
     }
 
@@ -76,18 +75,14 @@ public class BotStationTableBuilder {
         tr.setClass(Resources.CLASS_LIST_TABLE_TH);
         tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setWidth("20").setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TH(MessagesBot.LABEL_BOT_STATION_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
-        tr.addElement(new TH(MessagesBot.LABEL_BOT_STATION_ADDRESS.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
     }
 
-    public static Table createBotStationDetailsTable(PageContext pageContext, String name, String address) {
+    public static Table createBotStationDetailsTable(PageContext pageContext, String name) {
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
         Input nameInput = HTMLUtils.createInput(BotStationForm.BOT_STATION_NAME, name, true, true);
         table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_STATION_NAME.message(pageContext), nameInput));
-
-        Input addressInput = HTMLUtils.createInput(BotStationForm.BOT_STATION_RMI_ADDRESS, address);
-        table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_STATION_ADDRESS.message(pageContext), addressInput));
         return table;
     }
 
