@@ -59,9 +59,6 @@ public class BotDataFileBuilder implements DataFileBuilder {
         if (StringUtils.isNotEmpty(botStation.getName())) {
             element.addAttribute(AdminScriptConstants.NAME_ATTRIBUTE_NAME, botStation.getName());
         }
-        if (StringUtils.isNotEmpty(botStation.getAddress())) {
-            element.addAttribute(AdminScriptConstants.ADDRESS_ATTRIBUTE_NAME, botStation.getAddress());
-        }
     }
 
     private void populateBot(Document script, Bot bot, String botStationName) {

@@ -22,6 +22,7 @@ import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.hibernate.Converters;
 import ru.runa.wfe.definition.dao.DeploymentDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.FormHandlerExecutor;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.execution.dao.ProcessDao;
@@ -133,20 +134,20 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return Dialect.getDialect(getConfiguration().getProperties());
     }
 
-    public static DbType getDBType() {
+    public static DbType getDbType() {
         if (dbType == null) {
-            String hibernateDialect = getConfiguration().getProperty("hibernate.dialect");
-            if (hibernateDialect.contains("HSQL")) {
+            String hibernateDialect = getConfiguration().getProperty("hibernate.dialect").toLowerCase();
+            if (hibernateDialect.contains("hsql")) {
                 dbType = DbType.HSQL;
-            } else if (hibernateDialect.contains("Oracle")) {
+            } else if (hibernateDialect.contains("oracle")) {
                 dbType = DbType.ORACLE;
-            } else if (hibernateDialect.contains("Postgre")) {
+            } else if (hibernateDialect.contains("postgre")) {
                 dbType = DbType.POSTGRESQL;
-            } else if (hibernateDialect.contains("MySQL")) {
+            } else if (hibernateDialect.contains("mysql")) {
                 dbType = DbType.MYSQL;
-            } else if (hibernateDialect.contains("SQLServer")) {
+            } else if (hibernateDialect.contains("sqlserver")) {
                 dbType = DbType.MSSQL;
-            } else if (hibernateDialect.contains("H2")) {
+            } else if (hibernateDialect.contains("h2")) {
                 dbType = DbType.H2;
             } else {
                 dbType = DbType.GENERIC;
@@ -193,6 +194,10 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static VariableLogic getVariableLogic() {
         return getContext().getBean(VariableLogic.class);
+    }
+
+    public static FormHandlerExecutor getFormHandlerExecutor() {
+        return getContext().getBean(FormHandlerExecutor.class);
     }
 
     public static <T> T createAutowiredBean(String className) {

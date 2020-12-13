@@ -46,9 +46,6 @@ public class UpdateBotOperation extends ScriptOperation implements BotSystemScri
         if (!Strings.isNullOrEmpty(newName)) {
             bot.setUsername(newName);
         }
-        if (!Strings.isNullOrEmpty(password)) {
-            bot.setPassword(password);
-        }
         if (!Strings.isNullOrEmpty(newBotStationName)) {
             bot.setBotStation(context.getBotLogic().getBotStationNotNull(newBotStationName));
         }

@@ -20,7 +20,6 @@ public class AdminScriptConstants {
     public final static String TITLE_ATTRIBUTE_NAME = "title";
     public final static String DEPARTMENT_ATTRIBUTE_NAME = "department";
     public final static String EXECUTOR_ATTRIBUTE_NAME = "executor";
-    public final static String ADDRESS_ATTRIBUTE_NAME = "address";
     public final static String BOTSTATION_ATTRIBUTE_NAME = "botStation";
     public final static String NEW_BOTSTATION_ATTRIBUTE_NAME = "newBotStation";
     public final static String STARTTIMEOUT_ATTRIBUTE_NAME = "startTimeout";

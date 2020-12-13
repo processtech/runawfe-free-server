@@ -1,5 +1,6 @@
 package ru.runa.wfe.datasource;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.File;
@@ -188,35 +189,39 @@ public class DataSourceStorage implements DataSourceStuff {
         Document document = XmlUtils.parseWithoutValidation(content);
         Element root = document.getRootElement();
         String dsName = root.attributeValue(ATTR_NAME);
-        File dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
-        if (force || !dsFile.exists()) {
-            byte[] contentTmp = content;
-            if (dsFile.exists()) {
-                if (preservePassword && root.attributeValue(ATTR_TYPE).equals(DataSourceType.JDBC.name())) {
-                    String password = XmlUtils.parseWithoutValidation(restore(dsName)).getRootElement().elementText(ELEMENT_PASSWORD);
-                    Element psw = root.element(ELEMENT_PASSWORD);
-                    if (password == null) {
-                        if (psw != null) {
-                            root.remove(psw);
-                        }
-                    } else {
-                        if (psw != null) {
-                            psw.setText(password);
+        if (!Strings.isNullOrEmpty(dsName)) {
+            File dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
+            if (force || !dsFile.exists()) {
+                byte[] contentTmp = content;
+                if (dsFile.exists()) {
+                    if (preservePassword && root.attributeValue(ATTR_TYPE).equals(DataSourceType.JDBC.name())) {
+                        String password = XmlUtils.parseWithoutValidation(restore(dsName)).getRootElement().elementText(ELEMENT_PASSWORD);
+                        Element psw = root.element(ELEMENT_PASSWORD);
+                        if (password == null) {
+                            if (psw != null) {
+                                root.remove(psw);
+                            }
                         } else {
-                            root.addElement(ELEMENT_PASSWORD).setText(password);
+                            if (psw != null) {
+                                psw.setText(password);
+                            } else {
+                                root.addElement(ELEMENT_PASSWORD).setText(password);
+                            }
                         }
+                        contentTmp = XmlUtils.save(document, OutputFormat.createPrettyPrint());
                     }
-                    contentTmp = XmlUtils.save(document, OutputFormat.createPrettyPrint());
+                    if (moveToHistory(dsFile)) {
+                        dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
+                    }
                 }
-                if (moveToHistory(dsFile)) {
-                    dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
+                try (FileOutputStream fos = new FileOutputStream(dsFile)) {
+                    fos.write(contentTmp);
+                    return true;
+                } catch (IOException e) {
+                    throw new InternalApplicationException(e);
                 }
-            }
-            try (FileOutputStream fos = new FileOutputStream(dsFile)) {
-                fos.write(contentTmp);
-                return true;
-            } catch (IOException e) {
-                throw new InternalApplicationException(e);
+            } else {
+                return false;
             }
         } else {
             return false;

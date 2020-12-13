@@ -105,6 +105,13 @@ public class SystemProperties {
     }
 
     /**
+     * Product name
+     */
+    public static String getProductName() {
+        return RESOURCES.getStringProperty("product.name");
+    }
+
+    /**
      * System version
      */
     public static String getVersion() {
