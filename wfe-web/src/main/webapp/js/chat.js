@@ -1306,8 +1306,10 @@ function ajaxInitializationChat(){
 			let reSwitchCheak=switchCheak;
 			switchCheak=0;
 			currentMessageId = data.lastMessageId;
-			addMessage(JSON.parse(data.messages[0]));
-			$("#modal-body").scrollTop(0);
+			if(data.messages.length>0){
+				addMessage(JSON.parse(data.messages[0]));
+				$("#modal-body").scrollTop(0);
+			}
 			for(let i=1; i<data.messages.length; i++){
 				addMessage(JSON.parse(data.messages[i]));
 			}
