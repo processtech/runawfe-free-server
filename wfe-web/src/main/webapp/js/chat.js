@@ -17,21 +17,45 @@ if($("input[name='one_task_hidden_field']").val() == "one_task_hidden_field"){
 }
 //TODO id процесса на submit_task.jsp
 */
-//шаблон модального окна чата
+//переменные для вставки текста
 var textLoadOldMessage = "Загрузить сообщения выше";
-var textPprivateMessage = "Приватное сообщение:";
+var textPrivateMessage = "Приватное сообщение:";
 var textEnterMessage = "Введите текст сообщения";
 var textDragFile = "Перетащите сюда файл";
 var textBtnSend = "Отправить";
 var textHeader = "Чат процесса ";
+var editMessageButtonText="редактировать";
+var addReplyButtonText="Ответить";
+var removeReplyButtonText="Отменить";
+var warningEditMessage="Вы действительно хотите отредактировать сообщение? Отменить это действие будет невозможно";
+var warningRemoveMessage="Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно";
+var attachedMessageSignature ="Прикрепленное сообщение";
+var openHierarchySignature="Развернуть вложенные сообщения";
+var closeHierarchySignature="Свернуть";
+var quoteText ="Цитата";
+var errorMessFilePart1="Ошибка. Размер файла превышен на ";
+var errorMessFilePart2=" байт, максимальный размер файла = ";
+var headTablePrivateText="Кому отправить";
+
+//определение языка браузера
+var languageText = (window.navigator.language ||
+        window.navigator.systemLanguage ||
+        window.navigator.userLanguage);
+languageText = languageText.substr(0, 2).toLowerCase();
+
+//------------------функция локализации
+
+ajaxLocale();
+
+//шаблон модального окна чата
 var modalHeaderChat = '<table class="box"><tbody><tr><th class="box"><button id="btnOp" type="button"><img id="imgButton" alt="resize" src="/wfe/images/chat_roll_up.png"></button><div id="modal-header-dragg" class="modal-header-dragg"></div><span id="close" class="ui-icon ui-icon-closethick ui-state-highlight" style="cursor: pointer; float: right; margin: 1px;"></span></th></tr></tbody></table>';
-var modalFooterChat = '<div class="checkBoxContainer">' + textPprivateMessage + '<input type="checkbox" id="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
+var modalFooterChat = '<div class="checkBoxContainer">' + textPrivateMessage + '<input type="checkbox" id="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
 
 $("#ChatForm").append('<div class="modal-content"/>');
 $(".modal-content").html(modalHeaderChat);
 $(".modal-content").append('<div id="modal-body" class="modal-body"/>');
 $(".modal-body").html('<button id="loadNewBessageButton" type="button">' + textLoadOldMessage + '</button>');
-
+	
 $(".modal-content").append('<div id="modalFooter" class="modal-footer"/>');
 $(".modal-footer").append(modalFooterChat);
 
@@ -115,22 +139,7 @@ var readMessageType ="readMessage";
 var idProcess=$("#ChatForm").attr("processId");
 
 
-var languageText = (window.navigator.language ||
-        window.navigator.systemLanguage ||
-        window.navigator.userLanguage);
-languageText = languageText.substr(0, 2).toLowerCase();
 
-var editMessageButtonText="редактировать";
-var addReplyButtonText="Ответить";
-var removeReplyButtonText="Отменить";
-var warningEditMessage="Вы действительно хотите отредактировать сообщение? Отменить это действие будет невозможно";
-var warningRemoveMessage="Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно";
-var attachedMessageSignature ="Прикрепленное сообщение";
-var openHierarchySignature="Развернуть вложенные сообщения";
-var closeHierarchySignature="Свернуть";
-var quoteText ="Цитата";
-var errorMessFilePart1="Ошибка. Размер файла превышен на ";
-var errorMessFilePart2=" байт, максимальный размер файла = ";
 
 
 
@@ -170,6 +179,7 @@ function clearChat(){
 	$("#filesTable").empty();
 	$(".selectionTextQuote").remove();
 }
+
 
 //-------------------------------------------
 //переменные кнопок
@@ -719,7 +729,7 @@ let privateBlock=$("<div/>");
 privateBlock.attr("id","privateBlock");
 let headTablePrivate=$("<div/>");
 headTablePrivate.attr("class","headTable");
-headTablePrivate.append("<div style='padding-left:5px;'>Кому отправить</div>");
+headTablePrivate.append("<div style='padding-left:5px;'>"+headTablePrivateText+"</div>");
 privateBlock.append(headTablePrivate);
 let tablePrivateReply=$("<div/>");
 tablePrivateReply.append($("<table/>"));
@@ -1369,24 +1379,24 @@ function ajaxLocale(){
 	$.ajax({
 		type: "POST",
 		url: urlString,
+		async: false,
 		dataType: "json",
 		contentType: "application/json; charset=UTF-8",
 		processData: false,
 		success: function(data) {
 			
 			LocaleText(data);
-			
 		}
 		});
 }
 
 function LocaleText(data){
-	$("#openChatButton").first(data.openChatButton);
+	$("#openChatButtonText").first().text(data.openChatButton);
 	//$(".modalSwitchingWindowButton").text(data.switchChatButton);
 	//$("#newMessagesIndicator").first().text(data.newMessageIndicator);
 	//$("#newMessagesIndicator").last().text();
 	textEnterMessage = data.textAreaMessagePalceholder;
-	textPprivateMessage = data.privateMessageCheckbox;
+	textPrivateMessage = data.privateMessageCheckbox;
 	textDragFile = data.dropBlock;
 	textBtnSend=data.buttonSendMessage;
 	textLoadOldMessage=data.buttonLoadOldMessage;
@@ -1402,6 +1412,7 @@ function LocaleText(data){
 	errorMessFilePart1=data.errorMessFilePart1;
 	errorMessFilePart2=data.errorMessFilePart2;
 	textHeader=data.textHeader;
+	headTablePrivateText=data.headTablePrivateText;
 	
 }
 
@@ -1445,7 +1456,6 @@ else{
 }
 //запрос на инициализацию
 ajaxInitializationChat();
-ajaxLocale();
 $("#btnCl").hide();
 
 

@@ -18,6 +18,12 @@ public class LocaleTextChat extends JsonAjaxCommand {
         if (language.equals("ru")) {
             propLanguage = ClassLoaderUtil.getProperties("chat.localization.ru.properties", false);
         }
+        else if (language.equals("en")) {
+        	propLanguage = ClassLoaderUtil.getProperties("chat.localization.en.properties", false);
+        }
+        else {
+        	propLanguage = ClassLoaderUtil.getProperties("chat.localization.en.properties", false);
+        }
         String buttonSendMessage = propLanguage.getProperty("buttonSendMessage");
         String textAreaMessagePalceholder = propLanguage.getProperty("textAreaMessagePalceholder");
         String privateMessageCheckbox = propLanguage.getProperty("privateMessageCheckbox");
@@ -38,6 +44,7 @@ public class LocaleTextChat extends JsonAjaxCommand {
         String errorMessFilePart1 = propLanguage.getProperty("errorMessFilePart1");
         String errorMessFilePart2 = propLanguage.getProperty("errorMessFilePart2");
         String textHeader = propLanguage.getProperty("textHeader");
+        String headTablePrivateText = propLanguage.getProperty("headTablePrivateText");
 
         JSONObject outputObject = new JSONObject();
         outputObject.put("buttonSendMessage", buttonSendMessage);
@@ -60,6 +67,7 @@ public class LocaleTextChat extends JsonAjaxCommand {
         outputObject.put("errorMessFilePart1", errorMessFilePart2);
         outputObject.put("errorMessFilePart2", errorMessFilePart2);
         outputObject.put("textHeader", textHeader);
+        outputObject.put("headTablePrivateText", headTablePrivateText);
         return outputObject;
     }
 }
