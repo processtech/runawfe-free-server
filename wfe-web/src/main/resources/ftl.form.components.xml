@@ -31,5 +31,6 @@
 	<component name="GetExecutorEmails" class="ru.runa.wf.web.ftl.component.GetExecutorEmails" />
 	<component name="DisplayUserTypeList" class="ru.runa.wf.web.ftl.component.DisplayUserTypeList" />
 	<component name="MultipleSelectFromUserTypeList" class="ru.runa.wf.web.ftl.component.MultipleSelectFromUserTypeList" />
+	<component name="OneSelectFromUserTypeList" class="ru.runa.wf.web.ftl.component.OneSelectFromUserTypeList" />
     <component name="EditUserTypeList" class="ru.runa.wf.web.ftl.component.EditUserTypeList" />
 </configuration>

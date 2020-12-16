@@ -123,14 +123,12 @@ public class ViewInternalStorageAction extends ActionBase {
     }
 
     private int getSheetContent(Sheet sheet, List<List<Cell>> data) {
-        AtomicInteger columnNumber = new AtomicInteger();
-        sheet.forEach(row -> {
-            if (row != null) row.forEach(cell -> {
-                data.add((List<Cell>) cell);
-                columnNumber.set(Math.max(columnNumber.get(), row.getLastCellNum()));
-            });
-        });
-        return columnNumber.get();
+        int columnNumber = 0;
+        for (Row row : sheet) {
+            for (Cell cell : row) data.add((List<Cell>) cell);
+            columnNumber = Math.max(columnNumber, row.getLastCellNum());
+        }
+        return columnNumber;
     }
 
 }
