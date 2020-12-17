@@ -234,4 +234,7 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
+    public void deleteMessages(Actor actor, Long processId) {
+        chatDao.deleteMessages(processId);
+    }
 }

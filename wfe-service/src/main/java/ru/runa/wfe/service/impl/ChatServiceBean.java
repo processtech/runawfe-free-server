@@ -191,4 +191,10 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
         return chatLogic.saveMessage(user.getActor(), processId, message, mentionedExecutors, isPrivate);
     }
 
+    @WebMethod(exclude = false)
+    @Override
+    @WebResult(name = "result")
+    public void deleteChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
+        chatLogic.deleteMessages(user.getActor(), processId);
+    }
 }

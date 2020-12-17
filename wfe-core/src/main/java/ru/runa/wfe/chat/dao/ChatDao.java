@@ -212,4 +212,10 @@ public class ChatDao extends GenericDao<ChatMessage> {
         sessionFactory.getCurrentSession().merge(message);
     }
 
+    public void deleteMessages(Long processId) {
+        QChatMessage m = QChatMessage.chatMessage;
+        for (ChatMessage cm : queryFactory.selectFrom(m).where(m.process.id.eq(processId)).fetch()) {
+            deleteMessage(cm.getId());
+        }
+    }
 }

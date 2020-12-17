@@ -27,6 +27,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.dao.SystemLogDao;
+import ru.runa.wfe.chat.dao.ChatDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.DeploymentDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
@@ -85,6 +86,8 @@ public class WfCommonLogic extends CommonLogic {
     protected TokenDao tokenDao;
     @Autowired
     protected SystemLogDao systemLogDao;
+    @Autowired
+    protected ChatDao chatDao;
 
     public ProcessDefinition getDefinition(Long processDefinitionId) {
         return processDefinitionLoader.getDefinition(processDefinitionId);
@@ -197,6 +200,7 @@ public class WfCommonLogic extends CommonLogic {
         variableDao.deleteAll(process);
         taskDao.deleteAll(process);
         swimlaneDao.deleteAll(process);
+        chatDao.deleteMessages(process.getId());
         processDao.delete(process);
         systemLogDao.create(new ProcessDeleteLog(user.getActor().getId(), process.getDeployment().getName(), process.getId()));
     }

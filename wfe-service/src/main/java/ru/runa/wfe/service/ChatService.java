@@ -146,4 +146,12 @@ public interface ChatService {
      * @return number of chat messages with id > lastMessageId
      */
     public Long getNewChatMessagesCount(User user, Long processId);
+
+    /**
+     * Delete ChatMessages in DB.
+     *
+     * @param processId
+     *            process Id
+     */
+    public void deleteChatMessages(User user, Long processId);
 }
