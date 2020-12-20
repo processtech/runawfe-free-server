@@ -66,6 +66,7 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="preferred.messages.language" />
 	</properties_file>
 	
 	<properties_file title="class.presentation.properties">
