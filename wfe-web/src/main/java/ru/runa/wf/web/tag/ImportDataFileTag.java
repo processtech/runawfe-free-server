@@ -35,6 +35,7 @@ public class ImportDataFileTag extends TitledFormTag {
         if (SystemProperties.getAdministratorName().equals(getUser().getName())) {
             createAddDataRow(table);
         }
+        doNotChangeInternalStoragePath(table);
         clearPasswordRow(table);
         clearPasswordForDataSourcesRow(table);
         Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true, DataFileBuilder.FILE_EXT);
@@ -59,6 +60,26 @@ public class ImportDataFileTag extends TitledFormTag {
         label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_CLEARBEFOREUPLOAD.message(pageContext)));
         td.addElement(label);
         table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE_ACTION.message(pageContext), td));
+    }
+
+    private void doNotChangeInternalStoragePath(Table table) {
+        TD td = new TD();
+        Input doNotChangeInternalStoragePath = new Input(Input.RADIO, ImportDataFileAction.CHANGE_INTERNAL_STORAGE_PATH_PARAM, ImportDataFileAction.DO_NOT_CHANGE_INTERNAL_STORAGE_PATH);
+        doNotChangeInternalStoragePath.setID(ImportDataFileAction.DO_NOT_CHANGE_INTERNAL_STORAGE_PATH);
+        doNotChangeInternalStoragePath.setChecked(true);
+        td.addElement(doNotChangeInternalStoragePath);
+        Label label = new Label(ImportDataFileAction.DO_NOT_CHANGE_INTERNAL_STORAGE_PATH);
+        label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_DO_NOT_CHANGE_INTERNAL_STORAGE_PATH.message(pageContext)));
+        td.addElement(label);
+        td.addElement(Entities.NBSP);
+
+        Input changeInternalStoragePath = new Input(Input.RADIO, ImportDataFileAction.CHANGE_INTERNAL_STORAGE_PATH_PARAM, ImportDataFileAction.CHANGE_INTERNAL_STORAGE_PATH);
+        changeInternalStoragePath.setID(ImportDataFileAction.CHANGE_INTERNAL_STORAGE_PATH);
+        td.addElement(changeInternalStoragePath);
+        label = new Label(ImportDataFileAction.CHANGE_INTERNAL_STORAGE_PATH);
+        label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_CHANGE_INTERNAL_STORAGE_PATH.message(pageContext)));
+        td.addElement(label);
+        table.addElement(HTMLUtils.createRow(MessagesOther.CHANGE_INTERNAL_STORAGE_PATH_ACTION.message(pageContext), td));
     }
 
     private void clearPasswordRow(Table table) {

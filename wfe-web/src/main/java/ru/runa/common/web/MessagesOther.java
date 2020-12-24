@@ -34,6 +34,9 @@ public class MessagesOther {
     public static final StrutsMessage LABEL_DATAFILE_UPLOADONLY = new StrutsMessage("managesystem.datafile.uploadonly.label");
     public static final StrutsMessage LABEL_DATAFILE_CLEARBEFOREUPLOAD = new StrutsMessage("managesystem.datafile.clearbeforeupload.label");
     public static final StrutsMessage TITLE_DATAFILE_ACTION = new StrutsMessage("managesystem.datafile.action.title");
+    public static final StrutsMessage LABEL_DATAFILE_DO_NOT_CHANGE_INTERNAL_STORAGE_PATH = new StrutsMessage("managesystem.datafile.do.not.change.internal.storage.path.label");
+    public static final StrutsMessage LABEL_DATAFILE_CHANGE_INTERNAL_STORAGE_PATH = new StrutsMessage("managesystem.datafile.change.internal.storage.path.label");
+    public static final StrutsMessage CHANGE_INTERNAL_STORAGE_PATH_ACTION = new StrutsMessage("managesystem.datafile.action.change.internal.storage.path");
 
     public static final StrutsMessage LINK_DROP_SETTINGS = new StrutsMessage("link.drop_settings");
     public static final StrutsMessage EXECUTOR_STATE_DONT_UPDATE = new StrutsMessage("executor.state.dont.update");
