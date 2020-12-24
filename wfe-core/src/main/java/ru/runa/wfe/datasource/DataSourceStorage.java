@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -110,8 +111,22 @@ public class DataSourceStorage implements DataSourceStuff {
         return moveToHistory(new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX));
     }
 
-    public static synchronized void clear() {
+    public static synchronized void clear(boolean doNotChangeInternalStoragePath) {
         for (String dsName : getNames()) {
+
+            if (doNotChangeInternalStoragePath && dsName.equals(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)) {
+                DataSource ds = getDataSource(dsName);
+                if (ds instanceof ExcelDataSource) {
+                    for (File file : Objects.requireNonNull(new File(((ExcelDataSource) ds).getFilePath()).listFiles())) {
+                        String fileName = file.getPath();
+                        if (file.isFile() && (fileName.endsWith(EXCEL_FILE_XLS_SUFFIX) || fileName.endsWith(EXCEL_FILE_XLSX_SUFFIX))) {
+                            file.delete();
+                        }
+                    }
+                }
+                continue;
+            }
+
             moveToHistory(new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX));
         }
     }
