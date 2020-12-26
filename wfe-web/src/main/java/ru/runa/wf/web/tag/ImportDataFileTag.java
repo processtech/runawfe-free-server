@@ -2,11 +2,7 @@ package ru.runa.wf.web.tag;
 
 import org.apache.ecs.Entities;
 import org.apache.ecs.StringElement;
-import org.apache.ecs.html.Form;
-import org.apache.ecs.html.Input;
-import org.apache.ecs.html.Label;
-import org.apache.ecs.html.TD;
-import org.apache.ecs.html.Table;
+import org.apache.ecs.html.*;
 import org.tldgen.annotations.BodyContent;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.HTMLUtils;
@@ -69,7 +65,13 @@ public class ImportDataFileTag extends TitledFormTag {
         Label label = new Label(ImportDataFileAction.SET_PASSWORD);
         label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_SET_PASSWORD.message(pageContext)));
         td.addElement(label);
+        td.addElement(new Span(":").setClass(Resources.CLASS_SYMBOL));
         td.addElement(Entities.NBSP);
+        Input passwordText = new Input(Input.TEXT, ImportDataFileAction.PASSWORD_VALUE_PARAM, "123");
+        passwordText.setID(ImportDataFileAction.PASSWORD_VALUE_PARAM);
+        passwordText.setStyle("width: 300px;");
+        td.addElement(passwordText);
+        td.addElement(new BR());
         Input clearPasswordInput = new Input(Input.RADIO, ImportDataFileAction.PASSWORD_PARAM, ImportDataFileAction.CLEAR_PASSWORD);
         clearPasswordInput.setID(ImportDataFileAction.CLEAR_PASSWORD);
         td.addElement(clearPasswordInput);
@@ -77,13 +79,6 @@ public class ImportDataFileTag extends TitledFormTag {
         label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_CLEAR_PASSWORD.message(pageContext)));
         td.addElement(label);
         table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE_ACTION_PASSWORD.message(pageContext), td));
-
-        TD passInputTd = new TD();
-        Input passwordText = new Input(Input.TEXT, ImportDataFileAction.PASSWORD_VALUE_PARAM, "123");
-        passwordText.setID(ImportDataFileAction.PASSWORD_VALUE_PARAM);
-        passwordText.setStyle("width: 300px;");
-        passInputTd.addElement(passwordText);
-        table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE_PASSWORD.message(pageContext), passInputTd));
     }
 
     private void clearPasswordForDataSourcesRow(Table table) {
@@ -95,7 +90,13 @@ public class ImportDataFileTag extends TitledFormTag {
         Label label = new Label(ImportDataFileAction.SET_PASSWORD);
         label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_SET_PASSWORD_DATA_SOURCE.message(pageContext)));
         td.addElement(label);
+        td.addElement(new Span(":").setClass(Resources.CLASS_SYMBOL));
         td.addElement(Entities.NBSP);
+        Input passwordText = new Input(Input.TEXT, ImportDataFileAction.PASSWORD_VALUE_DATA_SOURCE_PARAM, "321");
+        passwordText.setID(ImportDataFileAction.PASSWORD_VALUE_DATA_SOURCE_PARAM);
+        passwordText.setStyle("width: 300px;");
+        td.addElement(passwordText);
+        td.addElement(new BR());
         Input clearPasswordInput = new Input(Input.RADIO, ImportDataFileAction.PASSWORD_DATA_SOURCE_PARAM, ImportDataFileAction.CLEAR_PASSWORD);
         clearPasswordInput.setID(ImportDataFileAction.CLEAR_PASSWORD);
         td.addElement(clearPasswordInput);
@@ -103,12 +104,6 @@ public class ImportDataFileTag extends TitledFormTag {
         label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_CLEAR_PASSWORD_DATA_SOURCE.message(pageContext)));
         td.addElement(label);
         table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE_ACTION_PASSWORD_DATA_SOURCE.message(pageContext), td));
-        TD passInputTd = new TD();
-        Input passwordText = new Input(Input.TEXT, ImportDataFileAction.PASSWORD_VALUE_DATA_SOURCE_PARAM, "321");
-        passwordText.setID(ImportDataFileAction.PASSWORD_VALUE_DATA_SOURCE_PARAM);
-        passwordText.setStyle("width: 300px;");
-        passInputTd.addElement(passwordText);
-        table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE_PASSWORD_DATA_SOURCE.message(pageContext), passInputTd));
     }
 
     @Override
