@@ -1,6 +1,8 @@
 package ru.runa.wf.web.ftl.component;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
 import ru.runa.wfe.var.UserTypeMap;
@@ -80,7 +82,36 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
                     + definition.getName();
             WfVariable templateComponentVariable = ViewUtil.createComponentVariable(variable, suffix, definition.getFormatNotNull(), null);
             String inputComponentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
-            return inputComponentHtml.replaceAll("\"", "'").replaceAll("\n", "").replace("[]", "{}");
+            return getReturnTemplateValue(inputComponentHtml);
+        }
+
+        public String getReturnTemplateValue(String inputComponentHtml) throws TemplateModelException {
+        	
+        	Pattern r1 = Pattern.compile("\"");
+        	Pattern r2 = Pattern.compile("\n");
+        	Pattern r3 = Pattern.compile("[]");
+        	
+        	Matcher m1 = r1.matcher(inputComponentHtml);
+        	Matcher m2 = r2.matcher(inputComponentHtml);
+        	Matcher m3 = r3.matcher(inputComponentHtml);
+        	
+        	StringBuffer buff = new StringBuffer();
+        	
+        	while(m1.find()) {
+        		m1.appendReplacement(buff, "'");
+        	}        	
+        	
+        	while(m2.find()) {
+        		m2.appendReplacement(buff, "");
+        	}
+        	
+        	while(m3.find()) {
+        		m3.appendReplacement(buff, "{}");
+        	}
+        	
+        	inputComponentHtml = buff.toString();
+        	
+        	return inputComponentHtml;
         }
 
     }
