@@ -30,7 +30,7 @@
         </table>
         <wf:botStationStatusTag botStationId="<%= botStationId %>"/>
         <wf:deployBot botStationId="<%= botStationId %>"/>
-        <wf:botListTag botStationId="<%= botStationId %>">
+        <wf:botListTag botStationId="<%= botStationId %>" buttonAlignment="right">
 			<table width="100%">
                 <tr>
                     <td align="left"><wf:createBotLink href="<%= createActionUrl %>"/></td>
