@@ -114,14 +114,13 @@ public class DataSourceStorage implements DataSourceStuff {
 
     public static synchronized void clear(boolean doNotChangeInternalStoragePath) {
         for (String dsName : getNames()) {
-
             if (doNotChangeInternalStoragePath && dsName.equals(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)) {
                 DataSource ds = getDataSource(dsName);
                 if (ds instanceof ExcelDataSource) {
                     for (File file : Objects.requireNonNull(new File(((ExcelDataSource) ds).getFilePath()).listFiles())) {
                         String fileName = file.getPath();
-                        if (file.isFile() && (fileName.endsWith(EXCEL_FILE_XLS_SUFFIX) || fileName.endsWith(EXCEL_FILE_XLSX_SUFFIX))) {
-                            file.delete();
+                        if (file.isFile() && (fileName.endsWith(EXCEL_FILE_XLS_SUFFIX) || fileName.endsWith(EXCEL_FILE_XLSX_SUFFIX)) && file.delete()) {
+                            log.info(fileName + " is removed");
                         }
                     }
                 }
