@@ -2,7 +2,13 @@ package ru.runa.wf.web.tag;
 
 import org.apache.ecs.Entities;
 import org.apache.ecs.StringElement;
-import org.apache.ecs.html.*;
+import org.apache.ecs.html.BR;
+import org.apache.ecs.html.Form;
+import org.apache.ecs.html.Input;
+import org.apache.ecs.html.Label;
+import org.apache.ecs.html.Span;
+import org.apache.ecs.html.TD;
+import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.HTMLUtils;
