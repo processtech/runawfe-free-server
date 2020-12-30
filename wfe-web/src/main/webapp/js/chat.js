@@ -17,21 +17,45 @@ if($("input[name='one_task_hidden_field']").val() == "one_task_hidden_field"){
 }
 //TODO id процесса на submit_task.jsp
 */
-//шаблон модального окна чата
+//переменные для вставки текста
 var textLoadOldMessage = "Загрузить сообщения выше";
-var textPprivateMessage = "Приватное сообщение:";
+var textPrivateMessage = "Приватное сообщение:";
 var textEnterMessage = "Введите текст сообщения";
 var textDragFile = "Перетащите сюда файл";
 var textBtnSend = "Отправить";
 var textHeader = "Чат процесса ";
+var editMessageButtonText="редактировать";
+var addReplyButtonText="Ответить";
+var removeReplyButtonText="Отменить";
+var warningEditMessage="Вы действительно хотите отредактировать сообщение? Отменить это действие будет невозможно";
+var warningRemoveMessage="Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно";
+var attachedMessageSignature ="Прикрепленное сообщение";
+var openHierarchySignature="Развернуть вложенные сообщения";
+var closeHierarchySignature="Свернуть";
+var quoteText ="Цитата";
+var errorMessFilePart1="Ошибка. Размер файла превышен на ";
+var errorMessFilePart2=" байт, максимальный размер файла = ";
+var headTablePrivateText="Кому отправить";
+
+//определение языка браузера
+var languageText = (window.navigator.language ||
+        window.navigator.systemLanguage ||
+        window.navigator.userLanguage);
+languageText = languageText.substr(0, 2).toLowerCase();
+
+//------------------функция локализации
+
+ajaxLocale();
+
+//шаблон модального окна чата
 var modalHeaderChat = '<table class="box"><tbody><tr><th class="box"><button id="btnOp" type="button"><img id="imgButton" alt="resize" src="/wfe/images/chat_roll_up.png"></button><div id="modal-header-dragg" class="modal-header-dragg"></div><span id="close" class="ui-icon ui-icon-closethick ui-state-highlight" style="cursor: pointer; float: right; margin: 1px;"></span></th></tr></tbody></table>';
-var modalFooterChat = '<div class="checkBoxContainer">' + textPprivateMessage + '<input type="checkbox" id="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
+var modalFooterChat = '<div class="checkBoxContainer">' + textPrivateMessage + '<input type="checkbox" id="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
 
 $("#ChatForm").append('<div class="modal-content"/>');
 $(".modal-content").html(modalHeaderChat);
 $(".modal-content").append('<div id="modal-body" class="modal-body"/>');
 $(".modal-body").html('<button id="loadNewBessageButton" type="button">' + textLoadOldMessage + '</button>');
-
+	
 $(".modal-content").append('<div id="modalFooter" class="modal-footer"/>');
 $(".modal-footer").append(modalFooterChat);
 
@@ -100,24 +124,22 @@ var chatsNewMessSocketUrl = null;
 //сокет основной
 var chatSocket = null;
 var chatSocketUrl = null;
+//constans 
+var newMessageType = "newMessage";
+var editMessageType = "editMessage";
+var endLoadFilesType = "endLoadFiles";
+var nextStepLoadFileType = "nextStepLoadFile";
+var stepLoadFileType = "stepLoadFile";
+var unblockOldMes = "unblockOldMes";
+var deleteMessageType = "deleteMessage";
+var getMessagesType = "getMessages";
+var readMessageType ="readMessage";
+
+//id task
+var idProcess=$("#ChatForm").attr("processId");
 
 
-var languageText = (window.navigator.language ||
-        window.navigator.systemLanguage ||
-        window.navigator.userLanguage);
-languageText = languageText.substr(0, 2).toLowerCase();
 
-var editMessageButtonText="редактировать";
-var addReplyButtonText="Ответить";
-var removeReplyButtonText="Отменить";
-var warningEditMessage="Вы действительно хотите отредактировать сообщение? Отменить это действие будет невозможно";
-var warningRemoveMessage="Вы действительно хотите удалить сообщение? Отменить это действие будет невозможно";
-var attachedMessageSignature ="Прикрепленное сообщение";
-var openHierarchySignature="Развернуть вложенные сообщения";
-var closeHierarchySignature="Свернуть";
-var quoteText ="Цитата";
-var errorMessFilePart1="Ошибка. Размер файла превышен на ";
-var errorMessFilePart2=" байт, максимальный размер файла = ";
 
 
 
@@ -158,6 +180,7 @@ function clearChat(){
 	$(".selectionTextQuote").remove();
 }
 
+
 //-------------------------------------------
 //переменные кнопок
 var btnOpenChat = document.getElementById("openChatButton");
@@ -189,8 +212,8 @@ $("#modalFooter").append(progressBar);
 let messageBody=$("<table/>").addClass("selectionTextQuote");
 //date
 let dateTr0=$("<div/>");
-dateTr0.addClass("datetr").append(/*data.messages[ mes ].dateTime*/);
-messageBody.append($("<tr/>").append($("<td/>").append(dateTr0).append($("<div/>").addClass("author").text(/*data.messages[ mes ].author*/ ""+ ":")).append($("<div/>").addClass("messageText").attr("textMessagId", /*data.messages[ mes ].id*/0).attr("id","messageText"+/*mesIndex*/0).append(/*text0*/""))));
+dateTr0.addClass("datetr").append(/*data.message.dateTime*/);
+messageBody.append($("<tr/>").append($("<td/>").append(dateTr0).append($("<div/>").addClass("author").text(/*data.message.author*/ ""+ ":")).append($("<div/>").addClass("messageText").attr("textMessagId", /*data.message.id*/0).attr("id","messageText"+/*mesIndex*/0).append(/*text0*/""))));
 //"развернуть"
 let openHierarchyA0 = $("<a/>");
 openHierarchyA0.addClass("openHierarchy")
@@ -211,7 +234,7 @@ messageBody.append($("<tr/>").append($("<td/>").append($("<div/>").append(addRep
 //----------вложенные сообщения
 //ajax запрос иерархии сообщений, вернет Promise ajax запроса
 function hierarhyCheak(messageId){
-	let urlString = "/wfe/ajaxcmd?command=GetHierarhyLevel&processId=" + $("#ChatForm").attr("processId") + "&messageId=" + messageId;	
+	let urlString = "/wfe/ajaxcmd?command=GetHierarhyLevel&processId=" + idProcess + "&messageId=" + messageId;	
 	return $.ajax({
 		type: "POST",
 		url: urlString,
@@ -258,27 +281,25 @@ function hierarchyOpen(){
 // функция возвращающая массив блоков вложенных сообщений
 function getAttachedMessagesArray(data) {
 	let outputArray=[];
-	if(data.newMessage == 0){
-		for(let mes=0;mes<data.messages.length;mes++){
-			if(data.messages[ mes ].text != null){
-				let messageBody = $("<table/>").addClass("quote");
-				messageBody.append($("<tr/>").addClass("selectionTextAdditional").append($("<td/>").text(quoteText+":" + data.messages[ mes ].author)));
-				messageBody.append($("<tr/>").append($("<td/>").text(data.messages[ mes ].text)));
-				if(data.messages[ mes ].hierarchyMessageFlag == 1){
-					let openHierarchy0 = $("<a/>").addClass("openHierarchy");
-					openHierarchy0.attr("type", "button");
-					openHierarchy0.attr("mesId", data.messages[ mes ].id);
-					openHierarchy0.attr("loadFlag", 0);
-					openHierarchy0.attr("openFlag", 0);
-					openHierarchy0.text(openHierarchySignature);
-					openHierarchy0.click(hierarchyOpen);
-					messageBody.append($("<tr/>").append($("<td/>").append(openHierarchy0).append($("<div/>").addClass("loadedHierarchy"))));
-				}
-				outputArray.push(messageBody);
+	for(let mes=0;mes<data.messages.length;mes++){
+		if(data.messages[ mes ].text != null){
+			let messageBody = $("<table/>").addClass("quote");
+			messageBody.append($("<tr/>").addClass("selectionTextAdditional").append($("<td/>").text(quoteText+":" + data.messages[ mes ].author)));
+			messageBody.append($("<tr/>").append($("<td/>").text(data.messages[ mes ].text)));
+			if(data.messages[ mes ].hierarchyMessageFlag == 1){
+				let openHierarchy0 = $("<a/>").addClass("openHierarchy");
+				openHierarchy0.attr("type", "button");
+				openHierarchy0.attr("mesId", data.messages[ mes ].id);
+				openHierarchy0.attr("loadFlag", 0);
+				openHierarchy0.attr("openFlag", 0);
+				openHierarchy0.text(openHierarchySignature);
+				openHierarchy0.click(hierarchyOpen);
+				messageBody.append($("<tr/>").append($("<td/>").append(openHierarchy0).append($("<div/>").addClass("loadedHierarchy"))));
 			}
+			outputArray.push(messageBody);
 		}
-		return outputArray;
 	}
+	return outputArray;
 }
 //-----------------прикрепление цитат
 //функция для кнопки "ответить" (прикрепляет сообщение)
@@ -326,8 +347,8 @@ function deleteMessage(){
 		if(confirm(warningRemoveMessage)){
 			let newMessage={};
 			newMessage.messageId=$(this).closest(".selectionTextQuote").attr("mesId");
-			newMessage.processId=$("#ChatForm").attr("processId");
-			newMessage.type="deleteMessage";
+			newMessage.processId=idProcess;
+			newMessage.messType=deleteMessageType;
 			chatSocket.send(JSON.stringify(newMessage));
 			$(this).closest(".selectionTextQuote").remove();
 		}
@@ -347,10 +368,10 @@ function editMessage(){
 //фунцкия отправляет запрос на выдачу count старых сообщений
 function newxtMessages(count){
 	let newMessage={};
-	newMessage.processId=$("#ChatForm").attr("processId");
-	newMessage.type="getMessages";
+	newMessage.processId=idProcess;
+	newMessage.messType=getMessagesType;
 	newMessage.lastMessageId=minMassageId;
-	newMessage.Count = count; // количество сообщений
+	newMessage.count = count; // количество сообщений
 	let firstMessages = JSON.stringify(newMessage);
 	chatSocket.send(firstMessages);
 }
@@ -367,11 +388,17 @@ function loadOldMessages(){
 //кнопка открытия чата
 function openChat() {
 	if(lockFlag==false){
-		$(".modal-header-dragg").text(textHeader + $("#ChatForm").attr("processId"));
+		if($(".modal-header-dragg").length){
+			$(".modal-header-dragg").text(textHeader + idProcess);}
+		else{
+			$("#head-name-chat").text(textHeader + idProcess);
+		}
 		$(".warningText").text("0/1024");
 		if(document.getElementById("ChatForm") != null){
 			document.getElementById("ChatForm").style.display = "block";
+		
 			switchCheak=1;
+		}
 			//установка границы скролла непрочитанных
 			if(numberNewMessages == 0){
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
@@ -381,7 +408,7 @@ function openChat() {
 				newMessagesHeight = $("#messBody" + (newMessageIndex - numberNewMessages))[0].offsetTop - $("#modal-body").height();
 				$("#modal-body").scrollTop(newMessagesHeight);
 			}
-		}
+		
 	}
 }
 //закрытие (сворачивание) чата
@@ -425,9 +452,9 @@ function sendMessage() {
 			// сокет
 			let newMessage={};
 			newMessage.message=message;
-			newMessage.processId=$("#ChatForm").attr("processId");
+			newMessage.processId=idProcess;
 			newMessage.idHierarchyMessage = idHierarchyMessage;
-			newMessage.type="newMessage";
+			newMessage.messType=newMessageType;
 			newMessage.isPrivate=$("#checkBoxPrivateMessage").prop("checked");
 			let namesPrivate="";
 			$("#tablePrivate table tr").each(function(row){
@@ -482,8 +509,8 @@ function sendMessage() {
 				message = message.replace(/\r?\n/g, "<br />");
 				let newMessage={};
 				newMessage.message=message;
-				newMessage.processId=$("#ChatForm").attr("processId");
-				newMessage.type="editMessage";
+				newMessage.processId=idProcess;
+				newMessage.messType=editMessageType;
 				newMessage.editMessageId = editMessageId;
 				$("#message").val(""); 
 				chatSocket.send(JSON.stringify(newMessage));
@@ -608,7 +635,7 @@ $("#modal-body").resize(function(){
 function updatenumberNewMessages(numberNewMessages0){
 	numberNewMessages = numberNewMessages0;
 	document.getElementById("countNewMessages").innerHTML="" + numberNewMessages + "";
-	$("#numberNewMessages"+$("#ChatForm").attr("processid")).text(numberNewMessages0);
+	$("#numberNewMessages"+idProcess).text(numberNewMessages0);
 	if(numberNewMessages>0){
 		$(".countNewMessages").addClass("bgcdeadlineExpired");
 	}else{
@@ -618,8 +645,8 @@ function updatenumberNewMessages(numberNewMessages0){
 //функция отправляет по сокету id последнего прочитонного сообщния
 function updateLastReadMessage(){
 	let newSend0={};
-	newSend0.processId=$("#ChatForm").attr("processId");
-	newSend0.type="readMessage";
+	newSend0.processId=idProcess;
+	newSend0.messType=readMessageType;
 	newSend0.currentMessageId=currentMessageId+"";
 	let sendObject0 = JSON.stringify(newSend0);
 	chatSocket.send(sendObject0);
@@ -629,7 +656,7 @@ function updateLastReadMessage(){
 //вставка юзеров
 //ajax запрос иерархии сообщений, вернет Promise ajax запроса
 function getUsersNames(){
-	let urlString = "/wfe/ajaxcmd?command=GetUsersNamesForChat&processId=" + $("#ChatForm").attr("processId");
+	let urlString = "/wfe/ajaxcmd?command=GetUsersNamesForChat&processId=" + idProcess;
 	return $.ajax({
 		type: "POST",
 		url: urlString,
@@ -702,7 +729,7 @@ let privateBlock=$("<div/>");
 privateBlock.attr("id","privateBlock");
 let headTablePrivate=$("<div/>");
 headTablePrivate.attr("class","headTable");
-headTablePrivate.append("<div style='padding-left:5px;'>Кому отправить</div>");
+headTablePrivate.append("<div style='padding-left:5px;'>"+headTablePrivateText+"</div>");
 privateBlock.append(headTablePrivate);
 let tablePrivateReply=$("<div/>");
 tablePrivateReply.append($("<table/>"));
@@ -967,17 +994,16 @@ function deleteAttachedFile(){
 //--------------------------------------------------------------
 //функции приема сообщений с сервера
 //функция установки нового сообщения пришедшего с сервера в чат
-function addMessages(data){
-	if((data != undefined) && (data.newMessage == 0)){
-		for(let mes=0; mes < data.messages.length; mes++){
-			if(data.messages[ mes ].text != null){
-				if((minMassageId > data.messages[ mes ].id) || (minMassageId == -1)){
-					minMassageId = data.messages[ mes ].id;
+function addMessage(data){
+	if((data != undefined)){
+			if(data.message.text != null){
+				if((minMassageId > data.message.id) || (minMassageId == -1)){
+					minMassageId = data.message.id;
 				}
-				if((maxMassageId < data.messages[ mes ].id)){
-					maxMassageId = data.messages[ mes ].id;
+				if((maxMassageId < data.message.id)){
+					maxMassageId = data.message.id;
 				}
-				let text0 = data.messages[ mes ].text;
+				let text0 = data.message.text;
 				let mesIndex = 0;
 				if(data.old == false){
 					mesIndex = newMessageIndex;
@@ -990,30 +1016,30 @@ function addMessages(data){
 				//создаем сообщение
 				var cloneMess=messageBody.clone();
 				cloneMess.attr("id", "messBody"+mesIndex);
-				cloneMess.attr("mesId", data.messages[ mes ].id);
+				cloneMess.attr("mesId", data.message.id);
 				cloneMess.attr("messageIndex", mesIndex);
 				cloneMess.find(".datetr").text();
-				let date=data.messages[ mes ].dateTime;
+				let date=data.message.dateTime;
 				var d = new Date(date);
-				cloneMess.find(".author").text(data.messages[ mes ].author + ":");
+				cloneMess.find(".author").text(data.message.author + ":");
 				cloneMess.find(".datetr").text(d.getDate().toString()+"."+(d.getMonth()+1).toString()+"."+d.getFullYear()+" "+d.getHours().toString()+":"+d.getMinutes().toString());
-				cloneMess.find(".messageText").attr("textMessagId", data.messages[ mes ].id).attr("id","messageText"+mesIndex).html(text0);
+				cloneMess.find(".messageText").attr("textMessagId", data.message.id).attr("id","messageText"+mesIndex).html(text0);
 				// "развернуть"
-				if(data.messages[ mes ].hierarchyMessageFlag == 1){
-					cloneMess.find(".openHierarchy").attr("mesId", data.messages[ mes ].id)
+				if(data.hierarchyMessageFlag == 1){
+					cloneMess.find(".openHierarchy").attr("mesId", data.message.id)
 					.click(hierarchyOpen);
 				}else{
 					cloneMess.find(".openHierarchy").remove();
 				}
 				cloneMess.find(".addReply").click(messReplyClickFunction);
 				//файлы
-				if(data.messages[ mes ].haveFile == true){
+				if(data.haveFile == true){
 					let fileTr0 = $("<tr/>");
 					let fileTable = $("<table/>");
 					fileTable.addClass("fileHolder");
-					for(let i = 0; i < data.messages[ mes ].fileIdArray.length; i++){
+					for(let i = 0; i < data.fileArray.length; i++){
 						let fileIdTr = $("<tr/>");
-						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.messages[ mes ].fileIdArray[i].id + "' download='" + data.messages[ mes ].fileIdArray[i].name + "'>" + data.messages[ mes ].fileIdArray[i].name + "</a>"));
+						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.fileArray[i].id + "' download='" + data.fileArray[i].name + "'>" + data.fileArray[i].name + "</a>"));
 						fileTable.append(fileIdTr);
 					}
 					fileTr0.append($("<td/>").append(fileTable));
@@ -1064,7 +1090,6 @@ function addMessages(data){
 					newMessagesHeight += getElmHeight(cloneMess);
 				}
 			}
-		}
 	}
 }
 //отправка файла на сервер
@@ -1082,17 +1107,17 @@ function stepLoadFile(i){
 //приём с сервера
 function onMessage(event) {
 	let message0 = JSON.parse(event.data);
-	if(message0.messType == "newMessages"){
-		addMessages(message0);
+	if(message0.messType == newMessageType){
+		addMessage(message0);
 	}
-	else if(message0.messType == "deblocOldMes"){
+	else if(message0.messType == unblockOldMes){
 		blocOldMes=0;
 	}
-	else if(message0.messType == "stepLoadFile"){
+	else if(message0.messType == stepLoadFileType){
 		if(attachedFiles.length > 0)
 			stepLoadFile(0);
 	}
-	else if(message0.messType == "nextStepLoadFile"){
+	else if(message0.messType == nextStepLoadFileType){
 		if(message0.fileLoaded == false){
 			//тут обработка непринятого файла
 		}
@@ -1102,8 +1127,8 @@ function onMessage(event) {
 		}
 		else{
 			let newMessage={};
-			newMessage.processId=$("#ChatForm").attr("processId");
-			newMessage.type="endLoadFiles";
+			newMessage.processId=idProcess;
+			newMessage.messType=endLoadFilesType;
 			chatSocket.send(JSON.stringify(newMessage));
 			attachedFiles = [];
 			$("#progressBar").css({"display":"none"});
@@ -1111,7 +1136,7 @@ function onMessage(event) {
 			lockFlag = false;
 		}
 	}
-	else if(message0.messType == "editMessage"){
+	else if(message0.messType == editMessageType){
 		let mesSelector = $("[textMessagId='"+message0.mesId+"']");
 		if((mesSelector != null) && (mesSelector != undefined)){
 			mesSelector.text(message0.newText);
@@ -1200,7 +1225,10 @@ function getPosition(e){
 	return {x:left, y:top}
 }
 
-dragMaster.dragWindow(tagetDrug,windowChat);
+if ((tagetDrug !== undefined)&&(windowChat !== undefined)) {
+	dragMaster.dragWindow(tagetDrug,windowChat);
+}
+
 //функции переключения между чатами
 $(".modalSwitchingWindowButton").click(function (){
 	if(lockFlag == false){
@@ -1230,7 +1258,7 @@ function swapChat(){
 
 function getAllChat(data){
 	let messagesStep=20;
-	$(".modalSwitchingWindow").html("<tr><th class='list'>Список чатов</th><th  class='list'>Количество сообщений</th></tr>");
+	$(".select-chat").html("<tr><th class='list'>Список чатов</th><th  class='list'>Количество сообщений</th></tr>");
 	//$(".modalSwitchingWindowBody").html("");
 	let idRowListChats=$("<tr/>");
 	idRowListChats.attr("id",0);
@@ -1238,6 +1266,7 @@ function getAllChat(data){
 	idRowListChats.append($("<td/>"));
 	idRowListChats.append(numUnredaMes);
 	for(let i=0;i<data.length;i++){
+		var optChat = document.createElement('option');
 		let cloneIdRowListChats=idRowListChats.clone();
 		cloneIdRowListChats.attr("id","switchChat"+data[i].processId);
 		cloneIdRowListChats.attr("processId",data[i].processId);
@@ -1257,15 +1286,15 @@ function getAllChat(data){
 			cloneIdRowListChats.children(".readMes").attr("class","noNewMessagesChatClass");
 		}
 		//$(".modalSwitchingWindowBody").append(cloneIdRowListChats);
-		$(".modalSwitchingWindow").append(cloneIdRowListChats);
+		$(".select-chat").append(cloneIdRowListChats);
 	}
-	$(".modalSwitchingWindow td").addClass("list");
+	$(".select-chat td").addClass("list");
 }
 //обработка сообщений для сокета "новых сообщений (chatsNewMessSocket)"
 function onChatsNewMessSocketMessage(event){
 	let message0 = JSON.parse(event.data);
-	if(message0.messType == "newMessage"){
-		if(message0.processId != $("#ChatForm").attr("processId")){
+	if(message0.messType == newMessageType){
+		if(message0.processId != idProcess){
 			$("#numberNewMessages"+message0.processId).text(Number.parseInt($("#numberNewMessages"+message0.processId).text()) + 1);
 			if(message0.mentioned == true){
 				$("#numberNewMessages"+message0.processId).attr("class","isMentionChats");
@@ -1276,7 +1305,7 @@ function onChatsNewMessSocketMessage(event){
 //--------------------------------------------
 //инициализация чата
 function ajaxInitializationChat(){
-	let urlString = "/wfe/ajaxcmd?command=ChatInitialize&processId=" + $("#ChatForm").attr("processId") + "&messageCount=" + messagesStep;
+	let urlString = "/wfe/ajaxcmd?command=ChatInitialize&processId=" + idProcess + "&messageCount=" + messagesStep;
 	$.ajax({
 		type: "POST",
 		url: urlString,
@@ -1287,16 +1316,18 @@ function ajaxInitializationChat(){
 			let reSwitchCheak=switchCheak;
 			switchCheak=0;
 			currentMessageId = data.lastMessageId;
-			addMessages(data.messages[0]);
-			$("#modal-body").scrollTop(0);
+			if(data.messages.length>0){
+				addMessage(JSON.parse(data.messages[0]));
+				$("#modal-body").scrollTop(0);
+			}
 			for(let i=1; i<data.messages.length; i++){
-				addMessages(data.messages[i]);
+				addMessage(JSON.parse(data.messages[i]));
 			}
 			if(numberNewMessages == 0){
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
 				updatenumberNewMessages(0);
 			}
-			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + $("#ChatForm").attr("processId");
+			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + idProcess;
 			chatSocket = new WebSocket(chatSocketUrl);
 			chatSocket.binaryType = "arraybuffer";
 			chatSocket.onmessage = onMessage;
@@ -1348,24 +1379,24 @@ function ajaxLocale(){
 	$.ajax({
 		type: "POST",
 		url: urlString,
+		async: false,
 		dataType: "json",
 		contentType: "application/json; charset=UTF-8",
 		processData: false,
 		success: function(data) {
 			
 			LocaleText(data);
-			
 		}
 		});
 }
 
 function LocaleText(data){
-	$("#openChatButton").first(data.openChatButton);
+	$("#openChatButtonText").first().text(data.openChatButton);
 	//$(".modalSwitchingWindowButton").text(data.switchChatButton);
 	//$("#newMessagesIndicator").first().text(data.newMessageIndicator);
 	//$("#newMessagesIndicator").last().text();
 	textEnterMessage = data.textAreaMessagePalceholder;
-	textPprivateMessage = data.privateMessageCheckbox;
+	textPrivateMessage = data.privateMessageCheckbox;
 	textDragFile = data.dropBlock;
 	textBtnSend=data.buttonSendMessage;
 	textLoadOldMessage=data.buttonLoadOldMessage;
@@ -1381,6 +1412,7 @@ function LocaleText(data){
 	errorMessFilePart1=data.errorMessFilePart1;
 	errorMessFilePart2=data.errorMessFilePart2;
 	textHeader=data.textHeader;
+	headTablePrivateText=data.headTablePrivateText;
 	
 }
 
@@ -1411,15 +1443,24 @@ function fillingPrivateMessageRecipientTable(data){
 
 //----------------------------------------------
 //начальные действия
+//
+if(document.location.pathname!="/wfe/chat_page.do"){
+	btnOpenChat.onclick = openChat;
+	document.getElementById("close").onclick = closeChat;
+	btnOp.onclick=zoomInZoomOut;
+}
+else{
+	idProcess=1+"";
+	switchCheak=1;
+	ajaxAllInitializationChats();
+}
 //запрос на инициализацию
 ajaxInitializationChat();
-ajaxLocale();
 $("#btnCl").hide();
-btnOpenChat.onclick = openChat;
+
+
 btnLoadOldMessages.onclick = loadOldMessages;
 btnSend.onclick=sendMessage;
-document.getElementById("close").onclick = closeChat;
-btnOp.onclick=zoomInZoomOut;
 
 //$("#modalFooter").children().first().after("<div class=\"warningText\">"+$("#message").val().length+"/"+characterSize+"</div>");
 //-----скролл

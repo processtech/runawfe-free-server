@@ -1,6 +1,7 @@
 package ru.runa.wfe.chat.logic;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -46,7 +47,8 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteFile(user, id);
     }
 
-    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+    public ChatMessageDto saveMessageAndBindFiles(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+            Boolean isPrivate,
             ArrayList<ChatMessageFile> files) {
         message.setProcess(processDao.get(processId));
         Set<Executor> executors;
@@ -55,7 +57,7 @@ public class ChatLogic extends WfCommonLogic {
         } else {
             executors = new HashSet<Executor>(mentionedExecutors);
         }
-        return chatDao.saveMessageAndBindFiles(user, message, files, executors, mentionedExecutors);
+        return chatDao.saveMessageAndBindFiles(message, files, executors, mentionedExecutors);
     }
 
     public void readMessage(Actor user, Long messageId) {
@@ -112,15 +114,25 @@ public class ChatLogic extends WfCommonLogic {
             for (ProcessLog processLog : processLogs) {
                 String actorName = ((TaskEndLog) processLog).getActorName();
                 try {
-                    result.add(executorDao.getActor(actorName));
+                    if (!Strings.isNullOrEmpty(actorName)) {
+                        result.add(executorDao.getActor(actorName));
+                    }
                 } catch (ExecutorDoesNotExistException e) {
                     log.debug("Ignored deleted actor " + actorName + " for chat message");
                 }
             }
         }
-        //
         {
-
+            // пользователи имеющие права на чтение
+            Set<Executor> executorWithPermission = permissionDao.getExecutorsWithPermission(process);
+            for (Executor executor : executorWithPermission) {
+                if (executor instanceof Group) {
+                    // TODO Do we want to store actor or group links?
+                    result.addAll(executorDao.getGroupActors(((Group) executor)));
+                } else if (executor instanceof Actor) {
+                    result.add(executor);
+                }
+            }
         }
         return result;
     }
@@ -133,7 +145,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessagesCount(user, processId);
     }
 
-    public ChatMessage getMessage(Long messageId) {
+    public ChatMessage getMessage(Actor actor, Long messageId) {
         return chatDao.getMessage(messageId);
     }
 
@@ -153,7 +165,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessages(user, processId);
     }
 
-    public Long saveMessage(Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+    public Long saveMessage(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
         message.setProcess(processDao.get(processId));
         if (!isPrivate) {
             Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
@@ -163,7 +175,7 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
-    public void deleteMessage(Long messId) {
+    public void deleteMessage(Actor actor, Long messId) {
         chatDao.deleteMessage(messId);
     }
 
@@ -179,7 +191,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getFile(actor, fileId);
     }
 
-    public void updateMessage(ChatMessage message) {
+    public void updateMessage(Actor actor, ChatMessage message) {
         chatDao.updateMessage(message);
     }
 
