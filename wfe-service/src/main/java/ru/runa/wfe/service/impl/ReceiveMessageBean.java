@@ -203,8 +203,10 @@ public class ReceiveMessageBean implements MessageListener {
                 }
             }.executeInTransaction(true);
         } catch (final Throwable th) {
-            Utils.failProcessExecution(context.getUserTransaction(), data.tokenId, th);
-            Throwables.propagate(th);
+            boolean needReprocessing = Utils.failProcessExecution(context.getUserTransaction(), data.tokenId, th);
+            if (needReprocessing) {
+                Throwables.propagate(th);
+            }
         }
     }
 

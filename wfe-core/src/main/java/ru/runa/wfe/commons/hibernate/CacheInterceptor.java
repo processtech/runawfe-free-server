@@ -33,7 +33,7 @@ public class CacheInterceptor extends EmptyInterceptor {
     private static final long serialVersionUID = 1L;
 
     private boolean isOracleDatabase() {
-        return ApplicationContextFactory.getDBType() == DbType.ORACLE;
+        return ApplicationContextFactory.getDbType() == DbType.ORACLE;
     }
 
     private boolean onChanges(Object entity, Change change, Object[] state, Object[] previousState, String[] propertyNames, Type[] types,

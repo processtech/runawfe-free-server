@@ -1,9 +1,10 @@
 package ru.runa.wfe;
 
+import com.google.common.base.Strings;
 import java.util.Locale;
 import java.util.Properties;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.SystemProperties;
 
 public abstract class LocalizableException extends InternalApplicationException {
     private static final long serialVersionUID = 1L;
@@ -22,9 +23,22 @@ public abstract class LocalizableException extends InternalApplicationException 
 
     protected abstract String getResourceBaseName();
 
+    private static Locale preferredLocale = Locale.getDefault();
+
+    @Override
+    public String getMessage() {
+        return getLocalizedMessage();
+    }
+
     @Override
     public String getLocalizedMessage() {
-        return getLocalizedMessage(null);
+        String preferredLanguage = SystemProperties.getPreferredMessagesLanguage();
+        if (Strings.isNullOrEmpty(preferredLanguage)) {
+            preferredLocale = Locale.getDefault();
+        } else if (!preferredLocale.getLanguage().equals(preferredLanguage)) {
+            preferredLocale = new Locale(preferredLanguage);
+        }
+        return getLocalizedMessage(preferredLocale);
     }
 
     /**
@@ -37,7 +51,7 @@ public abstract class LocalizableException extends InternalApplicationException 
     public String getLocalizedMessage(Locale locale) {
         try {
             Properties properties = ClassLoaderUtil.getLocalizedProperties(getResourceBaseName(), getClass(), locale);
-            String s = properties.getProperty(getMessage());
+            String s = properties.getProperty(super.getMessage());
             if (s != null) {
                 if (details != null) {
                     return String.format(s, details);
@@ -47,6 +61,6 @@ public abstract class LocalizableException extends InternalApplicationException 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return super.getLocalizedMessage();
+        return super.getMessage();
     }
 }

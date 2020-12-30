@@ -122,7 +122,7 @@ public class ViewUtil {
         return "<input type=\"hidden\" name=\"" + variable.getDefinition().getName() + "\" value=\"" + stringValue + "\" />";
     }
 
-    public static String getFileInput(WebHelper webHelper, String variableName, boolean allowMultiple) {
+    public static String getFileInput(WebHelper webHelper, String variableName, boolean allowMultiple, String acceptTypes) {
         String multiple = allowMultiple ? " multiple " : "";
         String attachImageUrl = "";
         String loadingImageUrl = "";
@@ -136,7 +136,7 @@ public class ViewUtil {
         html += "<div class=\"dropzone\" >";
         html += "<label class=\"inputFileAttach\">";
         html += "<div class=\"inputFileAttachButtonDiv\"><img src=\"" + attachImageUrl + "\" />" + uploadFileTitle + "</div>";
-        html += "<input class=\"inputFile inputFileAjax \" name=\"" + variableName + "\" type=\"file\" " + multiple + ">";
+        html += "<input class=\"inputFile inputFileAjax \" name=\"" + variableName + "\" type=\"file\" " + "accept=\"" + acceptTypes + "\"" + multiple + ">";
         html += "</label></div>";
         html += "<div class=\"progressbar\" " + hideStyle + ">";
         html += "<div class=\"line\" style=\"width: 0%;\"></div>";
@@ -191,7 +191,7 @@ public class ViewUtil {
             }
         }
     }
-
+    
     public static String generateTableHeader(List<WfVariable> variables, VariableProvider variableProvider, String operationsColumn) {
         StringBuffer header = new StringBuffer();
         header.append("<tr class=\"header\">");

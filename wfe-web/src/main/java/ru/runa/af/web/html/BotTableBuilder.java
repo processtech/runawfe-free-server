@@ -81,8 +81,6 @@ public class BotTableBuilder {
         table.setClass(Resources.CLASS_LIST_TABLE);
         ActorSelect actorSelect = new ActorSelect(user, BotForm.USER_NAME, bot != null ? bot.getUsername() : "", true);
         table.addElement(HTMLUtils.createSelectRow(MessagesBot.LABEL_BOT_NAME.message(pageContext), actorSelect, true));
-        Input passwordInput = HTMLUtils.createInput(Input.PASSWORD, BotForm.PASSWORD, bot != null ? bot.getPassword() : "");
-        table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_PASSWORD.message(pageContext), passwordInput));
         table.addElement(createSequenticalRow(pageContext, bot));
         table.addElement(createTransactionalRow(pageContext, bot));
         return table;
