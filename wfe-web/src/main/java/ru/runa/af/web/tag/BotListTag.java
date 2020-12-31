@@ -1,14 +1,14 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
+
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import ru.runa.af.web.action.DeleteBotAction;
 import ru.runa.af.web.html.BotTableBuilder;
-import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.MessagesCommon;
+import ru.runa.common.web.*;
 import ru.runa.common.web.form.IdsForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesBot;
@@ -49,9 +49,20 @@ public class BotListTag extends TitledFormTag {
     }
 
     @Override
+    protected boolean isCreateDeleteSubmit(){
+                return true;
+    }
+
+    @Override
     public String getAction() {
         return DeleteBotAction.DELETE_BOT_ACTION_PATH;
     }
+
+    @Override
+    public String getCreateAction(){
+       return String.format("window.location=\"/wfe/add_bot.do?botStationId=%s\"", botStationId);
+    }
+
 
     @Override
     public boolean isSubmitButtonEnabled() {

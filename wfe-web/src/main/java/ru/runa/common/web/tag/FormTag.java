@@ -50,6 +50,8 @@ abstract public class FormTag extends VisibleTag {
 
     private String action;
 
+    private String createAction;
+
     private String method = Form.POST;
 
     private String buttonAlignment;
@@ -58,9 +60,18 @@ abstract public class FormTag extends VisibleTag {
         return action;
     }
 
+    public String getCreateAction() {
+        return createAction;
+    }
+
     @Attribute
     public void setAction(String action) {
         this.action = action;
+    }
+
+    @Attribute
+    public void setCreateAction(String createAction){
+        this.createAction = createAction;
     }
 
     public String getMethod() {
@@ -112,6 +123,10 @@ abstract public class FormTag extends VisibleTag {
     }
 
     protected boolean isMultipleSubmit() {
+        return false;
+    }
+    
+    protected boolean isCreateDeleteSubmit(){
         return false;
     }
 
@@ -185,17 +200,19 @@ abstract public class FormTag extends VisibleTag {
                     td.addElement(submitButton);
                     td.addElement(Entities.NBSP);
                 }
-            } else {
-                Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, getSubmitButtonName());
-                submitButton.setClass(Resources.CLASS_BUTTON);
-                if (isConfirmationPopupEnabled()) {
-                    submitButton.addAttribute("onclick",
-                            ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(getConfirmationPopupParameter(), pageContext));
-                }
-                if (!isSubmitButtonEnabled()) {
-                    submitButton.setDisabled(true);
-                }
+            }
+            else if (isCreateDeleteSubmit()){
+                Input createButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, MessagesCommon.BUTTON_CREATE.message(pageContext));
+                createButton.setClass(Resources.CLASS_BUTTON);
+                createButton.addAttribute("onclick", getCreateAction());
+                createButton.addAttribute("style", "float: left;");
+                td.addElement(createButton);
+                Input submitButton = createSubmitButton();
+                submitButton.addAttribute("style", "float: right;");
                 td.addElement(submitButton);
+            }
+            else {
+                td.addElement(createSubmitButton());
             }
             if (isCancelButtonEnabled()) {
                 Input cancelButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, MessagesCommon.BUTTON_CANCEL.message(pageContext));
@@ -206,6 +223,19 @@ abstract public class FormTag extends VisibleTag {
             }
         }
         return form;
+    }
+
+    protected Input createSubmitButton(){
+        Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, getSubmitButtonName());
+        submitButton.setClass(Resources.CLASS_BUTTON);
+        if (isConfirmationPopupEnabled()) {
+            submitButton.addAttribute("onclick",
+                    ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(getConfirmationPopupParameter(), pageContext));
+        }
+        if (!isSubmitButtonEnabled()) {
+            submitButton.setDisabled(true);
+        }
+        return submitButton;
     }
 
     @Override
