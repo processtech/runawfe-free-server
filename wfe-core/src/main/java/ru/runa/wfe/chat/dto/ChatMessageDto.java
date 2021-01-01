@@ -19,7 +19,6 @@ public class ChatMessageDto extends ChatDto {
     }
 
     public ChatMessageDto() {
-        this.setMessageType("newMessage");
     }
 
     @JsonGetter("message")

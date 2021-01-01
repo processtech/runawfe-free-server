@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.ChatNewMessageDto;
 import ru.runa.wfe.chat.logic.ChatLogic;
@@ -23,10 +24,8 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 
-//@ApplicationScoped // ненужен?
-//@Interceptors({ SpringBeanAutowiringInterceptor.class })
 @Component
-public class AddNewMessageHandler implements ChatSocketMessageHandler {
+public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMessageDto> {
 
     @Autowired
     private ChatSessionHandler sessionHandler;
@@ -39,20 +38,19 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler {
 
     @Transactional
     @Override
-    public void handleMessage(Session session, String objectMessage, User user) throws IOException {
+    public void handleMessage(Session session, ChatNewMessageDto dto, User user) throws IOException {
         if (executionLogic.getProcess(user, (Long) session.getUserProperties().get("processId")).isEnded()) {
             return;
         }
-        ChatNewMessageDto message = (ChatNewMessageDto) ChatNewMessageDto.load(objectMessage, ChatNewMessageDto.class);
         ChatMessage newMessage = new ChatMessage();
         newMessage.setCreateActor(user.getActor());
-        newMessage.setText(message.getMessage());// message
-        newMessage.setQuotedMessageIds(message.getIdHierarchyMessage());// idHierarchyMessage
-        boolean haveFiles = message.getIsHaveFile();// haveFile
-        Boolean isPrivate = message.getIsPrivate();// isPrivate
-        String privateNames = message.getPrivateNames();// privateNames
+        newMessage.setText(dto.getMessage());
+        newMessage.setQuotedMessageIds(dto.getIdHierarchyMessage());
+        boolean haveFiles = dto.getIsHaveFile();
+        Boolean isPrivate = dto.getIsPrivate();
+        String privateNames = dto.getPrivateNames();
         String[] loginsPrivateTable = privateNames != null ? privateNames.split(";") : new String[0];
-        long processId = Long.parseLong(message.getProcessId());// processId
+        long processId = Long.parseLong(dto.getProcessId());
         newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
         Set<Executor> mentionedExecutors = new HashSet<Executor>();
         searchMentionedExecutor(mentionedExecutors, newMessage, loginsPrivateTable, user, session);
@@ -62,16 +60,16 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler {
             session.getUserProperties().put("activeMessage", newMessage);
             session.getUserProperties().put("activeIsPrivate", isPrivate);
             session.getUserProperties().put("activeMentionedExecutors", mentionedExecutors);
-            session.getUserProperties().put("activeFileNames", message.getFileNames());// fileNames
-            session.getUserProperties().put("activeFileSizes", message.getFileSizes());// fileSizes
+            session.getUserProperties().put("activeFileNames", dto.getFileNames());
+            session.getUserProperties().put("activeFileSizes", dto.getFileSizes());
             session.getUserProperties().put("activeFilePosition", 0);
             Integer fileNumber = 0;
             session.getUserProperties().put("activeFileNumber", fileNumber);
             session.getUserProperties().put("errorFlag", false);
             session.getUserProperties().put("activeFiles", new ArrayList<ChatMessageFile>());
-            session.getUserProperties().put("activeLoadFile", new byte[(message.getFileSizes()).get(0).intValue()]);
+            session.getUserProperties().put("activeLoadFile", new byte[(dto.getFileSizes()).get(0).intValue()]);
             JSONObject sendObject = new JSONObject();
-            sendObject.put("messType", "stepLoadFile");
+            sendObject.put("messageType", "stepLoadFile");
             sessionHandler.sendToSession(session, sendObject.toString());
         } else {
             Collection<Actor> mentionedActors = new HashSet<Actor>();
@@ -130,7 +128,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler {
     }
 
     @Override
-    public boolean checkType(String messageType) {
-        return messageType.equals("newMessage");
+    public boolean isSupports(Class<? extends ChatDto> messageType) {
+        return messageType.equals(ChatNewMessageDto.class);
     }
 }

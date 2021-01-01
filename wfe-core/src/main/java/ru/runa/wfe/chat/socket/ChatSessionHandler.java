@@ -136,7 +136,6 @@ public class ChatSessionHandler {
                 isPrivate);
         MessageForCloseChatDto messageForCloseChat = new MessageForCloseChatDto();
         messageForCloseChat.setCurrentMessageId(messageDto.getMessage().getProcess().getId());
-        messageForCloseChat.setMessType("newMessage");
         sendOnlyNewMessagesSessions(messageForCloseChat, messageDto.getMessage().getProcess().getId(), messageDto.getMessage().getCreateActor(),
                 mentionedActors, isPrivate);
     }

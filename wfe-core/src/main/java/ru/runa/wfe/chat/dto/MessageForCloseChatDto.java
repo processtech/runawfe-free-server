@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class MessageForCloseChatDto extends ChatDto {
     private Long processId;
-    private String messType;
     private boolean mentionedFlag = false;
     private boolean coreUserFlag = false;
 
@@ -17,16 +16,6 @@ public class MessageForCloseChatDto extends ChatDto {
     @JsonSetter("processId")
     public void setCurrentMessageId(Long currentMessageId) {
         this.processId = processId;
-    }
-
-    @JsonGetter("messType")
-    public String getMessType() {
-        return messType;
-    }
-
-    @JsonSetter("messType")
-    public void setMessType(String messType) {
-        this.messType = messType;
     }
 
     @JsonGetter("mentioned")
