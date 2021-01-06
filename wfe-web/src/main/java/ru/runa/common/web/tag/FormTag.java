@@ -196,6 +196,7 @@ abstract public class FormTag extends VisibleTag {
         if (!isSubmitButtonEnabled()) {
           submitButton.setDisabled(true);
         }
+        td.addElement(submitButton);
       }
       if (isCancelButtonEnabled()) {
         Input cancelButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, MessagesCommon.BUTTON_CANCEL.message(pageContext));

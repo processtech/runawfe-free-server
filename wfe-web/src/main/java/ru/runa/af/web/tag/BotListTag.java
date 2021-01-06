@@ -57,6 +57,7 @@ public class BotListTag extends TitledFormTag {
     return true;
   }
 
+  @Override
   protected List<Map<String, String>> getSubmitButtonsData() {
     List<Map<String, String>> data = Lists.newArrayList();
     Map<String, String> buttonData1 = Maps.newHashMap();
