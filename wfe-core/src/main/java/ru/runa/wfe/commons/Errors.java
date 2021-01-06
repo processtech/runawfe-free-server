@@ -102,6 +102,7 @@ public class Errors {
                 return Collections.synchronizedSet(new HashSet<>());
             }
         });
+        errors.remove(processError);
         boolean added = errors.add(processError);
         if (added) {
             sendEmailNotification(processError);
