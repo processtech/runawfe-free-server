@@ -166,7 +166,13 @@ abstract public class FormTag extends VisibleTag {
             if (isMultipleSubmit()) {
                 td.addElement(new Input(Input.HIDDEN, MULTIPLE_SUBMIT_BUTTONS, "true"));
                 for (Map<String, String> buttonData : getSubmitButtonsData()) {
-                    Input submitButton = new Input(buttonData.get("type"), SUBMIT_BUTTON_NAME, buttonData.get("name"));
+                    String type;
+                    if (buttonData.containsKey("type")) {
+                        type = buttonData.get("type");
+                    } else {
+                        type = Input.SUBMIT;
+                    }
+                    Input submitButton = new Input(type, SUBMIT_BUTTON_NAME, buttonData.get("name"));
                     String color = buttonData.get("color");
                     submitButton.setClass(Resources.CLASS_BUTTON + (Strings.isNullOrEmpty(color) ? "" : "-" + color));
                     if (buttonData.containsKey("onclick")) {
