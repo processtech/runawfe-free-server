@@ -1,19 +1,15 @@
 package ru.runa.wfe.chat.socket;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import javax.websocket.Session;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.JSONMessageStatus;
+import ru.runa.wfe.chat.MaxChatFileSizeExceedException;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.ChatNewMessageDto;
 import ru.runa.wfe.chat.logic.ChatLogic;
@@ -58,6 +54,10 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler {
         searchMentionedExecutor(mentionedExecutors, newMessage, loginsPrivateTable, user, session);
         if (haveFiles) {
             // waiting for upload
+            List<Long> fileSizes = message.getFileSizes();
+            for (long size : fileSizes)
+                if (size > (1024 * 1024 * 40))
+                    throw new MaxChatFileSizeExceedException();
             session.getUserProperties().put("activeProcessId", processId);
             session.getUserProperties().put("activeMessage", newMessage);
             session.getUserProperties().put("activeIsPrivate", isPrivate);
@@ -67,12 +67,9 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler {
             session.getUserProperties().put("activeFilePosition", 0);
             Integer fileNumber = 0;
             session.getUserProperties().put("activeFileNumber", fileNumber);
-            session.getUserProperties().put("errorFlag", false);
             session.getUserProperties().put("activeFiles", new ArrayList<ChatMessageFile>());
-            session.getUserProperties().put("activeLoadFile", new byte[(message.getFileSizes()).get(0).intValue()]);
-            JSONObject sendObject = new JSONObject();
-            sendObject.put("messType", "stepLoadFile");
-            sessionHandler.sendToSession(session, sendObject.toString());
+            session.getUserProperties().put("activeLoadFile", new byte[fileSizes.get(0).intValue()]);
+            sessionHandler.sendToSession(session, JSONMessageStatus.startLoadFiles());
         } else {
             Collection<Actor> mentionedActors = new HashSet<Actor>();
             for (Executor mentionedExecutor : mentionedExecutors) {
