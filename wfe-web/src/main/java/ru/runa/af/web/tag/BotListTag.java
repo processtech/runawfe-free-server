@@ -1,7 +1,7 @@
 package ru.runa.af.web.tag;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.ecs.html.Input;
@@ -59,22 +59,19 @@ public class BotListTag extends TitledFormTag {
 
     @Override
     protected List<Map<String, String>> getSubmitButtonsData() {
-        List<Map<String, String>> data = Lists.newArrayList();
-        Map<String, String> buttonData1 = Maps.newHashMap();
-        buttonData1.put("name", getSubmitButtonName());
-        buttonData1.put("color", "");
-        buttonData1.put("type", Input.SUBMIT);
-        buttonData1.put("style", "float: right;");
-        buttonData1.put("onclick", ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(getConfirmationPopupParameter(), pageContext));
-        Map<String, String> buttonData2 = Maps.newHashMap();
-        buttonData2.put("name", MessagesCommon.BUTTON_CREATE.message(pageContext));
-        buttonData2.put("color", "");
-        buttonData2.put("type", Input.BUTTON);
-        buttonData2.put("style", "float: left;");
-        buttonData2.put("onclick", getCreateAction());
-        data.add(buttonData1);
-        data.add(buttonData2);
-        return data;
+        Map<String, String> submitButtonData = Maps.newHashMap();
+        submitButtonData.put(ATTRIBUTE_NAME, getSubmitButtonName());
+        submitButtonData.put(ATTRIBUTE_COLOR, "");
+        submitButtonData.put(ATTRIBUTE_TYPE, Input.SUBMIT);
+        submitButtonData.put(ATTRIBUTE_STYLE, "float: right;");
+        submitButtonData.put(ATTRIBUTE_ONCLICK, ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(getConfirmationPopupParameter(), pageContext));
+        Map<String, String> createButtonData = Maps.newHashMap();
+        createButtonData.put(ATTRIBUTE_NAME, MessagesCommon.BUTTON_CREATE.message(pageContext));
+        createButtonData.put(ATTRIBUTE_COLOR, "");
+        createButtonData.put(ATTRIBUTE_TYPE, Input.BUTTON);
+        createButtonData.put(ATTRIBUTE_STYLE, "float: left;");
+        createButtonData.put(ATTRIBUTE_ONCLICK, getCreateAction());
+        return Arrays.asList(submitButtonData, createButtonData);
     }
 
     @Override

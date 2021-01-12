@@ -43,6 +43,11 @@ abstract public class FormTag extends VisibleTag {
 
     public static final String SUBMIT_BUTTON_NAME = "submitButton";
     public static final String MULTIPLE_SUBMIT_BUTTONS = "multipleSubmit";
+    public static final String ATTRIBUTE_COLOR = "color";
+    public static final String ATTRIBUTE_NAME = "name";
+    public static final String ATTRIBUTE_ONCLICK = "onclick";
+    public static final String ATTRIBUTE_STYLE = "style";
+    public static final String ATTRIBUTE_TYPE = "type";
     private static final long serialVersionUID = 1L;
     private String action;
 
@@ -167,20 +172,16 @@ abstract public class FormTag extends VisibleTag {
                 td.addElement(new Input(Input.HIDDEN, MULTIPLE_SUBMIT_BUTTONS, "true"));
                 for (Map<String, String> buttonData : getSubmitButtonsData()) {
                     String type;
-                    if (buttonData.containsKey("type")) {
-                        type = buttonData.get("type");
+                    if (buttonData.containsKey(ATTRIBUTE_TYPE)) {
+                        type = buttonData.remove(ATTRIBUTE_TYPE);
+
                     } else {
                         type = Input.SUBMIT;
                     }
-                    Input submitButton = new Input(type, SUBMIT_BUTTON_NAME, buttonData.get("name"));
-                    String color = buttonData.get("color");
+                    Input submitButton = new Input(type, SUBMIT_BUTTON_NAME, buttonData.remove(ATTRIBUTE_NAME));
+                    String color = buttonData.remove(ATTRIBUTE_COLOR);
                     submitButton.setClass(Resources.CLASS_BUTTON + (Strings.isNullOrEmpty(color) ? "" : "-" + color));
-                    if (buttonData.containsKey("onclick")) {
-                        submitButton.addAttribute("onclick", buttonData.get("onclick"));
-                    }
-                    if (buttonData.containsKey("style")) {
-                        submitButton.addAttribute("style", buttonData.get("style"));
-                    }
+                    buttonData.forEach(submitButton::addAttribute);
                     try {
                         if (!isSubmitButtonEnabled()) {
                             submitButton.setDisabled(true);
@@ -196,7 +197,7 @@ abstract public class FormTag extends VisibleTag {
                 Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, getSubmitButtonName());
                 submitButton.setClass(Resources.CLASS_BUTTON);
                 if (isConfirmationPopupEnabled()) {
-                    submitButton.addAttribute("onclick",
+                    submitButton.addAttribute(ATTRIBUTE_ONCLICK,
                             ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(getConfirmationPopupParameter(), pageContext));
                 }
                 if (!isSubmitButtonEnabled()) {
@@ -207,7 +208,7 @@ abstract public class FormTag extends VisibleTag {
             if (isCancelButtonEnabled()) {
                 Input cancelButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, MessagesCommon.BUTTON_CANCEL.message(pageContext));
                 cancelButton.setClass(Resources.CLASS_BUTTON);
-                cancelButton.addAttribute("onclick", "window.location='" + getCancelButtonAction() + "'");
+                cancelButton.addAttribute(ATTRIBUTE_ONCLICK, "window.location='" + getCancelButtonAction() + "'");
                 td.addElement(Entities.NBSP);
                 td.addElement(cancelButton);
             }
