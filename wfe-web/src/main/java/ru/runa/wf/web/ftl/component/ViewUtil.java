@@ -154,7 +154,12 @@ public class ViewUtil {
         GenerateHtmlForVariableResult generatedResult = variableFormat.processBy(new GenerateHtmlForVariable(user, webHelper), context);
         return generatedResult.content;
     }
-
+    public static String convertComponentInputToTemplateValue(String componentInputContent) {
+        return componentInputContent
+                .replace('"','\'')
+                .replace("\n","")
+                .replace("[]", "{}");
+    }
     public static String getComponentOutput(User user, WebHelper webHelper, Long processId, WfVariable variable) {
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
         GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, processId, true);
