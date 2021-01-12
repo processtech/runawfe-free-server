@@ -102,7 +102,6 @@ public class Errors {
                 return Collections.synchronizedSet(new HashSet<>());
             }
         });
-        errors.remove(processError);
         boolean added = errors.add(processError);
         if (added) {
             sendEmailNotification(processError);
@@ -122,6 +121,19 @@ public class Errors {
 
     public static void removeProcessErrors(Long processId) {
         processErrors.remove(processId);
+    }
+
+    public static void updateProcessError(ProcessError processError, Throwable th) {
+        List<ProcessError> processErrors = Errors.getProcessErrors(processError.getProcessId());
+        String errorMessage = th.toString();
+        for (ProcessError error : processErrors) {
+            if (error.getNodeId().equals(processError.getNodeId()) && !error.getMessage().equals(errorMessage)) {
+                error.setThrowable(th);
+                error.setOccurredDate(processError.getOccurredDate());
+                sendEmailNotification(error);
+                break;
+            }
+        }
     }
 
     public static void sendEmailNotification(final SystemError error) {
