@@ -1,12 +1,7 @@
 package ru.runa.wfe.chat.socket;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import javax.websocket.Session;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +51,10 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
         searchMentionedExecutor(mentionedExecutors, newMessage, loginsPrivateTable, user, session);
         if (haveFiles) {
             // waiting for upload
+            List<Long> fileSizes = message.getFileSizes();
+            for (long size : fileSizes)
+                if (size > (1024 * 1024 * 40))
+                    throw new MaxChatFileSizeExceedException();
             session.getUserProperties().put("activeProcessId", processId);
             session.getUserProperties().put("activeMessage", newMessage);
             session.getUserProperties().put("activeIsPrivate", isPrivate);

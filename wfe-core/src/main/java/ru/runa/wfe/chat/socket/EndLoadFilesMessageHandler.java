@@ -49,7 +49,6 @@ public class EndLoadFilesMessageHandler implements ChatSocketMessageHandler<Chat
         session.getUserProperties().put("activeFileNames", "");
         session.getUserProperties().put("activeFileSizes", "");
         session.getUserProperties().put("activeFileNumber", 0);
-        session.getUserProperties().put("errorFlag", false);
         session.getUserProperties().put("activeFilePosition", 0);
         session.getUserProperties().put("activeFiles", null);
         session.getUserProperties().put("activeIsPrivate", false);

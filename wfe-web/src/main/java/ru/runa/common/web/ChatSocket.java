@@ -2,22 +2,18 @@ package ru.runa.common.web;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.interceptor.Interceptors;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
+import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import lombok.extern.apachecommons.CommonsLog;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.common.WebResources;
-import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.UploadChatFileException;
 import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.service.MessageTypeService;
 import ru.runa.wfe.chat.socket.ChatSessionHandler;
@@ -51,69 +47,46 @@ public class ChatSocket {
     }
 
     @OnError
-    public void onError(Throwable error) {
+    public void onError(Throwable error, Session session) {
         log.error(error);
+        try {
+            if (error instanceof UploadChatFileException) {
+                sessionHandler.loadFileError(session);
+            } else {
+                sessionHandler.messageError(session, error.getMessage());
+            }
+        } catch (IOException e) {
+            log.error(e);
+        }
     }
 
     @OnMessage
-    public void uploadFile(ByteBuffer msg, boolean last, Session session) throws IOException {
+    public void uploadFile(ByteBuffer buffer, boolean last, Session session) throws IOException {
         if (Delegates.getExecutionService()
                 .getProcess(getUser(session), (Long) session.getUserProperties().get("processId")).isEnded()) {
             return;
         }
-        JSONObject sendObject;
-        Integer fileNumber = -1;
-        byte[] loadedBytes = ((byte[]) session.getUserProperties().get("activeLoadFile"));
-        int filePosition = (int) session.getUserProperties().get("activeFilePosition");
+
+        // сбор файла по частям
+        // при любой ошибке выбрасывается UploadChatFileException
+        byte[] bytes;
+        int activeFilePosition;
+        Map<String, Object> userProperties = session.getUserProperties();
+
         try {
-            msg.get(loadedBytes, filePosition, msg.remaining());
-            if (last) {
-                if ((boolean) session.getUserProperties().get("errorFlag")) {
-                    session.getUserProperties().put("errorFlag", false);
-                    return;
-                }
-                fileNumber = (Integer) session.getUserProperties().get("activeFileNumber");
-                ChatMessageFile chatMessageFile = new ChatMessageFile();
-                List<String> activeFileNames = ((List<String>) session.getUserProperties().get("activeFileNames"));
-                chatMessageFile.setFileName(activeFileNames.get(fileNumber));
-                chatMessageFile.setBytes(loadedBytes);
-                ((ArrayList<ChatMessageFile>) session.getUserProperties().get("activeFiles")).add(chatMessageFile);
-                // send "ok"
-                sendObject = new JSONObject();
-                sendObject.put("fileLoaded", true);
-                sendObject.put("messageType", "nextStepLoadFile");
-                sendObject.put("number", fileNumber);
-                if (activeFileNames.size() > fileNumber + 1) {
-                    loadedBytes = new byte[((List<Long>) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1).intValue()];
-                } else {
-                    loadedBytes = null;
-                }
-                session.getUserProperties().put("activeFileNumber", fileNumber + 1);
-                session.getUserProperties().put("activeFilePosition", 0);
-                sessionHandler.sendToSession(session, sendObject.toString());
-            } else {
-                session.getUserProperties().put("activeFilePosition", filePosition + msg.remaining());
-            }
-            session.getUserProperties().put("activeLoadFile", loadedBytes);
-        } catch (Exception e) {
+            bytes = (byte[]) userProperties.get("activeLoadFile");
+            activeFilePosition = (int) userProperties.get("activeFilePosition");
+            buffer.get(bytes, activeFilePosition, buffer.remaining());
             if (!last) {
-                session.getUserProperties().put("errorFlag", true);
+                userProperties.put("activeFilePosition", activeFilePosition + buffer.position());
+                return;
             }
-            log.error("uploadFile failed", e);
-            sendObject = new JSONObject();
-            sendObject.put("fileLoaded", false);
-            sendObject.put("messageType", "nextStepLoadFile");
-            sendObject.put("number", fileNumber);
-            if (((List<String>) session.getUserProperties().get("activeFileNames")).size() > fileNumber + 1) {
-                loadedBytes = new byte[((List<Long>) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1).intValue()];
-            } else {
-                loadedBytes = null;
-            }
-            session.getUserProperties().put("activeLoadFile", loadedBytes);
-            session.getUserProperties().put("activeFileNumber", fileNumber + 1);
-            session.getUserProperties().put("activeFilePosition", 0);
-            sessionHandler.sendToSession(session, sendObject.toString());
+        } catch (Exception e){
+            throw new UploadChatFileException(e);
         }
+
+        sessionHandler.addFile(session, bytes);
+        sessionHandler.nextFileLoad(session);
     }
 
     @OnMessage

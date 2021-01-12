@@ -22,6 +22,13 @@ public class ChatMessageFile {
     private String fileName;
     private byte[] bytes;
 
+    public ChatMessageFile(){}
+
+    public ChatMessageFile(String fileName, byte[] bytes){
+        this.fileName = fileName;
+        this.bytes = bytes;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE_FILE", allocationSize = 1)
