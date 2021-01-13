@@ -155,10 +155,31 @@ public class ViewUtil {
         return generatedResult.content;
     }
     public static String convertComponentInputToTemplateValue(String componentInputContent) {
-        return componentInputContent
-                .replace('"','\'')
-                .replace("\n","")
-                .replace("[]", "{}");
+        char[] inputCharArray = componentInputContent.toCharArray();
+        char[] outputCharArray = new char[inputCharArray.length];
+        for (int inputIndex = 0, outputIndex = 0; inputIndex < inputCharArray.length; inputIndex++, outputIndex++) {
+            switch (inputCharArray[inputIndex]) {
+                case '"':
+                    outputCharArray[outputIndex] = '\'';
+                    break;
+                case '\n':
+                    outputIndex--;
+                    break;
+                case '[':
+                    if (inputIndex < inputCharArray.length - 1 && inputCharArray[inputIndex + 1] == ']') {
+                        outputCharArray[outputIndex] = '{';
+                        outputCharArray[outputIndex + 1] = '}';
+                        inputIndex++;
+                        outputIndex++;
+                    } else {
+                        outputCharArray[outputIndex] = inputCharArray[inputIndex];
+                    }
+                    break;
+                default:
+                    outputCharArray[outputIndex] = inputCharArray[inputIndex];
+            }
+        }
+        return new String(outputCharArray).trim();
     }
     public static String getComponentOutput(User user, WebHelper webHelper, Long processId, WfVariable variable) {
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
