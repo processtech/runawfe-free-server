@@ -90,14 +90,10 @@ public class ChatSocket {
     }
 
     @OnMessage
-    public void handleMessage(String message, Session session) {
-        try {
-            ChatDto dto = messageTypeService.convertJsonToDto(message);
-            ChatSocketMessageHandler handler = messageTypeService.getHandlerByMessageType(dto.getClass());
-            handler.handleMessage(session, dto, getUser(session));
-        } catch (Exception e) {
-            log.error("handleMessage failed", e);
-        }
+    public void handleMessage(String message, Session session) throws IOException {
+        ChatDto dto = messageTypeService.convertJsonToDto(message);
+        ChatSocketMessageHandler handler = messageTypeService.getHandlerByMessageType(dto.getClass());
+        handler.handleMessage(session, dto, getUser(session));
     }
 
     private static User getUser(Session session) {

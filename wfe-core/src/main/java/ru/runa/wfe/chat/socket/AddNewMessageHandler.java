@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.MaxChatFileSizeExceedException;
 import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.ChatNewMessageDto;
@@ -51,7 +52,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
         searchMentionedExecutor(mentionedExecutors, newMessage, loginsPrivateTable, user, session);
         if (haveFiles) {
             // waiting for upload
-            List<Long> fileSizes = message.getFileSizes();
+            List<Long> fileSizes = dto.getFileSizes();
             for (long size : fileSizes)
                 if (size > (1024 * 1024 * 40))
                     throw new MaxChatFileSizeExceedException();

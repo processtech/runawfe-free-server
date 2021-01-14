@@ -1142,7 +1142,7 @@ function onMessage(event) {
 		if((mesSelector != null) && (mesSelector != undefined)){
 			mesSelector.text(message0.newText);
 		}
-	} else if (message0.messType == messageError){
+	} else if (message0.messageType == messageError){
         let errorMessage = message0.message
         $("#progressBar").css({"display": "none"});
         alert(errorMessage);
