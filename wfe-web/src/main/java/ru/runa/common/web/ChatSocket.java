@@ -19,6 +19,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.common.WebResources;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatDto;
+import ru.runa.wfe.chat.service.MessageTypeService;
 import ru.runa.wfe.chat.socket.ChatSessionHandler;
 import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -33,7 +34,7 @@ public class ChatSocket {
     @Autowired
     private ChatSessionHandler sessionHandler;
     @Autowired
-    private List<ChatSocketMessageHandler> chatMessageHandlers;
+    private MessageTypeService messageTypeService;
 
     @OnOpen
     public void open(Session session) throws IOException {
@@ -67,7 +68,7 @@ public class ChatSocket {
         try {
             msg.get(loadedBytes, filePosition, msg.remaining());
             if (last) {
-                if ((boolean) session.getUserProperties().get("errorFlag") == true) {
+                if ((boolean) session.getUserProperties().get("errorFlag")) {
                     session.getUserProperties().put("errorFlag", false);
                     return;
                 }
@@ -80,7 +81,7 @@ public class ChatSocket {
                 // send "ok"
                 sendObject = new JSONObject();
                 sendObject.put("fileLoaded", true);
-                sendObject.put("messType", "nextStepLoadFile");
+                sendObject.put("messageType", "nextStepLoadFile");
                 sendObject.put("number", fileNumber);
                 if (activeFileNames.size() > fileNumber + 1) {
                     loadedBytes = new byte[((List<Long>) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1).intValue()];
@@ -90,8 +91,7 @@ public class ChatSocket {
                 session.getUserProperties().put("activeFileNumber", fileNumber + 1);
                 session.getUserProperties().put("activeFilePosition", 0);
                 sessionHandler.sendToSession(session, sendObject.toString());
-            }
-            else {
+            } else {
                 session.getUserProperties().put("activeFilePosition", filePosition + msg.remaining());
             }
             session.getUserProperties().put("activeLoadFile", loadedBytes);
@@ -102,7 +102,7 @@ public class ChatSocket {
             log.error("uploadFile failed", e);
             sendObject = new JSONObject();
             sendObject.put("fileLoaded", false);
-            sendObject.put("messType", "nextStepLoadFile");
+            sendObject.put("messageType", "nextStepLoadFile");
             sendObject.put("number", fileNumber);
             if (((List<String>) session.getUserProperties().get("activeFileNames")).size() > fileNumber + 1) {
                 loadedBytes = new byte[((List<Long>) session.getUserProperties().get("activeFileSizes")).get(fileNumber + 1).intValue()];
@@ -119,13 +119,9 @@ public class ChatSocket {
     @OnMessage
     public void handleMessage(String message, Session session) {
         try {
-            ChatDto chatDto = ChatDto.load(message, ChatDto.class);
-            for (ChatSocketMessageHandler chatSocketMessageHandler : chatMessageHandlers) {
-                if (chatSocketMessageHandler.checkType(chatDto.getMessageType())) {
-                    chatSocketMessageHandler.handleMessage(session, message, getUser(session));
-                    break;
-                }
-            }
+            ChatDto dto = messageTypeService.convertJsonToDto(message);
+            ChatSocketMessageHandler handler = messageTypeService.getHandlerByMessageType(dto.getClass());
+            handler.handleMessage(session, dto, getUser(session));
         } catch (Exception e) {
             log.error("handleMessage failed", e);
         }
