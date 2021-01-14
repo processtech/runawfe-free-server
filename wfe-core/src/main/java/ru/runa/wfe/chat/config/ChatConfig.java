@@ -1,29 +1,32 @@
 package ru.runa.wfe.chat.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import ru.runa.wfe.chat.dto.*;
-import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import ru.runa.wfe.chat.dto.ChatDeleteMessageDto;
+import ru.runa.wfe.chat.dto.ChatDto;
+import ru.runa.wfe.chat.dto.ChatEditMessageDto;
+import ru.runa.wfe.chat.dto.ChatGetMessagesDto;
+import ru.runa.wfe.chat.dto.ChatNewMessageDto;
+import ru.runa.wfe.chat.dto.ChatReadMessageDto;
+import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
 
 @Configuration
 public class ChatConfig {
 
     @Bean
     public List<Class<? extends ChatDto>> dtoClasses() {
-        List<Class<? extends ChatDto>> dtoClasses = new ArrayList<>();
-
-        dtoClasses.add(ChatNewMessageDto.class);
-        dtoClasses.add(ChatReadMessageDto.class);
-        dtoClasses.add(ChatEditMessageDto.class);
-        dtoClasses.add(ChatDeleteMessageDto.class);
-        dtoClasses.add(ChatGetMessagesDto.class);
-
-        return dtoClasses;
+        return Arrays.asList(
+                ChatNewMessageDto.class,
+                ChatReadMessageDto.class,
+                ChatEditMessageDto.class,
+                ChatDeleteMessageDto.class,
+                ChatGetMessagesDto.class
+        );
     }
 
     @Bean
