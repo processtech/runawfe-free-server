@@ -133,7 +133,7 @@ var stepLoadFileType = "stepLoadFile";
 var unblockOldMes = "unblockOldMes";
 var deleteMessageType = "deleteMessage";
 var getMessagesType = "getMessages";
-var readMessageType ="readMessage";
+var readMessageType = "readMessage";
 
 //id task
 var idProcess=$("#ChatForm").attr("processId");
@@ -348,7 +348,7 @@ function deleteMessage(){
 			let newMessage={};
 			newMessage.messageId=$(this).closest(".selectionTextQuote").attr("mesId");
 			newMessage.processId=idProcess;
-			newMessage.messType=deleteMessageType;
+			newMessage.messageType=deleteMessageType;
 			chatSocket.send(JSON.stringify(newMessage));
 			$(this).closest(".selectionTextQuote").remove();
 		}
@@ -369,7 +369,7 @@ function editMessage(){
 function newxtMessages(count){
 	let newMessage={};
 	newMessage.processId=idProcess;
-	newMessage.messType=getMessagesType;
+	newMessage.messageType=getMessagesType;
 	newMessage.lastMessageId=minMassageId;
 	newMessage.count = count; // количество сообщений
 	let firstMessages = JSON.stringify(newMessage);
@@ -454,7 +454,7 @@ function sendMessage() {
 			newMessage.message=message;
 			newMessage.processId=idProcess;
 			newMessage.idHierarchyMessage = idHierarchyMessage;
-			newMessage.messType=newMessageType;
+			newMessage.messageType=newMessageType;
 			newMessage.isPrivate=$("#checkBoxPrivateMessage").prop("checked");
 			let namesPrivate="";
 			$("#tablePrivate table tr").each(function(row){
@@ -510,7 +510,7 @@ function sendMessage() {
 				let newMessage={};
 				newMessage.message=message;
 				newMessage.processId=idProcess;
-				newMessage.messType=editMessageType;
+				newMessage.messageType=editMessageType;
 				newMessage.editMessageId = editMessageId;
 				$("#message").val(""); 
 				chatSocket.send(JSON.stringify(newMessage));
@@ -646,7 +646,7 @@ function updatenumberNewMessages(numberNewMessages0){
 function updateLastReadMessage(){
 	let newSend0={};
 	newSend0.processId=idProcess;
-	newSend0.messType=readMessageType;
+	newSend0.messageType=readMessageType;
 	newSend0.currentMessageId=currentMessageId+"";
 	let sendObject0 = JSON.stringify(newSend0);
 	chatSocket.send(sendObject0);
@@ -1107,17 +1107,17 @@ function stepLoadFile(i){
 //приём с сервера
 function onMessage(event) {
 	let message0 = JSON.parse(event.data);
-	if(message0.messType == newMessageType){
+	if(message0.messageType == newMessageType){
 		addMessage(message0);
 	}
-	else if(message0.messType == unblockOldMes){
+	else if(message0.messageType == unblockOldMes){
 		blocOldMes=0;
 	}
-	else if(message0.messType == stepLoadFileType){
+	else if(message0.messageType == stepLoadFileType){
 		if(attachedFiles.length > 0)
 			stepLoadFile(0);
 	}
-	else if(message0.messType == nextStepLoadFileType){
+	else if(message0.messageType == nextStepLoadFileType){
 		if(message0.fileLoaded == false){
 			//тут обработка непринятого файла
 		}
@@ -1128,7 +1128,7 @@ function onMessage(event) {
 		else{
 			let newMessage={};
 			newMessage.processId=idProcess;
-			newMessage.messType=endLoadFilesType;
+			newMessage.messageType=endLoadFilesType;
 			chatSocket.send(JSON.stringify(newMessage));
 			attachedFiles = [];
 			$("#progressBar").css({"display":"none"});
@@ -1136,7 +1136,7 @@ function onMessage(event) {
 			lockFlag = false;
 		}
 	}
-	else if(message0.messType == editMessageType){
+	else if(message0.messageType == editMessageType){
 		let mesSelector = $("[textMessagId='"+message0.mesId+"']");
 		if((mesSelector != null) && (mesSelector != undefined)){
 			mesSelector.text(message0.newText);
@@ -1293,7 +1293,7 @@ function getAllChat(data){
 //обработка сообщений для сокета "новых сообщений (chatsNewMessSocket)"
 function onChatsNewMessSocketMessage(event){
 	let message0 = JSON.parse(event.data);
-	if(message0.messType == newMessageType){
+	if(message0.messageType == newMessageType){
 		if(message0.processId != idProcess){
 			$("#numberNewMessages"+message0.processId).text(Number.parseInt($("#numberNewMessages"+message0.processId).text()) + 1);
 			if(message0.mentioned == true){
