@@ -171,11 +171,8 @@ abstract public class FormTag extends VisibleTag {
             if (isMultipleSubmit()) {
                 td.addElement(new Input(Input.HIDDEN, MULTIPLE_SUBMIT_BUTTONS, "true"));
                 for (Map<String, String> buttonData : getSubmitButtonsData()) {
-                    String type;
-                    if (buttonData.containsKey(ATTRIBUTE_TYPE)) {
-                        type = buttonData.remove(ATTRIBUTE_TYPE);
-
-                    } else {
+                    String type = buttonData.remove(ATTRIBUTE_TYPE);
+                    if (type == null) {
                         type = Input.SUBMIT;
                     }
                     Input submitButton = new Input(type, SUBMIT_BUTTON_NAME, buttonData.remove(ATTRIBUTE_NAME));
