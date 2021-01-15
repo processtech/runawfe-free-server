@@ -10,6 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -18,7 +21,6 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -117,11 +119,16 @@ public class DataSourceStorage implements DataSourceStuff {
             if (doNotChangeInternalStoragePath && dsName.equals(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)) {
                 DataSource ds = getDataSource(dsName);
                 if (ds instanceof ExcelDataSource) {
-                    for (File file : Objects.requireNonNull(new File(((ExcelDataSource) ds).getFilePath()).listFiles())) {
-                        String fileName = file.getPath();
-                        if (file.isFile() && (fileName.endsWith(EXCEL_FILE_XLS_SUFFIX) || fileName.endsWith(EXCEL_FILE_XLSX_SUFFIX)) && file.delete()) {
-                            log.info(fileName + " is removed");
+                    try {
+                        for (Path path : Files.newDirectoryStream(Paths.get(((ExcelDataSource) ds).getFilePath()),
+                                "*{" + EXCEL_FILE_XLS_SUFFIX + "," + EXCEL_FILE_XLSX_SUFFIX + "}")) {
+                            File file = path.toFile();
+                            if (file.isFile() && file.delete()) {
+                                log.info(file + " is removed");
+                            }
                         }
+                    } catch (IOException e) {
+                        log.error(e);
                     }
                 }
                 continue;
