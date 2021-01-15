@@ -6,14 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.dto.ChatDeleteMessageDto;
-import ru.runa.wfe.chat.dto.ChatNewMessageDto;
+import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 
 @Component
-public class DeleteMessageHandler implements ChatSocketMessageHandler {
+public class DeleteMessageHandler implements ChatSocketMessageHandler<ChatDeleteMessageDto> {
 
     @Autowired
     private ExecutionLogic executionLogic;
@@ -24,20 +24,18 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler {
 
     @Transactional
     @Override
-    public void handleMessage(Session session, String objectMessage, User user) throws IOException {
-        ChatDeleteMessageDto chatDeleteMessageDto = (ChatDeleteMessageDto) ChatNewMessageDto.load(objectMessage, ChatDeleteMessageDto.class);
+    public void handleMessage(Session session, ChatDeleteMessageDto dto, User user) throws IOException {
         if (executionLogic.getProcess(user, (Long) session.getUserProperties().get("processId")).isEnded()) {
             return;
         }
         if (!executorLogic.isAdministrator(user)) {
             return;
         }
-        chatLogic.deleteMessage(user.getActor(), chatDeleteMessageDto.getMessageId());// messageId
+        chatLogic.deleteMessage(user.getActor(), dto.getMessageId());
     }
 
     @Override
-    public boolean checkType(String messageType) {
-        return messageType.equals("deleteMessage");
+    public boolean isSupports(Class<? extends ChatDto> messageType) {
+        return messageType.equals(ChatDeleteMessageDto.class);
     }
-
 }

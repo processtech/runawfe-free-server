@@ -7,14 +7,14 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.dto.ChatGetMessagesDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.chat.dto.ChatNewMessageDto;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.user.User;
 
 @Component
-public class GetMessagesMessageHandler implements ChatSocketMessageHandler {
+public class GetMessagesMessageHandler implements ChatSocketMessageHandler<ChatGetMessagesDto> {
 
     @Autowired
     private ChatSessionHandler sessionHandler;
@@ -23,14 +23,13 @@ public class GetMessagesMessageHandler implements ChatSocketMessageHandler {
 
     @Transactional
     @Override
-    public void handleMessage(Session session, String objectMessage, User user) throws IOException {
-        ChatGetMessagesDto getMessagesDto = (ChatGetMessagesDto) ChatNewMessageDto.load(objectMessage, ChatGetMessagesDto.class);
+    public void handleMessage(Session session, ChatGetMessagesDto dto, User user) throws IOException {
         List<ChatMessageDto> messages;
-        if (getMessagesDto.getLastMessageId() < 0) {
-            getMessagesDto.setLastMessageId(chatLogic.getLastReadMessage(user.getActor(), getMessagesDto.getProcessId()));
+        if (dto.getLastMessageId() < 0) {
+            dto.setLastMessageId(chatLogic.getLastReadMessage(user.getActor(), dto.getProcessId()));
         }
-        messages = chatLogic.getMessages(user.getActor(), getMessagesDto.getProcessId(), getMessagesDto.getLastMessageId(),
-                getMessagesDto.getCount());
+        messages = chatLogic.getMessages(user.getActor(), dto.getProcessId(), dto.getLastMessageId(),
+                dto.getCount());
         for (ChatMessageDto newMessage : messages) {
             newMessage.setOld(true);
             if (newMessage.getMessage().getCreateActor().equals(user.getActor())) {
@@ -39,13 +38,12 @@ public class GetMessagesMessageHandler implements ChatSocketMessageHandler {
             sessionHandler.sendToSession(session, newMessage.convert());
         }
         JSONObject sendUnblockOldMes = new JSONObject();
-        sendUnblockOldMes.put("messType", "unblockOldMes");
+        sendUnblockOldMes.put("messageType", "unblockOldMes");
         sessionHandler.sendToSession(session, sendUnblockOldMes.toString());
     }
 
     @Override
-    public boolean checkType(String messageType) {
-        return messageType.equals("getMessages");
+    public boolean isSupports(Class<? extends ChatDto> messageType) {
+        return messageType.equals(ChatGetMessagesDto.class);
     }
-
 }

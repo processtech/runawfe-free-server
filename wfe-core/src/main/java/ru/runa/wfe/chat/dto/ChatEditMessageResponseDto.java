@@ -4,19 +4,8 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class ChatEditMessageResponseDto extends ChatDto {
-    private String messageType;
     private Long messageId;
     private String messageText;
-
-    @JsonGetter("messType")
-    public String getMessageType() {
-        return messageType;
-    }
-
-    @JsonSetter("messType")
-    public void setMessageType(String messageType) {
-        this.messageType = messageType;
-    }
 
     @JsonGetter("mesId")
     public Long getMessageId() {

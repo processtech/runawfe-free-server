@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
@@ -16,7 +17,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 @Component
-public class EndLoadFilesMessageHandler implements ChatSocketMessageHandler {
+public class EndLoadFilesMessageHandler implements ChatSocketMessageHandler<ChatDto> {
 
     @Autowired
     private ChatSessionHandler sessionHandler;
@@ -27,7 +28,7 @@ public class EndLoadFilesMessageHandler implements ChatSocketMessageHandler {
 
     @Transactional
     @Override
-    public void handleMessage(Session session, String objectMessage, User user) throws IOException {
+    public void handleMessage(Session session, ChatDto dto, User user) throws IOException {
         if (executionLogic.getProcess(user, (Long) session.getUserProperties().get("processId")).isEnded()) {
             return;
         }
@@ -56,8 +57,8 @@ public class EndLoadFilesMessageHandler implements ChatSocketMessageHandler {
     }
 
     @Override
-    public boolean checkType(String messageType) {
-        return messageType.equals("endLoadFiles");
+    public boolean isSupports(Class<? extends ChatDto> messageType) {
+        return false;
     }
 
 }

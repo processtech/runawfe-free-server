@@ -120,7 +120,7 @@ $(document).ready(function() {
 
 	function onChatsNewMessSocketMessage(event){
 		let message0 = JSON.parse(event.data);
-		if(message0.messType == "newMessage"){
+		if(message0.messageType == "newMessage"){
 			let numberNewMessagesTD = $("#numberNewMessages"+message0.processId);
 			numberNewMessagesTD.text(Number.parseInt(numberNewMessagesTD.text()) + 1);
 			if(message0.mentioned == true){
