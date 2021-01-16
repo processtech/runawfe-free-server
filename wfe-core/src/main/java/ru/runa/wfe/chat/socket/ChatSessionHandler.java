@@ -7,8 +7,6 @@ import javax.websocket.Session;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.JSONMessageStatus;
 import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.MessageForCloseChatDto;
@@ -139,57 +137,11 @@ public class ChatSessionHandler {
                 mentionedActors, isPrivate);
     }
 
-    // создаёт объект ChatMessageFile и добавляет его в userProperties
-    public void addFile(Session session, byte[] bytes){
-        Map<String, Object> userProperties = session.getUserProperties();
-        int fileNumber = (int) userProperties.get("activeFileNumber");
-        List<String> activeFileNames = ((List<String>) userProperties.get("activeFileNames"));
-        ChatMessageFile chatMessageFile = new ChatMessageFile(activeFileNames.get(fileNumber), bytes);
-        ((ArrayList<ChatMessageFile>) userProperties.get("activeFiles")).add(chatMessageFile);
-    }
-
-    public void nextFileLoad(Session session) throws IOException {
-        nextStepFile(session, true);
-    }
-
-    public void loadFileError(Session session) throws IOException {
-        nextStepFile(session, false);
-    }
-
-    //готовит userProperties для получения следующего файла и отвечает клиенту что файл загружен(не загружен)
-    private void nextStepFile(Session session, boolean isPrevFileLoaded) throws IOException {
-        Map<String, Object> userProperties = session.getUserProperties();
-        int fileNumber = (Integer) userProperties.get("activeFileNumber") + 1;
-        userProperties.put("activeFilePosition", 0);
-        userProperties.put("activeFileNumber", fileNumber);
-        byte[] bytes = null;
-        if (((List<String>) userProperties.get("activeFileNames")).size() > fileNumber)
-            bytes = new byte[((List<Long>) userProperties.get("activeFileSizes")).get(fileNumber).intValue()];
-        userProperties.put("activeLoadFile", bytes);
-
-        String message = JSONMessageStatus.nextStepLoadFile(isPrevFileLoaded, fileNumber);
-        sendToSession(session, message);
-    }
-
-    // очищает userProperties и отвечает клиенту что сообщение не принято
+    // replies to the client that the message was not received
     public void messageError(Session session, String message) throws IOException {
-        clearUserProperties(session);
-        sendToSession(session, JSONMessageStatus.error(message));
+        JSONObject result = new JSONObject();
+        result.put("messageType", "error");
+        result.put("message", message);
+        sendToSession(session, result.toJSONString());
     }
-
-    // очищает userProperties
-    // дублирование кода, взято из EndLoadFilesMessageHandler
-    private void clearUserProperties(Session session){
-        Map<String, Object> userProperties = session.getUserProperties();
-        userProperties.put("activeMessage", null);
-        userProperties.put("activeLoadFile", null);
-        userProperties.put("activeFileNames", "");
-        userProperties.put("activeFileSizes", "");
-        userProperties.put("activeFileNumber", 0);
-        userProperties.put("activeFilePosition", 0);
-        userProperties.put("activeFiles", null);
-        userProperties.put("activeIsPrivate", false);
-        userProperties.put("activeMentionedExecutors", null);
-    }
-
 }

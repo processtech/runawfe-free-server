@@ -1,24 +1,18 @@
 package ru.runa.common.web;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.interceptor.Interceptors;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import lombok.extern.apachecommons.CommonsLog;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.common.WebResources;
-import ru.runa.wfe.chat.UploadChatFileException;
 import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.service.MessageTypeService;
 import ru.runa.wfe.chat.socket.ChatSessionHandler;
 import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
-import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 @ApplicationScoped
@@ -37,6 +31,7 @@ public class ChatSocket {
         if (!WebResources.isChatEnabled()) {
             session.close();
         } else {
+            session.setMaxTextMessageBufferSize(1024 * 1024 * 10);
             sessionHandler.addSession(session);
         }
     }
@@ -50,43 +45,10 @@ public class ChatSocket {
     public void onError(Throwable error, Session session) {
         log.error(error);
         try {
-            if (error instanceof UploadChatFileException) {
-                sessionHandler.loadFileError(session);
-            } else {
-                sessionHandler.messageError(session, error.getMessage());
-            }
+            sessionHandler.messageError(session, error.getMessage());
         } catch (IOException e) {
             log.error(e);
         }
-    }
-
-    @OnMessage
-    public void uploadFile(ByteBuffer buffer, boolean last, Session session) throws IOException {
-        if (Delegates.getExecutionService()
-                .getProcess(getUser(session), (Long) session.getUserProperties().get("processId")).isEnded()) {
-            return;
-        }
-
-        // сбор файла по частям
-        // при любой ошибке выбрасывается UploadChatFileException
-        byte[] bytes;
-        int activeFilePosition;
-        Map<String, Object> userProperties = session.getUserProperties();
-
-        try {
-            bytes = (byte[]) userProperties.get("activeLoadFile");
-            activeFilePosition = (int) userProperties.get("activeFilePosition");
-            buffer.get(bytes, activeFilePosition, buffer.remaining());
-            if (!last) {
-                userProperties.put("activeFilePosition", activeFilePosition + buffer.position());
-                return;
-            }
-        } catch (Exception e){
-            throw new UploadChatFileException(e);
-        }
-
-        sessionHandler.addFile(session, bytes);
-        sessionHandler.nextFileLoad(session);
     }
 
     @OnMessage

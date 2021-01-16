@@ -3,13 +3,11 @@ package ru.runa.wfe.chat.socket;
 import java.io.IOException;
 import java.util.*;
 import javax.websocket.Session;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.MaxChatFileSizeExceedException;
 import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.ChatNewMessageDto;
@@ -39,10 +37,10 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
             return;
         }
         ChatMessage newMessage = new ChatMessage();
+        ChatMessageDto chatMessageDto;
         newMessage.setCreateActor(user.getActor());
         newMessage.setText(dto.getMessage());
         newMessage.setQuotedMessageIds(dto.getIdHierarchyMessage());
-        boolean haveFiles = dto.getIsHaveFile();
         Boolean isPrivate = dto.getIsPrivate();
         String privateNames = dto.getPrivateNames();
         String[] loginsPrivateTable = privateNames != null ? privateNames.split(";") : new String[0];
@@ -50,39 +48,27 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
         newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
         Set<Executor> mentionedExecutors = new HashSet<Executor>();
         searchMentionedExecutor(mentionedExecutors, newMessage, loginsPrivateTable, user, session);
-        if (haveFiles) {
-            // waiting for upload
-            List<Long> fileSizes = dto.getFileSizes();
-            for (long size : fileSizes)
-                if (size > (1024 * 1024 * 40))
-                    throw new MaxChatFileSizeExceedException();
-            session.getUserProperties().put("activeProcessId", processId);
-            session.getUserProperties().put("activeMessage", newMessage);
-            session.getUserProperties().put("activeIsPrivate", isPrivate);
-            session.getUserProperties().put("activeMentionedExecutors", mentionedExecutors);
-            session.getUserProperties().put("activeFileNames", dto.getFileNames());
-            session.getUserProperties().put("activeFileSizes", dto.getFileSizes());
-            session.getUserProperties().put("activeFilePosition", 0);
-            Integer fileNumber = 0;
-            session.getUserProperties().put("activeFileNumber", fileNumber);
-            session.getUserProperties().put("errorFlag", false);
-            session.getUserProperties().put("activeFiles", new ArrayList<ChatMessageFile>());
-            session.getUserProperties().put("activeLoadFile", new byte[(dto.getFileSizes()).get(0).intValue()]);
-            JSONObject sendObject = new JSONObject();
-            sendObject.put("messageType", "stepLoadFile");
-            sessionHandler.sendToSession(session, sendObject.toString());
-        } else {
-            Collection<Actor> mentionedActors = new HashSet<Actor>();
-            for (Executor mentionedExecutor : mentionedExecutors) {
-                if (mentionedExecutor instanceof Actor) {
-                    mentionedActors.add((Actor) mentionedExecutor);
-                }
+        Collection<Actor> mentionedActors = new HashSet<Actor>();
+        for (Executor mentionedExecutor : mentionedExecutors) {
+            if (mentionedExecutor instanceof Actor) {
+                mentionedActors.add((Actor) mentionedExecutor);
             }
+        }
+        if (dto.getIsHaveFile()) {
+            ArrayList<ChatMessageFile> chatMessageFiles = new ArrayList<>();
+            for (Map.Entry<String, byte[]> entry : dto.getFiles().entrySet()){
+                ChatMessageFile chatMessageFile = new ChatMessageFile(entry.getKey(), entry.getValue());
+                chatMessageFiles.add(chatMessageFile);
+            }
+            chatMessageDto = chatLogic.saveMessageAndBindFiles(user.getActor(), processId, newMessage, mentionedExecutors,
+                    isPrivate, chatMessageFiles);
+        } else {
             Long newMessId = chatLogic.saveMessage(user.getActor(), processId, newMessage, mentionedExecutors, isPrivate);
             newMessage.setId(newMessId);
-            ChatMessageDto chatMessageDto = new ChatMessageDto(newMessage);
-            sessionHandler.sendNewMessage(mentionedExecutors, chatMessageDto, isPrivate);
+            chatMessageDto = new ChatMessageDto(newMessage);
+
         }
+        sessionHandler.sendNewMessage(mentionedExecutors, chatMessageDto, isPrivate);
     }
 
     void searchMentionedExecutor(Collection<Executor> mentionedExecutors, ChatMessage newMessage, String[] loginsPrivateTable, User user,

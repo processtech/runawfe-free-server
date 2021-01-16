@@ -135,6 +135,7 @@ var deleteMessageType = "deleteMessage";
 var getMessagesType = "getMessages";
 var readMessageType = "readMessage";
 var messageError = "error";
+let attachedFilesBase64 = {};
 
 //id task
 var idProcess=$("#ChatForm").attr("processId");
@@ -477,28 +478,13 @@ function sendMessage() {
 				newMessage.fileNames = fileNames;
 				newMessage.fileSizes = fileSizes;
 				lockFlag = true;
+				sendWithFiles(attachedFiles, newMessage)
 			}
 			else{
 				newMessage.haveFile=false;
 				lockFlag = false
+				send(newMessage);
 			}
-			//отправка
-			chatSocket.send(JSON.stringify(newMessage));
-			$("#message").val("");
-			// чистим "ответы"
-			let addReplys0 = document.getElementsByClassName("addReply");
-			for(let i=0; i<addReplys0.length; i++){
-				$(addReplys0[ i ]).text(addReplyButtonText);
-				$(addReplys0[ i ]).attr("flagAttach", "false");
-			}
-			attachedPosts=[];
-			$("#checkBoxPrivateMessage").prop("checked",false);
-			$("#messReplyTable").empty();
-			$(".warningText").text("0/1024");
-			$("#message").keyup(keyupUserNames);
-			$("#fileInput").val("");
-			$("#tablePrivate table").empty();
-			$("#privateBlock").css("display","none");
 		}
 		else{//редактирование сообщения
 			if(confirm(warningEditMessage)){
@@ -529,6 +515,57 @@ function sendMessage() {
 	}
 	return 0;
 }
+// отправка
+const send = (message) => {
+	chatSocket.send(JSON.stringify(message));
+	$("#message").val("");
+	// чистим "ответы"
+	let addReplys0 = document.getElementsByClassName("addReply");
+	for(let i=0; i<addReplys0.length; i++){
+		$(addReplys0[ i ]).text(addReplyButtonText);
+		$(addReplys0[ i ]).attr("flagAttach", "false");
+	}
+	attachedPosts=[];
+	$("#checkBoxPrivateMessage").prop("checked",false);
+	$("#messReplyTable").empty();
+	$(".warningText").text("0/1024");
+	$("#message").keyup(keyupUserNames);
+	$("#fileInput").val("");
+	$("#tablePrivate table").empty();
+	$("#privateBlock").css("display","none");
+}
+
+const sendWithFiles = async (files, message) => {
+	const fileToBase64Promises = [];
+	files.forEach(file => {
+		fileToBase64Promises.push(fileToBase64(file))
+	});
+	const result = await Promise.all(fileToBase64Promises).catch(error => Error(error));
+	if (result instanceof Error){
+		alert(result.message);
+		return;
+	}
+	message.files = attachedFilesBase64;
+	send(message);
+	attachedFilesBase64 = {};
+	attachedFiles = [];
+	$("#progressBar").css({"display":"none"});
+	$("#filesTable").empty();
+	lockFlag = false;
+}
+
+const fileToBase64 = (file) => new Promise((resolve, reject) => {
+	let reader = new FileReader();
+	let buffer = new ArrayBuffer();
+	reader.onload = (e) => {
+		buffer = e.target.result;
+		attachedFilesBase64[file.name] = btoa(buffer)
+		resolve();
+	}
+	reader.onerror = error => reject(error);
+	reader.readAsBinaryString(file)
+	});
+
 //кнопка увеличить/уменьшить чат
 function zoomInZoomOut(){
 	if(lockFlag == false){

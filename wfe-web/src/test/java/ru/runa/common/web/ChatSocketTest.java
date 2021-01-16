@@ -1,12 +1,6 @@
 package ru.runa.common.web;
 
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
-import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.MaxChatFileSizeExceedException;
-import ru.runa.wfe.chat.UploadChatFileException;
 import ru.runa.wfe.chat.socket.AddNewMessageHandler;
 import ru.runa.wfe.chat.socket.ChatSessionHandler;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -62,43 +56,43 @@ public class ChatSocketTest {
 
     }
 
-    @Test
-    public void userPropertiesShouldBeFilledInAsANewMessage() throws IOException {
-        addNewMessageHandler.handleMessage(session, message, user);
-        Map<String, Object> map = session.getUserProperties();
-        map.forEach((k, v) -> System.out.println(k + " : " + v));
-    }
-
-    @Test(expected = MaxChatFileSizeExceedException.class)
-    public void handleMessageShouldBeThrowMaxChatFileSizeExceedException() throws IOException {
-        setMessage("[525, 545464, 5464, 45000000, 56546]");
-        addNewMessageHandler.handleMessage(session, message, user);
-    }
-
-    @Test(expected = UploadChatFileException.class)
-    public void loadFileShouldThrowUploadChatFileException() throws IOException {
-        addNewMessageHandler.handleMessage(session, message, user);
-        int fileSize = ((List<Long>)session.getUserProperties().get("activeFileSizes")).get(0).intValue();
-        // буфер будет больше размера
-        // который в userProperties
-        buffer = ByteBuffer.allocate(fileSize + 1);
-        int rem = buffer.remaining();
-        fillBuffer(buffer, rem);
-        socket.uploadFile(buffer, true, session);
-    }
-
-    @Test
-    public void loadFileShouldResultEqualInputArray() throws IOException {
-        addNewMessageHandler.handleMessage(session, message, user);
-        int fileSize = ((List<Long>)session.getUserProperties().get("activeFileSizes")).get(0).intValue();
-        buffer = ByteBuffer.allocate(fileSize);
-        int rem = buffer.remaining();
-        fillBuffer(buffer, rem);
-        byte[] b1 = buffer.array();
-        socket.uploadFile(buffer, true, session);
-        byte[] b2 = ((List<ChatMessageFile>) session.getUserProperties().get("activeFiles")).get(0).getBytes();
-        Assert.assertTrue(Arrays.equals(b1, b2));
-    }
+//    @Test
+//    public void userPropertiesShouldBeFilledInAsANewMessage() throws IOException {
+//        addNewMessageHandler.handleMessage(session, message, user);
+//        Map<String, Object> map = session.getUserProperties();
+//        map.forEach((k, v) -> System.out.println(k + " : " + v));
+//    }
+//
+//    @Test(expected = MaxChatFileSizeExceedException.class)
+//    public void handleMessageShouldBeThrowMaxChatFileSizeExceedException() throws IOException {
+//        setMessage("[525, 545464, 5464, 45000000, 56546]");
+//        addNewMessageHandler.handleMessage(session, message, user);
+//    }
+//
+//    @Test(expected = UploadChatFileException.class)
+//    public void loadFileShouldThrowUploadChatFileException() throws IOException {
+//        addNewMessageHandler.handleMessage(session, message, user);
+//        int fileSize = ((List<Long>)session.getUserProperties().get("activeFileSizes")).get(0).intValue();
+//        // буфер будет больше размера
+//        // который в userProperties
+//        buffer = ByteBuffer.allocate(fileSize + 1);
+//        int rem = buffer.remaining();
+//        fillBuffer(buffer, rem);
+//        socket.uploadFile(buffer, true, session);
+//    }
+//
+//    @Test
+//    public void loadFileShouldResultEqualInputArray() throws IOException {
+//        addNewMessageHandler.handleMessage(session, message, user);
+//        int fileSize = ((List<Long>)session.getUserProperties().get("activeFileSizes")).get(0).intValue();
+//        buffer = ByteBuffer.allocate(fileSize);
+//        int rem = buffer.remaining();
+//        fillBuffer(buffer, rem);
+//        byte[] b1 = buffer.array();
+//        socket.uploadFile(buffer, true, session);
+//        byte[] b2 = ((List<ChatMessageFile>) session.getUserProperties().get("activeFiles")).get(0).getBytes();
+//        Assert.assertTrue(Arrays.equals(b1, b2));
+//    }
 
     private void setField(Object object, String fieldName, Object inject) throws NoSuchFieldException, IllegalAccessException {
         Field field = object.getClass().getDeclaredField(fieldName);

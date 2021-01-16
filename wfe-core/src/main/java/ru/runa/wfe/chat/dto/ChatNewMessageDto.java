@@ -1,8 +1,13 @@
 package ru.runa.wfe.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.olap4j.impl.Base64;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatNewMessageDto extends ChatDto {
     private String message;
@@ -13,6 +18,7 @@ public class ChatNewMessageDto extends ChatDto {
     private String processId;
     private List<String> fileNames;
     private List<Long> fileSizes;
+    private Map<String, byte[]> files;
 
     @JsonGetter("message")
     public String getMessage() {
@@ -94,4 +100,18 @@ public class ChatNewMessageDto extends ChatDto {
         this.fileSizes = fileSizes;
     }
 
+    @JsonGetter("files")
+    public Map<String, byte[]> getFiles() {
+        return files;
+    }
+
+    @JsonSetter("files")
+    public void setFiles(Map<String, Object> map){
+        Map<String, byte[]> result = new HashMap<>();
+        for (Map.Entry<String, Object> entry : map.entrySet()){
+            byte[] bytes = Base64.decode((String) entry.getValue());
+            result.put(entry.getKey(), bytes);
+        }
+        this.files = result;
+    }
 }
