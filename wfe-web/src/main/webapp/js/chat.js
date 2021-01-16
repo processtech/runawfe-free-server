@@ -1182,7 +1182,7 @@ function onMessage(event) {
 	} else if (message0.messageType == messageError){
         let errorMessage = message0.message
         $("#progressBar").css({"display": "none"});
-        alert(errorMessage);
+        alert("Сообщение не отправлено. Error: " + errorMessage);
         lockFlag = false;
     }
 }

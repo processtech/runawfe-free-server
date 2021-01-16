@@ -15,7 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
         @JsonSubTypes.Type(value = ChatReadMessageDto.class, name = "readMessage"),
         @JsonSubTypes.Type(value = ChatEditMessageDto.class, name = "editMessage"),
         @JsonSubTypes.Type(value = ChatDeleteMessageDto.class, name = "deleteMessage"),
-        @JsonSubTypes.Type(value = ChatGetMessagesDto.class, name = "getMessages")
+        @JsonSubTypes.Type(value = ChatGetMessagesDto.class, name = "getMessages"),
+        @JsonSubTypes.Type(value = ChatErrorDto.class, name = "error")
 })
 public class ChatDto {
     public String convert() throws JsonProcessingException {

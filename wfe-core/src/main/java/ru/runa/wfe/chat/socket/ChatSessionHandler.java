@@ -1,13 +1,11 @@
 package ru.runa.wfe.chat.socket;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
-import javax.websocket.Session;
+import lombok.extern.apachecommons.CommonsLog;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.dto.ChatDto;
+import ru.runa.wfe.chat.dto.ChatErrorDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.MessageForCloseChatDto;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -16,6 +14,15 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
+import javax.websocket.Session;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+@CommonsLog
 @Component
 public class ChatSessionHandler {
     private final CopyOnWriteArraySet<Session> sessions = new CopyOnWriteArraySet<Session>();
@@ -137,11 +144,12 @@ public class ChatSessionHandler {
                 mentionedActors, isPrivate);
     }
 
-    // replies to the client that the message was not received
-    public void messageError(Session session, String message) throws IOException {
-        JSONObject result = new JSONObject();
-        result.put("messageType", "error");
-        result.put("message", message);
-        sendToSession(session, result.toJSONString());
+    public void messageError(Session session, String message) {
+        ChatErrorDto errorDto = new ChatErrorDto(message);
+        try {
+            sendToSession(session, errorDto.convert());
+        } catch (IOException e) {
+            log.error(e);
+        }
     }
 }

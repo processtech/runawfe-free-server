@@ -31,7 +31,6 @@ public class ChatSocket {
         if (!WebResources.isChatEnabled()) {
             session.close();
         } else {
-            session.setMaxTextMessageBufferSize(1024 * 1024 * 10);
             sessionHandler.addSession(session);
         }
     }
@@ -44,11 +43,7 @@ public class ChatSocket {
     @OnError
     public void onError(Throwable error, Session session) {
         log.error(error);
-        try {
-            sessionHandler.messageError(session, error.getMessage());
-        } catch (IOException e) {
-            log.error(e);
-        }
+        sessionHandler.messageError(session, error.getMessage());
     }
 
     @OnMessage

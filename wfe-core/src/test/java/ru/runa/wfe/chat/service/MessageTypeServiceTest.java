@@ -105,16 +105,6 @@ public class MessageTypeServiceTest {
         Assert.assertTrue(handler instanceof GetMessagesMessageHandler);
     }
 
-    @Test
-    public void endLoadFilesTest() throws IOException {
-        final String END_LOAD_FILES =
-                "{\"messageType\":\"ChatDto\"}";
-
-        ChatDto dto = service.convertJsonToDto(END_LOAD_FILES);
-        ChatSocketMessageHandler<? extends ChatDto> handler = service.getHandlerByMessageType(dto.getClass());
-        Assert.assertTrue(handler instanceof EndLoadFilesMessageHandler);
-    }
-
     @Configuration
     public static class ContextConfiguration {
 
@@ -127,7 +117,6 @@ public class MessageTypeServiceTest {
             handlersByMessageType.put(ChatEditMessageDto.class, new EditMessageHandler());
             handlersByMessageType.put(ChatDeleteMessageDto.class, new DeleteMessageHandler());
             handlersByMessageType.put(ChatGetMessagesDto.class, new GetMessagesMessageHandler());
-            handlersByMessageType.put(ChatDto.class, new EndLoadFilesMessageHandler());
 
             return handlersByMessageType;
         }
