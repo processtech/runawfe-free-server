@@ -9,6 +9,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.common.WebResources;
+import ru.runa.wfe.chat.coder.ChatDtoBinaryDecoder;
 import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.service.MessageTypeService;
 import ru.runa.wfe.chat.socket.ChatSessionHandler;
@@ -18,7 +19,10 @@ import ru.runa.wfe.user.User;
 @ApplicationScoped
 @CommonsLog
 @Interceptors({ SpringBeanAutowiringInterceptor.class })
-@ServerEndpoint(value = "/chatSoket", subprotocols = { "wss" }, configurator = ChatSocketConfigurator.class)
+@ServerEndpoint(value = "/chatSoket",
+        subprotocols = { "wss" },
+        configurator = ChatSocketConfigurator.class,
+        decoders = {ChatDtoBinaryDecoder.class})
 public class ChatSocket {
 
     @Autowired
@@ -46,9 +50,10 @@ public class ChatSocket {
         sessionHandler.messageError(session, error.getMessage());
     }
 
-    @OnMessage
-    public void handleMessage(String message, Session session) throws IOException {
-        ChatDto dto = messageTypeService.convertJsonToDto(message);
+    // Base64 encoding causes an overhead of 33–36%
+    // (33% by the encoding itself; up to 3% more by the inserted line breaks).
+    @OnMessage(maxMessageSize = (long) (1024 * 1024 * 10 * 1.33))
+    public void handleMessage(ChatDto dto, Session session) throws IOException {
         ChatSocketMessageHandler handler = messageTypeService.getHandlerByMessageType(dto.getClass());
         handler.handleMessage(session, dto, getUser(session));
     }

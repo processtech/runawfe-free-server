@@ -517,7 +517,9 @@ function sendMessage() {
 }
 // отправка
 const send = (message) => {
-	chatSocket.send(JSON.stringify(message));
+	const encoder = new TextEncoder();
+	const bytes = encoder.encode(JSON.stringify(message));
+	chatSocket.send(bytes);
 	$("#message").val("");
 	// чистим "ответы"
 	let addReplys0 = document.getElementsByClassName("addReply");
