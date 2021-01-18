@@ -47,6 +47,7 @@ import ru.runa.wfe.task.TaskDeadlineUtils;
 
 /**
  * Modified on 26.02.2009 by gavrusev_sergei
+ * Modified on 19.01.2021 by msin87
  */
 public class GraphImageBuilder {
     private final ProcessDefinition processDefinition;
@@ -133,7 +134,6 @@ public class GraphImageBuilder {
     }
 
     private void applyRenderHitsToNodeFigures(ProcessLogs logs) {
-        NodeEnterLog lastNodeEnterLog = logs.getLastOrNull(NodeEnterLog.class);
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(processDefinition);
             if (transition != null) {
