@@ -7,6 +7,8 @@ import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.common.WebResources;
 import ru.runa.wfe.chat.coder.ChatDtoBinaryDecoder;
@@ -50,9 +52,7 @@ public class ChatSocket {
         sessionHandler.messageError(session, error.getMessage());
     }
 
-    // Base64 encoding causes an overhead of 33–36%
-    // (33% by the encoding itself; up to 3% more by the inserted line breaks).
-    @OnMessage(maxMessageSize = (long) (1024 * 1024 * 10 * 1.33))
+    @OnMessage(maxMessageSize = WebResources.CHAT_MAX_MESSAGE_SIZE)
     public void handleMessage(ChatDto dto, Session session) throws IOException {
         ChatSocketMessageHandler handler = messageTypeService.getHandlerByMessageType(dto.getClass());
         handler.handleMessage(session, dto, getUser(session));

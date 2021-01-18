@@ -2,11 +2,11 @@ package ru.runa.wfe.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 
-public class ChatErrorDto extends ChatDto{
+public class ChatErrorMessageDto extends ChatDto{
 
     private String message;
 
-    public ChatErrorDto(String message) {
+    public ChatErrorMessageDto(String message) {
         this.message = message;
     }
 

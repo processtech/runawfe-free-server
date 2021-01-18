@@ -1,23 +1,18 @@
 package ru.runa.wfe.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.olap4j.impl.Base64;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ChatNewMessageDto extends ChatDto {
     private String message;
     private String idHierarchyMessage;
-    private boolean haveFile;
     private boolean isPrivate;
     private String privateNames;
     private String processId;
-    private List<String> fileNames;
-    private List<Long> fileSizes;
     private Map<String, byte[]> files;
 
     @JsonGetter("message")
@@ -38,16 +33,6 @@ public class ChatNewMessageDto extends ChatDto {
     @JsonSetter("idHierarchyMessage")
     public void setIdHierarchyMessage(String idHierarchyMessage) {
         this.idHierarchyMessage = idHierarchyMessage;
-    }
-
-    @JsonGetter("haveFile")
-    public boolean getIsHaveFile() {
-        return haveFile;
-    }
-
-    @JsonSetter("haveFile")
-    public void setHaveFile(boolean haveFile) {
-        this.haveFile = haveFile;
     }
 
     @JsonGetter("isPrivate")
@@ -78,26 +63,6 @@ public class ChatNewMessageDto extends ChatDto {
     @JsonSetter("processId")
     public void setProcessId(String processId) {
         this.processId = processId;
-    }
-
-    @JsonGetter("fileNames")
-    public List<String> getFileNames() {
-        return fileNames;
-    }
-
-    @JsonSetter("fileNames")
-    public void setFileNames(List<String> activeFileNames) {
-        this.fileNames = activeFileNames;
-    }
-
-    @JsonGetter("fileSizes")
-    public List<Long> getFileSizes() {
-        return fileSizes;
-    }
-
-    @JsonSetter("fileSizes")
-    public void setFileSizes(List<Long> fileSizes) {
-        this.fileSizes = fileSizes;
     }
 
     @JsonGetter("files")

@@ -41,6 +41,10 @@ public class WebResources {
     /* Validation rules */
     public static final int VALIDATOR_STRING_255 = 255;
 
+    // Base64 encoding causes an overhead of 33–36%
+    // (33% by the encoding itself; up to 3% more by the inserted line breaks).
+    public static final long CHAT_MAX_MESSAGE_SIZE = (long) (1024 * 1024 * 10 * 1.33);
+
     public static final String ACTION_MAPPING_MANAGE_DEFINITION = "/manage_process_definition";
     public static final String ACTION_MAPPING_MANAGE_PROCESS = "/manage_process";
     public static final String ACTION_SHOW_PROCESS_HISTORY = "/show_history";
@@ -199,6 +203,10 @@ public class WebResources {
 
     public static boolean isChatEnabled() {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
+    }
+
+    public static long getMaxMessageSize(){
+        return RESOURCES.getLongProperty("chat.max.message.size", 0);
     }
 
 }

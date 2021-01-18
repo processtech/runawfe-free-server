@@ -5,7 +5,7 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.dto.ChatDto;
-import ru.runa.wfe.chat.dto.ChatErrorDto;
+import ru.runa.wfe.chat.dto.ChatErrorMessageDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.MessageForCloseChatDto;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -145,7 +145,7 @@ public class ChatSessionHandler {
     }
 
     public void messageError(Session session, String message) {
-        ChatErrorDto errorDto = new ChatErrorDto(message);
+        ChatErrorMessageDto errorDto = new ChatErrorMessageDto(message);
         try {
             sendToSession(session, errorDto.convert());
         } catch (IOException e) {

@@ -54,7 +54,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
                 mentionedActors.add((Actor) mentionedExecutor);
             }
         }
-        if (dto.getIsHaveFile()) {
+        if (dto.getFiles() != null) {
             ArrayList<ChatMessageFile> chatMessageFiles = new ArrayList<>();
             for (Map.Entry<String, byte[]> entry : dto.getFiles().entrySet()){
                 ChatMessageFile chatMessageFile = new ChatMessageFile(entry.getKey(), entry.getValue());

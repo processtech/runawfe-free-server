@@ -127,14 +127,11 @@ var chatSocketUrl = null;
 //constans 
 var newMessageType = "newMessage";
 var editMessageType = "editMessage";
-var endLoadFilesType = "endLoadFiles";
-var nextStepLoadFileType = "nextStepLoadFile";
-var stepLoadFileType = "stepLoadFile";
 var unblockOldMes = "unblockOldMes";
 var deleteMessageType = "deleteMessage";
 var getMessagesType = "getMessages";
 var readMessageType = "readMessage";
-var messageError = "error";
+var errorMessageType = "errorMessage";
 let attachedFilesBase64 = {};
 
 //id task
@@ -351,7 +348,7 @@ function deleteMessage(){
 			newMessage.messageId=$(this).closest(".selectionTextQuote").attr("mesId");
 			newMessage.processId=idProcess;
 			newMessage.messageType=deleteMessageType;
-			chatSocket.send(JSON.stringify(newMessage));
+			sendBinaryMessage(newMessage);
 			$(this).closest(".selectionTextQuote").remove();
 		}
 	}
@@ -374,8 +371,7 @@ function newxtMessages(count){
 	newMessage.messageType=getMessagesType;
 	newMessage.lastMessageId=minMassageId;
 	newMessage.count = count; // количество сообщений
-	let firstMessages = JSON.stringify(newMessage);
-	chatSocket.send(firstMessages);
+	sendBinaryMessage(newMessage);
 }
 //подгрузка старых сообщений
 function loadOldMessages(){
@@ -435,7 +431,7 @@ function checkEmptyMessage(){
 	}
 }
 //кнопка "отправить"
-function sendMessage() {
+function sendMessageHandler() {
 	deleteUserNameTable();
 	if(lockFlag == false){
 		if(checkEmptyMessage()==false){
@@ -468,22 +464,12 @@ function sendMessage() {
 			});
 			newMessage.privateNames=namesPrivate;
 			if(attachedFiles.length > 0){
-				newMessage.haveFile=true;
-				let fileNames = [];
-				let fileSizes = [];
-				for(let i=0; i<attachedFiles.length; i++){
-					fileNames.push(attachedFiles[i].name);
-					fileSizes.push(attachedFiles[i].size);
-				}
-				newMessage.fileNames = fileNames;
-				newMessage.fileSizes = fileSizes;
 				lockFlag = true;
-				sendWithFiles(attachedFiles, newMessage)
+				addFilesToMessage(attachedFiles, newMessage)
 			}
 			else{
-				newMessage.haveFile=false;
 				lockFlag = false
-				send(newMessage);
+				sendToChatNewMessage(newMessage);
 			}
 		}
 		else{//редактирование сообщения
@@ -500,7 +486,7 @@ function sendMessage() {
 				newMessage.messageType=editMessageType;
 				newMessage.editMessageId = editMessageId;
 				$("#message").val(""); 
-				chatSocket.send(JSON.stringify(newMessage));
+				sendBinaryMessage(newMessage);
 				$("[textMessagId='"+editMessageId+"']").text(message);
 				editMessageId=-1;
 				editMessageFlag=false;
@@ -515,11 +501,9 @@ function sendMessage() {
 	}
 	return 0;
 }
-// отправка
-const send = (message) => {
-	const encoder = new TextEncoder();
-	const bytes = encoder.encode(JSON.stringify(message));
-	chatSocket.send(bytes);
+// отправка нового сообщения
+const sendToChatNewMessage = (message) => {
+	sendBinaryMessage(message)
 	$("#message").val("");
 	// чистим "ответы"
 	let addReplys0 = document.getElementsByClassName("addReply");
@@ -537,7 +521,7 @@ const send = (message) => {
 	$("#privateBlock").css("display","none");
 }
 
-const sendWithFiles = async (files, message) => {
+const addFilesToMessage = async (files, message) => {
 	const fileToBase64Promises = [];
 	files.forEach(file => {
 		fileToBase64Promises.push(fileToBase64(file))
@@ -548,7 +532,7 @@ const sendWithFiles = async (files, message) => {
 		return;
 	}
 	message.files = attachedFilesBase64;
-	send(message);
+	sendToChatNewMessage(message);
 	attachedFilesBase64 = {};
 	attachedFiles = [];
 	$("#progressBar").css({"display":"none"});
@@ -566,7 +550,13 @@ const fileToBase64 = (file) => new Promise((resolve, reject) => {
 	}
 	reader.onerror = error => reject(error);
 	reader.readAsBinaryString(file)
-	});
+});
+
+const sendBinaryMessage = (message) => {
+	const encoder = new TextEncoder();
+	const bytes = encoder.encode(JSON.stringify(message));
+	chatSocket.send(bytes);
+};
 
 //кнопка увеличить/уменьшить чат
 function zoomInZoomOut(){
@@ -688,8 +678,7 @@ function updateLastReadMessage(){
 	newSend0.processId=idProcess;
 	newSend0.messageType=readMessageType;
 	newSend0.currentMessageId=currentMessageId+"";
-	let sendObject0 = JSON.stringify(newSend0);
-	chatSocket.send(sendObject0);
+	sendBinaryMessage(newSend0);
 }
 
 //--------------------------------------------------------------
@@ -845,7 +834,7 @@ function firstKeyCheck(event){
 	}
 	//комбинация хоткея "отправить" (cntrl+enter)
 	else if(event.ctrlKey && event.keyCode == 13){
-		sendMessage();
+		sendMessageHandler();
 		return false;
 	}
 }
@@ -1132,18 +1121,7 @@ function addMessage(data){
 			}
 	}
 }
-//отправка файла на сервер
-function stepLoadFile(i){
-	progressBar.show();
-	// Создаем форму с несколькими значениями
-	let reader = new FileReader();
-    let rawData = new ArrayBuffer();
-    reader.onload = function(e) {
-    	rawData = e.target.result;
-    	chatSocket.send(rawData);
-    }
-    reader.readAsArrayBuffer(attachedFiles[i]);
-}
+
 //приём с сервера
 function onMessage(event) {
 	let message0 = JSON.parse(event.data);
@@ -1153,38 +1131,14 @@ function onMessage(event) {
 	else if(message0.messageType == unblockOldMes){
 		blocOldMes=0;
 	}
-	else if(message0.messageType == stepLoadFileType){
-		if(attachedFiles.length > 0)
-			stepLoadFile(0);
-	}
-	else if(message0.messageType == nextStepLoadFileType){
-		if(message0.fileLoaded == false){
-			//тут обработка непринятого файла
-		}
-		let step = message0.number + 1;
-		if(attachedFiles.length > step){
-			stepLoadFile(step);
-		}
-		else{
-			let newMessage={};
-			newMessage.processId=idProcess;
-			newMessage.messageType=endLoadFilesType;
-			chatSocket.send(JSON.stringify(newMessage));
-			attachedFiles = [];
-			$("#progressBar").css({"display":"none"});
-			$("#filesTable").empty();
-			lockFlag = false;
-		}
-	}
 	else if(message0.messageType == editMessageType){
 		let mesSelector = $("[textMessagId='"+message0.mesId+"']");
 		if((mesSelector != null) && (mesSelector != undefined)){
 			mesSelector.text(message0.newText);
 		}
-	} else if (message0.messageType == messageError){
-        let errorMessage = message0.message
+	} else if (message0.messageType == errorMessageType){
         $("#progressBar").css({"display": "none"});
-        alert("Сообщение не отправлено. Error: " + errorMessage);
+        alert("Сообщение не отправлено. Error: " + message0.message);
         lockFlag = false;
     }
 }
@@ -1505,7 +1459,7 @@ $("#btnCl").hide();
 
 
 btnLoadOldMessages.onclick = loadOldMessages;
-btnSend.onclick=sendMessage;
+btnSend.onclick=sendMessageHandler;
 
 //$("#modalFooter").children().first().after("<div class=\"warningText\">"+$("#message").val().length+"/"+characterSize+"</div>");
 //-----скролл
