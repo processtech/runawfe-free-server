@@ -20,10 +20,6 @@ package ru.runa.wfe.graph.image;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
-import java.awt.Color;
-import java.util.*;
-
 import ru.runa.wfe.audit.*;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.execution.Process;
@@ -33,21 +29,29 @@ import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.AbstractFigureFactory;
 import ru.runa.wfe.graph.image.figure.TransitionFigure;
-import ru.runa.wfe.graph.image.figure.bpmn.Rhomb;
-import ru.runa.wfe.lang.BoundaryEvent;
-import ru.runa.wfe.lang.BoundaryEventContainer;
-import ru.runa.wfe.lang.GraphElement;
-import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessNode;
-import ru.runa.wfe.lang.Transition;
-import ru.runa.wfe.lang.bpmn2.ParallelGateway;
+import ru.runa.wfe.lang.*;
 import ru.runa.wfe.task.TaskDeadlineUtils;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static ru.runa.wfe.lang.NodeType.EXCLUSIVE_GATEWAY;
+import static ru.runa.wfe.lang.NodeType.PARALLEL_GATEWAY;
 
 /**
  * Modified on 26.02.2009 by gavrusev_sergei
  * Modified on 19.01.2021 by msin87
+ */
+
+/*
+todo: Полный рефакторинг!
+gavrusev_sergei, надеюсь ты больше так не пишешь код.
+Причина: слишком много лишних циклов, большая связность кода. Необходимо инвертировать
+зависимости везде, где только можно, название переменных не отражает их сути.
+Необходима документация на класс, на методы, на поля.
  */
 public class GraphImageBuilder {
     private final ProcessDefinition processDefinition;
@@ -78,15 +82,20 @@ public class GraphImageBuilder {
         List<String> activeNodeIdList = new ArrayList<>();
         if (lastEnterLog != null) {
             NodeLeaveLog lastLeaveLog = logs.getLastOrNull(NodeLeaveLog.class);
-            String lastNodeType = lastLeaveLog.getNodeType().toString();
-            if (lastNodeType.equals("PARALLEL_GATEWAY")) {
-                AbstractFigure figure = figuresMap.get(lastLeaveLog.getNodeId());
-                if (figure != null) {
-                    Map<String, TransitionFigure> transitionFigureMap = figure.getTransitions();
-                    for (Map.Entry<String, TransitionFigure> transitionFigureEntry : transitionFigureMap.entrySet()) {
-                        activeNodeIdList.add(transitionFigureEntry.getValue().getFigureTo().getNode().getNodeId());
+            //noinspection SwitchStatementWithTooFewBranches
+            switch (lastLeaveLog.getNodeType()){
+                case PARALLEL_GATEWAY:
+                    AbstractFigure figure = figuresMap.get(lastLeaveLog.getNodeId());
+                    if (figure != null) {
+                        Map<String, TransitionFigure> transitionFigureMap = figure.getTransitions();
+                        for (Map.Entry<String, TransitionFigure> transitionFigureEntry : transitionFigureMap.entrySet()) {
+                            activeNodeIdList.add(transitionFigureEntry.getValue().getFigureTo().getNode().getNodeId());
+                        }
                     }
-                }
+                    break;
+                    //add here other node types
+                default:
+                    break;
             }
         }
         return activeNodeIdList;
@@ -101,7 +110,7 @@ public class GraphImageBuilder {
             if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
                 NodeType nodeType = node.getNodeType();
                 transitionFigure.setExclusive(
-                        nodeType != NodeType.EXCLUSIVE_GATEWAY && nodeType != NodeType.PARALLEL_GATEWAY && leavingTransitionsCount > 1);
+                        nodeType != EXCLUSIVE_GATEWAY && nodeType != PARALLEL_GATEWAY && leavingTransitionsCount > 1);
             }
             nodeFigure.addTransition(transitionFigure);
             if (!DrawProperties.useEdgingOnly()) {
