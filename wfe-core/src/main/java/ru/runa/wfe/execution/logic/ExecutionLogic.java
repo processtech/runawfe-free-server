@@ -48,6 +48,7 @@ import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -68,6 +69,9 @@ import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.history.GraphHistoryBuilder;
 import ru.runa.wfe.graph.image.GraphImageBuilder;
+import ru.runa.wfe.graph.image.figure.AbstractFigureFactory;
+import ru.runa.wfe.graph.image.figure.bpmn.BpmnFigureFactory;
+import ru.runa.wfe.graph.image.figure.uml.UmlFigureFactory;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
@@ -245,7 +249,9 @@ public class ExecutionLogic extends WfCommonLogic {
         log.info(process + " was successfully started by " + user);
         return process.getId();
     }
-
+    private AbstractFigureFactory getAbstractFigureFactory(Language workflowLanguage) {
+        return workflowLanguage == Language.BPMN2 ? new BpmnFigureFactory() : new UmlFigureFactory();
+    }
     public byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId) {
         try {
             Process process = processDao.getNotNull(processId);
@@ -269,7 +275,7 @@ public class ExecutionLogic extends WfCommonLogic {
             processLogs.addLogs(processLogDao.get(processId, processDefinition), false);
             GraphImageBuilder builder = new GraphImageBuilder(processDefinition);
             builder.setHighlightedToken(highlightedToken);
-            return builder.createDiagram(process, processLogs);
+            return builder.createDiagram(process, processLogs, getAbstractFigureFactory(processDefinition.getDeployment().getLanguage()));
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }

@@ -106,6 +106,9 @@ public abstract class AbstractFigure {
     public TransitionFigure getTransition(String name) {
         return transitions.get(name);
     }
+    public Map<String, TransitionFigure> getTransitions() {
+        return transitions;
+    }
 
     protected void drawTextInfo(Graphics2D graphics, int hOffset) {
         if (!useEdgingOnly) {
