@@ -115,7 +115,7 @@ public class GraphElementPresentationHelper {
                 builder.append("background-color: ").append(DrawProperties.getHighlightColorString()).append("; ");
             }
             if (subprocessId == childProcessId) {
-                builder.append("border-width: 2px; border-color: black;");
+                builder.append("position: relative; border-width: 2px; border-color: black;");
             }
             builder.append("width: ").append(multiLinkSize).append("px; height: ").append(multiLinkSize).append("px;\"");
             if (element.getAccessibleSubprocessIds().contains(subprocessId)) {
