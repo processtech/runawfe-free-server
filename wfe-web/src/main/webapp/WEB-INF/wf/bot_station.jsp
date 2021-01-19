@@ -20,7 +20,6 @@
 <%
 	long botStationId = Long.parseLong(request.getParameter("botStationId"));
 	String saveActionUrl = "save_bot_station.do?id=" + botStationId;
-	String createActionUrl = "add_bot.do?botStationId=" + botStationId;
 %>
         <wf:botStationTag botStationId="<%= botStationId %>"/>
         <table width="100%">
@@ -29,13 +28,9 @@
             </tr>
         </table>
         <wf:botStationStatusTag botStationId="<%= botStationId %>"/>
+
         <wf:deployBot botStationId="<%= botStationId %>"/>
         <wf:botListTag botStationId="<%= botStationId %>">
-			<table width="100%">
-                <tr>
-                    <td align="left"><wf:createBotLink href="<%= createActionUrl %>"/></td>
-                </tr>
-            </table>
         </wf:botListTag>
     </tiles:put>
     <tiles:put name="messages" value="../common/messages.jsp"/>
