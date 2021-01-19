@@ -43,6 +43,8 @@ import com.google.common.collect.Maps;
 public class GraphElementPresentationHelper {
     public static final String MAP_NAME = "processMap";
 
+    private static final String CHILD_PROCESS_ID_DEFAULT = "0";
+
     /**
      * Rendered page context.
      */
@@ -88,43 +90,44 @@ public class GraphElementPresentationHelper {
      *            Multiple instance graph element to create links.
      */
     public String createMultiSubprocessLinks(MultiSubprocessNodeGraphElement element, String action) {
-        int mlSize = 17;
+        int multiLinkSize = 17;
         int maxItemsPerLine = 10;
         int additionalHeight = 0;
-        int mainDivSize = mlSize * element.getSubprocessIds().size();
-        if (mainDivSize > maxItemsPerLine * mlSize) {
-            additionalHeight = (int) Math.ceil((double) mainDivSize / (maxItemsPerLine * mlSize)) * mlSize;
-            mainDivSize = maxItemsPerLine * mlSize;
+        int mainDivSize = multiLinkSize * element.getSubprocessIds().size();
+        if (mainDivSize > maxItemsPerLine * multiLinkSize) {
+            additionalHeight = (int) Math.ceil((double) mainDivSize / (maxItemsPerLine * multiLinkSize)) * multiLinkSize;
+            mainDivSize = maxItemsPerLine * multiLinkSize;
         }
-        int[] ltCoords = new int[] { element.getGraphConstraints()[2] - mainDivSize / 2,
-                element.getGraphConstraints()[3] + mlSize / 2 + additionalHeight };
-        long childProcessId = Long.parseLong(
-                Optional.ofNullable(pageContext.getRequest().getParameter(TaskIdForm.CHILD_PROCESS_ID_NAME)).orElse("0"));
-        StringBuffer buf = new StringBuffer();
-        buf.append("<div class=\"multiInstanceContainer\" style=\"");
-        buf.append("width: ").append(mainDivSize).append("px;");
-        buf.append("left: ").append(ltCoords[0]).append("px;");
-        buf.append("top: ").append(ltCoords[1]).append("px;\">");
+        int[] ltCoords = {
+                element.getGraphConstraints()[2] - mainDivSize / 2,
+                element.getGraphConstraints()[3] + multiLinkSize / 2 + additionalHeight
+        };
+        long childProcessId = getChildProcessId();
+        StringBuilder builder = new StringBuilder()
+                .append("<div class=\"multiInstanceContainer\" style=\"")
+                .append("width: ").append(mainDivSize).append("px;")
+                .append("left: ").append(ltCoords[0]).append("px;")
+                .append("top: ").append(ltCoords[1]).append("px;\">");
         for (int i = 0; i < element.getSubprocessIds().size(); i++) {
             long subprocessId = element.getSubprocessIds().get(i);
-            buf.append("<div class=\"multiInstanceBox\" style=\"");
+            builder.append("<div class=\"multiInstanceBox\" style=\"");
             if (element.getCompletedSubprocessIds().contains(subprocessId)) {
-                buf.append("background-color: ").append(DrawProperties.getHighlightColorString()).append("; ");
+                builder.append("background-color: ").append(DrawProperties.getHighlightColorString()).append("; ");
             }
             if (subprocessId == childProcessId) {
-                buf.append("border-width: 2px; border-color:black;");
+                builder.append("border-width: 2px; border-color: black;");
             }
-            buf.append("width: ").append(mlSize).append("px; height: ").append(mlSize).append("px;\"");
+            builder.append("width: ").append(multiLinkSize).append("px; height: ").append(multiLinkSize).append("px;\"");
             if (element.getAccessibleSubprocessIds().contains(subprocessId)) {
-                buf.append(" onclick=\"window.location='").append(getSubprocessUrl(action, subprocessId)).append("';\"");
+                builder.append(" onclick=\"window.location='").append(getSubprocessUrl(action, subprocessId)).append("';\"");
             }
-            buf.append(">&nbsp;").append(i + 1).append("&nbsp;</div>");
+            builder.append(">&nbsp;").append(i + 1).append("&nbsp;</div>");
             if ((i + 1) % maxItemsPerLine == 0) {
-                buf.append("\n");
+                builder.append("\n");
             }
         }
-        buf.append("</div>");
-        return buf.toString();
+        builder.append("</div>");
+        return builder.toString();
     }
 
     /**
@@ -212,6 +215,11 @@ public class GraphElementPresentationHelper {
         }
         area.setTitle(html);
         return area;
+    }
+
+    private long getChildProcessId() {
+        String childProcessId = pageContext.getRequest().getParameter(TaskIdForm.CHILD_PROCESS_ID_NAME);
+        return Long.parseLong(Optional.ofNullable(childProcessId).orElse(CHILD_PROCESS_ID_DEFAULT));
     }
 
 }
