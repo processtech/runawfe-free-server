@@ -18,6 +18,7 @@
 package ru.runa.wf.web.html;
 
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.jsp.PageContext;
 
@@ -26,6 +27,7 @@ import org.apache.ecs.html.Area;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
@@ -96,16 +98,21 @@ public class GraphElementPresentationHelper {
         }
         int[] ltCoords = new int[] { element.getGraphConstraints()[2] - mainDivSize / 2,
                 element.getGraphConstraints()[3] + mlSize / 2 + additionalHeight };
+        long childProcessId = Long.parseLong(
+                Optional.ofNullable(pageContext.getRequest().getParameter(TaskIdForm.CHILD_PROCESS_ID_NAME)).orElse("0"));
         StringBuffer buf = new StringBuffer();
         buf.append("<div class=\"multiInstanceContainer\" style=\"");
         buf.append("width: ").append(mainDivSize).append("px;");
         buf.append("left: ").append(ltCoords[0]).append("px;");
         buf.append("top: ").append(ltCoords[1]).append("px;\">");
         for (int i = 0; i < element.getSubprocessIds().size(); i++) {
-            Long subprocessId = element.getSubprocessIds().get(i);
+            long subprocessId = element.getSubprocessIds().get(i);
             buf.append("<div class=\"multiInstanceBox\" style=\"");
             if (element.getCompletedSubprocessIds().contains(subprocessId)) {
                 buf.append("background-color: ").append(DrawProperties.getHighlightColorString()).append("; ");
+            }
+            if (subprocessId == childProcessId) {
+                buf.append("border-width: 2px; border-color:black;");
             }
             buf.append("width: ").append(mlSize).append("px; height: ").append(mlSize).append("px;\"");
             if (element.getAccessibleSubprocessIds().contains(subprocessId)) {
