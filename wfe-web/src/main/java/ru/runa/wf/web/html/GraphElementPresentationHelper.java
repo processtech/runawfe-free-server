@@ -98,7 +98,7 @@ public class GraphElementPresentationHelper {
             additionalHeight = (int) Math.ceil((double) mainDivSize / (maxItemsPerLine * multiLinkSize)) * multiLinkSize;
             mainDivSize = maxItemsPerLine * multiLinkSize;
         }
-        int[] ltCoords = {
+        int[] ltCoordinates = {
                 element.getGraphConstraints()[2] - mainDivSize / 2,
                 element.getGraphConstraints()[3] + multiLinkSize / 2 + additionalHeight
         };
@@ -106,8 +106,8 @@ public class GraphElementPresentationHelper {
         StringBuilder builder = new StringBuilder()
                 .append("<div class=\"multiInstanceContainer\" style=\"")
                 .append("width: ").append(mainDivSize).append("px;")
-                .append("left: ").append(ltCoords[0]).append("px;")
-                .append("top: ").append(ltCoords[1]).append("px;\">");
+                .append("left: ").append(ltCoordinates[0]).append("px;")
+                .append("top: ").append(ltCoordinates[1]).append("px;\">");
         for (int i = 0; i < element.getSubprocessIds().size(); i++) {
             long subprocessId = element.getSubprocessIds().get(i);
             builder.append("<div class=\"multiInstanceBox\" style=\"");
@@ -126,8 +126,7 @@ public class GraphElementPresentationHelper {
                 builder.append("\n");
             }
         }
-        builder.append("</div>");
-        return builder.toString();
+        return builder.append("</div>").toString();
     }
 
     /**
