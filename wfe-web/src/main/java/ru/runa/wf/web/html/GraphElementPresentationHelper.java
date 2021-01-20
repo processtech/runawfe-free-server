@@ -43,7 +43,7 @@ import com.google.common.collect.Maps;
 public class GraphElementPresentationHelper {
     public static final String MAP_NAME = "processMap";
 
-    private static final String CHILD_PROCESS_ID_DEFAULT = "0";
+    private static final String DEFAULT_CHILD_PROCESS_ID = "0";
 
     /**
      * Rendered page context.
@@ -218,7 +218,7 @@ public class GraphElementPresentationHelper {
 
     private long getChildProcessId() {
         String childProcessId = pageContext.getRequest().getParameter(TaskIdForm.CHILD_PROCESS_ID_NAME);
-        return Long.parseLong(Optional.ofNullable(childProcessId).orElse(CHILD_PROCESS_ID_DEFAULT));
+        return Long.parseLong(Optional.ofNullable(childProcessId).orElse(DEFAULT_CHILD_PROCESS_ID));
     }
 
 }
