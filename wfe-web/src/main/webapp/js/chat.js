@@ -132,7 +132,7 @@ var deleteMessageType = "deleteMessage";
 var getMessagesType = "getMessages";
 var readMessageType = "readMessage";
 var errorMessageType = "errorMessage";
-let attachedFilesBase64 = {};
+var attachedFilesBase64 = {};
 
 //id task
 var idProcess=$("#ChatForm").attr("processId");
@@ -502,7 +502,7 @@ function sendMessageHandler() {
 	return 0;
 }
 // отправка нового сообщения
-const sendToChatNewMessage = (message) => {
+function sendToChatNewMessage(message){
 	sendBinaryMessage(message)
 	$("#message").val("");
 	// чистим "ответы"
@@ -521,40 +521,41 @@ const sendToChatNewMessage = (message) => {
 	$("#privateBlock").css("display","none");
 }
 
-const addFilesToMessage = async (files, message) => {
-	const fileToBase64Promises = [];
+function addFilesToMessage(files, message){
+	var fileToBase64Promises = [];
 	files.forEach(file => {
 		fileToBase64Promises.push(fileToBase64(file))
 	});
-	const result = await Promise.all(fileToBase64Promises).catch(error => Error(error));
-	if (result instanceof Error){
-		alert(result.message);
-		return;
-	}
-	message.files = attachedFilesBase64;
-	sendToChatNewMessage(message);
-	attachedFilesBase64 = {};
-	attachedFiles = [];
-	$("#progressBar").css({"display":"none"});
-	$("#filesTable").empty();
-	lockFlag = false;
+	Promise.all(fileToBase64Promises).then(() => {
+		message.files = attachedFilesBase64;
+		sendToChatNewMessage(message);
+		attachedFilesBase64 = {};
+		attachedFiles = [];
+		$("#progressBar").css({"display": "none"});
+		$("#filesTable").empty();
+		lockFlag = false;
+	}).catch((error) => {
+		alert(error.message);
+	});
 }
 
-const fileToBase64 = (file) => new Promise((resolve, reject) => {
-	let reader = new FileReader();
-	let buffer = new ArrayBuffer();
-	reader.onload = (e) => {
-		buffer = e.target.result;
-		attachedFilesBase64[file.name] = btoa(buffer)
-		resolve();
-	}
-	reader.onerror = error => reject(error);
-	reader.readAsBinaryString(file)
-});
+function fileToBase64(file){
+	return new Promise((resolve, reject) => {
+		var reader = new FileReader();
+		var buffer = new ArrayBuffer();
+		reader.onload = (e) => {
+			buffer = e.target.result;
+			attachedFilesBase64[file.name] = btoa(buffer)
+			resolve();
+		}
+		reader.onerror = error => reject(error);
+		reader.readAsBinaryString(file)
+	});
+}
 
-const sendBinaryMessage = (message) => {
-	const encoder = new TextEncoder();
-	const bytes = encoder.encode(JSON.stringify(message));
+function sendBinaryMessage(message){
+	var encoder = new TextEncoder();
+	var bytes = encoder.encode(JSON.stringify(message));
 	chatSocket.send(bytes);
 };
 
