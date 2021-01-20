@@ -1,7 +1,13 @@
 package ru.runa.wfe.chat.socket;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import javax.websocket.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,15 +43,12 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
             return;
         }
         ChatMessage newMessage = new ChatMessage();
-        ChatMessageDto chatMessageDto;
         newMessage.setCreateActor(user.getActor());
         newMessage.setText(dto.getMessage());
         newMessage.setQuotedMessageIds(dto.getIdHierarchyMessage());
-        Boolean isPrivate = dto.getIsPrivate();
+        newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
         String privateNames = dto.getPrivateNames();
         String[] loginsPrivateTable = privateNames != null ? privateNames.split(";") : new String[0];
-        long processId = Long.parseLong(dto.getProcessId());
-        newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
         Set<Executor> mentionedExecutors = new HashSet<Executor>();
         searchMentionedExecutor(mentionedExecutors, newMessage, loginsPrivateTable, user, session);
         Collection<Actor> mentionedActors = new HashSet<Actor>();
@@ -54,9 +57,12 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
                 mentionedActors.add((Actor) mentionedExecutor);
             }
         }
+        ChatMessageDto chatMessageDto;
+        Boolean isPrivate = dto.isPrivate();
+        long processId = Long.parseLong(dto.getProcessId());
         if (dto.getFiles() != null) {
             ArrayList<ChatMessageFile> chatMessageFiles = new ArrayList<>();
-            for (Map.Entry<String, byte[]> entry : dto.getFiles().entrySet()){
+            for (Map.Entry<String, byte[]> entry : dto.getFiles().entrySet()) {
                 ChatMessageFile chatMessageFile = new ChatMessageFile(entry.getKey(), entry.getValue());
                 chatMessageFiles.add(chatMessageFile);
             }

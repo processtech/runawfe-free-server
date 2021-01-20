@@ -1326,7 +1326,7 @@ function ajaxInitializationChat(){
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
 				updatenumberNewMessages(0);
 			}
-			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + idProcess;
+			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket?type=chat&processId=" + idProcess;
 			chatSocket = new WebSocket(chatSocketUrl);
 			chatSocket.binaryType = "arraybuffer";
 			chatSocket.onmessage = onMessage;
@@ -1360,7 +1360,7 @@ function ajaxAllInitializationChats(){
 		processData: false,
 		success: function(data) {
 			getAllChat(data);
-			chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
+			chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket?type=chatsNewMess";
 			chatsNewMessSocket = new WebSocket(chatsNewMessSocketUrl);
 			chatsNewMessSocket.onmessage = onChatsNewMessSocketMessage;
 			//действия при открытии сокета

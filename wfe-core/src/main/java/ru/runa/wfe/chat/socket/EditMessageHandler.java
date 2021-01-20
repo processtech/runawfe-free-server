@@ -34,8 +34,7 @@ public class EditMessageHandler implements ChatSocketMessageHandler<ChatEditMess
             newMessage.setText(dto.getMessage());
             chatLogic.updateMessage(user.getActor(), newMessage);
 
-            ChatMessageDto messageDto = new ChatMessageDto();
-            messageDto.setMessage(newMessage);
+            ChatMessageDto messageDto = new ChatMessageDto(newMessage);
             sessionHandler.sendToChats(messageDto, dto.getProcessId());
         }
     }

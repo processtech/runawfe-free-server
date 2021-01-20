@@ -1,37 +1,18 @@
 package ru.runa.wfe.chat.dto;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class ChatFileDto extends ChatDto {
-
+    @JsonProperty("id")
     private Long fileId;
+    @JsonProperty("name")
     private String fileName;
-
-    public ChatFileDto() {
-        super();
-    }
-
-    public ChatFileDto(Long fileId, String fileName) {
-        super();
-        this.fileId = fileId;
-        this.fileName = fileName;
-    }
-
-    @JsonGetter("id")
-    public Long getFileId() {
-        return fileId;
-    }
-
-    public void setFileId(Long fileId) {
-        this.fileId = fileId;
-    }
-
-    @JsonGetter("name")
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
 }

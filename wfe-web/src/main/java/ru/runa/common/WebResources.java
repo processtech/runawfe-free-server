@@ -43,7 +43,7 @@ public class WebResources {
 
     // Base64 encoding causes an overhead of 33–36%
     // (33% by the encoding itself; up to 3% more by the inserted line breaks).
-    public static final long CHAT_MAX_MESSAGE_SIZE = (long) (1024 * 1024 * 10 * 1.33);
+    private static final int DEFAULT_CHAT_MAX_MESSAGE_SIZE = (int) (1024 * 1024 * 10 * 1.33);
 
     public static final String ACTION_MAPPING_MANAGE_DEFINITION = "/manage_process_definition";
     public static final String ACTION_MAPPING_MANAGE_PROCESS = "/manage_process";
@@ -205,8 +205,7 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }
 
-    public static long getMaxMessageSize(){
-        return RESOURCES.getLongProperty("chat.max.message.size", 0);
+    public static int getMaxMessageSize() {
+        return RESOURCES.getIntegerProperty("chat.max.message.size", DEFAULT_CHAT_MAX_MESSAGE_SIZE);
     }
-
 }
