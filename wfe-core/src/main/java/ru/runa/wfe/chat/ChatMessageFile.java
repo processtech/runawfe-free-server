@@ -22,9 +22,10 @@ public class ChatMessageFile {
     private String fileName;
     private byte[] bytes;
 
-    public ChatMessageFile(){}
+    public ChatMessageFile() {
+    }
 
-    public ChatMessageFile(String fileName, byte[] bytes){
+    public ChatMessageFile(String fileName, byte[] bytes) {
         this.fileName = fileName;
         this.bytes = bytes;
     }
