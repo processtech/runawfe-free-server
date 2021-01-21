@@ -14,22 +14,24 @@ import ru.runa.wfe.chat.ChatMessage;
 public class ChatMessageDto extends ChatDto {
     private ChatMessage message;
 
-    @JsonProperty("fileArray")
+    @JsonProperty("files")
     private List<ChatFileDto> filesDto = new ArrayList<ChatFileDto>();
-    private boolean old = false;
+
+    @JsonProperty("old")
+    private boolean isOld = false;
 
     @JsonProperty("mentioned")
-    private boolean mentionedFlag = false;
+    private boolean isMentioned = false;
 
     @JsonProperty("coreUser")
-    private boolean coreUserFlag = false;
+    private boolean isCoreUser = false;
 
     public ChatMessageDto(ChatMessage message) {
         this.message = message;
     }
 
-    @JsonGetter("hierarchyMessageFlag")
-    public Boolean isHierarchyMessageFlag() {
+    @JsonGetter("hierarchyMessage")
+    public Boolean isHierarchyMessage() {
         return StringUtils.isNotBlank(this.getMessage().getQuotedMessageIds());
     }
 

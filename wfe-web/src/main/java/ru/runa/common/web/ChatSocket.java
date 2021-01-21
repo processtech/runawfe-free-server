@@ -40,7 +40,7 @@ public class ChatSocket {
         if (!WebResources.isChatEnabled()) {
             session.close();
         } else {
-            session.setMaxBinaryMessageBufferSize(WebResources.getMaxMessageSize());
+            session.setMaxBinaryMessageBufferSize(WebResources.getChatMaxMessageSize());
             sessionHandler.addSession(session);
         }
     }

@@ -23,7 +23,7 @@ public class ChatDtoBinaryDecoder implements Decoder.Binary<ChatDto> {
         try {
             chatDto = objectMapper.readValue(byteBuffer.array(), ChatDto.class);
         } catch (IOException e) {
-            throw new DecodeException(byteBuffer, e.getMessage());
+            throw new DecodeException(byteBuffer, e.getMessage(), e);
         }
         return chatDto;
     }

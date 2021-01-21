@@ -205,7 +205,7 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }
 
-    public static int getMaxMessageSize() {
-        return RESOURCES.getIntegerProperty("chat.max.message.size", DEFAULT_CHAT_MAX_MESSAGE_SIZE);
+    public static int getChatMaxMessageSize() {
+        return RESOURCES.getIntegerProperty("chat.max.message.size.bytes", DEFAULT_CHAT_MAX_MESSAGE_SIZE);
     }
 }
