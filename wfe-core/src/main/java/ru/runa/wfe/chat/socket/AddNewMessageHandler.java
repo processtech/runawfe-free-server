@@ -6,9 +6,9 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.websocket.Session;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,43 +46,35 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
         newMessage.setCreateActor(user.getActor());
         newMessage.setText(dto.getMessage());
         newMessage.setQuotedMessageIds(dto.getIdHierarchyMessage());
-        boolean haveFiles = dto.getIsHaveFile();
-        Boolean isPrivate = dto.getIsPrivate();
+        newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
         String privateNames = dto.getPrivateNames();
         String[] loginsPrivateTable = privateNames != null ? privateNames.split(";") : new String[0];
-        long processId = Long.parseLong(dto.getProcessId());
-        newMessage.setCreateDate(new Date(Calendar.getInstance().getTime().getTime()));
         Set<Executor> mentionedExecutors = new HashSet<Executor>();
         searchMentionedExecutor(mentionedExecutors, newMessage, loginsPrivateTable, user, session);
-        if (haveFiles) {
-            // waiting for upload
-            session.getUserProperties().put("activeProcessId", processId);
-            session.getUserProperties().put("activeMessage", newMessage);
-            session.getUserProperties().put("activeIsPrivate", isPrivate);
-            session.getUserProperties().put("activeMentionedExecutors", mentionedExecutors);
-            session.getUserProperties().put("activeFileNames", dto.getFileNames());
-            session.getUserProperties().put("activeFileSizes", dto.getFileSizes());
-            session.getUserProperties().put("activeFilePosition", 0);
-            Integer fileNumber = 0;
-            session.getUserProperties().put("activeFileNumber", fileNumber);
-            session.getUserProperties().put("errorFlag", false);
-            session.getUserProperties().put("activeFiles", new ArrayList<ChatMessageFile>());
-            session.getUserProperties().put("activeLoadFile", new byte[(dto.getFileSizes()).get(0).intValue()]);
-            JSONObject sendObject = new JSONObject();
-            sendObject.put("messageType", "stepLoadFile");
-            sessionHandler.sendToSession(session, sendObject.toString());
-        } else {
-            Collection<Actor> mentionedActors = new HashSet<Actor>();
-            for (Executor mentionedExecutor : mentionedExecutors) {
-                if (mentionedExecutor instanceof Actor) {
-                    mentionedActors.add((Actor) mentionedExecutor);
-                }
+        Collection<Actor> mentionedActors = new HashSet<Actor>();
+        for (Executor mentionedExecutor : mentionedExecutors) {
+            if (mentionedExecutor instanceof Actor) {
+                mentionedActors.add((Actor) mentionedExecutor);
             }
+        }
+        ChatMessageDto chatMessageDto;
+        Boolean isPrivate = dto.isPrivate();
+        long processId = Long.parseLong(dto.getProcessId());
+        if (dto.getFiles() != null) {
+            ArrayList<ChatMessageFile> chatMessageFiles = new ArrayList<>();
+            for (Map.Entry<String, byte[]> entry : dto.getFiles().entrySet()) {
+                ChatMessageFile chatMessageFile = new ChatMessageFile(entry.getKey(), entry.getValue());
+                chatMessageFiles.add(chatMessageFile);
+            }
+            chatMessageDto = chatLogic.saveMessageAndBindFiles(user.getActor(), processId, newMessage, mentionedExecutors,
+                    isPrivate, chatMessageFiles);
+        } else {
             Long newMessId = chatLogic.saveMessage(user.getActor(), processId, newMessage, mentionedExecutors, isPrivate);
             newMessage.setId(newMessId);
-            ChatMessageDto chatMessageDto = new ChatMessageDto(newMessage);
-            sessionHandler.sendNewMessage(mentionedExecutors, chatMessageDto, isPrivate);
+            chatMessageDto = new ChatMessageDto(newMessage);
+
         }
+        sessionHandler.sendNewMessage(mentionedExecutors, chatMessageDto, isPrivate);
     }
 
     void searchMentionedExecutor(Collection<Executor> mentionedExecutors, ChatMessage newMessage, String[] loginsPrivateTable, User user,

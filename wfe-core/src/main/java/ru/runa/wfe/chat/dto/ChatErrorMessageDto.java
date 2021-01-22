@@ -9,7 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ChatFileDto extends ChatDto {
-    private Long id;
-    private String name;
+public class ChatErrorMessageDto extends ChatDto {
+    private String message;
 }

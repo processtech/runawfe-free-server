@@ -127,13 +127,13 @@ var chatSocketUrl = null;
 //constans 
 var newMessageType = "newMessage";
 var editMessageType = "editMessage";
-var endLoadFilesType = "endLoadFiles";
-var nextStepLoadFileType = "nextStepLoadFile";
-var stepLoadFileType = "stepLoadFile";
 var unblockOldMes = "unblockOldMes";
 var deleteMessageType = "deleteMessage";
 var getMessagesType = "getMessages";
 var readMessageType = "readMessage";
+var errorMessageType = "errorMessage";
+
+var attachedFilesBase64 = {};
 
 //id task
 var idProcess=$("#ChatForm").attr("processId");
@@ -219,7 +219,7 @@ let openHierarchyA0 = $("<a/>");
 openHierarchyA0.addClass("openHierarchy")
 .attr("loadFlag", 0)
 .attr("openFlag", 0)
-.attr("mesId", 0)
+.attr("messageId", 0)
 .text(openHierarchySignature);
 //"ответить"
 let addReplyA0 = $("<a/>");
@@ -264,7 +264,7 @@ function hierarchyOpen(){
 			}else{
 				let thisElem=$(".openHierarchy")[ 0 ];
 				let element=this;
-				hierarhyCheak($(element).attr("mesId")).then(ajaxRet=>{
+				hierarhyCheak($(element).attr("messageId")).then(function(ajaxRet) {
 					messagesRetMass = getAttachedMessagesArray(ajaxRet);
 					for(let i=0; i<messagesRetMass.length; i++){
 						$(this).next(".loadedHierarchy").append(messagesRetMass[ i ]);
@@ -286,10 +286,10 @@ function getAttachedMessagesArray(data) {
 			let messageBody = $("<table/>").addClass("quote");
 			messageBody.append($("<tr/>").addClass("selectionTextAdditional").append($("<td/>").text(quoteText+":" + data.messages[ mes ].author)));
 			messageBody.append($("<tr/>").append($("<td/>").text(data.messages[ mes ].text)));
-			if(data.messages[ mes ].hierarchyMessageFlag == 1){
+			if(data.messages[ mes ].hierarchyMessage == 1){
 				let openHierarchy0 = $("<a/>").addClass("openHierarchy");
 				openHierarchy0.attr("type", "button");
-				openHierarchy0.attr("mesId", data.messages[ mes ].id);
+				openHierarchy0.attr("messageId", data.messages[ mes ].id);
 				openHierarchy0.attr("loadFlag", 0);
 				openHierarchy0.attr("openFlag", 0);
 				openHierarchy0.text(openHierarchySignature);
@@ -306,7 +306,7 @@ function getAttachedMessagesArray(data) {
 function messReplyClickFunction(){
 	if(lockFlag == false){
 		if($(this).attr("flagAttach") == "false"){
-			attachedPosts.push($(this).closest(".selectionTextQuote").attr("mesId"));
+			attachedPosts.push($(this).closest(".selectionTextQuote").attr("messageId"));
 			$(this).attr("flagAttach", "true");
 			$(this).text(removeReplyButtonText);
 				//создаем отметку о прикреплении
@@ -324,7 +324,7 @@ function messReplyClickFunction(){
 		else{
 			$(this).text(addReplyButtonText);
 			$(this).attr("flagAttach", "false");
-			let pos0 = attachedPosts.indexOf($(this).closest(".selectionTextQuote").attr("mesId"), 0);
+			let pos0 = attachedPosts.indexOf($(this).closest(".selectionTextQuote").attr("messageId"), 0);
 			attachedPosts.splice(pos0, 1);
 			$("#deleteMessReply" + $(this).closest(".selectionTextQuote").attr("messageIndex")).parent().parent().remove();
 		}
@@ -333,7 +333,7 @@ function messReplyClickFunction(){
 //функция открепления сообщений
 function deleteAttachedMessage(){
 	if(lockFlag == false){
-		let pos0 = attachedPosts.indexOf($("#messBody"+$(this).attr("mesindex")).attr("mesId"), 0);
+		let pos0 = attachedPosts.indexOf($("#messBody"+$(this).attr("mesindex")).attr("messageId"), 0);
 		attachedPosts.splice(pos0, 1);
 		$("#messBody" + $(this).attr("mesindex")).find(".addReply").text(addReplyButtonText);
 		$("#messBody" + $(this).attr("mesindex")).find(".addReply").attr("flagAttach", "false");
@@ -346,10 +346,10 @@ function deleteMessage(){
 	if(lockFlag == false){
 		if(confirm(warningRemoveMessage)){
 			let newMessage={};
-			newMessage.messageId=$(this).closest(".selectionTextQuote").attr("mesId");
+			newMessage.messageId=$(this).closest(".selectionTextQuote").attr("messageId");
 			newMessage.processId=idProcess;
 			newMessage.messageType=deleteMessageType;
-			chatSocket.send(JSON.stringify(newMessage));
+			sendBinaryMessage(newMessage);
 			$(this).closest(".selectionTextQuote").remove();
 		}
 	}
@@ -357,7 +357,7 @@ function deleteMessage(){
 //редактирование сообщений
 function editMessage(){
 	if(lockFlag == false){
-		editMessageId = $(this).closest(".selectionTextQuote").attr("mesId");
+		editMessageId = $(this).closest(".selectionTextQuote").attr("messageId");
 		editMessageFlag=true;
 		$("#message").val($("#messageText"+$(this).closest(".selectionTextQuote").attr("messageindex")).text());
 	}
@@ -372,8 +372,7 @@ function newxtMessages(count){
 	newMessage.messageType=getMessagesType;
 	newMessage.lastMessageId=minMassageId;
 	newMessage.count = count; // количество сообщений
-	let firstMessages = JSON.stringify(newMessage);
-	chatSocket.send(firstMessages);
+	sendBinaryMessage(newMessage);
 }
 //подгрузка старых сообщений
 function loadOldMessages(){
@@ -433,7 +432,7 @@ function checkEmptyMessage(){
 	}
 }
 //кнопка "отправить"
-function sendMessage() {
+function sendMessageHandler() {
 	deleteUserNameTable();
 	if(lockFlag == false){
 		if(checkEmptyMessage()==false){
@@ -466,38 +465,13 @@ function sendMessage() {
 			});
 			newMessage.privateNames=namesPrivate;
 			if(attachedFiles.length > 0){
-				newMessage.haveFile=true;
-				let fileNames = [];
-				let fileSizes = [];
-				for(let i=0; i<attachedFiles.length; i++){
-					fileNames.push(attachedFiles[i].name);
-					fileSizes.push(attachedFiles[i].size);
-				}
-				newMessage.fileNames = fileNames;
-				newMessage.fileSizes = fileSizes;
 				lockFlag = true;
+				addFilesToMessage(attachedFiles, newMessage)
 			}
 			else{
-				newMessage.haveFile=false;
 				lockFlag = false
+				sendToChatNewMessage(newMessage);
 			}
-			//отправка
-			chatSocket.send(JSON.stringify(newMessage));
-			$("#message").val("");
-			// чистим "ответы"
-			let addReplys0 = document.getElementsByClassName("addReply");
-			for(let i=0; i<addReplys0.length; i++){
-				$(addReplys0[ i ]).text(addReplyButtonText);
-				$(addReplys0[ i ]).attr("flagAttach", "false");
-			}
-			attachedPosts=[];
-			$("#checkBoxPrivateMessage").prop("checked",false);
-			$("#messReplyTable").empty();
-			$(".warningText").text("0/1024");
-			$("#message").keyup(keyupUserNames);
-			$("#fileInput").val("");
-			$("#tablePrivate table").empty();
-			$("#privateBlock").css("display","none");
 		}
 		else{//редактирование сообщения
 			if(confirm(warningEditMessage)){
@@ -513,7 +487,7 @@ function sendMessage() {
 				newMessage.messageType=editMessageType;
 				newMessage.editMessageId = editMessageId;
 				$("#message").val(""); 
-				chatSocket.send(JSON.stringify(newMessage));
+				sendBinaryMessage(newMessage);
 				$("[textMessagId='"+editMessageId+"']").text(message);
 				editMessageId=-1;
 				editMessageFlag=false;
@@ -528,6 +502,66 @@ function sendMessage() {
 	}
 	return 0;
 }
+// отправка нового сообщения
+function sendToChatNewMessage(message){
+	sendBinaryMessage(message)
+	$("#message").val("");
+	// чистим "ответы"
+	let addReplys0 = document.getElementsByClassName("addReply");
+	for(let i=0; i<addReplys0.length; i++){
+		$(addReplys0[ i ]).text(addReplyButtonText);
+		$(addReplys0[ i ]).attr("flagAttach", "false");
+	}
+	attachedPosts=[];
+	$("#checkBoxPrivateMessage").prop("checked",false);
+	$("#messReplyTable").empty();
+	$(".warningText").text("0/1024");
+	$("#message").keyup(keyupUserNames);
+	$("#fileInput").val("");
+	$("#tablePrivate table").empty();
+	$("#privateBlock").css("display","none");
+}
+
+function addFilesToMessage(files, message) {
+	var fileToBase64Promises = [];
+	for(var i = 0; i < files.length; i++) {
+		fileToBase64Promises.push(fileToBase64(files[i]));
+	}
+	Promise.all(fileToBase64Promises).then(function() {
+		message.files = attachedFilesBase64;
+		sendToChatNewMessage(message);
+		attachedFilesBase64 = {};
+		attachedFiles = [];
+		$("#progressBar").css({"display": "none"});
+		$("#filesTable").empty();
+		lockFlag = false;
+	}).catch(function(error) {
+		alert(error.message);
+	});
+}
+
+function fileToBase64(file) {
+	return new Promise(function(resolve, reject) {
+		var reader = new FileReader();
+		var buffer = new ArrayBuffer();
+		reader.onload = function(e) {
+			buffer = e.target.result;
+			attachedFilesBase64[file.name] = btoa(buffer);
+			resolve();
+		}
+		reader.onerror = function(error) {
+			reject(error);
+		}
+		reader.readAsBinaryString(file)
+	});
+}
+
+function sendBinaryMessage(message) {
+	var encoder = new TextEncoder();
+	var bytes = encoder.encode(JSON.stringify(message));
+	chatSocket.send(bytes);
+}
+
 //кнопка увеличить/уменьшить чат
 function zoomInZoomOut(){
 	if(lockFlag == false){
@@ -608,7 +642,7 @@ function scrollNewMessages(){
 			else{
 				i--;
 				message0 = $("#messBody" + i);
-				currentMessageId = message0.attr("mesId");
+				currentMessageId = message0.attr("messageId");
 				updatenumberNewMessages(newMessageIndex -1 - message0.attr("messageIndex"));
 				updateLastReadMessage();
 				//
@@ -617,7 +651,7 @@ function scrollNewMessages(){
 		}
 		i--;
 		message0 = $("#messBody" + i);
-		currentMessageId = message0.attr("mesId");
+		currentMessageId = message0.attr("messageId");
 		updatenumberNewMessages(newMessageIndex -1 - message0.attr("messageIndex"));
 		updateLastReadMessage();
 	}
@@ -648,8 +682,7 @@ function updateLastReadMessage(){
 	newSend0.processId=idProcess;
 	newSend0.messageType=readMessageType;
 	newSend0.currentMessageId=currentMessageId+"";
-	let sendObject0 = JSON.stringify(newSend0);
-	chatSocket.send(sendObject0);
+	sendBinaryMessage(newSend0);
 }
 
 //--------------------------------------------------------------
@@ -805,7 +838,7 @@ function firstKeyCheck(event){
 	}
 	//комбинация хоткея "отправить" (cntrl+enter)
 	else if(event.ctrlKey && event.keyCode == 13){
-		sendMessage();
+		sendMessageHandler();
 		return false;
 	}
 }
@@ -1016,7 +1049,7 @@ function addMessage(data){
 				//создаем сообщение
 				var cloneMess=messageBody.clone();
 				cloneMess.attr("id", "messBody"+mesIndex);
-				cloneMess.attr("mesId", data.message.id);
+				cloneMess.attr("messageId", data.message.id);
 				cloneMess.attr("messageIndex", mesIndex);
 				cloneMess.find(".datetr").text();
 				let date=data.message.dateTime;
@@ -1025,8 +1058,8 @@ function addMessage(data){
 				cloneMess.find(".datetr").text(d.getDate().toString()+"."+(d.getMonth()+1).toString()+"."+d.getFullYear()+" "+d.getHours().toString()+":"+d.getMinutes().toString());
 				cloneMess.find(".messageText").attr("textMessagId", data.message.id).attr("id","messageText"+mesIndex).html(text0);
 				// "развернуть"
-				if(data.hierarchyMessageFlag == 1){
-					cloneMess.find(".openHierarchy").attr("mesId", data.message.id)
+				if(data.hierarchyMessage == 1){
+					cloneMess.find(".openHierarchy").attr("messageId", data.message.id)
 					.click(hierarchyOpen);
 				}else{
 					cloneMess.find(".openHierarchy").remove();
@@ -1037,9 +1070,9 @@ function addMessage(data){
 					let fileTr0 = $("<tr/>");
 					let fileTable = $("<table/>");
 					fileTable.addClass("fileHolder");
-					for(let i = 0; i < data.fileArray.length; i++){
+					for(let i = 0; i < data.files.length; i++){
 						let fileIdTr = $("<tr/>");
-						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.fileArray[i].id + "' download='" + data.fileArray[i].name + "'>" + data.fileArray[i].name + "</a>"));
+						fileIdTr.append($("<td/>").append("<a href='/wfe/chatFileOutput?fileId=" + data.files[i].id + "' download='" + data.files[i].name + "'>" + data.files[i].name + "</a>"));
 						fileTable.append(fileIdTr);
 					}
 					fileTr0.append($("<td/>").append(fileTable));
@@ -1092,18 +1125,7 @@ function addMessage(data){
 			}
 	}
 }
-//отправка файла на сервер
-function stepLoadFile(i){
-	progressBar.show();
-	// Создаем форму с несколькими значениями
-	let reader = new FileReader();
-    let rawData = new ArrayBuffer();
-    reader.onload = function(e) {
-    	rawData = e.target.result;
-    	chatSocket.send(rawData);
-    }
-    reader.readAsArrayBuffer(attachedFiles[i]);
-}
+
 //приём с сервера
 function onMessage(event) {
 	let message0 = JSON.parse(event.data);
@@ -1113,35 +1135,16 @@ function onMessage(event) {
 	else if(message0.messageType == unblockOldMes){
 		blocOldMes=0;
 	}
-	else if(message0.messageType == stepLoadFileType){
-		if(attachedFiles.length > 0)
-			stepLoadFile(0);
-	}
-	else if(message0.messageType == nextStepLoadFileType){
-		if(message0.fileLoaded == false){
-			//тут обработка непринятого файла
-		}
-		let step = message0.number + 1;
-		if(attachedFiles.length > step){
-			stepLoadFile(step);
-		}
-		else{
-			let newMessage={};
-			newMessage.processId=idProcess;
-			newMessage.messageType=endLoadFilesType;
-			chatSocket.send(JSON.stringify(newMessage));
-			attachedFiles = [];
-			$("#progressBar").css({"display":"none"});
-			$("#filesTable").empty();
-			lockFlag = false;
-		}
-	}
 	else if(message0.messageType == editMessageType){
 		let mesSelector = $("[textMessagId='"+message0.mesId+"']");
 		if((mesSelector != null) && (mesSelector != undefined)){
-			mesSelector.text(message0.newText);
+			mesSelector.text(message0.messageText);
 		}
-	}
+	} else if (message0.messageType == errorMessageType){
+        $("#progressBar").css({"display": "none"});
+        alert("Сообщение не отправлено. Error: " + message0.message);
+        lockFlag = false;
+    }
 }
 //---------------------------------------------------------------------
 //перемещение окна
@@ -1327,7 +1330,7 @@ function ajaxInitializationChat(){
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
 				updatenumberNewMessages(0);
 			}
-			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chat&processId=" + idProcess;
+			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket?type=chat&processId=" + idProcess;
 			chatSocket = new WebSocket(chatSocketUrl);
 			chatSocket.binaryType = "arraybuffer";
 			chatSocket.onmessage = onMessage;
@@ -1361,7 +1364,7 @@ function ajaxAllInitializationChats(){
 		processData: false,
 		success: function(data) {
 			getAllChat(data);
-			chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
+			chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket?type=chatsNewMess";
 			chatsNewMessSocket = new WebSocket(chatsNewMessSocketUrl);
 			chatsNewMessSocket.onmessage = onChatsNewMessSocketMessage;
 			//действия при открытии сокета
@@ -1460,7 +1463,7 @@ $("#btnCl").hide();
 
 
 btnLoadOldMessages.onclick = loadOldMessages;
-btnSend.onclick=sendMessage;
+btnSend.onclick=sendMessageHandler;
 
 //$("#modalFooter").children().first().after("<div class=\"warningText\">"+$("#message").val().length+"/"+characterSize+"</div>");
 //-----скролл

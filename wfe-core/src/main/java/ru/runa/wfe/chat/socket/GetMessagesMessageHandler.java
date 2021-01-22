@@ -33,7 +33,7 @@ public class GetMessagesMessageHandler implements ChatSocketMessageHandler<ChatG
         for (ChatMessageDto newMessage : messages) {
             newMessage.setOld(true);
             if (newMessage.getMessage().getCreateActor().equals(user.getActor())) {
-                newMessage.setCoreUserFlag(true);
+                newMessage.setCoreUser(true);
             }
             sessionHandler.sendToSession(session, newMessage.convert());
         }
