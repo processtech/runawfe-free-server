@@ -80,6 +80,7 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
                 link = new StringElement((rootProcessId == null ? task.getProcessId() : rootProcessId).toString());
                 params.put(IdForm.ID_INPUT_NAME, link);
                 params.put(TaskIdForm.TASK_ID_INPUT_NAME, task.getId());
+                params.put(TaskIdForm.CHILD_PROCESS_ID_NAME, task.getProcessId());
             }
             String url = Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, env.getPageContext(), PortletUrlType.Render);
             link = new A(url, link);
