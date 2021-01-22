@@ -240,4 +240,26 @@ public class ViewUtil {
         return html;
     }
 
+    public static String inputComponentHtmlFormatter(String inputComponentHtml) {
+		/**
+		 * Method removes and replaces the excess chars
+		 * @param some html component
+		 * @return formatted text
+		 */
+    		String value = null;
+    		String[] regex = { "\"", "\n", "[]" };
+    		String[] replacement = {"'", "", "{}"};
+
+		//optimized
+		if (inputComponentHtml.contains(regex[0])) {
+			value = inputComponentHtml.replaceAll(regex[0], replacement[0]);
+		}
+    else if (inputComponentHtml.contains(regex[1])) {
+			value = inputComponentHtml.replaceAll(regex[1], replacement[1]);
+		}
+    else if (inputComponentHtml.contains(regex[2])) {
+			value = inputComponentHtml.replace(regex[2], replacement[2]);
+		}
+		return value;
+	}
 }

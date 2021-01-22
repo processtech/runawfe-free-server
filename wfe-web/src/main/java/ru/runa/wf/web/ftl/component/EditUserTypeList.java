@@ -80,7 +80,8 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
                     + definition.getName();
             WfVariable templateComponentVariable = ViewUtil.createComponentVariable(variable, suffix, definition.getFormatNotNull(), null);
             String inputComponentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
-            return inputComponentHtml.replaceAll("\"", "'").replaceAll("\n", "").replace("[]", "{}");
+            inputComponentHtml = ViewUtil.inputComponentHtmlFormatter(inputComponentHtml);
+			      return inputComponentHtml;
         }
 
     }
