@@ -27,10 +27,10 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
             messageObject = messages.get(0);
             messageObject.setOld(true);
             if (messageObject.getMessage().getCreateActor().equals(user.getActor())) {
-                messageObject.setCoreUserFlag(true);
+                messageObject.setCoreUser(true);
                 // messageObject.put("coreUser", true);
             } else {
-                messageObject.setCoreUserFlag(false);
+                messageObject.setCoreUser(false);
             }
             messagesArrayObject.add(messages.get(0).convert());
             for (int i = 1; i < messages.size(); i++) {
@@ -38,9 +38,9 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
                 messageObject = messages.get(i);
                 messageObject.setOld(false);
                 if (messageObject.getMessage().getCreateActor().equals(user.getActor())) {
-                    messageObject.setCoreUserFlag(true);
+                    messageObject.setCoreUser(true);
                 } else {
-                    messageObject.setCoreUserFlag(false);
+                    messageObject.setCoreUser(false);
                 }
                 messagesArrayObject.add(messageObject.convert());
             }
@@ -52,9 +52,9 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
                 messageObject = messages.get(i);
                 messageObject.setOld(true);
                 if (messageObject.getMessage().getCreateActor().equals(user.getActor())) {
-                    messageObject.setCoreUserFlag(true);
+                    messageObject.setCoreUser(true);
                 } else {
-                    messageObject.setCoreUserFlag(false);
+                    messageObject.setCoreUser(false);
                 }
                 messagesArrayObject.add(messageObject.convert());
             }
