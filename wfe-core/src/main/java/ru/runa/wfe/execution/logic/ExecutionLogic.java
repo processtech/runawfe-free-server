@@ -23,10 +23,10 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
@@ -103,7 +103,7 @@ import ru.runa.wfe.var.VariableProvider;
  * @since 2.0
  */
 public class ExecutionLogic extends WfCommonLogic {
-    private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = { SecuredObjectType.PROCESS };
+    private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = {SecuredObjectType.PROCESS};
     @Autowired
     private ProcessFactory processFactory;
     @Autowired
@@ -246,8 +246,36 @@ public class ExecutionLogic extends WfCommonLogic {
         return process.getId();
     }
 
+
+    private List<String> getHighlightedNodes(ProcessDefinition processDefinition, Token highlightedToken) {
+        List<String> highlightedNodes = new ArrayList<>();
+        List<Node> nodeList = processDefinition.getNodes(true);
+        if (nodeList==null)
+            return null;
+        System.out.println("getHighlightedNodes");
+        List<SubprocessNode> subprocessNodes = new ArrayList<>();
+        for (Node node: nodeList){
+            if (node instanceof SubprocessNode)
+                subprocessNodes.add((SubprocessNode) node);
+        }
+        String childSubProcessName = highlightedToken.getNodeId().split("\\.")[0];
+        boolean isEnd = false;
+        while (!isEnd) {
+            for (SubprocessNode subprocessNode : subprocessNodes) {
+                if (subprocessNode.getSubProcessName().equals(childSubProcessName)) {
+                    highlightedNodes.add(subprocessNode.getNodeId());
+                    childSubProcessName = subprocessNode.getParentElement().getNodeId();
+                    isEnd = childSubProcessName==null;
+                    break;
+                }
+            }
+        }
+        return highlightedNodes;
+    }
+
     public byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId) {
         try {
+            List<String> highlightedNodes = Collections.emptyList();
             Process process = processDao.getNotNull(processId);
             permissionDao.checkAllowed(user, Permission.READ, process);
             ProcessDefinition processDefinition = getDefinition(process);
@@ -265,11 +293,13 @@ public class ExecutionLogic extends WfCommonLogic {
             if (subprocessId != null) {
                 processDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
             }
+            if (processDefinition!=null && highlightedToken!=null)
+               highlightedNodes=getHighlightedNodes(processDefinition, highlightedToken);
             ProcessLogs processLogs = new ProcessLogs(processId);
             processLogs.addLogs(processLogDao.get(processId, processDefinition), false);
             GraphImageBuilder builder = new GraphImageBuilder(processDefinition);
             builder.setHighlightedToken(highlightedToken);
-            return builder.createDiagram(process, processLogs);
+            return builder.createDiagram(process, processLogs, highlightedNodes);
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
@@ -553,7 +583,7 @@ public class ExecutionLogic extends WfCommonLogic {
                 processLogs.addLogs(processLogDao.getAll(processLogFilter), false);
                 CreateTimerLog createTimerLog = processLogs.getLastOrNull(CreateTimerLog.class);
                 if (createTimerLog == null) {
-                    throw new InternalApplicationException("Unable to find CreateTimerLog for " + process.getId() + "|" + token.getId()+"|"+node.getNodeId());
+                    throw new InternalApplicationException("Unable to find CreateTimerLog for " + process.getId() + "|" + token.getId() + "|" + node.getNodeId());
                 }
                 Date dueDate = createTimerLog.getDueDate();
                 ((TimerNode) node).restore(new ExecutionContext(processDefinition, token), dueDate);
