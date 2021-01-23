@@ -69,15 +69,7 @@ public class GraphImageBuilder {
     public void setHighlightedToken(Token highlightedToken) {
         this.highlightedToken = highlightedToken;
     }
-    private boolean nodeContainsHighlightedNode(Node node, Token token){
-        if (token.getNodeId()==null)
-            return false;
-        String[] subNodeIdSplit = token.getNodeId().split("\\.");
-        if (subNodeIdSplit.length==0)
-            return false;
-        String rootSubNode = subNodeIdSplit[0];
-        return node.getProcessDefinition().getEmbeddedSubprocesses().containsKey(rootSubNode);
-    }
+
     public byte[] createDiagram(Process process, ProcessLogs logs, List<String> highlightedNodes) throws Exception {
         AbstractFigureFactory factory;
         if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
