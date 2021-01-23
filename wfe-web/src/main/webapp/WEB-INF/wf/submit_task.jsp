@@ -51,7 +51,7 @@
 <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
 <script type="text/javascript" src="/wfe/js/chat.js"></script>
 <div style="float:left; max-width: 150px; margin-top: -25px;">
-	<a id="openChatButton" onclick="openChat()">Открыть чат <span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
+	<a id="openChatButton" onclick="openChat()"><span id="openChatButtonText"></span><span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 </div>
 <div id="ChatForm"  processId="<%= Delegates.getTaskService().getTask(Commons.getUser(request.getSession()), taskId).getProcessId() %>"></div>
 <% }%>

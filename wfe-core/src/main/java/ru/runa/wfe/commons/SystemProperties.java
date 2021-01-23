@@ -105,6 +105,13 @@ public class SystemProperties {
     }
 
     /**
+     * Product name
+     */
+    public static String getProductName() {
+        return RESOURCES.getStringProperty("product.name");
+    }
+
+    /**
      * System version
      */
     public static String getVersion() {
@@ -411,5 +418,9 @@ public class SystemProperties {
 
     public static boolean showErrorsInGroovyExpressionValidator() {
         return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
+    }
+
+    public static String getPreferredMessagesLanguage() {
+        return RESOURCES.getStringProperty("preferred.messages.language");
     }
 }

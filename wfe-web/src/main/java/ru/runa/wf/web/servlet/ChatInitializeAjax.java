@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
-import ru.runa.common.web.ChatSocket;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -22,28 +21,42 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         JSONArray messagesArrayObject = new JSONArray();
         outputObject.put("lastMessageId", lastMessageId);
         messages = Delegates.getChatService().getNewChatMessages(user, processId);
+        ChatMessageDto messageObject;
         if (messages.size() > 0) {
-            JSONObject messageObject = ChatSocket.convertMessage(messages.get(0),true);
-            if (messages.get(0).getMessage().getCreateActor().equals(user.getActor())) {
-                messageObject.put("coreUser", true);
+            // JSONObject messageObject = ChatSocket.convertMessage(messages.get(0),true);
+            messageObject = messages.get(0);
+            messageObject.setOld(true);
+            if (messageObject.getMessage().getCreateActor().equals(user.getActor())) {
+                messageObject.setCoreUserFlag(true);
+                // messageObject.put("coreUser", true);
+            } else {
+                messageObject.setCoreUserFlag(false);
             }
-            messagesArrayObject.add(messageObject);
+            messagesArrayObject.add(messages.get(0).convert());
             for (int i = 1; i < messages.size(); i++) {
-                messageObject = ChatSocket.convertMessage(messages.get(i),false);
-                if (messages.get(i).getMessage().getCreateActor().equals(user.getActor())) {
-                    messageObject.put("coreUser", true);
+                // messageObject = ChatSocket.convertMessage(messages.get(i),false);
+                messageObject = messages.get(i);
+                messageObject.setOld(false);
+                if (messageObject.getMessage().getCreateActor().equals(user.getActor())) {
+                    messageObject.setCoreUserFlag(true);
+                } else {
+                    messageObject.setCoreUserFlag(false);
                 }
-                messagesArrayObject.add(messageObject);
+                messagesArrayObject.add(messageObject.convert());
             }
         }
         if (messages.size() < countMessages) {// дополняем старыми
             messages = Delegates.getChatService().getChatMessages(user, processId, lastMessageId, countMessages - messages.size());
             for (int i = 0; i < messages.size(); i++) {
-                JSONObject messageObject = ChatSocket.convertMessage(messages.get(i),true);
-                if (messages.get(i).getMessage().getCreateActor().equals(user.getActor())) {
-                    messageObject.put("coreUser", true);
+                // JSONObject messageObject = ChatSocket.convertMessage(messages.get(i),true);
+                messageObject = messages.get(i);
+                messageObject.setOld(true);
+                if (messageObject.getMessage().getCreateActor().equals(user.getActor())) {
+                    messageObject.setCoreUserFlag(true);
+                } else {
+                    messageObject.setCoreUserFlag(false);
                 }
-                messagesArrayObject.add(messageObject);
+                messagesArrayObject.add(messageObject.convert());
             }
         }
         outputObject.put("messages", messagesArrayObject);

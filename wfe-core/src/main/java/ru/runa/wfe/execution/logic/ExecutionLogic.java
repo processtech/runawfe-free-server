@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
@@ -47,7 +48,6 @@ import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -68,9 +68,6 @@ import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.history.GraphHistoryBuilder;
 import ru.runa.wfe.graph.image.GraphImageBuilder;
-import ru.runa.wfe.graph.image.figure.AbstractFigureFactory;
-import ru.runa.wfe.graph.image.figure.bpmn.BpmnFigureFactory;
-import ru.runa.wfe.graph.image.figure.uml.UmlFigureFactory;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
@@ -106,7 +103,7 @@ import ru.runa.wfe.var.VariableProvider;
  * @since 2.0
  */
 public class ExecutionLogic extends WfCommonLogic {
-    private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = { SecuredObjectType.PROCESS };
+    private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = {SecuredObjectType.PROCESS};
     @Autowired
     private ProcessFactory processFactory;
     @Autowired
@@ -248,11 +245,37 @@ public class ExecutionLogic extends WfCommonLogic {
         log.info(process + " was successfully started by " + user);
         return process.getId();
     }
-    private AbstractFigureFactory getAbstractFigureFactory(Language workflowLanguage) {
-        return workflowLanguage == Language.BPMN2 ? new BpmnFigureFactory() : new UmlFigureFactory();
+
+
+    private List<String> getHighlightedNodes(ProcessDefinition processDefinition, Token highlightedToken) {
+        List<String> highlightedNodes = new ArrayList<>();
+        List<Node> nodeList = processDefinition.getNodes(true);
+        if (nodeList==null)
+            return null;
+        System.out.println("getHighlightedNodes");
+        List<SubprocessNode> subprocessNodes = new ArrayList<>();
+        for (Node node: nodeList){
+            if (node instanceof SubprocessNode)
+                subprocessNodes.add((SubprocessNode) node);
+        }
+        String childSubProcessName = highlightedToken.getNodeId().split("\\.")[0];
+        boolean isEnd = false;
+        while (!isEnd) {
+            for (SubprocessNode subprocessNode : subprocessNodes) {
+                if (subprocessNode.getSubProcessName().equals(childSubProcessName)) {
+                    highlightedNodes.add(subprocessNode.getNodeId());
+                    childSubProcessName = subprocessNode.getParentElement().getNodeId();
+                    isEnd = childSubProcessName==null;
+                    break;
+                }
+            }
+        }
+        return highlightedNodes;
     }
+
     public byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId) {
         try {
+            List<String> highlightedNodes = Collections.emptyList();
             Process process = processDao.getNotNull(processId);
             permissionDao.checkAllowed(user, Permission.READ, process);
             ProcessDefinition processDefinition = getDefinition(process);
@@ -270,11 +293,13 @@ public class ExecutionLogic extends WfCommonLogic {
             if (subprocessId != null) {
                 processDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
             }
+            if (processDefinition!=null && highlightedToken!=null)
+               highlightedNodes=getHighlightedNodes(processDefinition, highlightedToken);
             ProcessLogs processLogs = new ProcessLogs(processId);
             processLogs.addLogs(processLogDao.get(processId, processDefinition), false);
             GraphImageBuilder builder = new GraphImageBuilder(processDefinition);
             builder.setHighlightedToken(highlightedToken);
-            return builder.createDiagram(process, processLogs, getAbstractFigureFactory(processDefinition.getDeployment().getLanguage()));
+            return builder.createDiagram(process, processLogs, highlightedNodes);
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
@@ -558,7 +583,7 @@ public class ExecutionLogic extends WfCommonLogic {
                 processLogs.addLogs(processLogDao.getAll(processLogFilter), false);
                 CreateTimerLog createTimerLog = processLogs.getLastOrNull(CreateTimerLog.class);
                 if (createTimerLog == null) {
-                    throw new InternalApplicationException("Unable to find CreateTimerLog for " + process.getId() + "|" + token.getId()+"|"+node.getNodeId());
+                    throw new InternalApplicationException("Unable to find CreateTimerLog for " + process.getId() + "|" + token.getId() + "|" + node.getNodeId());
                 }
                 Date dueDate = createTimerLog.getDueDate();
                 ((TimerNode) node).restore(new ExecutionContext(processDefinition, token), dueDate);
@@ -611,31 +636,6 @@ public class ExecutionLogic extends WfCommonLogic {
         List<Process> processes = processDao.getProcesses(filter);
         processes = filterSecuredObject(user, processes, Permission.READ);
         return processes;
-    }
-    private List<String> getHighlightedNodes(ProcessDefinition processDefinition, Token highlightedToken) {
-        List<String> highlightedNodes = new ArrayList<>();
-        List<Node> nodeList = processDefinition.getNodes(true);
-        if (nodeList==null)
-            return null;
-        System.out.println("getHighlightedNodes");
-        List<SubprocessNode> subprocessNodes = new ArrayList<>();
-        for (Node node: nodeList){
-            if (node instanceof SubprocessNode)
-                subprocessNodes.add((SubprocessNode) node);
-        }
-        String childSubProcessName = highlightedToken.getNodeId().split("\\.")[0];
-        boolean isEnd = false;
-        while (!isEnd) {
-            for (SubprocessNode subprocessNode : subprocessNodes) {
-                if (subprocessNode.getSubProcessName().equals(childSubProcessName)) {
-                    highlightedNodes.add(subprocessNode.getNodeId());
-                    childSubProcessName = subprocessNode.getParentElement().getNodeId();
-                    isEnd = childSubProcessName==null;
-                    break;
-                }
-            }
-        }
-        return highlightedNodes;
     }
 
     private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {

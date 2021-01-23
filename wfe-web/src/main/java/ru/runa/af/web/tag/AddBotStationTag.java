@@ -35,7 +35,7 @@ public class AddBotStationTag extends TitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        Table table = BotStationTableBuilder.createBotStationDetailsTable(pageContext, "", "");
+        Table table = BotStationTableBuilder.createBotStationDetailsTable(pageContext, "");
         tdFormElement.addElement(table);
     }
 

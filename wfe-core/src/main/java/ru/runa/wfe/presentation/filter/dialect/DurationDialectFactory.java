@@ -6,7 +6,7 @@ import ru.runa.wfe.commons.DbType;
 public class DurationDialectFactory {
 
     public static DurationDialect createDialect() {
-        final DbType dbtype = ApplicationContextFactory.getDBType();
+        final DbType dbtype = ApplicationContextFactory.getDbType();
         if (null != dbtype) {
             switch (dbtype) {
             case H2:

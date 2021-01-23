@@ -3,7 +3,6 @@ package ru.runa.wfe.var.format;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 
@@ -33,7 +32,7 @@ public abstract class VariableFormat {
         try {
             return convertFromStringValue(source);
         } catch (Exception e) {
-            throw new InternalApplicationException("Unable to parse '" + source + "' in " + this, e);
+            throw new InternalApplicationException(e);
         }
     }
 

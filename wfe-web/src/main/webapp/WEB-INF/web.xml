@@ -109,6 +109,11 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>product</servlet-name>
+		<servlet-class>ru.runa.wf.web.servlet.ProductServlet</servlet-class>
+	</servlet>
+
+	<servlet>
 		<servlet-name>version</servlet-name>
 		<servlet-class>ru.runa.wf.web.servlet.VersionServlet</servlet-class>
 	</servlet>
@@ -151,6 +156,11 @@
 	<servlet-mapping>
 		<servlet-name>processDefinitionChanges</servlet-name>
 		<url-pattern>/processDefinitionChanges</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>product</servlet-name>
+		<url-pattern>/product</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
