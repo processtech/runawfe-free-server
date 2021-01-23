@@ -23,10 +23,9 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
@@ -612,6 +611,31 @@ public class ExecutionLogic extends WfCommonLogic {
         List<Process> processes = processDao.getProcesses(filter);
         processes = filterSecuredObject(user, processes, Permission.READ);
         return processes;
+    }
+    private List<String> getHighlightedNodes(ProcessDefinition processDefinition, Token highlightedToken) {
+        List<String> highlightedNodes = new ArrayList<>();
+        List<Node> nodeList = processDefinition.getNodes(true);
+        if (nodeList==null)
+            return null;
+        System.out.println("getHighlightedNodes");
+        List<SubprocessNode> subprocessNodes = new ArrayList<>();
+        for (Node node: nodeList){
+            if (node instanceof SubprocessNode)
+                subprocessNodes.add((SubprocessNode) node);
+        }
+        String childSubProcessName = highlightedToken.getNodeId().split("\\.")[0];
+        boolean isEnd = false;
+        while (!isEnd) {
+            for (SubprocessNode subprocessNode : subprocessNodes) {
+                if (subprocessNode.getSubProcessName().equals(childSubProcessName)) {
+                    highlightedNodes.add(subprocessNode.getNodeId());
+                    childSubProcessName = subprocessNode.getParentElement().getNodeId();
+                    isEnd = childSubProcessName==null;
+                    break;
+                }
+            }
+        }
+        return highlightedNodes;
     }
 
     private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
