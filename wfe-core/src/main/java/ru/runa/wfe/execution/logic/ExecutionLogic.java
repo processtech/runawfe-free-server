@@ -252,7 +252,6 @@ public class ExecutionLogic extends WfCommonLogic {
         List<Node> nodeList = processDefinition.getNodes(true);
         if (nodeList==null)
             return null;
-        System.out.println("getHighlightedNodes");
         List<SubprocessNode> subprocessNodes = new ArrayList<>();
         for (Node node: nodeList){
             if (node instanceof SubprocessNode)
