@@ -8,5 +8,4 @@ import lombok.Setter;
 public class ChatGetMessagesDto extends ChatDto {
     private int count;
     private Long lastMessageId;
-    private Long processId;
 }

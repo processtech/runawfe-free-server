@@ -8,5 +8,4 @@ import lombok.Setter;
 public class ChatEditMessageDto extends ChatDto {
     private Long editMessageId;
     private String message;
-    private Long processId;
 }

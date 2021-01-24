@@ -14,7 +14,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
     @Override
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
         Long processId = Long.parseLong(request.getParameter("processId"));
-        Integer countMessages = Integer.parseInt(request.getParameter("messageCount"));
+        int countMessages = Integer.parseInt(request.getParameter("messageCount"));
         JSONObject outputObject = new JSONObject();
         Long lastMessageId = Delegates.getChatService().getLastReadMessage(user, processId);
         List<ChatMessageDto> messages;
@@ -23,39 +23,23 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         messages = Delegates.getChatService().getNewChatMessages(user, processId);
         ChatMessageDto messageObject;
         if (messages.size() > 0) {
-            // JSONObject messageObject = ChatSocket.convertMessage(messages.get(0),true);
             messageObject = messages.get(0);
             messageObject.setOld(true);
-            if (messageObject.getMessage().getCreateActor().equals(user.getActor())) {
-                messageObject.setCoreUser(true);
-                // messageObject.put("coreUser", true);
-            } else {
-                messageObject.setCoreUser(false);
-            }
+            messageObject.setCoreUser(messageObject.getMessage().getCreateActor().equals(user.getActor()));
             messagesArrayObject.add(messages.get(0).convert());
             for (int i = 1; i < messages.size(); i++) {
-                // messageObject = ChatSocket.convertMessage(messages.get(i),false);
                 messageObject = messages.get(i);
                 messageObject.setOld(false);
-                if (messageObject.getMessage().getCreateActor().equals(user.getActor())) {
-                    messageObject.setCoreUser(true);
-                } else {
-                    messageObject.setCoreUser(false);
-                }
+                messageObject.setCoreUser(messageObject.getMessage().getCreateActor().equals(user.getActor()));
                 messagesArrayObject.add(messageObject.convert());
             }
         }
-        if (messages.size() < countMessages) {// дополняем старыми
+        if (messages.size() < countMessages) {
             messages = Delegates.getChatService().getChatMessages(user, processId, lastMessageId, countMessages - messages.size());
-            for (int i = 0; i < messages.size(); i++) {
-                // JSONObject messageObject = ChatSocket.convertMessage(messages.get(i),true);
-                messageObject = messages.get(i);
+            for (ChatMessageDto message : messages) {
+                messageObject = message;
                 messageObject.setOld(true);
-                if (messageObject.getMessage().getCreateActor().equals(user.getActor())) {
-                    messageObject.setCoreUser(true);
-                } else {
-                    messageObject.setCoreUser(false);
-                }
+                messageObject.setCoreUser(messageObject.getMessage().getCreateActor().equals(user.getActor()));
                 messagesArrayObject.add(messageObject.convert());
             }
         }
