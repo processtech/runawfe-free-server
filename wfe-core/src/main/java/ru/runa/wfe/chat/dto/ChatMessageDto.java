@@ -1,64 +1,37 @@
 package ru.runa.wfe.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import ru.runa.wfe.chat.ChatMessage;
 
+@Getter
+@Setter
 public class ChatMessageDto extends ChatDto {
     private ChatMessage message;
+
+    @JsonProperty("files")
     private List<ChatFileDto> filesDto = new ArrayList<ChatFileDto>();
-    private boolean old = false;
-    private boolean mentionedFlag = false;
-    private boolean coreUserFlag = false;
+
+    @JsonProperty("old")
+    private boolean isOld = false;
+
+    @JsonProperty("mentioned")
+    private boolean isMentioned = false;
+
+    @JsonProperty("coreUser")
+    private boolean isCoreUser = false;
 
     public ChatMessageDto(ChatMessage message) {
-        this();
         this.message = message;
     }
 
-    public ChatMessageDto() {
-    }
-
-    @JsonGetter("message")
-    public ChatMessage getMessage() {
-        return message;
-    }
-
-    public void setMessage(ChatMessage message) {
-        this.message = message;
-    }
-
-    @JsonGetter("old")
-    public boolean isOld() {
-        return old;
-    }
-
-    public void setOld(boolean old) {
-        this.old = old;
-    }
-
-    @JsonGetter("mentioned")
-    public boolean isMentioned() {
-        return mentionedFlag;
-    }
-
-    public void setMentionedFlag(boolean mentionedFlag) {
-        this.mentionedFlag = mentionedFlag;
-    }
-
-    @JsonGetter("coreUser")
-    public boolean isCoreUser() {
-        return coreUserFlag;
-    }
-
-    public void setCoreUserFlag(boolean coreUserFlag) {
-        this.coreUserFlag = coreUserFlag;
-    }
-
-    @JsonGetter("hierarchyMessageFlag")
-    public Boolean isHierarchyMessageFlag() {
+    @JsonGetter("hierarchyMessage")
+    public Boolean isHierarchyMessage() {
         return StringUtils.isNotBlank(this.getMessage().getQuotedMessageIds());
     }
 
@@ -70,16 +43,4 @@ public class ChatMessageDto extends ChatDto {
             return false;
         }
     }
-
-    @JsonGetter("fileArray")
-    public List<ChatFileDto> getFilesDto() {
-        return filesDto;
-    }
-
-    public void setFilesDto(List<ChatFileDto> filesDto) {
-        this.filesDto = filesDto;
-    }
-
-
-
 }

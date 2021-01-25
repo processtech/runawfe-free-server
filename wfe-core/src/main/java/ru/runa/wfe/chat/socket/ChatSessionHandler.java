@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.websocket.Session;
+import lombok.extern.apachecommons.CommonsLog;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.dto.ChatDto;
+import ru.runa.wfe.chat.dto.ChatErrorMessageDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.MessageForCloseChatDto;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -19,6 +21,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
+@CommonsLog
 @Component
 public class ChatSessionHandler {
     private final CopyOnWriteArraySet<Session> sessions = new CopyOnWriteArraySet<Session>();
@@ -30,21 +33,21 @@ public class ChatSessionHandler {
     public void addSession(Session session) {
         String type = (String) session.getUserProperties().get("type");
         switch (type) {
-        case "chat":
-            sessions.add(session);
-            break;
-        case "chatsNewMess":
-            List<WfProcess> processes = executionLogic.getProcesses((User) session.getUserProperties().get("user"), null);
-            Collection<Long> processIds = new HashSet<Long>();
-            for (WfProcess proc : processes) {
-                processIds.add(proc.getId());
-            }
-            session.getUserProperties().put("processIds", processIds);
-            onlyNewMessagesSessions.add(session);
-            break;
-        default:
-            sessions.add(session);
-            break;
+            case "chat":
+                sessions.add(session);
+                break;
+            case "chatsNewMess":
+                List<WfProcess> processes = executionLogic.getProcesses((User) session.getUserProperties().get("user"), null);
+                Collection<Long> processIds = new HashSet<Long>();
+                for (WfProcess proc : processes) {
+                    processIds.add(proc.getId());
+                }
+                session.getUserProperties().put("processIds", processIds);
+                onlyNewMessagesSessions.add(session);
+                break;
+            default:
+                sessions.add(session);
+                break;
         }
     }
 
@@ -72,11 +75,10 @@ public class ChatSessionHandler {
             if (processId.equals(thisId)) {
                 Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
                 if (thisActor.equals(coreUser)) {
-                    message.setCoreUserFlag(true);
-                }
-                else {
+                    message.setCoreUser(true);
+                } else {
                     if (mentionedActors.contains(thisActor)) {
-                        message.setMentionedFlag(true);
+                        message.setMentioned(true);
                     } else {
                         if (isPrivate) {
                             continue;
@@ -84,8 +86,8 @@ public class ChatSessionHandler {
                     }
                 }
                 session.getBasicRemote().sendText(messageDto.convert());
-                message.setCoreUserFlag(false);
-                message.setMentionedFlag(false);
+                message.setCoreUser(false);
+                message.setMentioned(false);
             }
         }
     }
@@ -106,11 +108,10 @@ public class ChatSessionHandler {
             if (((HashSet<Long>) session.getUserProperties().get("processIds")).contains(processId)) {
                 Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
                 if (thisActor.equals(coreUser)) {
-                    messageDto.setCoreUserFlag(true);
-                }
-                else {
+                    messageDto.setCoreUser(true);
+                } else {
                     if (mentionedActors.contains(thisActor)) {
-                        messageDto.setMentionedFlag(true);
+                        messageDto.setMentioned(true);
                     } else {
                         if (isPrivate) {
                             continue;
@@ -118,8 +119,8 @@ public class ChatSessionHandler {
                     }
                 }
                 session.getBasicRemote().sendText(messageDto.convert());
-                messageDto.setCoreUserFlag(false);
-                messageDto.setMentionedFlag(false);
+                messageDto.setCoreUser(false);
+                messageDto.setMentioned(false);
             }
         }
     }
@@ -135,9 +136,17 @@ public class ChatSessionHandler {
         sendToChats(messageDto, messageDto.getMessage().getProcess().getId(), messageDto.getMessage().getCreateActor(), mentionedActors,
                 isPrivate);
         MessageForCloseChatDto messageForCloseChat = new MessageForCloseChatDto();
-        messageForCloseChat.setCurrentMessageId(messageDto.getMessage().getProcess().getId());
+        messageForCloseChat.setProcessId(messageDto.getMessage().getProcess().getId());
         sendOnlyNewMessagesSessions(messageForCloseChat, messageDto.getMessage().getProcess().getId(), messageDto.getMessage().getCreateActor(),
                 mentionedActors, isPrivate);
     }
 
+    public void messageError(Session session, String message) {
+        ChatErrorMessageDto errorDto = new ChatErrorMessageDto(message);
+        try {
+            sendToSession(session, errorDto.convert());
+        } catch (IOException e) {
+            log.error(e);
+        }
+    }
 }
