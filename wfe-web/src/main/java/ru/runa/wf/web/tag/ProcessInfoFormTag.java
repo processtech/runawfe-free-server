@@ -232,7 +232,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                 Map<String, Object> params = Maps.newHashMap();
                 params.put(IdForm.ID_INPUT_NAME, parentProcess.getId());
                 params.put(TaskIdForm.TASK_ID_INPUT_NAME, taskId);
-                params.put("childProcessId", process.getId());
+                params.put(TaskIdForm.SELECTED_TASK_PROCESS_ID_NAME, process.getId());
                 inner = new A(Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, pageContext, PortletUrlType.Render),
                         parentProcessDefinitionName);
             } else {

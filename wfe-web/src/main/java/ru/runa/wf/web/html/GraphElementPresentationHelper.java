@@ -18,7 +18,6 @@
 package ru.runa.wf.web.html;
 
 import java.util.Map;
-import java.util.Optional;
 
 import javax.servlet.jsp.PageContext;
 
@@ -43,7 +42,7 @@ import com.google.common.collect.Maps;
 public class GraphElementPresentationHelper {
     public static final String MAP_NAME = "processMap";
 
-    private static final String DEFAULT_ASSIGNED_SUBPROCESS_ID = "0";
+    private static final long DEFAULT_SELECTED_TASK_PROCESS_ID = -1;
 
     /**
      * Rendered page context.
@@ -102,7 +101,7 @@ public class GraphElementPresentationHelper {
                 element.getGraphConstraints()[2] - mainDivSize / 2,
                 element.getGraphConstraints()[3] + multiLinkSize / 2 + additionalHeight
         };
-        long childProcessId = getChildProcessId();
+        long selectedTaskProcessId = getSelectedTaskProcessId();
         StringBuilder builder = new StringBuilder()
                 .append("<div class=\"multiInstanceContainer\" style=\"")
                 .append("width: ").append(mainDivSize).append("px;")
@@ -114,7 +113,7 @@ public class GraphElementPresentationHelper {
             if (element.getCompletedSubprocessIds().contains(subprocessId)) {
                 builder.append("background-color: ").append(DrawProperties.getHighlightColorString()).append("; ");
             }
-            if (subprocessId == childProcessId) {
+            if (subprocessId == selectedTaskProcessId) {
                 builder.append("position: relative; border-width: 2px; border-color: black;");
             }
             builder.append("width: ").append(multiLinkSize).append("px; height: ").append(multiLinkSize).append("px;\"");
@@ -216,9 +215,11 @@ public class GraphElementPresentationHelper {
         return area;
     }
 
-    private long getChildProcessId() {
-        String childProcessId = pageContext.getRequest().getParameter(TaskIdForm.ASSIGNED_SUBPROCESS_ID_NAME);
-        return Long.parseLong(Optional.ofNullable(childProcessId).orElse(DEFAULT_ASSIGNED_SUBPROCESS_ID));
+    private long getSelectedTaskProcessId() {
+        String selectedTaskProcessId = pageContext.getRequest().getParameter(TaskIdForm.SELECTED_TASK_PROCESS_ID_NAME);
+        return selectedTaskProcessId != null
+                ? Long.parseLong(selectedTaskProcessId)
+                : DEFAULT_SELECTED_TASK_PROCESS_ID;
     }
 
 }
