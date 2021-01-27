@@ -1,12 +1,15 @@
 package ru.runa.wfe.commons;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+
 import java.util.List;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -109,6 +112,10 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static NodeAsyncExecutor getNodeAsyncExecutor() {
         return getContext().getBean(NodeAsyncExecutor.class);
+    }
+
+    public static ObjectMapper getChatObjectMapper() {
+        return getContext().getBean(ObjectMapper.class);
     }
 
     // TODO avoid static methods, inject

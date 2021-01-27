@@ -19,8 +19,5 @@ import com.fasterxml.jackson.databind.ObjectMapper;
         @JsonSubTypes.Type(value = ChatErrorMessageDto.class, name = "errorMessage")
 })
 public class ChatDto {
-    public String convert() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
+
 }
