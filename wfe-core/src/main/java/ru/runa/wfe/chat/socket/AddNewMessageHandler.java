@@ -13,10 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.ChatNewMessageDto;
+import ru.runa.wfe.chat.logic.ChatFileLogic;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
@@ -31,6 +32,8 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
     private ChatSessionHandler sessionHandler;
     @Autowired
     private ChatLogic chatLogic;
+    @Autowired
+    private ChatFileLogic chatFileLogic;
     @Autowired
     private ExecutionLogic executionLogic;
     @Autowired
@@ -61,12 +64,12 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
         Boolean isPrivate = dto.isPrivate();
         long processId = Long.parseLong(dto.getProcessId());
         if (dto.getFiles() != null) {
-            ArrayList<ChatMessageFile> chatMessageFiles = new ArrayList<>();
+            ArrayList<ChatMessageFileDto> chatMessageFiles = new ArrayList<>();
             for (Map.Entry<String, byte[]> entry : dto.getFiles().entrySet()) {
-                ChatMessageFile chatMessageFile = new ChatMessageFile(entry.getKey(), entry.getValue());
+                ChatMessageFileDto chatMessageFile = new ChatMessageFileDto(entry.getKey(), entry.getValue());
                 chatMessageFiles.add(chatMessageFile);
             }
-            chatMessageDto = chatLogic.saveMessageAndBindFiles(user.getActor(), processId, newMessage, mentionedExecutors,
+            chatMessageDto = chatFileLogic.saveMessageAndBindFiles(processId, newMessage, mentionedExecutors,
                     isPrivate, chatMessageFiles);
         } else {
             Long newMessId = chatLogic.saveMessage(user.getActor(), processId, newMessage, mentionedExecutors, isPrivate);

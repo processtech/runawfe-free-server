@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
@@ -22,7 +22,7 @@ public interface ChatService {
     public void deleteFile(User user, Long id);
 
     public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
-            ArrayList<ChatMessageFile> files);
+            ArrayList<ChatMessageFileDto> files);
 
     public void readMessage(User user, Long messageId);
 
@@ -51,7 +51,7 @@ public interface ChatService {
      *            chat message associated files
      * @return not <code>null</code>
      */
-    public List<ChatMessageFile> getChatMessageFiles(User user, ChatMessage message);
+    public List<ChatMessageFileDto> getChatMessageFiles(User user, ChatMessage message);
 
     /**
      * Get ChatMessageFiles by id.
@@ -60,7 +60,7 @@ public interface ChatService {
      *            file Id
      * @return ChatMessageFiles or <code>null</code>
      */
-    public ChatMessageFile getChatMessageFile(User user, Long fileId);
+    public ChatMessageFileDto getChatMessageFile(User user, Long fileId);
 
     /**
      * Save ChatMessageFiles.
@@ -69,7 +69,7 @@ public interface ChatService {
      *            new file to save (associated message in ChatMessageFiles)
      * @return not <code>null</code>
      */
-    public ChatMessageFile saveChatMessageFile(User user, ChatMessageFile file);
+    public ChatMessageFileDto saveChatMessageFile(User user, ChatMessageFileDto file);
 
     /**
      * Gets ChatMessage.

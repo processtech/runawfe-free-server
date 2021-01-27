@@ -33,7 +33,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         queryFactory.delete(f).where(f.id.eq(id)).execute();
     }
 
-    public ChatMessageDto saveMessageAndBindFiles(ChatMessage message, ArrayList<ChatMessageFile> files, Set<Executor> executors,
+    public ChatMessageDto saveMessageAndBindFiles(ChatMessage message, List<ChatMessageFile> files, Set<Executor> executors,
             Set<Executor> mentionedExecutors) {
         Long mesId = save(message, executors, mentionedExecutors);
         message.setId(mesId);
@@ -87,8 +87,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
                     .where(cr.executor.eq(user).and(cr.message.process.id.eq(processIds.get(i))).and(cr.mentioned.eq(true)))
                     .fetchFirst() != null) {
                 isMentions.add(true);
-            }
-            else {
+            } else {
                 isMentions.add(false);
             }
         }
@@ -118,7 +117,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
     public List<ChatMessageDto> getFirstMessages(Actor user, Long processId, int count) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         List<ChatMessage> messages = queryFactory.select(cr.message).from(cr)
-.where(cr.message.process.id.eq(processId).and(cr.executor.eq(user)))
+                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user)))
                 .orderBy(cr.message.createDate.desc()).limit(count)
                 .fetch();
         List<ChatMessageDto> messageDtos = toDto(messages);
@@ -198,7 +197,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(mf).from(mf, cr)
-.where(mf.message.eq(message).and(cr.message.eq(mf.message)).and(cr.executor.eq(actor))).fetch();
+                .where(mf.message.eq(message).and(cr.message.eq(mf.message)).and(cr.executor.eq(actor))).fetch();
     }
 
     public ChatMessageFile getFile(Actor actor, Long fileId) {

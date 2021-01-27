@@ -16,8 +16,9 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.logic.ChatFileLogic;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
@@ -29,13 +30,15 @@ import ru.runa.wfe.user.User;
 
 @Stateless(name = "ChatServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
+@Interceptors({EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class})
 @WebService(name = "ChatAPI", serviceName = "ChatWebService")
 @SOAPBinding
 public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @Autowired
     private ChatLogic chatLogic;
+    @Autowired
+    private ChatFileLogic chatFileLogic;
 
     @WebMethod(exclude = false)
     @Override
@@ -48,7 +51,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @Override
     @WebResult(name = "result")
     public void deleteFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "id") @NonNull Long id) {
-        chatLogic.deleteFile(user, id);
+        chatFileLogic.deleteFile(user, id);
     }
 
     @WebMethod(exclude = false)
@@ -56,8 +59,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public ChatMessageDto saveMessageAndBindFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
-            Boolean isPrivate, ArrayList<ChatMessageFile> files) {
-        return chatLogic.saveMessageAndBindFiles(user.getActor(), processId, message, mentionedExecutors, isPrivate, files);
+            Boolean isPrivate, ArrayList<ChatMessageFileDto> files) {
+        return chatFileLogic.saveMessageAndBindFiles(processId, message, mentionedExecutors, isPrivate, files);
     }
 
     @WebMethod(exclude = false)
@@ -113,22 +116,23 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<ChatMessageFile> getChatMessageFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") ChatMessage message) {
-        return chatLogic.getMessageFiles(user.getActor(), message);
+    public List<ChatMessageFileDto> getChatMessageFiles(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "message") ChatMessage message) {
+        return chatFileLogic.getMessageFiles(user.getActor(), message);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public ChatMessageFile getChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "fileId") Long fileId) {
-        return chatLogic.getFile(user.getActor(), fileId);
+    public ChatMessageFileDto getChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "fileId") Long fileId) {
+        return chatFileLogic.getMessageFile(user.getActor(), fileId);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public ChatMessageFile saveChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "file") ChatMessageFile file) {
-        return chatLogic.saveFile(file);
+    public ChatMessageFileDto saveChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "file") ChatMessageFileDto file) {
+        return chatFileLogic.saveMessageFile(file);
     }
 
     @WebMethod(exclude = false)

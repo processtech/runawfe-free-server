@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -20,15 +19,7 @@ public class ChatMessageFile {
     private Long id;
     private ChatMessage message;
     private String fileName;
-    private byte[] bytes;
-
-    public ChatMessageFile() {
-    }
-
-    public ChatMessageFile(String fileName, byte[] bytes) {
-        this.fileName = fileName;
-        this.bytes = bytes;
-    }
+    private String uuid;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -63,14 +54,12 @@ public class ChatMessageFile {
         this.fileName = fileName;
     }
 
-    @Column(name = "BYTES", length = 16777216, nullable = false)
-    @Lob
-    public byte[] getBytes() {
-        return bytes;
+    @Column(name = "UUID", length = 36, nullable = false)
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
-
 }

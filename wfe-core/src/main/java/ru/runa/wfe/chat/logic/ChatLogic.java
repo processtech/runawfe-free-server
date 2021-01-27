@@ -20,7 +20,6 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatDao;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -31,7 +30,6 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.User;
 
 public class ChatLogic extends WfCommonLogic {
     private Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
@@ -41,23 +39,6 @@ public class ChatLogic extends WfCommonLogic {
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
         return chatDao.getMentionedExecutorIds(messageId);
-    }
-
-    public void deleteFile(User user, Long id) {
-        chatDao.deleteFile(user, id);
-    }
-
-    public ChatMessageDto saveMessageAndBindFiles(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-            Boolean isPrivate,
-            ArrayList<ChatMessageFile> files) {
-        message.setProcess(processDao.get(processId));
-        Set<Executor> executors;
-        if (!isPrivate) {
-            executors = getAllUsers(message.getProcess().getId(), message.getCreateActor());
-        } else {
-            executors = new HashSet<Executor>(mentionedExecutors);
-        }
-        return chatDao.saveMessageAndBindFiles(message, files, executors, mentionedExecutors);
     }
 
     public void readMessage(Actor user, Long messageId) {
@@ -179,22 +160,9 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteMessage(messId);
     }
 
-    public List<ChatMessageFile> getMessageFiles(Actor actor, ChatMessage message) {
-        return chatDao.getMessageFiles(actor, message);
-    }
-
-    public ChatMessageFile saveFile(ChatMessageFile file) {
-        return chatDao.saveFile(file);
-    }
-
-    public ChatMessageFile getFile(Actor actor, Long fileId) {
-        return chatDao.getFile(actor, fileId);
-    }
-
     public void updateMessage(Actor actor, ChatMessage message) {
         chatDao.updateMessage(message);
     }
-
 
     public void sendNotifications(ChatMessage chatMessage, Collection<Executor> executors) {
         if (properties.isEmpty()) {
