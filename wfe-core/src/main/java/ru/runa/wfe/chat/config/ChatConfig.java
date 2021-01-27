@@ -13,7 +13,7 @@ import ru.runa.wfe.chat.dto.ChatEditMessageDto;
 import ru.runa.wfe.chat.dto.ChatGetMessagesDto;
 import ru.runa.wfe.chat.dto.ChatNewMessageDto;
 import ru.runa.wfe.chat.dto.ChatReadMessageDto;
-import ru.runa.wfe.chat.maper.ChatMessageFileMapper;
+import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
 import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
 
 @Configuration

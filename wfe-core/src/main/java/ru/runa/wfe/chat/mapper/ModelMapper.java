@@ -1,4 +1,4 @@
-package ru.runa.wfe.chat.maper;
+package ru.runa.wfe.chat.mapper;
 
 /**
  * @author Sergey Inyakin

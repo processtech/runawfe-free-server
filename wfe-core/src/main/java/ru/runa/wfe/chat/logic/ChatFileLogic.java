@@ -19,7 +19,7 @@ import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatDao;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
-import ru.runa.wfe.chat.maper.ChatMessageFileMapper;
+import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;

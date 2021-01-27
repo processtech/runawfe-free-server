@@ -1,4 +1,4 @@
-package ru.runa.wfe.chat.maper;
+package ru.runa.wfe.chat.mapper;
 
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
