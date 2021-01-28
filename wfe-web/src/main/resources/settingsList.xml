@@ -199,7 +199,12 @@
 		</property>
 		<property title="chat.enabled">
 			<value>true</value>
-			<value>false</value></property>
+			<value>false</value>
+		</property>
+		<property title="display.only.basic.userGroups">
+			<value>true</value>
+			<value>false</value>
+		</property>
 	</properties_file>
 	
 	<properties_file title="office.properties">
