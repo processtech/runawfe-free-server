@@ -60,7 +60,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     public ChatMessageDto saveMessageAndBindFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
             Boolean isPrivate, ArrayList<ChatMessageFileDto> files) {
-        return chatFileLogic.saveMessageAndBindFiles(processId, message, mentionedExecutors, isPrivate, files);
+        return chatLogic.saveMessageAndBindFiles(processId, message, mentionedExecutors, isPrivate, files);
     }
 
     @WebMethod(exclude = false)

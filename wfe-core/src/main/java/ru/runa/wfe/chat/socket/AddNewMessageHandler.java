@@ -33,8 +33,6 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
     @Autowired
     private ChatLogic chatLogic;
     @Autowired
-    private ChatFileLogic chatFileLogic;
-    @Autowired
     private ExecutionLogic executionLogic;
     @Autowired
     private ExecutorLogic executorLogic;
@@ -69,7 +67,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
                 ChatMessageFileDto chatMessageFile = new ChatMessageFileDto(entry.getKey(), entry.getValue());
                 chatMessageFiles.add(chatMessageFile);
             }
-            chatMessageDto = chatFileLogic.saveMessageAndBindFiles(processId, newMessage, mentionedExecutors,
+            chatMessageDto = chatLogic.saveMessageAndBindFiles(processId, newMessage, mentionedExecutors,
                     isPrivate, chatMessageFiles);
         } else {
             Long newMessId = chatLogic.saveMessage(user.getActor(), processId, newMessage, mentionedExecutors, isPrivate);

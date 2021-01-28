@@ -6,44 +6,38 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageFile;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.chat.dto.ChatFileDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.User;
 
 @Component
 public class ChatDao extends GenericDao<ChatMessage> {
+
+    @Autowired
+    private ChatFileDao chatFileDao;
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
         QChatMessageRecipient mr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(mr.executor.id).from(mr).where(mr.message.id.eq(messageId)).fetch();
     }
 
-    public void deleteFile(User user, Long id) {
-        QChatMessageFile f = QChatMessageFile.chatMessageFile;
-        queryFactory.delete(f).where(f.id.eq(id)).execute();
-    }
-
-    public ChatMessageDto saveMessageAndBindFiles(ChatMessage message, List<ChatMessageFile> files, Set<Executor> executors,
+    public ChatMessageDto saveMessageAndBindFiles(ChatMessage message, List<ChatMessageFileDto> files, Set<Executor> executors,
             Set<Executor> mentionedExecutors) {
         Long mesId = save(message, executors, mentionedExecutors);
         message.setId(mesId);
-        ChatMessageDto ret = new ChatMessageDto(message);
-        for (ChatMessageFile file : files) {
-            file.setMessage(message);
-            sessionFactory.getCurrentSession().save(file);
-            ret.getFilesDto().add(new ChatFileDto(file.getId(), file.getFileName()));
-        }
-        return ret;
+        ChatMessageDto result = new ChatMessageDto(message);
+        result.setFilesDto(chatFileDao.saveAllFiles(files, message));
+        return result;
     }
 
     public void readMessage(Actor user, Long messageId) {
@@ -186,25 +180,6 @@ public class ChatDao extends GenericDao<ChatMessage> {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         queryFactory.delete(cr).where(cr.message.id.eq(messId)).execute();
         delete(messId);
-    }
-
-    public ChatMessageFile saveFile(ChatMessageFile file) {
-        sessionFactory.getCurrentSession().save(file);
-        return file;
-    }
-
-    public List<ChatMessageFile> getMessageFiles(Actor actor, ChatMessage message) {
-        QChatMessageFile mf = QChatMessageFile.chatMessageFile;
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        return queryFactory.select(mf).from(mf, cr)
-                .where(mf.message.eq(message).and(cr.message.eq(mf.message)).and(cr.executor.eq(actor))).fetch();
-    }
-
-    public ChatMessageFile getFile(Actor actor, Long fileId) {
-        QChatMessageFile mf = QChatMessageFile.chatMessageFile;
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        return queryFactory.select(mf).from(mf, cr).where(mf.id.eq(fileId).and(mf.message.eq(cr.message).and(cr.executor.eq(actor))))
-                .fetchFirst();
     }
 
     public void updateMessage(ChatMessage message) {

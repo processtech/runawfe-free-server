@@ -22,6 +22,7 @@ import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dao.ChatDao;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
@@ -36,6 +37,19 @@ public class ChatLogic extends WfCommonLogic {
 
     @Autowired
     private ChatDao chatDao;
+
+    public ChatMessageDto saveMessageAndBindFiles(Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+            Boolean isPrivate,
+            ArrayList<ChatMessageFileDto> files) {
+        message.setProcess(processDao.get(processId));
+        Set<Executor> executors;
+        if (!isPrivate) {
+            executors = getAllUsers(message.getProcess().getId(), message.getCreateActor());
+        } else {
+            executors = new HashSet<>(mentionedExecutors);
+        }
+        return chatDao.saveMessageAndBindFiles(message, files, executors, mentionedExecutors);
+    }
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
         return chatDao.getMentionedExecutorIds(messageId);
