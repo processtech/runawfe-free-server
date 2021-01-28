@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.websocket.Session;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.apachecommons.CommonsLog;
 import org.json.simple.JSONObject;

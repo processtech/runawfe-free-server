@@ -2,7 +2,6 @@ package ru.runa.wf.web.servlet;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
@@ -15,7 +14,7 @@ import ru.runa.wfe.user.User;
 
 public class ChatInitializeAjax extends JsonAjaxCommand {
 
-    private ObjectMapper chatObjectMapper = ApplicationContextFactory.getChatObjectMapper();
+    private final ObjectMapper chatObjectMapper = ApplicationContextFactory.getChatObjectMapper();
 
     @Override
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {

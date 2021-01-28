@@ -3,7 +3,6 @@ package ru.runa.wfe.chat.socket;
 import java.io.IOException;
 import java.util.List;
 import javax.websocket.Session;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
