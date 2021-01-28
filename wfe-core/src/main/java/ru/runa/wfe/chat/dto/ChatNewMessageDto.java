@@ -15,6 +15,5 @@ public class ChatNewMessageDto extends ChatDto {
     private String idHierarchyMessage;
     private boolean isPrivate;
     private String privateNames;
-    private String processId;
     private Map<String, byte[]> files;
 }
