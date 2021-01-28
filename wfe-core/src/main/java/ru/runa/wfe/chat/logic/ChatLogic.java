@@ -137,8 +137,8 @@ public class ChatLogic extends WfCommonLogic {
         return result;
     }
 
-    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
-        return chatDao.getNewMessagesCounts(chatsIds, isMentions, user);
+    public List<Long> getNewMessagesCounts(List<Long> chatsIds, Actor user) {
+        return chatDao.getNewMessagesCounts(chatsIds, user);
     }
 
     public Long getNewMessagesCount(Actor user, Long processId) {

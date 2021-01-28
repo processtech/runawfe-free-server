@@ -98,9 +98,9 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processIds") List<Long> processIds,
-            @WebParam(name = "isMentions") List<Boolean> isMentions) {
-        return chatLogic.getNewMessagesCounts(processIds, isMentions, user.getActor());
+    public List<Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user,
+                                           @WebParam(name = "processIds") List<Long> processIds) {
+        return chatLogic.getNewMessagesCounts(processIds, user.getActor());
     }
 
     @WebMethod(exclude = false)

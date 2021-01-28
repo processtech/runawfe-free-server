@@ -78,7 +78,7 @@ $(document).ready(function() {
 			processData: false,
 			success: function(data) {
 				getAllChat(data);
-				chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket?type=chatsNewMess";
+				chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSoket";
 				chatsNewMessSocket = new WebSocket(chatsNewMessSocketUrl);
 				chatsNewMessSocket.onmessage = onChatsNewMessSocketMessage;
 			}
@@ -103,12 +103,7 @@ $(document).ready(function() {
 			cloneIdRowListChats.children(".readMes").append(data[i].countMessage);
 			cloneIdRowListChats.children(".readMes").attr("id","numberNewMessages"+data[i].processId)
 			if(data[i].countMessage>0){
-				if(data[i].isMention===true){
-					cloneIdRowListChats.children(".readMes").attr("class","isMentionChats");
-				}
-				else{
-					cloneIdRowListChats.children(".readMes").attr("class","newMessagesChatClass");
-				}
+				cloneIdRowListChats.children(".readMes").attr("class", "newMessagesChatClass");
 			}
 			else{
 				cloneIdRowListChats.children(".readMes").attr("class","noNewMessagesChatClass");
@@ -123,9 +118,6 @@ $(document).ready(function() {
 		if(message0.messageType == "newMessage"){
 			let numberNewMessagesTD = $("#numberNewMessages"+message0.processId);
 			numberNewMessagesTD.text(Number.parseInt(numberNewMessagesTD.text()) + 1);
-			if(message0.mentioned == true){
-				numberNewMessagesTD.attr("class","isMentionChats");
-			}
 		}
 	}
 });

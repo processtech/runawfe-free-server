@@ -25,7 +25,7 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<ChatDelete
     @Transactional
     @Override
     public void handleMessage(Session session, ChatDeleteMessageDto dto, User user) throws IOException {
-        if (executionLogic.getProcess(user, (Long) session.getUserProperties().get("processId")).isEnded()) {
+        if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
             return;
         }
         if (!executorLogic.isAdministrator(user)) {

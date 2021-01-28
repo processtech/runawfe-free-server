@@ -77,20 +77,10 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return queryFactory.select(cr.message.process.id).from(cr).where(cr.executor.eq(user)).distinct().fetch();
     }
 
-    public List<Long> getNewMessagesCounts(List<Long> processIds, List<Boolean> isMentions, Actor user) {
-        isMentions.clear();
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        List<Long> ret = new ArrayList<Long>();
-        for (int i = 0; i < processIds.size(); i++) {
-            ret.add(getNewMessagesCount(user, processIds.get(i)));
-            if (queryFactory.selectFrom(cr)
-                    .where(cr.executor.eq(user).and(cr.message.process.id.eq(processIds.get(i))).and(cr.mentioned.eq(true)))
-                    .fetchFirst() != null) {
-                isMentions.add(true);
-            }
-            else {
-                isMentions.add(false);
-            }
+    public List<Long> getNewMessagesCounts(List<Long> processIds, Actor user) {
+        List<Long> ret = new ArrayList<>();
+        for (Long processId : processIds) {
+            ret.add(getNewMessagesCount(user, processId));
         }
         return ret;
     }
