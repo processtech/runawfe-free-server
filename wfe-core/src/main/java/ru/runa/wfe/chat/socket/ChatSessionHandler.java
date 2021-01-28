@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.websocket.Session;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.apachecommons.CommonsLog;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class ChatSessionHandler {
 
     @Autowired
     private ExecutionLogic executionLogic;
+    @Autowired
+    private ObjectMapper chatObjectMapper;
 
     public void addSession(Session session) {
         String type = (String) session.getUserProperties().get("type");
@@ -85,7 +88,7 @@ public class ChatSessionHandler {
                         }
                     }
                 }
-                session.getBasicRemote().sendText(messageDto.convert());
+                session.getBasicRemote().sendText(chatObjectMapper.writeValueAsString(messageDto));
                 message.setCoreUser(false);
                 message.setMentioned(false);
             }
@@ -118,7 +121,7 @@ public class ChatSessionHandler {
                         }
                     }
                 }
-                session.getBasicRemote().sendText(messageDto.convert());
+                session.getBasicRemote().sendText(chatObjectMapper.writeValueAsString(messageDto));
                 messageDto.setCoreUser(false);
                 messageDto.setMentioned(false);
             }
@@ -144,7 +147,7 @@ public class ChatSessionHandler {
     public void messageError(Session session, String message) {
         ChatErrorMessageDto errorDto = new ChatErrorMessageDto(message);
         try {
-            sendToSession(session, errorDto.convert());
+            sendToSession(session, chatObjectMapper.writeValueAsString(errorDto));
         } catch (IOException e) {
             log.error(e);
         }

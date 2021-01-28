@@ -3,8 +3,6 @@ package ru.runa.wfe.chat.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(
@@ -19,8 +17,5 @@ import com.fasterxml.jackson.databind.ObjectMapper;
         @JsonSubTypes.Type(value = ChatErrorMessageDto.class, name = "errorMessage")
 })
 public class ChatDto {
-    public String convert() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
+
 }

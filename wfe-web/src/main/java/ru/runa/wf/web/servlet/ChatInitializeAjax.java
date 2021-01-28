@@ -2,15 +2,20 @@ package ru.runa.wf.web.servlet;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 public class ChatInitializeAjax extends JsonAjaxCommand {
+
+    private final ObjectMapper chatObjectMapper = ApplicationContextFactory.getChatObjectMapper();
+
     @Override
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
         Long processId = Long.parseLong(request.getParameter("processId"));
@@ -32,7 +37,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
             } else {
                 messageObject.setCoreUser(false);
             }
-            messagesArrayObject.add(messages.get(0).convert());
+            messagesArrayObject.add(chatObjectMapper.writeValueAsString(messages.get(0)));
             for (int i = 1; i < messages.size(); i++) {
                 // messageObject = ChatSocket.convertMessage(messages.get(i),false);
                 messageObject = messages.get(i);
@@ -42,7 +47,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
                 } else {
                     messageObject.setCoreUser(false);
                 }
-                messagesArrayObject.add(messageObject.convert());
+                messagesArrayObject.add(chatObjectMapper.writeValueAsString(messageObject));
             }
         }
         if (messages.size() < countMessages) {// дополняем старыми
@@ -56,7 +61,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
                 } else {
                     messageObject.setCoreUser(false);
                 }
-                messagesArrayObject.add(messageObject.convert());
+                messagesArrayObject.add(chatObjectMapper.writeValueAsString(messageObject));
             }
         }
         outputObject.put("messages", messagesArrayObject);

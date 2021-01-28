@@ -1,5 +1,6 @@
 package ru.runa.wfe.commons;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -109,6 +110,10 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static NodeAsyncExecutor getNodeAsyncExecutor() {
         return getContext().getBean(NodeAsyncExecutor.class);
+    }
+
+    public static ObjectMapper getChatObjectMapper() {
+        return getContext().getBean(ObjectMapper.class);
     }
 
     // TODO avoid static methods, inject
