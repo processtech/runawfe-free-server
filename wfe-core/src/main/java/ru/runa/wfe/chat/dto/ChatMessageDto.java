@@ -20,9 +20,6 @@ public class ChatMessageDto extends ChatDto {
     @JsonProperty("old")
     private boolean isOld = false;
 
-    @JsonProperty("mentioned")
-    private boolean isMentioned = false;
-
     @JsonProperty("coreUser")
     private boolean isCoreUser = false;
 

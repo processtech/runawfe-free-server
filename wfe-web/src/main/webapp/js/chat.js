@@ -1278,12 +1278,7 @@ function getAllChat(data){
 		cloneIdRowListChats.children(".readMes").append(data[i].countMessage);
 		cloneIdRowListChats.children(".readMes").attr("id","numberNewMessages"+data[i].processId)
 		if(data[i].countMessage>0){
-			if(data[i].isMention===true){
-				cloneIdRowListChats.children(".readMes").attr("class","isMentionChats");
-			}
-			else{
-				cloneIdRowListChats.children(".readMes").attr("class","newMessagesChatClass");
-			}
+			cloneIdRowListChats.children(".readMes").attr("class", "newMessagesChatClass");
 		}
 		else{
 			cloneIdRowListChats.children(".readMes").attr("class","noNewMessagesChatClass");
@@ -1299,9 +1294,6 @@ function onChatsNewMessSocketMessage(event){
 	if(message0.messageType == newMessageType){
 		if(message0.processId != idProcess){
 			$("#numberNewMessages"+message0.processId).text(Number.parseInt($("#numberNewMessages"+message0.processId).text()) + 1);
-			if(message0.mentioned == true){
-				$("#numberNewMessages"+message0.processId).attr("class","isMentionChats");
-			}
 		}
 	}
 }
@@ -1330,7 +1322,7 @@ function ajaxInitializationChat(){
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
 				updatenumberNewMessages(0);
 			}
-			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket?type=chat&processId=" + idProcess;
+			chatSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket?processId=" + idProcess;
 			chatSocket = new WebSocket(chatSocketUrl);
 			chatSocket.binaryType = "arraybuffer";
 			chatSocket.onmessage = onMessage;
@@ -1364,7 +1356,7 @@ function ajaxAllInitializationChats(){
 		processData: false,
 		success: function(data) {
 			getAllChat(data);
-			chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket?type=chatsNewMess";
+			chatsNewMessSocketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket";
 			chatsNewMessSocket = new WebSocket(chatsNewMessSocketUrl);
 			chatsNewMessSocket.onmessage = onChatsNewMessSocketMessage;
 			//действия при открытии сокета

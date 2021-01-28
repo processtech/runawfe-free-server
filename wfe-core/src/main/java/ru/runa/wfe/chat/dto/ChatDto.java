@@ -3,6 +3,8 @@ package ru.runa.wfe.chat.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Getter;
+import lombok.Setter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(
@@ -16,6 +18,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = ChatGetMessagesDto.class, name = "getMessages"),
         @JsonSubTypes.Type(value = ChatErrorMessageDto.class, name = "errorMessage")
 })
+@Getter
+@Setter
 public class ChatDto {
+    private Long processId;
 
 }

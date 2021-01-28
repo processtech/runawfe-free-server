@@ -18,7 +18,7 @@ import ru.runa.wfe.chat.coder.ChatDtoBinaryDecoder;
 import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.socket.ChatSessionHandler;
 import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
-import ru.runa.wfe.user.User;
+import ru.runa.wfe.chat.utils.ChatSessionUtils;
 
 @ApplicationScoped
 @CommonsLog
@@ -59,10 +59,6 @@ public class ChatSocket {
     @OnMessage
     public void handleMessage(ChatDto dto, Session session) throws IOException {
         ChatSocketMessageHandler handler = handlerByMessageType.get(dto.getClass());
-        handler.handleMessage(session, dto, getUser(session));
-    }
-
-    private static User getUser(Session session) {
-        return (User) session.getUserProperties().get("user");
+        handler.handleMessage(session, dto, ChatSessionUtils.getUser(session));
     }
 }
