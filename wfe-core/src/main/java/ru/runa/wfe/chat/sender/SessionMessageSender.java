@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat.sender;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,13 @@ public class SessionMessageSender implements MessageSender {
 
     @Qualifier("mailMessageSender")
     private final MessageSender messageSender;
+    private final ObjectMapper chatObjectMapper;
 
     @Override
     public void handleMessage(ChatMessageDto dto, Optional<Session> session) {
         if (session.isPresent()) {
             try {
-                session.get().getBasicRemote().sendText(dto.convert());
+                session.get().getBasicRemote().sendText(chatObjectMapper.writeValueAsString(dto));
             } catch (IOException e) {
                 log.error("An error occurred while sending a message to " +
                         ChatSessionUtils.getUser(session.get()).getName(), e);

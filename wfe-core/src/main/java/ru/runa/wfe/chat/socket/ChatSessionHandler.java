@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,10 +23,13 @@ import ru.runa.wfe.user.User;
 public class ChatSessionHandler {
     private final ConcurrentHashMap<Long, Session> sessions = new ConcurrentHashMap<>(256);
     private final MessageSender messageSender;
+    private final ObjectMapper chatObjectMapper;
 
     @Autowired
-    public ChatSessionHandler(@Qualifier("sessionMessageSender") MessageSender messageSender) {
+    public ChatSessionHandler(@Qualifier("sessionMessageSender") MessageSender messageSender,
+                              ObjectMapper chatObjectMapper) {
         this.messageSender = messageSender;
+        this.chatObjectMapper = chatObjectMapper;
     }
 
     public void addSession(Session session) {
@@ -69,7 +73,7 @@ public class ChatSessionHandler {
     public void messageError(Session session, String message) {
         ChatErrorMessageDto errorDto = new ChatErrorMessageDto(message);
         try {
-            sendToSession(session, errorDto.convert());
+            sendToSession(session, chatObjectMapper.writeValueAsString(errorDto));
         } catch (IOException e) {
             log.error(e);
         }

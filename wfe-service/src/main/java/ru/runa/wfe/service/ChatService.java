@@ -34,7 +34,7 @@ public interface ChatService {
 
     public Set<Executor> getAllUsers(User user, Long processId);
 
-    public List<Long> getNewMessagesCounts(User user, List<Long> processIds, List<Boolean> isMentions);
+    public List<Long> getNewMessagesCounts(User user, List<Long> processIds);
 
     /**
      * merge message in DB

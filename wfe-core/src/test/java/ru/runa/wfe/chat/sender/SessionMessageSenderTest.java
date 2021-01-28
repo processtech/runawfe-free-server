@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
-import lombok.SneakyThrows;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,12 +32,16 @@ public class SessionMessageSenderTest {
     @Mock
     private RemoteEndpoint.Basic basic;
     @Mock
+    private ChatMessageDto dto;
+    @Mock
     private MailMessageSender mailMessageSender;
+    @Mock
+    private ObjectMapper chatObjectMapper;
     private SessionMessageSender sessionMessageSender;
 
     @Before
     public void init() {
-        sessionMessageSender = new SessionMessageSender(mailMessageSender);
+        sessionMessageSender = new SessionMessageSender(mailMessageSender, chatObjectMapper);
         when(session.getBasicRemote()).thenReturn(basic);
         final Map<String, Object> sessionUserProperties = singletonMap("user", createUser());
         when(session.getUserProperties()).thenReturn(sessionUserProperties);
@@ -45,7 +49,9 @@ public class SessionMessageSenderTest {
 
     @Test
     public void whenSessionIsNotNull_thenMessageSent() throws IOException {
-        sessionMessageSender.handleMessage(createDto(), of(session));
+        when(chatObjectMapper.writeValueAsString(dto)).thenReturn("testContent");
+
+        sessionMessageSender.handleMessage(dto, of(session));
 
         verify(basic).sendText(eq("testContent"));
     }
@@ -53,8 +59,9 @@ public class SessionMessageSenderTest {
     @Test
     public void whenSessionIsNotNullAndSendError_thenSendDelegated() throws IOException {
         doThrow(new IOException()).when(basic).sendText(notNull());
+        when(chatObjectMapper.writeValueAsString(dto)).thenReturn("testContent");
 
-        sessionMessageSender.handleMessage(createDto(), of(session));
+        sessionMessageSender.handleMessage(dto, of(session));
 
         verify(basic).sendText(eq("testContent"));
         verify(mailMessageSender).handleMessage(notNull(), eq(empty()));
@@ -62,17 +69,10 @@ public class SessionMessageSenderTest {
 
     @Test
     public void whenSessionIsNull_thenSendDelegated() {
-        sessionMessageSender.handleMessage(createDto(), empty());
+        sessionMessageSender.handleMessage(dto, empty());
 
         verifyZeroInteractions(basic);
         verify(mailMessageSender).handleMessage(notNull(), eq(empty()));
-    }
-
-    @SneakyThrows
-    private static ChatMessageDto createDto() {
-        final ChatMessageDto dto = mock(ChatMessageDto.class);
-        when(dto.convert()).thenReturn("testContent");
-        return dto;
     }
 
     private static User createUser() {
