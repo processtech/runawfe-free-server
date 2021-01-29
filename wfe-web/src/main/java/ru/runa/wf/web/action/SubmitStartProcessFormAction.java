@@ -29,6 +29,7 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.CommonProcessForm;
+import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.form.Interaction;
@@ -47,7 +48,7 @@ import ru.runa.wfe.user.User;
  * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect = "true"
  */
 public class SubmitStartProcessFormAction extends BaseProcessFormAction {
-
+    private static final PropertyResources RESOURCES = new PropertyResources("struts.properties");
     @Override
     protected Long executeProcessFromAction(HttpServletRequest request, ActionForm actionForm, ActionMapping mapping, Profile profile) {
         User user = getLoggedUser(request);
@@ -71,7 +72,11 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
 
     @Override
     protected ActionMessage getMessage(Long processId) {
-        return new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString());
+        if(RESOURCES.getStringProperty(MessagesProcesses.PROCESS_STARTED_CUSTOM.getKey()).equals("") ){
+            return new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(),processId.toString());
+        }else {
+            return new ActionMessage(RESOURCES.getStringProperty(MessagesProcesses.PROCESS_STARTED_CUSTOM.getKey()).replace("{0}",processId.toString()),false);
+        }
     }
 
     protected ActionForward getForward(ActionMapping mapping) {

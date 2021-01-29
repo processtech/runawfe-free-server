@@ -33,6 +33,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SHOW_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.show_deploy_definition_controls");
     public static final StrutsMessage LABEL_HIDE_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.hide_deploy_definition_controls");
     public static final StrutsMessage PROCESS_STARTED = new StrutsMessage("process.started");
+    public static final StrutsMessage PROCESS_STARTED_CUSTOM = new StrutsMessage("process.started.custom")
     public static final StrutsMessage PROCESS_ACTIVATE = new StrutsMessage("process.activate");
     public static final StrutsMessage PROCESS_ACTIVATE_FAILED_TOKENS = new StrutsMessage("process.activate.failed.tokens");
     public static final StrutsMessage PROCESS_ACTIVATED = new StrutsMessage("process.activated");

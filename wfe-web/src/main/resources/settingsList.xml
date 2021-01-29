@@ -73,6 +73,10 @@
 		<value>HIDDEN</value>
 		<value>DISABLED</value>
 	</properties_file>
+
+	<properties_file title="struts.properties">
+		<property title="process.started.custom"/>
+	</properties_file>
 	
 	<properties_file title="web.properties">
 		<property title="group.subprocess.enabled">
