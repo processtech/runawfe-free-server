@@ -72,6 +72,7 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
 
     @Override
     protected ActionMessage getMessage(Long processId) {
+
         if(RESOURCES.getStringProperty(MessagesProcesses.PROCESS_STARTED_CUSTOM.getKey()).equals("") ){
             return new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(),processId.toString());
         }else {

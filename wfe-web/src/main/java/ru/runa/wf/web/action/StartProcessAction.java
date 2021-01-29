@@ -50,6 +50,7 @@ import ru.runa.wfe.user.Profile;
  * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect = "true"
  */
 public class StartProcessAction extends ActionBase {
+
     private static final PropertyResources RESOURCES = new PropertyResources("struts.properties");
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
