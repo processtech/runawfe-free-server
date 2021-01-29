@@ -22,7 +22,7 @@ import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatDao;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.broadcast.AddedMessageBroadcast;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
@@ -47,15 +47,15 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteFile(user, id);
     }
 
-    public ChatMessageDto saveMessageAndBindFiles(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-            Boolean isPrivate,
-            ArrayList<ChatMessageFile> files) {
+    public AddedMessageBroadcast saveMessageAndBindFiles(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+                                                         Boolean isPrivate,
+                                                         ArrayList<ChatMessageFile> files) {
         message.setProcess(processDao.get(processId));
         Set<Executor> executors;
         if (!isPrivate) {
             executors = getAllUsers(message.getProcess().getId(), message.getCreateActor());
         } else {
-            executors = new HashSet<Executor>(mentionedExecutors);
+            executors = new HashSet<>(mentionedExecutors);
         }
         return chatDao.saveMessageAndBindFiles(message, files, executors, mentionedExecutors);
     }
@@ -149,19 +149,19 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getMessage(messageId);
     }
 
-    public ChatMessageDto getMessageDto(Long messageId) {
+    public AddedMessageBroadcast getMessageDto(Long messageId) {
         return chatDao.getMessageDto(messageId);
     }
 
-    public List<ChatMessageDto> getMessages(Actor user, Long processId, Long firstId, int count) {
+    public List<AddedMessageBroadcast> getMessages(Actor user, Long processId, Long firstId, int count) {
         return chatDao.getMessages(user, processId, firstId, count);
     }
 
-    public List<ChatMessageDto> getFirstMessages(Actor user, Long processId, int count) {
+    public List<AddedMessageBroadcast> getFirstMessages(Actor user, Long processId, int count) {
         return chatDao.getFirstMessages(user, processId, count);
     }
 
-    public List<ChatMessageDto> getNewMessages(Actor user, Long processId) {
+    public List<AddedMessageBroadcast> getNewMessages(Actor user, Long processId) {
         return chatDao.getNewMessages(user, processId);
     }
 

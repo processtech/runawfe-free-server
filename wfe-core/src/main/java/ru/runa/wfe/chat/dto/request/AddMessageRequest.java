@@ -1,4 +1,4 @@
-package ru.runa.wfe.chat.dto;
+package ru.runa.wfe.chat.dto.request;
 
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ChatNewMessageDto extends ChatDto {
+public class AddMessageRequest extends MessageRequest {
     private String message;
     private String idHierarchyMessage;
     private boolean isPrivate;

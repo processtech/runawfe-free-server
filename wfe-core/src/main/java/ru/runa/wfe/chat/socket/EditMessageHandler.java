@@ -6,15 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.dto.ChatDto;
-import ru.runa.wfe.chat.dto.ChatEditMessageDto;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.request.EditMessageRequest;
+import ru.runa.wfe.chat.dto.broadcast.EditedMessageBroadcast;
+import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.User;
 
 @Component
-public class EditMessageHandler implements ChatSocketMessageHandler<ChatEditMessageDto> {
+public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageRequest> {
 
     @Autowired
     private ChatSessionHandler sessionHandler;
@@ -25,7 +25,7 @@ public class EditMessageHandler implements ChatSocketMessageHandler<ChatEditMess
 
     @Transactional
     @Override
-    public void handleMessage(Session session, ChatEditMessageDto dto, User user) throws IOException {
+    public void handleMessage(Session session, EditMessageRequest dto, User user) throws IOException {
         if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
             return;
         }
@@ -33,12 +33,12 @@ public class EditMessageHandler implements ChatSocketMessageHandler<ChatEditMess
         if ((newMessage != null) && (newMessage.getCreateActor().equals(user.getActor()))) {
             newMessage.setText(dto.getMessage());
             chatLogic.updateMessage(user.getActor(), newMessage);
-            sessionHandler.sendMessage(new ChatMessageDto(newMessage));
+            sessionHandler.sendMessage(new EditedMessageBroadcast(dto.getEditMessageId(), dto.getMessage()));
         }
     }
 
     @Override
-    public boolean isSupports(Class<? extends ChatDto> messageType) {
-        return messageType.equals(ChatEditMessageDto.class);
+    public boolean isSupports(Class<? extends MessageRequest> messageType) {
+        return messageType.equals(EditMessageRequest.class);
     }
 }

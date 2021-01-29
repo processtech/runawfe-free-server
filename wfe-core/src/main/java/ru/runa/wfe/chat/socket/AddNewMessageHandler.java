@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.dto.ChatDto;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.chat.dto.ChatNewMessageDto;
+import ru.runa.wfe.chat.dto.broadcast.AddedMessageBroadcast;
+import ru.runa.wfe.chat.dto.request.AddMessageRequest;
+import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.chat.utils.ChatNewMessageDtoToChatMessageConverter;
 import ru.runa.wfe.chat.utils.MentionedExecutorsExtractor;
@@ -23,7 +23,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 @Component
-public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMessageDto> {
+public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessageRequest> {
 
     @Autowired
     private ChatSessionHandler sessionHandler;
@@ -38,7 +38,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
 
     @Transactional
     @Override
-    public void handleMessage(Session session, ChatNewMessageDto dto, User user) throws IOException {
+    public void handleMessage(Session session, AddMessageRequest dto, User user) throws IOException {
         if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
             return;
         }
@@ -47,7 +47,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
         ChatMessage newMessage = converter.convert(dto, actor);
         Set<Executor> mentionedExecutors = extractor.extractMentionedExecutors(dto.getPrivateNames(), newMessage, user);
         Collection<Long> recipientIds = extractor.extractRecipientIds(mentionedExecutors, isPrivate);
-        ChatMessageDto chatMessageDto;
+        AddedMessageBroadcast broadcastDto;
         long processId = dto.getProcessId();
         if (dto.getFiles() != null) {
             ArrayList<ChatMessageFile> chatMessageFiles = new ArrayList<>();
@@ -55,19 +55,20 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
                 ChatMessageFile chatMessageFile = new ChatMessageFile(entry.getKey(), entry.getValue());
                 chatMessageFiles.add(chatMessageFile);
             }
-            chatMessageDto = chatLogic.saveMessageAndBindFiles(actor, processId, newMessage, mentionedExecutors,
+            broadcastDto = chatLogic.saveMessageAndBindFiles(actor, processId, newMessage, mentionedExecutors,
                     isPrivate, chatMessageFiles);
         } else {
             Long newMessId = chatLogic.saveMessage(actor, processId, newMessage, mentionedExecutors, isPrivate);
             newMessage.setId(newMessId);
-            chatMessageDto = new ChatMessageDto(newMessage);
+            broadcastDto = new AddedMessageBroadcast(newMessage);
         }
-        chatMessageDto.setOld(false);
-        sessionHandler.sendMessage(recipientIds, chatMessageDto);
+        broadcastDto.setOld(false);
+        broadcastDto.setCoreUser(broadcastDto.getCreateActor().getId().equals(user.getActor().getId()));
+        sessionHandler.sendMessage(recipientIds, broadcastDto);
     }
 
     @Override
-    public boolean isSupports(Class<? extends ChatDto> messageType) {
-        return messageType.equals(ChatNewMessageDto.class);
+    public boolean isSupports(Class<? extends MessageRequest> messageType) {
+        return messageType.equals(AddMessageRequest.class);
     }
 }
