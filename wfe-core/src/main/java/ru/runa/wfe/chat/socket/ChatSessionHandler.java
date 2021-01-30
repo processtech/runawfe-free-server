@@ -2,149 +2,78 @@ package ru.runa.wfe.chat.socket;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.websocket.CloseReason;
 import javax.websocket.Session;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.apachecommons.CommonsLog;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.chat.dto.ChatDto;
 import ru.runa.wfe.chat.dto.ChatErrorMessageDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.chat.dto.MessageForCloseChatDto;
-import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.execution.logic.ExecutionLogic;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.chat.sender.MessageSender;
+import ru.runa.wfe.chat.utils.ChatSessionUtils;
 import ru.runa.wfe.user.User;
 
 @CommonsLog
 @Component
 public class ChatSessionHandler {
-    private final CopyOnWriteArraySet<Session> sessions = new CopyOnWriteArraySet<Session>();
-    private final CopyOnWriteArraySet<Session> onlyNewMessagesSessions = new CopyOnWriteArraySet<Session>();
+    private final ConcurrentHashMap<Long, Session> sessions = new ConcurrentHashMap<>(256);
+    private final MessageSender messageSender;
+    private final ObjectMapper chatObjectMapper;
 
     @Autowired
-    private ExecutionLogic executionLogic;
+    public ChatSessionHandler(@Qualifier("sessionMessageSender") MessageSender messageSender,
+                              ObjectMapper chatObjectMapper) {
+        this.messageSender = messageSender;
+        this.chatObjectMapper = chatObjectMapper;
+    }
 
     public void addSession(Session session) {
-        String type = (String) session.getUserProperties().get("type");
-        switch (type) {
-            case "chat":
-                sessions.add(session);
-                break;
-            case "chatsNewMess":
-                List<WfProcess> processes = executionLogic.getProcesses((User) session.getUserProperties().get("user"), null);
-                Collection<Long> processIds = new HashSet<Long>();
-                for (WfProcess proc : processes) {
-                    processIds.add(proc.getId());
-                }
-                session.getUserProperties().put("processIds", processIds);
-                onlyNewMessagesSessions.add(session);
-                break;
-            default:
-                sessions.add(session);
-                break;
+        User user = ChatSessionUtils.getUser(session);
+        Long userId = user.getActor().getId();
+        Session replacedSession = sessions.replace(userId, session);
+        if (replacedSession != null) {
+            try {
+                CloseReason closeReason = new CloseReason(CloseReason.CloseCodes.CLOSED_ABNORMALLY,
+                        "Replace " + user.getName() + "'s session");
+                replacedSession.close(closeReason);
+            } catch (IOException e) {
+                log.error("An error occurred while closing " + user.getName() + "'s session");
+            }
+            log.warn("Replace " + user.getName() + "'s session");
+        } else {
+            sessions.put(userId, session);
         }
     }
 
     public void removeSession(Session session) {
-        onlyNewMessagesSessions.remove(session);
-        sessions.remove(session);
+        Long userId = ChatSessionUtils.getUser(session).getActor().getId();
+        sessions.remove(userId, session);
     }
 
     public void sendToSession(Session session, String message) throws IOException {
         session.getBasicRemote().sendText(message);
     }
 
-    public void sendToAll(JSONObject message) throws IOException {
-        for (Session session : sessions) {
-            session.getBasicRemote().sendText(message.toString());
+    public void sendMessage(ChatMessageDto dto) throws IOException {
+        sendMessage(Collections.emptySet(), dto);
+    }
+
+    public void sendMessage(Collection<Long> recipientIds, ChatMessageDto dto) throws IOException {
+        for (Long id : recipientIds) {
+            dto.setCoreUser(dto.getMessage().getCreateActor().getId().equals(id));
+            messageSender.handleMessage(dto, Optional.ofNullable(sessions.get(id)));
         }
-    }
-
-    public void sendToChats(ChatDto messageDto, Long processId, Actor coreUser, Collection<Actor> mentionedActors, boolean isPrivate)
-            throws IOException {
-        for (Session session : sessions) {
-            // JSONObject sendObject = (JSONObject) message.clone(); // проверить клон!
-            ChatMessageDto message = (ChatMessageDto) messageDto;
-            Long thisId = (Long) session.getUserProperties().get("processId");
-            if (processId.equals(thisId)) {
-                Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
-                if (thisActor.equals(coreUser)) {
-                    message.setCoreUser(true);
-                } else {
-                    if (mentionedActors.contains(thisActor)) {
-                        message.setMentioned(true);
-                    } else {
-                        if (isPrivate) {
-                            continue;
-                        }
-                    }
-                }
-                session.getBasicRemote().sendText(messageDto.convert());
-                message.setCoreUser(false);
-                message.setMentioned(false);
-            }
-        }
-    }
-
-    public void sendToChats(ChatDto messageDto, Long processId, Actor coreUser) throws IOException {
-        sendToChats(messageDto, processId, coreUser, null, false);
-    }
-
-    public void sendToChats(ChatDto messageDto, Long processId) throws IOException {
-        sendToChats(messageDto, processId, null, new HashSet<Actor>(), false);
-    }
-
-    public void sendOnlyNewMessagesSessions(MessageForCloseChatDto messageDto, Long processId, Actor coreUser, Collection<Actor> mentionedActors,
-            boolean isPrivate)
-            throws IOException {
-        for (Session session : onlyNewMessagesSessions) {
-            // JSONObject sendObject = (JSONObject) message.clone();
-            if (((HashSet<Long>) session.getUserProperties().get("processIds")).contains(processId)) {
-                Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
-                if (thisActor.equals(coreUser)) {
-                    messageDto.setCoreUser(true);
-                } else {
-                    if (mentionedActors.contains(thisActor)) {
-                        messageDto.setMentioned(true);
-                    } else {
-                        if (isPrivate) {
-                            continue;
-                        }
-                    }
-                }
-                session.getBasicRemote().sendText(messageDto.convert());
-                messageDto.setCoreUser(false);
-                messageDto.setMentioned(false);
-            }
-        }
-    }
-
-    public void sendNewMessage(Set<Executor> mentionedExecutors, ChatMessageDto messageDto, Boolean isPrivate) throws IOException {
-        Collection<Actor> mentionedActors = new HashSet<Actor>();
-        for (Executor mentionedExecutor : mentionedExecutors) {
-            if (mentionedExecutor.getClass() == Actor.class) {
-                mentionedActors.add((Actor) mentionedExecutor);
-            }
-        }
-        messageDto.setOld(false);
-        sendToChats(messageDto, messageDto.getMessage().getProcess().getId(), messageDto.getMessage().getCreateActor(), mentionedActors,
-                isPrivate);
-        MessageForCloseChatDto messageForCloseChat = new MessageForCloseChatDto();
-        messageForCloseChat.setProcessId(messageDto.getMessage().getProcess().getId());
-        sendOnlyNewMessagesSessions(messageForCloseChat, messageDto.getMessage().getProcess().getId(), messageDto.getMessage().getCreateActor(),
-                mentionedActors, isPrivate);
     }
 
     public void messageError(Session session, String message) {
         ChatErrorMessageDto errorDto = new ChatErrorMessageDto(message);
         try {
-            sendToSession(session, errorDto.convert());
+            sendToSession(session, chatObjectMapper.writeValueAsString(errorDto));
         } catch (IOException e) {
             log.error(e);
         }

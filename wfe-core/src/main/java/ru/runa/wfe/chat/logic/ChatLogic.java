@@ -42,13 +42,13 @@ public class ChatLogic extends WfCommonLogic {
     @Autowired
     private ChatFileLogic chatFileLogic;
 
-    public ChatMessageDto saveMessageAndBindFiles(Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+    public ChatMessageDto saveMessageAndBindFiles(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
             Boolean isPrivate,
             ArrayList<ChatMessageFileDto> files) {
         message.setProcess(processDao.get(processId));
         Set<Executor> executors;
         if (!isPrivate) {
-            executors = getAllUsers(message.getProcess().getId(), message.getCreateActor());
+            executors = getAllUsers(processId, actor);
         } else {
             executors = new HashSet<>(mentionedExecutors);
         }
@@ -142,8 +142,8 @@ public class ChatLogic extends WfCommonLogic {
         return result;
     }
 
-    public List<Long> getNewMessagesCounts(List<Long> chatsIds, List<Boolean> isMentions, Actor user) {
-        return chatDao.getNewMessagesCounts(chatsIds, isMentions, user);
+    public List<Long> getNewMessagesCounts(List<Long> chatsIds, Actor user) {
+        return chatDao.getNewMessagesCounts(chatsIds, user);
     }
 
     public Long getNewMessagesCount(Actor user, Long processId) {

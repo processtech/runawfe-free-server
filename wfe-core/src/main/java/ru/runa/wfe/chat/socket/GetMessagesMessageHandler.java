@@ -3,6 +3,7 @@ package ru.runa.wfe.chat.socket;
 import java.io.IOException;
 import java.util.List;
 import javax.websocket.Session;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ public class GetMessagesMessageHandler implements ChatSocketMessageHandler<ChatG
     private ChatSessionHandler sessionHandler;
     @Autowired
     private ChatLogic chatLogic;
+    @Autowired
+    private ObjectMapper chatObjectMapper;
 
     @Transactional
     @Override
@@ -35,7 +38,7 @@ public class GetMessagesMessageHandler implements ChatSocketMessageHandler<ChatG
             if (newMessage.getMessage().getCreateActor().equals(user.getActor())) {
                 newMessage.setCoreUser(true);
             }
-            sessionHandler.sendToSession(session, newMessage.convert());
+            sessionHandler.sendToSession(session, chatObjectMapper.writeValueAsString(newMessage));
         }
         JSONObject sendUnblockOldMes = new JSONObject();
         sendUnblockOldMes.put("messageType", "unblockOldMes");
