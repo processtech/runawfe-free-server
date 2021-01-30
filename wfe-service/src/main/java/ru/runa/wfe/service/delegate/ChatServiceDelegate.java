@@ -6,7 +6,6 @@ import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.broadcast.AddedMessageBroadcast;
-import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;

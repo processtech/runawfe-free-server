@@ -108,7 +108,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
     public List<AddedMessageBroadcast> getFirstMessages(Actor user, Long processId, int count) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         List<ChatMessage> messages = queryFactory.select(cr.message).from(cr)
-.where(cr.message.process.id.eq(processId).and(cr.executor.eq(user)))
+                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user)))
                 .orderBy(cr.message.createDate.desc()).limit(count)
                 .fetch();
         return toDto(messages);
@@ -183,7 +183,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(mf).from(mf, cr)
-.where(mf.message.eq(message).and(cr.message.eq(mf.message)).and(cr.executor.eq(actor))).fetch();
+                .where(mf.message.eq(message).and(cr.message.eq(mf.message)).and(cr.executor.eq(actor))).fetch();
     }
 
     public ChatMessageFile getFile(Actor actor, Long fileId) {

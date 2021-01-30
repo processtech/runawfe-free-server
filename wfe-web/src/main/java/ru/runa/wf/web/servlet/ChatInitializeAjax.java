@@ -30,12 +30,12 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         if (messages.size() > 0) {
             messageObject = messages.get(0);
             messageObject.setOld(true);
-            messageObject.setCoreUser(messageObject.getCreateActor().equals(user.getActor()));
+            messageObject.setCoreUser(messageObject.getAuthor().equals(user.getActor()));
             messagesArrayObject.add(chatObjectMapper.writeValueAsString(messages.get(0)));
             for (int i = 1; i < messages.size(); i++) {
                 messageObject = messages.get(i);
                 messageObject.setOld(false);
-                messageObject.setCoreUser(messageObject.getCreateActor().equals(user.getActor()));
+                messageObject.setCoreUser(messageObject.getAuthor().equals(user.getActor()));
                 messagesArrayObject.add(chatObjectMapper.writeValueAsString(messageObject));
             }
         }
@@ -44,7 +44,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
             for (AddedMessageBroadcast message : messages) {
                 messageObject = message;
                 messageObject.setOld(true);
-                messageObject.setCoreUser(messageObject.getCreateActor().equals(user.getActor()));
+                messageObject.setCoreUser(messageObject.getAuthor().equals(user.getActor()));
                 messagesArrayObject.add(chatObjectMapper.writeValueAsString(messageObject));
             }
         }

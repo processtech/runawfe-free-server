@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.runa.wfe.chat.dto.request.*;
+import ru.runa.wfe.chat.dto.request.AddMessageRequest;
+import ru.runa.wfe.chat.dto.request.EditMessageRequest;
+import ru.runa.wfe.chat.dto.request.MessageRequest;
+import ru.runa.wfe.chat.dto.request.ReadMessageRequest;
+import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
 
 @Configuration

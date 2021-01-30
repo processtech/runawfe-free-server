@@ -63,7 +63,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
             broadcastDto = new AddedMessageBroadcast(newMessage);
         }
         broadcastDto.setOld(false);
-        broadcastDto.setCoreUser(broadcastDto.getCreateActor().getId().equals(user.getActor().getId()));
+        broadcastDto.setCoreUser(broadcastDto.getAuthor().getId().equals(user.getActor().getId()));
         sessionHandler.sendMessage(recipientIds, broadcastDto);
     }
 
