@@ -26,16 +26,14 @@ public class EditMessageHandler implements ChatSocketMessageHandler<ChatEditMess
     @Transactional
     @Override
     public void handleMessage(Session session, ChatEditMessageDto dto, User user) throws IOException {
-        if (executionLogic.getProcess(user, (Long) session.getUserProperties().get("processId")).isEnded()) {
+        if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
             return;
         }
         ChatMessage newMessage = chatLogic.getMessage(user.getActor(), dto.getEditMessageId());
         if ((newMessage != null) && (newMessage.getCreateActor().equals(user.getActor()))) {
             newMessage.setText(dto.getMessage());
             chatLogic.updateMessage(user.getActor(), newMessage);
-
-            ChatMessageDto messageDto = new ChatMessageDto(newMessage);
-            sessionHandler.sendToChats(messageDto, dto.getProcessId());
+            sessionHandler.sendMessage(new ChatMessageDto(newMessage));
         }
     }
 
