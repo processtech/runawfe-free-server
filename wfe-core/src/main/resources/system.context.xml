@@ -265,12 +265,10 @@
 	<bean id="variableLogic" class="ru.runa.wfe.var.logic.VariableLogic" />
 	<bean id="chatLogic" class="ru.runa.wfe.chat.logic.ChatLogic" />
 	<bean id="chatFileLogic" class="ru.runa.wfe.chat.logic.ChatFileLogic" />
-
 	<bean id="assignmentHelper" class="ru.runa.wfe.extension.assign.AssignmentHelper" />
 	<bean id="adminScriptRunner" class="ru.runa.wfe.script.AdminScriptRunner" />
 	<bean id="reportLogic" class="ru.runa.wfe.report.logic.ReportLogic" />
 	<bean id="adminScriptLogic" class="ru.runa.wfe.script.logic.AdminScriptLogic" />
-
 	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
 
 	<task:scheduler id="baseScheduler" />

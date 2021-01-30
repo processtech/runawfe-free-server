@@ -15,7 +15,6 @@ import ru.runa.wfe.chat.ChatMessage;
 @Setter
 public class ChatMessageFileDto extends ChatDto{
     private Long id;
-    private ChatMessage message;
     private String fileName;
     private byte[] bytes;
 
