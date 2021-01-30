@@ -18,7 +18,6 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
-import ru.runa.wfe.chat.logic.ChatFileLogic;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
@@ -37,8 +36,6 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @Autowired
     private ChatLogic chatLogic;
-    @Autowired
-    private ChatFileLogic chatFileLogic;
 
     @WebMethod(exclude = false)
     @Override
@@ -51,7 +48,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @Override
     @WebResult(name = "result")
     public void deleteFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "id") @NonNull Long id) {
-        chatFileLogic.deleteFile(user, id);
+        chatLogic.deleteFile(user, id);
     }
 
     @WebMethod(exclude = false)
@@ -118,21 +115,21 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public List<ChatMessageFileDto> getChatMessageFiles(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "message") ChatMessage message) {
-        return chatFileLogic.getMessageFiles(user.getActor(), message);
+        return chatLogic.getFiles(user.getActor(), message);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
     public ChatMessageFileDto getChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "fileId") Long fileId) {
-        return chatFileLogic.getMessageFile(user.getActor(), fileId);
+        return chatLogic.getFile(user.getActor(), fileId);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
     public ChatMessageFileDto saveChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "file") ChatMessageFileDto file) {
-        return chatFileLogic.saveMessageFile(file);
+        return chatLogic.saveFile(file);
     }
 
     @WebMethod(exclude = false)

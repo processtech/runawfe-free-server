@@ -1,21 +1,18 @@
 package ru.runa.wfe.chat.dao;
 
-import com.querydsl.core.Tuple;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageFile;
 import ru.runa.wfe.chat.QChatMessageRecipient;
-import ru.runa.wfe.chat.dto.ChatFileDto;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -23,20 +20,16 @@ import ru.runa.wfe.user.Executor;
 @Component
 public class ChatDao extends GenericDao<ChatMessage> {
 
-    @Autowired
-    private ChatFileDao chatFileDao;
-
     public List<Long> getMentionedExecutorIds(Long messageId) {
         QChatMessageRecipient mr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(mr.executor.id).from(mr).where(mr.message.id.eq(messageId)).fetch();
     }
 
-    public ChatMessageDto saveMessageAndBindFiles(ChatMessage message, List<ChatMessageFileDto> files, Set<Executor> executors,
-            Set<Executor> mentionedExecutors) {
+    public ChatMessageDto saveMessage(ChatMessage message, List<ChatMessageFile> files, Set<Executor> executors, Set<Executor> mentionedExecutors) {
         Long mesId = save(message, executors, mentionedExecutors);
         message.setId(mesId);
         ChatMessageDto result = new ChatMessageDto(message);
-        result.setFilesDto(chatFileDao.saveAllFiles(files, message));
+        result.setFiles(files);
         return result;
     }
 
@@ -99,10 +92,8 @@ public class ChatDao extends GenericDao<ChatMessage> {
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         for (ChatMessage message : messages) {
             ChatMessageDto messageDto = new ChatMessageDto(message);
-            List<Tuple> files = queryFactory.select(mf.fileName, mf.id).from(mf).where(mf.message.eq(message)).fetch();
-            for (Tuple file : files) {
-                messageDto.getFilesDto().add(new ChatFileDto(file.get(1, Long.class), file.get(0, String.class)));
-            }
+            List<ChatMessageFile> files = queryFactory.select(mf).from(mf).where(mf.message.eq(message)).fetch();
+            messageDto.setFiles(files);
             messageDtos.add(messageDto);
         }
         return messageDtos;
@@ -152,10 +143,8 @@ public class ChatDao extends GenericDao<ChatMessage> {
         ChatMessage message = queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
         messageDto = new ChatMessageDto(message);
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
-        List<Tuple> files = queryFactory.select(mf.fileName, mf.id).from(mf).where(mf.message.eq(message)).fetch();
-        for (Tuple file : files) {
-            messageDto.getFilesDto().add(new ChatFileDto(file.get(1, Long.class), file.get(0, String.class)));
-        }
+        List<ChatMessageFile> files = queryFactory.select(mf).from(mf).where(mf.message.eq(message)).fetch();
+        messageDto.setFiles(files);
         return messageDto;
     }
 
@@ -175,8 +164,6 @@ public class ChatDao extends GenericDao<ChatMessage> {
     }
 
     public void deleteMessage(Long messId) {
-        QChatMessageFile f = QChatMessageFile.chatMessageFile;
-        queryFactory.delete(f).where(f.message.id.eq(messId)).execute();
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         queryFactory.delete(cr).where(cr.message.id.eq(messId)).execute();
         delete(messId);

@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,7 +19,7 @@ public class ChatMessageFile {
 
     private Long id;
     private ChatMessage message;
-    private String fileName;
+    private String name;
     private String uuid;
 
     @Id
@@ -33,6 +34,7 @@ public class ChatMessageFile {
         this.id = id;
     }
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "MESSAGE_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_FILE_ID")
@@ -46,14 +48,15 @@ public class ChatMessageFile {
     }
 
     @Column(name = "FILE_NAME", length = 1024, nullable = false)
-    public String getFileName() {
-        return fileName;
+    public String getName() {
+        return name;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setName(String fileName) {
+        this.name = fileName;
     }
 
+    @JsonIgnore
     @Column(name = "UUID", length = 36, nullable = false)
     public String getUuid() {
         return uuid;

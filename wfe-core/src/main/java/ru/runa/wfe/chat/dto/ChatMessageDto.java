@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFile;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ public class ChatMessageDto extends ChatDto {
     private ChatMessage message;
 
     @JsonProperty("files")
-    private List<ChatFileDto> filesDto = new ArrayList<ChatFileDto>();
+    private List<ChatMessageFile> files = new ArrayList<>();
 
     @JsonProperty("old")
     private boolean isOld = false;
@@ -37,8 +38,8 @@ public class ChatMessageDto extends ChatDto {
 
     @JsonGetter("haveFile")
     public Boolean haveFile() {
-        if (this.getFilesDto() != null) {
-            return this.getFilesDto().size() > 0;
+        if (this.getFiles() != null) {
+            return this.getFiles().size() > 0;
         } else {
             return false;
         }

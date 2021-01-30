@@ -20,6 +20,7 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatDao;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
@@ -31,12 +32,15 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.User;
 
 public class ChatLogic extends WfCommonLogic {
     private Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
 
     @Autowired
     private ChatDao chatDao;
+    @Autowired
+    private ChatFileLogic chatFileLogic;
 
     public ChatMessageDto saveMessageAndBindFiles(Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
             Boolean isPrivate,
@@ -48,7 +52,13 @@ public class ChatLogic extends WfCommonLogic {
         } else {
             executors = new HashSet<>(mentionedExecutors);
         }
-        return chatDao.saveMessageAndBindFiles(message, files, executors, mentionedExecutors);
+        List<ChatMessageFile> messageFiles = chatFileLogic.save(files, message);
+        try {
+            return chatDao.saveMessage(message, messageFiles, executors, mentionedExecutors);
+        } catch (Exception exception) {
+            chatFileLogic.delete(messageFiles);
+            throw exception;
+        }
     }
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
@@ -170,8 +180,11 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
-    public void deleteMessage(Actor actor, Long messId) {
-        chatDao.deleteMessage(messId);
+    public void deleteMessage(Actor actor, Long messageId) {
+        ChatMessage message = getMessage(actor, messageId);
+        List<ChatMessageFile> files = chatFileLogic.get(actor, message);
+        chatDao.deleteMessage(messageId);
+        chatFileLogic.delete(files);
     }
 
     public void updateMessage(Actor actor, ChatMessage message) {
@@ -216,4 +229,19 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
+    public ChatMessageFileDto saveFile(ChatMessageFileDto file) {
+        return chatFileLogic.save(file);
+    }
+
+    public List<ChatMessageFileDto> getFiles(Actor actor, ChatMessage message) {
+        return chatFileLogic.getDto(actor, message);
+    }
+
+    public ChatMessageFileDto getFile(Actor actor, Long fileId) {
+        return chatFileLogic.getDto(actor, fileId);
+    }
+
+    public void deleteFile(User user, Long id) {
+        chatFileLogic.delete(user, id);
+    }
 }

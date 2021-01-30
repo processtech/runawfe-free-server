@@ -8,31 +8,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatFileIoException;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
+import ru.runa.wfe.commons.SystemProperties;
 
 /**
  * @author Sergey Inyakin
  */
 @Component
-@PropertySource("classpath:system.properties")
 public class ChatFileIo {
 
-    @Value("${chat.files.storage.path}")
-    private String storagePath;
-    @Autowired
-    private ChatMessageFileMapper messageFileMapper;
+    private final ChatMessageFileMapper messageFileMapper;
+    private final String storagePath;
 
-    public List<ChatMessageFile> write(List<ChatMessageFileDto> dtos) {
+    @Autowired
+    public ChatFileIo(ChatMessageFileMapper messageFileMapper) {
+        this.messageFileMapper = messageFileMapper;
+        storagePath = SystemProperties.getChatFileStoragePath();
+    }
+
+    public List<ChatMessageFile> save(List<ChatMessageFileDto> dtos) {
         List<ChatMessageFile> result = new ArrayList<>();
         try {
             for (ChatMessageFileDto dto : dtos)
-                result.add(write(dto));
+                result.add(save(dto));
         } catch (Exception exception) {
             delete(result);
             throw exception;
@@ -40,7 +42,7 @@ public class ChatFileIo {
         return result;
     }
 
-    public ChatMessageFile write(ChatMessageFileDto dto) {
+    public ChatMessageFile save(ChatMessageFileDto dto) {
         ChatMessageFile result = messageFileMapper.toEntity(dto);
         String uuidName;
         Path path;
@@ -53,27 +55,27 @@ public class ChatFileIo {
             Files.write(path, dto.getBytes());
         } catch (Exception e) {
             delete(result);
-            throw new ChatFileIoException("File save error: " + result.getFileName());
+            throw new ChatFileIoException("File save error: " + result.getName());
         }
         return result;
     }
 
-    public List<ChatMessageFileDto> read(List<ChatMessageFile> files) {
+    public List<ChatMessageFileDto> get(List<ChatMessageFile> files) {
         List<ChatMessageFileDto> result = new ArrayList<>();
         for (ChatMessageFile file : files){
-            read(file);
+            get(file);
         }
         return result;
     }
 
-    public ChatMessageFileDto read(ChatMessageFile file) {
+    public ChatMessageFileDto get(ChatMessageFile file) {
         ChatMessageFileDto result;
         try {
             result = messageFileMapper.toDto(file);
             byte[] bytes = Files.readAllBytes(Paths.get(storagePath + "/" + file.getUuid()));
             result.setBytes(bytes);
         } catch (IOException e) {
-            throw new ChatFileIoException("File load error: " + file.getFileName());
+            throw new ChatFileIoException("File load error: " + file.getName());
         }
         return result;
     }
@@ -82,7 +84,7 @@ public class ChatFileIo {
         try {
             Files.delete(Paths.get(storagePath + "/" + file.getUuid()));
         } catch (IOException exception) {
-            throw new ChatFileIoException("File delete error: " + file.getFileName());
+            throw new ChatFileIoException("File delete error: " + file.getName());
         }
     }
 

@@ -13,25 +13,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 
 /**
  * @author Sergey Inyakin
  */
-@PropertySource("classpath:system.properties")
 public class AddUuidAndDropBytesChatMessageFilePatch extends DbMigration {
     private static final String TABLE_NAME = "CHAT_MESSAGE_FILE";
 
-    @Value("${chat.files.storage.path}")
     private String storagePath;
+
+    public AddUuidAndDropBytesChatMessageFilePatch() {
+        storagePath = SystemProperties.getChatFileStoragePath();
+        Path storageDir = Paths.get(storagePath);
+        try {
+            Files.createDirectory(storageDir);
+        } catch (IOException ignored) {}
+    }
 
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
                 getDDLCreateColumn(TABLE_NAME, new VarcharColumnDef("UUID", 36)));
     }
+
     @Override
     public void executeDML(Connection conn) throws Exception {
         Statement statement = conn.createStatement();
