@@ -12,7 +12,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.chat.dto.ChatErrorMessageDto;
+import ru.runa.wfe.chat.dto.broadcast.ErrorMessageBroadcast;
 import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.chat.sender.MessageSender;
 import ru.runa.wfe.chat.utils.ChatSessionUtils;
@@ -70,7 +70,7 @@ public class ChatSessionHandler {
     }
 
     public void messageError(Session session, String message) {
-        ChatErrorMessageDto errorDto = new ChatErrorMessageDto(message);
+        ErrorMessageBroadcast errorDto = new ErrorMessageBroadcast(message);
         try {
             sendToSession(session, chatObjectMapper.writeValueAsString(errorDto));
         } catch (IOException e) {

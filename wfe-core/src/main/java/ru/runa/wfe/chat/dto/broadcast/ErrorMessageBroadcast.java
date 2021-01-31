@@ -1,4 +1,4 @@
-package ru.runa.wfe.chat.dto;
+package ru.runa.wfe.chat.dto.broadcast;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ChatErrorMessageDto extends ChatDto {
+public class ErrorMessageBroadcast extends MessageBroadcast {
     private String message;
 }
