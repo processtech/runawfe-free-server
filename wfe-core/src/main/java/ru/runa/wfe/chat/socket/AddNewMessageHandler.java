@@ -15,7 +15,7 @@ import ru.runa.wfe.chat.dto.broadcast.AddedMessageBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
-import ru.runa.wfe.chat.utils.ChatNewMessageDtoToChatMessageConverter;
+import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.chat.utils.MentionedExecutorsExtractor;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
@@ -32,7 +32,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
     @Autowired
     private ExecutionLogic executionLogic;
     @Autowired
-    private ChatNewMessageDtoToChatMessageConverter converter;
+    private DtoConverters converter;
     @Autowired
     private MentionedExecutorsExtractor extractor;
 
@@ -44,7 +44,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
         }
         boolean isPrivate = dto.isPrivate();
         Actor actor = user.getActor();
-        ChatMessage newMessage = converter.convert(dto, actor);
+        ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(dto, actor);
         Set<Executor> mentionedExecutors = extractor.extractMentionedExecutors(dto.getPrivateNames(), newMessage, user);
         Collection<Long> recipientIds = extractor.extractRecipientIds(mentionedExecutors, isPrivate);
         AddedMessageBroadcast broadcastDto;
@@ -60,7 +60,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
         } else {
             Long newMessId = chatLogic.saveMessage(actor, processId, newMessage, mentionedExecutors, isPrivate);
             newMessage.setId(newMessId);
-            broadcastDto = new AddedMessageBroadcast(newMessage);
+            broadcastDto = converter.convertChatMessageToAddedMessageBroadcast(newMessage);
         }
         broadcastDto.setOld(false);
         broadcastDto.setCoreUser(broadcastDto.getAuthor().getId().equals(user.getActor().getId()));

@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
@@ -15,13 +17,17 @@ import ru.runa.wfe.chat.QChatMessageFile;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.chat.dto.ChatFileDto;
 import ru.runa.wfe.chat.dto.broadcast.AddedMessageBroadcast;
+import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 @Component
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ChatDao extends GenericDao<ChatMessage> {
+
+    private final DtoConverters converter;
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
         QChatMessageRecipient mr = QChatMessageRecipient.chatMessageRecipient;
@@ -37,7 +43,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
                                                          Set<Executor> mentionedExecutors) {
         Long mesId = save(message, executors, mentionedExecutors);
         message.setId(mesId);
-        AddedMessageBroadcast ret = new AddedMessageBroadcast(message);
+        AddedMessageBroadcast ret = converter.convertChatMessageToAddedMessageBroadcast(message);
         for (ChatMessageFile file : files) {
             file.setMessage(message);
             sessionFactory.getCurrentSession().save(file);
@@ -95,7 +101,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
         List<AddedMessageBroadcast> messageDtos = new ArrayList<>();
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         for (ChatMessage message : messages) {
-            AddedMessageBroadcast messageDto = new AddedMessageBroadcast(message);
+            AddedMessageBroadcast messageDto = converter.convertChatMessageToAddedMessageBroadcast(message);
             List<Tuple> files = queryFactory.select(mf.fileName, mf.id).from(mf).where(mf.message.eq(message)).fetch();
             for (Tuple file : files) {
                 messageDto.getFilesDto().add(new ChatFileDto(file.get(1, Long.class), file.get(0, String.class)));
@@ -142,7 +148,7 @@ public class ChatDao extends GenericDao<ChatMessage> {
     public AddedMessageBroadcast getMessageDto(Long messageId) {
         QChatMessage m = QChatMessage.chatMessage;
         ChatMessage message = queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
-        AddedMessageBroadcast messageDto = new AddedMessageBroadcast(message);
+        AddedMessageBroadcast messageDto = converter.convertChatMessageToAddedMessageBroadcast(message);
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         List<Tuple> files = queryFactory.select(mf.fileName, mf.id).from(mf).where(mf.message.eq(message)).fetch();
         for (Tuple file : files) {

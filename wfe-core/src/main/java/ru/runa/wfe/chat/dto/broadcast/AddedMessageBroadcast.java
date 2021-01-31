@@ -3,8 +3,8 @@ package ru.runa.wfe.chat.dto.broadcast;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatFileDto;
 import ru.runa.wfe.chat.jackson.serializers.ActorJacksonSerializer;
 import ru.runa.wfe.chat.jackson.serializers.DateJacksonSerializer;
@@ -15,6 +15,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class AddedMessageBroadcast extends MessageBroadcast {
 
     private String text;
@@ -35,13 +36,4 @@ public class AddedMessageBroadcast extends MessageBroadcast {
 
     @JsonSerialize(using = DateJacksonSerializer.class)
     private Date createDate;
-
-    public AddedMessageBroadcast(ChatMessage message) {
-        this.author = message.getCreateActor();
-        this.text = message.getText();
-        this.quotedMessageIds = message.getQuotedMessageIds();
-        this.createDate = message.getCreateDate();
-        this.id = message.getId();
-        this.setProcessId(message.getProcess().getId());
-    }
 }
