@@ -89,17 +89,17 @@ public class ImportDataFileTag extends TitledFormTag {
     private void clearPasswordForDataSourcesRow(Table table) {
         TD td = new TD();
         Input setPasswordInput = new Input(Input.RADIO, ImportDataFileAction.PASSWORD_DATA_SOURCE_PARAM, ImportDataFileAction.SET_PASSWORD);
-        setPasswordInput.setID(ImportDataFileAction.SET_PASSWORD);
+        setPasswordInput.setID(ImportDataFileAction.SET_PASSWORD_DATA_SOURCE);
         setPasswordInput.setChecked(true);
         td.addElement(setPasswordInput);
-        Label label = new Label(ImportDataFileAction.SET_PASSWORD);
+        Label label = new Label(ImportDataFileAction.SET_PASSWORD_DATA_SOURCE);
         label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_SET_PASSWORD_DATA_SOURCE.message(pageContext)));
         td.addElement(label);
         td.addElement(Entities.NBSP);
         Input clearPasswordInput = new Input(Input.RADIO, ImportDataFileAction.PASSWORD_DATA_SOURCE_PARAM, ImportDataFileAction.CLEAR_PASSWORD);
-        clearPasswordInput.setID(ImportDataFileAction.CLEAR_PASSWORD);
+        clearPasswordInput.setID(ImportDataFileAction.CLEAR_PASSWORD_DATA_SOURCE);
         td.addElement(clearPasswordInput);
-        label = new Label(ImportDataFileAction.CLEAR_PASSWORD);
+        label = new Label(ImportDataFileAction.CLEAR_PASSWORD_DATA_SOURCE);
         label.addElement(new StringElement(MessagesOther.LABEL_DATAFILE_CLEAR_PASSWORD_DATA_SOURCE.message(pageContext)));
         td.addElement(label);
         table.addElement(HTMLUtils.createRow(MessagesOther.TITLE_DATAFILE_ACTION_PASSWORD_DATA_SOURCE.message(pageContext), td));
