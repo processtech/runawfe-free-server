@@ -28,16 +28,19 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.common.web.html.*;
+import ru.runa.common.web.html.CssClassStrategy;
+import ru.runa.common.web.html.HeaderBuilder;
+import ru.runa.common.web.html.ReflectionRowBuilder;
+import ru.runa.common.web.html.SecuredObjectCheckboxTdBuilder;
+import ru.runa.common.web.html.SortingHeaderBuilder;
+import ru.runa.common.web.html.TdBuilder;
+import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
+import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.*;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created on 18.08.2004
@@ -50,30 +53,28 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
 
     private static final long serialVersionUID = -7478022960008761625L;
 
-    private final List<Class<? extends TemporaryGroup>> executorsWhichNotDisplayByDefault = new ArrayList<>();
-    {
-        executorsWhichNotDisplayByDefault.add(TemporaryGroup.class);
-        executorsWhichNotDisplayByDefault.add(DelegationGroup.class);
-        executorsWhichNotDisplayByDefault.add(EscalationGroup.class);
-    }
-
     private boolean buttonEnabled;
+    
+        private final Set<Class<? extends TemporaryGroup>> notDisplayableExecutorsByDefault;
+
+    public ListAllExecutorsFormTag() {
+        this.notDisplayableExecutorsByDefault = new HashSet<>();
+        this.notDisplayableExecutorsByDefault.add(TemporaryGroup.class);
+        this.notDisplayableExecutorsByDefault.add(DelegationGroup.class);
+        this.notDisplayableExecutorsByDefault.add(EscalationGroup.class);
+    }
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        int executorsCount = Delegates.getExecutorService().getExecutorsCount(getUser(), getBatchPresentation());
+        int executorsCount;
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(getUser(), getBatchPresentation());
-        String stringProperty = WebResources.getResources().getStringProperty("display.only.basic.userGroups");
-        if (stringProperty.equals("true")) {
-            Iterator<Executor> executorIterator = executors.iterator();
-            while (executorIterator.hasNext()) {
-                Executor executor = executorIterator.next();
-                if (executorsWhichNotDisplayByDefault.contains(executor.getClass())) {
-                    executorIterator.remove();
-                }
-            }
-            executorsCount = executors.size();
+        boolean displayBasicGroups = WebResources
+                .getResources()
+                .getBooleanProperty("display.only.basic.userGroups", true);
+        if (displayBasicGroups) {
+            executors.removeIf(e -> notDisplayableExecutorsByDefault.contains(e));
         }
+        executorsCount = executors.size();
         BatchPresentation batchPresentation = getBatchPresentation();
         buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, batchPresentation, Permission.UPDATE);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
