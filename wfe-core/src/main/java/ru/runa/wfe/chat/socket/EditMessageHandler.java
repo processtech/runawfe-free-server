@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
-import ru.runa.wfe.chat.dto.broadcast.EditedMessageBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageEditedBroadcast;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
@@ -33,7 +33,7 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
         if ((newMessage != null) && (newMessage.getCreateActor().equals(user.getActor()))) {
             newMessage.setText(dto.getMessage());
             chatLogic.updateMessage(user.getActor(), newMessage);
-            sessionHandler.sendMessage(new EditedMessageBroadcast(dto.getEditMessageId(), dto.getMessage()));
+            sessionHandler.sendMessage(new MessageEditedBroadcast(dto.getEditMessageId(), dto.getMessage()));
         }
     }
 

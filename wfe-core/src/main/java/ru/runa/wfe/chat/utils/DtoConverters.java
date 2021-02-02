@@ -2,7 +2,7 @@ package ru.runa.wfe.chat.utils;
 
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.dto.broadcast.AddedMessageBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.user.Actor;
 import java.util.Date;
@@ -19,8 +19,8 @@ public class DtoConverters {
         return message;
     }
 
-    public AddedMessageBroadcast convertChatMessageToAddedMessageBroadcast(ChatMessage message) {
-        AddedMessageBroadcast dto = new AddedMessageBroadcast();
+    public MessageAddedBroadcast convertChatMessageToAddedMessageBroadcast(ChatMessage message) {
+        MessageAddedBroadcast dto = new MessageAddedBroadcast();
         dto.setAuthor(message.getCreateActor());
         dto.setText(message.getText());
         dto.setQuotedMessageIds(message.getQuotedMessageIds());

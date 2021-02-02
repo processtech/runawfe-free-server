@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
-import ru.runa.wfe.chat.dto.broadcast.AddedMessageBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -22,11 +22,11 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         int countMessages = Integer.parseInt(request.getParameter("messageCount"));
         JSONObject outputObject = new JSONObject();
         Long lastMessageId = Delegates.getChatService().getLastReadMessage(user, processId);
-        List<AddedMessageBroadcast> messages;
+        List<MessageAddedBroadcast> messages;
         JSONArray messagesArrayObject = new JSONArray();
         outputObject.put("lastMessageId", lastMessageId);
         messages = Delegates.getChatService().getNewChatMessages(user, processId);
-        AddedMessageBroadcast messageObject;
+        MessageAddedBroadcast messageObject;
         if (messages.size() > 0) {
             messageObject = messages.get(0);
             messageObject.setOld(true);
@@ -41,7 +41,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         }
         if (messages.size() < countMessages) {
             messages = Delegates.getChatService().getChatMessages(user, processId, lastMessageId, countMessages - messages.size());
-            for (AddedMessageBroadcast message : messages) {
+            for (MessageAddedBroadcast message : messages) {
                 messageObject = message;
                 messageObject.setOld(true);
                 messageObject.setCoreUser(messageObject.getAuthor().equals(user.getActor()));

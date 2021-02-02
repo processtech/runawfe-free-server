@@ -19,13 +19,11 @@ public class MessageRequestBinaryDecoder implements Decoder.Binary<MessageReques
 
     @Override
     public MessageRequest decode(ByteBuffer byteBuffer) throws DecodeException {
-        MessageRequest dto;
         try {
-            dto = objectMapper.readValue(byteBuffer.array(), MessageRequest.class);
+            return objectMapper.readValue(byteBuffer.array(), MessageRequest.class);
         } catch (IOException e) {
             throw new DecodeException(byteBuffer, e.getMessage(), e);
         }
-        return dto;
     }
 
     @Override

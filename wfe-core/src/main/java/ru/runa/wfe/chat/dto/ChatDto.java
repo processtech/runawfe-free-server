@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ChatDto {
+public abstract class ChatDto {
     private Long processId;
 
 }

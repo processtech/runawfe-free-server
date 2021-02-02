@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
-import ru.runa.wfe.chat.dto.broadcast.DeletedMessageBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
@@ -35,7 +35,7 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMess
             return;
         }
         chatLogic.deleteMessage(user.getActor(), dto.getMessageId());
-        sessionHandler.sendMessage(new DeletedMessageBroadcast(dto.getMessageId()));
+        sessionHandler.sendMessage(new MessageDeletedBroadcast(dto.getMessageId()));
     }
 
     @Override

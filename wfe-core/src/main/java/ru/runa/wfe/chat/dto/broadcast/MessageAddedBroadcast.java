@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AddedMessageBroadcast extends MessageBroadcast {
+public class MessageAddedBroadcast extends MessageBroadcast {
 
     private String text;
     private String quotedMessageIds;

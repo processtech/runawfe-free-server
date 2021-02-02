@@ -18,7 +18,7 @@ import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
 public class ChatConfig {
 
     @Bean
-    public List<Class<? extends MessageRequest>> dtoClasses() {
+    public List<Class<? extends MessageRequest>> messageRequestClasses() {
         return Arrays.asList(
                 AddMessageRequest.class,
                 ReadMessageRequest.class,
@@ -33,7 +33,7 @@ public class ChatConfig {
         Map<Class<? extends MessageRequest>, ChatSocketMessageHandler<? extends MessageRequest>> handlersByMessageType = new HashMap<>();
 
         for (ChatSocketMessageHandler<? extends MessageRequest> handler : handlers) {
-            for (Class<? extends MessageRequest> dtoClass : dtoClasses()) {
+            for (Class<? extends MessageRequest> dtoClass : messageRequestClasses()) {
                 if (handler.isSupports(dtoClass)) {
                     handlersByMessageType.put(dtoClass, handler);
                     break;

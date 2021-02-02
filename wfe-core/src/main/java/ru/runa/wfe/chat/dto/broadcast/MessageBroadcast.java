@@ -12,10 +12,10 @@ import ru.runa.wfe.chat.dto.ChatDto;
         use = JsonTypeInfo.Id.NAME,
         property = "messageType")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = AddedMessageBroadcast.class, name = "newMessage"),
-        @JsonSubTypes.Type(value = DeletedMessageBroadcast.class, name = "deleteMessage"),
-        @JsonSubTypes.Type(value = EditedMessageBroadcast.class, name = "editMessage"),
+        @JsonSubTypes.Type(value = MessageAddedBroadcast.class, name = "newMessage"),
+        @JsonSubTypes.Type(value = MessageDeletedBroadcast.class, name = "deleteMessage"),
+        @JsonSubTypes.Type(value = MessageEditedBroadcast.class, name = "editMessage"),
         @JsonSubTypes.Type(value = ErrorMessageBroadcast.class, name = "errorMessage")
 })
-public class MessageBroadcast extends ChatDto {
+public abstract class MessageBroadcast extends ChatDto {
 }

@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.dto.broadcast.AddedMessageBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
@@ -54,10 +54,10 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public AddedMessageBroadcast saveMessageAndBindFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
-                                                    @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
-                                                    Boolean isPrivate, ArrayList<ChatMessageFile> files) {
-        return chatLogic.saveMessageAndBindFiles(user.getActor(), processId, message, mentionedExecutors, isPrivate, files);
+    public ChatMessage saveMessageAndBindFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+                                               @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
+                                               Boolean isPrivate, ArrayList<ChatMessageFile> files) {
+        return chatLogic.saveMessageAndBindFiles(processId, message, mentionedExecutors, isPrivate, files);
     }
 
     @WebMethod(exclude = false)
@@ -134,7 +134,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<AddedMessageBroadcast> getNewChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
+    public List<MessageAddedBroadcast> getNewChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
         return chatLogic.getNewMessages(user.getActor(), processId);
     }
 
@@ -148,23 +148,23 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public AddedMessageBroadcast getChatMessageDto(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long messageId) {
+    public MessageAddedBroadcast getChatMessageDto(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long messageId) {
         return chatLogic.getMessageDto(messageId);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<AddedMessageBroadcast> getChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-                                                  @WebParam(name = "firstIndex") Long firstIndex, @WebParam(name = "count") int count) {
+    public List<MessageAddedBroadcast> getChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
+                                                       @WebParam(name = "firstIndex") Long firstIndex, @WebParam(name = "count") int count) {
         return chatLogic.getMessages(user.getActor(), processId, firstIndex, count);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<AddedMessageBroadcast> getFirstChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-                                                       @WebParam(name = "count") int count) {
+    public List<MessageAddedBroadcast> getFirstChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
+                                                            @WebParam(name = "count") int count) {
         return chatLogic.getFirstMessages(user.getActor(), processId, count);
     }
 

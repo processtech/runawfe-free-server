@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.dto.broadcast.AddedMessageBroadcast;
+import ru.runa.wfe.chat.dto.ChatFileDto;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
@@ -47,7 +48,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
         ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(dto, actor);
         Set<Executor> mentionedExecutors = extractor.extractMentionedExecutors(dto.getPrivateNames(), newMessage, user);
         Collection<Long> recipientIds = extractor.extractRecipientIds(mentionedExecutors, isPrivate);
-        AddedMessageBroadcast broadcastDto;
+        MessageAddedBroadcast messageAddedBroadcast;
         long processId = dto.getProcessId();
         if (dto.getFiles() != null) {
             ArrayList<ChatMessageFile> chatMessageFiles = new ArrayList<>();
@@ -55,16 +56,20 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
                 ChatMessageFile chatMessageFile = new ChatMessageFile(entry.getKey(), entry.getValue());
                 chatMessageFiles.add(chatMessageFile);
             }
-            broadcastDto = chatLogic.saveMessageAndBindFiles(actor, processId, newMessage, mentionedExecutors,
+            newMessage = chatLogic.saveMessageAndBindFiles(processId, newMessage, mentionedExecutors,
                     isPrivate, chatMessageFiles);
+            messageAddedBroadcast = converter.convertChatMessageToAddedMessageBroadcast(newMessage);
+            for (ChatMessageFile file : chatMessageFiles) {
+                messageAddedBroadcast.getFilesDto().add(new ChatFileDto(file.getId(), file.getFileName()));
+            }
         } else {
             Long newMessId = chatLogic.saveMessage(actor, processId, newMessage, mentionedExecutors, isPrivate);
             newMessage.setId(newMessId);
-            broadcastDto = converter.convertChatMessageToAddedMessageBroadcast(newMessage);
+            messageAddedBroadcast = converter.convertChatMessageToAddedMessageBroadcast(newMessage);
         }
-        broadcastDto.setOld(false);
-        broadcastDto.setCoreUser(broadcastDto.getAuthor().getId().equals(user.getActor().getId()));
-        sessionHandler.sendMessage(recipientIds, broadcastDto);
+        messageAddedBroadcast.setOld(false);
+        messageAddedBroadcast.setCoreUser(messageAddedBroadcast.getAuthor().getId().equals(user.getActor().getId()));
+        sessionHandler.sendMessage(recipientIds, messageAddedBroadcast);
     }
 
     @Override
