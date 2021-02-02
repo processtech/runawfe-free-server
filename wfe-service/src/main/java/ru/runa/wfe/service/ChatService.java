@@ -80,8 +80,6 @@ public interface ChatService {
      */
     public ChatMessage getChatMessage(User user, Long messageId);
 
-    public MessageAddedBroadcast getChatMessageDto(User user, Long messageId);
-
     /**
      * Get List array of ChatMessage, where all "message Id" < firstId.
      *
@@ -105,17 +103,6 @@ public interface ChatService {
      * @return not <code>null</code> order by date asc
      */
     public List<MessageAddedBroadcast> getNewChatMessages(User user, Long processId);
-
-    /**
-     * Get List array of last ChatMessage (first in the array of all messages).
-     *
-     * @param processId
-     *            chat Id
-     * @param count
-     *            number of messages in the returned array
-     * @return not <code>null</code>
-     */
-    public List<MessageAddedBroadcast> getFirstChatMessages(User user, Long processId, int count);
 
     /**
      * Save ChatMessage in DB.

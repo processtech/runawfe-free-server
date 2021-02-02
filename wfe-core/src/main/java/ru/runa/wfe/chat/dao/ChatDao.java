@@ -109,15 +109,6 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return messageDtos;
     }
 
-    public List<MessageAddedBroadcast> getFirstMessages(Actor user, Long processId, int count) {
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        List<ChatMessage> messages = queryFactory.select(cr.message).from(cr)
-                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user)))
-                .orderBy(cr.message.createDate.desc()).limit(count)
-                .fetch();
-        return toDto(messages);
-    }
-
     public List<MessageAddedBroadcast> getNewMessages(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Long lastMessageId = getLastReadMessage(user, processId);
@@ -141,18 +132,6 @@ public class ChatDao extends GenericDao<ChatMessage> {
     public ChatMessage getMessage(Long messageId) {
         QChatMessage m = QChatMessage.chatMessage;
         return queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
-    }
-
-    public MessageAddedBroadcast getMessageDto(Long messageId) {
-        QChatMessage m = QChatMessage.chatMessage;
-        ChatMessage message = queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
-        MessageAddedBroadcast messageDto = converter.convertChatMessageToAddedMessageBroadcast(message);
-        QChatMessageFile mf = QChatMessageFile.chatMessageFile;
-        List<Tuple> files = queryFactory.select(mf.fileName, mf.id).from(mf).where(mf.message.eq(message)).fetch();
-        for (Tuple file : files) {
-            messageDto.getFilesDto().add(new ChatFileDto(file.get(1, Long.class), file.get(0, String.class)));
-        }
-        return messageDto;
     }
 
     public Long save(ChatMessage message, Set<Executor> executors, Set<Executor> mentionedExecutors) {

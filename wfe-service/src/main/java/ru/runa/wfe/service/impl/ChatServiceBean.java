@@ -148,24 +148,9 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public MessageAddedBroadcast getChatMessageDto(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long messageId) {
-        return chatLogic.getMessageDto(messageId);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
     public List<MessageAddedBroadcast> getChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
                                                        @WebParam(name = "firstIndex") Long firstIndex, @WebParam(name = "count") int count) {
         return chatLogic.getMessages(user.getActor(), processId, firstIndex, count);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public List<MessageAddedBroadcast> getFirstChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-                                                            @WebParam(name = "count") int count) {
-        return chatLogic.getFirstMessages(user.getActor(), processId, count);
     }
 
     @WebMethod(exclude = false)
