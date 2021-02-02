@@ -12,8 +12,8 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.chat.dto.ChatErrorMessageDto;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.broadcast.ErrorMessageBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.chat.sender.MessageSender;
 import ru.runa.wfe.chat.utils.ChatSessionUtils;
 import ru.runa.wfe.user.User;
@@ -59,19 +59,18 @@ public class ChatSessionHandler {
         session.getBasicRemote().sendText(message);
     }
 
-    public void sendMessage(ChatMessageDto dto) throws IOException {
+    public void sendMessage(MessageBroadcast dto) throws IOException {
         sendMessage(Collections.emptySet(), dto);
     }
 
-    public void sendMessage(Collection<Long> recipientIds, ChatMessageDto dto) throws IOException {
+    public void sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) throws IOException {
         for (Long id : recipientIds) {
-            dto.setCoreUser(dto.getMessage().getCreateActor().getId().equals(id));
             messageSender.handleMessage(dto, Optional.ofNullable(sessions.get(id)));
         }
     }
 
     public void messageError(Session session, String message) {
-        ChatErrorMessageDto errorDto = new ChatErrorMessageDto(message);
+        ErrorMessageBroadcast errorDto = new ErrorMessageBroadcast(message);
         try {
             sendToSession(session, chatObjectMapper.writeValueAsString(errorDto));
         } catch (IOException e) {

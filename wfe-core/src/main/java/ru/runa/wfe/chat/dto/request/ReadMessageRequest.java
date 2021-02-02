@@ -1,10 +1,10 @@
-package ru.runa.wfe.chat.dto;
+package ru.runa.wfe.chat.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ChatReadMessageDto extends ChatDto {
+public class ReadMessageRequest extends MessageRequest {
     private Long currentMessageId;
 }
