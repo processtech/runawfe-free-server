@@ -32,6 +32,7 @@ import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
@@ -442,5 +443,5 @@ public interface ExecutionService {
      */
     public boolean signalReceiverIsActive(User user, Map<String, String> routingData);
 
-    Set<Executor> getAllUsers(Long processId);
+    Set<Actor> getAllUsers(Long processId);
 }

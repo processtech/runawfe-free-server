@@ -6,7 +6,7 @@ import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 /**
@@ -21,7 +21,7 @@ public interface ChatService {
 
     public void deleteFile(User user, Long id);
 
-    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+    public ChatMessage saveMessageAndBindFiles(Long processId, ChatMessage message, Set<Actor> recipients,
                                                ArrayList<ChatMessageFile> files);
 
     public void readMessage(User user, Long messageId);
@@ -109,9 +109,10 @@ public interface ChatService {
      *            chat Id
      * @param message
      *            new message to save
+     * @param recipients
      * @return new message id
      */
-    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate);
+    public Long saveChatMessage(Long processId, ChatMessage message, Set<Actor> recipients);
 
     /**
      * Delete ChatMessage in DB.

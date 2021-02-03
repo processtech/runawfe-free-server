@@ -58,6 +58,7 @@ import ru.runa.wfe.service.jaxb.StringKeyValueConverter;
 import ru.runa.wfe.service.jaxb.Variable;
 import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -381,7 +382,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public Set<Executor> getAllUsers(@WebParam(name = "processId") Long processId) {
+    public Set<Actor> getAllUsers(Long processId) {
         return executionLogic.getAllUsers(processId);
     }
 }

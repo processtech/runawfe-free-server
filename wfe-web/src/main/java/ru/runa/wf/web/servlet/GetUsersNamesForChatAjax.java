@@ -1,6 +1,5 @@
 package ru.runa.wf.web.servlet;
 
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
@@ -8,7 +7,6 @@ import org.json.simple.JSONObject;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 public class GetUsersNamesForChatAjax extends JsonAjaxCommand {
@@ -17,15 +15,11 @@ public class GetUsersNamesForChatAjax extends JsonAjaxCommand {
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
         JSONObject outputObject = new JSONObject();
         Long processId = Long.parseLong(request.getParameter("processId"));
-        Set<Executor> executors = Delegates.getExecutionService().getAllUsers(processId);
         JSONArray names = new JSONArray();
         JSONArray fullNames = new JSONArray();
-        for (Executor executor : executors) {
-            Class<? extends Executor> executorClass = executor.getClass();
-            if (executorClass == Actor.class) {
-                names.add(executor.getName());
-                fullNames.add(executor.getFullName());
-            }
+        for (Actor actor : Delegates.getExecutionService().getAllUsers(processId)) {
+            names.add(actor.getName());
+            fullNames.add(actor.getFullName());
         }
         outputObject.put("names", names);
         outputObject.put("fullNames", fullNames);

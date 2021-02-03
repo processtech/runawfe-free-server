@@ -684,8 +684,8 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    public Set<Executor> getAllUsers(Long processId) {
-        Set<Executor> result = new HashSet<>();
+    public Set<Actor> getAllUsers(Long processId) {
+        Set<Actor> result = new HashSet<>();
         Process process = processDao.getNotNull(processId);
         List<Process> subProcesses = nodeProcessDao.getSubprocessesRecursive(process);
         // select user from active tasks
@@ -695,11 +695,8 @@ public class ExecutionLogic extends WfCommonLogic {
         }
         for (Task task : tasks) {
             Executor executor = task.getExecutor();
-            if (executor instanceof Group) {
-                // TODO Do we want to store actor or group links?
-                result.addAll(executorDao.getGroupActors(((Group) executor)));
-            } else if (executor instanceof Actor) {
-                result.add(executor);
+            if (executor instanceof Actor) {
+                result.add((Actor) executor);
             }
         }
         // select user from completed tasks
@@ -723,11 +720,8 @@ public class ExecutionLogic extends WfCommonLogic {
         // users with read permissions
         Set<Executor> executorWithPermission = permissionDao.getExecutorsWithPermission(process);
         for (Executor executor : executorWithPermission) {
-            if (executor instanceof Group) {
-                // TODO Do we want to store actor or group links?
-                result.addAll(executorDao.getGroupActors(((Group) executor)));
-            } else if (executor instanceof Actor) {
-                result.add(executor);
+            if (executor instanceof Actor) {
+                result.add((Actor) executor);
             }
         }
         return result;

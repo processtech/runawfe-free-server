@@ -21,7 +21,6 @@ import ru.runa.wfe.chat.dao.ChatDao;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
-import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -31,8 +30,6 @@ public class ChatLogic extends WfCommonLogic {
 
     @Autowired
     private ChatDao chatDao;
-    @Autowired
-    private ExecutionLogic executionLogic;
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
         return chatDao.getMentionedExecutorIds(messageId);
@@ -42,16 +39,10 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteFile(user, id);
     }
 
-    public ChatMessage saveMessageAndBindFiles(Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-                                               Boolean isPrivate, ArrayList<ChatMessageFile> files) {
+    public ChatMessage saveMessageAndBindFiles(Long processId, ChatMessage message, Set<Actor> recipients,
+                                               ArrayList<ChatMessageFile> files) {
         message.setProcess(processDao.get(processId));
-        Set<Executor> executors;
-        if (!isPrivate) {
-            executors = executionLogic.getAllUsers(message.getProcess().getId());
-        } else {
-            executors = new HashSet<>(mentionedExecutors);
-        }
-        return chatDao.saveMessageAndBindFiles(message, files, executors, mentionedExecutors);
+        return chatDao.saveMessageAndBindFiles(message, files, recipients);
     }
 
     public void readMessage(Actor user, Long messageId) {
@@ -94,14 +85,9 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessages(user, processId);
     }
 
-    public Long saveMessage(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+    public Long saveMessage(Long processId, ChatMessage message, Set<Actor> recipients) {
         message.setProcess(processDao.get(processId));
-        if (!isPrivate) {
-            Set<Executor> executors = executionLogic.getAllUsers(processId);
-            return chatDao.save(message, executors, mentionedExecutors);
-        } else {
-            return chatDao.save(message, mentionedExecutors, mentionedExecutors);
-        }
+        return chatDao.save(message, recipients);
     }
 
     public void deleteMessage(Actor actor, Long messId) {

@@ -24,7 +24,7 @@ import ru.runa.wfe.service.decl.ChatServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 @Stateless(name = "ChatServiceBean")
@@ -54,10 +54,9 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public ChatMessage saveMessageAndBindFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
-                                               @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
-                                               Boolean isPrivate, ArrayList<ChatMessageFile> files) {
-        return chatLogic.saveMessageAndBindFiles(processId, message, mentionedExecutors, isPrivate, files);
+    public ChatMessage saveMessageAndBindFiles(@NonNull Long processId, ChatMessage message, Set<Actor> recipients,
+                                               ArrayList<ChatMessageFile> files) {
+        return chatLogic.saveMessageAndBindFiles(processId, message, recipients, files);
     }
 
     @WebMethod(exclude = false)
@@ -163,10 +162,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public Long saveChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
-            @WebParam(name = "isPrivate") Boolean isPrivate) {
-        return chatLogic.saveMessage(user.getActor(), processId, message, mentionedExecutors, isPrivate);
+    public Long saveChatMessage(Long processId, ChatMessage message, Set<Actor> recipients) {
+        return chatLogic.saveMessage(processId, message, recipients);
     }
 
 }
