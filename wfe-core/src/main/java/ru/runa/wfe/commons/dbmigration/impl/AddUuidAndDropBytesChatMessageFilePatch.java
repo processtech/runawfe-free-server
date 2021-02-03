@@ -1,9 +1,6 @@
 package ru.runa.wfe.commons.dbmigration.impl;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -21,22 +18,18 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
  */
 public class AddUuidAndDropBytesChatMessageFilePatch extends DbMigration {
     private final String TABLE_NAME = "CHAT_MESSAGE_FILE";
+    private final String ID = "ID";
     private final String UUID = "UUID";
     private final String BYTES = "BYTES";
-    private final String ID = "ID";
 
-    private String storagePath;
+    private final String STORAGE_PATH;
 
     @Autowired
     private ChatFileIo chatFileIo;
 
     public AddUuidAndDropBytesChatMessageFilePatch() {
-        storagePath = SystemProperties.getChatFileStoragePath();
-        Path storageDir = Paths.get(storagePath);
-        try {
-            Files.createDirectory(storageDir);
-        } catch (IOException ignored) {
-        }
+        STORAGE_PATH = SystemProperties.getChatFileStoragePath();
+        new File(STORAGE_PATH).mkdir();
     }
 
     @Override
@@ -57,13 +50,16 @@ public class AddUuidAndDropBytesChatMessageFilePatch extends DbMigration {
                 byte[] bytes = resultSet.getBytes(BYTES);
                 files.add(chatFileIo.save(new ChatMessageFileDto(id, "", bytes)));
             }
-            List<String> queries = new ArrayList<>();
-            for (ChatMessageFile file : files)
+            List<String> queries = new ArrayList<>(files.size());
+            for (ChatMessageFile file : files) {
                 queries.add("UPDATE " + TABLE_NAME + " SET " + UUID + " = '" + file.getUuid() + "' WHERE " + ID + " = " + file.getId());
+            }
             executeUpdates(queries);
+            log.info("All files saved to directory: " + STORAGE_PATH);
         } catch (Exception exception) {
-            chatFileIo.delete(files);
             executeUpdates(getDDLDropColumn(TABLE_NAME, UUID));
+            chatFileIo.delete(files);
+            log.error("Files not saved: ", exception);
             throw exception;
         }
     }
@@ -71,7 +67,7 @@ public class AddUuidAndDropBytesChatMessageFilePatch extends DbMigration {
     @Override
     protected void executeDDLAfter() {
         executeUpdates(
-                getDDLModifyColumnNullability(TABLE_NAME, new BlobColumnDef(BYTES)),
+                getDDLDropColumn(TABLE_NAME, BYTES),
                 getDDLModifyColumnNullability(TABLE_NAME, new VarcharColumnDef(UUID, 36).notNull()));
     }
 }

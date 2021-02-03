@@ -19,19 +19,11 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
 @Component
-public class ChatDao extends GenericDao<ChatMessage> {
+public class ChatMessageDao extends GenericDao<ChatMessage> {
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
         QChatMessageRecipient mr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(mr.executor.id).from(mr).where(mr.message.id.eq(messageId)).fetch();
-    }
-
-    public ChatMessageDto saveMessage(ChatMessage message, List<ChatMessageFile> files, Set<Executor> executors, Set<Executor> mentionedExecutors) {
-        Long mesId = save(message, executors, mentionedExecutors);
-        message.setId(mesId);
-        ChatMessageDto result = new ChatMessageDto(message);
-        result.setFiles(files);
-        return result;
     }
 
     public void readMessage(Actor user, Long messageId) {
@@ -140,19 +132,19 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return messageDto;
     }
 
-    public Long save(ChatMessage message, Set<Executor> executors, Set<Executor> mentionedExecutors) {
-        Long mesId = create(message).getId();
-        if (!executors.contains(message.getCreateActor())) {
-            executors.add(message.getCreateActor());
+    public ChatMessage save(ChatMessage message, Set<Executor> executors, Set<Executor> mentionedExecutors) {
+        ChatMessage result = create(message);
+        if (!executors.contains(result.getCreateActor())) {
+            executors.add(result.getCreateActor());
         }
         for (Executor executor : executors) {
             if (executor.getClass() == Actor.class) {
                 ChatMessageRecipient chatRecipient;
-                chatRecipient = new ChatMessageRecipient(message, executor, mentionedExecutors.contains(executor));
+                chatRecipient = new ChatMessageRecipient(result, executor, mentionedExecutors.contains(executor));
                 sessionFactory.getCurrentSession().save(chatRecipient);
             }
         }
-        return mesId;
+        return result;
     }
 
     public void deleteMessage(Long messId) {

@@ -21,7 +21,7 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.dao.ChatDao;
+import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -38,7 +38,7 @@ public class ChatLogic extends WfCommonLogic {
     private Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
 
     @Autowired
-    private ChatDao chatDao;
+    private ChatMessageDao chatMessageDao;
     @Autowired
     private ChatFileLogic chatFileLogic;
 
@@ -54,31 +54,33 @@ public class ChatLogic extends WfCommonLogic {
         }
         List<ChatMessageFile> messageFiles = chatFileLogic.save(files, message);
         try {
-            return chatDao.saveMessage(message, messageFiles, executors, mentionedExecutors);
+            ChatMessageDto result = new ChatMessageDto(chatMessageDao.save(message, executors, mentionedExecutors));
+            result.setFiles(messageFiles);
+            return result;
         } catch (Exception exception) {
-            chatFileLogic.delete(messageFiles);
+            chatFileLogic.deleteFiles(messageFiles);
             throw exception;
         }
     }
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
-        return chatDao.getMentionedExecutorIds(messageId);
+        return chatMessageDao.getMentionedExecutorIds(messageId);
     }
 
     public void readMessage(Actor user, Long messageId) {
-        chatDao.readMessage(user, messageId);
+        chatMessageDao.readMessage(user, messageId);
     }
 
     public Long getLastReadMessage(Actor user, Long processId) {
-        return chatDao.getLastReadMessage(user, processId);
+        return chatMessageDao.getLastReadMessage(user, processId);
     }
 
     public Long getLastMessage(Actor user, Long processId) {
-        return chatDao.getLastMessage(user, processId);
+        return chatMessageDao.getLastMessage(user, processId);
     }
 
     public List<Long> getActiveChatIds(Actor user) {
-        List<Long> ret = chatDao.getActiveChatIds(user);
+        List<Long> ret = chatMessageDao.getActiveChatIds(user);
         if (ret == null) {
             ret = new ArrayList<Long>();
         }
@@ -143,52 +145,52 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<Long> getNewMessagesCounts(List<Long> chatsIds, Actor user) {
-        return chatDao.getNewMessagesCounts(chatsIds, user);
+        return chatMessageDao.getNewMessagesCounts(chatsIds, user);
     }
 
     public Long getNewMessagesCount(Actor user, Long processId) {
-        return chatDao.getNewMessagesCount(user, processId);
+        return chatMessageDao.getNewMessagesCount(user, processId);
     }
 
     public ChatMessage getMessage(Actor actor, Long messageId) {
-        return chatDao.getMessage(messageId);
+        return chatMessageDao.getMessage(messageId);
     }
 
     public ChatMessageDto getMessageDto(Long messageId) {
-        return chatDao.getMessageDto(messageId);
+        return chatMessageDao.getMessageDto(messageId);
     }
 
     public List<ChatMessageDto> getMessages(Actor user, Long processId, Long firstId, int count) {
-        return chatDao.getMessages(user, processId, firstId, count);
+        return chatMessageDao.getMessages(user, processId, firstId, count);
     }
 
     public List<ChatMessageDto> getFirstMessages(Actor user, Long processId, int count) {
-        return chatDao.getFirstMessages(user, processId, count);
+        return chatMessageDao.getFirstMessages(user, processId, count);
     }
 
     public List<ChatMessageDto> getNewMessages(Actor user, Long processId) {
-        return chatDao.getNewMessages(user, processId);
+        return chatMessageDao.getNewMessages(user, processId);
     }
 
-    public Long saveMessage(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+    public ChatMessageDto saveMessage(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
         message.setProcess(processDao.get(processId));
         if (!isPrivate) {
             Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
-            return chatDao.save(message, executors, mentionedExecutors);
+            return new ChatMessageDto(chatMessageDao.save(message, executors, mentionedExecutors));
         } else {
-            return chatDao.save(message, mentionedExecutors, mentionedExecutors);
+            return new ChatMessageDto(chatMessageDao.save(message, mentionedExecutors, mentionedExecutors));
         }
     }
 
     public void deleteMessage(Actor actor, Long messageId) {
         ChatMessage message = getMessage(actor, messageId);
-        List<ChatMessageFile> files = chatFileLogic.get(actor, message);
-        chatDao.deleteMessage(messageId);
-        chatFileLogic.delete(files);
+        List<ChatMessageFile> files = chatFileLogic.getFileByActorAndMessage(actor, message);
+        chatMessageDao.deleteMessage(messageId);
+        chatFileLogic.deleteFiles(files);
     }
 
     public void updateMessage(Actor actor, ChatMessage message) {
-        chatDao.updateMessage(message);
+        chatMessageDao.updateMessage(message);
     }
 
     public void sendNotifications(ChatMessage chatMessage, Collection<Executor> executors) {
@@ -234,14 +236,14 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<ChatMessageFileDto> getFiles(Actor actor, ChatMessage message) {
-        return chatFileLogic.getDto(actor, message);
+        return chatFileLogic.getFilesByActorAndMessage(actor, message);
     }
 
     public ChatMessageFileDto getFile(Actor actor, Long fileId) {
-        return chatFileLogic.getDto(actor, fileId);
+        return chatFileLogic.getFileByActorAndId(actor, fileId);
     }
 
     public void deleteFile(User user, Long id) {
-        chatFileLogic.delete(user, id);
+        chatFileLogic.deleteByUserAndId(user, id);
     }
 }

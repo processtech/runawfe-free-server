@@ -58,9 +58,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<ChatNewMes
             chatMessageDto = chatLogic.saveMessageAndBindFiles(actor, processId, newMessage, mentionedExecutors,
                     isPrivate, chatMessageFiles);
         } else {
-            Long newMessId = chatLogic.saveMessage(actor, processId, newMessage, mentionedExecutors, isPrivate);
-            newMessage.setId(newMessId);
-            chatMessageDto = new ChatMessageDto(newMessage);
+            chatMessageDto = chatLogic.saveMessage(actor, processId, newMessage, mentionedExecutors, isPrivate);
         }
         chatMessageDto.setOld(false);
         sessionHandler.sendMessage(recipientIds, chatMessageDto);

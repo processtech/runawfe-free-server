@@ -24,7 +24,7 @@ public class ChatFileLogic extends WfCommonLogic {
     public ChatMessageFileDto save(ChatMessageFileDto dto) {
         ChatMessageFile file = chatFileIo.save(dto);
         try {
-            chatFileDao.saveFile(file);
+            chatFileDao.create(file);
         } catch (Exception exception) {
             chatFileIo.delete(file);
             throw exception;
@@ -34,38 +34,36 @@ public class ChatFileLogic extends WfCommonLogic {
 
     public List<ChatMessageFile> save(List<ChatMessageFileDto> dtos, ChatMessage message) {
         List<ChatMessageFile> files = chatFileIo.save(dtos);
+        for (ChatMessageFile file : files) {
+            file.setMessage(message);
+        }
         try {
-            return chatFileDao.saveFiles(files, message);
+            return chatFileDao.saveFiles(files);
         } catch (Exception exception) {
             chatFileIo.delete(files);
             throw exception;
         }
     }
 
-    public List<ChatMessageFileDto> getDto(Actor actor, ChatMessage message) {
-        return chatFileIo.get(get(actor, message));
+    public List<ChatMessageFileDto> getFilesByActorAndMessage(Actor actor, ChatMessage message) {
+        return chatFileIo.get(getFileByActorAndMessage(actor, message));
     }
 
-    public List<ChatMessageFile> get(Actor actor, ChatMessage message) {
+    public List<ChatMessageFile> getFileByActorAndMessage(Actor actor, ChatMessage message) {
         return chatFileDao.getFiles(actor, message);
     }
 
-    public ChatMessageFileDto getDto(Actor actor, Long fileId) {
+    public ChatMessageFileDto getFileByActorAndId(Actor actor, Long fileId) {
         return chatFileIo.get(chatFileDao.getFile(actor, fileId));
     }
 
-    public void delete(User user, Long id) {
+    public void deleteByUserAndId(User user, Long id) {
         ChatMessageFile file = chatFileDao.getFile(user.getActor(), id);
-        chatFileDao.deleteFile(file.getId());
+        chatFileDao.delete(file.getId());
         chatFileIo.delete(file);
     }
 
-    public void delete(Actor actor, ChatMessage message, List<ChatMessageFile> files) {
-        chatFileDao.deleteFiles(actor, message);
-        chatFileIo.delete(files);
-    }
-
-    public void delete(List<ChatMessageFile> files) {
+    public void deleteFiles(List<ChatMessageFile> files) {
         for (ChatMessageFile file : files) {
             chatFileDao.delete(file);
         }

@@ -31,26 +31,31 @@ public class ChatFileIo {
     }
 
     public List<ChatMessageFile> save(List<ChatMessageFileDto> dtos) {
-        List<ChatMessageFile> result = new ArrayList<>();
+        List<ChatMessageFile> result = new ArrayList<>(dtos.size());
         try {
-            for (ChatMessageFileDto dto : dtos)
+            for (ChatMessageFileDto dto : dtos) {
                 result.add(save(dto));
+            }
+            return result;
         } catch (Exception exception) {
             delete(result);
             throw exception;
         }
-        return result;
     }
 
     public ChatMessageFile save(ChatMessageFileDto dto) {
         ChatMessageFile result = messageFileMapper.toEntity(dto);
         String uuidName;
         Path path;
-        do {
-            uuidName = UUID.randomUUID().toString();
-            path = Paths.get(storagePath + "/" + uuidName);
-        } while (Files.isRegularFile(path));
         try {
+            int i = 0;
+            do {
+                if (i++ >= 10) {
+                    throw new ChatFileIoException("UUID could not be generated");
+                }
+                uuidName = UUID.randomUUID().toString();
+                path = Paths.get(storagePath + "/" + uuidName);
+            } while (Files.isRegularFile(path));
             result.setUuid(uuidName);
             Files.write(path, dto.getBytes());
         } catch (Exception e) {
@@ -61,9 +66,9 @@ public class ChatFileIo {
     }
 
     public List<ChatMessageFileDto> get(List<ChatMessageFile> files) {
-        List<ChatMessageFileDto> result = new ArrayList<>();
+        List<ChatMessageFileDto> result = new ArrayList<>(files.size());
         for (ChatMessageFile file : files){
-            get(file);
+            result.add(get(file));
         }
         return result;
     }
@@ -90,7 +95,10 @@ public class ChatFileIo {
 
     public void delete(List<ChatMessageFile> files){
         for (ChatMessageFile file : files){
-            delete(file);
+            try {
+                delete(file);
+            } catch (Exception ignored){
+            }
         }
     }
 }

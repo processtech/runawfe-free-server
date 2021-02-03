@@ -189,7 +189,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     public Long saveChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
             @WebParam(name = "isPrivate") Boolean isPrivate) {
-        return chatLogic.saveMessage(user.getActor(), processId, message, mentionedExecutors, isPrivate);
+        return chatLogic.saveMessage(user.getActor(), processId, message, mentionedExecutors, isPrivate).getMessage().getId();
     }
 
 }
