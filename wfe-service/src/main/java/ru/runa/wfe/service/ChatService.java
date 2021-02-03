@@ -32,8 +32,6 @@ public interface ChatService {
 
     public List<Long> getActiveChatIds(User user);
 
-    public Set<Executor> getAllUsers(User user, Long processId);
-
     public List<Long> getNewMessagesCounts(User user, List<Long> processIds);
 
     /**

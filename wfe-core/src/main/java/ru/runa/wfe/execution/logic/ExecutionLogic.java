@@ -19,11 +19,14 @@ package ru.runa.wfe.execution.logic;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +42,7 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.ProcessSuspendLog;
+import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
@@ -90,6 +94,8 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.ExecutorDoesNotExistException;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
@@ -678,4 +684,52 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
+    public Set<Executor> getAllUsers(Long processId) {
+        Set<Executor> result = new HashSet<>();
+        Process process = processDao.getNotNull(processId);
+        List<Process> subProcesses = nodeProcessDao.getSubprocessesRecursive(process);
+        // select user from active tasks
+        List<Task> tasks = new ArrayList<>(taskDao.findByProcess(process));
+        for (Process subProcess : subProcesses) {
+            tasks.addAll(taskDao.findByProcess(subProcess));
+        }
+        for (Task task : tasks) {
+            Executor executor = task.getExecutor();
+            if (executor instanceof Group) {
+                // TODO Do we want to store actor or group links?
+                result.addAll(executorDao.getGroupActors(((Group) executor)));
+            } else if (executor instanceof Actor) {
+                result.add(executor);
+            }
+        }
+        // select user from completed tasks
+        ProcessLogFilter filter = new ProcessLogFilter(processId);
+        filter.setRootClassName(TaskEndLog.class.getName());
+        List<ProcessLog> processLogs = new ArrayList<>(processLogDao.getAll(filter));
+        for (Process subProcess : subProcesses) {
+            filter.setProcessId(subProcess.getId());
+            processLogs.addAll(processLogDao.getAll(filter));
+        }
+        for (ProcessLog processLog : processLogs) {
+            String actorName = ((TaskEndLog) processLog).getActorName();
+            try {
+                if (!Strings.isNullOrEmpty(actorName)) {
+                    result.add(executorDao.getActor(actorName));
+                }
+            } catch (ExecutorDoesNotExistException e) {
+                log.debug("Ignored deleted actor " + actorName + " for chat message");
+            }
+        }
+        // users with read permissions
+        Set<Executor> executorWithPermission = permissionDao.getExecutorsWithPermission(process);
+        for (Executor executor : executorWithPermission) {
+            if (executor instanceof Group) {
+                // TODO Do we want to store actor or group links?
+                result.addAll(executorDao.getGroupActors(((Group) executor)));
+            } else if (executor instanceof Actor) {
+                result.add(executor);
+            }
+        }
+        return result;
+    }
 }
