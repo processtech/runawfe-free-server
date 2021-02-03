@@ -45,6 +45,12 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-restapi</artifactId>
+			<version>${project.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>wfe-bots</artifactId>
 			<version>${project.version}</version>
 			<type>ejb</type>
@@ -113,6 +119,11 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>wfe-web</artifactId>
 									<contextRoot>/wfe</contextRoot>
+								</webModule>
+								<webModule>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>wfe-restapi</artifactId>
+									<contextRoot>/restapi</contextRoot>
 								</webModule>
 							</modules>
 						</configuration>

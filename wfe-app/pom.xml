@@ -14,6 +14,7 @@
 		<module>../wfe-office</module>
 		<module>../wfe-web</module>
 		<module>../wfe-ear</module>
+		<module>../wfe-restapi</module>
 	</modules>
 
 	<properties>
