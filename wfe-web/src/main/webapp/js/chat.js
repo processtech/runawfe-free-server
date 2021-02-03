@@ -35,7 +35,6 @@ var closeHierarchySignature="Свернуть";
 var quoteText ="Цитата";
 var errorMessFilePart1="Ошибка. Размер файла превышен на ";
 var errorMessFilePart2=" байт, максимальный размер файла = ";
-var headTablePrivateText="Кому отправить";
 
 //определение языка браузера
 var languageText = (window.navigator.language ||
@@ -455,15 +454,6 @@ function sendMessageHandler() {
 			newMessage.idHierarchyMessage = idHierarchyMessage;
 			newMessage.messageType=newMessageType;
 			newMessage.isPrivate=$("#checkBoxPrivateMessage").prop("checked");
-			let namesPrivate="";
-			$("#tablePrivate table tr").each(function(row){
-				$(this).find('td').each(function(cell){
-					if($(this).children().prop("checked")==true){
-						namesPrivate+=$(this).parent().find(".userNamePrivate").text()+";"
-					}
-				});
-			});
-			newMessage.privateNames=namesPrivate;
 			if(attachedFiles.length > 0){
 				lockFlag = true;
 				addFilesToMessage(attachedFiles, newMessage)
@@ -758,17 +748,6 @@ function keyupUserNames(event){
 		$(".warningText").css({"color":"black"});
 	}
 }
-let privateBlock=$("<div/>");
-privateBlock.attr("id","privateBlock");
-let headTablePrivate=$("<div/>");
-headTablePrivate.attr("class","headTable");
-headTablePrivate.append("<div style='padding-left:5px;'>"+headTablePrivateText+"</div>");
-privateBlock.append(headTablePrivate);
-let tablePrivateReply=$("<div/>");
-tablePrivateReply.append($("<table/>"));
-tablePrivateReply.attr("id","tablePrivate");
-privateBlock.append(tablePrivateReply);
-$(".modal-content").append(privateBlock);
 $("#checkBoxPrivateMessage").change(function(){
 	if(this.checked){
 		$("#privateBlock").css("display","block");
@@ -1407,35 +1386,8 @@ function LocaleText(data){
 	errorMessFilePart1=data.errorMessFilePart1;
 	errorMessFilePart2=data.errorMessFilePart2;
 	textHeader=data.textHeader;
-	headTablePrivateText=data.headTablePrivateText;
 	
 }
-
-function fillingPrivateMessageRecipientTable(data){
-	userList=data.names;
-	let tr=$("<tr/>");
-	let td=$("<td/>");
-	let inputCheckbox=$("<input/>");
-	for(let i=0;i<userList.length;i++){
-		if(userList[i].trim()!=""){
-			let cloneTR=tr.clone();
-			let cloneTDUserName=td.clone();
-			
-			cloneTDUserName.attr("class","userNamePrivate");
-			cloneTDUserName.attr("title",userList[i]+"");
-			let cloneTDCheckBox=td.clone();
-			cloneTDCheckBox.css({"float":"left"});
-			let cloneInputCheckbox=inputCheckbox.clone();
-			cloneInputCheckbox.attr("type","checkbox");
-			cloneTDUserName.append(userList[i]+"");
-			cloneTDCheckBox.append(cloneInputCheckbox);
-			cloneTR.append(cloneTDUserName);
-			cloneTR.append(cloneTDCheckBox);
-			$("#tablePrivate table").append(cloneTR);
-		}
-	}
-}
-
 //----------------------------------------------
 //начальные действия
 //
