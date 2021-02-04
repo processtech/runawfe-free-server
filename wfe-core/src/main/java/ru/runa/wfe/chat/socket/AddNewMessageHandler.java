@@ -42,9 +42,9 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
             return;
         }
         ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(dto, user.getActor());
-        Set<Actor> recipients = calculators.calculateRecipients(user, dto);
         MessageAddedBroadcast messageAddedBroadcast;
         long processId = dto.getProcessId();
+        Set<Actor> recipients = calculators.calculateRecipients(user, dto.isPrivate(), dto.getMessage(), processId);
         if (dto.getFiles() != null) {
             ArrayList<ChatMessageFile> chatMessageFiles = new ArrayList<>();
             for (Map.Entry<String, byte[]> entry : dto.getFiles().entrySet()) {

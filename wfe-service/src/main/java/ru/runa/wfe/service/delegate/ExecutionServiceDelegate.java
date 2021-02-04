@@ -31,7 +31,6 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.ExecutionService;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -341,7 +340,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public Set<Actor> getAllUsers(Long processId) {
-        return getExecutionService().getAllUsers(processId);
+    public Set<Executor> getAllExecutorsByProcessId(Long processId) {
+        return getExecutionService().getAllExecutorsByProcessId(processId);
     }
 }

@@ -3,7 +3,6 @@ package ru.runa.wfe.chat.utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -28,19 +27,20 @@ public class RecipientCalculators {
         return recipientIds;
     }
 
-    public Set<Actor> calculateRecipients(User user, AddMessageRequest dto) {
-        return dto.isPrivate()
-                ? findMentionedUsersInMessageText(user, dto.getMessage())
-                : executionLogic.getAllUsers(dto.getProcessId());
+    public Set<Actor> calculateRecipients(User user, boolean isPrivate, String messageText, Long processId) {
+        return isPrivate
+                ? findMentionedActorsInMessageText(user, messageText)
+                : getAllActorsByProcessId(processId);
     }
 
     /**
-     * @return Mentioned actors, defined by '@user' pattern
+     * @return Mentioned actors, defined by '@username' pattern
      */
-    private Set<Actor> findMentionedUsersInMessageText(User user, String messageText) {
+    private Set<Actor> findMentionedActorsInMessageText(User user, String messageText) {
         Set<Actor> recipients = new HashSet<>();
+        int dogIndex = -1;
         while (true) {
-            int dogIndex = messageText.indexOf('@');
+            dogIndex = messageText.indexOf('@', dogIndex + 1);
             if (dogIndex != -1) {
                 int spaceIndex = messageText.indexOf(' ', dogIndex);
                 String login = (spaceIndex != -1)
@@ -52,6 +52,16 @@ public class RecipientCalculators {
                 }
             } else {
                 break;
+            }
+        }
+        return recipients;
+    }
+
+    private Set<Actor> getAllActorsByProcessId(Long processId) {
+        Set<Actor> recipients = new HashSet<>();
+        for (Executor executor : executionLogic.getAllExecutorsByProcessId(processId)) {
+            if (executor instanceof Actor) {
+                recipients.add((Actor) executor);
             }
         }
         return recipients;
