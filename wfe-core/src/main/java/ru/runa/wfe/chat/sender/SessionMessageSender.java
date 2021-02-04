@@ -6,7 +6,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.chat.utils.ChatSessionUtils;
 import javax.websocket.Session;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class SessionMessageSender implements MessageSender {
     private final ObjectMapper chatObjectMapper;
 
     @Override
-    public void handleMessage(ChatMessageDto dto, Optional<Session> session) {
+    public void handleMessage(MessageBroadcast dto, Optional<Session> session) {
         if (session.isPresent()) {
             try {
                 session.get().getBasicRemote().sendText(chatObjectMapper.writeValueAsString(dto));

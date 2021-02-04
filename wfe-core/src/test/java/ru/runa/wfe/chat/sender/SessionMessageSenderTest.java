@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.user.User;
 
 import static java.util.Collections.singletonMap;
@@ -32,7 +32,7 @@ public class SessionMessageSenderTest {
     @Mock
     private RemoteEndpoint.Basic basic;
     @Mock
-    private ChatMessageDto dto;
+    private MessageBroadcast dto;
     @Mock
     private MailMessageSender mailMessageSender;
     @Mock

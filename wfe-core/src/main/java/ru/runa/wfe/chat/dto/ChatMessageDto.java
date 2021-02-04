@@ -5,19 +5,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import ru.runa.wfe.chat.ChatMessage;
 
-@NoArgsConstructor
 @Getter
 @Setter
 public class ChatMessageDto extends ChatDto {
     private ChatMessage message;
 
     @JsonProperty("files")
-    private List<ChatMessageFileDto> files = new ArrayList<>();
+    private List<ChatFileDto> filesDto = new ArrayList<ChatFileDto>();
 
     @JsonProperty("old")
     private boolean isOld = false;
@@ -36,8 +34,8 @@ public class ChatMessageDto extends ChatDto {
 
     @JsonGetter("haveFile")
     public Boolean haveFile() {
-        if (this.getFiles() != null) {
-            return this.getFiles().size() > 0;
+        if (this.getFilesDto() != null) {
+            return this.getFilesDto().size() > 0;
         } else {
             return false;
         }

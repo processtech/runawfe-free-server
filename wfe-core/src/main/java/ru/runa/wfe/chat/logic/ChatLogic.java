@@ -21,9 +21,8 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.dao.ChatMessageDao;
+import ru.runa.wfe.chat.dao.ChatDao;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
 import ru.runa.wfe.chat.mapper.ChatMessageMapper;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -40,17 +39,18 @@ public class ChatLogic extends WfCommonLogic {
     private Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
 
     @Autowired
-    private ChatMessageDao chatMessageDao;
+    private ChatDao chatDao;
     @Autowired
     private ChatFileLogic chatFileLogic;
     @Autowired
-    private ChatMessageMapper messageMapper;
-    @Autowired
     private ChatMessageFileMapper fileMapper;
 
-    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-            Boolean isPrivate,
-            ArrayList<ChatMessageFileDto> files) {
+    public List<Long> getMentionedExecutorIds(Long messageId) {
+        return chatDao.getMentionedExecutorIds(messageId);
+    }
+
+    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+                                               Boolean isPrivate, ArrayList<ChatMessageFile> files) {
         message.setProcess(processDao.get(processId));
         Set<Executor> executors;
         if (!isPrivate) {
@@ -69,24 +69,20 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
-    public List<Long> getMentionedExecutorIds(User user, Long messageId) {
-        return chatMessageDao.getMentionedExecutorIds(messageId);
-    }
-
     public void readMessage(User user, Long messageId) {
         chatMessageDao.readMessage(user.getActor(), messageId);
+    }
+
+    public List<Long> getMentionedExecutorIds(User user, Long messageId) {
+        return chatMessageDao.getMentionedExecutorIds(messageId);
     }
 
     public Long getLastReadMessage(User user, Long processId) {
         return chatMessageDao.getLastReadMessage(user.getActor(), processId);
     }
 
-    public Long getLastMessage(User user, Long processId) {
-        return chatMessageDao.getLastMessage(user.getActor(), processId);
-    }
-
-    public List<Long> getActiveChatIds(User user) {
-        List<Long> ret = chatMessageDao.getActiveChatIds(user.getActor());
+    public List<Long> getActiveChatIds(Actor user) {
+        List<Long> ret = chatDao.getActiveChatIds(user);
         if (ret == null) {
             ret = new ArrayList<Long>();
         }
@@ -162,40 +158,30 @@ public class ChatLogic extends WfCommonLogic {
         return chatMessageDao.getMessage(messageId);
     }
 
-    public ChatMessageDto getMessageDto(User user, Long id) {
-        ChatMessage message = chatMessageDao.get(id);
-        List<ChatMessageFileDto> files = chatFileLogic.getDtoByMessage(user, message);
-        return messageMapper.toDto(message, files);
+    public List<MessageAddedBroadcast> getMessages(Actor user, Long processId, Long firstId, int count) {
+        return chatDao.getMessages(user, processId, firstId, count);
     }
 
-    public List<ChatMessageDto> getMessages(User user, Long processId, Long firstId, int count) {
-        return messageMapper.toDto(chatMessageDao.getMessages(user.getActor(), processId, firstId, count));
+    public List<MessageAddedBroadcast> getNewMessages(Actor user, Long processId) {
+        return chatDao.getNewMessages(user, processId);
     }
 
-    public List<ChatMessageDto> getFirstMessages(User user, Long processId, int count) {
-        return messageMapper.toDto(chatMessageDao.getFirstMessages(user.getActor(), processId, count));
-    }
-
-    public List<ChatMessageDto> getNewMessages(User user, Long processId) {
-        return messageMapper.toDto(chatMessageDao.getNewMessages(user.getActor(), processId));
-    }
-
-    public ChatMessageDto saveMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+    public Long saveMessage(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
         message.setProcess(processDao.get(processId));
         if (!isPrivate) {
-            Set<Executor> executors = getAllUsers(user, processId);
-            return new ChatMessageDto(chatMessageDao.save(message, executors, mentionedExecutors));
+            Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
+            return chatDao.save(message, executors, mentionedExecutors);
         } else {
-            return new ChatMessageDto(chatMessageDao.save(message, mentionedExecutors, mentionedExecutors));
+            return chatDao.save(message, mentionedExecutors, mentionedExecutors);
         }
     }
+
 
     public void deleteMessage(User user, Long messageId) {
         ChatMessage message = getMessageById(user, messageId);
         List<ChatMessageFile> files = chatFileLogic.getByMessage(user, message);
         chatMessageDao.deleteMessage(messageId);
         chatFileLogic.delete(user, files);
-    }
 
     public void updateMessage(User user, ChatMessage message) {
         chatMessageDao.updateMessage(message);
@@ -238,4 +224,5 @@ public class ChatLogic extends WfCommonLogic {
             log.warn("Unable to send chat email notification", e);
         }
     }
+
 }

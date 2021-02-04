@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
@@ -21,8 +21,8 @@ public interface ChatService {
 
     public void deleteFile(User user, Long id);
 
-    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
-            ArrayList<ChatMessageFileDto> files);
+    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+                                               ArrayList<ChatMessageFile> files);
 
     public void readMessage(User user, Long messageId);
 
@@ -80,8 +80,6 @@ public interface ChatService {
      */
     public ChatMessage getChatMessage(User user, Long messageId);
 
-    public ChatMessageDto getChatMessageDto(User user, Long messageId);
-
     /**
      * Get List array of ChatMessage, where all "message Id" < firstId.
      *
@@ -93,7 +91,7 @@ public interface ChatService {
      *            number of messages in the returned array
      * @return not <code>null</code> order by date desc
      */
-    public List<ChatMessageDto> getChatMessages(User user, Long processId, Long firstId, int count);
+    public List<MessageAddedBroadcast> getChatMessages(User user, Long processId, Long firstId, int count);
 
     /**
      * Get List array of ChatMessage, where all "message Id" >= lastId.
@@ -104,18 +102,7 @@ public interface ChatService {
      *            message Id, all returned message id >= lastId
      * @return not <code>null</code> order by date asc
      */
-    public List<ChatMessageDto> getNewChatMessages(User user, Long processId);
-
-    /**
-     * Get List array of last ChatMessage (first in the array of all messages).
-     *
-     * @param processId
-     *            chat Id
-     * @param count
-     *            number of messages in the returned array
-     * @return not <code>null</code>
-     */
-    public List<ChatMessageDto> getFirstChatMessages(User user, Long processId, int count);
+    public List<MessageAddedBroadcast> getNewChatMessages(User user, Long processId);
 
     /**
      * Save ChatMessage in DB.

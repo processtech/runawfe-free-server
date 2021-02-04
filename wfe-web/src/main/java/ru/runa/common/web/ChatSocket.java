@@ -14,8 +14,8 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.common.WebResources;
-import ru.runa.wfe.chat.coder.ChatDtoBinaryDecoder;
-import ru.runa.wfe.chat.dto.ChatDto;
+import ru.runa.wfe.chat.decoder.MessageRequestBinaryDecoder;
+import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.socket.ChatSessionHandler;
 import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
 import ru.runa.wfe.chat.utils.ChatSessionUtils;
@@ -26,14 +26,14 @@ import ru.runa.wfe.chat.utils.ChatSessionUtils;
 @ServerEndpoint(value = "/chatSocket",
         subprotocols = {"wss"},
         configurator = ChatSocketConfigurator.class,
-        decoders = {ChatDtoBinaryDecoder.class})
+        decoders = {MessageRequestBinaryDecoder.class})
 public class ChatSocket {
 
     @Autowired
     private ChatSessionHandler sessionHandler;
 
     @Autowired
-    private HashMap<Class<? extends ChatDto>, ChatSocketMessageHandler<? extends ChatDto>> handlerByMessageType;
+    private HashMap<Class<? extends MessageRequest>, ChatSocketMessageHandler<? extends MessageRequest>> handlerByMessageType;
 
     @OnOpen
     public void open(Session session) throws IOException {
@@ -57,7 +57,7 @@ public class ChatSocket {
     }
 
     @OnMessage
-    public void handleMessage(ChatDto dto, Session session) throws IOException {
+    public void handleMessage(MessageRequest dto, Session session) throws IOException {
         ChatSocketMessageHandler handler = handlerByMessageType.get(dto.getClass());
         handler.handleMessage(session, dto, ChatSessionUtils.getUser(session));
     }

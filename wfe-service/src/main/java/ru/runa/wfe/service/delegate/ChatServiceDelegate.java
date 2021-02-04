@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -31,8 +31,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-            Boolean isPrivate, ArrayList<ChatMessageFileDto> files) {
+    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+                                               Boolean isPrivate, ArrayList<ChatMessageFile> files) {
         return getChatService().saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, files);
     }
 
@@ -60,7 +60,7 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     public List<Long> getNewMessagesCounts(User user, List<Long> processIds) {
         return getChatService().getNewMessagesCounts(user, processIds);
     }
-
+	
     @Override
     public void updateChatMessage(User user, ChatMessage message) {
         getChatService().updateChatMessage(user, message);
@@ -82,7 +82,7 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<ChatMessageDto> getNewChatMessages(User user, Long processId) {
+    public List<MessageAddedBroadcast> getNewChatMessages(User user, Long processId) {
         return getChatService().getNewChatMessages(user, processId);
     }
 
@@ -92,18 +92,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public ChatMessageDto getChatMessageDto(User user, Long messageId) {
-        return getChatService().getChatMessageDto(user, messageId);
-    }
-
-    @Override
-    public List<ChatMessageDto> getChatMessages(User user, Long processId, Long firstId, int count) {
+    public List<MessageAddedBroadcast> getChatMessages(User user, Long processId, Long firstId, int count) {
         return getChatService().getChatMessages(user, processId, firstId, count);
-    }
-
-    @Override
-    public List<ChatMessageDto> getFirstChatMessages(User user, Long processId, int count) {
-        return getChatService().getFirstChatMessages(user, processId, count);
     }
 
     @Override
