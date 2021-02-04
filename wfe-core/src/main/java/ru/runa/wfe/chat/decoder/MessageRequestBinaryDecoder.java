@@ -1,4 +1,4 @@
-package ru.runa.wfe.chat.coder;
+package ru.runa.wfe.chat.decoder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -9,23 +9,21 @@ import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.runa.wfe.chat.dto.ChatDto;
+import ru.runa.wfe.chat.dto.request.MessageRequest;
 
 @Interceptors({SpringBeanAutowiringInterceptor.class})
-public class ChatDtoBinaryDecoder implements Decoder.Binary<ChatDto> {
+public class MessageRequestBinaryDecoder implements Decoder.Binary<MessageRequest> {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
-    public ChatDto decode(ByteBuffer byteBuffer) throws DecodeException {
-        ChatDto chatDto;
+    public MessageRequest decode(ByteBuffer byteBuffer) throws DecodeException {
         try {
-            chatDto = objectMapper.readValue(byteBuffer.array(), ChatDto.class);
+            return objectMapper.readValue(byteBuffer.array(), MessageRequest.class);
         } catch (IOException e) {
             throw new DecodeException(byteBuffer, e.getMessage(), e);
         }
-        return chatDto;
     }
 
     @Override

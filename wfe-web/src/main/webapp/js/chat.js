@@ -1029,14 +1029,14 @@ function deleteAttachedFile(){
 //функция установки нового сообщения пришедшего с сервера в чат
 function addMessage(data){
 	if((data != undefined)){
-			if(data.message.text != null){
-				if((minMassageId > data.message.id) || (minMassageId == -1)){
-					minMassageId = data.message.id;
+			if(data.text != null){
+				if((minMassageId > data.id) || (minMassageId == -1)){
+					minMassageId = data.id;
 				}
-				if((maxMassageId < data.message.id)){
-					maxMassageId = data.message.id;
+				if((maxMassageId < data.id)){
+					maxMassageId = data.id;
 				}
-				let text0 = data.message.text;
+				let text0 = data.text;
 				let mesIndex = 0;
 				if(data.old == false){
 					mesIndex = newMessageIndex;
@@ -1049,17 +1049,17 @@ function addMessage(data){
 				//создаем сообщение
 				var cloneMess=messageBody.clone();
 				cloneMess.attr("id", "messBody"+mesIndex);
-				cloneMess.attr("messageId", data.message.id);
+				cloneMess.attr("messageId", data.id);
 				cloneMess.attr("messageIndex", mesIndex);
 				cloneMess.find(".datetr").text();
-				let date=data.message.dateTime;
+				let date=data.createDate;
 				var d = new Date(date);
-				cloneMess.find(".author").text(data.message.author + ":");
+				cloneMess.find(".author").text(data.author + ":");
 				cloneMess.find(".datetr").text(d.getDate().toString()+"."+(d.getMonth()+1).toString()+"."+d.getFullYear()+" "+d.getHours().toString()+":"+d.getMinutes().toString());
-				cloneMess.find(".messageText").attr("textMessagId", data.message.id).attr("id","messageText"+mesIndex).html(text0);
+				cloneMess.find(".messageText").attr("textMessagId", data.id).attr("id","messageText"+mesIndex).html(text0);
 				// "развернуть"
 				if(data.hierarchyMessage == 1){
-					cloneMess.find(".openHierarchy").attr("messageId", data.message.id)
+					cloneMess.find(".openHierarchy").attr("messageId", data.id)
 					.click(hierarchyOpen);
 				}else{
 					cloneMess.find(".openHierarchy").remove();
