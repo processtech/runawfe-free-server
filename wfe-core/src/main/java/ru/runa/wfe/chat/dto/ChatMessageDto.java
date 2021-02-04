@@ -5,18 +5,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
 
+@NoArgsConstructor
 @Getter
 @Setter
 public class ChatMessageDto extends ChatDto {
     private ChatMessage message;
 
     @JsonProperty("files")
-    private List<ChatMessageFile> files = new ArrayList<>();
+    private List<ChatMessageFileDto> files = new ArrayList<>();
 
     @JsonProperty("old")
     private boolean isOld = false;

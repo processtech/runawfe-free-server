@@ -24,6 +24,8 @@ import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageDto;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
+import ru.runa.wfe.chat.mapper.ChatMessageMapper;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
@@ -41,53 +43,57 @@ public class ChatLogic extends WfCommonLogic {
     private ChatMessageDao chatMessageDao;
     @Autowired
     private ChatFileLogic chatFileLogic;
+    @Autowired
+    private ChatMessageMapper messageMapper;
+    @Autowired
+    private ChatMessageFileMapper fileMapper;
 
-    public ChatMessageDto saveMessageAndBindFiles(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
             Boolean isPrivate,
             ArrayList<ChatMessageFileDto> files) {
         message.setProcess(processDao.get(processId));
         Set<Executor> executors;
         if (!isPrivate) {
-            executors = getAllUsers(processId, actor);
+            executors = getAllUsers(user, processId);
         } else {
             executors = new HashSet<>(mentionedExecutors);
         }
-        List<ChatMessageFile> messageFiles = chatFileLogic.save(files, message);
+        List<ChatMessageFile> messageFiles = chatFileLogic.saveFilesAndBindMessage(user, files, message);
         try {
             ChatMessageDto result = new ChatMessageDto(chatMessageDao.save(message, executors, mentionedExecutors));
-            result.setFiles(messageFiles);
+            result.setFiles(fileMapper.toDto(messageFiles));
             return result;
         } catch (Exception exception) {
-            chatFileLogic.deleteFiles(messageFiles);
+            chatFileLogic.delete(user, messageFiles);
             throw exception;
         }
     }
 
-    public List<Long> getMentionedExecutorIds(Long messageId) {
+    public List<Long> getMentionedExecutorIds(User user, Long messageId) {
         return chatMessageDao.getMentionedExecutorIds(messageId);
     }
 
-    public void readMessage(Actor user, Long messageId) {
-        chatMessageDao.readMessage(user, messageId);
+    public void readMessage(User user, Long messageId) {
+        chatMessageDao.readMessage(user.getActor(), messageId);
     }
 
-    public Long getLastReadMessage(Actor user, Long processId) {
-        return chatMessageDao.getLastReadMessage(user, processId);
+    public Long getLastReadMessage(User user, Long processId) {
+        return chatMessageDao.getLastReadMessage(user.getActor(), processId);
     }
 
-    public Long getLastMessage(Actor user, Long processId) {
-        return chatMessageDao.getLastMessage(user, processId);
+    public Long getLastMessage(User user, Long processId) {
+        return chatMessageDao.getLastMessage(user.getActor(), processId);
     }
 
-    public List<Long> getActiveChatIds(Actor user) {
-        List<Long> ret = chatMessageDao.getActiveChatIds(user);
+    public List<Long> getActiveChatIds(User user) {
+        List<Long> ret = chatMessageDao.getActiveChatIds(user.getActor());
         if (ret == null) {
             ret = new ArrayList<Long>();
         }
         return ret;
     }
 
-    public Set<Executor> getAllUsers(Long processId, Actor user) {
+    public Set<Executor> getAllUsers(User user, Long processId) {
         Set<Executor> result = new HashSet<>();
         Process process = processDao.getNotNull(processId);
         List<Process> subProcesses = nodeProcessDao.getSubprocessesRecursive(process);
@@ -144,56 +150,58 @@ public class ChatLogic extends WfCommonLogic {
         return result;
     }
 
-    public List<Long> getNewMessagesCounts(List<Long> chatsIds, Actor user) {
-        return chatMessageDao.getNewMessagesCounts(chatsIds, user);
+    public List<Long> getNewMessagesCounts(User user, List<Long> chatsIds) {
+        return chatMessageDao.getNewMessagesCounts(chatsIds, user.getActor());
     }
 
-    public Long getNewMessagesCount(Actor user, Long processId) {
-        return chatMessageDao.getNewMessagesCount(user, processId);
+    public Long getNewMessagesCount(User user, Long processId) {
+        return chatMessageDao.getNewMessagesCount(user.getActor(), processId);
     }
 
-    public ChatMessage getMessage(Actor actor, Long messageId) {
+    public ChatMessage getMessageById(User user, Long messageId) {
         return chatMessageDao.getMessage(messageId);
     }
 
-    public ChatMessageDto getMessageDto(Long messageId) {
-        return chatMessageDao.getMessageDto(messageId);
+    public ChatMessageDto getMessageDto(User user, Long id) {
+        ChatMessage message = chatMessageDao.get(id);
+        List<ChatMessageFileDto> files = chatFileLogic.getDtoByMessage(user, message);
+        return messageMapper.toDto(message, files);
     }
 
-    public List<ChatMessageDto> getMessages(Actor user, Long processId, Long firstId, int count) {
-        return chatMessageDao.getMessages(user, processId, firstId, count);
+    public List<ChatMessageDto> getMessages(User user, Long processId, Long firstId, int count) {
+        return messageMapper.toDto(chatMessageDao.getMessages(user.getActor(), processId, firstId, count));
     }
 
-    public List<ChatMessageDto> getFirstMessages(Actor user, Long processId, int count) {
-        return chatMessageDao.getFirstMessages(user, processId, count);
+    public List<ChatMessageDto> getFirstMessages(User user, Long processId, int count) {
+        return messageMapper.toDto(chatMessageDao.getFirstMessages(user.getActor(), processId, count));
     }
 
-    public List<ChatMessageDto> getNewMessages(Actor user, Long processId) {
-        return chatMessageDao.getNewMessages(user, processId);
+    public List<ChatMessageDto> getNewMessages(User user, Long processId) {
+        return messageMapper.toDto(chatMessageDao.getNewMessages(user.getActor(), processId));
     }
 
-    public ChatMessageDto saveMessage(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+    public ChatMessageDto saveMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
         message.setProcess(processDao.get(processId));
         if (!isPrivate) {
-            Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
+            Set<Executor> executors = getAllUsers(user, processId);
             return new ChatMessageDto(chatMessageDao.save(message, executors, mentionedExecutors));
         } else {
             return new ChatMessageDto(chatMessageDao.save(message, mentionedExecutors, mentionedExecutors));
         }
     }
 
-    public void deleteMessage(Actor actor, Long messageId) {
-        ChatMessage message = getMessage(actor, messageId);
-        List<ChatMessageFile> files = chatFileLogic.getFileByActorAndMessage(actor, message);
+    public void deleteMessage(User user, Long messageId) {
+        ChatMessage message = getMessageById(user, messageId);
+        List<ChatMessageFile> files = chatFileLogic.getByMessage(user, message);
         chatMessageDao.deleteMessage(messageId);
-        chatFileLogic.deleteFiles(files);
+        chatFileLogic.delete(user, files);
     }
 
-    public void updateMessage(Actor actor, ChatMessage message) {
+    public void updateMessage(User user, ChatMessage message) {
         chatMessageDao.updateMessage(message);
     }
 
-    public void sendNotifications(ChatMessage chatMessage, Collection<Executor> executors) {
+    public void sendNotifications(User user, ChatMessage chatMessage, Collection<Executor> executors) {
         if (properties.isEmpty()) {
             log.debug("chat.email.properties are not defined");
             return;
@@ -229,21 +237,5 @@ public class ChatLogic extends WfCommonLogic {
         } catch (Exception e) {
             log.warn("Unable to send chat email notification", e);
         }
-    }
-
-    public ChatMessageFileDto saveFile(ChatMessageFileDto file) {
-        return chatFileLogic.save(file);
-    }
-
-    public List<ChatMessageFileDto> getFiles(Actor actor, ChatMessage message) {
-        return chatFileLogic.getFilesByActorAndMessage(actor, message);
-    }
-
-    public ChatMessageFileDto getFile(Actor actor, Long fileId) {
-        return chatFileLogic.getFileByActorAndId(actor, fileId);
-    }
-
-    public void deleteFile(User user, Long id) {
-        chatFileLogic.deleteByUserAndId(user, id);
     }
 }

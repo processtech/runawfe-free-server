@@ -29,7 +29,7 @@ public class EditMessageHandler implements ChatSocketMessageHandler<ChatEditMess
         if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
             return;
         }
-        ChatMessage newMessage = chatLogic.getMessage(user.getActor(), dto.getEditMessageId());
+        ChatMessage newMessage = chatLogic.getMessageById(user.getActor(), dto.getEditMessageId());
         if ((newMessage != null) && (newMessage.getCreateActor().equals(user.getActor()))) {
             newMessage.setText(dto.getMessage());
             chatLogic.updateMessage(user.getActor(), newMessage);
