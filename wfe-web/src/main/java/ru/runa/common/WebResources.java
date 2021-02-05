@@ -197,6 +197,9 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("import.export.enabled", true);
     }
 
+    public static String getButtonName(String propertyName) {
+        return RESOURCES.getStringProperty(propertyName);
+    }
     public static boolean isChatEnabled() {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }
