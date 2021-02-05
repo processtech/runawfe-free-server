@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatFileIoException;
@@ -19,6 +20,7 @@ import ru.runa.wfe.commons.SystemProperties;
 /**
  * @author Sergey Inyakin
  */
+@CommonsLog
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ChatFileIo {
@@ -92,7 +94,8 @@ public class ChatFileIo {
         for (ChatMessageFile file : files){
             try {
                 delete(file);
-            } catch (Exception ignored){
+            } catch (Exception exception){
+                log.error("File not deleted. UUID: " + file.getUuid(), exception);
             }
         }
     }
