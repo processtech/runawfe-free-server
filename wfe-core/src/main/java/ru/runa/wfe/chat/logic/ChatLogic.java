@@ -30,16 +30,19 @@ import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.logic.ExecutorLogic;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ChatLogic extends WfCommonLogic {
     private final Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
+    private final ExecutorLogic executorLogic;
     private final ChatMessageDao messageDao;
     private final ChatFileLogic fileLogic;
     private final DtoConverters converter;
@@ -189,6 +192,9 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void deleteMessage(User user, Long messageId) {
+        if (!executorLogic.isAdministrator(user)) {
+            throw new AuthenticationException("Access is denied");
+        }
         ChatMessage message = getMessageById(user, messageId);
         List<ChatMessageFile> files = fileLogic.getByMessage(user, message);
         messageDao.deleteMessage(messageId);
@@ -196,6 +202,9 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void updateMessage(User user, ChatMessage message) {
+        if (!executorLogic.isAdministrator(user)) {
+            throw new AuthenticationException("Access is denied");
+        }
         messageDao.updateMessage(message);
     }
 

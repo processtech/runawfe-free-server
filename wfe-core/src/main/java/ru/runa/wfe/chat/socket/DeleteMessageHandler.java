@@ -5,21 +5,18 @@ import javax.websocket.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
+import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 
 @Component
 public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMessageRequest> {
 
     @Autowired
     private ExecutionLogic executionLogic;
-    @Autowired
-    private ExecutorLogic executorLogic;
     @Autowired
     private ChatLogic chatLogic;
     @Autowired
@@ -29,9 +26,6 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMess
     @Override
     public void handleMessage(Session session, DeleteMessageRequest dto, User user) throws IOException {
         if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
-            return;
-        }
-        if (!executorLogic.isAdministrator(user)) {
             return;
         }
         chatLogic.deleteMessage(user, dto.getMessageId());
