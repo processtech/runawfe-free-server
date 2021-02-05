@@ -34,7 +34,7 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMess
         if (!executorLogic.isAdministrator(user)) {
             return;
         }
-        chatLogic.deleteMessage(user.getActor(), dto.getMessageId());
+        chatLogic.deleteMessage(user, dto.getMessageId());
         sessionHandler.sendMessage(new MessageDeletedBroadcast(dto.getMessageId()));
     }
 

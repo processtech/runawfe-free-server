@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.runa.wfe.chat.dto.ChatFileDto;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.jackson.serializers.ActorJacksonSerializer;
 import ru.runa.wfe.chat.jackson.serializers.DateJacksonSerializer;
 import ru.runa.wfe.user.Actor;
@@ -23,7 +23,7 @@ public class MessageAddedBroadcast extends MessageBroadcast {
     private Long id;
 
     @JsonProperty("files")
-    private List<ChatFileDto> filesDto = new ArrayList<>();
+    private List<ChatMessageFileDto> filesDto = new ArrayList<>();
 
     @JsonProperty("old")
     private boolean isOld = false;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -21,8 +21,8 @@ public interface ChatService {
 
     public void deleteFile(User user, Long id);
 
-    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
-                                               ArrayList<ChatMessageFile> files);
+    public MessageAddedBroadcast saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+            ArrayList<ChatMessageFileDto> files);
 
     public void readMessage(User user, Long messageId);
 

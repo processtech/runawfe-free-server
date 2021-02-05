@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
@@ -18,7 +18,6 @@ import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.chat.utils.MentionedExecutorsExtractor;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
@@ -43,8 +42,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
             return;
         }
         boolean isPrivate = dto.isPrivate();
-        Actor actor = user.getActor();
-        ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(dto, actor);
+        ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(dto, user.getActor());
         Set<Executor> mentionedExecutors = extractor.extractMentionedExecutors(dto.getPrivateNames(), newMessage, user);
         Collection<Long> recipientIds = extractor.extractRecipientIds(mentionedExecutors, isPrivate);
         MessageAddedBroadcast messageAddedBroadcast;
@@ -55,16 +53,10 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
                 ChatMessageFileDto chatMessageFile = new ChatMessageFileDto(entry.getKey(), entry.getValue());
                 chatMessageFiles.add(chatMessageFile);
             }
-            newMessage = chatLogic.saveMessageAndBindFiles(processId, newMessage, mentionedExecutors,
+            messageAddedBroadcast = chatLogic.saveMessageAndBindFiles(user, processId, newMessage, mentionedExecutors,
                     isPrivate, chatMessageFiles);
-            messageAddedBroadcast = converter.convertChatMessageToAddedMessageBroadcast(newMessage);
-            for (ChatMessageFile file : chatMessageFiles) {
-                messageAddedBroadcast.getFilesDto().add(new ChatFileDto(file.getId(), file.getFileName()));
-            }
         } else {
-            Long newMessId = chatLogic.saveMessage(actor, processId, newMessage, mentionedExecutors, isPrivate);
-            newMessage.setId(newMessId);
-            messageAddedBroadcast = converter.convertChatMessageToAddedMessageBroadcast(newMessage);
+            messageAddedBroadcast = chatLogic.saveMessage(user, processId, newMessage, mentionedExecutors, isPrivate);
         }
         messageAddedBroadcast.setOld(false);
         messageAddedBroadcast.setCoreUser(messageAddedBroadcast.getAuthor().getId().equals(user.getActor().getId()));

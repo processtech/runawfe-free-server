@@ -22,7 +22,7 @@ public class ReadMessageHandler implements ChatSocketMessageHandler<ReadMessageR
     @Override
     public void handleMessage(Session session, ReadMessageRequest dto, User user) throws IOException {
         Long currentMessageId = dto.getCurrentMessageId();
-        chatLogic.readMessage(user.getActor(), currentMessageId);
+        chatLogic.readMessage(user, currentMessageId);
     }
 
     @Override

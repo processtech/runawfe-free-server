@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.user.Executor;
@@ -31,8 +31,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-                                               Boolean isPrivate, ArrayList<ChatMessageFile> files) {
+    public MessageAddedBroadcast saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+            Boolean isPrivate, ArrayList<ChatMessageFileDto> files) {
         return getChatService().saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, files);
     }
 
@@ -60,7 +60,7 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     public List<Long> getNewMessagesCounts(User user, List<Long> processIds) {
         return getChatService().getNewMessagesCounts(user, processIds);
     }
-	
+
     @Override
     public void updateChatMessage(User user, ChatMessage message) {
         getChatService().updateChatMessage(user, message);

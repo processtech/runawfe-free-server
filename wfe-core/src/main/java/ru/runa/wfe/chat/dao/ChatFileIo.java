@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatFileIoException;
@@ -19,16 +20,10 @@ import ru.runa.wfe.commons.SystemProperties;
  * @author Sergey Inyakin
  */
 @Component
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ChatFileIo {
-
+    private final String storagePath = SystemProperties.getChatFileStoragePath();
     private final ChatMessageFileMapper messageFileMapper;
-    private final String storagePath;
-
-    @Autowired
-    public ChatFileIo(ChatMessageFileMapper messageFileMapper) {
-        this.messageFileMapper = messageFileMapper;
-        storagePath = SystemProperties.getChatFileStoragePath();
-    }
 
     public List<ChatMessageFile> save(List<ChatMessageFileDto> dtos) {
         List<ChatMessageFile> result = new ArrayList<>(dtos.size());

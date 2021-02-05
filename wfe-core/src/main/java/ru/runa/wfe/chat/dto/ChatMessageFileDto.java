@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.runa.wfe.chat.ChatMessage;
 
 /**
  * @author Sergey Inyakin
@@ -15,11 +14,11 @@ import ru.runa.wfe.chat.ChatMessage;
 @Setter
 public class ChatMessageFileDto extends ChatDto{
     private Long id;
-    private String fileName;
+    private String name;
     private byte[] bytes;
 
-    public ChatMessageFileDto(String fileName, byte[] bytes) {
-        this.fileName = fileName;
+    public ChatMessageFileDto(String name, byte[] bytes) {
+        this.name = name;
         this.bytes = bytes;
     }
 }

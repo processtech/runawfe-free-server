@@ -14,6 +14,7 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ProcessLog;
@@ -21,10 +22,11 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.dao.ChatDao;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dao.ChatMessageDao;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
-import ru.runa.wfe.chat.mapper.ChatMessageMapper;
+import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
@@ -35,22 +37,16 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ChatLogic extends WfCommonLogic {
-    private Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
+    private final Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
+    private final ChatMessageDao messageDao;
+    private final ChatFileLogic fileLogic;
+    private final DtoConverters converter;
+    private final ChatMessageFileMapper fileMapper;
 
-    @Autowired
-    private ChatDao chatDao;
-    @Autowired
-    private ChatFileLogic chatFileLogic;
-    @Autowired
-    private ChatMessageFileMapper fileMapper;
-
-    public List<Long> getMentionedExecutorIds(Long messageId) {
-        return chatDao.getMentionedExecutorIds(messageId);
-    }
-
-    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-                                               Boolean isPrivate, ArrayList<ChatMessageFile> files) {
+    public MessageAddedBroadcast saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
+            Boolean isPrivate, ArrayList<ChatMessageFileDto> files) {
         message.setProcess(processDao.get(processId));
         Set<Executor> executors;
         if (!isPrivate) {
@@ -58,33 +54,37 @@ public class ChatLogic extends WfCommonLogic {
         } else {
             executors = new HashSet<>(mentionedExecutors);
         }
-        List<ChatMessageFile> messageFiles = chatFileLogic.saveFilesAndBindMessage(user, files, message);
+        List<ChatMessageFile> messageFiles = fileLogic.saveFilesAndBindMessage(user, files, message);
         try {
-            ChatMessageDto result = new ChatMessageDto(chatMessageDao.save(message, executors, mentionedExecutors));
-            result.setFiles(fileMapper.toDto(messageFiles));
+            MessageAddedBroadcast result = converter.convertChatMessageToAddedMessageBroadcast(messageDao.save(message, executors, mentionedExecutors));
+            result.setFilesDto(fileMapper.toDto(messageFiles));
             return result;
         } catch (Exception exception) {
-            chatFileLogic.delete(user, messageFiles);
+            fileLogic.delete(user, messageFiles);
             throw exception;
         }
     }
 
     public void readMessage(User user, Long messageId) {
-        chatMessageDao.readMessage(user.getActor(), messageId);
+        messageDao.readMessage(user.getActor(), messageId);
+    }
+
+    public Long getLastMessage(User user, Long processId) {
+        return messageDao.getLastMessage(user.getActor(), processId);
     }
 
     public List<Long> getMentionedExecutorIds(User user, Long messageId) {
-        return chatMessageDao.getMentionedExecutorIds(messageId);
+        return messageDao.getMentionedExecutorIds(messageId);
     }
 
     public Long getLastReadMessage(User user, Long processId) {
-        return chatMessageDao.getLastReadMessage(user.getActor(), processId);
+        return messageDao.getLastReadMessage(user.getActor(), processId);
     }
 
-    public List<Long> getActiveChatIds(Actor user) {
-        List<Long> ret = chatDao.getActiveChatIds(user);
+    public List<Long> getActiveChatIds(User user) {
+        List<Long> ret = messageDao.getActiveChatIds(user.getActor());
         if (ret == null) {
-            ret = new ArrayList<Long>();
+            ret = new ArrayList<>();
         }
         return ret;
     }
@@ -147,44 +147,56 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<Long> getNewMessagesCounts(User user, List<Long> chatsIds) {
-        return chatMessageDao.getNewMessagesCounts(chatsIds, user.getActor());
+        return messageDao.getNewMessagesCounts(chatsIds, user.getActor());
     }
 
     public Long getNewMessagesCount(User user, Long processId) {
-        return chatMessageDao.getNewMessagesCount(user.getActor(), processId);
+        return messageDao.getNewMessagesCount(user.getActor(), processId);
     }
 
     public ChatMessage getMessageById(User user, Long messageId) {
-        return chatMessageDao.getMessage(messageId);
+        return messageDao.getMessage(messageId);
     }
 
-    public List<MessageAddedBroadcast> getMessages(Actor user, Long processId, Long firstId, int count) {
-        return chatDao.getMessages(user, processId, firstId, count);
+    public List<MessageAddedBroadcast> getMessages(User user, Long processId, Long firstId, int count) {
+        List<ChatMessage> messages = messageDao.getMessages(user.getActor(), processId, firstId, count);
+        return toMessageAddedBroadcast(user, messages);
     }
 
-    public List<MessageAddedBroadcast> getNewMessages(Actor user, Long processId) {
-        return chatDao.getNewMessages(user, processId);
+    public List<MessageAddedBroadcast> getNewMessages(User user, Long processId) {
+        List<ChatMessage> messages = messageDao.getNewMessages(user.getActor(), processId);
+        return toMessageAddedBroadcast(user, messages);
     }
 
-    public Long saveMessage(Actor actor, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
+    private List<MessageAddedBroadcast> toMessageAddedBroadcast(User user, List<ChatMessage> messages) {
+        List<MessageAddedBroadcast> result = new ArrayList<>(messages.size());
+        for (ChatMessage message : messages) {
+            MessageAddedBroadcast broadcast = converter.convertChatMessageToAddedMessageBroadcast(message);
+            broadcast.setFilesDto(fileLogic.getDtoByMessage(user, message));
+            result.add(broadcast);
+        }
+        return result;
+    }
+
+    public MessageAddedBroadcast saveMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
         message.setProcess(processDao.get(processId));
         if (!isPrivate) {
-            Set<Executor> executors = getAllUsers(processId, message.getCreateActor());
-            return chatDao.save(message, executors, mentionedExecutors);
+            Set<Executor> executors = getAllUsers(user, processId);
+            return converter.convertChatMessageToAddedMessageBroadcast(messageDao.save(message, executors, mentionedExecutors));
         } else {
-            return chatDao.save(message, mentionedExecutors, mentionedExecutors);
+            return converter.convertChatMessageToAddedMessageBroadcast(messageDao.save(message, mentionedExecutors, mentionedExecutors));
         }
     }
 
-
     public void deleteMessage(User user, Long messageId) {
         ChatMessage message = getMessageById(user, messageId);
-        List<ChatMessageFile> files = chatFileLogic.getByMessage(user, message);
-        chatMessageDao.deleteMessage(messageId);
-        chatFileLogic.delete(user, files);
+        List<ChatMessageFile> files = fileLogic.getByMessage(user, message);
+        messageDao.deleteMessage(messageId);
+        fileLogic.delete(user, files);
+    }
 
     public void updateMessage(User user, ChatMessage message) {
-        chatMessageDao.updateMessage(message);
+        messageDao.updateMessage(message);
     }
 
     public void sendNotifications(User user, ChatMessage chatMessage, Collection<Executor> executors) {

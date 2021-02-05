@@ -13,7 +13,7 @@ public class ChatMessageFileMapper implements ModelMapper<ChatMessageFile, ChatM
     public ChatMessageFile toEntity(ChatMessageFileDto dto) {
         ChatMessageFile result = new ChatMessageFile();
         result.setId(dto.getId());
-        result.setName(dto.getFileName());
+        result.setName(dto.getName());
         return result;
     }
 
@@ -21,7 +21,7 @@ public class ChatMessageFileMapper implements ModelMapper<ChatMessageFile, ChatM
     public ChatMessageFileDto toDto(ChatMessageFile entity) {
         ChatMessageFileDto result = new ChatMessageFileDto();
         result.setId(entity.getId());
-        result.setFileName(entity.getName());
+        result.setName(entity.getName());
         return result;
     }
 
@@ -33,6 +33,4 @@ public class ChatMessageFileMapper implements ModelMapper<ChatMessageFile, ChatM
         }
         return result;
     }
-
-
 }
