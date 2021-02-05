@@ -34,7 +34,6 @@ public class ChatMessageFile {
         this.id = id;
     }
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "MESSAGE_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_FILE_ID")
@@ -56,7 +55,6 @@ public class ChatMessageFile {
         this.name = fileName;
     }
 
-    @JsonIgnore
     @Column(name = "UUID", length = 36, nullable = false)
     public String getUuid() {
         return uuid;
