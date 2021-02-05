@@ -17,7 +17,7 @@ public class GetUsersNamesForChatAjax extends JsonAjaxCommand {
         Long processId = Long.parseLong(request.getParameter("processId"));
         JSONArray names = new JSONArray();
         JSONArray fullNames = new JSONArray();
-        for (Executor executor : Delegates.getExecutionService().getAllExecutorsByProcessId(user, processId, true)) {
+        for (Executor executor : Delegates.getExecutionService().getAllExecutorsByProcessId(user, processId, false)) {
             names.add(executor.getName());
             fullNames.add(executor.getFullName());
         }

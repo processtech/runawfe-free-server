@@ -8,7 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.logic.ExecutorLogic;
+import ru.runa.wfe.user.dao.ExecutorDao;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -21,9 +21,9 @@ import static org.mockito.Mockito.when;
 public class RecipientCalculatorTest {
 
     @Mock
-    private ExecutorLogic executorLogic;
-    @Mock
     private ExecutionLogic executionLogic;
+    @Mock
+    private ExecutorDao executorDao;
     @Mock
     private User user;
     private Set<Actor> actors;
@@ -33,7 +33,7 @@ public class RecipientCalculatorTest {
     @Before
     public void init() {
         actors = newHashSet(createActor("first"), createActor("second"), createActor("third"));
-        calculator = new RecipientCalculator(executorLogic, executionLogic);
+        calculator = new RecipientCalculator(executorDao, executionLogic);
     }
 
     @Test
@@ -48,8 +48,8 @@ public class RecipientCalculatorTest {
 
     @Test
     public void whenMessageIsPrivate_thenReturnMentionedActors() {
-        when(executorLogic.getExecutor(notNull(), eq("first"))).thenReturn(createActor("first"));
-        when(executorLogic.getExecutor(notNull(), eq("second"))).thenReturn(createActor("second"));
+        when(executorDao.getExecutor(eq("first"))).thenReturn(createActor("first"));
+        when(executorDao.getExecutor(eq("second"))).thenReturn(createActor("second"));
 
         Set<Actor> expected = newHashSet(createActor("first"), createActor("second"));
         Set<Actor> actual = calculator.calculateRecipients(user, true, "@first @second Private", processId);

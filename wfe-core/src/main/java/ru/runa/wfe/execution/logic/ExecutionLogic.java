@@ -523,6 +523,60 @@ public class ExecutionLogic extends WfCommonLogic {
         return RestoreProcessStatus.OK;
     }
 
+    public <T extends Executor> Set<T> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
+        Set<T> result = new HashSet<>();
+        Process process = processDao.getNotNull(processId);
+        List<Process> subProcesses = nodeProcessDao.getSubprocessesRecursive(process);
+        // select user from active tasks
+        List<Task> tasks = new ArrayList<>(taskDao.findByProcess(process));
+        for (Process subProcess : subProcesses) {
+            tasks.addAll(taskDao.findByProcess(subProcess));
+        }
+        for (Task task : tasks) {
+            if (expandGroups) {
+                expandGroup(task.getExecutor(), result);
+            } else {
+                result.add((T) task.getExecutor());
+            }
+        }
+        // select user from completed tasks
+        ProcessLogFilter filter = new ProcessLogFilter(processId);
+        filter.setRootClassName(TaskEndLog.class.getName());
+        List<ProcessLog> processLogs = new ArrayList<>(processLogDao.getAll(filter));
+        for (Process subProcess : subProcesses) {
+            filter.setProcessId(subProcess.getId());
+            processLogs.addAll(processLogDao.getAll(filter));
+        }
+        for (ProcessLog processLog : processLogs) {
+            String actorName = ((TaskEndLog) processLog).getActorName();
+            try {
+                if (!Strings.isNullOrEmpty(actorName)) {
+                    result.add((T) executorDao.getActor(actorName));
+                }
+            } catch (ExecutorDoesNotExistException e) {
+                log.debug("Ignored deleted actor " + actorName + " for chat message");
+            }
+        }
+        // users with read permissions
+        for (Executor executor : permissionDao.getExecutorsWithPermission(process)) {
+            if (expandGroups) {
+                expandGroup(executor, result);
+            } else {
+                result.add((T) executor);
+            }
+        }
+        log.info(result.size() + " executors were received. Expand groups flag == " + expandGroups);
+        return result;
+    }
+
+    private <T extends Executor> void expandGroup(Executor executor, Set<T> result) {
+        if (executor instanceof Group) {
+            result.addAll((Set<T>) executorDao.getGroupActors((Group) executor));
+        } else if (executor instanceof Actor) {
+            result.add((T) executor);
+        }
+    }
+
     private void restoreProcessWithSubProcesses(User user, Process process, Date processEndDate) {
         processLogDao.addLog(new ProcessActivateLog(user.getActor()), process, null);
         List<Token> tokens = tokenDao.findByProcessAndEndDateGreaterThanOrEquals(process, processEndDate);
@@ -681,59 +735,6 @@ public class ExecutionLogic extends WfCommonLogic {
             if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED) {
                 suspendProcessWithSubprocesses(user, subprocess);
             }
-        }
-    }
-
-    public <T extends Executor> Set<T> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
-        Set<T> result = new HashSet<>();
-        Process process = processDao.getNotNull(processId);
-        List<Process> subProcesses = nodeProcessDao.getSubprocessesRecursive(process);
-        // select user from active tasks
-        List<Task> tasks = new ArrayList<>(taskDao.findByProcess(process));
-        for (Process subProcess : subProcesses) {
-            tasks.addAll(taskDao.findByProcess(subProcess));
-        }
-        for (Task task : tasks) {
-            if (expandGroups) {
-                expandGroup(task.getExecutor(), result);
-            } else {
-                result.add((T) task.getExecutor());
-            }
-        }
-        // select user from completed tasks
-        ProcessLogFilter filter = new ProcessLogFilter(processId);
-        filter.setRootClassName(TaskEndLog.class.getName());
-        List<ProcessLog> processLogs = new ArrayList<>(processLogDao.getAll(filter));
-        for (Process subProcess : subProcesses) {
-            filter.setProcessId(subProcess.getId());
-            processLogs.addAll(processLogDao.getAll(filter));
-        }
-        for (ProcessLog processLog : processLogs) {
-            String actorName = ((TaskEndLog) processLog).getActorName();
-            try {
-                if (!Strings.isNullOrEmpty(actorName)) {
-                    result.add((T) executorDao.getActor(actorName));
-                }
-            } catch (ExecutorDoesNotExistException e) {
-                log.debug("Ignored deleted actor " + actorName + " for chat message");
-            }
-        }
-        // users with read permissions
-        for (Executor executor : permissionDao.getExecutorsWithPermission(process)) {
-            if (expandGroups) {
-                expandGroup(executor, result);
-            } else {
-                result.add((T) executor);
-            }
-        }
-        return result;
-    }
-
-    private <T extends Executor> void expandGroup(Executor executor, Set<T> result) {
-        if (executor instanceof Group) {
-            result.addAll((Set<T>) executorDao.getGroupActors((Group) executor));
-        } else if (executor instanceof Actor) {
-            result.add((T) executor);
         }
     }
 }
