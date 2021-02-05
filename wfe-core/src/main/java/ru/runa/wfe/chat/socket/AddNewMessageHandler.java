@@ -16,7 +16,7 @@ import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.chat.utils.DtoConverters;
-import ru.runa.wfe.chat.utils.RecipientCalculators;
+import ru.runa.wfe.chat.utils.RecipientCalculator;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
@@ -33,7 +33,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
     @Autowired
     private DtoConverters converter;
     @Autowired
-    private RecipientCalculators calculators;
+    private RecipientCalculator calculator;
 
     @Transactional
     @Override
@@ -44,26 +44,26 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
         ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(dto, user.getActor());
         MessageAddedBroadcast messageAddedBroadcast;
         long processId = dto.getProcessId();
-        Set<Actor> recipients = calculators.calculateRecipients(user, dto.isPrivate(), dto.getMessage(), processId);
+        Set<Actor> recipients = calculator.calculateRecipients(user, dto.isPrivate(), dto.getMessage(), processId);
         if (dto.getFiles() != null) {
             ArrayList<ChatMessageFile> chatMessageFiles = new ArrayList<>();
             for (Map.Entry<String, byte[]> entry : dto.getFiles().entrySet()) {
                 ChatMessageFile chatMessageFile = new ChatMessageFile(entry.getKey(), entry.getValue());
                 chatMessageFiles.add(chatMessageFile);
             }
-            newMessage = chatLogic.saveMessageAndBindFiles(processId, newMessage, recipients, chatMessageFiles);
+            newMessage = chatLogic.saveMessageAndBindFiles(user, processId, newMessage, recipients, chatMessageFiles);
             messageAddedBroadcast = converter.convertChatMessageToAddedMessageBroadcast(newMessage);
             for (ChatMessageFile file : chatMessageFiles) {
                 messageAddedBroadcast.getFilesDto().add(new ChatFileDto(file.getId(), file.getFileName()));
             }
         } else {
-            Long newMessId = chatLogic.saveMessage(processId, newMessage, recipients);
+            Long newMessId = chatLogic.saveMessage(user, processId, newMessage, recipients);
             newMessage.setId(newMessId);
             messageAddedBroadcast = converter.convertChatMessageToAddedMessageBroadcast(newMessage);
         }
         messageAddedBroadcast.setOld(false);
         messageAddedBroadcast.setCoreUser(messageAddedBroadcast.getAuthor().getId().equals(user.getActor().getId()));
-        sessionHandler.sendMessage(calculators.calculateRecipientIds(recipients), messageAddedBroadcast);
+        sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), messageAddedBroadcast);
     }
 
     @Override

@@ -54,9 +54,9 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public ChatMessage saveMessageAndBindFiles(@NonNull Long processId, ChatMessage message, Set<Actor> recipients,
-                                               ArrayList<ChatMessageFile> files) {
-        return chatLogic.saveMessageAndBindFiles(processId, message, recipients, files);
+    public ChatMessage saveMessageAndBindFiles(User user, @NonNull Long processId, ChatMessage message,
+                                               Set<Actor> recipients, ArrayList<ChatMessageFile> files) {
+        return chatLogic.saveMessageAndBindFiles(user, processId, message, recipients, files);
     }
 
     @WebMethod(exclude = false)
@@ -162,8 +162,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public Long saveChatMessage(Long processId, ChatMessage message, Set<Actor> recipients) {
-        return chatLogic.saveMessage(processId, message, recipients);
+    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
+        return chatLogic.saveMessage(user, processId, message, recipients);
     }
 
 }

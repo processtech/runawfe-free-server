@@ -684,8 +684,8 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    public Set<Executor> getAllExecutorsByProcessId(Long processId) {
-        Set<Executor> result = new HashSet<>();
+    public <T extends Executor> Set<T> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
+        Set<T> result = new HashSet<>();
         Process process = processDao.getNotNull(processId);
         List<Process> subProcesses = nodeProcessDao.getSubprocessesRecursive(process);
         // select user from active tasks
@@ -694,12 +694,10 @@ public class ExecutionLogic extends WfCommonLogic {
             tasks.addAll(taskDao.findByProcess(subProcess));
         }
         for (Task task : tasks) {
-            Executor executor = task.getExecutor();
-            if (executor instanceof Group) {
-                // TODO Do we want to store actor or group links?
-                result.addAll(executorDao.getGroupActors(((Group) executor)));
-            } else if (executor instanceof Actor) {
-                result.add(executor);
+            if (expandGroups) {
+                expandGroup(task.getExecutor(), result);
+            } else {
+                result.add((T) task.getExecutor());
             }
         }
         // select user from completed tasks
@@ -714,22 +712,28 @@ public class ExecutionLogic extends WfCommonLogic {
             String actorName = ((TaskEndLog) processLog).getActorName();
             try {
                 if (!Strings.isNullOrEmpty(actorName)) {
-                    result.add(executorDao.getActor(actorName));
+                    result.add((T) executorDao.getActor(actorName));
                 }
             } catch (ExecutorDoesNotExistException e) {
                 log.debug("Ignored deleted actor " + actorName + " for chat message");
             }
         }
         // users with read permissions
-        Set<Executor> executorWithPermission = permissionDao.getExecutorsWithPermission(process);
-        for (Executor executor : executorWithPermission) {
-            if (executor instanceof Group) {
-                // TODO Do we want to store actor or group links?
-                result.addAll(executorDao.getGroupActors(((Group) executor)));
-            } else if (executor instanceof Actor) {
-                result.add(executor);
+        for (Executor executor : permissionDao.getExecutorsWithPermission(process)) {
+            if (expandGroups) {
+                expandGroup(executor, result);
+            } else {
+                result.add((T) executor);
             }
         }
         return result;
+    }
+
+    private <T extends Executor> void expandGroup(Executor executor, Set<T> result) {
+        if (executor instanceof Group) {
+            result.addAll((Set<T>) executorDao.getGroupActors((Group) executor));
+        } else if (executor instanceof Actor) {
+            result.add((T) executor);
+        }
     }
 }

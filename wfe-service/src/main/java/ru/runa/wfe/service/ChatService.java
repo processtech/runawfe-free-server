@@ -21,7 +21,7 @@ public interface ChatService {
 
     public void deleteFile(User user, Long id);
 
-    public ChatMessage saveMessageAndBindFiles(Long processId, ChatMessage message, Set<Actor> recipients,
+    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Actor> recipients,
                                                ArrayList<ChatMessageFile> files);
 
     public void readMessage(User user, Long messageId);
@@ -105,6 +105,8 @@ public interface ChatService {
     /**
      * Save ChatMessage in DB.
      *
+     *
+     * @param user
      * @param processId
      *            chat Id
      * @param message
@@ -112,7 +114,7 @@ public interface ChatService {
      * @param recipients
      * @return new message id
      */
-    public Long saveChatMessage(Long processId, ChatMessage message, Set<Actor> recipients);
+    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients);
 
     /**
      * Delete ChatMessage in DB.

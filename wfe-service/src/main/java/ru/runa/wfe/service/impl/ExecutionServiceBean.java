@@ -381,7 +381,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public Set<Executor> getAllExecutorsByProcessId(Long processId) {
-        return executionLogic.getAllExecutorsByProcessId(processId);
+    public Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
+        return executionLogic.getAllExecutorsByProcessId(user, processId, expandGroups);
     }
 }

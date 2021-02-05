@@ -8,19 +8,18 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class RecipientCalculators {
+public class RecipientCalculator {
 
     private final ExecutorLogic executorLogic;
     private final ExecutionLogic executionLogic;
 
-    public Collection<Long> calculateRecipientIds(Set<Actor> recipients) {
-        Collection<Long> recipientIds = new HashSet<>();
+    public Set<Long> mapToRecipientIds(Set<Actor> recipients) {
+        Set<Long> recipientIds = new HashSet<>(recipients.size());
         for (Actor actor : recipients) {
             recipientIds.add(actor.getId());
         }
@@ -30,7 +29,7 @@ public class RecipientCalculators {
     public Set<Actor> calculateRecipients(User user, boolean isPrivate, String messageText, Long processId) {
         return isPrivate
                 ? findMentionedActorsInMessageText(user, messageText)
-                : getAllActorsByProcessId(processId);
+                : executionLogic.getAllExecutorsByProcessId(user, processId, true);
     }
 
     /**
@@ -52,16 +51,6 @@ public class RecipientCalculators {
                 }
             } else {
                 break;
-            }
-        }
-        return recipients;
-    }
-
-    private Set<Actor> getAllActorsByProcessId(Long processId) {
-        Set<Actor> recipients = new HashSet<>();
-        for (Executor executor : executionLogic.getAllExecutorsByProcessId(processId)) {
-            if (executor instanceof Actor) {
-                recipients.add((Actor) executor);
             }
         }
         return recipients;

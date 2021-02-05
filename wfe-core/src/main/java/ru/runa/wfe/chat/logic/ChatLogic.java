@@ -39,7 +39,7 @@ public class ChatLogic extends WfCommonLogic {
         chatDao.deleteFile(user, id);
     }
 
-    public ChatMessage saveMessageAndBindFiles(Long processId, ChatMessage message, Set<Actor> recipients,
+    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Actor> recipients,
                                                ArrayList<ChatMessageFile> files) {
         message.setProcess(processDao.get(processId));
         return chatDao.saveMessageAndBindFiles(message, files, recipients);
@@ -85,7 +85,7 @@ public class ChatLogic extends WfCommonLogic {
         return chatDao.getNewMessages(user, processId);
     }
 
-    public Long saveMessage(Long processId, ChatMessage message, Set<Actor> recipients) {
+    public Long saveMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
         message.setProcess(processDao.get(processId));
         return chatDao.save(message, recipients);
     }

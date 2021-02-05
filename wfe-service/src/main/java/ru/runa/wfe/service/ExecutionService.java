@@ -442,5 +442,11 @@ public interface ExecutionService {
      */
     public boolean signalReceiverIsActive(User user, Map<String, String> routingData);
 
-    Set<Executor> getAllExecutorsByProcessId(Long processId);
+    /**
+     * @param user authorized user
+     * @param processId process id
+     * @param expandGroups extract actors from groups if true, otherwise return groups
+     * @return Actors if expandGroups, otherwise Actors and Groups
+     */
+    Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups);
 }
