@@ -72,14 +72,6 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
                 .fetchCount();
     }
 
-    public List<ChatMessage> getFirstMessages(Actor actor, Long processId, int count) {
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        return queryFactory.select(cr.message).from(cr)
-                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(actor)))
-                .orderBy(cr.message.createDate.desc()).limit(count)
-                .fetch();
-    }
-
     public List<ChatMessage> getNewMessages(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Long lastMessageId = getLastReadMessage(user, processId);

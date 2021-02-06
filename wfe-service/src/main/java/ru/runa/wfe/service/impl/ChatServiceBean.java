@@ -110,7 +110,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public List<ChatMessageFileDto> getChatMessageFiles(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "message") ChatMessage message) {
-        return chatFileLogic.getDtoByMessage(user, message);
+        return chatFileLogic.getDtosByMessage(user, message);
     }
 
     @WebMethod(exclude = false)

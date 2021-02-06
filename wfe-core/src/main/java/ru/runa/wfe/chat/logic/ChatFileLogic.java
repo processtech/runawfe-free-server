@@ -43,7 +43,7 @@ public class ChatFileLogic extends WfCommonLogic {
         }
     }
 
-    public List<ChatMessageFileDto> getDtoByMessage(User user, ChatMessage message) {
+    public List<ChatMessageFileDto> getDtosByMessage(User user, ChatMessage message) {
         return chatFileIo.get(getByMessage(user, message));
     }
 

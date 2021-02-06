@@ -50,7 +50,7 @@ public class ChatLogic extends WfCommonLogic {
         List<ChatMessageFile> messageFiles = fileLogic.saveFilesAndBindMessage(user, files, message);
         try {
             MessageAddedBroadcast result = converter.convertChatMessageToAddedMessageBroadcast(messageDao.save(message, recipients));
-            result.setFilesDto(fileMapper.toDto(messageFiles));
+            result.setFilesDto(fileMapper.toDetailDto(messageFiles));
             return result;
         } catch (Exception exception) {
             fileLogic.delete(user, messageFiles);
@@ -104,7 +104,7 @@ public class ChatLogic extends WfCommonLogic {
         List<MessageAddedBroadcast> result = new ArrayList<>(messages.size());
         for (ChatMessage message : messages) {
             MessageAddedBroadcast broadcast = converter.convertChatMessageToAddedMessageBroadcast(message);
-            broadcast.setFilesDto(fileLogic.getDtoByMessage(user, message));
+            broadcast.setFilesDto(fileMapper.toDetailDto(fileLogic.getByMessage(user, message)));
             result.add(broadcast);
         }
         return result;

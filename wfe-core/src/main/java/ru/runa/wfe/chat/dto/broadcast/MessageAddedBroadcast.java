@@ -2,16 +2,16 @@ package ru.runa.wfe.chat.dto.broadcast;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import ru.runa.wfe.chat.dto.ChatMessageFileDto;
-import ru.runa.wfe.chat.jackson.serializers.ActorJacksonSerializer;
-import ru.runa.wfe.chat.jackson.serializers.DateJacksonSerializer;
-import ru.runa.wfe.user.Actor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import ru.runa.wfe.chat.dto.ChatMessageFileDetailDto;
+import ru.runa.wfe.chat.jackson.serializers.ActorJacksonSerializer;
+import ru.runa.wfe.chat.jackson.serializers.DateJacksonSerializer;
+import ru.runa.wfe.user.Actor;
 
 @Getter
 @Setter
@@ -23,7 +23,7 @@ public class MessageAddedBroadcast extends MessageBroadcast {
     private Long id;
 
     @JsonProperty("files")
-    private List<ChatMessageFileDto> filesDto = new ArrayList<>();
+    private List<ChatMessageFileDetailDto> filesDto = new ArrayList<>();
 
     @JsonProperty("old")
     private boolean isOld = false;
