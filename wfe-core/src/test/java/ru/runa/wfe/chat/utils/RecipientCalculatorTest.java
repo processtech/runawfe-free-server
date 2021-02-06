@@ -7,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.ExecutorDoesNotExistException;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import java.util.Set;
@@ -15,6 +17,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,7 +59,32 @@ public class RecipientCalculatorTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void whenMentionedExecutorIsGroup_thenReturnGroupActors() {
+        when(executorDao.getExecutor(eq("group"))).thenReturn(createGroup());
+        when(executorDao.getGroupActors(eq(createGroup()))).thenReturn(actors);
+
+        Set<Actor> expected = actors;
+        Set<Actor> actual = calculator.calculateRecipients(user, true, "@group Private", processId);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void whenExceptionIsCaught_thenMethodContinuesToRun() {
+        when(executorDao.getExecutor(eq("first"))).thenReturn(createActor("first"));
+        doThrow(new ExecutorDoesNotExistException("incorrect", Actor.class))
+                .when(executorDao).getExecutor(eq("incorrect"));
+
+        Set<Actor> expected = newHashSet(createActor("first"));
+        Set<Actor> actual = calculator.calculateRecipients(user, true, "@incorrect @first Private", processId);
+        assertEquals(expected, actual);
+    }
+
     private static Actor createActor(String name) {
         return new Actor(name, "");
+    }
+
+    private static Group createGroup() {
+        return new Group("group", "");
     }
 }

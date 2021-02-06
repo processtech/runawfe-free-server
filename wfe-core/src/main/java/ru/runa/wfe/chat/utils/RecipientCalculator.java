@@ -57,7 +57,7 @@ public class RecipientCalculator {
                         recipients.addAll(executorDao.getGroupActors((Group) executor));
                     }
                 } catch (ExecutorDoesNotExistException e) {
-                    log.error("Executor with login \"" + login + "\" does not exist");
+                    log.debug("Ignored deleted executor " + login + " for chat message");
                 }
             } else {
                 break;
