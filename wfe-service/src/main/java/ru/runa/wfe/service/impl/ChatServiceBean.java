@@ -25,7 +25,7 @@ import ru.runa.wfe.service.decl.ChatServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 @Stateless(name = "ChatServiceBean")
@@ -57,10 +57,9 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public MessageAddedBroadcast saveMessageAndBindFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
-            @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
-            Boolean isPrivate, ArrayList<ChatMessageFileDto> files) {
-        return chatLogic.saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, files);
+    public MessageAddedBroadcast saveMessageAndBindFiles(User user, @NonNull Long processId, ChatMessage message,
+            Set<Actor> recipients, ArrayList<ChatMessageFileDto> files) {
+        return chatLogic.saveMessageAndBindFiles(user, processId, message, recipients, files);
     }
 
     @WebMethod(exclude = false)
@@ -89,13 +88,6 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public List<Long> getActiveChatIds(@WebParam(name = "user") @NonNull User user) {
         return chatLogic.getActiveChatIds(user);
-    }
-
-    @WebMethod(exclude = false)
-    @WebResult(name = "result")
-    @Override
-    public Set<Executor> getAllUsers(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getAllUsers(user, processId);
     }
 
     @WebMethod(exclude = false)
@@ -174,10 +166,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public Long saveChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
-            @WebParam(name = "isPrivate") Boolean isPrivate) {
-        return chatLogic.saveMessage(user, processId, message, mentionedExecutors, isPrivate).getId();
+    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
+        return chatLogic.saveMessage(user, processId, message, recipients).getId();
     }
 
 }

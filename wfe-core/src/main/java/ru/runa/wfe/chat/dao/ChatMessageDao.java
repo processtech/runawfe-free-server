@@ -5,17 +5,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageRecipient;
+import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
 
 @Component
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ChatMessageDao extends GenericDao<ChatMessage> {
+
+    private final DtoConverters converter;
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
         QChatMessageRecipient mr = QChatMessageRecipient.chatMessageRecipient;
@@ -95,21 +100,14 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
 
     public ChatMessage getMessage(Long messageId) {
         QChatMessage m = QChatMessage.chatMessage;
-        ChatMessage message = queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
-        return message;
+        return queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
     }
 
-    public ChatMessage save(ChatMessage message, Set<Executor> executors, Set<Executor> mentionedExecutors) {
+    public ChatMessage save(ChatMessage message, Set<Actor> recipients) {
         ChatMessage result = create(message);
-        if (!executors.contains(result.getCreateActor())) {
-            executors.add(result.getCreateActor());
-        }
-        for (Executor executor : executors) {
-            if (executor.getClass() == Actor.class) {
-                ChatMessageRecipient chatRecipient;
-                chatRecipient = new ChatMessageRecipient(result, executor, mentionedExecutors.contains(executor));
-                sessionFactory.getCurrentSession().save(chatRecipient);
-            }
+        recipients.add(message.getCreateActor());
+        for (Actor recipient : recipients) {
+            sessionFactory.getCurrentSession().save(new ChatMessageRecipient(message, recipient));
         }
         return result;
     }

@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.service.ChatService;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
@@ -31,9 +32,9 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public MessageAddedBroadcast saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-            Boolean isPrivate, ArrayList<ChatMessageFileDto> files) {
-        return getChatService().saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, files);
+    public MessageAddedBroadcast saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Actor> recipients,
+            ArrayList<ChatMessageFileDto> files) {
+        return getChatService().saveMessageAndBindFiles(user, processId, message, recipients, files);
     }
 
     @Override
@@ -49,11 +50,6 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     @Override
     public List<Long> getActiveChatIds(User user) {
         return getChatService().getActiveChatIds(user);
-    }
-
-    @Override
-    public Set<Executor> getAllUsers(User user, Long processId) {
-        return getChatService().getAllUsers(user, processId);
     }
 
     @Override
@@ -107,8 +103,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
-        return getChatService().saveChatMessage(user, processId, message, mentionedExecutors, isPrivate);
+    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
+        return getChatService().saveChatMessage(user, processId, message, recipients);
     }
 
     @Override
