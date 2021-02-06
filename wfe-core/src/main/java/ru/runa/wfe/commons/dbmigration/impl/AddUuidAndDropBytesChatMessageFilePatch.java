@@ -18,9 +18,6 @@ import ru.runa.wfe.commons.dbmigration.DbMigration;
  */
 public class AddUuidAndDropBytesChatMessageFilePatch extends DbMigration {
     private final String TABLE_NAME = "CHAT_MESSAGE_FILE";
-    private final String UUID = "UUID";
-    private final String BYTES = "BYTES";
-
     private final String STORAGE_PATH;
 
     public AddUuidAndDropBytesChatMessageFilePatch() {
@@ -31,13 +28,7 @@ public class AddUuidAndDropBytesChatMessageFilePatch extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLCreateColumn(TABLE_NAME, new VarcharColumnDef(UUID, 36)));
-    }
-
-    @Override
-    protected void executeDDLAfter() {
-        executeUpdates(
-                getDDLDropColumn(TABLE_NAME, BYTES),
-                getDDLModifyColumnNullability(TABLE_NAME, new VarcharColumnDef(UUID, 36).notNull()));
+                getDDLCreateColumn(TABLE_NAME, new VarcharColumnDef("UUID", 36).notNull()),
+                getDDLDropColumn(TABLE_NAME, "BYTES"));
     }
 }

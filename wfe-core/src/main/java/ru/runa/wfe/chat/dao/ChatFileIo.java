@@ -42,18 +42,9 @@ public class ChatFileIo {
 
     public ChatMessageFile save(ChatMessageFileDto dto) {
         ChatMessageFile result = messageFileMapper.toEntity(dto);
-        String uuidName;
-        Path path;
         try {
-            int i = 0;
-            do {
-                if (i++ >= 10) {
-                    throw new ChatFileIoException("UUID could not be generated");
-                }
-                uuidName = UUID.randomUUID().toString();
-                path = Paths.get(storagePath + "/" + uuidName);
-            } while (Files.isRegularFile(path));
-            result.setUuid(uuidName);
+            Path path = generateUuidPath();
+            result.setUuid(path.getFileName().toString());
             Files.write(path, dto.getBytes());
         } catch (Exception e) {
             delete(result);
@@ -62,9 +53,23 @@ public class ChatFileIo {
         return result;
     }
 
+    private Path generateUuidPath() {
+        String uuidName;
+        Path result = null;
+        int i = 0;
+        do {
+            if (i++ >= 10) {
+                throw new ChatFileIoException("UUID could not be generated");
+            }
+            uuidName = UUID.randomUUID().toString();
+            result = Paths.get(storagePath + "/" + uuidName);
+        } while (Files.isRegularFile(result));
+        return result;
+    }
+
     public List<ChatMessageFileDto> get(List<ChatMessageFile> files) {
         List<ChatMessageFileDto> result = new ArrayList<>(files.size());
-        for (ChatMessageFile file : files){
+        for (ChatMessageFile file : files) {
             result.add(get(file));
         }
         return result;
@@ -90,11 +95,11 @@ public class ChatFileIo {
         }
     }
 
-    public void delete(List<ChatMessageFile> files){
-        for (ChatMessageFile file : files){
+    public void delete(List<ChatMessageFile> files) {
+        for (ChatMessageFile file : files) {
             try {
                 delete(file);
-            } catch (Exception exception){
+            } catch (Exception exception) {
                 log.error("File not deleted. UUID: " + file.getUuid(), exception);
             }
         }

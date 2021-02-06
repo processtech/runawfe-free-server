@@ -193,7 +193,7 @@ public class ChatLogic extends WfCommonLogic {
 
     public void deleteMessage(User user, Long messageId) {
         if (!executorLogic.isAdministrator(user)) {
-            throw new AuthenticationException("Access is denied");
+            throw new AuthenticationException("Allowed for admin only");
         }
         ChatMessage message = getMessageById(user, messageId);
         List<ChatMessageFile> files = fileLogic.getByMessage(user, message);
@@ -202,8 +202,8 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void updateMessage(User user, ChatMessage message) {
-        if (!executorLogic.isAdministrator(user)) {
-            throw new AuthenticationException("Access is denied");
+        if (!message.getCreateActor().equals(user.getActor())) {
+            throw new AuthenticationException("Allowed for author only");
         }
         messageDao.updateMessage(message);
     }

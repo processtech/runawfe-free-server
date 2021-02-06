@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ChatMessageFileDto extends ChatDto{
+public class ChatMessageFileDto extends ChatDto {
     private Long id;
     private String name;
     private byte[] bytes;

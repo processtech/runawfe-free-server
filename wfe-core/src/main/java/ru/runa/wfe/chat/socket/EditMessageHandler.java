@@ -30,7 +30,7 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
             return;
         }
         ChatMessage newMessage = chatLogic.getMessageById(user, dto.getEditMessageId());
-        if ((newMessage != null) && (newMessage.getCreateActor().equals(user.getActor()))) {
+        if (newMessage != null) {
             newMessage.setText(dto.getMessage());
             chatLogic.updateMessage(user, newMessage);
             sessionHandler.sendMessage(new MessageEditedBroadcast(dto.getEditMessageId(), dto.getMessage()));
