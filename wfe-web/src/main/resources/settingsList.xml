@@ -84,7 +84,6 @@
 			<value>false</value>
 		</property>
 		<property title="task.form.highlightRequiredFields">
-			
 			<value>true</value>
 			<value>false</value>
 		</property>
