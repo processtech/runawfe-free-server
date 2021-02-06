@@ -14,6 +14,5 @@ public class AddMessageRequest extends MessageRequest {
     private String message;
     private String idHierarchyMessage;
     private boolean isPrivate;
-    private String privateNames;
     private Map<String, byte[]> files;
 }

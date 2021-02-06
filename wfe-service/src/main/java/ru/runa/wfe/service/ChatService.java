@@ -6,7 +6,7 @@ import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 /**
@@ -21,7 +21,7 @@ public interface ChatService {
 
     public void deleteFile(User user, Long id);
 
-    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
+    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Actor> recipients,
                                                ArrayList<ChatMessageFile> files);
 
     public void readMessage(User user, Long messageId);
@@ -31,8 +31,6 @@ public interface ChatService {
     public Long getLastMessage(User user, Long processId);
 
     public List<Long> getActiveChatIds(User user);
-
-    public Set<Executor> getAllUsers(User user, Long processId);
 
     public List<Long> getNewMessagesCounts(User user, List<Long> processIds);
 
@@ -107,13 +105,16 @@ public interface ChatService {
     /**
      * Save ChatMessage in DB.
      *
+     *
+     * @param user
      * @param processId
      *            chat Id
      * @param message
      *            new message to save
+     * @param recipients
      * @return new message id
      */
-    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate);
+    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients);
 
     /**
      * Delete ChatMessage in DB.

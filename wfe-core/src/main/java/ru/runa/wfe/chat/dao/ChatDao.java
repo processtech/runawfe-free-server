@@ -20,7 +20,6 @@ import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 @Component
@@ -40,8 +39,8 @@ public class ChatDao extends GenericDao<ChatMessage> {
     }
 
     public ChatMessage saveMessageAndBindFiles(ChatMessage message, ArrayList<ChatMessageFile> files,
-                                               Set<Executor> executors, Set<Executor> mentionedExecutors) {
-        Long mesId = save(message, executors, mentionedExecutors);
+                                               Set<Actor> recipients) {
+        Long mesId = save(message, recipients);
         message.setId(mesId);
         for (ChatMessageFile file : files) {
             file.setMessage(message);
@@ -134,17 +133,11 @@ public class ChatDao extends GenericDao<ChatMessage> {
         return queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
     }
 
-    public Long save(ChatMessage message, Set<Executor> executors, Set<Executor> mentionedExecutors) {
+    public Long save(ChatMessage message, Set<Actor> recipients) {
         Long mesId = create(message).getId();
-        if (!executors.contains(message.getCreateActor())) {
-            executors.add(message.getCreateActor());
-        }
-        for (Executor executor : executors) {
-            if (executor.getClass() == Actor.class) {
-                ChatMessageRecipient chatRecipient;
-                chatRecipient = new ChatMessageRecipient(message, executor, mentionedExecutors.contains(executor));
-                sessionFactory.getCurrentSession().save(chatRecipient);
-            }
+        recipients.add(message.getCreateActor());
+        for (Actor recipient : recipients) {
+            sessionFactory.getCurrentSession().save(new ChatMessageRecipient(message, recipient));
         }
         return mesId;
     }

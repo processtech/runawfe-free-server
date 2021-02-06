@@ -27,10 +27,9 @@ public class ChatMessageRecipient {
     public ChatMessageRecipient() {
     }
 
-    public ChatMessageRecipient(ChatMessage message, Executor executor, boolean mentioned) {
+    public ChatMessageRecipient(ChatMessage message, Executor executor) {
         this.message = message;
         this.executor = executor;
-        this.mentioned = mentioned;
     }
 
     @Id
