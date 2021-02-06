@@ -17,19 +17,20 @@
  */
 package ru.runa.wf.web.action;
 
+import java.text.MessageFormat;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
+import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.CommonProcessForm;
-import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.form.Interaction;
@@ -48,7 +49,7 @@ import ru.runa.wfe.user.User;
  * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect = "true"
  */
 public class SubmitStartProcessFormAction extends BaseProcessFormAction {
-    private static final PropertyResources RESOURCES = new PropertyResources("struts.properties");
+
     @Override
     protected Long executeProcessFromAction(HttpServletRequest request, ActionForm actionForm, ActionMapping mapping, Profile profile) {
         User user = getLoggedUser(request);
@@ -73,10 +74,10 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
     @Override
     protected ActionMessage getMessage(Long processId) {
 
-        if(RESOURCES.getStringProperty(MessagesProcesses.PROCESS_STARTED_CUSTOM.getKey()).equals("") ){
-            return new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(),processId.toString());
-        }else {
-            return new ActionMessage(RESOURCES.getStringProperty(MessagesProcesses.PROCESS_STARTED_CUSTOM.getKey()).replace("{0}",processId.toString()),false);
+        if (WebResources.getCustomTemplateForProcessStartMessage() == null) {
+            return new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString());
+        } else {
+            return new ActionMessage(MessageFormat.format(WebResources.getCustomTemplateForProcessStartMessage(), processId.toString()), false);
         }
     }
 

@@ -17,6 +17,7 @@
  */
 package ru.runa.wf.web.action;
 
+import java.text.MessageFormat;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,7 +34,6 @@ import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.StartProcessForm;
-import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -51,7 +51,6 @@ import ru.runa.wfe.user.Profile;
  */
 public class StartProcessAction extends ActionBase {
 
-    private static final PropertyResources RESOURCES = new PropertyResources("struts.properties");
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         StartProcessForm startProcessForm = (StartProcessForm) form;
@@ -69,10 +68,10 @@ public class StartProcessAction extends ActionBase {
             } else {
                 WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);
                 Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null);
-                if(RESOURCES.getStringProperty(MessagesProcesses.PROCESS_STARTED_CUSTOM.getKey()).equals("") ){
-                    addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(),processId.toString()));
-                }else {
-                    addMessage(request, new ActionMessage(RESOURCES.getStringProperty(MessagesProcesses.PROCESS_STARTED_CUSTOM.getKey()).replace("{0}",processId.toString()),false));
+                if (WebResources.getCustomTemplateForProcessStartMessage() == null) {
+                    addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
+                } else {
+                    addMessage(request, new ActionMessage(MessageFormat.format(WebResources.getCustomTemplateForProcessStartMessage(), processId.toString()), false));
                 }
                 forward = mapping.findForward(Resources.FORWARD_SUCCESS);
                 if (WebResources.isAutoShowForm()) {
