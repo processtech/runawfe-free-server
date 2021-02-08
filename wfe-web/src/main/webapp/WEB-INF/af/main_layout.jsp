@@ -14,6 +14,7 @@
 		thinInterfacePage="/start.do";
 	}
 %>
+<%@include file="/WEB-INF/af/chat_menu.jsp" %>
 <html:html lang="true">
   <head>
   	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
