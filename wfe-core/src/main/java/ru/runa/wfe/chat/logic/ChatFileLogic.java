@@ -30,19 +30,6 @@ public class ChatFileLogic extends WfCommonLogic {
         return chatFileIo.get(file);
     }
 
-    public List<ChatMessageFile> saveFilesAndBindMessage(User user, List<ChatMessageFileDto> dtos, ChatMessage message) {
-        List<ChatMessageFile> files = chatFileIo.save(dtos);
-        for (ChatMessageFile file : files) {
-            file.setMessage(message);
-        }
-        try {
-            return chatFileDao.save(files);
-        } catch (Exception exception) {
-            chatFileIo.delete(files);
-            throw exception;
-        }
-    }
-
     public List<ChatMessageFileDto> getDtosByMessage(User user, ChatMessage message) {
         return chatFileIo.get(getByMessage(user, message));
     }

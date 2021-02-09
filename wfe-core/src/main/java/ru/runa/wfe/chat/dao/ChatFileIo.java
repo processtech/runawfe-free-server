@@ -53,20 +53,6 @@ public class ChatFileIo {
         return result;
     }
 
-    private Path generateUuidPath() {
-        String uuidName;
-        Path result = null;
-        int i = 0;
-        do {
-            if (i++ >= 10) {
-                throw new ChatFileIoException("UUID could not be generated");
-            }
-            uuidName = UUID.randomUUID().toString();
-            result = Paths.get(storagePath + "/" + uuidName);
-        } while (Files.isRegularFile(result));
-        return result;
-    }
-
     public List<ChatMessageFileDto> get(List<ChatMessageFile> files) {
         List<ChatMessageFileDto> result = new ArrayList<>(files.size());
         for (ChatMessageFile file : files) {
@@ -76,15 +62,14 @@ public class ChatFileIo {
     }
 
     public ChatMessageFileDto get(ChatMessageFile file) {
-        ChatMessageFileDto result;
         try {
-            result = messageFileMapper.toDto(file);
+            final ChatMessageFileDto result = messageFileMapper.toDto(file);
             byte[] bytes = Files.readAllBytes(Paths.get(storagePath + "/" + file.getUuid()));
             result.setBytes(bytes);
+            return result;
         } catch (IOException e) {
             throw new ChatFileIoException("File load error: " + file.getName());
         }
-        return result;
     }
 
     public void delete(ChatMessageFile file) {
@@ -103,5 +88,19 @@ public class ChatFileIo {
                 log.error("File not deleted. UUID: " + file.getUuid(), exception);
             }
         }
+    }
+
+    private Path generateUuidPath() {
+        String uuidName;
+        Path result;
+        int i = 0;
+        do {
+            if (i++ >= 10) {
+                throw new ChatFileIoException("UUID could not be generated");
+            }
+            uuidName = UUID.randomUUID().toString();
+            result = Paths.get(storagePath + "/" + uuidName);
+        } while (Files.isRegularFile(result));
+        return result;
     }
 }
