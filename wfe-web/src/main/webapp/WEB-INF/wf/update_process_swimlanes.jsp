@@ -7,6 +7,7 @@
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
+	<%@include file="/WEB-INF/af/chat_notifications.jsp" %>
 
 <tiles:put name="head" type="string">
 	<script type="text/javascript">var id = <%= Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME)) %>;</script>

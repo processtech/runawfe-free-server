@@ -14,6 +14,7 @@
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
+	<%@include file="/WEB-INF/af/chat_notifications.jsp" %>
 
 <tiles:put name="head" type="string">
 	<script language="javascript" src="<html:rewrite page='<%="/js/dhtmlxgantt/dhtmlxgantt.js?"+Version.getHash() %>'/>" type="text/javascript" charset="utf-8"></script>

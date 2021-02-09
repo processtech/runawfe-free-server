@@ -16,7 +16,6 @@
             object.put("numberOfMessages", countMessages.get(i));
             data.add(object);
         }
-        System.out.println("Number of unread messages: " + countMessages.stream().reduce(0L, Long::sum));
         return data;
     }
 %>
@@ -52,21 +51,6 @@
                 return false;
             });
             initializeChatsMenu();
-
-            let socketProtocol = (document.location.protocol === "https:") ? "wss:" : "ws:";
-            let socketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket";
-            let webSocket = new WebSocket(socketUrl);
-            webSocket.onmessage = onMessage;
-        }
-
-        function onMessage(event) {
-            let message0 = JSON.parse(event.data);
-            console.info(message0);
-            if (message0.messageType === "newMessage") {
-                let numberNewMessagesTD = $("#numberNewMessages" + message0.processId);
-                numberNewMessagesTD.text(Number.parseInt(numberNewMessagesTD.text()) + 1);
-                alert("New Message!");
-            }
         }
 
         function initializeChatsMenu() {
