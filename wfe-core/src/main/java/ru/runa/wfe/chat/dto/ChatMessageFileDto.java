@@ -5,11 +5,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Sergey Inyakin
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class ChatFileDto extends ChatDto {
+public class ChatMessageFileDto extends ChatDto {
     private Long id;
     private String name;
+    private byte[] bytes;
+
+    public ChatMessageFileDto(String name, byte[] bytes) {
+        this.name = name;
+        this.bytes = bytes;
+    }
 }

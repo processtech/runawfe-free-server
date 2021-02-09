@@ -1,9 +1,11 @@
 package ru.runa.wfe.chat.utils;
 
-import lombok.RequiredArgsConstructor;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -11,16 +13,15 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
-import java.util.HashSet;
-import java.util.Set;
 
 @CommonsLog
 @Component
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RecipientCalculator {
 
-    private final ExecutorDao executorDao;
-    private final ExecutionLogic executionLogic;
+    @Autowired
+    private ExecutorDao executorDao;
+    @Autowired
+    private ExecutionLogic executionLogic;
 
     public Set<Long> mapToRecipientIds(Set<Actor> recipients) {
         Set<Long> recipientIds = new HashSet<>(recipients.size());
@@ -30,6 +31,7 @@ public class RecipientCalculator {
         return recipientIds;
     }
 
+    @Transactional(readOnly = true)
     public Set<Actor> calculateRecipients(User user, boolean isPrivate, String messageText, Long processId) {
         return isPrivate
                 ? findMentionedActorsInMessageText(messageText)
