@@ -59,7 +59,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public MessageAddedBroadcast saveMessageAndBindFiles(User user, @NonNull Long processId, ChatMessage message,
             Set<Actor> recipients, ArrayList<ChatMessageFileDto> files) {
-        return chatLogic.saveMessageAndBindFiles(user, processId, message, recipients, files);
+        return chatLogic.saveMessage(user, processId, message, recipients, files);
     }
 
     @WebMethod(exclude = false)

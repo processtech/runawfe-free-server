@@ -5,9 +5,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessageRecipient;
@@ -16,10 +16,10 @@ import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
 
 @Component
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ChatMessageDao extends GenericDao<ChatMessage> {
 
-    private final DtoConverters converter;
+    @Autowired
+    private DtoConverters converter;
 
     public List<Long> getMentionedExecutorIds(Long messageId) {
         QChatMessageRecipient mr = QChatMessageRecipient.chatMessageRecipient;
@@ -89,6 +89,7 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
                 .orderBy(cr.message.createDate.desc()).limit(count).fetch();
     }
 
+    @Transactional
     public ChatMessage save(ChatMessage message, Set<Actor> recipients) {
         ChatMessage result = create(message);
         recipients.add(message.getCreateActor());

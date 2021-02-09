@@ -23,7 +23,7 @@ public class MessageAddedBroadcast extends MessageBroadcast {
     private Long id;
 
     @JsonProperty("files")
-    private List<ChatMessageFileDetailDto> filesDto = new ArrayList<>();
+    private List<ChatMessageFileDetailDto> files = new ArrayList<>();
 
     @JsonProperty("old")
     private boolean isOld = false;
