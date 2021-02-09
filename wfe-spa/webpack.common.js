@@ -6,7 +6,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
   entry: {
-      index: './src/ts/index.ts',
+      index: './src/index.ts',
   },
   output: {
     filename: 'assets/js/[name].[contenthash].js',
@@ -17,7 +17,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'RunaWFE Professional',
       filename: 'index.html',
-      template: 'src/templates/index.html',
+      template: 'src/index.html',
     }),
     new VueLoaderPlugin(),
   ],
