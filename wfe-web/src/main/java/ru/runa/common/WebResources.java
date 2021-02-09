@@ -201,7 +201,7 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }
 
-    public static String getCustomTemplateForProcessStartMessage() {
+    public static String getProcessStartedMessage() {
         return RESOURCES.getStringProperty("process.started");
     }
 }

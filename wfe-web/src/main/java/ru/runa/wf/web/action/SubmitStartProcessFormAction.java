@@ -73,11 +73,10 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
 
     @Override
     protected ActionMessage getMessage(Long processId) {
-
-        if (WebResources.getCustomTemplateForProcessStartMessage() == null) {
+        if (WebResources.getProcessStartedMessage() == null) {
             return new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString());
         } else {
-            return new ActionMessage(MessageFormat.format(WebResources.getCustomTemplateForProcessStartMessage(), processId.toString()), false);
+            return new ActionMessage(MessageFormat.format(WebResources.getProcessStartedMessage(), processId.toString()), false);
         }
     }
 
