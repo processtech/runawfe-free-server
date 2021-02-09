@@ -26,6 +26,7 @@ import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.security.AuthenticationException;
+import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -117,7 +118,7 @@ public class ChatLogic extends WfCommonLogic {
 
     public void deleteMessage(User user, Long messageId) {
         if (!executorLogic.isAdministrator(user)) {
-            throw new AuthenticationException("Allowed for admin only");
+            throw new AuthorizationException("Allowed for admin only");
         }
         ChatMessage message = getMessageById(user, messageId);
         List<ChatMessageFile> files = fileLogic.getByMessage(user, message);
@@ -127,7 +128,7 @@ public class ChatLogic extends WfCommonLogic {
 
     public void updateMessage(User user, ChatMessage message) {
         if (!message.getCreateActor().equals(user.getActor())) {
-            throw new AuthenticationException("Allowed for author only");
+            throw new AuthorizationException("Allowed for author only");
         }
         messageDao.updateMessage(message);
     }
