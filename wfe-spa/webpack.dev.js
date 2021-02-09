@@ -12,7 +12,7 @@ module.exports = merge(common, {
     contentBase: path.join(__dirname, 'dist'),
     hot: true, // Enabling Hot Module Replacement
     host: 'localhost',
-    port: 8080,
+    port: 3000,
     overlay: {
       warnings: true,
       errors: true

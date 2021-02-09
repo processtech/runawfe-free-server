@@ -3,6 +3,9 @@
       "outDir": "./dist/",
       "types": [
         "vuetify",
+        "webpack-env",
+        "lodash",
+        "webfontloader",
       ],
       "baseUrl": ".",
       "paths": {
@@ -13,8 +16,8 @@
       "moduleResolution": "node",
       "sourceMap": true,
       "noImplicitAny": true,
-      "module": "es6",
-      "target": "es5",
+      "module": "ESNext",
+      "target": "ESNext",
       "strict": true,
       "allowJs": true
     },
