@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
-import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.commons.dao.GenericDao;
@@ -88,11 +87,6 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return queryFactory.select(cr.message).from(cr)
                 .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user).and(cr.message.id.lt(firstId))))
                 .orderBy(cr.message.createDate.desc()).limit(count).fetch();
-    }
-
-    public ChatMessage getMessage(Long messageId) {
-        QChatMessage m = QChatMessage.chatMessage;
-        return queryFactory.selectFrom(m).where(m.id.eq(messageId)).fetchFirst();
     }
 
     public ChatMessage save(ChatMessage message, Set<Actor> recipients) {

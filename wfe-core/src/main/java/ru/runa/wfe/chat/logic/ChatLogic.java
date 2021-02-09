@@ -88,7 +88,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public ChatMessage getMessageById(User user, Long messageId) {
-        return messageDao.getMessage(messageId);
+        return messageDao.get(messageId);
     }
 
     public List<MessageAddedBroadcast> getMessages(User user, Long processId, Long firstId, int count) {
