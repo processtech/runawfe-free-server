@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.user.Actor;
@@ -31,8 +32,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public ChatMessage saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Actor> recipients,
-                                               ArrayList<ChatMessageFile> files) {
+    public MessageAddedBroadcast saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Actor> recipients,
+            ArrayList<ChatMessageFileDto> files) {
         return getChatService().saveMessageAndBindFiles(user, processId, message, recipients, files);
     }
 
@@ -55,24 +56,24 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     public List<Long> getNewMessagesCounts(User user, List<Long> processIds) {
         return getChatService().getNewMessagesCounts(user, processIds);
     }
-	
+
     @Override
     public void updateChatMessage(User user, ChatMessage message) {
         getChatService().updateChatMessage(user, message);
     }
 
     @Override
-    public List<ChatMessageFile> getChatMessageFiles(User user, ChatMessage message) {
+    public List<ChatMessageFileDto> getChatMessageFiles(User user, ChatMessage message) {
         return getChatService().getChatMessageFiles(user, message);
     }
 
     @Override
-    public ChatMessageFile getChatMessageFile(User user, Long fileId) {
+    public ChatMessageFileDto getChatMessageFile(User user, Long fileId) {
         return getChatService().getChatMessageFile(user, fileId);
     }
 
     @Override
-    public ChatMessageFile saveChatMessageFile(User user, ChatMessageFile file) {
+    public ChatMessageFileDto saveChatMessageFile(User user, ChatMessageFileDto file) {
         return getChatService().saveChatMessageFile(user, file);
     }
 

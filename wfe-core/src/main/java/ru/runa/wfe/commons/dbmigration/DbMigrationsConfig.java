@@ -26,6 +26,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddTitleAndDepartmentColumnsToActorP
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenMessageSelectorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
+import ru.runa.wfe.commons.dbmigration.impl.AddUuidAndDropBytesChatMessageFilePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
@@ -133,6 +134,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(CreateChatDbPatch.class);
         dbMigrations.add(RefactorPermissionsBack.class);
         dbMigrations.add(RemoveWfeConstants.class);
+        dbMigrations.add(AddUuidAndDropBytesChatMessageFilePatch.class);
         return dbMigrations;
     }
 }

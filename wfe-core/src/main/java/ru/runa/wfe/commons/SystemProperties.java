@@ -423,4 +423,8 @@ public class SystemProperties {
     public static String getPreferredMessagesLanguage() {
         return RESOURCES.getStringProperty("preferred.messages.language");
     }
+
+    public static String getChatFileStoragePath() {
+        return RESOURCES.getStringProperty("chat.files.storage.path", IoCommons.getAppServerDirPath() + "/wfe.chat-files-storage");
+    }
 }

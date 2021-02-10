@@ -3,6 +3,7 @@ package ru.runa.wfe.chat.utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
@@ -30,13 +31,13 @@ public class RecipientCalculatorTest {
     @Mock
     private User user;
     private Set<Actor> actors;
+    @InjectMocks
     private RecipientCalculator calculator;
     private final Long processId = 1L;
 
     @Before
     public void init() {
         actors = newHashSet(createActor("first"), createActor("second"), createActor("third"));
-        calculator = new RecipientCalculator(executorDao, executionLogic);
     }
 
     @Test
