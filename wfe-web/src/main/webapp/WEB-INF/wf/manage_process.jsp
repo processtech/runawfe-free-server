@@ -84,7 +84,6 @@ function Reload() {
 	<tr>
 		<% if(WebResources.isChatEnabled()){%>
 		<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
-		<script type="text/javascript" src="/wfe/js/chat.js"></script>
 		<td align="right">
 			<a id="openChatButton" onclick="openChat()"><span id="openChatButtonText"></span><span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 			<div id="ChatForm" processId="<%=id %>"></div>

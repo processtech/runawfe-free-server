@@ -58,6 +58,7 @@
 		  });
 		});
 	</script>
+	<script type="text/javascript" src="/wfe/js/chat.js"></script>
 	<tiles:insert attribute="head" ignore="true"/>
   </head>
 <body>

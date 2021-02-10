@@ -7,13 +7,7 @@
 </head>
 <body>
 <script type="text/javascript">
-    $(document).ready(function () {
-
-        let socketProtocol = (document.location.protocol === "https:") ? "wss:" : "ws:";
-        let socketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket";
-        let webSocket = new WebSocket(socketUrl);
-        webSocket.onmessage = onMessage;
-
+    $(document).ready(function() {
         function onMessage(event) {
             let message0 = JSON.parse(event.data);
             console.info(message0);
@@ -23,6 +17,8 @@
                 alert("New Message!");
             }
         }
+
+        establishConnection(onMessage);
     });
 </script>
 </body>

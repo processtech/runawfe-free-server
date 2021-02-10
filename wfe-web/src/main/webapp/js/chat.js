@@ -1,3 +1,10 @@
+function establishConnection(onMessage) {
+  let socketProtocol = (document.location.protocol === "https:") ? "wss:" : "ws:";
+  let socketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket";
+  let webSocket = new WebSocket(socketUrl);
+  webSocket.onmessage = onMessage;
+}
+
 $(document).ready(function() {
 //-----------------------------------------
 //протокол
