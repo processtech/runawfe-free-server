@@ -9,10 +9,10 @@
 <script type="text/javascript">
     $(document).ready(function() {
         function onMessage(event) {
-            let message0 = JSON.parse(event.data);
-            console.info(message0);
-            if (message0.messageType === "newMessage") {
-                let numberNewMessagesTD = $("#numberNewMessages" + message0.processId);
+            let message = JSON.parse(event.data);
+            console.info(message);
+            if (message.messageType === "newMessage") {
+                let numberNewMessagesTD = $("#numberNewMessages" + message.processId);
                 numberNewMessagesTD.text(Number.parseInt(numberNewMessagesTD.text()) + 1);
                 alert("New Message!");
             }
