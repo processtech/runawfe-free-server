@@ -49,6 +49,7 @@ public class Resources {
     public static final String CLASS_PAGING_NAVIGATION_TD = "paging-navigation";
     public static final String CLASS_PAGING_TOTAL_COUNT_TD = "paging-total-count";
     public static final String CLASS_FONT_RED = "fontRed";
+    public static final String CLASS_SYMBOL = "symbol";
     public static final String HIDDEN_ALT = "[>]";
     public static final String VISIBLE_ALT = "[v]";
     public static final String HIDDEN_IMAGE = "/images/view_setup_hidden.gif";

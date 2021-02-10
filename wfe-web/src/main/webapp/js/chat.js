@@ -1052,7 +1052,7 @@ function addMessage(data){
 				}
 				cloneMess.find(".addReply").click(messReplyClickFunction);
 				//файлы
-				if(data.haveFile == true){
+				if(data.files.length > 0){
 					let fileTr0 = $("<tr/>");
 					let fileTable = $("<table/>");
 					fileTable.addClass("fileHolder");
