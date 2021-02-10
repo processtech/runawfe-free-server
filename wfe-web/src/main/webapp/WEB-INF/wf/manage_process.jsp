@@ -11,6 +11,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
+<%@include file="/WEB-INF/af/chat_view.jsp" %>
 
 <tiles:put name="head" type="string">
 <script type="text/javascript" src="<html:rewrite page='<%="/js/errorviewer.js?"+Version.getHash() %>' />">c=0;</script>
@@ -83,7 +84,6 @@ function Reload() {
 	</tr>
 	<tr>
 		<% if(WebResources.isChatEnabled()){%>
-		<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
 		<td align="right">
 			<a id="openChatButton" onclick="openChat()"><span id="openChatButtonText"></span><span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
 			<div id="ChatForm" processId="<%=id %>"></div>
