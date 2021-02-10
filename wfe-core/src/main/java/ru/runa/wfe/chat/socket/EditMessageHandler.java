@@ -1,6 +1,7 @@
 package ru.runa.wfe.chat.socket;
 
 import java.io.IOException;
+import javax.annotation.Resource;
 import javax.websocket.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,11 @@ import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.User;
 
-@Component
+@Component(value = "editMessageHandler")
 public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageRequest> {
 
+    @Resource(name = "editMessageHandler")
+    private EditMessageHandler selfEditMessageHandler;
     @Autowired
     private ChatSessionHandler sessionHandler;
     @Autowired
@@ -23,18 +26,27 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
     @Autowired
     private ExecutionLogic executionLogic;
 
-    @Transactional
     @Override
     public void handleMessage(Session session, EditMessageRequest dto, User user) throws IOException {
-        if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
-            return;
+        if (selfEditMessageHandler.updateMessage(dto, user)) {
+            sessionHandler.sendMessage(new MessageEditedBroadcast(dto.getEditMessageId(), dto.getMessage()));
         }
+    }
+
+    @Transactional
+    public boolean updateMessage(EditMessageRequest dto, User user) {
+        if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
+            return false;
+        }
+
         ChatMessage newMessage = chatLogic.getMessageById(user, dto.getEditMessageId());
         if (newMessage != null) {
             newMessage.setText(dto.getMessage());
             chatLogic.updateMessage(user, newMessage);
-            sessionHandler.sendMessage(new MessageEditedBroadcast(dto.getEditMessageId(), dto.getMessage()));
+            return true;
         }
+
+        return false;
     }
 
     @Override
