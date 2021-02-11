@@ -16,7 +16,7 @@ import ru.runa.wfe.user.User;
 @Component
 public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageRequest> {
 
-    @Autowired
+    @Resource(name = "editMessageHandler")
     private EditMessageHandler self;
     @Autowired
     private ChatSessionHandler sessionHandler;

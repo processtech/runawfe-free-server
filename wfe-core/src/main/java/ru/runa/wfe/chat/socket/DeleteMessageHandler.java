@@ -15,7 +15,7 @@ import ru.runa.wfe.user.User;
 @Component
 public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMessageRequest> {
 
-    @Autowired
+    @Resource(name = "deleteMessageHandler")
     private DeleteMessageHandler self;
     @Autowired
     private ChatLogic chatLogic;
