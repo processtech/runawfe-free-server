@@ -14,7 +14,7 @@ import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.user.User;
 
 @Component
-public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageRequest> {
+public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageRequest, MessageEditedBroadcast> {
 
     @Resource(name = "editMessageHandler")
     private EditMessageHandler self;
@@ -24,17 +24,21 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
     private ChatLogic chatLogic;
 
     @Override
-    public void handleMessage(Session session, EditMessageRequest dto, User user) throws IOException {
+    public MessageEditedBroadcast handleMessage(Session session, EditMessageRequest dto, User user) throws IOException {
+        MessageEditedBroadcast broadcast = null;
         if (self.updateMessage(dto, user)) {
-            sessionHandler.sendMessage(new MessageEditedBroadcast(dto.getEditMessageId(), dto.getMessage()));
+            broadcast = new MessageEditedBroadcast(dto.getEditMessageId(), dto.getMessage());
+            sessionHandler.sendMessage(broadcast);
+
         }
+        return broadcast;
     }
 
     @Transactional
-    public boolean updateMessage(EditMessageRequest dto, User user) {
-        ChatMessage newMessage = chatLogic.getMessageById(user, dto.getEditMessageId());
+    public boolean updateMessage(EditMessageRequest request, User user) {
+        ChatMessage newMessage = chatLogic.getMessageById(user, request.getEditMessageId());
         if (newMessage != null) {
-            newMessage.setText(dto.getMessage());
+            newMessage.setText(request.getMessage());
             chatLogic.updateMessage(user, newMessage);
             return true;
         }

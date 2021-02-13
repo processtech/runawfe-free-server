@@ -13,7 +13,7 @@ import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.user.User;
 
 @Component
-public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMessageRequest> {
+public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMessageRequest, MessageDeletedBroadcast> {
 
     @Resource(name = "deleteMessageHandler")
     private DeleteMessageHandler self;
@@ -23,9 +23,11 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMess
     private ChatSessionHandler sessionHandler;
 
     @Override
-    public void handleMessage(Session session, DeleteMessageRequest dto, User user) throws IOException {
-        self.deleteMessage(dto, user);
-        sessionHandler.sendMessage(new MessageDeletedBroadcast(dto.getMessageId()));
+    public MessageDeletedBroadcast handleMessage(Session session, DeleteMessageRequest request, User user) throws IOException {
+        self.deleteMessage(request, user);
+        MessageDeletedBroadcast broadcast = new MessageDeletedBroadcast(request.getMessageId());
+        sessionHandler.sendMessage(broadcast);
+        return broadcast;
     }
 
     @Transactional

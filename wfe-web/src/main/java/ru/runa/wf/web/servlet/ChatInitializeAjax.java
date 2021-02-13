@@ -40,7 +40,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
             }
         }
         if (messages.size() < countMessages) {
-            messages = Delegates.getChatService().getChatMessages(user, processId, lastMessageId, countMessages - messages.size());
+            messages = Delegates.getChatService().getMessages(user, processId, lastMessageId, countMessages - messages.size());
             for (MessageAddedBroadcast message : messages) {
                 messageObject = message;
                 messageObject.setOld(true);
