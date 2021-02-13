@@ -1,35 +1,39 @@
 package ru.runa.wf.web.tag;
 
 import com.google.common.collect.Lists;
+import lombok.Setter;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import org.tldgen.annotations.Tag;
 import ru.runa.common.web.PagingNavigationHelper;
-import ru.runa.common.web.tag.BatchReturningTitledFormTag;
+import ru.runa.common.web.tag.FormTag;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import java.util.List;
 
 @Tag(bodyContent = BodyContent.JSP, name = "chatForm")
-public class ChatFormTag extends BatchReturningTitledFormTag {
+public class ChatFormTag extends FormTag {
 
     private static final long serialVersionUID = -1L;
 
+    @Setter
+    @Attribute(required = true)
+    private Long processId;
+
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        Long processId = Long.parseLong(pageContext.getRequest().getParameter("processId"));
         User user = getUser();
         List<MessageAddedBroadcast> messages = Delegates.getChatService()
                 .getChatMessages(user, processId, Long.MAX_VALUE, Integer.MAX_VALUE);
-        Table table = createTable(messages);
 
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, messages.size());
         navigation.addPagingNavigationTable(tdFormElement);
-        tdFormElement.addElement(table);
+        tdFormElement.addElement(createTable(messages));
         navigation.addPagingNavigationTable(tdFormElement);
     }
 

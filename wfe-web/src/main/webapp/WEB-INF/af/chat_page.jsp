@@ -18,7 +18,7 @@
         </div>
         <div id="ChatForm" processId="<%= processId %>"></div>
 
-        <wf:chatForm batchPresentationId="listTasksForm" />
+        <wf:chatForm processId='<%= processId %>'/>
     </tiles:put>
 
     <tiles:put name="messages" value="../common/messages.jsp"/>
