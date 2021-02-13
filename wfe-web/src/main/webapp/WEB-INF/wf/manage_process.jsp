@@ -85,8 +85,8 @@ function Reload() {
 	<tr>
 		<% if(WebResources.isChatEnabled()){%>
 		<td align="right">
-			<a id="openChatButton" onclick="openChat()"><span id="openChatButtonText"></span><span id="countNewMessages" class="countNewMessages" title="Непрочитанные">0</span></a>
-			<div id="ChatForm" processId="<%=id %>"></div>
+			<% String href = "/wfe/chat_page.do?processId=" + id;%>
+			<a href="<%= href %>" id="openChatButton"><span id="openChatButtonText"></span></a>
 		</td>
 		<% }%>
 		<td align="right">

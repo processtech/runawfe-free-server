@@ -27,9 +27,6 @@ public class ChatFormTag extends BatchReturningTitledFormTag {
                 .getChatMessages(user, processId, Long.MAX_VALUE, Integer.MAX_VALUE);
         Table table = createTable(messages);
 
-        //ProcessInfoFormTag infoTag = new ProcessInfoFormTag();
-        //infoTag.fillFormData(tdFormElement);
-
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, messages.size());
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
