@@ -119,7 +119,7 @@ public class ChatLogic extends WfCommonLogic {
         ChatMessage message = getMessageById(user, messageId);
         List<ChatMessageFile> files = fileLogic.getByMessage(user, message);
         messageDao.deleteMessage(messageId);
-        if (files != null) {
+        if (!files.isEmpty()) {
             fileLogic.delete(user, files);
         }
     }

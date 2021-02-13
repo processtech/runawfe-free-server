@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class MessageEditedBroadcast extends MessageBroadcast {
-    private Long editMessageId;
-    private String message;
+    private Long id;
+    private String text;
 }

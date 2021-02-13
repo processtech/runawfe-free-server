@@ -18,9 +18,9 @@ import ru.runa.wfe.user.Actor;
 @NoArgsConstructor
 public class MessageAddedBroadcast extends MessageBroadcast {
 
+    private Long id;
     private String text;
     private String quotedMessageIds;
-    private Long id;
 
     @JsonProperty("files")
     private List<ChatMessageFileDetailDto> files = new ArrayList<>();

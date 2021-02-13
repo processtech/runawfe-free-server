@@ -265,7 +265,6 @@ function ajaxInitializationChat() {
 			newMessage.processId = idProcess;
 			newMessage.messageType = deleteMessageType;
 			sendBinaryMessage(chatSocket, newMessage);
-			$(this).closest(".selectionTextQuote").remove();
 		}
 	}
 	//редактирование сообщений
@@ -370,11 +369,7 @@ function ajaxInitializationChat() {
 					newMessage.processId = idProcess;
 					newMessage.messageType = editMessageType;
 					newMessage.editMessageId = editMessageId;
-					$("#message").val("");
 					sendBinaryMessage(chatSocket, newMessage);
-					$("[textMessagId='" + editMessageId + "']").text(message);
-					editMessageId = -1;
-					editMessageFlag = false;
 				}
 				else {
 					$("#message").val("");
@@ -979,14 +974,22 @@ function ajaxInitializationChat() {
 	}
 
 	function editMessageHandler(message) {
-		let mesSelector = $("[textMessagId='" + message.mesId + "']");
+		let mesSelector = $("[textMessagId='" + message.id + "']");
 		if ((mesSelector != null) && (mesSelector != undefined)) {
-			mesSelector.text(message.messageText);
+			$("#message").val("");
+			mesSelector.text(message.text);
 		}
 	}
 
 	function errorMessageHandler(message) {
 		alert("Сообщение не отправлено. Error: " + message.message);
+	}
+
+	function deleteMessageHandler(message) {
+		let deleteMessage = $("[messageId='" + message.id + "']");
+		if ((deleteMessage != null) && (deleteMessage != undefined)) {
+			deleteMessage.remove();
+		}
 	}
 
 	//---------------------------------------------------------------------
@@ -1138,7 +1141,7 @@ function ajaxInitializationChat() {
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
 				updatenumberNewMessages(0);
 			}
-			chatSocket = establishWebSocketConnection({ "newMessage": addMessageHandler, "editMessage": editMessageHandler, "errorMessage": errorMessageHandler });
+			chatSocket = establishWebSocketConnection({ "newMessage": addMessageHandler, "editMessage": editMessageHandler, "errorMessage": errorMessageHandler, "deleteMessage": deleteMessageHandler });
 			//скролл к непрочитанным
 			//установка скрол-функции отслеживания непрочитанных
 			$("#modal-body").bind("load scroll", scrollNewMessages);

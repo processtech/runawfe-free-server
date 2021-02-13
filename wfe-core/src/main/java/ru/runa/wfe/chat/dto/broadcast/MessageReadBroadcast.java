@@ -11,5 +11,5 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class MessageReadBroadcast extends MessageBroadcast{
-    private Long editMessageId;
+    private Long id;
 }

@@ -25,12 +25,11 @@ public class ChatWebServiceTest {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        MessageAddedBroadcast addedBroadcast = sendMessageTest("New Message in test 123");
-        sendMessageTest("2 new message");
-        Thread.sleep(5000);
-        MessageEditedBroadcast editedBroadcast = updateMessageTest(addedBroadcast.getId(), "Edit message");
-        Thread.sleep(5000);
-        MessageDeletedBroadcast deletedBroadcast = deleteMessageTest(editedBroadcast.getEditMessageId());
+        MessageAddedBroadcast addedBroadcast = sendMessageTest("New Message in test");
+        Thread.sleep(1000);
+        MessageEditedBroadcast editedBroadcast = updateMessageTest(addedBroadcast.getId(), "Edit message ID: " + addedBroadcast.getId());
+        Thread.sleep(1000);
+        MessageDeletedBroadcast deletedBroadcast = deleteMessageTest(editedBroadcast.getId());
     }
 
     public static MessageAddedBroadcast sendMessageTest(String message) {
