@@ -16,34 +16,31 @@ import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.chat.utils.RecipientCalculator;
-import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 @Component
-public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessageRequest> {
+public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessageRequest, MessageAddedBroadcast> {
 
     @Autowired
     private ChatSessionHandler sessionHandler;
     @Autowired
     private ChatLogic chatLogic;
     @Autowired
-    private ExecutionLogic executionLogic;
-    @Autowired
     private DtoConverters converter;
     @Autowired
     private RecipientCalculator calculator;
 
     @Override
-    public void handleMessage(Session session, AddMessageRequest dto, User user) throws IOException {
-        final ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(dto, user.getActor());
-        final long processId = dto.getProcessId();
-        final Set<Actor> recipients = calculator.calculateRecipients(user, dto.isPrivate(), dto.getMessage(), processId);
+    public MessageAddedBroadcast handleMessage(Session session, AddMessageRequest request, User user) throws IOException {
+        final ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(request, user.getActor());
+        final long processId = request.getProcessId();
+        final Set<Actor> recipients = calculator.calculateRecipients(user, request.isPrivate(), request.getMessage(), processId);
 
         MessageAddedBroadcast messageAddedBroadcast;
-        if (dto.getFiles() != null) {
-            List<ChatMessageFileDto> chatMessageFiles = new ArrayList<>(dto.getFiles().size());
-            for (Map.Entry<String, byte[]> entry : dto.getFiles().entrySet()) {
+        if (request.getFiles() != null) {
+            List<ChatMessageFileDto> chatMessageFiles = new ArrayList<>(request.getFiles().size());
+            for (Map.Entry<String, byte[]> entry : request.getFiles().entrySet()) {
                 ChatMessageFileDto chatMessageFile = new ChatMessageFileDto(entry.getKey(), entry.getValue());
                 chatMessageFiles.add(chatMessageFile);
             }
@@ -54,6 +51,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
 
         messageAddedBroadcast.setCoreUser(messageAddedBroadcast.getAuthor().getId().equals(user.getActor().getId()));
         sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), messageAddedBroadcast);
+        return messageAddedBroadcast;
     }
 
     @Override

@@ -13,7 +13,7 @@ import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.User;
 
 @Component
-public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMessageRequest> {
+public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMessageRequest, MessageDeletedBroadcast> {
 
     @Autowired
     private ExecutionLogic executionLogic;
@@ -24,12 +24,14 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMess
 
     @Transactional
     @Override
-    public void handleMessage(Session session, DeleteMessageRequest dto, User user) throws IOException {
-        if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
-            return;
+    public MessageDeletedBroadcast handleMessage(Session session, DeleteMessageRequest request, User user) throws IOException {
+        if (executionLogic.getProcess(user, request.getProcessId()).isEnded()) {
+            return null;
         }
-        chatLogic.deleteMessage(user, dto.getMessageId());
-        sessionHandler.sendMessage(new MessageDeletedBroadcast(dto.getMessageId()));
+        chatLogic.deleteMessage(user, request.getMessageId());
+        MessageDeletedBroadcast broadcast = new MessageDeletedBroadcast(request.getMessageId());
+        sessionHandler.sendMessage(broadcast);
+        return broadcast;
     }
 
     @Override

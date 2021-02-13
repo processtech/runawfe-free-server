@@ -7,6 +7,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -40,7 +41,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
             }
         }
         if (messages.size() < countMessages) {
-            messages = Delegates.getChatService().getChatMessages(user, processId, lastMessageId, countMessages - messages.size());
+            messages = Delegates.getChatService().getMessages(user, processId, lastMessageId, countMessages - messages.size());
             for (MessageAddedBroadcast message : messages) {
                 messageObject = message;
                 messageObject.setOld(true);
