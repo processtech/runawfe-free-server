@@ -8,8 +8,9 @@
 
     <tiles:put name="body" type="string">
         <% Long processId = Long.parseLong(request.getParameter("processId")); %>
+        <% String title = "Чат процесса " + processId; %>
 
-        <wf:processInfoForm identifiableId='<%= processId %>' />
+        <wf:processInfoForm identifiableId='<%= processId %>'/>
 
         <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
         <div style="float:right; max-width: 150px; margin-top: -25px;">
@@ -18,7 +19,7 @@
         </div>
         <div id="ChatForm" processId="<%= processId %>"></div>
 
-        <wf:chatForm processId='<%= processId %>'/>
+        <wf:chatForm processId='<%= processId %>' title='<%= title %>'/>
     </tiles:put>
 
     <tiles:put name="messages" value="../common/messages.jsp"/>
