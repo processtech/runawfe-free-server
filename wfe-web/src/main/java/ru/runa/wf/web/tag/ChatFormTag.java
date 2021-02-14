@@ -1,13 +1,7 @@
 package ru.runa.wf.web.tag;
 
-import com.google.common.collect.Lists;
 import lombok.Setter;
-import org.apache.ecs.html.TD;
-import org.apache.ecs.html.TH;
-import org.apache.ecs.html.TR;
-import org.apache.ecs.html.Table;
-import org.apache.ecs.html.TextArea;
-import org.apache.ecs.html.Input;
+import org.apache.ecs.html.*;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import org.tldgen.annotations.Tag;
@@ -49,9 +43,9 @@ public class ChatFormTag extends TitledFormTag {
         table.setClass("list");
         table.addElement(createTextArea());
         table.addElement(createSubmitButton());
-        table.addElement(createTitle());
-        for (MessageAddedBroadcast message : Lists.reverse(messages)) {
-            table.addElement(createRow(message));
+        for (MessageAddedBroadcast message : messages) {
+            table.addElement(createHead(message));
+            table.addElement(createBody(message.getText()));
         }
         return table;
     }
@@ -65,42 +59,22 @@ public class ChatFormTag extends TitledFormTag {
     }
 
     private Input createSubmitButton() {
-        Input input = new Input();
-        input.setOnClick("alert(\"Clicked!\")");
-        input.setValue("Отправить сообщение");
+        Input input = new Input("SUBMIT", "submitButton", "Отправить сообщение");
         input.setClass("button");
-        input.setName("submitButton");
-        input.setType("SUBMIT");
+        input.setOnClick("alert(\"Clicked!\")");
         return input;
     }
 
-    private TR createTitle() {
-        TR title = new TR();
-        title.addElement(createHeader("Текст сообщения"));
-        title.addElement(createHeader("Дата создания"));
-        title.addElement(createHeader("Автор сообщения"));
-        return title;
-    }
-
-    private TR createRow(MessageAddedBroadcast message) {
+    private TR createHead(MessageAddedBroadcast message) {
         TR row = new TR();
-        row.addElement(createCell(message.getText()));
-        row.addElement(createCell(message.getCreateDate().toString()));
-        row.addElement(createCell(message.getAuthor().getName()));
+        row.addElement(new TH(message.getAuthor().getName()).setAlign("left"));
+        row.addElement(new TH(message.getCreateDate().toString()).setAlign("right"));
         return row;
     }
 
-    private TH createHeader(String element) {
-        TH header = new TH();
-        header.setClass("list");
-        header.addElement(element);
-        return header;
-    }
-
-    private TD createCell(String element) {
-        TD cell = new TD();
-        cell.setClass("list");
-        cell.addElement(element);
-        return cell;
+    private TD createBody(String text) {
+        TD td = new TD(text);
+        td.setClass("list");
+        return td;
     }
 }
