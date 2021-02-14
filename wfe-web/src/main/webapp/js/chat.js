@@ -370,6 +370,7 @@ function ajaxInitializationChat() {
 					newMessage.messageType = editMessageType;
 					newMessage.editMessageId = editMessageId;
 					sendBinaryMessage(chatSocket, newMessage);
+					$("#message").val("");
 				}
 				else {
 					$("#message").val("");
@@ -940,7 +941,7 @@ function ajaxInitializationChat() {
 				let editMessage0 = $("<a/>");
 				editMessage0.text(editMessageButtonText);
 				editMessage0.click(editMessage);
-				cloneMess.find(".addReply").parent().parent().append($("<td/>").append(editMessage0));
+				cloneMess.find(".addReply").parent(5).parent().append($("<td/>").append(editMessage0));
 			}
 			// конец
 			// установка сообщения
@@ -976,7 +977,6 @@ function ajaxInitializationChat() {
 	function editMessageHandler(message) {
 		let mesSelector = $("[textMessagId='" + message.id + "']");
 		if ((mesSelector != null) && (mesSelector != undefined)) {
-			$("#message").val("");
 			mesSelector.text(message.text);
 		}
 	}

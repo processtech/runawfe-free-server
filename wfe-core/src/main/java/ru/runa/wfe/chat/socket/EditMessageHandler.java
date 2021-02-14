@@ -13,7 +13,6 @@ import ru.runa.wfe.chat.dto.request.EditMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.chat.utils.RecipientCalculator;
-import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
@@ -27,20 +26,17 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
     @Autowired
     private ChatLogic chatLogic;
     @Autowired
-    private ExecutionLogic executionLogic;
-    @Autowired
     private RecipientCalculator calculator;
 
-    @Transactional
     @Override
     public void handleMessage(Session session, EditMessageRequest request, User user) throws IOException {
+        final Set<Actor> recipients = calculator.calculateRecipients(user, false, request.getMessage(), request.getProcessId());
         if (self.updateMessage(request, user)) {
-            final Set<Actor> recipients = executionLogic.getAllExecutorsByProcessId(user, request.getProcessId(), true);
-            sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), new MessageEditedBroadcast(request.getEditMessageId(), request.getMessage()));
+            sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), new MessageEditedBroadcast(request.getEditMessageId(),
+                    request.getMessage()));
         }
     }
 
-    @Transactional
     public boolean updateMessage(EditMessageRequest request, User user) {
         ChatMessage newMessage = chatLogic.getMessageById(user, request.getEditMessageId());
         if (newMessage != null) {
@@ -48,7 +44,6 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
             chatLogic.updateMessage(user, newMessage);
             return true;
         }
-
         return false;
     }
 

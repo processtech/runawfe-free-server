@@ -41,17 +41,4 @@ public class ChatFileLogic extends WfCommonLogic {
     public ChatMessageFileDto getById(User user, Long id) {
         return chatFileIo.get(chatFileDao.get(id));
     }
-
-    public void deleteById(User user, Long id) {
-        ChatMessageFile file = chatFileDao.get(id);
-        chatFileDao.delete(file);
-        chatFileIo.delete(file);
-    }
-
-    public void delete(User user, List<ChatMessageFile> files) {
-        for (ChatMessageFile file : files) {
-            chatFileDao.delete(file);
-        }
-        chatFileIo.delete(files);
-    }
 }

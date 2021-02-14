@@ -29,12 +29,9 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 
 public class ChatLogic extends WfCommonLogic {
     private final Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
-    @Autowired
-    private ExecutorLogic executorLogic;
     @Autowired
     private ChatMessageDao messageDao;
     @Autowired
@@ -47,10 +44,8 @@ public class ChatLogic extends WfCommonLogic {
     private ChatFileIo fileIo;
     @Autowired
     private SaveMessageTransactionWrapper saveMessageTransactionWrapper;
-
-    public List<Long> getMentionedExecutorIds(User user, Long messageId) {
-        return messageDao.getMentionedExecutorIds(messageId);
-    }
+    @Autowired
+    private DeleteMessageTransactionWrapper deleteMessageTransactionWrapper;
 
     public MessageAddedBroadcast saveMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
         final ChatMessage savedMessage = saveMessageTransactionWrapper.save(message, recipients, processId);
@@ -113,22 +108,14 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void deleteMessage(User user, Long messageId) {
-        if (!executorLogic.isAdministrator(user)) {
-            throw new AuthorizationException("Allowed for admin only");
-        }
-        ChatMessage message = getMessageById(user, messageId);
-        List<ChatMessageFile> files = fileLogic.getByMessage(user, message);
-        messageDao.deleteMessage(messageId);
-        if (!files.isEmpty()) {
-            fileLogic.delete(user, files);
-        }
+        fileIo.delete(deleteMessageTransactionWrapper.delete(user, messageId));
     }
 
     public void updateMessage(User user, ChatMessage message) {
         if (!message.getCreateActor().equals(user.getActor())) {
             throw new AuthorizationException("Allowed for author only");
         }
-        messageDao.updateMessage(message);
+        messageDao.update(message);
     }
 
     public void sendNotifications(User user, ChatMessage chatMessage, Collection<Executor> executors) {

@@ -3,8 +3,6 @@ package ru.runa.wfe.service.impl;
 import java.io.IOException;
 import java.util.List;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -29,13 +27,11 @@ import ru.runa.wfe.chat.socket.EditMessageHandler;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
-import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
 
 @Stateless(name = "ChatServiceBean")
-@TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors({EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class})
+@Interceptors({EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class})
 @WebService(name = "ChatAPI", serviceName = "ChatWebService")
 @SOAPBinding
 public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {

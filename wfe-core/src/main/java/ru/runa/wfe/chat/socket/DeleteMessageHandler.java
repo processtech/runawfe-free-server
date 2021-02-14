@@ -12,7 +12,6 @@ import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
 import ru.runa.wfe.chat.utils.RecipientCalculator;
-import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
@@ -26,19 +25,15 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMess
     @Autowired
     private ChatSessionHandler sessionHandler;
     @Autowired
-    private ExecutionLogic executionLogic;
-    @Autowired
     private RecipientCalculator calculator;
 
-    @Transactional
     @Override
     public void handleMessage(Session session, DeleteMessageRequest request, User user) throws IOException {
+        final Set<Actor> recipients = calculator.calculateRecipients(user, false, "", request.getProcessId());
         self.deleteMessage(request, user);
-        final Set<Actor> recipients = executionLogic.getAllExecutorsByProcessId(user, request.getProcessId(), true);
         sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), new MessageDeletedBroadcast(request.getMessageId()));
     }
 
-    @Transactional
     public void deleteMessage(DeleteMessageRequest dto, User user) {
         chatLogic.deleteMessage(user, dto.getMessageId());
     }
