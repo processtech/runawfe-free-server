@@ -4,8 +4,6 @@ import java.util.List;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
-import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
-import ru.runa.wfe.chat.dto.broadcast.MessageEditedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
@@ -23,18 +21,13 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<Long> getMentionedExecutorIds(User user, Long messageId) {
-        return getChatService().getMentionedExecutorIds(user, messageId);
-    }
-
-    @Override
     public List<Long> getActiveChatIds(User user) {
         return getChatService().getActiveChatIds(user);
     }
 
     @Override
-    public MessageAddedBroadcast saveMessage(User user, Long processId, AddMessageRequest request) {
-        return getChatService().saveMessage(user, processId, request);
+    public void saveMessage(User user, AddMessageRequest request) {
+        getChatService().saveMessage(user, request);
     }
 
     @Override
@@ -73,24 +66,19 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public MessageEditedBroadcast updateMessage(User user, EditMessageRequest request) {
-        return getChatService().updateMessage(user, request);
+    public void updateMessage(User user, EditMessageRequest request) {
+        getChatService().updateMessage(user, request);
     }
 
     @Override
-    public MessageDeletedBroadcast deleteMessage(User user, DeleteMessageRequest request) {
-        return getChatService().deleteMessage(user, request);
+    public void deleteMessage(User user, DeleteMessageRequest request) {
+        getChatService().deleteMessage(user, request);
     }
 
     @Override
-    public void isReadMessage(User user, Long id) {
-        getChatService().isReadMessage(user, id);
+    public void markMessageAsRead(User user, Long id) {
+        getChatService().markMessageAsRead(user, id);
     }
-
-//    @Override
-//    public ChatMessageFileDto saveChatMessageFile(User user, ChatMessageFileDto file) {
-//        return getChatService().saveChatMessageFile(user, file);
-//    }
 
     @Override
     public ChatMessageFileDto getChatMessageFile(User user, Long fileId) {

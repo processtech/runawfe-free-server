@@ -1,7 +1,6 @@
 package ru.runa.wfe.service.impl;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -15,20 +14,18 @@ import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.runa.wfe.chat.ChatException;
 import ru.runa.wfe.chat.ChatMessage;
+import ru.runa.wfe.chat.ChatMessageException;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
-import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
-import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
-import ru.runa.wfe.chat.dto.broadcast.MessageEditedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
-import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatFileLogic;
 import ru.runa.wfe.chat.logic.ChatLogic;
-import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
+import ru.runa.wfe.chat.socket.AddNewMessageHandler;
+import ru.runa.wfe.chat.socket.DeleteMessageHandler;
+import ru.runa.wfe.chat.socket.EditMessageHandler;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -48,14 +45,11 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @Autowired
     private ChatFileLogic chatFileLogic;
     @Autowired
-    private HashMap<Class<? extends MessageRequest>, ChatSocketMessageHandler<? extends MessageRequest, ? extends MessageBroadcast>> handlerByMessageType;
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public List<Long> getMentionedExecutorIds(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") Long messageId) {
-        return chatLogic.getMentionedExecutorIds(user, messageId);
-    }
+    private AddNewMessageHandler addNewMessageHandler;
+    @Autowired
+    private EditMessageHandler editMessageHandler;
+    @Autowired
+    private DeleteMessageHandler deleteMessageHandler;
 
     @WebMethod(exclude = false)
     @Override
@@ -67,9 +61,12 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public MessageAddedBroadcast saveMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "message") AddMessageRequest request) {
-        return (MessageAddedBroadcast) handleRequest(user, request);
+    public void saveMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") AddMessageRequest request) {
+        try {
+            addNewMessageHandler.handleMessage(null, request, user);
+        } catch (IOException exception) {
+            throw new ChatMessageException("The message was not saved. Process ID: " + request.getProcessId());
+        }
     }
 
     @WebMethod(exclude = false)
@@ -126,31 +123,31 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public MessageEditedBroadcast updateMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "request") EditMessageRequest request) {
-        return (MessageEditedBroadcast) handleRequest(user, request);
+    public void updateMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "request") EditMessageRequest request) {
+        try {
+            editMessageHandler.handleMessage(null, request, user);
+        } catch (IOException exception) {
+            throw new ChatMessageException("The message was not updated. Message ID: " + request.getEditMessageId());
+        }
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public MessageDeletedBroadcast deleteMessage(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "request") DeleteMessageRequest request) {
-        return (MessageDeletedBroadcast) handleRequest(user, request);
+    public void deleteMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "request") DeleteMessageRequest request) {
+        try {
+            deleteMessageHandler.handleMessage(null, request, user);
+        } catch (IOException exception) {
+            throw new ChatMessageException("The message was not deleted. Message ID: " + request.getMessageId());
+        }
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public void isReadMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long id) {
+    public void markMessageAsRead(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long id) {
         chatLogic.readMessage(user, id);
     }
-
-//    @WebMethod(exclude = false)
-//    @Override
-//    @WebResult(name = "result")
-//    public ChatMessageFileDto saveChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "file") ChatMessageFileDto file) {
-//        return chatFileLogic.save(user, file);
-//    }
 
     @WebMethod(exclude = false)
     @Override
@@ -174,13 +171,4 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 //        chatFileLogic.deleteById(user, id);
 //
 //    }
-
-    private MessageBroadcast handleRequest(User user, MessageRequest request) {
-        ChatSocketMessageHandler handler = handlerByMessageType.get(request.getClass());
-        try {
-            return handler.handleMessage(null, request, user);
-        } catch (IOException exception) {
-            throw new ChatException("Handler error: " + handler.getClass().getName());
-        }
-    }
 }

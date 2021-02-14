@@ -18,7 +18,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 @Component
-public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageRequest, MessageEditedBroadcast> {
+public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageRequest> {
 
     @Resource(name = "editMessageHandler")
     private EditMessageHandler self;
@@ -33,14 +33,11 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
 
     @Transactional
     @Override
-    public MessageEditedBroadcast handleMessage(Session session, EditMessageRequest request, User user) throws IOException {
-        MessageEditedBroadcast broadcast = null;
+    public void handleMessage(Session session, EditMessageRequest request, User user) throws IOException {
         if (self.updateMessage(request, user)) {
             final Set<Actor> recipients = executionLogic.getAllExecutorsByProcessId(user, request.getProcessId(), true);
-            broadcast = new MessageEditedBroadcast(request.getEditMessageId(), request.getMessage());
-            sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), broadcast);
+            sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), new MessageEditedBroadcast(request.getEditMessageId(), request.getMessage()));
         }
-        return broadcast;
     }
 
     @Transactional

@@ -20,7 +20,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 @Component
-public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessageRequest, MessageAddedBroadcast> {
+public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessageRequest> {
 
     @Autowired
     private ChatSessionHandler sessionHandler;
@@ -32,7 +32,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
     private RecipientCalculator calculator;
 
     @Override
-    public MessageAddedBroadcast handleMessage(Session session, AddMessageRequest request, User user) throws IOException {
+    public void handleMessage(Session session, AddMessageRequest request, User user) throws IOException {
         final ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(request, user.getActor());
         final long processId = request.getProcessId();
         final Set<Actor> recipients = calculator.calculateRecipients(user, request.isPrivate(), request.getMessage(), processId);
@@ -51,7 +51,6 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
 
         messageAddedBroadcast.setCoreUser(messageAddedBroadcast.getAuthor().getId().equals(user.getActor().getId()));
         sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), messageAddedBroadcast);
-        return messageAddedBroadcast;
     }
 
     @Override

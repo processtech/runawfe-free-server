@@ -17,6 +17,7 @@ public class ChatWebServiceTest {
     public static final ChatAPI chatAPI;
     public static final User USER;
     public static final Long PROCESS_ID = 1L;
+    public static final Long MESSAGE_ID = 66L;
 
     static {
         AuthenticationAPI authenticationAPI = new AuthenticationWebService().getAuthenticationAPIPort();
@@ -25,32 +26,32 @@ public class ChatWebServiceTest {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        MessageAddedBroadcast addedBroadcast = sendMessageTest("New Message in test");
+        sendMessageTest("New Message in test");
         Thread.sleep(1000);
-        MessageEditedBroadcast editedBroadcast = updateMessageTest(addedBroadcast.getId(), "Edit message ID: " + addedBroadcast.getId());
+        updateMessageTest(MESSAGE_ID, "Edit message ID: " + MESSAGE_ID);
         Thread.sleep(1000);
-        MessageDeletedBroadcast deletedBroadcast = deleteMessageTest(editedBroadcast.getId());
+        deleteMessageTest(MESSAGE_ID);
     }
 
-    public static MessageAddedBroadcast sendMessageTest(String message) {
+    public static void sendMessageTest(String message) {
         AddMessageRequest request = new AddMessageRequest();
         request.setMessage(message);
         request.setProcessId(PROCESS_ID);
-        return chatAPI.saveMessage(USER, PROCESS_ID, request);
+        chatAPI.saveMessage(USER, request);
     }
 
-    public static MessageEditedBroadcast updateMessageTest(Long id, String message) {
+    public static void updateMessageTest(Long id, String message) {
         EditMessageRequest request = new EditMessageRequest();
         request.setEditMessageId(id);
         request.setMessage(message);
         request.setProcessId(PROCESS_ID);
-        return chatAPI.updateMessage(USER, request);
+        chatAPI.updateMessage(USER, request);
     }
 
-    public static MessageDeletedBroadcast deleteMessageTest(Long id) {
+    public static void deleteMessageTest(Long id) {
         DeleteMessageRequest request = new DeleteMessageRequest();
         request.setMessageId(id);
         request.setProcessId(PROCESS_ID);
-        return chatAPI.deleteMessage(USER, request);
+        chatAPI.deleteMessage(USER, request);
     }
 }

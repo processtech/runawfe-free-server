@@ -19,11 +19,9 @@ import ru.runa.wfe.user.User;
  */
 public interface ChatService {
 
-    public List<Long> getMentionedExecutorIds(User user, Long messageId);
-
     public List<Long> getActiveChatIds(User user);
 
-    public MessageAddedBroadcast saveMessage(User user, Long processId, AddMessageRequest request);
+    public void saveMessage(User user, AddMessageRequest request);
 
     /**
      * Gets ChatMessage.
@@ -73,24 +71,16 @@ public interface ChatService {
      * @param message message to merge
      * @return
      */
-    public MessageEditedBroadcast updateMessage(User user, EditMessageRequest request);
+    public void updateMessage(User user, EditMessageRequest request);
 
     /**
      * Delete ChatMessage in DB.
      *
      * @param id message Id
      */
-    public MessageDeletedBroadcast deleteMessage(User user, DeleteMessageRequest request);
+    public void deleteMessage(User user, DeleteMessageRequest request);
 
-    public void isReadMessage(User user, Long id);
-
-//    /**
-//     * Save ChatMessageFiles.
-//     *
-//     * @param file new file to save (associated message in ChatMessageFiles)
-//     * @return not <code>null</code>
-//     */
-//    public ChatMessageFileDto saveChatMessageFile(User user, ChatMessageFileDto file);
+    public void markMessageAsRead(User user, Long id);
 
     /**
      * Get ChatMessageFiles by id.
