@@ -45,6 +45,7 @@ public class ChatSocket {
         }
     }
 
+
     @OnClose
     public void close(Session session) {
         sessionHandler.removeSession(session);
