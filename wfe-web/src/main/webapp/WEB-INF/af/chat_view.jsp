@@ -10,6 +10,12 @@
 </head>
 <body>
 <script type="text/javascript">
+    function openChat() {
+        if (document.getElementById("ChatForm") != null) {
+            document.getElementById("ChatForm").style.display = "block";
+        }
+    }
+
     $(document).ready(function() {
         ajaxInitializationChat();
     });

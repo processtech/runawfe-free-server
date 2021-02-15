@@ -12,7 +12,6 @@
 <%@ page import="ru.runa.common.WebResources" %>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
-<%@include file="/WEB-INF/af/chat_view.jsp" %>
 
 <tiles:put name="head" type="string">
 <% if (WebResources.isAjaxFileInputEnabled()) { %>

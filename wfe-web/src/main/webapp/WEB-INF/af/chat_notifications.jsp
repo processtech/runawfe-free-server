@@ -9,12 +9,12 @@
 <body>
 <script type="text/javascript">
     $(document).ready(function() {
-        function onMessage(message) {
-            console.log(message);
-            alert("New Message!");
-        }
-
-        establishWebSocketConnection({"newMessage": onMessage});
+        establishWebSocketConnection({
+            "newMessage": newMessageHandler,
+            "editMessage": editMessageHandler,
+            "errorMessage": errorMessageHandler,
+            "deleteMessage": deleteMessageHandler
+        });
     });
 </script>
 </body>

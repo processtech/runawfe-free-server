@@ -42,10 +42,11 @@ public class ChatFormTag extends TitledFormTag {
         Table table = new Table();
         table.setClass("list");
         table.addElement(createTextArea());
+        table.addElement(createFileButton());
         table.addElement(createSubmitButton());
         for (MessageAddedBroadcast message : messages) {
             table.addElement(createHead(message));
-            table.addElement(createBody(message.getText()));
+            table.addElement(createBody(message));
         }
         return table;
     }
@@ -59,9 +60,15 @@ public class ChatFormTag extends TitledFormTag {
     }
 
     private Input createSubmitButton() {
-        Input input = new Input("SUBMIT", "submitButton", "Отправить сообщение");
-        input.setClass("button");
+        Input input = new Input("SUBMIT");
         input.setOnClick("alert(\"Clicked!\")");
+        return input;
+    }
+
+    private Input createFileButton() {
+        Input input = new Input("file");
+        input.addAttribute("multiple", "true");
+        input.setOnClick("alert(\"File added!\")");
         return input;
     }
 
@@ -72,9 +79,11 @@ public class ChatFormTag extends TitledFormTag {
         return row;
     }
 
-    private TD createBody(String text) {
-        TD td = new TD(text);
-        td.setClass("list");
-        return td;
+    private TR createBody(MessageAddedBroadcast message) {
+        TD messageText = new TD(message.getText());
+        messageText.setClass("list");
+        TD files = new TD(message.getFiles().toString());
+        files.setClass("list");
+        return new TR(messageText).addElement(files);
     }
 }

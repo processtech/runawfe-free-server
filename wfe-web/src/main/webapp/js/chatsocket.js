@@ -23,6 +23,25 @@ function establishWebSocketConnection(handlers) {
     return socket;
 }
 
+function newMessageHandler(message) {
+    console.log(message);
+    alert("New Message!");
+}
+
+function editMessageHandler(message) {
+    console.log(message);
+    alert("Edit Message!");
+}
+
+function errorMessageHandler(message) {
+    alert("Сообщение не отправлено. Error: " + message.message);
+}
+
+function deleteMessageHandler(message) {
+    console.log(message);
+    alert("Delete Message!");
+}
+
 function sendBinaryMessage(socket, message) {
     let encoder = new TextEncoder();
     let bytes = encoder.encode(JSON.stringify(message));
