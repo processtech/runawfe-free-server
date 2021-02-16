@@ -83,7 +83,6 @@
 	function sendMessageHandler() {
 		if (checkEmptyMessage() == false) {
 			let message = document.getElementById("message").value;
-			console.info(message);
 			//ищем ссылки
 			message = message.replace(/(^|[^\/\"\'\>\w])(http\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
 			message = message.replace(/(^|[^\/\"\'\>\w])(https\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
@@ -114,6 +113,15 @@
 			}
 		}
 		return 0;
+	}
+	function deleteMessageHandler(id) {
+		if (confirm("Are you sure?")) {
+			let newMessage = {};
+			newMessage.messageId = id;
+			newMessage.processId = $("#ChatForm").attr("processId");
+			newMessage.messageType = deleteMessageType;
+			sendBinaryMessage(chatSocket, newMessage);
+		}
 	}
 	// отправка нового сообщения
 	function sendToChatNewMessage(message) {

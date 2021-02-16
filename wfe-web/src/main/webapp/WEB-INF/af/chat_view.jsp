@@ -15,12 +15,20 @@
         sendMessageHandler();
     }
 
+    function deleteMessage(id) {
+        deleteMessageHandler(id);
+    }
+
+    function editMessage(id) {
+        console.info("Edit message with id === " + id);
+    }
+
     $(document).ready(function () {
         initChatSocket(establishWebSocketConnection({
-            "newMessage": newMessageHandler,
-            "editMessage": editMessageHandler,
-            "errorMessage": errorMessageHandler,
-            "deleteMessage": deleteMessageHandler
+            "newMessage": newMessageAlerter,
+            "editMessage": editMessageAlerter,
+            "errorMessage": errorMessageAlerter,
+            "deleteMessage": deleteMessageAlerter
         }));
     });
 </script>

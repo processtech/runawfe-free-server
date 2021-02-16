@@ -23,21 +23,21 @@ function establishWebSocketConnection(handlers) {
     return socket;
 }
 
-function newMessageHandler(message) {
+function newMessageAlerter(message) {
     console.log(message);
     alert("New Message!");
 }
 
-function editMessageHandler(message) {
+function editMessageAlerter(message) {
     console.log(message);
     alert("Edit Message!");
 }
 
-function errorMessageHandler(message) {
+function errorMessageAlerter(message) {
     alert("Сообщение не отправлено. Error: " + message.message);
 }
 
-function deleteMessageHandler(message) {
+function deleteMessageAlerter(message) {
     console.log(message);
     alert("Delete Message!");
 }

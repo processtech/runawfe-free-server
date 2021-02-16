@@ -10,10 +10,10 @@
 <script type="text/javascript">
     $(document).ready(function() {
         establishWebSocketConnection({
-            "newMessage": newMessageHandler,
-            "editMessage": editMessageHandler,
-            "errorMessage": errorMessageHandler,
-            "deleteMessage": deleteMessageHandler
+            "newMessage": newMessageAlerter,
+            "editMessage": editMessageAlerter,
+            "errorMessage": errorMessageAlerter,
+            "deleteMessage": deleteMessageAlerter
         });
     });
 </script>

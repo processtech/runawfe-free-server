@@ -42,7 +42,7 @@ public class ChatFormTag extends TitledFormTag {
         Table table = new Table();
         table.setClass("list");
         table.addElement(createTextArea());
-        table.addElement("Приватное сообщение: " + createIsPrivateCheckbox());
+        table.addElement("Приватное сообщение: " + new Input("checkbox").setID("isPrivate"));
         table.addElement(createFileButton());
         table.addElement(createSendButton());
         for (MessageAddedBroadcast message : messages) {
@@ -60,14 +60,8 @@ public class ChatFormTag extends TitledFormTag {
         return textArea;
     }
 
-    private Input createIsPrivateCheckbox() {
-        Input input = new Input("checkbox");
-        input.setID("isPrivate");
-        return input;
-    }
-
     private Input createSendButton() {
-        Input input = new Input("button");
+        Input input = new Input("button", "sendMessageButton", "Отправить сообщение");
         input.setOnClick("sendMessage()");
         return input;
     }
@@ -81,8 +75,10 @@ public class ChatFormTag extends TitledFormTag {
 
     private TR createHead(MessageAddedBroadcast message) {
         TR row = new TR();
+        Input deleteButton = new Input("button", "deleteMessageButton", "X");
+        deleteButton.setOnClick("deleteMessage(" + message.getId() + ");");
         row.addElement(new TH(message.getAuthor().getName()).setAlign("left"));
-        row.addElement(new TH(message.getCreateDate().toString()).setAlign("right"));
+        row.addElement(new TH(message.getCreateDate().toString()).setAlign("right").addElement(deleteButton));
         return row;
     }
 
@@ -91,6 +87,8 @@ public class ChatFormTag extends TitledFormTag {
         messageText.setClass("list");
         TD files = new TD(message.getFiles().toString());
         files.setClass("list");
-        return new TR(messageText).addElement(files);
+        Input editButton = new Input("button", "editMessageButton", "Изменить сообщение");
+        editButton.setOnClick("editMessage(" + message.getId() + ");");
+        return new TR(messageText).addElement(files.addElement(editButton));
     }
 }
