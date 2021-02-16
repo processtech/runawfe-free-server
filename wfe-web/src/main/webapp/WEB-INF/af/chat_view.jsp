@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
     <script type="text/javascript" src="<html:rewrite page="/js/jquery-1.8.3.min.js" />">c = 0;</script>
     <script type="text/javascript" src="<html:rewrite page='<%="/js/chat.js" %>' />">c = 0;</script>
+    <script type="text/javascript" src="<html:rewrite page='<%="/js/chatHandlers.js" %>' />">c = 0;</script>
 </head>
 <body>
 <script type="text/javascript">
@@ -19,18 +20,11 @@
         deleteMessageHandler(id);
     }
 
-    function editMessage(id) {
-        console.info("Edit message with id === " + id);
+    function editMessage(id, text) {
+        $("#message").append(text);
+        editMessageFlag = true;
+        editMessageId = id;
     }
-
-    $(document).ready(function () {
-        initChatSocket(establishWebSocketConnection({
-            "newMessage": newMessageAlerter,
-            "editMessage": editMessageAlerter,
-            "errorMessage": errorMessageAlerter,
-            "deleteMessage": deleteMessageAlerter
-        }));
-    });
 </script>
 </body>
 </html>

@@ -1,5 +1,3 @@
-	var chatSocket = null;
-
 	//переменные для вставки текста
 	var textPrivateMessage = "Приватное сообщение:";
 	var textEnterMessage = "Введите текст сообщения";
@@ -30,23 +28,14 @@
 		$(".modal-body").attr("admin", "true");
 	}
 
-
 	//прикрепленные сообщения
 	var attachedPosts = [];
-	//переменные редактирования сообщения
-	var editMessageFlag = false;
-	var editMessageId = -1;
 	//зона для дропа файлов
 	var dropZone = $("#dropZ");
 	//прикрепленнные файлы
 	var attachedFiles = [];
-	//размер входного файла
-	var fileInp = 1024 * 1024 * 20;//20 мб
-	//constans 
-	var newMessageType = "newMessage";
-	var editMessageType = "editMessage";
-	var deleteMessageType = "deleteMessage";
-	var readMessageType = "readMessage";
+	//размер входного файла (20 мб)
+	var fileInp = 1024 * 1024 * 20;
 
 	var attachedFilesBase64 = {};
 
@@ -76,88 +65,6 @@
 	let dateTr0 = $("<div/>");
 	dateTr0.addClass("datetr").append(/*data.message.dateTime*/);
 	messageBody.append($("<tr/>").append($("<td/>").append(dateTr0).append($("<div/>").addClass("author").text(/*data.message.author*/ "" + ":")).append($("<div/>").addClass("messageText").attr("textMessagId", /*data.message.id*/0).attr("id", "messageText" +/*mesIndex*/0).append(/*text0*/""))));
-
-	function checkEmptyMessage() {
-		return (message.value == "") && (attachedPosts.length == 0) && (attachedFiles.length == 0);
-	}
-	function sendMessageHandler() {
-		if (checkEmptyMessage() == false) {
-			let message = document.getElementById("message").value;
-			//ищем ссылки
-			message = message.replace(/(^|[^\/\"\'\>\w])(http\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
-			message = message.replace(/(^|[^\/\"\'\>\w])(https\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
-			message = message.replace(/(^|[^\/\"\'\>\w])(www\.)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='http://$2$3$4'>$2$3$4</a>");
-			message = message.replace(/\r?\n/g, "<br />");
-			let newMessage = {};
-			newMessage.message = message;
-			newMessage.processId = $("#ChatForm").attr("processId");
-			if (editMessageFlag == false) {
-				newMessage.messageType = newMessageType;
-				newMessage.isPrivate = $("#isPrivate").prop("checked");
-				let idHierarchyMessage = "";
-				for (let i = 0; i < attachedPosts.length; i++) {
-					idHierarchyMessage += attachedPosts[i] + ":";
-				}
-				newMessage.idHierarchyMessage = idHierarchyMessage;
-				if (attachedFiles.length > 0) {
-					addFilesToMessage(attachedFiles, newMessage)
-				} else {
-					console.info(newMessage);
-					sendToChatNewMessage(newMessage);
-				}
-			} else {
-				newMessage.messageType = editMessageType;
-				newMessage.editMessageId = editMessageId;
-				sendBinaryMessage(chatSocket, newMessage);
-				$("#message").val("");
-			}
-		}
-		return 0;
-	}
-	function deleteMessageHandler(id) {
-		if (confirm("Are you sure?")) {
-			let newMessage = {};
-			newMessage.messageId = id;
-			newMessage.processId = $("#ChatForm").attr("processId");
-			newMessage.messageType = deleteMessageType;
-			sendBinaryMessage(chatSocket, newMessage);
-		}
-	}
-	// отправка нового сообщения
-	function sendToChatNewMessage(message) {
-		sendBinaryMessage(chatSocket, message)
-		$("#message").val("");
-		// чистим "ответы"
-		let addReplys0 = document.getElementsByClassName("addReply");
-		for (let i = 0; i < addReplys0.length; i++) {
-			$(addReplys0[i]).text(addReplyButtonText);
-			$(addReplys0[i]).attr("flagAttach", "false");
-		}
-		attachedPosts = [];
-		$("#checkBoxPrivateMessage").prop("checked", false);
-		$("#messReplyTable").empty();
-		$(".warningText").text("0/1024");
-		$("#fileInput").val("");
-		$("#tablePrivate table").empty();
-		$("#privateBlock").css("display", "none");
-	}
-
-	function addFilesToMessage(files, message) {
-		var fileToBase64Promises = [];
-		for (var i = 0; i < files.length; i++) {
-			fileToBase64Promises.push(fileToBase64(files[i]));
-		}
-		Promise.all(fileToBase64Promises).then(function () {
-			message.files = attachedFilesBase64;
-			sendToChatNewMessage(message);
-			attachedFilesBase64 = {};
-			attachedFiles = [];
-			$("#progressBar").css({ "display": "none" });
-			$("#filesTable").empty();
-		}).catch(function (error) {
-			alert(error.message);
-		});
-	}
 
 	function fileToBase64(file) {
 		return new Promise(function (resolve, reject) {
@@ -259,8 +166,4 @@
 		attachedFiles.splice($(this).attr("fileNumber"));
 		$(this).closest("tr").remove();
 		return false;
-	}
-
-	function initChatSocket(socket) {
-		chatSocket = socket;
 	}

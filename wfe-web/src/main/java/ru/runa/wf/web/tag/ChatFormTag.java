@@ -88,7 +88,7 @@ public class ChatFormTag extends TitledFormTag {
         TD files = new TD(message.getFiles().toString());
         files.setClass("list");
         Input editButton = new Input("button", "editMessageButton", "Изменить сообщение");
-        editButton.setOnClick("editMessage(" + message.getId() + ");");
+        editButton.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
         return new TR(messageText).addElement(files.addElement(editButton));
     }
 }
