@@ -1,4 +1,3 @@
-function ajaxInitializationChat() {
 	var chatSocket = null;
 
 	//переменные для вставки текста
@@ -26,13 +25,6 @@ function ajaxInitializationChat() {
 	$(".modal-content").append('<div id="modalFooter" class="modal-footer"/>');
 	$(".modal-footer").append(modalFooterChat);
 
-	$(".modal-content").resizable({
-		handles: "s, e, w, se",
-		minWidth: 267,
-		minHeight: 587,
-		alsoResize: "#attachedArea"
-	});
-
 	var rowSMCount = $('.tab tr').size();
 	if (rowSMCount > 9) {
 		$(".modal-body").attr("admin", "true");
@@ -57,9 +49,6 @@ function ajaxInitializationChat() {
 	var readMessageType = "readMessage";
 
 	var attachedFilesBase64 = {};
-
-	//id task
-	var idProcess = $("#ChatForm").attr("processId");
 
 	//стартовые объекты
 	//таблица имен быстрой вставки
@@ -94,6 +83,7 @@ function ajaxInitializationChat() {
 	function sendMessageHandler() {
 		if (checkEmptyMessage() == false) {
 			let message = document.getElementById("message").value;
+			console.info(message);
 			//ищем ссылки
 			message = message.replace(/(^|[^\/\"\'\>\w])(http\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
 			message = message.replace(/(^|[^\/\"\'\>\w])(https\:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
@@ -101,10 +91,10 @@ function ajaxInitializationChat() {
 			message = message.replace(/\r?\n/g, "<br />");
 			let newMessage = {};
 			newMessage.message = message;
-			newMessage.processId = idProcess;
+			newMessage.processId = $("#ChatForm").attr("processId");
 			if (editMessageFlag == false) {
 				newMessage.messageType = newMessageType;
-				newMessage.isPrivate = $("#checkBoxPrivateMessage").prop("checked");
+				newMessage.isPrivate = $("#isPrivate").prop("checked");
 				let idHierarchyMessage = "";
 				for (let i = 0; i < attachedPosts.length; i++) {
 					idHierarchyMessage += attachedPosts[i] + ":";
@@ -113,6 +103,7 @@ function ajaxInitializationChat() {
 				if (attachedFiles.length > 0) {
 					addFilesToMessage(attachedFiles, newMessage)
 				} else {
+					console.info(newMessage);
 					sendToChatNewMessage(newMessage);
 				}
 			} else {
@@ -138,7 +129,6 @@ function ajaxInitializationChat() {
 		$("#checkBoxPrivateMessage").prop("checked", false);
 		$("#messReplyTable").empty();
 		$(".warningText").text("0/1024");
-		$("#message").keyup(keyupUserNames);
 		$("#fileInput").val("");
 		$("#tablePrivate table").empty();
 		$("#privateBlock").css("display", "none");
@@ -178,7 +168,7 @@ function ajaxInitializationChat() {
 	}
 	// -----------приём файлов
 	//проверка браузера
-	if (typeof (window.FileReader) != "undefined") {
+	/*if (typeof (window.FileReader) != "undefined") {
 		//поддерживает
 		$("html").bind("dragover", function () {
 			dropZone.show();
@@ -255,11 +245,14 @@ function ajaxInitializationChat() {
 			$("#filesTable").append(newFile);
 			this.val = {};
 		}
-	});
+	});*/
 	//удаление прикрепленного к сообщению файла (для таблички прикрепленных файлов)
 	function deleteAttachedFile() {
 		attachedFiles.splice($(this).attr("fileNumber"));
 		$(this).closest("tr").remove();
 		return false;
 	}
-}
+
+	function initChatSocket(socket) {
+		chatSocket = socket;
+	}

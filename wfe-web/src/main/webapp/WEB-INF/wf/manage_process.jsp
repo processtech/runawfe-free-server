@@ -85,7 +85,7 @@ function Reload() {
 		<% if(WebResources.isChatEnabled()){%>
 		<td align="right">
 			<% String href = "/wfe/chat_page.do?processId=" + id;%>
-			<a href="<%= href %>" id="openChatButton"><span id="openChatButtonText"></span></a>
+			<a href="<%= href %>">Открыть чат</a>
 		</td>
 		<% }%>
 		<td align="right">

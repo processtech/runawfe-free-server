@@ -42,8 +42,9 @@ public class ChatFormTag extends TitledFormTag {
         Table table = new Table();
         table.setClass("list");
         table.addElement(createTextArea());
+        table.addElement("Приватное сообщение: " + createIsPrivateCheckbox());
         table.addElement(createFileButton());
-        table.addElement(createSubmitButton());
+        table.addElement(createSendButton());
         for (MessageAddedBroadcast message : messages) {
             table.addElement(createHead(message));
             table.addElement(createBody(message));
@@ -59,9 +60,15 @@ public class ChatFormTag extends TitledFormTag {
         return textArea;
     }
 
-    private Input createSubmitButton() {
-        Input input = new Input("SUBMIT");
-        input.setOnClick("alert(\"Clicked!\")");
+    private Input createIsPrivateCheckbox() {
+        Input input = new Input("checkbox");
+        input.setID("isPrivate");
+        return input;
+    }
+
+    private Input createSendButton() {
+        Input input = new Input("button");
+        input.setOnClick("sendMessage()");
         return input;
     }
 

@@ -51,7 +51,7 @@
 <div style="float:left; max-width: 150px; margin-top: -25px;">
 	<% String href = "/wfe/chat_page.do?processId=" +
 			Delegates.getTaskService().getTask(Commons.getUser(request.getSession()), taskId).getProcessId();%>
-	<a href="<%= href %>" id="openChatButton"><span id="openChatButtonText"></span></a>
+	<a href="<%= href %>">Открыть чат</a>
 </div>
 <% }%>
 <% if (WebResources.isTaskDelegationEnabled()) { %>
