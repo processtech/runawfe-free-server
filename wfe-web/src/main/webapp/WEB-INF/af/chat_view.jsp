@@ -16,14 +16,14 @@
         sendMessageHandler();
     }
 
-    function deleteMessage(id) {
-        deleteMessageHandler(id);
-    }
-
     function editMessage(id, text) {
         $("#message").append(text);
         editMessageFlag = true;
         editMessageId = id;
+    }
+
+    function deleteMessage(id) {
+        deleteMessageHandler(id);
     }
 </script>
 </body>

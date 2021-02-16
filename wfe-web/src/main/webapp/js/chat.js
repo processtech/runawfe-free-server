@@ -1,11 +1,4 @@
-	//переменные для вставки текста
-	var textPrivateMessage = "Приватное сообщение:";
-	var textEnterMessage = "Введите текст сообщения";
-	var textDragFile = "Перетащите сюда файл";
-	var textBtnSend = "Отправить";
 	var addReplyButtonText = "Ответить";
-	var errorMessFilePart1 = "Ошибка. Размер файла превышен на ";
-	var errorMessFilePart2 = " байт, максимальный размер файла = ";
 
 	//определение языка браузера
 	var languageText = (window.navigator.language ||
@@ -13,37 +6,13 @@
 		window.navigator.userLanguage);
 	languageText = languageText.substr(0, 2).toLowerCase();
 
-	//шаблон модального окна чата
-	var modalHeaderChat = '<table class="box"><tbody><tr><th class="box"><button id="btnOp" type="button"><img id="imgButton" alt="resize" src="/wfe/images/chat_roll_up.png"></button><div id="modal-header-dragg" class="modal-header-dragg"></div><span id="close" class="ui-icon ui-icon-closethick ui-state-highlight" style="cursor: pointer; float: right; margin: 1px;"></span></th></tr></tbody></table>';
-	var modalFooterChat = '<div class="checkBoxContainer">' + textPrivateMessage + '<input type="checkbox" id="checkBoxPrivateMessage"></div><div class="warningText"></div><ul class="messageUserMention"></ul><textarea placeholder="' + textEnterMessage + '" id="message" name="message"></textarea><div style="display:flex;padding-top: 5px; padding-left: 5px;"><button id="btnSend" type="button">' + textBtnSend + '</button><input size="0" id="fileInput" multiple="true" type="file"></div><div id="dropZ" class="dropZ" style="display: none;">' + textDragFile + '</div><div id="attachedArea"></div>';
-
-	$("#ChatForm").append('<div class="modal-content"/>');
-	$(".modal-content").html(modalHeaderChat);
-	$(".modal-content").append('<div id="modal-body" class="modal-body"/>');
-	$(".modal-content").append('<div id="modalFooter" class="modal-footer"/>');
-	$(".modal-footer").append(modalFooterChat);
-
-	var rowSMCount = $('.tab tr').size();
-	if (rowSMCount > 9) {
-		$(".modal-body").attr("admin", "true");
-	}
-
-	//прикрепленные сообщения
-	var attachedPosts = [];
 	//зона для дропа файлов
 	var dropZone = $("#dropZ");
 	//прикрепленнные файлы
 	var attachedFiles = [];
 	//размер входного файла (20 мб)
 	var fileInp = 1024 * 1024 * 20;
-
 	var attachedFilesBase64 = {};
-
-	//стартовые объекты
-	//таблица имен быстрой вставки
-	var userNameTable = $("<table/>");
-	userNameTable.addClass("tableModalNameSetMessage");
-	userNameTable.attr("id", "userNameTable");
 	//зона прикрепленных файлов
 	var filesTable = $("<table/>");
 	filesTable.attr("id", "filesTable");

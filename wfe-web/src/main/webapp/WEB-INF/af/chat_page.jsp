@@ -9,10 +9,9 @@
         <% Long processId = Long.parseLong(request.getParameter("processId")); %>
         <% String title = "Чат процесса " + processId; %>
 
-        <wf:processInfoForm identifiableId='<%= processId %>'/>
-
         <div id="ChatForm" processId="<%= processId %>"></div>
 
+        <wf:processInfoForm identifiableId='<%= processId %>'/>
         <wf:chatForm processId='<%= processId %>' title='<%= title %>'/>
     </tiles:put>
 

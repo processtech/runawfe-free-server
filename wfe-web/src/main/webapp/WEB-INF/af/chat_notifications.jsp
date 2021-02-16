@@ -11,9 +11,7 @@
     $(document).ready(function () {
         initChatSocket(establishWebSocketConnection({
             "newMessage": newMessageAlerter,
-            "editMessage": editMessageAlerter,
-            "errorMessage": errorMessageAlerter,
-            "deleteMessage": deleteMessageAlerter
+            "errorMessage": errorMessageAlerter
         }));
     });
 </script>

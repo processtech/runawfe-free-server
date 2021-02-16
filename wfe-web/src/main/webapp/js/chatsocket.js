@@ -40,16 +40,6 @@ function newMessageAlerter(message) {
     alert("New Message!");
 }
 
-function editMessageAlerter(message) {
-    console.log(message);
-    alert("Edit Message!");
-}
-
 function errorMessageAlerter(message) {
     alert("Сообщение не отправлено. Error: " + message.message);
-}
-
-function deleteMessageAlerter(message) {
-    console.log(message);
-    alert("Delete Message!");
 }

@@ -41,39 +41,38 @@ public class ChatFormTag extends TitledFormTag {
     private Table createTable(List<MessageAddedBroadcast> messages) {
         Table table = new Table();
         table.setClass("list");
-        table.addElement(createTextArea());
+        table.addElement(getTextArea());
         table.addElement("Приватное сообщение: " + new Input("checkbox").setID("isPrivate"));
-        table.addElement(createFileButton());
-        table.addElement(createSendButton());
+        table.addElement(getAddFilesButton());
+        table.addElement(getSendMessageButton());
         for (MessageAddedBroadcast message : messages) {
-            table.addElement(createHead(message));
-            table.addElement(createBody(message));
+            table.addElement(getMessageHeader(message));
+            table.addElement(getMessageBody(message));
         }
         return table;
     }
 
-    private TextArea createTextArea() {
+    private TextArea getTextArea() {
         TextArea textArea = new TextArea();
         textArea.setID("message");
-        textArea.setName("message");
         textArea.addAttribute("placeholder", "Введите текст сообщения");
         return textArea;
     }
 
-    private Input createSendButton() {
-        Input input = new Input("button", "sendMessageButton", "Отправить сообщение");
-        input.setOnClick("sendMessage()");
-        return input;
-    }
-
-    private Input createFileButton() {
+    private Input getAddFilesButton() {
         Input input = new Input("file");
         input.addAttribute("multiple", "true");
         input.setOnClick("alert(\"File added!\")");
         return input;
     }
 
-    private TR createHead(MessageAddedBroadcast message) {
+    private Input getSendMessageButton() {
+        Input input = new Input("button", "sendMessageButton", "Отправить сообщение");
+        input.setOnClick("sendMessage()");
+        return input;
+    }
+
+    private TR getMessageHeader(MessageAddedBroadcast message) {
         TR row = new TR();
         Input deleteButton = new Input("button", "deleteMessageButton", "X");
         deleteButton.setOnClick("deleteMessage(" + message.getId() + ");");
@@ -82,7 +81,7 @@ public class ChatFormTag extends TitledFormTag {
         return row;
     }
 
-    private TR createBody(MessageAddedBroadcast message) {
+    private TR getMessageBody(MessageAddedBroadcast message) {
         TD messageText = new TD(message.getText());
         messageText.setClass("list");
         TD files = new TD(message.getFiles().toString());
