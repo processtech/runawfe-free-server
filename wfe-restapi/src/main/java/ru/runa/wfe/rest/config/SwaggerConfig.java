@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -32,7 +33,7 @@ public class SwaggerConfig {
                 .apiInfo(apiInfo())
                 .useDefaultResponseMessages(false)
                 .directModelSubstitute(Date.class, Long.class)
-                // .ignoredParameterTypes(AuthenticationPrincipal.class)
+                .ignoredParameterTypes(AuthenticationPrincipal.class)
                 .securitySchemes(Collections.singletonList(HttpAuthenticationScheme.JWT_BEARER_BUILDER.name("token").build()))
                 .securityContexts(Collections.singletonList(securityContext()))
         ;
