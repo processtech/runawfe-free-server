@@ -1,8 +1,8 @@
 package ru.runa.common.web.tag;
 
+import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Entities;
 import org.apache.ecs.StringElement;
@@ -12,9 +12,6 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
-
-import com.google.common.base.Strings;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.MessagesCommon;
@@ -27,15 +24,20 @@ import ru.runa.wfe.commons.web.PortletUrlType;
  */
 abstract public class FormTag extends VisibleTag {
 
-    private static final long serialVersionUID = 1L;
     public static final String SUBMIT_BUTTON_NAME = "submitButton";
     public static final String MULTIPLE_SUBMIT_BUTTONS = "multipleSubmit";
-
+    public static final String ATTRIBUTE_COLOR = "color";
+    public static final String ATTRIBUTE_NAME = "name";
+    public static final String ATTRIBUTE_ONCLICK = "onclick";
+    public static final String ATTRIBUTE_STYLE = "style";
+    public static final String ATTRIBUTE_TYPE = "type";
+    private static final long serialVersionUID = 1L;
     private String action;
 
     private String method = Form.POST;
 
     private String buttonAlignment;
+    private Form form;
 
     public String getAction() {
         return action;
@@ -66,7 +68,7 @@ abstract public class FormTag extends VisibleTag {
 
     /**
      * In this method descendants fill the form.
-     * 
+     *
      * @param tdFormElement
      * @ if any exception occurred
      */
@@ -101,8 +103,6 @@ abstract public class FormTag extends VisibleTag {
     protected List<Map<String, String>> getSubmitButtonsData() {
         return null;
     }
-
-    private Form form;
 
     protected Form getForm() {
         return form;
@@ -154,9 +154,14 @@ abstract public class FormTag extends VisibleTag {
             if (isMultipleSubmit()) {
                 td.addElement(new Input(Input.HIDDEN, MULTIPLE_SUBMIT_BUTTONS, "true"));
                 for (Map<String, String> buttonData : getSubmitButtonsData()) {
-                    Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, buttonData.get("name"));
-                    String color = buttonData.get("color");
+                    String type = buttonData.remove(ATTRIBUTE_TYPE);
+                    if (type == null) {
+                        type = Input.SUBMIT;
+                    }
+                    Input submitButton = new Input(type, SUBMIT_BUTTON_NAME, buttonData.remove(ATTRIBUTE_NAME));
+                    String color = buttonData.remove(ATTRIBUTE_COLOR);
                     submitButton.setClass(Resources.CLASS_BUTTON + (Strings.isNullOrEmpty(color) ? "" : "-" + color));
+                    buttonData.forEach(submitButton::addAttribute);
                     try {
                         if (!isSubmitButtonEnabled()) {
                             submitButton.setDisabled(true);
@@ -172,7 +177,7 @@ abstract public class FormTag extends VisibleTag {
                 Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, getSubmitButtonName());
                 submitButton.setClass(Resources.CLASS_BUTTON);
                 if (isConfirmationPopupEnabled()) {
-                    submitButton.addAttribute("onclick",
+                    submitButton.addAttribute(ATTRIBUTE_ONCLICK,
                             ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(getConfirmationPopupParameter(), pageContext));
                 }
                 if (!isSubmitButtonEnabled()) {
@@ -183,7 +188,7 @@ abstract public class FormTag extends VisibleTag {
             if (isCancelButtonEnabled()) {
                 Input cancelButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, MessagesCommon.BUTTON_CANCEL.message(pageContext));
                 cancelButton.setClass(Resources.CLASS_BUTTON);
-                cancelButton.addAttribute("onclick", "window.location='" + getCancelButtonAction() + "'");
+                cancelButton.addAttribute(ATTRIBUTE_ONCLICK, "window.location='" + getCancelButtonAction() + "'");
                 td.addElement(Entities.NBSP);
                 td.addElement(cancelButton);
             }

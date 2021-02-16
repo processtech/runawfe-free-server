@@ -278,4 +278,6 @@
 	
 	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
 	
+	<bean id="formHandlerExecutor" class="ru.runa.wfe.execution.FormHandlerExecutor" />
+
 </beans>

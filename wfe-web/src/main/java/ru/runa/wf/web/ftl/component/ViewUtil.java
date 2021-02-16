@@ -184,7 +184,7 @@ public class ViewUtil {
             }
         }
     }
-
+    
     public static String generateTableHeader(List<WfVariable> variables, VariableProvider variableProvider, String operationsColumn) {
         StringBuilder header = new StringBuilder();
         header.append("<tr class=\"header\">");

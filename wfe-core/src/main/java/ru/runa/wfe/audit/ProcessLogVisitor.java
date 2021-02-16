@@ -19,6 +19,8 @@ public abstract class ProcessLogVisitor {
 
     public void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog) {}
 
+    public void onNodeErrorLog(CurrentNodeErrorLog currentNodeErrorLog) {}
+
     public void onSendMessageLog(SendMessageLog sendMessageLog) {}
 
     public void onSubprocessStartLog(SubprocessStartLog subprocessStartLog) {}
