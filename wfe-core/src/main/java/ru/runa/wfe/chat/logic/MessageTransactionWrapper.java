@@ -52,12 +52,12 @@ public class MessageTransactionWrapper {
         }
         ChatMessage message = messageDao.getNotNull(messageId);
         List<ChatMessageFile> files = fileDao.getByMessage(message);
-        messageDao.deleteMessageAndRecipient(messageId);
         List<Long> ids = new ArrayList<>(files.size());
         for (ChatMessageFile file : files) {
             ids.add(file.getId());
         }
         fileDao.delete(ids);
+        messageDao.deleteMessageAndRecipient(messageId);
         return files;
     }
 }
