@@ -71,10 +71,6 @@ public class ChatLogic extends WfCommonLogic {
         return messageDao.getLastReadMessage(user.getActor(), processId);
     }
 
-    public Long getLastMessage(User user, Long processId) {
-        return messageDao.getLastMessage(user.getActor(), processId);
-    }
-
     public List<Long> getActiveChatIds(User user) {
         List<Long> ret = messageDao.getActiveChatIds(user.getActor());
         if (ret == null) {
@@ -85,10 +81,6 @@ public class ChatLogic extends WfCommonLogic {
 
     public List<Long> getNewMessagesCounts(User user, List<Long> chatsIds) {
         return messageDao.getNewMessagesCounts(chatsIds, user.getActor());
-    }
-
-    public Long getNewMessagesCount(User user, Long processId) {
-        return messageDao.getNewMessagesCount(user.getActor(), processId);
     }
 
     public ChatMessage getMessageById(User user, Long messageId) {

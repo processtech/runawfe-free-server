@@ -16,7 +16,7 @@ import ru.runa.wfe.user.Actor;
 @Component
 public class ChatMessageDao extends GenericDao<ChatMessage> {
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public ChatMessage get(Long id) {
         return super.get(id);
@@ -35,16 +35,6 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Long lastMesId = queryFactory.select(cr.message.id.min()).from(cr).where(cr.readDate.isNull().and(cr.executor.eq(user)))
                 .fetchFirst();
-        if (lastMesId == null) {
-            lastMesId = -1L;
-        }
-        return lastMesId;
-    }
-
-    @Transactional(readOnly = true)
-    public Long getLastMessage(Actor user, Long processId) {
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        Long lastMesId = queryFactory.select(cr.message.id.max()).from(cr).where(cr.executor.eq(user)).fetchFirst();
         if (lastMesId == null) {
             lastMesId = -1L;
         }

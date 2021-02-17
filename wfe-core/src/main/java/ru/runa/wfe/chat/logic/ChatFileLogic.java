@@ -30,10 +30,6 @@ public class ChatFileLogic extends WfCommonLogic {
         return chatFileIo.get(file);
     }
 
-    public List<ChatMessageFileDto> getDtosByMessage(User user, ChatMessage message) {
-        return chatFileIo.get(getByMessage(user, message));
-    }
-
     public List<ChatMessageFile> getByMessage(User user, ChatMessage message) {
         return chatFileDao.getByMessage(message);
     }
