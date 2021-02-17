@@ -43,19 +43,17 @@ public class ChatLogic extends WfCommonLogic {
     @Autowired
     private ChatFileIo fileIo;
     @Autowired
-    private SaveMessageTransactionWrapper saveMessageTransactionWrapper;
-    @Autowired
-    private DeleteMessageTransactionWrapper deleteMessageTransactionWrapper;
+    private MessageTransactionWrapper messageTransactionWrapper;
 
     public MessageAddedBroadcast saveMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
-        final ChatMessage savedMessage = saveMessageTransactionWrapper.save(message, recipients, processId);
+        final ChatMessage savedMessage = messageTransactionWrapper.save(message, recipients, processId);
         return converter.convertChatMessageToAddedMessageBroadcast(savedMessage);
     }
 
     public MessageAddedBroadcast saveMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients, List<ChatMessageFileDto> files) {
         final List<ChatMessageFile> savedFiles = fileIo.save(files);
         try {
-            final ChatMessage savedMessage = saveMessageTransactionWrapper.save(message, recipients, savedFiles, processId);
+            final ChatMessage savedMessage = messageTransactionWrapper.save(message, recipients, savedFiles, processId);
             final MessageAddedBroadcast broadcast = converter.convertChatMessageToAddedMessageBroadcast(savedMessage);
             broadcast.setFiles(fileMapper.toDetailDto(savedFiles));
             return broadcast;
@@ -108,7 +106,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void deleteMessage(User user, Long messageId) {
-        fileIo.delete(deleteMessageTransactionWrapper.delete(user, messageId));
+        fileIo.delete(messageTransactionWrapper.delete(user, messageId));
     }
 
     public void updateMessage(User user, ChatMessage message) {

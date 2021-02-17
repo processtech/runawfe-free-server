@@ -2,11 +2,9 @@ package ru.runa.wfe.chat.socket;
 
 import java.io.IOException;
 import java.util.Set;
-import javax.annotation.Resource;
 import javax.websocket.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
@@ -18,8 +16,6 @@ import ru.runa.wfe.user.User;
 @Component
 public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMessageRequest> {
 
-    @Resource(name = "deleteMessageHandler")
-    private DeleteMessageHandler self;
     @Autowired
     private ChatLogic chatLogic;
     @Autowired
@@ -30,12 +26,8 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMess
     @Override
     public void handleMessage(Session session, DeleteMessageRequest request, User user) throws IOException {
         final Set<Actor> recipients = calculator.calculateRecipients(user, false, "", request.getProcessId());
-        self.deleteMessage(request, user);
+        chatLogic.deleteMessage(user, request.getMessageId());
         sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), new MessageDeletedBroadcast(request.getMessageId()));
-    }
-
-    public void deleteMessage(DeleteMessageRequest dto, User user) {
-        chatLogic.deleteMessage(user, dto.getMessageId());
     }
 
     @Override
