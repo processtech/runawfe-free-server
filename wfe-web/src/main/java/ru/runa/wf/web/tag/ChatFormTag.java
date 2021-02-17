@@ -6,10 +6,7 @@ import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import org.tldgen.annotations.Tag;
 import ru.runa.common.web.PagingNavigationHelper;
-import ru.runa.common.web.StrutsWebHelper;
-import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
-import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -65,13 +62,15 @@ public class ChatFormTag extends TitledFormTag {
     private TR getButtons() {
         Input sendMessageButton = new Input("button", "sendMessageButton", "Отправить сообщение");
         sendMessageButton.setOnClick("sendMessage()");
+        Input fileInput = new Input("file");
+        fileInput.setID("fileInput");
+        fileInput.addAttribute("multiple", "true");
         TD sendMessage = new TD(sendMessageButton);
-        TD fileInput = new TD(ViewUtil.getFileInput(new StrutsWebHelper(pageContext),
-                FileForm.FILE_INPUT_NAME, true, ""));
+        TD file = new TD(fileInput);
         sendMessage.setClass("list");
-        fileInput.setClass("list");
+        file.setClass("list");
         return new TR(sendMessage.addElement(" Приватное сообщение: " +
-                new Input("checkbox").setID("isPrivate"))).addElement(fileInput);
+                new Input("checkbox").setID("isPrivate"))).addElement(file);
     }
 
     private TR getMessageBody(MessageAddedBroadcast message) {
@@ -83,26 +82,28 @@ public class ChatFormTag extends TitledFormTag {
     }
 
     private TR getMessageHeader(MessageAddedBroadcast message) {
-        Input button = (message.getAuthor().equals(user.getActor()))
-                ? getEditMessageButton(message)
-                : getReplyButton(message);
         return new TR()
-                .addElement(new TH(message.getAuthor().getName()).setAlign("left").addElement(" " + button))
-                .addElement(addDeleteMessageButton(getCreateDate(message), message.getId()));
+                .addElement(getAuthorAndActionWithMessage(message))
+                .addElement(getCreateDateAndDeleteMessageButton(message));
     }
 
-    private TH addDeleteMessageButton(TH th, long messageId) {
+    private TH getCreateDateAndDeleteMessageButton(MessageAddedBroadcast message) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        TH th = new TH(dateFormat.format(message.getCreateDate())).setAlign("right");
+
         if (Delegates.getExecutorService().isAdministrator(user)) {
             Input deleteButton = new Input("button", "deleteMessageButton", "X");
-            deleteButton.setOnClick("deleteMessage(" + messageId + ");");
+            deleteButton.setOnClick("deleteMessage(" + message.getId() + ");");
             return th.addElement(" " + deleteButton);
         }
         return th;
     }
 
-    private TH getCreateDate(MessageAddedBroadcast message) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        return new TH(dateFormat.format(message.getCreateDate())).setAlign("right");
+    private TH getAuthorAndActionWithMessage(MessageAddedBroadcast message) {
+        Input button = (message.getAuthor().equals(user.getActor()))
+                ? getEditMessageButton(message)
+                : getReplyButton(message);
+        return new TH(message.getAuthor().getName()).setAlign("left").addElement(" " + button);
     }
 
     private Input getEditMessageButton(MessageAddedBroadcast message) {

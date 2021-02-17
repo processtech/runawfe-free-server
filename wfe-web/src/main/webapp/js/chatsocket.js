@@ -43,10 +43,5 @@ function newMessageAlerter(message) {
 }
 
 function errorMessageAlerter(message) {
-    alert("Сообщение не отправлено. Error: " + message.message);
+    alert("Сообщение не отправлено. Ошибка: " + message.message);
 }
-
-/*var languageText = (window.navigator.language ||
-		window.navigator.systemLanguage ||
-		window.navigator.userLanguage);
-	languageText = languageText.substr(0, 2).toLowerCase();*/
