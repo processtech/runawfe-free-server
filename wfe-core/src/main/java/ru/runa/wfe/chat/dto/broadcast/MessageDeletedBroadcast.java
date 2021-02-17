@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class MessageDeletedBroadcast extends MessageBroadcast {
-    private Long messageId;
+    private Long id;
 }

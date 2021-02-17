@@ -19,8 +19,8 @@ public class ReadMessageHandler implements ChatSocketMessageHandler<ReadMessageR
 
     @Transactional
     @Override
-    public void handleMessage(Session session, ReadMessageRequest dto, User user) {
-        Long currentMessageId = dto.getCurrentMessageId();
+    public void handleMessage(Session session, ReadMessageRequest request, User user) {
+        Long currentMessageId = request.getCurrentMessageId();
         chatLogic.readMessage(user, currentMessageId);
     }
 
