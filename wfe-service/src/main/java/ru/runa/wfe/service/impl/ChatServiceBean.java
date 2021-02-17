@@ -83,30 +83,15 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<MessageAddedBroadcast> getNewChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
+    public List<MessageAddedBroadcast> getNewMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
         return chatLogic.getNewMessages(user, processId);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public Long getNewChatMessagesCount(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getNewMessagesCount(user, processId);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public List<Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "processIds") List<Long> processIds) {
+    public List<Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processIds") List<Long> processIds) {
         return chatLogic.getNewMessagesCounts(user, processIds);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public Long getLastMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getLastMessage(user, processId);
     }
 
     @WebMethod(exclude = false)
@@ -141,30 +126,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public void markMessageAsRead(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long id) {
-        chatLogic.readMessage(user, id);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
     public ChatMessageFileDto getChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "fileId") Long fileId) {
         return chatFileLogic.getById(user, fileId);
     }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public List<ChatMessageFileDto> getChatMessageFiles(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "message") ChatMessage message) {
-        return chatFileLogic.getDtosByMessage(user, message);
-    }
-
-//    @WebMethod(exclude = false)
-//    @Override
-//    @WebResult(name = "result")
-//    public void deleteFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "id") @NonNull Long id) {
-//        chatFileLogic.deleteById(user, id);
-//
-//    }
 }

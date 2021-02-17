@@ -5,9 +5,6 @@ import ru.runa.wfe.webservice.ChatAPI;
 import ru.runa.wfe.webservice.ChatWebService;
 import ru.runa.wfe.webservice.DeleteMessageRequest;
 import ru.runa.wfe.webservice.EditMessageRequest;
-import ru.runa.wfe.webservice.MessageAddedBroadcast;
-import ru.runa.wfe.webservice.MessageDeletedBroadcast;
-import ru.runa.wfe.webservice.MessageEditedBroadcast;
 import ru.runa.wfe.webservice.User;
 
 /**
@@ -17,6 +14,7 @@ public class ChatWebServiceTest {
     public static final ChatAPI chatAPI;
     public static final User USER;
     public static final Long PROCESS_ID = 1L;
+    // Specify the ID of the message that you want to edit and delete
     public static final Long MESSAGE_ID = 66L;
 
     static {

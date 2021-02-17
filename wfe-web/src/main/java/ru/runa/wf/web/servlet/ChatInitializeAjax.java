@@ -25,7 +25,7 @@ public class ChatInitializeAjax extends JsonAjaxCommand {
         List<MessageAddedBroadcast> messages;
         JSONArray messagesArrayObject = new JSONArray();
         outputObject.put("lastMessageId", lastMessageId);
-        messages = Delegates.getChatService().getNewChatMessages(user, processId);
+        messages = Delegates.getChatService().getNewMessages(user, processId);
         MessageAddedBroadcast messageObject;
         if (messages.size() > 0) {
             messageObject = messages.get(0);

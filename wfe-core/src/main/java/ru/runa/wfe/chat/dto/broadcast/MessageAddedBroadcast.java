@@ -2,6 +2,7 @@ package ru.runa.wfe.chat.dto.broadcast;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,7 +17,7 @@ import ru.runa.wfe.user.Actor;
 @Getter
 @Setter
 @NoArgsConstructor
-public class MessageAddedBroadcast extends MessageBroadcast {
+public class MessageAddedBroadcast extends MessageBroadcast implements Serializable {
 
     private Long id;
     private String text;

@@ -41,23 +41,13 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<MessageAddedBroadcast> getNewChatMessages(User user, Long processId) {
-        return getChatService().getNewChatMessages(user, processId);
-    }
-
-    @Override
-    public Long getNewChatMessagesCount(User user, Long processId) {
-        return getChatService().getNewChatMessagesCount(user, processId);
+    public List<MessageAddedBroadcast> getNewMessages(User user, Long processId) {
+        return getChatService().getNewMessages(user, processId);
     }
 
     @Override
     public List<Long> getNewMessagesCounts(User user, List<Long> processIds) {
         return getChatService().getNewMessagesCounts(user, processIds);
-    }
-
-    @Override
-    public Long getLastMessage(User user, Long processId) {
-        return getChatService().getLastMessage(user, processId);
     }
 
     @Override
@@ -76,24 +66,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public void markMessageAsRead(User user, Long id) {
-        getChatService().markMessageAsRead(user, id);
-    }
-
-    @Override
     public ChatMessageFileDto getChatMessageFile(User user, Long fileId) {
         return getChatService().getChatMessageFile(user, fileId);
     }
-
-    @Override
-    public List<ChatMessageFileDto> getChatMessageFiles(User user, ChatMessage message) {
-        return getChatService().getChatMessageFiles(user, message);
-    }
-
-//    @Override
-//    public void deleteFile(User user, Long id) {
-//        getChatService().deleteFile(user, id);
-//    }
-
 
 }
