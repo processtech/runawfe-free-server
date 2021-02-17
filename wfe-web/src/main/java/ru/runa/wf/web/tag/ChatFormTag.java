@@ -6,10 +6,14 @@ import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import org.tldgen.annotations.Tag;
 import ru.runa.common.web.PagingNavigationHelper;
+import ru.runa.common.web.StrutsWebHelper;
+import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Tag(bodyContent = BodyContent.JSP, name = "chatForm")
@@ -59,27 +63,15 @@ public class ChatFormTag extends TitledFormTag {
     }
 
     private TR getButtons() {
-        Input input = new Input("button", "sendMessageButton", "Отправить сообщение");
-        input.setOnClick("sendMessage()");
-        TD sendMessage = new TD(input);
+        Input sendMessageButton = new Input("button", "sendMessageButton", "Отправить сообщение");
+        sendMessageButton.setOnClick("sendMessage()");
+        TD sendMessage = new TD(sendMessageButton);
+        TD fileInput = new TD(ViewUtil.getFileInput(new StrutsWebHelper(pageContext),
+                FileForm.FILE_INPUT_NAME, true, ""));
         sendMessage.setClass("list");
-        TD isPrivate = new TD("Приватное сообщение: " + new Input("checkbox").setID("isPrivate"));
-        isPrivate.setClass("list");
-        return new TR(sendMessage).addElement(isPrivate.addElement(getAddFilesButton()));
-    }
-
-    private Input getAddFilesButton() {
-        Input input = new Input("file");
-        input.addAttribute("multiple", "true");
-        input.setOnClick("alert(\"File added!\")");
-        return input;
-    }
-
-    private TR getMessageHeader(MessageAddedBroadcast message) {
-        TR row = new TR();
-        row.addElement(new TH(message.getAuthor().getName()).setAlign("left"));
-        row.addElement(addDeleteButton(new TH(message.getCreateDate().toString()).setAlign("right"), message.getId()));
-        return row;
+        fileInput.setClass("list");
+        return new TR(sendMessage.addElement(" Приватное сообщение: " +
+                new Input("checkbox").setID("isPrivate"))).addElement(fileInput);
     }
 
     private TR getMessageBody(MessageAddedBroadcast message) {
@@ -87,24 +79,41 @@ public class ChatFormTag extends TitledFormTag {
         messageText.setClass("list");
         TD files = new TD(message.getFiles().toString());
         files.setClass("list");
-        return new TR(messageText).addElement(addEditButton(files, message).setAlign("right"));
+        return new TR(messageText).addElement(files);
     }
 
-    private TH addDeleteButton(TH th, long messageId) {
+    private TR getMessageHeader(MessageAddedBroadcast message) {
+        Input button = (message.getAuthor().equals(user.getActor()))
+                ? getEditMessageButton(message)
+                : getReplyButton(message);
+        return new TR()
+                .addElement(new TH(message.getAuthor().getName()).setAlign("left").addElement(" " + button))
+                .addElement(addDeleteMessageButton(getCreateDate(message), message.getId()));
+    }
+
+    private TH addDeleteMessageButton(TH th, long messageId) {
         if (Delegates.getExecutorService().isAdministrator(user)) {
             Input deleteButton = new Input("button", "deleteMessageButton", "X");
             deleteButton.setOnClick("deleteMessage(" + messageId + ");");
-            return th.addElement(deleteButton);
+            return th.addElement(" " + deleteButton);
         }
         return th;
     }
 
-    private TD addEditButton(TD td, MessageAddedBroadcast message) {
-        if (message.getAuthor().equals(user.getActor())) {
-            Input editButton = new Input("button", "editMessageButton", "Изменить сообщение");
-            editButton.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
-            return td.addElement(editButton);
-        }
-        return td;
+    private TH getCreateDate(MessageAddedBroadcast message) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        return new TH(dateFormat.format(message.getCreateDate())).setAlign("right");
+    }
+
+    private Input getEditMessageButton(MessageAddedBroadcast message) {
+        Input button = new Input("button", "editMessageButton", "Изменить сообщение");
+        button.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
+        return button;
+    }
+
+    private Input getReplyButton(MessageAddedBroadcast message) {
+        Input button = new Input("button", "replyButton", "Ответить");
+        button.setOnClick("reply(\"" + message.getText() + "\");");
+        return button;
     }
 }

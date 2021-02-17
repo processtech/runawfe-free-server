@@ -82,7 +82,7 @@ function fileToBase64(file) {
 }
 
 //альтернатива - fileInput
-$("#file").change(function () {
+$("#fileInput").change(function () {
     console.info("FILE!")
     let files = $(this)[0].files;
     for (let i = 0; i < files.length; i++) {

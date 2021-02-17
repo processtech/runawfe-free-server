@@ -20,6 +20,10 @@
         editMessageId = id;
     }
 
+    function reply(text) {
+        $("#message").append(" > " + text + "\n");
+    }
+
     function deleteMessage(id) {
         deleteMessageHandler(id);
     }

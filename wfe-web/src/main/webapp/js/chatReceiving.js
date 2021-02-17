@@ -37,7 +37,9 @@ function sendBinaryMessage(socket, message) {
 
 function newMessageAlerter(message) {
     console.log(message);
-    alert("New Message!");
+    if (confirm("You have received a new message! Want to reload the page?")) {
+        location.reload();
+    }
 }
 
 function errorMessageAlerter(message) {
