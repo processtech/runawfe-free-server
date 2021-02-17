@@ -16,6 +16,7 @@ import java.util.List;
 public class ChatFormTag extends TitledFormTag {
 
     private static final long serialVersionUID = -1L;
+    private User user;
 
     @Setter
     @Attribute(required = true)
@@ -28,7 +29,7 @@ public class ChatFormTag extends TitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        User user = getUser();
+        user = getUser();
         List<MessageAddedBroadcast> messages = Delegates.getChatService()
                 .getChatMessages(user, processId, Long.MAX_VALUE, Integer.MAX_VALUE);
 
@@ -42,9 +43,7 @@ public class ChatFormTag extends TitledFormTag {
         Table table = new Table();
         table.setClass("list");
         table.addElement(getTextArea());
-        table.addElement("Приватное сообщение: " + new Input("checkbox").setID("isPrivate"));
-        table.addElement(getAddFilesButton());
-        table.addElement(getSendMessageButton());
+        table.addElement(getButtons());
         for (MessageAddedBroadcast message : messages) {
             table.addElement(getMessageHeader(message));
             table.addElement(getMessageBody(message));
@@ -59,6 +58,16 @@ public class ChatFormTag extends TitledFormTag {
         return textArea;
     }
 
+    private TR getButtons() {
+        Input input = new Input("button", "sendMessageButton", "Отправить сообщение");
+        input.setOnClick("sendMessage()");
+        TD sendMessage = new TD(input);
+        sendMessage.setClass("list");
+        TD isPrivate = new TD("Приватное сообщение: " + new Input("checkbox").setID("isPrivate"));
+        isPrivate.setClass("list");
+        return new TR(sendMessage).addElement(isPrivate.addElement(getAddFilesButton()));
+    }
+
     private Input getAddFilesButton() {
         Input input = new Input("file");
         input.addAttribute("multiple", "true");
@@ -66,18 +75,10 @@ public class ChatFormTag extends TitledFormTag {
         return input;
     }
 
-    private Input getSendMessageButton() {
-        Input input = new Input("button", "sendMessageButton", "Отправить сообщение");
-        input.setOnClick("sendMessage()");
-        return input;
-    }
-
     private TR getMessageHeader(MessageAddedBroadcast message) {
         TR row = new TR();
-        Input deleteButton = new Input("button", "deleteMessageButton", "X");
-        deleteButton.setOnClick("deleteMessage(" + message.getId() + ");");
         row.addElement(new TH(message.getAuthor().getName()).setAlign("left"));
-        row.addElement(new TH(message.getCreateDate().toString()).setAlign("right").addElement(deleteButton));
+        row.addElement(addDeleteButton(new TH(message.getCreateDate().toString()).setAlign("right"), message.getId()));
         return row;
     }
 
@@ -86,8 +87,24 @@ public class ChatFormTag extends TitledFormTag {
         messageText.setClass("list");
         TD files = new TD(message.getFiles().toString());
         files.setClass("list");
-        Input editButton = new Input("button", "editMessageButton", "Изменить сообщение");
-        editButton.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
-        return new TR(messageText).addElement(files.addElement(editButton));
+        return new TR(messageText).addElement(addEditButton(files, message).setAlign("right"));
+    }
+
+    private TH addDeleteButton(TH th, long messageId) {
+        if (Delegates.getExecutorService().isAdministrator(user)) {
+            Input deleteButton = new Input("button", "deleteMessageButton", "X");
+            deleteButton.setOnClick("deleteMessage(" + messageId + ");");
+            return th.addElement(deleteButton);
+        }
+        return th;
+    }
+
+    private TD addEditButton(TD td, MessageAddedBroadcast message) {
+        if (message.getAuthor().equals(user.getActor())) {
+            Input editButton = new Input("button", "editMessageButton", "Изменить сообщение");
+            editButton.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
+            return td.addElement(editButton);
+        }
+        return td;
     }
 }

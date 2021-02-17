@@ -428,7 +428,7 @@ input[type=file] {
 	width: 250px;
 	height: 22px;
 	overflow: hidden;
-	display: block;
+	display: inline-block;
 	margin-left:10px;
 }
 

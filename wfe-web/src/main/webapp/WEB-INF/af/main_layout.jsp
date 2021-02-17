@@ -46,7 +46,7 @@
 <% } %>
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/jquery.edit-list.js?"+Version.getHash() %>' />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/common.js?"+Version.getHash() %>' />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/chatsocket.js" %>' />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/chatReceiving.js" %>' />">c=0;</script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 		  $(document).ajaxError(function(event, request, settings, exception) {

@@ -3,8 +3,11 @@ let editMessageType = "editMessage";
 let deleteMessageType = "deleteMessage";
 let readMessageType = "readMessage";
 
-let editMessageFlag = false;
 let editMessageId = -1;
+
+let attachedFiles = [];
+let attachedFilesBase64 = {};
+let fileInp = 1024 * 1024 * 20;
 
 function deleteMessageHandler(id) {
     if (confirm("Вы уверены?")) {
@@ -26,7 +29,7 @@ function sendMessageHandler() {
         let newMessage = {};
         newMessage.message = message;
         newMessage.processId = $("#ChatForm").attr("processId");
-        if (editMessageFlag === false) {
+        if (editMessageId === -1) {
             newMessage.messageType = newMessageType;
             newMessage.isPrivate = $("#isPrivate").prop("checked");
             if (attachedFiles.length > 0) {
@@ -37,9 +40,8 @@ function sendMessageHandler() {
         } else if (confirm("Вы уверены?")) {
             newMessage.messageType = editMessageType;
             newMessage.editMessageId = editMessageId;
-            sendBinaryMessage(chatSocket, newMessage);
-            editMessageFlag = false;
             editMessageId = -1;
+            sendBinaryMessage(chatSocket, newMessage);
         }
         $("#message").val("");
     }
@@ -61,4 +63,52 @@ function bindFilesAndSendMessage(files, message) {
     }).catch(function (error) {
         alert(error.message);
     });
+}
+
+function fileToBase64(file) {
+    return new Promise(function (resolve, reject) {
+        let reader = new FileReader();
+        let buffer = new ArrayBuffer();
+        reader.onload = function (e) {
+            buffer = e.target.result;
+            attachedFilesBase64[file.name] = btoa(buffer);
+            resolve();
+        }
+        reader.onerror = function (error) {
+            reject(error);
+        }
+        reader.readAsBinaryString(file)
+    });
+}
+
+//альтернатива - fileInput
+$("#file").change(function () {
+    console.info("FILE!")
+    let files = $(this)[0].files;
+    for (let i = 0; i < files.length; i++) {
+        let fileSize = ("size" in files[i]) ? files[i].size : files[i].fileSize;
+        if (fileSize < fileInp) {
+            attachedFiles.push(files[i]);
+            let newFile = $("<tr/>");
+            newFile.append($("<td/>").text(attachedFiles[attachedFiles.length - 1].name));
+            let deleteFileButton = $("<button/>");
+            deleteFileButton.text("X");
+            deleteFileButton.addClass("btnFileChat");
+            deleteFileButton.attr("fileNumber", attachedFiles.length - 1);
+            deleteFileButton.attr("type", "button");
+            deleteFileButton.click(deleteAttachedFile);
+            newFile.append($("<td/>").append(deleteFileButton));
+            $("#filesTable").append(newFile);
+        }
+        else {
+            alert("errorMessFilePart1" + (fileSize - fileInp) + "errorMessFilePart2" + fileInp / (1073741824) + " Gb / " + fileInp + "bite");
+        }
+        this.val = {};
+    }
+});
+
+function deleteAttachedFile() {
+    attachedFiles.splice($(this).attr("fileNumber"));
+    $(this).closest("tr").remove();
+    return false;
 }
