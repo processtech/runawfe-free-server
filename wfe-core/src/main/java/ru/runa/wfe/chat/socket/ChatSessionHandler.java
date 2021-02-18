@@ -69,8 +69,9 @@ public class ChatSessionHandler {
 
     public void removeSession(Session session) {
         log.warn("removeSession method");
-//        Long userId = ChatSessionUtils.getUser(session).getActor().getId();
-//        sessions.remove(userId, session);
+        Long userId = ChatSessionUtils.getUser(session).getActor().getId();
+        SessionInfo sessionInfo = new SessionInfo(session);
+        sessions.get(userId).remove(sessionInfo);
     }
 
     public void sendToSession(Session session, String message) throws IOException {
@@ -86,9 +87,10 @@ public class ChatSessionHandler {
     public void sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) throws IOException {
         log.warn("sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) method");
         for (Long id : recipientIds) {
-//            Set<SessionInfo> sessionsSet = sessions.get(id);
-//            sessionsSet.stream().filter(data -> Objects.equals(data, "Tim")).findFirst().get();
-//            messageSender.handleMessage(dto, Optional.ofNullable(sessions.get(id).));
+            Set<SessionInfo> sessionsSet = sessions.get(id);
+            for (SessionInfo sessionInfo : sessionsSet) {
+                messageSender.handleMessage(dto, Optional.ofNullable(sessionInfo.getSession()));
+            }
         }
     }
 
