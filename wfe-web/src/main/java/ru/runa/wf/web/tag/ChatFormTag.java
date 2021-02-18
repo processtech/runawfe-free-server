@@ -1,7 +1,12 @@
 package ru.runa.wf.web.tag;
 
 import lombok.Setter;
-import org.apache.ecs.html.*;
+import org.apache.ecs.html.Input;
+import org.apache.ecs.html.TD;
+import org.apache.ecs.html.TR;
+import org.apache.ecs.html.TH;
+import org.apache.ecs.html.Table;
+import org.apache.ecs.html.TextArea;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import org.tldgen.annotations.Tag;
@@ -9,16 +14,17 @@ import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wfe.chat.dto.ChatMessageFileDetailDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Tag(bodyContent = BodyContent.JSP, name = "chatForm")
 public class ChatFormTag extends TitledFormTag {
 
-    private static final long serialVersionUID = -1L;
+    private static final long serialVersionUID = 3503222160684440119L;
     private User user;
+    private boolean isAdmin;
 
     @Setter
     @Attribute(required = true)
@@ -32,8 +38,8 @@ public class ChatFormTag extends TitledFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         user = getUser();
-        List<MessageAddedBroadcast> messages = Delegates.getChatService()
-                .getMessages(user, processId, Long.MAX_VALUE, Integer.MAX_VALUE);
+        isAdmin = Delegates.getExecutorService().isAdministrator(user);
+        List<MessageAddedBroadcast> messages = Delegates.getChatService().getMessages(user, processId);
 
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, messages.size());
         navigation.addPagingNavigationTable(tdFormElement);
@@ -99,10 +105,8 @@ public class ChatFormTag extends TitledFormTag {
     }
 
     private TH getCreateDateAndDeleteMessageButton(MessageAddedBroadcast message) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        TH th = new TH(dateFormat.format(message.getCreateDate())).setAlign("right");
-
-        if (Delegates.getExecutorService().isAdministrator(user)) {
+        TH th = new TH(CalendarUtil.formatDateTime(message.getCreateDate())).setAlign("right");
+        if (isAdmin) {
             Input deleteButton = new Input("button", "deleteMessageButton", "X");
             deleteButton.setOnClick("deleteMessage(" + message.getId() + ");");
             return th.addElement(" " + deleteButton);

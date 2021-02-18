@@ -12,6 +12,8 @@
     $(document).ready(function () {
         initChatSocket(establishWebSocketConnection({
             "newMessage": newMessageAlerter,
+            "editMessage": editMessageAlerter,
+            "deleteMessage": deleteMessageAlerter,
             "errorMessage": errorMessageAlerter
         }, '<%=Commons.getUser(request.getSession()).getActor().getName()%>'));
     });

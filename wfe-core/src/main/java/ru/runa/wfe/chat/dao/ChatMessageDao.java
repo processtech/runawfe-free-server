@@ -31,17 +31,6 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     }
 
     @Transactional(readOnly = true)
-    public Long getLastReadMessage(Actor user, Long processId) {
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        Long lastMesId = queryFactory.select(cr.message.id.min()).from(cr).where(cr.readDate.isNull().and(cr.executor.eq(user)))
-                .fetchFirst();
-        if (lastMesId == null) {
-            lastMesId = -1L;
-        }
-        return lastMesId;
-    }
-
-    @Transactional(readOnly = true)
     public List<Long> getActiveChatIds(Actor user) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.message.process.id).from(cr).where(cr.executor.eq(user)).distinct().fetch();
@@ -64,23 +53,11 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     }
 
     @Transactional(readOnly = true)
-    public List<ChatMessage> getNewMessages(Actor user, Long processId) {
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        Long lastMessageId = getLastReadMessage(user, processId);
-        if (lastMessageId == -1L) {
-            return new ArrayList<>();
-        }
-        return queryFactory.select(cr.message).from(cr)
-                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user).and(cr.message.id.goe(lastMessageId))))
-                .orderBy(cr.message.createDate.asc()).fetch();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ChatMessage> getMessages(Actor user, Long processId, Long firstId, int count) {
+    public List<ChatMessage> getMessages(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.message).from(cr)
-                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user).and(cr.message.id.lt(firstId))))
-                .orderBy(cr.message.createDate.desc()).limit(count).fetch();
+                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user)))
+                .orderBy(cr.message.createDate.desc()).fetch();
     }
 
     @Transactional

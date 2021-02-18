@@ -67,10 +67,6 @@ public class ChatLogic extends WfCommonLogic {
         messageDao.readMessage(user.getActor(), messageId);
     }
 
-    public Long getLastReadMessage(User user, Long processId) {
-        return messageDao.getLastReadMessage(user.getActor(), processId);
-    }
-
     public List<Long> getActiveChatIds(User user) {
         List<Long> ret = messageDao.getActiveChatIds(user.getActor());
         if (ret == null) {
@@ -87,13 +83,8 @@ public class ChatLogic extends WfCommonLogic {
         return messageDao.get(messageId);
     }
 
-    public List<MessageAddedBroadcast> getMessages(User user, Long processId, Long firstId, int count) {
-        List<ChatMessage> messages = messageDao.getMessages(user.getActor(), processId, firstId, count);
-        return toMessageAddedBroadcast(user, messages);
-    }
-
-    public List<MessageAddedBroadcast> getNewMessages(User user, Long processId) {
-        List<ChatMessage> messages = messageDao.getNewMessages(user.getActor(), processId);
+    public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
+        List<ChatMessage> messages = messageDao.getMessages(user.getActor(), processId);
         return toMessageAddedBroadcast(user, messages);
     }
 

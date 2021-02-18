@@ -37,14 +37,47 @@ function sendBinaryMessage(socket, message) {
     socket.send(bytes);
 }
 
+function isChatOpen(message) {
+    return window.location.pathname === "/wfe/chat_page.do"
+        && window.location.search === "?processId=" + message.processId;
+}
+
 function newMessageAlerter(message) {
     console.log(message);
     if (message.author === currentUser) {
         if (confirm("Сообщение успешно отправлено! Хотите перезагрузить страницу?")) {
             location.reload();
         }
-    } else if (confirm("Вы получили новое сообщение! Хотите перезагрузить страницу?")) {
-        location.reload();
+    } else if (isChatOpen(message)) {
+        if (confirm("Вы получили новое сообщение! Хотите перезагрузить страницу?")) {
+            location.reload();
+        }
+    } else {
+        alert("Вы получили новое сообщение!");
+    }
+}
+
+function editMessageAlerter(message) {
+    if (message.author === currentUser) {
+        if (confirm("Сообщение успешно отредактировано! Хотите перезагрузить страницу?")) {
+            location.reload();
+        }
+    } else if (isChatOpen(message)) {
+        if (confirm("Одно из сообщений было отредактировано! Хотите перезагрузить страницу?")) {
+            location.reload();
+        }
+    }
+}
+
+function deleteMessageAlerter(message) {
+    if (message.author === currentUser) {
+        if (confirm("Сообщение успешно удалено! Хотите перезагрузить страницу?")) {
+            location.reload();
+        }
+    } else if (isChatOpen(message)) {
+        if (confirm("Одно из сообщений было удалено! Хотите перезагрузить страницу?")) {
+            location.reload();
+        }
     }
 }
 

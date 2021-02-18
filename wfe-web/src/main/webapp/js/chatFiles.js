@@ -1,21 +1,14 @@
 let attachedFiles = [];
 let attachedFilesBase64 = {};
-let fileInp = 1024 * 1024 * 20;
 
 $(document).ready(function () {
     $("#fileInput").change(function () {
         let files = $(this)[0].files;
         for (let i = 0; i < files.length; i++) {
-            let fileSize = ("size" in files[i]) ? files[i].size : files[i].fileSize;
-            if (fileSize < fileInp) {
-                attachedFiles.push(files[i]);
-                let newFile = $("<tr/>");
-                newFile.append($("<td/>").text(attachedFiles[attachedFiles.length - 1].name));
-                $("#filesTable").append(newFile);
-            } else {
-                alert("Ошибка. Размер файла превышен на " + (fileSize - fileInp) +
-                    " байт, максимальный размер файла = " + fileInp / (1073741824) + " Gb / " + fileInp + "bite");
-            }
+            attachedFiles.push(files[i]);
+            let newFile = $("<tr/>");
+            newFile.append($("<td/>").text(attachedFiles[attachedFiles.length - 1].name));
+            $("#filesTable").append(newFile);
             this.val = {};
         }
     });
