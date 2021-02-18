@@ -1,7 +1,6 @@
 package ru.runa.wfe.chat.dao;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -22,10 +21,9 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return super.get(id);
     }
 
-    @Transactional
     public void readMessage(Actor user, Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        Date date = new Date(Calendar.getInstance().getTime().getTime());
+        Date date = new Date();
         queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.lt(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
                 .execute();
     }
@@ -52,7 +50,6 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
                 .fetchCount();
     }
 
-    @Transactional(readOnly = true)
     public List<ChatMessage> getMessages(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.message).from(cr)

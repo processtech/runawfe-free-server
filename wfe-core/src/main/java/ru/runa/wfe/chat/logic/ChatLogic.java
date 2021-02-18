@@ -15,6 +15,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileIo;
@@ -63,6 +64,7 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
+    @Transactional
     public void readMessage(User user, Long messageId) {
         messageDao.readMessage(user.getActor(), messageId);
     }
@@ -83,8 +85,12 @@ public class ChatLogic extends WfCommonLogic {
         return messageDao.get(messageId);
     }
 
+    @Transactional
     public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
         List<ChatMessage> messages = messageDao.getMessages(user.getActor(), processId);
+        if (!messages.isEmpty()) {
+            messageDao.readMessage(user.getActor(), messages.get(0).getId());
+        }
         return toMessageAddedBroadcast(user, messages);
     }
 
