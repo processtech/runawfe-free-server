@@ -33,7 +33,7 @@ public class ChatFormTag extends TitledFormTag {
     protected void fillFormElement(TD tdFormElement) {
         user = getUser();
         List<MessageAddedBroadcast> messages = Delegates.getChatService()
-                .getChatMessages(user, processId, Long.MAX_VALUE, Integer.MAX_VALUE);
+                .getMessages(user, processId, Long.MAX_VALUE, Integer.MAX_VALUE);
 
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, messages.size());
         navigation.addPagingNavigationTable(tdFormElement);
