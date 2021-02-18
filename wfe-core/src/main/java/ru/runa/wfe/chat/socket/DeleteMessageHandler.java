@@ -4,32 +4,24 @@ import java.io.IOException;
 import javax.websocket.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
-import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.User;
 
 @Component
 public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMessageRequest> {
 
     @Autowired
-    private ExecutionLogic executionLogic;
-    @Autowired
     private ChatLogic chatLogic;
     @Autowired
     private ChatSessionHandler sessionHandler;
 
-    @Transactional
     @Override
-    public void handleMessage(Session session, DeleteMessageRequest dto, User user) throws IOException {
-        if (executionLogic.getProcess(user, dto.getProcessId()).isEnded()) {
-            return;
-        }
-        chatLogic.deleteMessage(user, dto.getMessageId());
-        sessionHandler.sendMessage(new MessageDeletedBroadcast(dto.getMessageId()));
+    public void handleMessage(Session session, DeleteMessageRequest request, User user) throws IOException {
+        chatLogic.deleteMessage(user, request.getMessageId());
+        sessionHandler.sendMessage(new MessageDeletedBroadcast(request.getMessageId()));
     }
 
     @Override
