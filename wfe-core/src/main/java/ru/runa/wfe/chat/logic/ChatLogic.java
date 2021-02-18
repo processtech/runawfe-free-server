@@ -29,12 +29,9 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 
 public class ChatLogic extends WfCommonLogic {
     private final Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
-    @Autowired
-    private ExecutorLogic executorLogic;
     @Autowired
     private ChatMessageDao messageDao;
     @Autowired
@@ -46,21 +43,17 @@ public class ChatLogic extends WfCommonLogic {
     @Autowired
     private ChatFileIo fileIo;
     @Autowired
-    private SaveMessageTransactionWrapper saveMessageTransactionWrapper;
-
-    public List<Long> getMentionedExecutorIds(User user, Long messageId) {
-        return messageDao.getMentionedExecutorIds(messageId);
-    }
+    private MessageTransactionWrapper messageTransactionWrapper;
 
     public MessageAddedBroadcast saveMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
-        final ChatMessage savedMessage = saveMessageTransactionWrapper.save(message, recipients, processId);
+        final ChatMessage savedMessage = messageTransactionWrapper.save(message, recipients, processId);
         return converter.convertChatMessageToAddedMessageBroadcast(savedMessage);
     }
 
     public MessageAddedBroadcast saveMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients, List<ChatMessageFileDto> files) {
         final List<ChatMessageFile> savedFiles = fileIo.save(files);
         try {
-            final ChatMessage savedMessage = saveMessageTransactionWrapper.save(message, recipients, savedFiles, processId);
+            final ChatMessage savedMessage = messageTransactionWrapper.save(message, recipients, savedFiles, processId);
             final MessageAddedBroadcast broadcast = converter.convertChatMessageToAddedMessageBroadcast(savedMessage);
             broadcast.setFiles(fileMapper.toDetailDto(savedFiles));
             return broadcast;
@@ -78,10 +71,6 @@ public class ChatLogic extends WfCommonLogic {
         return messageDao.getLastReadMessage(user.getActor(), processId);
     }
 
-    public Long getLastMessage(User user, Long processId) {
-        return messageDao.getLastMessage(user.getActor(), processId);
-    }
-
     public List<Long> getActiveChatIds(User user) {
         List<Long> ret = messageDao.getActiveChatIds(user.getActor());
         if (ret == null) {
@@ -92,10 +81,6 @@ public class ChatLogic extends WfCommonLogic {
 
     public List<Long> getNewMessagesCounts(User user, List<Long> chatsIds) {
         return messageDao.getNewMessagesCounts(chatsIds, user.getActor());
-    }
-
-    public Long getNewMessagesCount(User user, Long processId) {
-        return messageDao.getNewMessagesCount(user.getActor(), processId);
     }
 
     public ChatMessage getMessageById(User user, Long messageId) {
@@ -113,20 +98,14 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void deleteMessage(User user, Long messageId) {
-        if (!executorLogic.isAdministrator(user)) {
-            throw new AuthorizationException("Allowed for admin only");
-        }
-        ChatMessage message = getMessageById(user, messageId);
-        List<ChatMessageFile> files = fileLogic.getByMessage(user, message);
-        messageDao.deleteMessage(messageId);
-        fileLogic.delete(user, files);
+        fileIo.delete(messageTransactionWrapper.delete(user, messageId));
     }
 
     public void updateMessage(User user, ChatMessage message) {
         if (!message.getCreateActor().equals(user.getActor())) {
             throw new AuthorizationException("Allowed for author only");
         }
-        messageDao.updateMessage(message);
+        messageDao.update(message);
     }
 
     public void sendNotifications(User user, ChatMessage chatMessage, Collection<Executor> executors) {

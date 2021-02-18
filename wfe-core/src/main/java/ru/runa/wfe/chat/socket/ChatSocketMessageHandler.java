@@ -7,7 +7,7 @@ import ru.runa.wfe.user.User;
 
 public interface ChatSocketMessageHandler<T extends MessageRequest> {
 
-    void handleMessage(Session session, T dto, User user) throws IOException;
+    void handleMessage(Session session, T request, User user) throws IOException;
 
     boolean isSupports(Class<? extends MessageRequest> messageType);
 }

@@ -265,7 +265,6 @@ function ajaxInitializationChat() {
 			newMessage.processId = idProcess;
 			newMessage.messageType = deleteMessageType;
 			sendBinaryMessage(chatSocket, newMessage);
-			$(this).closest(".selectionTextQuote").remove();
 		}
 	}
 	//редактирование сообщений
@@ -370,11 +369,8 @@ function ajaxInitializationChat() {
 					newMessage.processId = idProcess;
 					newMessage.messageType = editMessageType;
 					newMessage.editMessageId = editMessageId;
-					$("#message").val("");
 					sendBinaryMessage(chatSocket, newMessage);
-					$("[textMessagId='" + editMessageId + "']").text(message);
-					editMessageId = -1;
-					editMessageFlag = false;
+					$("#message").val("");
 				}
 				else {
 					$("#message").val("");
@@ -945,7 +941,7 @@ function ajaxInitializationChat() {
 				let editMessage0 = $("<a/>");
 				editMessage0.text(editMessageButtonText);
 				editMessage0.click(editMessage);
-				cloneMess.find(".addReply").parent().parent().append($("<td/>").append(editMessage0));
+				cloneMess.find(".addReply").parent(5).parent().append($("<td/>").append(editMessage0));
 			}
 			// конец
 			// установка сообщения
@@ -979,14 +975,21 @@ function ajaxInitializationChat() {
 	}
 
 	function editMessageHandler(message) {
-		let mesSelector = $("[textMessagId='" + message.mesId + "']");
+		let mesSelector = $("[textMessagId='" + message.id + "']");
 		if ((mesSelector != null) && (mesSelector != undefined)) {
-			mesSelector.text(message.messageText);
+			mesSelector.text(message.text);
 		}
 	}
 
 	function errorMessageHandler(message) {
 		alert("Сообщение не отправлено. Error: " + message.message);
+	}
+
+	function deleteMessageHandler(message) {
+		let deleteMessage = $("[messageId='" + message.id + "']");
+		if ((deleteMessage != null) && (deleteMessage != undefined)) {
+			deleteMessage.remove();
+		}
 	}
 
 	//---------------------------------------------------------------------
@@ -1138,7 +1141,7 @@ function ajaxInitializationChat() {
 				newMessagesHeight = $("#modal-body")[0].scrollHeight - $("#modal-body").height();
 				updatenumberNewMessages(0);
 			}
-			chatSocket = establishWebSocketConnection({ "newMessage": addMessageHandler, "editMessage": editMessageHandler, "errorMessage": errorMessageHandler });
+			chatSocket = establishWebSocketConnection({ "newMessage": addMessageHandler, "editMessage": editMessageHandler, "errorMessage": errorMessageHandler, "deleteMessage": deleteMessageHandler });
 			//скролл к непрочитанным
 			//установка скрол-функции отслеживания непрочитанных
 			$("#modal-body").bind("load scroll", scrollNewMessages);

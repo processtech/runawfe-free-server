@@ -2,6 +2,7 @@ package ru.runa.wfe.chat;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,7 +23,7 @@ import ru.runa.wfe.user.Actor;
 
 @Entity
 @Table(name = "CHAT_MESSAGE")
-public class ChatMessage {
+public class ChatMessage implements Serializable {
     private Long id;
     private Date createDate;
     private Actor createActor;
