@@ -7,6 +7,7 @@ import org.tldgen.annotations.BodyContent;
 import org.tldgen.annotations.Tag;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wfe.chat.dto.ChatMessageFileDetailDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -76,9 +77,19 @@ public class ChatFormTag extends TitledFormTag {
     private TR getMessageBody(MessageAddedBroadcast message) {
         TD messageText = new TD(message.getText());
         messageText.setClass("list");
-        TD files = new TD(message.getFiles().toString());
-        files.setClass("list");
-        return new TR(messageText).addElement(files);
+        return new TR(messageText).addElement(getFileHolder(message));
+    }
+
+    private TD getFileHolder(MessageAddedBroadcast message) {
+        Table table = new Table();
+        table.setClass("fileHolder");
+        for (ChatMessageFileDetailDto fileDto : message.getFiles()) {
+            table.addElement(new TR(new TD("<a href='/wfe/chatFileOutput?fileId=" + fileDto.getId() +
+                    "' download='" + fileDto.getName() + "'>" + fileDto.getName() + "</a>")));
+        }
+        TD td = new TD(table);
+        td.setClass("list");
+        return td;
     }
 
     private TR getMessageHeader(MessageAddedBroadcast message) {

@@ -1,10 +1,12 @@
 let chatSocket = null;
+let currentUser = "";
 
 function initChatSocket(socket) {
     chatSocket = socket;
 }
 
-function establishWebSocketConnection(handlers) {
+function establishWebSocketConnection(handlers, username) {
+    currentUser = username;
     let socketProtocol = (document.location.protocol === "https:") ? "wss:" : "ws:";
     let socketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket";
     let socket = new WebSocket(socketUrl);
@@ -37,7 +39,11 @@ function sendBinaryMessage(socket, message) {
 
 function newMessageAlerter(message) {
     console.log(message);
-    if (confirm("You have received a new message! Want to reload the page?")) {
+    if (message.author === currentUser) {
+        if (confirm("Сообщение успешно отправлено! Хотите перезагрузить страницу?")) {
+            location.reload();
+        }
+    } else if (confirm("Вы получили новое сообщение! Хотите перезагрузить страницу?")) {
         location.reload();
     }
 }

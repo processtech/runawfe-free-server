@@ -1,3 +1,4 @@
+<%@ page import="ru.runa.common.web.Commons" %>
 <%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 
@@ -12,7 +13,7 @@
         initChatSocket(establishWebSocketConnection({
             "newMessage": newMessageAlerter,
             "errorMessage": errorMessageAlerter
-        }));
+        }, '<%=Commons.getUser(request.getSession()).getActor().getName()%>'));
     });
 </script>
 </body>

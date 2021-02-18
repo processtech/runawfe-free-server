@@ -1,8 +1,6 @@
+let deleteMessageType = "deleteMessage";
 let newMessageType = "newMessage";
 let editMessageType = "editMessage";
-let deleteMessageType = "deleteMessage";
-let readMessageType = "readMessage";
-
 let editMessageId = -1;
 
 function deleteMessageHandler(id) {
@@ -18,10 +16,7 @@ function deleteMessageHandler(id) {
 function sendMessageHandler() {
     let message = document.getElementById("message").value;
     if ((message !== "") || (attachedFiles.length !== 0)) {
-        message = message.replace(/(^|[^\/"'>\w])(http:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
-        message = message.replace(/(^|[^\/"'>\w])(https:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
-        message = message.replace(/(^|[^\/"'>\w])(www\.)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='http://$2$3$4'>$2$3$4</a>");
-        message = message.replace(/\r?\n/g, "<br />");
+        message = replaceLinks(message);
         let newMessage = {};
         newMessage.message = message;
         newMessage.processId = $("#ChatForm").attr("processId");
@@ -42,4 +37,11 @@ function sendMessageHandler() {
         $("#message").val("");
     }
     return 0;
+}
+
+function replaceLinks(message) {
+    message = message.replace(/(^|[^\/"'>\w])(http:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
+    message = message.replace(/(^|[^\/"'>\w])(https:\/\/)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='$2$3$4'>$2$3$4</a>");
+    message = message.replace(/(^|[^\/"'>\w])(www\.)(\S+)([\wа-яёЁ\/\-]+)/ig, "$1<a href='http://$2$3$4'>$2$3$4</a>");
+    return message.replace(/\r?\n/g, "<br />");
 }
