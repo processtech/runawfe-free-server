@@ -17,7 +17,7 @@ public class GetHierarhyLevelAjax extends JsonAjaxCommand {
     protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
         String messageId = request.getParameter("messageId");
         JSONObject outputObject = new JSONObject();
-        ChatMessage chatMessage = Delegates.getChatService().getChatMessage(user, Long.parseLong(messageId));
+        ChatMessage chatMessage = Delegates.getChatService().getMessage(user, Long.parseLong(messageId));
         ArrayList<Long> quotedMessageIds = new ArrayList<Long>();
         String[] ids = chatMessage.getQuotedMessageIds().split(":");
         for (int i = 0; i < ids.length; i++) {
@@ -28,7 +28,7 @@ public class GetHierarhyLevelAjax extends JsonAjaxCommand {
         if (quotedMessageIds.size() > 0) {
             JSONArray messagesArrayObject = new JSONArray();
             for (int i = 0; i < quotedMessageIds.size(); i++) {
-                ChatMessage attachedMessage = Delegates.getChatService().getChatMessage(user, quotedMessageIds.get(i));
+                ChatMessage attachedMessage = Delegates.getChatService().getMessage(user, quotedMessageIds.get(i));
                 JSONObject attachedMesObject = new JSONObject();
                 if (attachedMessage != null) {
                     attachedMesObject.put("id", attachedMessage.getId());

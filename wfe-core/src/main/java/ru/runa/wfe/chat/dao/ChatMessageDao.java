@@ -5,27 +5,24 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessageRecipient;
-import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
 
 @Component
 public class ChatMessageDao extends GenericDao<ChatMessage> {
 
-    @Autowired
-    private DtoConverters converter;
-
-    public List<Long> getMentionedExecutorIds(Long messageId) {
-        QChatMessageRecipient mr = QChatMessageRecipient.chatMessageRecipient;
-        return queryFactory.select(mr.executor.id).from(mr).where(mr.message.id.eq(messageId)).fetch();
+    @Transactional(readOnly = true)
+    @Override
+    public ChatMessage get(Long id) {
+        return super.get(id);
     }
 
+    @Transactional
     public void readMessage(Actor user, Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Date date = new Date(Calendar.getInstance().getTime().getTime());
@@ -33,6 +30,7 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
                 .execute();
     }
 
+    @Transactional(readOnly = true)
     public Long getLastReadMessage(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Long lastMesId = queryFactory.select(cr.message.id.min()).from(cr).where(cr.readDate.isNull().and(cr.executor.eq(user)))
@@ -43,20 +41,13 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return lastMesId;
     }
 
-    public Long getLastMessage(Actor user, Long processId) {
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        Long lastMesId = queryFactory.select(cr.message.id.max()).from(cr).where(cr.executor.eq(user)).fetchFirst();
-        if (lastMesId == null) {
-            lastMesId = -1L;
-        }
-        return lastMesId;
-    }
-
+    @Transactional(readOnly = true)
     public List<Long> getActiveChatIds(Actor user) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.message.process.id).from(cr).where(cr.executor.eq(user)).distinct().fetch();
     }
 
+    @Transactional(readOnly = true)
     public List<Long> getNewMessagesCounts(List<Long> processIds, Actor user) {
         List<Long> ret = new ArrayList<>();
         for (Long processId : processIds) {
@@ -65,12 +56,14 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return ret;
     }
 
+    @Transactional(readOnly = true)
     public Long getNewMessagesCount(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.selectFrom(cr).where(cr.executor.eq(user).and(cr.message.process.id.eq(processId)).and(cr.readDate.isNull()))
                 .fetchCount();
     }
 
+    @Transactional(readOnly = true)
     public List<ChatMessage> getNewMessages(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Long lastMessageId = getLastReadMessage(user, processId);
@@ -82,6 +75,7 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
                 .orderBy(cr.message.createDate.asc()).fetch();
     }
 
+    @Transactional(readOnly = true)
     public List<ChatMessage> getMessages(Actor user, Long processId, Long firstId, int count) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.message).from(cr)
@@ -99,14 +93,16 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return result;
     }
 
-    public void deleteMessage(Long id) {
+    @Transactional
+    @Override
+    public ChatMessage update(ChatMessage entity) {
+        return super.update(entity);
+    }
+
+    @Transactional
+    public void deleteMessageAndRecipient(Long id) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         queryFactory.delete(cr).where(cr.message.id.eq(id)).execute();
         delete(id);
     }
-
-    public void updateMessage(ChatMessage message) {
-        sessionFactory.getCurrentSession().merge(message);
-    }
-
 }
