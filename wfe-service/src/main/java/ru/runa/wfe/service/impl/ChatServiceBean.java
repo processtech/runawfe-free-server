@@ -75,16 +75,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<MessageAddedBroadcast> getMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "firstIndex") Long firstIndex, @WebParam(name = "count") int count) {
-        return chatLogic.getMessages(user, processId, firstIndex, count);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public List<MessageAddedBroadcast> getNewMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getNewMessages(user, processId);
+    public List<MessageAddedBroadcast> getMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
+        return chatLogic.getMessages(user, processId);
     }
 
     @WebMethod(exclude = false)
@@ -92,13 +84,6 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public List<Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processIds") List<Long> processIds) {
         return chatLogic.getNewMessagesCounts(user, processIds);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public Long getLastReadMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getLastReadMessage(user, processId);
     }
 
     @WebMethod(exclude = false)

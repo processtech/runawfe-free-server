@@ -36,23 +36,13 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<MessageAddedBroadcast> getMessages(User user, Long processId, Long firstId, int count) {
-        return getChatService().getMessages(user, processId, firstId, count);
-    }
-
-    @Override
-    public List<MessageAddedBroadcast> getNewMessages(User user, Long processId) {
-        return getChatService().getNewMessages(user, processId);
+    public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
+        return getChatService().getMessages(user, processId);
     }
 
     @Override
     public List<Long> getNewMessagesCounts(User user, List<Long> processIds) {
         return getChatService().getNewMessagesCounts(user, processIds);
-    }
-
-    @Override
-    public Long getLastReadMessage(User user, Long processId) {
-        return getChatService().getLastReadMessage(user, processId);
     }
 
     @Override

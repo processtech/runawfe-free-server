@@ -66,7 +66,7 @@
                 cloneIdRowListChats.attr("id", "switchChat" + data[i].processId);
                 cloneIdRowListChats.attr("processId", data[i].processId);
                 let linkProcess = $("<a/>");
-                linkProcess.attr("href", "/wfe/manage_process.do?id=" + data[i].processId);
+                linkProcess.attr("href", "/wfe/chat_page.do?processId=" + data[i].processId);
                 linkProcess.append("processId " + data[i].processId);
                 cloneIdRowListChats.children().first().append(linkProcess);
                 cloneIdRowListChats.children(".readMes").append(data[i].numberOfMessages);
