@@ -24,7 +24,7 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     public void readMessage(Actor user, Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Date date = new Date();
-        queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.lt(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
+        queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.loe(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
                 .execute();
     }
 
