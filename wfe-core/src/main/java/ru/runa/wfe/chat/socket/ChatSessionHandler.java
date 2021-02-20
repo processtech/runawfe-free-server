@@ -62,9 +62,7 @@ public class ChatSessionHandler {
     public void sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) {
         for (Long id : recipientIds) {
             Set<SessionInfo> sessionsSet = sessions.get(id);
-            for (SessionInfo sessionInfo : sessionsSet) {
-                messageSender.handleMessage(dto, Optional.ofNullable(sessionInfo.getSession()));
-            }
+            messageSender.handleMessage(dto, sessionsSet);
         }
     }
 
