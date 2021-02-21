@@ -1,11 +1,5 @@
 package ru.runa.wfe.chat.socket;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.websocket.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
@@ -18,6 +12,11 @@ import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.chat.utils.RecipientCalculator;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessageRequest> {
@@ -32,7 +31,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
     private RecipientCalculator calculator;
 
     @Override
-    public void handleMessage(Session session, AddMessageRequest request, User user) throws IOException {
+    public void handleMessage(AddMessageRequest request, User user) throws IOException {
         final ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(request, user.getActor());
         final long processId = request.getProcessId();
         final Set<Actor> recipients = calculator.calculateRecipients(user, request.isPrivate(), request.getMessage(), processId);
@@ -49,7 +48,6 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
             messageAddedBroadcast = chatLogic.saveMessage(user, processId, newMessage, recipients);
         }
 
-        messageAddedBroadcast.setCoreUser(messageAddedBroadcast.getAuthor().getId().equals(user.getActor().getId()));
         sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), messageAddedBroadcast);
     }
 

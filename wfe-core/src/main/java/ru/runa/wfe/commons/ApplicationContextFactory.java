@@ -112,10 +112,6 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(NodeAsyncExecutor.class);
     }
 
-    public static ObjectMapper getChatObjectMapper() {
-        return getContext().getBean(ObjectMapper.class);
-    }
-
     // TODO avoid static methods, inject
     public static SessionFactory getSessionFactory() {
         return getContext().getBean(SessionFactory.class);
