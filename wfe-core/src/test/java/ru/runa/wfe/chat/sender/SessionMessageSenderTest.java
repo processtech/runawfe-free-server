@@ -21,8 +21,7 @@ import ru.runa.wfe.user.User;
 import static java.util.Collections.singletonMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -55,7 +54,7 @@ public class SessionMessageSenderTest {
     }
 
     @Test
-    public void whenSessionIsNotNull_thenMessageSent() throws IOException {
+    public void whenSessionsIsNotEmpty_thenMessageSent() throws IOException {
         when(chatObjectMapper.writeValueAsString(dto)).thenReturn("testContent");
 
         sessionMessageSender.handleMessage(dto, sessionsSet);
@@ -64,22 +63,23 @@ public class SessionMessageSenderTest {
     }
 
     @Test
-    public void whenSessionIsNotNullAndSendError_thenSendDelegated() throws IOException {
+    public void whenSessionSendError_thenSendDelegated() throws IOException {
         doThrow(new IOException()).when(basic).sendText(notNull());
         when(chatObjectMapper.writeValueAsString(dto)).thenReturn("testContent");
 
         sessionMessageSender.handleMessage(dto, sessionsSet);
 
         verify(basic).sendText(eq("testContent"));
-        verify(mailMessageSender).handleMessage(notNull(), sessionsSet);
+        verify(mailMessageSender).handleMessage(notNull(), anySet());
     }
 
     @Test
-    public void whenSessionIsNull_thenSendDelegated() {
+    public void whenSessionsIsEmpty_thenSendDelegated() {
+        sessionsSet.remove(session);
         sessionMessageSender.handleMessage(dto, sessionsSet);
 
-        verifyZeroInteractions(basic);
-        verify(mailMessageSender).handleMessage(notNull(), sessionsSet);
+//        verifyZeroInteractions(basic);
+        verify(mailMessageSender).handleMessage(notNull(), anySet());
     }
 
     private static User createUser() {
