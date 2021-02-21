@@ -18,6 +18,7 @@ import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.chat.socket.SessionInfo;
 import ru.runa.wfe.user.User;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -75,11 +76,10 @@ public class SessionMessageSenderTest {
 
     @Test
     public void whenSessionsIsEmpty_thenSendDelegated() {
-        sessionsSet.remove(session);
-        sessionMessageSender.handleMessage(dto, sessionsSet);
+        sessionMessageSender.handleMessage(dto, emptySet());
 
-//        verifyZeroInteractions(basic);
-        verify(mailMessageSender).handleMessage(notNull(), anySet());
+        verifyZeroInteractions(basic);
+        verify(mailMessageSender).handleMessage(notNull(), eq(emptySet()));
     }
 
     private static User createUser() {

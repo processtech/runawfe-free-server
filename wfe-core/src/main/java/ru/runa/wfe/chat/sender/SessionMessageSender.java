@@ -25,6 +25,10 @@ public class SessionMessageSender implements MessageSender {
 
     @Override
     public void handleMessage(MessageBroadcast dto, Set<SessionInfo> sessions) {
+        if (sessions.isEmpty()) {
+            messageSender.handleMessage(dto, sessions);
+        }
+
         try {
             for (SessionInfo sessionInfo : sessions) {
                 Session session = sessionInfo.getSession();
