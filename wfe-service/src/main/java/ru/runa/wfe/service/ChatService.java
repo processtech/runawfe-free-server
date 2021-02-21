@@ -50,22 +50,9 @@ public interface ChatService {
      *
      * @param processId
      *              chat Id
-     * @param firstId
-     *              message Id, all returned message id < firstId
-     * @param count
-     *              number of messages in the returned array
      * @return not <code>null</code> order by date desc
      */
-    public List<MessageAddedBroadcast> getMessages(User user, Long processId, Long firstId, int count);
-
-    /**
-     * Get List array of ChatMessage, where all "message Id" >= lastId.
-     *
-     * @param processId
-     *              chat Id
-     * @return not <code>null</code> order by date asc
-     */
-    public List<MessageAddedBroadcast> getNewMessages(User user, Long processId);
+    public List<MessageAddedBroadcast> getMessages(User user, Long processId);
 
     /**
      * Gets a list with the number of new messages for each of the passed chat id
@@ -75,15 +62,6 @@ public interface ChatService {
      * @return not <code>null</code>
      */
     public List<Long> getNewMessagesCounts(User user, List<Long> processIds);
-
-    /**
-     * Gets the last read message
-     *
-     * @param processId
-     *              chat Id
-     * @return not <code>null</code>
-     */
-    public Long getLastReadMessage(User user, Long processId);
 
     /**
      * Updates the message and sends the <code>MessageEditedBroadcast<code> to all active chats

@@ -642,6 +642,9 @@
 		<action path="/demo_login" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/demoConfiguration.jsp" />
 
+		<action path="/chat_page" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/af/chat_page.jsp" />
+
 		<action path="/manage_executor" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/manage_executor.jsp" />
 

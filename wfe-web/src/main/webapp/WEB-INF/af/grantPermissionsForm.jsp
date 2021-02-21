@@ -13,7 +13,6 @@
     String selfAction = Commons.getSelfActionWithQueryString(pageContext);
 %>
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
-    <%@include file="/WEB-INF/af/chat_notifications.jsp" %>
     <tiles:put name="body" type="string">
         <wf:grantPermissionsForm securedObjectType="<%= securedObjectType %>" identifiableId="<%= identifiableId %>"
                 batchPresentationId="grantPermissionsForm" returnAction="<%= returnAction %>">

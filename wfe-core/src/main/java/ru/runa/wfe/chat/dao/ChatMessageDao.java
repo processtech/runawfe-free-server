@@ -1,7 +1,6 @@
 package ru.runa.wfe.chat.dao;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -22,23 +21,11 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return super.get(id);
     }
 
-    @Transactional
     public void readMessage(Actor user, Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        Date date = new Date(Calendar.getInstance().getTime().getTime());
-        queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.lt(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
+        Date date = new Date();
+        queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.loe(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
                 .execute();
-    }
-
-    @Transactional(readOnly = true)
-    public Long getLastReadMessage(Actor user, Long processId) {
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        Long lastMesId = queryFactory.select(cr.message.id.min()).from(cr).where(cr.readDate.isNull().and(cr.executor.eq(user)))
-                .fetchFirst();
-        if (lastMesId == null) {
-            lastMesId = -1L;
-        }
-        return lastMesId;
     }
 
     @Transactional(readOnly = true)
@@ -63,24 +50,11 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
                 .fetchCount();
     }
 
-    @Transactional(readOnly = true)
-    public List<ChatMessage> getNewMessages(Actor user, Long processId) {
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        Long lastMessageId = getLastReadMessage(user, processId);
-        if (lastMessageId == -1L) {
-            return new ArrayList<>();
-        }
-        return queryFactory.select(cr.message).from(cr)
-                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user).and(cr.message.id.goe(lastMessageId))))
-                .orderBy(cr.message.createDate.asc()).fetch();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ChatMessage> getMessages(Actor user, Long processId, Long firstId, int count) {
+    public List<ChatMessage> getMessages(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.message).from(cr)
-                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user).and(cr.message.id.lt(firstId))))
-                .orderBy(cr.message.createDate.desc()).limit(count).fetch();
+                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user)))
+                .orderBy(cr.message.createDate.desc()).fetch();
     }
 
     @Transactional
