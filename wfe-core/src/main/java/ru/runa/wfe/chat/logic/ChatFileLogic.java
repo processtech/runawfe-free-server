@@ -1,7 +1,6 @@
 package ru.runa.wfe.chat.logic;
 
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
@@ -14,10 +13,11 @@ import ru.runa.wfe.user.User;
 /**
  * @author Sergey Inyakin
  */
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ChatFileLogic extends WfCommonLogic {
-    private final ChatFileDao chatFileDao;
-    private final ChatFileIo chatFileIo;
+    @Autowired
+    private ChatFileDao chatFileDao;
+    @Autowired
+    private ChatFileIo chatFileIo;
 
     public ChatMessageFileDto save(User user, ChatMessageFileDto dto) {
         ChatMessageFile file = chatFileIo.save(dto);

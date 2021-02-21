@@ -8,5 +8,5 @@ public interface ChatSocketMessageHandler<T extends MessageRequest> {
 
     void handleMessage(T request, User user) throws IOException;
 
-    boolean isSupports(Class<? extends MessageRequest> messageType);
+    Class<? extends MessageRequest> getRequestType();
 }

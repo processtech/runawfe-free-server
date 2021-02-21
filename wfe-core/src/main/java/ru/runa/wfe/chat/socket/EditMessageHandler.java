@@ -29,7 +29,7 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
     }
 
     @Override
-    public boolean isSupports(Class<? extends MessageRequest> messageType) {
-        return messageType.equals(EditMessageRequest.class);
+    public Class<? extends MessageRequest> getRequestType() {
+        return EditMessageRequest.class;
     }
 }

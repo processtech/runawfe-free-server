@@ -52,7 +52,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
     }
 
     @Override
-    public boolean isSupports(Class<? extends MessageRequest> messageType) {
-        return messageType.equals(AddMessageRequest.class);
+    public Class<? extends MessageRequest> getRequestType() {
+        return AddMessageRequest.class;
     }
 }

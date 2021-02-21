@@ -60,7 +60,6 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     @Transactional
     public ChatMessage save(ChatMessage message, Set<Actor> recipients) {
         ChatMessage result = create(message);
-        recipients.add(message.getCreateActor());
         for (Actor recipient : recipients) {
             sessionFactory.getCurrentSession().save(new ChatMessageRecipient(message, recipient));
         }

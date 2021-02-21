@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.List;

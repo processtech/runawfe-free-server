@@ -24,7 +24,7 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMess
     }
 
     @Override
-    public boolean isSupports(Class<? extends MessageRequest> messageType) {
-        return messageType.equals(DeleteMessageRequest.class);
+    public Class<? extends MessageRequest> getRequestType() {
+        return DeleteMessageRequest.class;
     }
 }
