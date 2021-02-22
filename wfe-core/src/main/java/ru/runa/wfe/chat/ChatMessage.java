@@ -24,7 +24,6 @@ public class ChatMessage implements Serializable {
     private Actor createActor;
     private Process process;
     private String text;
-    private String quotedMessageIds;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -77,15 +76,6 @@ public class ChatMessage implements Serializable {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    @Column(name = "QUOTED_MESSAGE_IDS", length = 1024)
-    public String getQuotedMessageIds() {
-        return quotedMessageIds;
-    }
-
-    public void setQuotedMessageIds(String quotedMessageIds) {
-        this.quotedMessageIds = quotedMessageIds;
     }
 
 }

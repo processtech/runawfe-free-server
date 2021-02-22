@@ -16,8 +16,7 @@ public class CreateChatDbPatch extends DbMigration {
                         new TimestampColumnDef("CREATE_DATE").notNull(), //
                         new BigintColumnDef("CREATE_ACTOR_ID").notNull(), //
                         new BigintColumnDef("PROCESS_ID").notNull(), //
-                        new VarcharColumnDef("TEXT", 1024).notNull(), //
-                        new VarcharColumnDef("QUOTED_MESSAGE_IDS", 1024)) //
+                        new VarcharColumnDef("TEXT", 1024).notNull()) //
                 ), //
                 getDDLCreateSequence("SEQ_CHAT_MESSAGE"), //
                 getDDLCreateTable("CHAT_MESSAGE_FILE", list(//

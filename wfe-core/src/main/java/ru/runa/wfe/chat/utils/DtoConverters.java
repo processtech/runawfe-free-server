@@ -14,7 +14,6 @@ public class DtoConverters {
         ChatMessage message = new ChatMessage();
         message.setCreateActor(actor);
         message.setText(dto.getMessage());
-        message.setQuotedMessageIds(dto.getIdHierarchyMessage());
         message.setCreateDate(new Date());
         return message;
     }
@@ -23,7 +22,6 @@ public class DtoConverters {
         MessageAddedBroadcast dto = new MessageAddedBroadcast();
         dto.setAuthor(message.getCreateActor());
         dto.setText(message.getText());
-        dto.setQuotedMessageIds(message.getQuotedMessageIds());
         dto.setCreateDate(message.getCreateDate());
         dto.setId(message.getId());
         dto.setProcessId(message.getProcess().getId());

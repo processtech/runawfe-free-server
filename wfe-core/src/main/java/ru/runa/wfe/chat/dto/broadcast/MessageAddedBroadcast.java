@@ -21,7 +21,6 @@ public class MessageAddedBroadcast extends MessageBroadcast implements Serializa
 
     private Long id;
     private String text;
-    private String quotedMessageIds;
 
     @JsonProperty("files")
     private List<ChatMessageFileDetailDto> files = new ArrayList<>();
