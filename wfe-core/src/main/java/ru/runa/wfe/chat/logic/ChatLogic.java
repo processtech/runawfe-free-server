@@ -13,6 +13,7 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
+@MonitoredWithSpring
 public class ChatLogic extends WfCommonLogic {
     private final Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
     @Autowired

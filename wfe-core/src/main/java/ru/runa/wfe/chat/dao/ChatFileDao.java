@@ -1,6 +1,7 @@
 package ru.runa.wfe.chat.dao;
 
 import java.util.List;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
@@ -13,6 +14,7 @@ import ru.runa.wfe.commons.dao.GenericDao;
  */
 
 @Component
+@MonitoredWithSpring
 public class ChatFileDao extends GenericDao<ChatMessageFile> {
 
     @Transactional

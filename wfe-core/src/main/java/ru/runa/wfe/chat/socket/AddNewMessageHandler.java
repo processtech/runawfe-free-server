@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.websocket.Session;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
@@ -32,6 +33,7 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
     private RecipientCalculator calculator;
 
     @Override
+    @MonitoredWithSpring
     public void handleMessage(Session session, AddMessageRequest request, User user) throws IOException {
         final ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(request, user.getActor());
         final long processId = request.getProcessId();
