@@ -12,6 +12,6 @@ import lombok.Setter;
 @Setter
 public class AddMessageRequest extends MessageRequest {
     private String message;
-    private boolean isPrivate;
+    private Boolean isPrivate;
     private Map<String, byte[]> files;
 }

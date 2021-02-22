@@ -2,14 +2,25 @@ package ru.runa.wfe.chat.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dto.ChatMessageFileDetailDto;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.chat.logic.ChatFileLogic;
+import ru.runa.wfe.user.User;
 
 /**
  * @author Sergey Inyakin
  */
-public class ChatMessageFileMapper implements ModelMapper<ChatMessageFile, ChatMessageFileDto> {
+public class ChatMessageFileMapper extends AbstractModelMapper<ChatMessageFile, ChatMessageFileDto> {
+
+    @Autowired
+    private ChatFileLogic fileLogic;
+    @Autowired
+    private MessageAddedBroadcastMapper messageMapper;
+
     @Override
     public ChatMessageFile toEntity(ChatMessageFileDto dto) {
         ChatMessageFile result = new ChatMessageFile();
@@ -26,15 +37,6 @@ public class ChatMessageFileMapper implements ModelMapper<ChatMessageFile, ChatM
         return result;
     }
 
-    @Override
-    public List<ChatMessageFileDto> toDto(List<ChatMessageFile> entities) {
-        List<ChatMessageFileDto> result = new ArrayList<>(entities.size());
-        for (ChatMessageFile file : entities) {
-            result.add(toDto(file));
-        }
-        return result;
-    }
-
     public ChatMessageFileDetailDto toDetailDto(ChatMessageFile entity) {
         ChatMessageFileDetailDto result = new ChatMessageFileDetailDto();
         result.setId(entity.getId());
@@ -46,6 +48,16 @@ public class ChatMessageFileMapper implements ModelMapper<ChatMessageFile, ChatM
         List<ChatMessageFileDetailDto> result = new ArrayList<>(entities.size());
         for (ChatMessageFile file : entities) {
             result.add(toDetailDto(file));
+        }
+        return result;
+    }
+
+    public List<MessageAddedBroadcast> toMessageAddedBroadcast(User user, List<ChatMessage> messages) {
+        List<MessageAddedBroadcast> result = new ArrayList<>(messages.size());
+        for (ChatMessage message : messages) {
+            MessageAddedBroadcast broadcast = messageMapper.toDto(message);
+            broadcast.setFiles(toDetailDto(fileLogic.getByMessage(user, message)));
+            result.add(broadcast);
         }
         return result;
     }

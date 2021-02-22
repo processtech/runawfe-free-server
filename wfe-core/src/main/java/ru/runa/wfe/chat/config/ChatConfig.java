@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
+import ru.runa.wfe.chat.mapper.ActorToLongMapper;
+import ru.runa.wfe.chat.mapper.AddMessageRequestMapper;
 import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
+import ru.runa.wfe.chat.mapper.MessageAddedBroadcastMapper;
 import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
 import java.util.HashMap;
 import java.util.List;
@@ -31,5 +34,20 @@ public class ChatConfig {
     @Bean
     public ChatMessageFileMapper chatMessageFileMapper() {
         return new ChatMessageFileMapper();
+    }
+
+    @Bean
+    public ActorToLongMapper actorToLongMapper() {
+        return new ActorToLongMapper();
+    }
+
+    @Bean
+    public MessageAddedBroadcastMapper messageAddedBroadcastMapper() {
+        return new MessageAddedBroadcastMapper();
+    }
+
+    @Bean
+    public AddMessageRequestMapper addMessageRequestMapper() {
+        return new AddMessageRequestMapper();
     }
 }
