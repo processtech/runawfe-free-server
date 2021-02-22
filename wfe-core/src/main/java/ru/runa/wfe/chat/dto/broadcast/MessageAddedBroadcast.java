@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,7 +23,7 @@ public class MessageAddedBroadcast extends MessageBroadcast implements Serializa
     private String text;
 
     @JsonProperty("files")
-    private Collection<ChatMessageFileDetailDto> files = new ArrayList<>();
+    private List<ChatMessageFileDetailDto> files = new ArrayList<>();
 
     @JsonSerialize(using = ActorJacksonSerializer.class)
     private Actor author;

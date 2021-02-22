@@ -17,7 +17,7 @@ import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-import java.util.Collection;
+import java.util.List;
 
 @Tag(bodyContent = BodyContent.JSP, name = "chatForm")
 public class ChatFormTag extends TitledFormTag {
@@ -39,7 +39,7 @@ public class ChatFormTag extends TitledFormTag {
     protected void fillFormElement(TD tdFormElement) {
         user = getUser();
         isAdmin = Delegates.getExecutorService().isAdministrator(user);
-        Collection<MessageAddedBroadcast> messages = Delegates.getChatService().getMessages(user, processId);
+        List<MessageAddedBroadcast> messages = Delegates.getChatService().getMessages(user, processId);
 
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, messages.size());
         navigation.addPagingNavigationTable(tdFormElement);
@@ -47,7 +47,7 @@ public class ChatFormTag extends TitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
     }
 
-    private Table createTable(Collection<MessageAddedBroadcast> messages) {
+    private Table createTable(List<MessageAddedBroadcast> messages) {
         Table table = new Table();
         table.setClass("list");
         table.addElement(getTextArea());

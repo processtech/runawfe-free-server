@@ -2,6 +2,7 @@ package ru.runa.wfe.chat.mapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class AbstractModelMapper<E, D> implements ModelMapper<E, D>{
     @Override
@@ -15,8 +16,8 @@ public class AbstractModelMapper<E, D> implements ModelMapper<E, D>{
     }
 
     @Override
-    public Collection<E> toEntities(Collection<D> dtos) {
-        Collection<E> result = new ArrayList<>(dtos.size());
+    public List<E> toEntities(Collection<D> dtos) {
+        List<E> result = new ArrayList<>(dtos.size());
         for (D dto : dtos) {
             result.add(toEntity(dto));
         }
@@ -24,8 +25,8 @@ public class AbstractModelMapper<E, D> implements ModelMapper<E, D>{
     }
 
     @Override
-    public Collection<D> toDtos(Collection<E> entities) {
-        Collection<D> result = new ArrayList<>(entities.size());
+    public List<D> toDtos(Collection<E> entities) {
+        List<D> result = new ArrayList<>(entities.size());
         for (E entity : entities) {
             result.add(toDto(entity));
         }

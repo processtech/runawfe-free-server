@@ -1,6 +1,5 @@
 package ru.runa.wfe.service.delegate;
 
-import java.util.Collection;
 import java.util.List;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
@@ -37,7 +36,7 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public Collection<MessageAddedBroadcast> getMessages(User user, Long processId) {
+    public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
         return getChatService().getMessages(user, processId);
     }
 

@@ -87,7 +87,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     @Transactional
-    public Collection<MessageAddedBroadcast> getMessages(User user, Long processId) {
+    public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
         List<ChatMessage> messages = messageDao.getMessages(user.getActor(), processId);
         if (!messages.isEmpty()) {
             messageDao.readMessage(user.getActor(), messages.get(0).getId());

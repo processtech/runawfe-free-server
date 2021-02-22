@@ -1,6 +1,5 @@
 package ru.runa.wfe.service;
 
-import java.util.Collection;
 import java.util.List;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
@@ -53,7 +52,7 @@ public interface ChatService {
      *              chat Id
      * @return not <code>null</code> order by date desc
      */
-    public Collection<MessageAddedBroadcast> getMessages(User user, Long processId);
+    public List<MessageAddedBroadcast> getMessages(User user, Long processId);
 
     /**
      * Gets a list with the number of new messages for each of the passed chat id
