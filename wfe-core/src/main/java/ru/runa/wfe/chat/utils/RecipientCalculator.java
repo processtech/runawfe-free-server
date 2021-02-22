@@ -3,6 +3,7 @@ package ru.runa.wfe.chat.utils;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 
 @CommonsLog
 @Component
+@MonitoredWithSpring
 public class RecipientCalculator {
 
     @Autowired

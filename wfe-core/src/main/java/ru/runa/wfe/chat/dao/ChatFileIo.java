@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.apachecommons.CommonsLog;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatFileIoException;
@@ -21,6 +22,7 @@ import ru.runa.wfe.commons.SystemProperties;
  */
 @CommonsLog
 @Component
+@MonitoredWithSpring
 public class ChatFileIo {
     private final String storagePath = SystemProperties.getChatFileStoragePath();
     @Autowired
