@@ -22,7 +22,8 @@ import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
-import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
+import ru.runa.wfe.chat.mapper.ChatMessageFileDetailMapper;
+import ru.runa.wfe.chat.mapper.MessageAddedBroadcastFileMapper;
 import ru.runa.wfe.chat.mapper.MessageAddedBroadcastMapper;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
@@ -38,7 +39,9 @@ public class ChatLogic extends WfCommonLogic {
     @Autowired
     private MessageAddedBroadcastMapper messageMapper;
     @Autowired
-    private ChatMessageFileMapper fileMapper;
+    private MessageAddedBroadcastFileMapper messageFileMapper;
+    @Autowired
+    private ChatMessageFileDetailMapper fileDetailMapper;
     @Autowired
     private ChatFileIo fileIo;
     @Autowired
@@ -54,7 +57,7 @@ public class ChatLogic extends WfCommonLogic {
         try {
             final ChatMessage savedMessage = messageTransactionWrapper.save(message, recipients, savedFiles, processId);
             final MessageAddedBroadcast broadcast = messageMapper.toDto(savedMessage);
-            broadcast.setFiles(fileMapper.toDetailDto(savedFiles));
+            broadcast.setFiles(fileDetailMapper.toDtos(savedFiles));
             return broadcast;
         } catch (Exception exception) {
             fileIo.delete(savedFiles);
@@ -84,12 +87,12 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     @Transactional
-    public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
+    public Collection<MessageAddedBroadcast> getMessages(User user, Long processId) {
         List<ChatMessage> messages = messageDao.getMessages(user.getActor(), processId);
         if (!messages.isEmpty()) {
             messageDao.readMessage(user.getActor(), messages.get(0).getId());
         }
-        return fileMapper.toMessageAddedBroadcast(user, messages);
+        return messageFileMapper.toDtos(messages);
     }
 
     public void deleteMessage(User user, Long messageId) {

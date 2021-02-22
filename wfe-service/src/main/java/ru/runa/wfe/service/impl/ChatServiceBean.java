@@ -1,6 +1,7 @@
 package ru.runa.wfe.service.impl;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
@@ -75,7 +76,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<MessageAddedBroadcast> getMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
+    public Collection<MessageAddedBroadcast> getMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
         return chatLogic.getMessages(user, processId);
     }
 

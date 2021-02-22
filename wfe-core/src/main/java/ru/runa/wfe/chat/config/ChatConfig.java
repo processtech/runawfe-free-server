@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.mapper.ActorToLongMapper;
 import ru.runa.wfe.chat.mapper.AddMessageRequestMapper;
+import ru.runa.wfe.chat.mapper.ChatMessageFileDetailMapper;
 import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
+import ru.runa.wfe.chat.mapper.MessageAddedBroadcastFileMapper;
 import ru.runa.wfe.chat.mapper.MessageAddedBroadcastMapper;
 import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
 import java.util.HashMap;
@@ -37,6 +39,11 @@ public class ChatConfig {
     }
 
     @Bean
+    public ChatMessageFileDetailMapper chatMessageFileDetailMapper() {
+        return new ChatMessageFileDetailMapper();
+    }
+
+    @Bean
     public ActorToLongMapper actorToLongMapper() {
         return new ActorToLongMapper();
     }
@@ -44,6 +51,11 @@ public class ChatConfig {
     @Bean
     public MessageAddedBroadcastMapper messageAddedBroadcastMapper() {
         return new MessageAddedBroadcastMapper();
+    }
+
+    @Bean
+    public MessageAddedBroadcastFileMapper messageAddedBroadcastFileMapper() {
+        return new MessageAddedBroadcastFileMapper();
     }
 
     @Bean

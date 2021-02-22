@@ -6,12 +6,12 @@ import java.util.Collection;
 public class AbstractModelMapper<E, D> implements ModelMapper<E, D>{
     @Override
     public E toEntity(D dto) {
-        throw new UnsupportedOperationException("Mapping is not yet supported");
+        throw new UnsupportedOperationException("Mapping is not supported yet");
     }
 
     @Override
     public D toDto(E entity) {
-        throw new UnsupportedOperationException("Mapping is not yet supported");
+        throw new UnsupportedOperationException("Mapping is not supported yet");
     }
 
     @Override
