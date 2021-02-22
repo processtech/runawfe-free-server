@@ -16,12 +16,15 @@ import java.util.Set;
 
 @CommonsLog
 @Component
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SessionMessageSender implements MessageSender {
-
-    @Qualifier("mailMessageSender")
     private final MessageSender messageSender;
     private final ObjectMapper chatObjectMapper;
+
+    public SessionMessageSender(@Qualifier("mailMessageSender") MessageSender messageSender,
+                                ObjectMapper chatObjectMapper) {
+        this.messageSender = messageSender;
+        this.chatObjectMapper = chatObjectMapper;
+    }
 
     @Override
     public void handleMessage(MessageBroadcast dto, Set<SessionInfo> sessions) {
