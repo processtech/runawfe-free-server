@@ -5,6 +5,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SystemLogClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
+import ru.runa.wfe.execution.ProcessChatRoomClassPresentation;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessWithTasksClassPresentation;
 import ru.runa.wfe.relation.RelationClassPresentation;
@@ -30,7 +31,8 @@ public enum ClassPresentationType {
     TASK(TaskClassPresentation.getInstance()),
     TASK_OBSERVABLE(TaskObservableClassPresentation.getInstance()),
     REPORTS(ReportClassPresentation.getInstance()),
-    PROCESS_WITH_TASKS(ProcessWithTasksClassPresentation.getInstance());
+    PROCESS_WITH_TASKS(ProcessWithTasksClassPresentation.getInstance()),
+    CHAT_ROOM(ProcessChatRoomClassPresentation.getInstance());
 
     private final Class<?> presentationClass;
     private final String restrictions;

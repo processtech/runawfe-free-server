@@ -2,6 +2,7 @@ package ru.runa.wfe.service.impl;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.jws.WebMethod;
@@ -50,13 +51,6 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<Long> getActiveChatIds(@WebParam(name = "user") @NonNull User user) {
-        return chatLogic.getActiveChatIds(user);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
     public void saveMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") AddMessageRequest request) {
         try {
             addNewMessageHandler.handleMessage(null, request, user);
@@ -82,8 +76,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processIds") List<Long> processIds) {
-        return chatLogic.getNewMessagesCounts(user, processIds);
+    public Map<Long, Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user) {
+        return chatLogic.getNewMessagesCounts(user);
     }
 
     @WebMethod(exclude = false)

@@ -1,6 +1,7 @@
 package ru.runa.wfe.service.delegate;
 
 import java.util.List;
+import java.util.Map;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
@@ -21,11 +22,6 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<Long> getActiveChatIds(User user) {
-        return getChatService().getActiveChatIds(user);
-    }
-
-    @Override
     public void saveMessage(User user, AddMessageRequest request) {
         getChatService().saveMessage(user, request);
     }
@@ -41,8 +37,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<Long> getNewMessagesCounts(User user, List<Long> processIds) {
-        return getChatService().getNewMessagesCounts(user, processIds);
+    public Map<Long, Long> getNewMessagesCounts(User user) {
+        return getChatService().getNewMessagesCounts(user);
     }
 
     @Override

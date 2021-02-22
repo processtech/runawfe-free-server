@@ -3,8 +3,10 @@ package ru.runa.wfe.chat.logic;
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.mail.Authenticator;
@@ -69,16 +71,15 @@ public class ChatLogic extends WfCommonLogic {
         messageDao.readMessage(user.getActor(), messageId);
     }
 
-    public List<Long> getActiveChatIds(User user) {
-        List<Long> ret = messageDao.getActiveChatIds(user.getActor());
-        if (ret == null) {
-            ret = new ArrayList<>();
+    public Map<Long, Long> getNewMessagesCounts(User user) {
+        List<Long> activeChatIds = messageDao.getActiveChatIds(user.getActor());
+        List<Long> newMessageCount = messageDao.getNewMessagesCounts(activeChatIds, user.getActor());
+        int activeChatCount = activeChatIds.size();
+        Map<Long, Long> result = new HashMap<>(activeChatCount);
+        for (int i = 0; i < activeChatCount; i++) {
+            result.put(activeChatIds.get(i), newMessageCount.get(i));
         }
-        return ret;
-    }
-
-    public List<Long> getNewMessagesCounts(User user, List<Long> chatsIds) {
-        return messageDao.getNewMessagesCounts(chatsIds, user.getActor());
+        return result;
     }
 
     public ChatMessage getMessageById(User user, Long messageId) {

@@ -1,6 +1,7 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
+import java.util.Map;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
@@ -16,15 +17,6 @@ import ru.runa.wfe.user.User;
  * @since 02.02.2020
  */
 public interface ChatService {
-
-    /**
-     * Gets the IDs of all chats the user is participating in.
-     *
-     * @param user
-     *              authorized user
-     * @return not <code>null</code>
-     */
-    public List<Long> getActiveChatIds(User user);
 
     /**
      * Saves a new message and sends the <code>MessageAddedBroadcast<code> to all active chats
@@ -55,13 +47,13 @@ public interface ChatService {
     public List<MessageAddedBroadcast> getMessages(User user, Long processId);
 
     /**
-     * Gets a list with the number of new messages for each of the passed chat id
+     * Gets a map with the process ID and number of new messages for this process
      *
-     * @param processIds
-     *              list of chat IDs
+     * @param user
+     *              authorized user
      * @return not <code>null</code>
      */
-    public List<Long> getNewMessagesCounts(User user, List<Long> processIds);
+    public Map<Long, Long> getNewMessagesCounts(User user);
 
     /**
      * Updates the message and sends the <code>MessageEditedBroadcast<code> to all active chats

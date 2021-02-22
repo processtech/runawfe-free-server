@@ -116,7 +116,6 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
         return super.equals(obj);
     }
 
-
     // Alphabetically, please:
 
     public static final SecuredObjectType BOTSTATIONS = new SecuredObjectType("BOTSTATIONS", true);
@@ -136,5 +135,7 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
     public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM", true);
     
     public static final SecuredObjectType DATASOURCES = new SecuredObjectType("DATASOURCES", true);
+
+    public static final SecuredObjectType CHAT_ROOMS = new SecuredObjectType("CHAT_ROOMS", false);
 
 }
