@@ -52,6 +52,7 @@ public class RecipientCalculatorTest {
 
     @Test
     public void whenMessageIsPrivate_thenReturnMentionedActors() {
+        when(user.getActor()).thenReturn(createActor("first"));
         when(executorDao.getExecutor(eq("first"))).thenReturn(createActor("first"));
         when(executorDao.getExecutor(eq("second"))).thenReturn(createActor("second"));
 
@@ -62,6 +63,7 @@ public class RecipientCalculatorTest {
 
     @Test
     public void whenMentionedExecutorIsGroup_thenReturnGroupActors() {
+        when(user.getActor()).thenReturn(createActor("first"));
         when(executorDao.getExecutor(eq("group"))).thenReturn(createGroup());
         when(executorDao.getGroupActors(eq(createGroup()))).thenReturn(actors);
 
@@ -72,6 +74,7 @@ public class RecipientCalculatorTest {
 
     @Test
     public void whenExceptionIsCaught_thenMethodContinuesToRun() {
+        when(user.getActor()).thenReturn(createActor("first"));
         when(executorDao.getExecutor(eq("first"))).thenReturn(createActor("first"));
         doThrow(new ExecutorDoesNotExistException("incorrect", Actor.class))
                 .when(executorDao).getExecutor(eq("incorrect"));

@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ReadMessageRequest extends MessageRequest {
-    private Long currentMessageId;
+    private Long messageId;
 }
