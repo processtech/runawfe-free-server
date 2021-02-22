@@ -3,6 +3,7 @@ package ru.runa.wfe.chat.logic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
  */
 @Transactional
 @Component
+@MonitoredWithSpring
 public class MessageTransactionWrapper {
     @Autowired
     private ExecutorLogic executorLogic;

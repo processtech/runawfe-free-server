@@ -1,10 +1,12 @@
 package ru.runa.wfe.chat.mapper;
 
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.logic.ChatFileLogic;
 
+@MonitoredWithSpring
 public class MessageAddedBroadcastFileMapper extends AbstractModelMapper<ChatMessage, MessageAddedBroadcast> {
 
     @Autowired
