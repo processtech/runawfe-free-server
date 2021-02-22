@@ -1,6 +1,7 @@
 package ru.runa.wfe.chat.logic;
 
 import java.util.List;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
@@ -13,6 +14,7 @@ import ru.runa.wfe.user.User;
 /**
  * @author Sergey Inyakin
  */
+@MonitoredWithSpring
 public class ChatFileLogic extends WfCommonLogic {
     @Autowired
     private ChatFileDao chatFileDao;
