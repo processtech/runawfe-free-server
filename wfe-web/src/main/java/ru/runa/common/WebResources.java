@@ -202,6 +202,19 @@ public class WebResources {
     }
 
     public static String getProcessStartedMessage() {
-        return RESOURCES.getStringProperty("process.started");
+        StringBuilder processStarted = new StringBuilder();
+        char[] symbols = RESOURCES.getStringProperty("process.started").toCharArray();
+        for(int i = 0; i < symbols.length; i++){
+            if(i < symbols.length - 2 && symbols[i] == '{'
+                    && symbols[i+1] != '0' && symbols[i+2] != '}'){
+                processStarted.append("'{");
+            }else if(symbols[i] == '}'
+                    && symbols[i-1] != '0' && symbols[i-2] != '{'){
+                processStarted.append("}'");
+            }else {
+                processStarted.append(symbols[i]);
+            }
+        }
+        return processStarted.toString();
     }
 }
