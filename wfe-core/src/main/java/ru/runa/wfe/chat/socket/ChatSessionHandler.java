@@ -38,14 +38,9 @@ public class ChatSessionHandler {
         }
     };
 
-
     public void addSession(Session session) {
-        User user = ChatSessionUtils.getUser(session);
-        Long userId = user.getActor().getId();
-
-        Set<SessionInfo> sessionSet = sessions.computeIfAbsent(userId, CREATE_SET);
-        SessionInfo sessionInfo = new SessionInfo(session);
-        sessionSet.add(sessionInfo);
+        Long userId = ChatSessionUtils.getUser(session).getActor().getId();
+        sessions.computeIfAbsent(userId, CREATE_SET).add(new SessionInfo(session));
     }
 
     public void removeSession(Session session) {
@@ -63,8 +58,7 @@ public class ChatSessionHandler {
 
     public void sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) {
         for (Long id : recipientIds) {
-            Set<SessionInfo> sessionsSet = sessions.get(id);
-            messageSender.handleMessage(dto, sessionsSet);
+            messageSender.handleMessage(dto, sessions.get(id));
         }
     }
 

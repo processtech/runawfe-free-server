@@ -3,7 +3,6 @@ package ru.runa.wfe.chat.sender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.RemoteEndpoint;
@@ -16,13 +15,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.chat.socket.SessionInfo;
-import ru.runa.wfe.user.User;
 
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singletonMap;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -32,6 +31,8 @@ public class SessionMessageSenderTest {
 
     @Mock
     private Session session;
+    @Mock
+    private Session session2;
     @Mock
     private RemoteEndpoint.Basic basic;
     @Mock
@@ -46,10 +47,11 @@ public class SessionMessageSenderTest {
 
     @Before
     public void init() {
+        when(session.getId()).thenReturn("1");
+        when(session2.getId()).thenReturn("2");
         sessionsSet.add(new SessionInfo(session));
         when(session.getBasicRemote()).thenReturn(basic);
-        final Map<String, Object> sessionUserProperties = singletonMap("user", createUser());
-        when(session.getUserProperties()).thenReturn(sessionUserProperties);
+        when(session2.getBasicRemote()).thenReturn(basic);
     }
 
     @Test
@@ -73,16 +75,30 @@ public class SessionMessageSenderTest {
     }
 
     @Test
+    public void whenOneOfFewSessionsSendError_thenDontSendDelegated() throws IOException {
+        sessionsSet.add(new SessionInfo(session2));
+
+        doThrow(new IOException()).when(basic).sendText("errorTest");
+        when(chatObjectMapper.writeValueAsString(dto)).thenReturn("errorTest").thenReturn("testContent");
+
+        sessionMessageSender.handleMessage(dto, sessionsSet);
+
+        verifyZeroInteractions(mailMessageSender);
+    }
+
+    @Test
+    public void whenSessionsIsNull_thenSendDelegated() {
+        sessionMessageSender.handleMessage(dto, null);
+
+        verifyZeroInteractions(basic);
+        verify(mailMessageSender).handleMessage(notNull(), isNull());
+    }
+
+    @Test
     public void whenSessionsIsEmpty_thenSendDelegated() {
         sessionMessageSender.handleMessage(dto, emptySet());
 
         verifyZeroInteractions(basic);
         verify(mailMessageSender).handleMessage(notNull(), eq(emptySet()));
-    }
-
-    private static User createUser() {
-        final User user = mock(User.class);
-        when(user.getName()).thenReturn("testUserName");
-        return user;
     }
 }
