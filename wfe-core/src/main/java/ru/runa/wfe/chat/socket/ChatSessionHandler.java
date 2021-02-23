@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import javax.websocket.Session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.apachecommons.CommonsLog;
@@ -24,6 +25,13 @@ public class ChatSessionHandler {
     private final MessageSender messageSender;
     private final ObjectMapper chatObjectMapper;
 
+    private static final Function<Long, Set<SessionInfo>> CREATE_SET = new Function<Long, Set<SessionInfo>>() {
+        @Override
+        public Set<SessionInfo> apply(Long aLong) {
+            return Collections.newSetFromMap(new ConcurrentHashMap<>());
+        }
+    };
+
     @Autowired
     public ChatSessionHandler(@Qualifier("sessionMessageSender") MessageSender messageSender,
                               ObjectMapper chatObjectMapper) {
@@ -35,14 +43,9 @@ public class ChatSessionHandler {
         User user = ChatSessionUtils.getUser(session);
         Long userId = user.getActor().getId();
 
-        if (sessions.get(userId) == null) {
-            Set<SessionInfo> sessionsSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
-            sessionsSet.add(new SessionInfo(session));
-            sessions.put(userId, sessionsSet);
-        } else {
-            Set<SessionInfo> sessionsSet = sessions.get(userId);
-            sessionsSet.add(new SessionInfo(session));
-        }
+        Set<SessionInfo> sessionSet = sessions.computeIfAbsent(userId, CREATE_SET);
+        SessionInfo sessionInfo = new SessionInfo(session);
+        sessionSet.add(sessionInfo);
     }
 
     public void removeSession(Session session) {
