@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat.socket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -7,8 +8,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import javax.websocket.Session;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.apachecommons.CommonsLog;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -20,10 +21,15 @@ import ru.runa.wfe.user.User;
 
 @CommonsLog
 @Component
+@MonitoredWithSpring
 public class ChatSessionHandler {
+
+    @Autowired
+    @Qualifier("sessionMessageSender")
+    private MessageSender messageSender;
+    @Autowired
+    private ObjectMapper chatObjectMapper;
     private final ConcurrentHashMap<Long, Set<SessionInfo>> sessions = new ConcurrentHashMap<>(256);
-    private final MessageSender messageSender;
-    private final ObjectMapper chatObjectMapper;
 
     private static final Function<Long, Set<SessionInfo>> CREATE_SET = new Function<Long, Set<SessionInfo>>() {
         @Override
@@ -32,12 +38,6 @@ public class ChatSessionHandler {
         }
     };
 
-    @Autowired
-    public ChatSessionHandler(@Qualifier("sessionMessageSender") MessageSender messageSender,
-                              ObjectMapper chatObjectMapper) {
-        this.messageSender = messageSender;
-        this.chatObjectMapper = chatObjectMapper;
-    }
 
     public void addSession(Session session) {
         User user = ChatSessionUtils.getUser(session);

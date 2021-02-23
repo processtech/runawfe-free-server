@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
@@ -13,6 +14,7 @@ import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
 
 @Component
+@MonitoredWithSpring
 public class ChatMessageDao extends GenericDao<ChatMessage> {
 
     @Transactional(readOnly = true)
@@ -60,7 +62,6 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     @Transactional
     public ChatMessage save(ChatMessage message, Set<Actor> recipients) {
         ChatMessage result = create(message);
-        recipients.add(message.getCreateActor());
         for (Actor recipient : recipients) {
             sessionFactory.getCurrentSession().save(new ChatMessageRecipient(message, recipient));
         }

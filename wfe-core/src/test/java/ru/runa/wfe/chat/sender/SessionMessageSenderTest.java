@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat.sender;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -7,10 +8,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
@@ -39,13 +40,13 @@ public class SessionMessageSenderTest {
     private MailMessageSender mailMessageSender;
     @Mock
     private ObjectMapper chatObjectMapper;
+    @InjectMocks
     private SessionMessageSender sessionMessageSender;
     private Set<SessionInfo> sessionsSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @Before
     public void init() {
         sessionsSet.add(new SessionInfo(session));
-        sessionMessageSender = new SessionMessageSender(mailMessageSender, chatObjectMapper);
         when(session.getBasicRemote()).thenReturn(basic);
         final Map<String, Object> sessionUserProperties = singletonMap("user", createUser());
         when(session.getUserProperties()).thenReturn(sessionUserProperties);

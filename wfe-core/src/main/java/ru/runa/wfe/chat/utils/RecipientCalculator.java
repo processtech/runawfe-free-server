@@ -3,6 +3,7 @@ package ru.runa.wfe.chat.utils;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 
 @CommonsLog
 @Component
+@MonitoredWithSpring
 public class RecipientCalculator {
 
     @Autowired
@@ -23,25 +25,17 @@ public class RecipientCalculator {
     @Autowired
     private ExecutionLogic executionLogic;
 
-    public Set<Long> mapToRecipientIds(Set<Actor> recipients) {
-        Set<Long> recipientIds = new HashSet<>(recipients.size());
-        for (Actor actor : recipients) {
-            recipientIds.add(actor.getId());
-        }
-        return recipientIds;
-    }
-
     @Transactional(readOnly = true)
     public Set<Actor> calculateRecipients(User user, boolean isPrivate, String messageText, Long processId) {
         return isPrivate
-                ? findMentionedActorsInMessageText(messageText)
+                ? findMentionedActorsInMessageText(user, messageText)
                 : executionLogic.getAllExecutorsByProcessId(user, processId, true);
     }
 
     /**
      * @return Mentioned actors, defined by '@username' pattern
      */
-    private Set<Actor> findMentionedActorsInMessageText(String messageText) {
+    private Set<Actor> findMentionedActorsInMessageText(User user, String messageText) {
         Set<Actor> recipients = new HashSet<>();
         int dogIndex = -1;
         while (true) {
@@ -66,6 +60,7 @@ public class RecipientCalculator {
             }
         }
         log.info(recipients.size() + " mentioned actors were found");
+        recipients.add(user.getActor());
         return recipients;
     }
 }

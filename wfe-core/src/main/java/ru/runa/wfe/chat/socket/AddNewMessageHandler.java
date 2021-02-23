@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.websocket.Session;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
@@ -14,7 +14,8 @@ import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
-import ru.runa.wfe.chat.utils.DtoConverters;
+import ru.runa.wfe.chat.mapper.ActorToLongMapper;
+import ru.runa.wfe.chat.mapper.AddMessageRequestMapper;
 import ru.runa.wfe.chat.utils.RecipientCalculator;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
@@ -27,15 +28,19 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
     @Autowired
     private ChatLogic chatLogic;
     @Autowired
-    private DtoConverters converter;
+    private AddMessageRequestMapper messageMapper;
+    @Autowired
+    private ActorToLongMapper actorToLongMapper;
     @Autowired
     private RecipientCalculator calculator;
 
     @Override
-    public void handleMessage(Session session, AddMessageRequest request, User user) throws IOException {
-        final ChatMessage newMessage = converter.convertAddMessageRequestToChatMessage(request, user.getActor());
+    @MonitoredWithSpring
+    public void handleMessage(AddMessageRequest request, User user) throws IOException {
+        final ChatMessage newMessage = messageMapper.toEntity(request);
+        newMessage.setCreateActor(user.getActor());
         final long processId = request.getProcessId();
-        final Set<Actor> recipients = calculator.calculateRecipients(user, request.isPrivate(), request.getMessage(), processId);
+        final Set<Actor> recipients = calculator.calculateRecipients(user, request.getIsPrivate(), request.getMessage(), processId);
 
         MessageAddedBroadcast messageAddedBroadcast;
         if (request.getFiles() != null) {
@@ -49,12 +54,11 @@ public class AddNewMessageHandler implements ChatSocketMessageHandler<AddMessage
             messageAddedBroadcast = chatLogic.saveMessage(user, processId, newMessage, recipients);
         }
 
-        messageAddedBroadcast.setCoreUser(messageAddedBroadcast.getAuthor().getId().equals(user.getActor().getId()));
-        sessionHandler.sendMessage(calculator.mapToRecipientIds(recipients), messageAddedBroadcast);
+        sessionHandler.sendMessage(actorToLongMapper.toDtos(recipients), messageAddedBroadcast);
     }
 
     @Override
-    public boolean isSupports(Class<? extends MessageRequest> messageType) {
-        return messageType.equals(AddMessageRequest.class);
+    public Class<? extends MessageRequest> getRequestType() {
+        return AddMessageRequest.class;
     }
 }
