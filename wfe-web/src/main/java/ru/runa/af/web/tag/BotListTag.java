@@ -1,6 +1,9 @@
 package ru.runa.af.web.tag;
 
+import com.google.common.collect.Maps;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
@@ -19,16 +22,17 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botListTag")
 public class BotListTag extends TitledFormTag {
+
     private static final long serialVersionUID = 1L;
     private Long botStationId;
+
+    public Long getBotStationId() {
+        return botStationId;
+    }
 
     @Attribute(required = false, rtexprvalue = true)
     public void setBotStationId(Long botStationId) {
         this.botStationId = botStationId;
-    }
-
-    public Long getBotStationId() {
-        return botStationId;
     }
 
     @Override
@@ -49,13 +53,39 @@ public class BotListTag extends TitledFormTag {
     }
 
     @Override
+    protected boolean isMultipleSubmit() {
+        return true;
+    }
+
+    @Override
+    protected List<Map<String, String>> getSubmitButtonsData() {
+        Map<String, String> submitButtonData = Maps.newHashMap();
+        submitButtonData.put(ATTRIBUTE_NAME, getSubmitButtonName());
+        submitButtonData.put(ATTRIBUTE_COLOR, "");
+        submitButtonData.put(ATTRIBUTE_TYPE, Input.SUBMIT);
+        submitButtonData.put(ATTRIBUTE_STYLE, "float: right;");
+        submitButtonData.put(ATTRIBUTE_ONCLICK, ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(getConfirmationPopupParameter(), pageContext));
+        Map<String, String> createButtonData = Maps.newHashMap();
+        createButtonData.put(ATTRIBUTE_NAME, MessagesCommon.BUTTON_CREATE.message(pageContext));
+        createButtonData.put(ATTRIBUTE_COLOR, "");
+        createButtonData.put(ATTRIBUTE_TYPE, Input.BUTTON);
+        createButtonData.put(ATTRIBUTE_STYLE, "float: left;");
+        createButtonData.put(ATTRIBUTE_ONCLICK, getCreateAction());
+        return Arrays.asList(submitButtonData, createButtonData);
+    }
+
+    @Override
     public String getAction() {
         return DeleteBotAction.DELETE_BOT_ACTION_PATH;
     }
 
+    public String getCreateAction() {
+        return String.format("window.location=\"/wfe/add_bot.do?botStationId=%s\"", botStationId);
+    }
+
     @Override
     public boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override

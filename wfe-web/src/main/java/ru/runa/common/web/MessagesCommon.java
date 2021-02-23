@@ -23,18 +23,12 @@ public final class MessagesCommon {
     public static final StrutsMessage MAIN_MENU_ITEM_DATA_SOURCES = new StrutsMessage("manage_data_sources");
     // Forward menu (left main menu items) -> System.
     public static final StrutsMessage MAIN_MENU_ITEM_SYSTEM = new StrutsMessage("manage_system");
-    // Forward menu (left main menu items) -> Scripts.
-    public static final StrutsMessage MAIN_MENU_ITEM_SCRIPTS = new StrutsMessage("manage_scripts");
-    // Forward menu (left main menu items) -> Errors.
-    public static final StrutsMessage MAIN_MENU_ITEM_ERRORS = new StrutsMessage("manage_errors");
-    // Forward menu (left main menu items) -> Substitution Criteria.
-    public static final StrutsMessage MAIN_MENU_ITEM_SUBSTITUTION_CRITERIA = new StrutsMessage("manage_substitution_criteria");
-    // Forward menu (left main menu items) -> System Data.
-    public static final StrutsMessage MAIN_MENU_ITEM_DATAFILE = new StrutsMessage("manage_datafile");
     // Forward menu (left main menu items) -> Settings.
     public static final StrutsMessage MAIN_MENU_ITEM_SETTINGS = new StrutsMessage("manage_settings");
     // Forward menu (left main menu items) -> Logs.
     public static final StrutsMessage MAIN_MENU_ITEM_LOGS = new StrutsMessage("view_logs");
+    // Forward menu (left main menu items) -> Internal storage.
+    public static final StrutsMessage MAIN_MENU_ITEM_INTERNAL_STORAGE = new StrutsMessage("view_internal_storage");
 
     // Common buttons
 

@@ -53,18 +53,12 @@ public final class SecuredSingleton extends SecuredObjectBase {
         return type;
     }
 
+
     // Alphabetically, please:
 
     public static final SecuredSingleton BOTSTATIONS = new SecuredSingleton(SecuredObjectType.BOTSTATIONS);
-    public static final SecuredSingleton DATAFILE = new SecuredSingleton(SecuredObjectType.DATAFILE);
-    public static final SecuredSingleton DEFINITIONS = new SecuredSingleton(SecuredObjectType.DEFINITIONS);
-    public static final SecuredSingleton ERRORS = new SecuredSingleton(SecuredObjectType.ERRORS);
-    public static final SecuredSingleton EXECUTORS = new SecuredSingleton(SecuredObjectType.EXECUTORS);
-    public static final SecuredSingleton LOGS = new SecuredSingleton(SecuredObjectType.LOGS);
-    public static final SecuredSingleton PROCESSES = new SecuredSingleton(SecuredObjectType.PROCESSES);
     public static final SecuredSingleton RELATIONS = new SecuredSingleton(SecuredObjectType.RELATIONS);
     public static final SecuredSingleton REPORTS = new SecuredSingleton(SecuredObjectType.REPORTS);
-    public static final SecuredSingleton SCRIPTS = new SecuredSingleton(SecuredObjectType.SCRIPTS);
-    public static final SecuredSingleton SUBSTITUTION_CRITERIAS = new SecuredSingleton(SecuredObjectType.SUBSTITUTION_CRITERIAS);
     public static final SecuredSingleton SYSTEM = new SecuredSingleton(SecuredObjectType.SYSTEM);
+    public static final SecuredSingleton DATASOURCES = new SecuredSingleton(SecuredObjectType.DATASOURCES);
 }

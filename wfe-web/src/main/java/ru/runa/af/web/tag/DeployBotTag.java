@@ -52,7 +52,7 @@ public class DeployBotTag extends TitledFormTag {
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override
@@ -79,11 +79,12 @@ public class DeployBotTag extends TitledFormTag {
         tdFormElement.addElement(MessagesBot.LABEL_REPLACE_BOT_TASKS.message(pageContext) + "<br>");
 
         if (WebResources.isBulkDeploymentElements()) {
-            String fileUploadInput = ViewUtil.getFileInput(new StrutsWebHelper(pageContext), FileForm.FILE_INPUT_NAME, true);
+            String fileUploadInput = ViewUtil.getFileInput(new StrutsWebHelper(pageContext), FileForm.FILE_INPUT_NAME, true, ".bot");
             tdFormElement.addElement(fileUploadInput);
         } else {
             Input fileUploadInput = new Input(Input.FILE, FileForm.FILE_INPUT_NAME);
             fileUploadInput.setClass(Resources.CLASS_REQUIRED);
+            fileUploadInput.setAccept(".bot");
             tdFormElement.addElement(fileUploadInput);
         }
     }

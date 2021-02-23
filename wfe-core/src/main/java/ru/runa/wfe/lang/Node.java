@@ -26,6 +26,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Set;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -247,18 +248,7 @@ public abstract class Node extends GraphElement {
             Token parentToken = executionContext.getToken().getParent();
             ((Node) getParentElement()).onBoundaryEvent(new ExecutionContext(executionContext.getProcessDefinition(), parentToken),
                     (BoundaryEvent) this);
-            for (Token token : parentToken.getChildren()) {
-                if (Objects.equal(token, executionContext.getToken())) {
-                    continue;
-                }
-                if (token.hasEnded()) {
-                    // inactive ParallelGateway behaviour
-                    token.setAbleToReactivateParent(false);
-                } else {
-                    token.end(executionContext.getProcessDefinition(), null,
-                            ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executionContext), true);
-                }
-            }
+            endTokensRecursively(executionContext, parentToken.getChildren());
         }
 
         Token token = executionContext.getToken();
@@ -320,5 +310,21 @@ public abstract class Node extends GraphElement {
     protected void onBoundaryEvent(ExecutionContext executionContext, BoundaryEvent boundaryEvent) {
         executionContext.getToken().end(executionContext.getProcessDefinition(), null,
                 boundaryEvent.getTaskCompletionInfoIfInterrupting(executionContext), false);
+    }
+
+    private void endTokensRecursively(ExecutionContext executionContext, Set<Token> tokens) {
+        for (Token token : tokens) {
+            if (Objects.equal(token, executionContext.getToken())) {
+                continue;
+            }
+            if (token.hasEnded()) {
+                // inactive ParallelGateway behaviour
+                token.setAbleToReactivateParent(false);
+            } else {
+                token.end(executionContext.getProcessDefinition(), null,
+                        ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executionContext), true);
+            }
+            endTokensRecursively(executionContext, token.getChildren());
+        }
     }
 }

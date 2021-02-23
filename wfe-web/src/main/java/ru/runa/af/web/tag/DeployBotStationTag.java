@@ -37,7 +37,7 @@ public class DeployBotStationTag extends TitledFormTag {
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override
@@ -62,6 +62,7 @@ public class DeployBotStationTag extends TitledFormTag {
         tdFormElement.addElement(boolInput);
         tdFormElement.addElement(MessagesBot.LABEL_REPLACE_BOT_TASKS.message(pageContext) + "<br>");
         Input fileUploadInput = new Input(Input.FILE, FileForm.FILE_INPUT_NAME);
+        fileUploadInput.setAccept(".botstation");
         fileUploadInput.setClass(Resources.CLASS_REQUIRED);
         tdFormElement.addElement(fileUploadInput);
     }

@@ -6,12 +6,13 @@ public interface DataSourceStuff {
 
     String DATA_SOURCE_FILE_SUFFIX = ".xml";
     String DATA_SOURCE_ARCHIVE_SUFFIX = ".ds";
+    String EXCEL_FILE_XLS_SUFFIX = ".xls";
+    String EXCEL_FILE_XLSX_SUFFIX = ".xlsx";
 
     String DATABASE_NAME_MARKER = "DBNAME";
 
     String ELEMENT_DATA_SOURCE = "dataSource";
     String ELEMENT_FILE_PATH = "filePath";
-    String ELEMENT_FILE_NAME = "fileName";
     String ELEMENT_JNDI_NAME = "jndiName";
     String ELEMENT_DB_TYPE = "dbType";
     String ELEMENT_DB_URL = "dbUrl";
@@ -28,6 +29,8 @@ public interface DataSourceStuff {
     String PATH_PREFIX_DATA_SOURCE_VARIABLE = "datasource-variable:";
 
     String JNDI_NAME_SAMPLE = "jboss/datasources/<DS>";
+
+    String INTERNAL_STORAGE_DATA_SOURCE_NAME = "InternalStorage";
 
     static String adjustUrl(JdbcDataSource jds) {
         String url = jds.getUrl();

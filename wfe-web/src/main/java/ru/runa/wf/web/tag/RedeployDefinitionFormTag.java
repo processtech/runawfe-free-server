@@ -42,6 +42,7 @@ import ru.runa.wf.web.action.UpgradeProcessesToDefinitionVersionAction;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -59,7 +60,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         form.setEncType(Form.ENC_UPLOAD);
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
-        Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true);
+        Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true, "." + FileDataProvider.PAR_FILE);
         table.addElement(HTMLUtils.createRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), fileInput));
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
         TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, definitionTypes, pageContext);

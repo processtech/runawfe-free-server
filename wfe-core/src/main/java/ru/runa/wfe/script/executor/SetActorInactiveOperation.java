@@ -34,7 +34,7 @@ public class SetActorInactiveOperation extends ScriptOperation {
     public void validate(ScriptExecutionContext context) {
         ScriptValidation.requiredAttribute(this, AdminScriptConstants.NAME_ATTRIBUTE_NAME, name);
         for (NamedIdentitySet set : identities) {
-            set.ensureType(this, NamedIdentityType.EXECUTOR);
+            set.validate(this, NamedIdentityType.EXECUTOR);
         }
     }
 

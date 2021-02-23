@@ -17,10 +17,9 @@
  */
 package ru.runa.wf.delegate;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.AuthenticationException;
@@ -29,45 +28,38 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 20.04.2005
  * 
  * @author Gritsenko_S
  */
 public class DefinitionServiceDelegateGetProcessDefinitionStubTest extends ServletTestCase {
+    private WfServiceTestHelper h = null;
     private DefinitionService definitionService;
 
-    private WfServiceTestHelper helper = null;
-
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         definitionService = Delegates.getDefinitionService();
 
-        helper.deployValidProcessDefinition();
-
-        super.setUp();
+        h.deployValidProcessDefinition();
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition();
-
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         definitionService = null;
-        super.tearDown();
     }
 
-    public void testGetProcessDefinitionStubByAuthorizedSubject() throws Exception {
+    public void testGetProcessDefinitionStubByAuthorizedUser() {
         Collection<Permission> permissions = Lists.newArrayList(Permission.READ);
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
 
-        WfDefinition process = definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(),
+        WfDefinition process = definitionService.getLatestProcessDefinition(h.getAuthorizedUser(),
                 WfServiceTestHelper.VALID_PROCESS_NAME);
         long processId = process.getId();
-        WfDefinition actualProcess = definitionService.getProcessDefinition(helper.getAuthorizedPerformerUser(), processId);
+        WfDefinition actualProcess = definitionService.getProcessDefinition(h.getAuthorizedUser(), processId);
         assertEquals("definitionDelegate.getLatestDefinitionStub returns different process by the same processId", process.getName(),
                 actualProcess.getName());
         assertEquals("definitionDelegate.getLatestDefinitionStub returns different process by the same processId", process.getId(),
@@ -76,29 +68,32 @@ public class DefinitionServiceDelegateGetProcessDefinitionStubTest extends Servl
                 actualProcess.getId());
     }
 
-    public void testGetProcessDefinitionStubByAuthorizedSubjectWithoutREADPermission() throws Exception {
+    public void testGetProcessDefinitionStubByAuthorizedUserWithoutREADPermission() {
         Collection<Permission> permissions = Lists.newArrayList();
-        helper.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(permissions, WfServiceTestHelper.VALID_PROCESS_NAME);
         try {
-            definitionService.getLatestProcessDefinition(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
-            fail("testGetProcessDefinitionStubByAuthorizedSubjectWithourREADPermission(), no AuthorizationException");
+            definitionService.getLatestProcessDefinition(h.getAuthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
+            fail();
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testGetProcessDefinitionStubByUnauthorizedSubject() throws Exception {
+    public void testGetProcessDefinitionStubByUnauthorizedUser() {
         try {
-            definitionService.getLatestProcessDefinition(helper.getUnauthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
-            fail("testGetProcessDefinitionStubByUnauthorizedSubject(), no AuthorizationException");
+            definitionService.getLatestProcessDefinition(h.getUnauthorizedUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
+            fail();
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testGetProcessDefinitionStubByFakeSubject() throws Exception {
+    public void testGetProcessDefinitionStubByFakeUser() {
         try {
-            definitionService.getLatestProcessDefinition(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
-            fail("testGetProcessDefinitionStubByFakeSubject(), no AuthenticationException");
+            definitionService.getLatestProcessDefinition(h.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME);
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 }

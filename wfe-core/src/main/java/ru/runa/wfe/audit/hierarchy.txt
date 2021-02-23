@@ -5,6 +5,7 @@
     <!-- D : ru.runa.bpm.log.VariableDeleteLog -->
     <!-- E : ru.runa.bpm.log.AdminActionLog -->
     <!-- F : ru.runa.bpm.log.TaskDelegationLog -->
+    <!-- H : ru.runa.bpm.log.NodeErrorLog -->
     <!-- I : ru.runa.bpm.log.ProcessCreateLog -->
     <!-- K : ru.runa.bpm.log.TaskEndByAdminLog -->
     <!-- L : ru.runa.bpm.log.NodeLeaveLog -->

@@ -45,6 +45,8 @@ synchronization.create.executors.enabled = true
 synchronization.update.executors.enabled = true
 synchronization.delete.executors.enabled = true
 synchronization.user.status.enabled = true
+# the number of entries to return in a page
+synchronization.pageSize = 1000
 # types
 synchronization.object.class.filter = (objectclass={0})
 synchronization.user.object.class = user

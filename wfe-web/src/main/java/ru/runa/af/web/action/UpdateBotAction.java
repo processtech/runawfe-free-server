@@ -26,7 +26,6 @@ public class UpdateBotAction extends ActionBase {
             BotService botService = Delegates.getBotService();
             Bot bot = botService.getBot(getLoggedUser(request), botForm.getBotId());
             bot.setUsername(botForm.getWfeUser());
-            bot.setPassword(botForm.getWfePassword());
             bot.setSequentialExecution(botForm.isTransactional() ? true : botForm.isSequential());
             bot.setTransactional(botForm.isTransactional());
             bot.setTransactionalTimeout(botForm.isTransactional() ? botForm.getTransactionalTimeout() : null);

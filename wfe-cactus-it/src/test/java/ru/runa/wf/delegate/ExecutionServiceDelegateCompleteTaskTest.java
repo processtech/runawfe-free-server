@@ -17,13 +17,11 @@
  */
 package ru.runa.wf.delegate;
 
-import java.util.Collection;
+import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -33,8 +31,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.task.dto.WfTask;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 23.04.2005
  * 
@@ -43,111 +39,110 @@ import com.google.common.collect.Lists;
  * @author kana <a href="mailto:kana@ptc.ru">
  */
 public class ExecutionServiceDelegateCompleteTaskTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
 
-    private WfServiceTestHelper th = null;
-
     private WfTask task;
-
     private Map<String, Object> legalVariables;
 
     @Override
-    protected void setUp() throws Exception {
-        th = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
 
-        th.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
+        h.deployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_FILE_NAME);
 
-        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ_PROCESS);
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.START_PROCESS, Permission.READ_PROCESS),
+                WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
 
-        th.addExecutorToGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());
+        h.addExecutorToGroup(h.getAuthorizedActor(), h.getBossGroup());
         // task =
-        // executionDelegate.getTasks(helper.getAuthorizedPerformerUser(),
+        // executionDelegate.getTasks(helper.getAuthorizedUser(),
         // helper.getTaskBatchPresentation())[0];
 
-        legalVariables = new HashMap<String, Object>();
-        legalVariables.put("amount.asked", (double) 200);
-        legalVariables.put("amount.granted", (double) 150);
+        legalVariables = new HashMap<>();
+        legalVariables.put("amount.asked", 200d);
+        legalVariables.put("amount.granted", 150d);
         legalVariables.put("approved", "true");
-
-        super.setUp();
-    }
-
-    private void initTask() throws AuthorizationException, AuthenticationException {
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
-        assertNotNull(tasks);
-        assertEquals(tasks.size() > 0, true);
-        task = tasks.get(0);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        th.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
-        th.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition(WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
+        h.releaseResources();
         executionService = null;
-        super.tearDown();
     }
 
-    public void testCompleteTaskByAuthorizedSubject() throws Exception {
+    private void initTask() {
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
+        assertNotNull(tasks);
+        assertTrue(tasks.size() > 0);
+        task = tasks.get(0);
+    }
+
+    public void testCompleteTaskByAuthorizedUser() {
         initTask();
 
         assertEquals("state name differs from expected", "evaluating", task.getName());
-        assertEquals("task <evaluating> is assigned before completeTask()", th.getBossGroup(), task.getOwner());
+        assertEquals("task <evaluating> is assigned before completeTask()", h.getBossGroup(), task.getOwner());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), legalVariables, null);
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
+        h.getTaskService().completeTask(h.getAuthorizedUser(), task.getId(), legalVariables);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
 
         assertEquals("Tasks not returned for Authorized Subject", 1, tasks.size());
         assertEquals("state name differs from expected", "treating collegues on cake and pie", tasks.get(0).getName());
-        assertEquals("task <treating collegues on cake and pie> is not assigned after starting [requester]", th.getBossGroup(), task.getOwner());
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), legalVariables, null);
+        assertEquals("task <treating collegues on cake and pie> is not assigned after starting [requester]", h.getBossGroup(), task.getOwner());
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), legalVariables);
 
-        tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), th.getTaskBatchPresentation());
+        tasks = h.getTaskService().getMyTasks(h.getErpOperatorUser(), h.getTaskBatchPresentation());
 
         assertEquals("Tasks not returned for Erp Operator Subject", 1, tasks.size());
         assertEquals("state name differs from expected", "updating erp asynchronously", tasks.get(0).getName());
-        assertEquals("task <updating erp asynchronously> is not assigned before competeTask()", th.getBossGroup(), task.getOwner());
+        assertEquals("task <updating erp asynchronously> is not assigned before competeTask()", h.getBossGroup(), task.getOwner());
     }
 
-    public void testCompleteTaskBySubjectWhichIsNotInSwimlane() throws Exception {
+    public void testCompleteTaskBySubjectWhichIsNotInSwimlane() {
         initTask();
         try {
-            th.removeExecutorFromGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), legalVariables, null);
+            h.removeExecutorFromGroup(h.getAuthorizedActor(), h.getBossGroup());
+            h.getTaskService().completeTask(h.getAuthorizedUser(), task.getId(), legalVariables);
             fail("testCompleteTaskByNullSubject(), no Exception");
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testCompleteTaskByUnauthorizedSubject() throws Exception {
+    public void testCompleteTaskByUnauthorizedUser() {
         initTask();
         try {
-            th.getTaskService().completeTask(th.getUnauthorizedPerformerUser(), task.getId(), legalVariables, null);
+            h.getTaskService().completeTask(h.getUnauthorizedUser(), task.getId(), legalVariables);
             fail("testCompleteTaskByNullSubject(), no AuthorizationException");
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testCompleteTaskByFakeSubject() throws Exception {
+    public void testCompleteTaskByFakeUser() {
         initTask();
         try {
-            th.getTaskService().completeTask(th.getFakeUser(), task.getId(), legalVariables, null);
-            fail("testCompleteTaskByFakeSubject(), no AuthenticationException");
+            h.getTaskService().completeTask(h.getFakeUser(), task.getId(), legalVariables);
+            fail("expected AuthenticationException");
         } catch (AuthorizationException e) {
-            fail("testCompleteTaskByFakeSubject(), no AuthenticationException");
+            fail("expected AuthenticationException");
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testCompleteTaskByAuthorizedSubjectWithInvalidTaskId() throws Exception {
+    public void testCompleteTaskByAuthorizedUserWithInvalidTaskId() {
         initTask();
         try {
-            th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), -1l, legalVariables, null);
-            fail("testCompleteTaskByAuthorizedSubjectWithInvalidTaskId(), no TaskDoesNotExistException");
+            h.getTaskService().completeTask(h.getAuthorizedUser(), -1L, legalVariables);
+            fail();
         } catch (TaskDoesNotExistException e) {
+            // Expected.
         }
     }
 }

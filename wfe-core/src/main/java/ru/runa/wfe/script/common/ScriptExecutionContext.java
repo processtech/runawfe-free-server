@@ -1,13 +1,10 @@
 package ru.runa.wfe.script.common;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.bot.logic.BotLogic;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
@@ -25,7 +22,7 @@ import ru.runa.wfe.user.logic.ProfileLogic;
 public class ScriptExecutionContext {
 
     @Autowired
-    ExecutorLogic executorLogic;
+    private ExecutorLogic executorLogic;
     @Autowired
     private RelationLogic relationLogic;
     @Autowired

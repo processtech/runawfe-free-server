@@ -35,6 +35,7 @@ import ru.runa.wfe.user.User;
  * @since 2.0
  */
 public interface AuthorizationService {
+    public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType securedObjectType, List<Long> idsOrNull);
 
     void checkAllowed(User user, Permission permission, SecuredObject securedObject);
 
@@ -59,17 +60,6 @@ public interface AuthorizationService {
      * Checks if user has parmission on any object of specified type.
      */
     boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType);
-
-    /**
-     * Special case to check UPDATE and/or UPDATE_SELF permissions.
-     */
-    boolean isAllowedUpdateExecutor(User user, Executor object);
-
-    /**
-     * Special case to check UPDATE and/or UPDATE_SELF permissions.
-     * Overloaded version for cases where otherwise getExecutor() would be called and perform extra READ check.
-     */
-    boolean isAllowedUpdateExecutor(User user, Long id);
 
     /**
      * Exports &lt;addPermissions&gt; elements to XML script. Everything is done under single transaction, using optimized queries.

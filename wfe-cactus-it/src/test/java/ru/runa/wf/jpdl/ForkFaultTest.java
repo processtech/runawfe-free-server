@@ -17,15 +17,13 @@
  */
 package ru.runa.wf.jpdl;
 
-import java.util.Collection;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.List;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.apache.cactus.ServletTestCase;
-
 import ru.runa.junit.ArrayAssert;
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -34,19 +32,14 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 /**
  * Created on 14.05.2005
  * 
  * @author Gritsenko_S
  */
 public class ForkFaultTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
-
-    private WfServiceTestHelper th = null;
-
     private BatchPresentation batchPresentation;
 
     public static Test suite() {
@@ -54,38 +47,34 @@ public class ForkFaultTest extends ServletTestCase {
     }
 
     @Override
-    protected void setUp() throws Exception {
-        th = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
+        batchPresentation = h.getTaskBatchPresentation();
 
-        th.deployValidProcessDefinition(WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_FILE_NAME);
-
-        Collection<Permission> permissions = Lists.newArrayList(Permission.START, Permission.READ, Permission.READ_PROCESS);
-        th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME);
-
-        batchPresentation = th.getTaskBatchPresentation();
-
-        super.setUp();
+        h.deployValidProcessDefinition(WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_FILE_NAME);
+        h.setPermissionsToAuthorizedActorOnDefinitionByName(
+                Lists.newArrayList(Permission.START_PROCESS, Permission.READ, Permission.READ_PROCESS),
+                WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        th.undeployValidProcessDefinition(WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME);
-        th.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition(WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME);
+        h.releaseResources();
         executionService = null;
-        super.tearDown();
     }
 
-    public void test1() throws Exception {
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME, null);
+    public void test1() {
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME, null);
 
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), null);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 2, tasks.size());
         List<String> expectedStateNames = Lists.newArrayList("state_2", "state_3");
         List<String> actualStateNames = Lists.newArrayList(tasks.get(0).getName(), tasks.get(1).getName());
@@ -103,32 +92,32 @@ public class ForkFaultTest extends ServletTestCase {
 
         HashMap<String, Object> state2Variables = Maps.newHashMap();
         state2Variables.put("def_variable", "false");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), state2Variables, null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), task.getId(), state2Variables);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_3", tasks.get(0).getName());
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), null);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_4", tasks.get(0).getName());
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), null);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
     }
 
-    public void testFault1() throws Exception {
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME, null);
+    public void testFault1() {
+        executionService.startProcess(h.getAuthorizedUser(), WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME, null);
 
-        List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_1", tasks.get(0).getName());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), null);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 2, tasks.size());
         List<String> expectedStateNames = Lists.newArrayList("state_2", "state_3");
         List<String> actualStateNames = Lists.newArrayList(tasks.get(0).getName(), tasks.get(1).getName());
@@ -146,9 +135,9 @@ public class ForkFaultTest extends ServletTestCase {
 
         HashMap<String, Object> state2Variables = Maps.newHashMap();
         state2Variables.put("def_variable", "true");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), state2Variables, null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), task.getId(), state2Variables);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 2, tasks.size());
         expectedStateNames = Lists.newArrayList("state_1", "state_3");
         actualStateNames = Lists.newArrayList(tasks.get(0).getName(), tasks.get(1).getName());
@@ -163,14 +152,13 @@ public class ForkFaultTest extends ServletTestCase {
         }
         assert (task != null);
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), task.getId(), null);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 3, tasks.size());
         expectedStateNames = Lists.newArrayList("state_2", "state_3", "state_3");
         actualStateNames = Lists.newArrayList(tasks.get(0).getName(), tasks.get(1).getName(), tasks.get(2).getName());
         ArrayAssert.assertWeakEqualArrays("state names differs from expected", expectedStateNames, actualStateNames);
-        task = null;
         if (tasks.get(0).getName().equals("state_2")) {
             task = tasks.get(0);
         } else {
@@ -181,22 +169,22 @@ public class ForkFaultTest extends ServletTestCase {
             }
         }
 
-        state2Variables = new HashMap<String, Object>();
+        state2Variables = new HashMap<>();
         state2Variables.put("def_variable", "false");
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), task.getId(), state2Variables, null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), task.getId(), state2Variables);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 2, tasks.size());
 
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(1).getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(1).getId(), null);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
         assertEquals("task name differs from expected", "state_4", tasks.get(0).getName());
-        th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
+        h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), null);
 
-        tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
+        tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
     }
 }

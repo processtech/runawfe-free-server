@@ -267,8 +267,6 @@
 	<bean id="reportLogic" class="ru.runa.wfe.report.logic.ReportLogic" />
 	<bean id="adminScriptLogic" class="ru.runa.wfe.script.logic.AdminScriptLogic" />
 
-	<bean id="dbTransactionalInitializer" class="ru.runa.wfe.commons.dbpatch.DbTransactionalInitializer" />
-	<bean id="initializerLogic" class="ru.runa.wfe.commons.dbpatch.InitializerLogic" />
 	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
 
 	<task:scheduler id="baseScheduler" />
@@ -295,4 +293,6 @@
 	
 	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
 	
+	<bean id="formHandlerExecutor" class="ru.runa.wfe.execution.FormHandlerExecutor" />
+
 </beans>

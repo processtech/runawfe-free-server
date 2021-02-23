@@ -46,6 +46,7 @@
 		<form-bean name="batchPresentationForm" type="ru.runa.common.web.form.BatchPresentationForm" />
 		<form-bean name="settingsForm" type="ru.runa.wf.web.form.SettingsForm" />
 		<form-bean name="viewLogForm" type="ru.runa.common.web.form.ViewLogForm" />
+		<form-bean name="viewInternalStorageForm" type="ru.runa.common.web.form.ViewInternalStorageForm" />
 		<form-bean name="updateStatusForm" type="ru.runa.af.web.form.UpdateStatusForm" />
 		<form-bean name="pagingForm" type="ru.runa.wf.web.form.PagingForm" />
 		<form-bean name="adminScriptForm" type="ru.runa.common.web.form.AdminScriptForm" />
@@ -75,10 +76,6 @@
 		<forward name="manage_relations"
 			path="/manage_relations.do?tabForwardName=manage_relations" />
 		<forward name="manage_system" path="/manage_system.do?tabForwardName=manage_system" />
-		<forward name="manage_scripts" path="/manage_scripts.do?tabForwardName=manage_scripts" />
-		<forward name="manage_errors" path="/manage_errors.do?tabForwardName=manage_errors" />
-		<forward name="manage_substitution_criteria" path="/manage_substitution_criteria.do?tabForwardName=manage_substitution_criteria" />
-		<forward name="manage_datafile" path="/manage_datafile.do?tabForwardName=manage_datafile" />
 		<forward name="manage_settings"
 			path="/manage_settings.do?tabForwardName=manage_settings" />
 		<forward name="version" path="/version.do" />
@@ -99,6 +96,7 @@
 		<forward name="edit_settings" path="/edit_settings.do" />
 		<forward name="drop_settings" path="/drop_settings.do" />
 		<forward name="send_process_signal" path="/send_process_signal.do" />
+		<forward name="view_internal_storage" path="/viewInternalStorage.do?tabForwardName=view_internal_storage" />
 	</global-forwards>
 
 	<!-- ========== Action Mapping Definitions =================================== -->
@@ -207,8 +205,8 @@
 		<action path="/deleteSubstitutionCriterias"
 			type="ru.runa.af.web.action.DeleteSubstitutionCriteriasAction" name="substitutionCriteriasForm"
 			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_substitution_criteria.do" redirect="true" />
-			<forward name="failure" path="/manage_substitution_criteria.do" redirect="true" />
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		<action path="/startProcess" type="ru.runa.wf.web.action.StartProcessAction"
 			name="startProcessForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
@@ -253,8 +251,8 @@
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
 		<action path="/activateFailedProcesses" type="ru.runa.wf.web.action.ActivateFailedProcessesAction" scope="request">
-			<forward name="success" path="/manage_errors.do" redirect="true" />
-			<forward name="failure" path="/manage_errors.do" redirect="true" />
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
 			name="idForm" scope="request">
@@ -371,6 +369,11 @@
 		<action path="/viewLogs" type="ru.runa.common.web.action.ViewLogsAction"
 			name="viewLogForm" scope="request" unknown="false" validate="false">
 			<forward name="success" path="/displayLogs.do" redirect="false" />
+			<forward name="failure" path="/messages_page.do" redirect="false" />
+		</action>
+		<action path="/viewInternalStorage" type="ru.runa.common.web.action.ViewInternalStorageAction"
+			name="viewInternalStorageForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/displayInternalStorage.do" redirect="false" />
 			<forward name="failure" path="/messages_page.do" redirect="false" />
 		</action>
 		<action path="/addExecutorToGroups" type="ru.runa.af.web.action.AddExecutorToGroupsAction"
@@ -619,7 +622,7 @@
 		</action>
 		<action path="/admin_scripts" type="ru.runa.common.web.action.AdminkitScriptsAction"
 			name="adminScriptForm" scope="request" validate="false">
-			<forward name="success" path="/manage_scripts.do" redirect="false" />
+			<forward name="success" path="/manage_system.do" redirect="false" />
 		</action>
 		<action path="/getSessionFile"
 			type="ru.runa.common.web.action.GetSessionFileAction"
@@ -678,10 +681,6 @@
 			parameter="/WEB-INF/af/edit_substitution_criteria.jsp" />
 
 		<action path="/manage_system" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SYSTEM" />
-		<action path="/manage_scripts" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SCRIPTS" />
-		<action path="/manage_errors" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="ERRORS" />
-		<action path="/manage_substitution_criteria" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SUBSTITUTION_CRITERIAS" />
-		<action path="/manage_datafile" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="DATAFILE" />
 
         <action path="/messages_page" type="org.apache.struts.actions.ForwardAction" parameter="/WEB-INF/common/messages_page.jsp" />
 
@@ -700,8 +699,14 @@
 			<forward name="success" path="/definitions_history.do" redirect="true" />
 			<forward name="failure" path="/definitions_history.do" redirect="true" />
 		</action>
+		<action path="/show_definitions_history_diff" type="ru.runa.wf.web.action.ShowDefinitionHistoryDiffAction">
+			<forward name="success" path="/definitions_history_diff.do" redirect="false" />
+			<forward name="failure" path="/definitions_history.do" redirect="true" />
+		</action>
 		<action path="/definitions_history" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/show_process_definitions_history.jsp" />
+		<action path="/definitions_history_diff" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_process_definitions_history_diff.jsp" />
 
 		<action path="/deploy_process_definition" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/deploy_process_definition.jsp" />
@@ -807,6 +812,9 @@
 		<action path="/displayLogs" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/common/logs.jsp" />
 
+		<action path="/displayInternalStorage" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/common/internal_storage.jsp" />
+
 		<action path="/show_tasks_history" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/show_tasks_history.jsp" />
 		<action path="/show_gantt_diagram" type="org.apache.struts.actions.ForwardAction"
@@ -817,8 +825,8 @@
 		</action>
 		<action path="/importDataFileAction" type="ru.runa.wf.web.action.ImportDataFileAction"
 			name="fileForm" scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_datafile.do" redirect="true" />
-			<forward name="failure" path="/manage_datafile.do" redirect="true" />
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		
 		<action path="/update_process_variables" type="org.apache.struts.actions.ForwardAction"

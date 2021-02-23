@@ -18,22 +18,25 @@
 package ru.runa.wf.web.tag;
 
 import java.util.List;
-
+import org.apache.ecs.html.Form;
+import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.PagingNavigationHelper;
+import ru.runa.common.web.html.RadioButtonTdBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wf.web.action.ShowDefinitionHistoryDiffAction;
 import ru.runa.wf.web.html.PropertiesProcessTdBuilder;
 import ru.runa.wf.web.html.UndeployProcessDefinitionTdBuilder;
+import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.DefinitionService;
@@ -52,27 +55,49 @@ public class ListDefinitionsHistoryFormTag extends BatchReturningTitledFormTag {
         List<WfDefinition> definitions = definitionService.getDeployments(getUser(), batchPresentation, true);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, count, "/definitions_history.do");
         navigation.addPagingNavigationTable(tdFormElement);
-        TdBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, new TdBuilder[] {
-                new UndeployProcessDefinitionTdBuilder(), new PropertiesProcessTdBuilder() });
-        SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 0, 2, getReturnAction(), pageContext);
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(
+                new TdBuilder[] { new RadioButtonTdBuilder("version1", "version"), new RadioButtonTdBuilder("version2", "version") }, 
+                batchPresentation,
+                new TdBuilder[] { new UndeployProcessDefinitionTdBuilder(), new PropertiesProcessTdBuilder() });
+        SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 2, 2, getReturnAction(), pageContext, false);
         RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_MANAGE_DEFINITION,
                 getReturnAction(), new DefinitionUrlStrategy(pageContext), builders);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
         navigation.addPagingNavigationTable(tdFormElement);
+        int nameFieldIndex = batchPresentation.getType().getFieldIndex(DefinitionHistoryClassPresentation.NAME);
+        String definitionName = batchPresentation.getFieldFilteredCriteria(nameFieldIndex).getFilterTemplate(0);
+        tdFormElement.addElement(new Input(Input.HIDDEN, ShowDefinitionHistoryDiffAction.DEFINITION_NAME, definitionName));
+        tdFormElement.addElement(new Input(Input.HIDDEN, ShowDefinitionHistoryDiffAction.NUM_CONTEXT_LINES, "3"));
     }
 
     @Override
     protected boolean isSubmitButtonVisible() {
-        return false;
+        return true;
     }
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return false;
+        return true;
     }
 
     @Override
     protected String getTitle() {
         return MessagesProcesses.TITLE_PROCESS_DEFINITIONS.message(pageContext);
     }
+
+    @Override
+    public String getAction() {
+        return ShowDefinitionHistoryDiffAction.ACTION;
+    }
+
+    @Override
+    public String getMethod() {
+        return Form.GET;
+    }
+
+    @Override
+    protected String getSubmitButtonName() {
+        return MessagesProcesses.BUTTON_VIEW_DIFFERENCES.message(pageContext);
+    }
+
 }

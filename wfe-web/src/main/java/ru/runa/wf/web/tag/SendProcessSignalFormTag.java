@@ -11,9 +11,6 @@ import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.SendProcessSignalAction;
-import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredSingleton;
-import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "sendProcessSignalForm")
 public class SendProcessSignalFormTag extends TitledFormTag {
@@ -60,6 +57,6 @@ public class SendProcessSignalFormTag extends TitledFormTag {
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.PROCESSES);
+        return true;
     }
 }

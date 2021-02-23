@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.dom4j.Document;
@@ -45,6 +46,7 @@ import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.lang.VariableContainerNode;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
+import ru.runa.wfe.lang.bpmn2.DataStore;
 import ru.runa.wfe.lang.bpmn2.EndToken;
 import ru.runa.wfe.lang.bpmn2.ExclusiveGateway;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
@@ -56,6 +58,7 @@ import ru.runa.wfe.var.VariableMapping;
 public class BpmnXmlReader {
     private static final String RUNA_NAMESPACE = "http://runa.ru/wfe/xml";
     private static final String PROCESS = "process";
+    private static final String DATA_STORE = "dataStore";
     private static final String EXTENSION_ELEMENTS = "extensionElements";
     private static final String IS_EXECUTABLE = "isExecutable";
     private static final String PROPERTY = "property";
@@ -122,6 +125,7 @@ public class BpmnXmlReader {
     private static final String EVENT_TYPE = "eventType";
     private static final String COLOR = "color";
     private static final String GLOBAL = "global";
+    private static final String VALIDATE_AT_START = "validateAtStart";
 
     @Autowired
     private LocalizationDao localizationDao;
@@ -129,6 +133,7 @@ public class BpmnXmlReader {
     private final Document document;
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
+
     static {
         nodeTypes.put(USER_TASK, TaskNode.class);
         nodeTypes.put(MULTI_TASK, MultiTaskNode.class);
@@ -137,6 +142,7 @@ public class BpmnXmlReader {
         nodeTypes.put(EXCLUSIVE_GATEWAY, ExclusiveGateway.class);
         nodeTypes.put(PARALLEL_GATEWAY, ParallelGateway.class);
         nodeTypes.put(TEXT_ANNOTATION, TextAnnotation.class);
+        nodeTypes.put(DATA_STORE, DataStore.class);
         // back compatibility v < 4.3.0
         nodeTypes.put(SEND_TASK, SendMessageNode.class);
         nodeTypes.put(RECEIVE_TASK, CatchEventNode.class);
@@ -153,6 +159,7 @@ public class BpmnXmlReader {
     public ProcessDefinition readProcessDefinition(ProcessDefinition processDefinition) {
         try {
             Element definitionsElement = document.getRootElement();
+            readDataStores(processDefinition, definitionsElement.elements(DATA_STORE));
             Element process = definitionsElement.element(PROCESS);
             processDefinition.setName(process.attributeValue(NAME));
             Map<String, String> processProperties = parseExtensionProperties(process);
@@ -314,6 +321,9 @@ public class BpmnXmlReader {
             }
             if (properties.containsKey(ASYNC_COMPLETION_MODE)) {
                 subprocessNode.setCompletionMode(AsyncCompletionMode.valueOf(properties.get(ASYNC_COMPLETION_MODE)));
+            }
+            if (properties.containsKey(VALIDATE_AT_START)) {
+                subprocessNode.setValidateAtStart(Boolean.parseBoolean(properties.get(VALIDATE_AT_START)));
             }
             if (node instanceof MultiSubprocessNode && properties.containsKey(DISCRIMINATOR_CONDITION)) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(properties.get(DISCRIMINATOR_CONDITION));
@@ -517,4 +527,11 @@ public class BpmnXmlReader {
         }
     }
 
+    private void readDataStores(ProcessDefinition processDefinition, List<Element> dataStoreElements) {
+        for (Element dataStoreElement : dataStoreElements) {
+            final Node node = ApplicationContextFactory.createAutowiredBean(nodeTypes.get(DATA_STORE));
+            node.setProcessDefinition(processDefinition);
+            readNode(processDefinition, dataStoreElement, Collections.emptyMap(), node);
+        }
+    }
 }

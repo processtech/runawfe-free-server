@@ -33,6 +33,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import ru.runa.common.WebResources;
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
@@ -117,7 +118,10 @@ public abstract class WFFormTag extends TitledFormTag {
 
     @Override
     protected String getSubmitButtonName() {
-        return MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
+        String processStartButtonName = WebResources.getButtonName("process.completeTaskButtonName");
+
+        return processStartButtonName != null ? processStartButtonName :
+                MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
     }
 
     protected List<String> getTransitionNames() {

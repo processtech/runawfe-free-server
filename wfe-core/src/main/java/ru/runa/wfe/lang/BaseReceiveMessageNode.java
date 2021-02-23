@@ -91,8 +91,8 @@ public class BaseReceiveMessageNode extends BaseMessageNode implements BoundaryE
 
     @Override
     public void leave(ExecutionContext executionContext, Transition transition) {
-        super.leave(executionContext, transition);
         executionContext.getToken().setMessageSelector(null);
+        super.leave(executionContext, transition);
     }
 
     @Override

@@ -56,7 +56,7 @@ public class ManageReportFormTag extends BaseReportFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.ALL, SecuredObjectType.REPORT, getReportId());
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.UPDATE, SecuredObjectType.REPORT, getReportId());
 
         ServletRequest request = pageContext.getRequest();
         List<WfReportParameter> parameters = (List<WfReportParameter>) request.getAttribute(DeployReportFormTag.REPORT_PARAMETERS);

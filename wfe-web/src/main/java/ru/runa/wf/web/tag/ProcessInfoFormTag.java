@@ -59,6 +59,7 @@ import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processInfoForm")
@@ -231,7 +232,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                 Map<String, Object> params = Maps.newHashMap();
                 params.put(IdForm.ID_INPUT_NAME, parentProcess.getId());
                 params.put(TaskIdForm.TASK_ID_INPUT_NAME, taskId);
-                params.put("childProcessId", process.getId());
+                params.put(TaskIdForm.SELECTED_TASK_PROCESS_ID_NAME, process.getId());
                 inner = new A(Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, pageContext, PortletUrlType.Render),
                         parentProcessDefinitionName);
             } else {
@@ -244,6 +245,9 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
     private Element addUpgradeLinkIfRequired(WfProcess process, Element versionElement) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
+            return versionElement;
+        }
+        if (! Delegates.getAuthorizationService().isAllowed(this.getUser(), Permission.UPDATE, SecuredObjectType.PROCESS, process.getId() )) {
             return versionElement;
         }
         Div div = new Div();
@@ -260,7 +264,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     }
 
     private boolean checkReadable(WfProcess parentProcess) {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.LIST, parentProcess);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, parentProcess);
     }
 
     @Override

@@ -32,6 +32,7 @@ import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.ProcessHierarchyUtils;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.task.dto.WfTask;
@@ -55,7 +56,7 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
         ConcreteElement link = new StringElement(processId.toString());
         boolean isAllowed = false;
         try {
-            isAllowed = env.isAllowed(Permission.LIST, new SecuredObjectExtractor() {
+            isAllowed = env.isAllowed(Permission.READ, new SecuredObjectExtractor() {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -75,8 +76,11 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
                 params.put(IdForm.ID_INPUT_NAME, processId);
                 params.put(TaskIdForm.TASK_ID_INPUT_NAME, task.getId());
             } else {
-                params.put(IdForm.ID_INPUT_NAME, task.getProcessId());
+                Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(task.getProcessHierarchyIds());
+                link = new StringElement((rootProcessId == null ? task.getProcessId() : rootProcessId).toString());
+                params.put(IdForm.ID_INPUT_NAME, link);
                 params.put(TaskIdForm.TASK_ID_INPUT_NAME, task.getId());
+                params.put(TaskIdForm.SELECTED_TASK_PROCESS_ID_NAME, task.getProcessId());
             }
             String url = Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, env.getPageContext(), PortletUrlType.Render);
             link = new A(url, link);

@@ -17,11 +17,10 @@
  */
 package ru.runa.wf.web.tag;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.jsp.PageContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ecs.html.Area;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
@@ -32,9 +31,9 @@ import ru.runa.common.web.Resources;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.audit.ActionLog;
+import ru.runa.wfe.audit.NodeErrorLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
@@ -49,6 +48,8 @@ import ru.runa.wfe.user.User;
  */
 public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
     private static final Pattern ACTION_LOG_PATTERN = Pattern.compile(".*?class=(.*?), configuration.*?", Pattern.DOTALL);
+    private static final String ERROR_CLASS_APPENDIX = " " + Resources.CLASS_FONT_RED;
+
     /**
      * Helper to create links to subprocesses.
      */
@@ -63,12 +64,9 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
     /**
      * Creates operation to create links to subprocesses and tool tips to minimized elements.
      *
-     * @param taskId
-     *            Current task identity.
-     * @param pageContext
-     *            Rendered page context.
-     * @param td
-     *            Root form element.
+     * @param taskId      Current task identity.
+     * @param pageContext Rendered page context.
+     * @param td          Root form element.
      */
     public ProcessNodeGraphElementVisitor(User user, PageContext pageContext, TD td, String subprocessId) {
         this.user = user;
@@ -91,12 +89,11 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
         if (element.getNodeType() == NodeType.TASK_STATE) {
             area = presentationHelper.createTaskTooltip((TaskNodeGraphElement) element);
         }
+
         if (element.getData() != null) {
-            Long processId = null;
             Table table = new Table();
             table.setClass(Resources.CLASS_LIST_TABLE);
             for (ProcessLog log : element.getData()) {
-                processId = log.getProcessId();
                 String description;
                 try {
                     String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);
@@ -117,32 +114,13 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
                 TR tr = new TR();
                 String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
                 tr.addElement(new TD().addElement(eventDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
-                tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD));
-                table.addElement(tr);
-            }
-            if (processId != null) {
-                addErrors(table, processId, element.getNodeId());
-            }
-            presentationHelper.addTooltip(element, area, table.toString());
-        }
-    }
 
-    private void addErrors(Table table, Long processId, String nodeId) {
-        List<ProcessError> errors = Delegates.getSystemService().getProcessErrors(user, processId);
-        for (ProcessError error : errors) {
-            if (Objects.equals(nodeId, error.getNodeId())) {
-                TR tr = new TR();
-                String eventDateString = CalendarUtil.format(error.getOccurredDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
-                tr.addElement(new TD().addElement(eventDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
-                String typeLabel = Messages.getMessage("errors.type." + error.getType(), pageContext);
-                String errorMessage = error.getMessage();
-                int spaceIndex = errorMessage.indexOf(" ");
-                if (spaceIndex != -1) {
-                    errorMessage = errorMessage.substring(spaceIndex);
-                }
-                tr.addElement(new TD().addElement(typeLabel + " " + errorMessage).setClass(Resources.CLASS_ERROR));
+                final String errorClass = log instanceof NodeErrorLog ? ERROR_CLASS_APPENDIX : StringUtils.EMPTY;
+                tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD.concat(errorClass)));
                 table.addElement(tr);
             }
+
+            presentationHelper.addTooltip(element, area, table.toString());
         }
     }
 

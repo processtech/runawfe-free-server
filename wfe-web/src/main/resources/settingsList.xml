@@ -9,17 +9,18 @@
 		<property title="escalation.default.hierarchy.loader"/>
 		<property title="task.default.deadline" pattern="\s*[+\-]?\d+\s*(business|)\s*(seconds|minutes|hours|days|weeks|months|years)\s*" />
 		<property title="task.almostDeadlinePercents" pattern="\d*"/>
+		<property title="task.delegation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>		
 		<property title="token.maximum.depth" pattern="\d*"/>
+		<property title="token.maximum.length" pattern="\d*|-1"/>
 		<property title="file.variable.local.storage.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>
 		<property title="file.variable.local.storage.enableforfilesgreaterthan" pattern="\d*"/>
 		<property title="date.format.pattern" />
-		<property title="executionServiceAPI.updateVariables.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
 		<property title="scriptingServiceAPI.executeGroovyScript.enabled">
 			<value>true</value>
 			<value>false</value>
@@ -61,6 +62,11 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="process.execution.node.async.default">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="preferred.messages.language" />
 	</properties_file>
 	
 	<properties_file title="class.presentation.properties">
@@ -175,12 +181,12 @@
 		<property title="process.removal.enabled">
 			<value>true</value>
 			<value>false</value>
-		</property>
-		<property title="task.delegation.enabled">
+		</property>		
+		<property title="process.swimlane.assignment.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="process.swimlane.assignment.enabled">
+		<property title="process.variable.assignment.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>
@@ -192,6 +198,8 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="process.processStartButtonName" />
+		<property title="process.completeTaskButtonName" />
 	</properties_file>
 	
 	<properties_file title="office.properties">
@@ -260,4 +268,47 @@
 		<property title="botstation.invocation.handler.timeout.milliseconds" pattern="\d*"/>
 	</property_file>
 	
+	<property_file title="securitycheck.properties">
+	
+		<property title="permission.check.required.EXECUTOR">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.DEFINITION">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.PROCESS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.REPORTS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.REPORT">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.RELATIONS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.RELATION">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.BOTSTATIONS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.DATASOURCES">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.SYSTEM">
+			<value>true</value>
+			<value>false</value>
+		</property>
+	</property_file>
 </settings>

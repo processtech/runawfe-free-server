@@ -47,6 +47,10 @@ public class LdapProperties {
     public static boolean isSynchronizationDeleteExecutors() {
         return RESOURCES.getBooleanProperty("synchronization.delete.executors.enabled", false);
     }
+    
+    public static int getLdapPageSize() {
+        return RESOURCES.getIntegerProperty("synchronization.pageSize", 1000);
+    }
 
     public static List<String> getSynchronizationOrganizationUnits() {
         return RESOURCES.getMultipleStringProperty("synchronization.organization.units");

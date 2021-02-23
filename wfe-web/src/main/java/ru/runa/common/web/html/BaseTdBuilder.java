@@ -30,7 +30,7 @@ import ru.runa.wfe.security.Permission;
  * @author Vitaliy S aka Yilativs
  */
 public abstract class BaseTdBuilder implements TdBuilder {
-    private final Permission permission;
+    private Permission permission;
     private SecuredObjectExtractor securedObjectExtractor;
 
     public BaseTdBuilder(Permission permission) {
@@ -47,13 +47,17 @@ public abstract class BaseTdBuilder implements TdBuilder {
     }
 
     protected boolean isEnabled(Object object, Env env) {
-        if (permission == null) {
+        return isEnabledFor(object, env, permission);
+    }
+    
+    protected boolean isEnabledFor(Object object, Env env, Permission perm) {
+        if (perm == null) {
             return false;
         }
-        if (permission == Permission.START) {
+        if (perm == Permission.START_PROCESS) {
             return ((WfDefinition) object).isCanBeStarted();
         }
-        return env.isAllowed(permission, securedObjectExtractor);
+        return env.isAllowed(perm, securedObjectExtractor);
     }
 
     protected String readProperty(Object object, String propertyName, boolean isExceptionOnAbsent) {
@@ -82,4 +86,13 @@ public abstract class BaseTdBuilder implements TdBuilder {
     public int getSeparatedValuesCount(Object object, Env env) {
         return 1;
     }
+    
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
+    }
+    
 }

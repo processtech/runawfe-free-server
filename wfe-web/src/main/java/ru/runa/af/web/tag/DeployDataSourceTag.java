@@ -27,7 +27,10 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesDataSource;
+import ru.runa.wfe.datasource.DataSourceStuff;
 import ru.runa.wfe.security.AuthorizationException;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deployDataSource")
@@ -37,7 +40,7 @@ public class DeployDataSourceTag extends TitledFormTag {
 
     @Override
     protected boolean isSubmitButtonEnabled() {
-        return Delegates.getExecutorService().isAdministrator(getUser());
+        return Delegates.getExecutorService().isAdministrator(getUser()) && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.DATASOURCES);
     }
 
     @Override
@@ -62,6 +65,7 @@ public class DeployDataSourceTag extends TitledFormTag {
         }
         getForm().setEncType(Form.ENC_UPLOAD);
         Input fileUploadInput = new Input(Input.FILE, FileForm.FILE_INPUT_NAME);
+        fileUploadInput.setAccept(DataSourceStuff.DATA_SOURCE_ARCHIVE_SUFFIX);
         fileUploadInput.setClass(Resources.CLASS_REQUIRED);
         tdFormElement.addElement(fileUploadInput);
     }

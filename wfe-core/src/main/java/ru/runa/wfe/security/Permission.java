@@ -143,28 +143,27 @@ public final class Permission implements Serializable, Comparable<Permission> {
     }
 
     /**
-     * All permissions.
-     */
-    public static final Permission ALL = new Permission("ALL");
-
-    /**
-     * Cancel specific process or any processes.
+     * Applies to process: cancel specific process.
      */
     public static final Permission CANCEL = new Permission("CANCEL");
 
     /**
-     * Grant CANCEL permission for process started from specific definition or from any definitions.
+     * Applies to definition: grants CANCEL permission for process started from specific definition.
      */
     public static final Permission CANCEL_PROCESS = new Permission("CANCEL_PROCESS");
 
-    /**
-     * Create or import object of specific type.
-     */
-    public static final Permission CREATE = new Permission("CREATE");
+    public static final Permission CHANGE_SELF_PASSWORD = new Permission("CHANGE_SELF_PASSWORD");
 
     /**
-     * Delete specific object (when applied to that object), or any object of specific type (when applied to objects list).
+     * Create or import process definition.
      */
+    public static final Permission CREATE_DEFINITION = new Permission("CREATE_DEFINITION");
+
+    /**
+     * Create or import executor.
+     */
+    public static final Permission CREATE_EXECUTOR = new Permission("CREATE_EXECUTOR");
+
     public static final Permission DELETE = new Permission("DELETE");
 
     /**
@@ -182,53 +181,30 @@ public final class Permission implements Serializable, Comparable<Permission> {
     public static final Permission NONE = new Permission("NONE");
 
     /**
-     * Read objects list, corresponding menu item is visible.
-     * When applied to specific objects instead of whole list, only those objects will be visible in list.
-     */
-    public static final Permission LIST = new Permission("LIST");
-
-    /**
      * Can read and export any object details.
      */
     public static final Permission READ = new Permission("READ");
 
     /**
-     * Can read object permissions.
+     * View or download Wildfly server logs.
      */
+    public static final Permission VIEW_LOGS = new Permission("VIEW_LOGS");
+
     public static final Permission READ_PERMISSIONS = new Permission("READ_PERMISSIONS");
 
-    /**
-     * Grant READ permission for process started from specific definition or from any definitions.
-     */
     public static final Permission READ_PROCESS = new Permission("READ_PROCESS");
 
-    /**
-     * Can start specific process (when applied to process) or any processes (when applied to process list).
-     */
-    public static final Permission START = new Permission("START");
+    public static final Permission START_PROCESS = new Permission("START_PROCESS");
 
-    /**
-     * Can edit specific object (when applied to that object) or any object of specific type (when applied to objects list).
-     */
     public static final Permission UPDATE = new Permission("UPDATE");
 
-    /**
-     * Can edit object permissions.
-     */
+    public static final Permission UPDATE_ACTOR_STATUS = new Permission("UPDATE_ACTOR_STATUS");
+
     public static final Permission UPDATE_PERMISSIONS = new Permission("UPDATE_PERMISSIONS");
 
-    /**
-     * Actor can edit his own profile.
-     */
-    public static final Permission UPDATE_SELF = new Permission("UPDATE_SELF");
-
-    /**
-     * Can edit actors's status.
-     */
-    public static final Permission UPDATE_STATUS = new Permission("UPDATE_STATUS");
-
-    /**
-     * Can view actor's tasks.
-     */
     public static final Permission VIEW_TASKS = new Permission("VIEW_TASKS");
+    
+    public static final Permission DELEGATE_TASKS = new Permission("DELEGATE_TASKS");
+    
+    public static final Permission ADD_ACTOR_TO_GROUP = new Permission("ADD_ACTOR_TO_GROUP");
 }

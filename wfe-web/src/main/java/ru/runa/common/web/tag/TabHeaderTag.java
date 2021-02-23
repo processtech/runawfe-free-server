@@ -19,23 +19,23 @@ package ru.runa.common.web.tag;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
-
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.TabHttpSessionHelper;
 import ru.runa.wfe.commons.web.PortletUrlType;
+import ru.runa.wfe.datasource.DataSourceStorage;
+import ru.runa.wfe.datasource.DataSourceStuff;
+import ru.runa.wfe.datasource.ExcelDataSource;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -61,17 +61,14 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DEFINITIONS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_PROCESSES));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_EXECUTORS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_REPORTS, SecuredSingleton.REPORTS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_REPORTS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_RELATIONS, SecuredSingleton.RELATIONS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_BOT_STATION, SecuredSingleton.BOTSTATIONS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATA_SOURCES, SecuredSingleton.SYSTEM));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATA_SOURCES, SecuredSingleton.DATASOURCES));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SYSTEM, SecuredSingleton.SYSTEM));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SCRIPTS, SecuredSingleton.SCRIPTS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_ERRORS, SecuredSingleton.ERRORS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SUBSTITUTION_CRITERIA, SecuredSingleton.SUBSTITUTION_CRITERIAS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATAFILE, SecuredSingleton.DATAFILE));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS, SecuredSingleton.LOGS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS, null, true));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
     }
 
@@ -139,15 +136,25 @@ public class TabHeaderTag extends TagSupport {
 
     private boolean isMenuForwardVisible(MenuForward menuForward) {
         try {
-            if (menuForward.menuMessage.getKey().equals("manage_settings")) {
+            if (menuForward.forAdministratorOnly) {
+                if (menuForward.menuMessage.getKey().equals(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE.getKey())) {
+                    if (DataSourceStorage.getNames().contains(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)) {
+                        if (!(DataSourceStorage.getDataSource(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME) instanceof ExcelDataSource)) {
+                            return false;
+                        }
+                    }
+                }
                 return Delegates.getExecutorService().isAdministrator(getUser());
+            }
+            if (menuForward.menuMessage.getKey().equals("view_logs")) {
+                return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_LOGS, SecuredSingleton.SYSTEM);
             }
             if (menuForward.menuMessage.getKey().equals("manage_observable_tasks")
                     && Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.VIEW_TASKS, SecuredObjectType.EXECUTOR)) {
                 return true;
             }
             if (menuForward.object != null) {
-                return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.LIST, menuForward.object);
+                return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, menuForward.object);
             } else {
                 return true;
             }
@@ -159,14 +166,20 @@ public class TabHeaderTag extends TagSupport {
     static class MenuForward {
         final StrutsMessage menuMessage;
         final SecuredObject object;
+        final boolean forAdministratorOnly;
 
-        MenuForward(StrutsMessage menuMessage, SecuredObject object) {
+        MenuForward(StrutsMessage menuMessage, SecuredObject object, boolean forAdministratorOnly) {
             this.menuMessage = menuMessage;
             this.object = object;
+            this.forAdministratorOnly = forAdministratorOnly;
+        }
+
+        MenuForward(StrutsMessage menuMessage, SecuredObject object) {
+            this(menuMessage, object, false);
         }
 
         MenuForward(StrutsMessage menuMessage) {
-            this(menuMessage, null);
+            this(menuMessage, null, false);
         }
     }
 }

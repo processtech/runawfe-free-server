@@ -33,61 +33,59 @@ import ru.runa.wfe.service.delegate.Delegates;
  * @author Gritsenko_S
  */
 public class ExecutionServiceDelegateGetProcessInstanceStubTest extends ServletTestCase {
+    private WfServiceTestHelper h;
     private ExecutionService executionService;
-
-    private WfServiceTestHelper helper = null;
-
     private Long processId;
 
     @Override
-    protected void setUp() throws Exception {
-        helper = new WfServiceTestHelper(getClass().getName());
+    protected void setUp() {
+        h = new WfServiceTestHelper(getClass().getName());
         executionService = Delegates.getExecutionService();
 
-        helper.deployValidProcessDefinition();
+        h.deployValidProcessDefinition();
 
         // processId =
-        executionService.startProcess(helper.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
-        processId = executionService.getProcesses(helper.getAuthorizedPerformerUser(), helper.getProcessInstanceBatchPresentation()).get(0).getId();
-
-        super.setUp();
+        executionService.startProcess(h.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+        processId = executionService.getProcesses(h.getAuthorizedUser(), h.getProcessInstanceBatchPresentation()).get(0).getId();
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        helper.undeployValidProcessDefinition();
-        helper.releaseResources();
+    protected void tearDown() {
+        h.undeployValidProcessDefinition();
+        h.releaseResources();
         executionService = null;
-        super.tearDown();
     }
 
-    public void testGetProcessInstanceStubByAuthorizedSubject() throws Exception {
-        WfProcess processInstance = executionService.getProcess(helper.getAuthorizedPerformerUser(), processId);
+    public void testGetProcessInstanceStubByAuthorizedUser() {
+        WfProcess processInstance = executionService.getProcess(h.getAuthorizedUser(), processId);
         assertEquals("id of running process differs from requested", processId, processInstance.getId());
         assertEquals("name of running process differs from definition", WfServiceTestHelper.VALID_PROCESS_NAME, processInstance.getName());
     }
 
-    public void testGetProcessInstanceStubByUnauthorizedSubject() throws Exception {
+    public void testGetProcessInstanceStubByUnauthorizedUser() {
         try {
-            executionService.getProcess(helper.getUnauthorizedPerformerUser(), processId);
-            fail("testGetProcessInstanceStubByUnauthorizedSubject, no AuthorizationException");
+            executionService.getProcess(h.getUnauthorizedUser(), processId);
+            fail();
         } catch (AuthorizationException e) {
+            // Expected.
         }
     }
 
-    public void testGetProcessInstanceStubByFakeSubject() throws Exception {
+    public void testGetProcessInstanceStubByFakeUser() {
         try {
-            executionService.getProcess(helper.getFakeUser(), processId);
-            fail("testGetProcessInstanceStubByFakeSubject, no AuthenticationException");
+            executionService.getProcess(h.getFakeUser(), processId);
+            fail();
         } catch (AuthenticationException e) {
+            // Expected.
         }
     }
 
-    public void testGetProcessInstanceStubByAuthorizedSubjectWithInvalidProcessId() throws Exception {
+    public void testGetProcessInstanceStubByAuthorizedUserWithInvalidProcessId() {
         try {
-            executionService.getProcess(helper.getAuthorizedPerformerUser(), -1l);
-            fail("testGetProcessInstanceStubByAuthorizedSubjectWithInvalidProcessId, no ProcessInstanceDoesNotExistException");
+            executionService.getProcess(h.getAuthorizedUser(), -1L);
+            fail();
         } catch (ProcessDoesNotExistException e) {
+            // Expected.
         }
     }
 }

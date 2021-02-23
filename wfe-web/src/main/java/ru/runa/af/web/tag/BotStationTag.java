@@ -36,7 +36,7 @@ public class BotStationTag extends TitledFormTag {
         BotStation botStation = Delegates.getBotService().getBotStation(botStationId);
         Input hiddenBotStationID = new Input(Input.HIDDEN, BotStationForm.BOT_STATION_ID, String.valueOf(botStationId));
         tdFormElement.addElement(hiddenBotStationID);
-        Table table = BotStationTableBuilder.createBotStationDetailsTable(pageContext, botStation.getName(), botStation.getAddress());
+        Table table = BotStationTableBuilder.createBotStationDetailsTable(pageContext, botStation.getName());
         tdFormElement.addElement(table);
     }
 
@@ -62,6 +62,6 @@ public class BotStationTag extends TitledFormTag {
 
     @Override
     public boolean isSubmitButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredSingleton.BOTSTATIONS);
     }
 }

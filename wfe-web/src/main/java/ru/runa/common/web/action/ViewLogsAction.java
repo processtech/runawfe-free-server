@@ -20,7 +20,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import ru.runa.common.WebResources;
-import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.ViewLogForm;
@@ -28,7 +27,6 @@ import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.User;
 
 /**
  * @author dofs
@@ -44,7 +42,7 @@ public class ViewLogsAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         try {
-            Delegates.getAuthorizationService().checkAllowed(Commons.getUser(request.getSession()), Permission.ALL, SecuredSingleton.LOGS);
+            Delegates.getAuthorizationService().checkAllowed(getLoggedUser(request), Permission.VIEW_LOGS, SecuredSingleton.SYSTEM);
 
             String logDirPath = IoCommons.getLogDirPath();
             request.setAttribute("logDirPath", logDirPath);

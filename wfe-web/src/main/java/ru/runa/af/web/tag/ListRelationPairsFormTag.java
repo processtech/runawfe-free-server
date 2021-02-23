@@ -28,6 +28,7 @@ import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.common.web.html.BaseTdBuilder;
 import ru.runa.common.web.html.CheckboxTdBuilder;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
@@ -40,11 +41,22 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listRelationPairsForm")
 public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
+    @Override
+    protected boolean isSubmitButtonEnabled() {
+        return Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.DELETE, SecuredObjectType.RELATION);
+    }
+    
+    @Override
+    protected boolean isSubmitButtonVisible() {
+        return Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.DELETE, SecuredObjectType.RELATION);
+    }    
+
     private static final long serialVersionUID = 1L;
     private Long relationId;
 
@@ -59,12 +71,12 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.READ, SecuredObjectType.RELATION, relationId);
         Relation relation = Delegates.getRelationService().getRelation(getUser(), relationId);
         BatchPresentation batchPresentation = getBatchPresentation();
         List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(getUser(), relation.getName(), batchPresentation);
         TableBuilder tableBuilder = new TableBuilder();
-        TdBuilder checkboxBuilder = new CheckboxTdBuilder(null, Permission.ALL) {
+        TdBuilder checkboxBuilder = new CheckboxTdBuilder(null, Permission.UPDATE) {
 
             @Override
             protected String getIdValue(Object object) {
@@ -77,6 +89,11 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
             }
         };
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(new TdBuilder[] { checkboxBuilder }, batchPresentation, null);
+        for (TdBuilder td: builders) {
+            if (td instanceof BaseTdBuilder) {
+                ((BaseTdBuilder) td).setPermission(Permission.READ);
+            }
+        }        
         RowBuilder rowBuilder = new ReflectionRowBuilder(relationPairs, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
                 getReturnAction(), IdForm.ID_INPUT_NAME, builders);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, getReturnAction(), pageContext);

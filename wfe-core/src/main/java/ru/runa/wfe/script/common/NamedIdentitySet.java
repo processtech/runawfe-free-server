@@ -20,7 +20,7 @@ public class NamedIdentitySet {
     @XmlAttribute(name = AdminScriptConstants.NAME_ATTRIBUTE_NAME)
     public String name;
 
-    @XmlAttribute(name = AdminScriptConstants.TYPE_ATTRIBUTE_NAME, required = true)
+    @XmlAttribute(name = AdminScriptConstants.TYPE_ATTRIBUTE_NAME)
     public NamedIdentityType type;
 
     @XmlElement(name = AdminScriptConstants.IDENTITY_ELEMENT_NAME, namespace = AdminScriptConstants.NAMESPACE)
@@ -37,7 +37,10 @@ public class NamedIdentitySet {
      * @param requiredType
      *            Required identity set type
      */
-    public void ensureType(ScriptOperation scriptOperation, NamedIdentityType requiredType) {
+    public void validate(ScriptOperation scriptOperation, NamedIdentityType requiredType) {
+        if (type == null) {
+            throw new ScriptValidationException(scriptOperation, "Type is required.");
+        }
         if (requiredType != type) {
             throw new ScriptValidationException(scriptOperation, "Required identity set of type " + requiredType.getScriptName() + ".");
         }
@@ -45,7 +48,7 @@ public class NamedIdentitySet {
             if (innerSet.type != type) {
                 throw new ScriptValidationException(scriptOperation, "Inner named identity must be the same type as outer.");
             }
-            innerSet.ensureType(scriptOperation, requiredType);
+            innerSet.validate(scriptOperation, requiredType);
         }
     }
 
@@ -101,11 +104,11 @@ public class NamedIdentitySet {
         @XmlEnumValue(value = "Report")
         REPORT(SecuredObjectType.REPORT, "Report");
 
-        private SecuredObjectType securedObjectType;
-        private String scriptName;
+        private final SecuredObjectType securedObjectType;
+        private final String scriptName;
 
-        NamedIdentityType(SecuredObjectType securedObjectType, String scriptName) {
-            this.securedObjectType = securedObjectType;
+        NamedIdentityType(SecuredObjectType type, String scriptName) {
+            this.securedObjectType = type;
             this.scriptName = scriptName;
         }
 

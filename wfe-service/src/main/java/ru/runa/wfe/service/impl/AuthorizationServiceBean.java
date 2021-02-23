@@ -98,6 +98,12 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
         Preconditions.checkArgument(!securedObjects.contains(null), "identifiables element");
         return authorizationLogic.isAllowed(user, permission, securedObjects);
     }
+    
+    @WebMethod(exclude = true)
+    @Override
+    public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType securedObjectType, List<Long> idsOrNull) {
+        return authorizationLogic.selectAllowedIds(executor, permission, securedObjectType, idsOrNull);
+    }
 
     @WebMethod(exclude = true)
     @Override
@@ -105,20 +111,6 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
             @WebParam(name = "securedObjectType") @NonNull SecuredObjectType securedObjectType) {
         return authorizationLogic.isAllowedForAny(user, permission, securedObjectType);
     }
-
-    @WebMethod(exclude = true)
-    @Override
-    public boolean isAllowedUpdateExecutor(@NonNull User user, @NonNull Executor object) {
-        return authorizationLogic.isAllowedUpdateExecutor(user, object);
-    }
-
-
-    @WebMethod(exclude = true)
-    @Override
-    public boolean isAllowedUpdateExecutor(@NonNull User user, @NonNull Long id) {
-        return authorizationLogic.isAllowedUpdateExecutor(user, id);
-    }
-
 
     @Override
     @WebResult(name = "result")
