@@ -30,20 +30,20 @@ public class SessionMessageSender implements MessageSender {
             return;
         }
 
-        boolean isAnyBroadcastSending = false;
+        boolean isAnyBroadcastSent = false;
 
         for (SessionInfo sessionInfo : sessions) {
             try {
                 Session session = sessionInfo.getSession();
                 session.getBasicRemote().sendText(chatObjectMapper.writeValueAsString(dto));
-                isAnyBroadcastSending = true;
+                isAnyBroadcastSent = true;
             } catch (IOException e) {
                 log.error("An error occurred while sending a message on session " +
                         sessionInfo.getId(), e);
             }
         }
 
-        if (!isAnyBroadcastSending) {
+        if (!isAnyBroadcastSent) {
             messageSender.handleMessage(dto, sessions);
         }
     }

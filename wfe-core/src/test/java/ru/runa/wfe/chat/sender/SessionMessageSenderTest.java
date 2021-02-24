@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -21,22 +20,14 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SessionMessageSenderTest {
-
-    @Mock
-    private Session session;
-    @Mock
-    private Session session2;
-    @Mock
-    private RemoteEndpoint.Basic basic;
-    @Mock
-    private MessageBroadcast dto;
     @Mock
     private MailMessageSender mailMessageSender;
     @Mock
@@ -45,17 +36,15 @@ public class SessionMessageSenderTest {
     private SessionMessageSender sessionMessageSender;
     private Set<SessionInfo> sessionsSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    @Before
-    public void init() {
-        when(session.getId()).thenReturn("1");
-        when(session2.getId()).thenReturn("2");
-        sessionsSet.add(new SessionInfo(session));
-        when(session.getBasicRemote()).thenReturn(basic);
-        when(session2.getBasicRemote()).thenReturn(basic);
-    }
-
     @Test
     public void whenSessionsIsNotEmpty_thenMessageSent() throws IOException {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
+
+        Session session = mock(Session.class);
+        sessionsSet.add(new SessionInfo(session));
+
+        when(session.getBasicRemote()).thenReturn(basic);
         when(chatObjectMapper.writeValueAsString(dto)).thenReturn("testContent");
 
         sessionMessageSender.handleMessage(dto, sessionsSet);
@@ -65,6 +54,13 @@ public class SessionMessageSenderTest {
 
     @Test
     public void whenSessionSendError_thenSendDelegated() throws IOException {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
+
+        Session session = mock(Session.class);
+        sessionsSet.add(new SessionInfo(session));
+
+        when(session.getBasicRemote()).thenReturn(basic);
         doThrow(new IOException()).when(basic).sendText(notNull());
         when(chatObjectMapper.writeValueAsString(dto)).thenReturn("testContent");
 
@@ -76,6 +72,17 @@ public class SessionMessageSenderTest {
 
     @Test
     public void whenOneOfFewSessionsSendError_thenDontSendDelegated() throws IOException {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
+
+        Session session = mock(Session.class);
+        when(session.getId()).thenReturn("1");
+        when(session.getBasicRemote()).thenReturn(basic);
+        sessionsSet.add(new SessionInfo(session));
+
+        Session session2 = mock(Session.class);
+        when(session2.getId()).thenReturn("2");
+        when(session2.getBasicRemote()).thenReturn(basic);
         sessionsSet.add(new SessionInfo(session2));
 
         doThrow(new IOException()).when(basic).sendText("errorTest");
@@ -88,6 +95,9 @@ public class SessionMessageSenderTest {
 
     @Test
     public void whenSessionsIsNull_thenSendDelegated() {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
+
         sessionMessageSender.handleMessage(dto, null);
 
         verifyZeroInteractions(basic);
@@ -96,6 +106,9 @@ public class SessionMessageSenderTest {
 
     @Test
     public void whenSessionsIsEmpty_thenSendDelegated() {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
+
         sessionMessageSender.handleMessage(dto, emptySet());
 
         verifyZeroInteractions(basic);
