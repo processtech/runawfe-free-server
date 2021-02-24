@@ -104,11 +104,12 @@ public class ChatFormTag extends TitledFormTag {
                 .addElement(getAuthor(message))
                 .addElement(" " + CalendarUtil.formatDateTime(message.getCreateDate()) + " ")
                 .addElement(getDeleteMessageButton(message))
-                .addElement(getActionWithMessage(message)));
+                .addElement(getEditMessageButton(message))
+                .addElement(getReplyButton(message)));
     }
 
     private A getAuthor(MessageAddedBroadcast message) {
-        if (Delegates.getAuthorizationService().isAllowed(user, Permission.READ,
+        if (isAdmin || Delegates.getAuthorizationService().isAllowed(user, Permission.READ,
                 SecuredObjectType.EXECUTOR, message.getAuthor().getIdentifiableId())) {
             return new A("/wfe/manage_executor.do?id=" + message.getAuthor().getId(), message.getAuthor().getName());
         }
@@ -116,22 +117,26 @@ public class ChatFormTag extends TitledFormTag {
     }
 
     private A getDeleteMessageButton(MessageAddedBroadcast message) {
-        A a = new A();
         if (isAdmin) {
             IMG button = new IMG(Commons.getUrl(Resources.IMAGE_DELETE, pageContext, PortletUrlType.Action));
             button.setOnClick("deleteMessage(" + message.getId() + ");");
-            a.addElement(button.setAlign("right"));
+            return new A().addElement(button.setAlign("right"));
         }
-        return a;
+        return new A();
     }
 
-    private A getActionWithMessage(MessageAddedBroadcast message) {
-        IMG button = new IMG();
+    private A getEditMessageButton(MessageAddedBroadcast message) {
         if (message.getAuthor().equals(user.getActor())) {
-            button.setAlt("Изменить").setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
-        } else {
-            button.setAlt("Ответить").setOnClick("reply(\"" + message.getText() + "\");");
+            IMG button = new IMG().setAlt("Изменить");
+            button.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
+            return new A().addElement(button.setAlign("right"));
         }
+        return new A();
+    }
+
+    private A getReplyButton(MessageAddedBroadcast message) {
+        IMG button = new IMG().setAlt("Ответить");
+        button.setOnClick("reply(\"" + message.getText() + "\");");
         return new A().addElement(button.setAlign("right"));
     }
 }
