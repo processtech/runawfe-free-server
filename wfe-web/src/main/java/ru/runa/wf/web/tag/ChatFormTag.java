@@ -3,6 +3,7 @@ package ru.runa.wf.web.tag;
 import lombok.Setter;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Input;
+import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
@@ -10,11 +11,16 @@ import org.apache.ecs.html.TextArea;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 import org.tldgen.annotations.Tag;
+import ru.runa.common.web.Commons;
 import ru.runa.common.web.PagingNavigationHelper;
+import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wfe.chat.dto.ChatMessageFileDetailDto;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.web.PortletUrlType;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import java.util.List;
@@ -48,22 +54,6 @@ public class ChatFormTag extends TitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
     }
 
-    private Table createMessages(List<MessageAddedBroadcast> messages) {
-        Table messagesTable = new Table();
-        messagesTable.setClass("messages");
-        for (MessageAddedBroadcast message : messages) {
-            Table messageCard = new Table();
-            messageCard.setClass("message-card");
-            messageCard.addElement(getMessageHeader(message).setClass("message-header"));
-            messageCard.addElement(getFileHolder(message));
-            messageCard.addElement(new TR(new TD(message.getText())));
-            TD td = new TD();
-            td.addElement(messageCard);
-            messagesTable.addElement(new TR(td));
-        }
-        return messagesTable;
-    }
-
     private TextArea getTextArea() {
         TextArea textArea = new TextArea();
         textArea.setID("message");
@@ -85,6 +75,20 @@ public class ChatFormTag extends TitledFormTag {
                 new Input("checkbox").setID("isPrivate"))).addElement(file);
     }
 
+    private Table createMessages(List<MessageAddedBroadcast> messages) {
+        Table table = new Table();
+        table.setClass("messages");
+        for (MessageAddedBroadcast message : messages) {
+            Table messageCard = new Table();
+            messageCard.setClass("message-card");
+            messageCard.addElement(getMessageHeader(message).setClass("message-header"));
+            messageCard.addElement(getFileHolder(message));
+            messageCard.addElement(new TR(new TD(message.getText())));
+            table.addElement(new TR(new TD(messageCard)));
+        }
+        return table;
+    }
+
     private TR getFileHolder(MessageAddedBroadcast message) {
         Table table = new Table();
         table.setClass("fileHolder");
@@ -97,36 +101,37 @@ public class ChatFormTag extends TitledFormTag {
 
     private TR getMessageHeader(MessageAddedBroadcast message) {
         return new TR(new TD()
-                .addElement(getAuthorAndActionWithMessage(message))
+                .addElement(getAuthor(message))
                 .addElement(" " + CalendarUtil.formatDateTime(message.getCreateDate()) + " ")
-        ).addElement(new TD()
-                .addElement((message.getAuthor().equals(user.getActor()))
-                        ? getEditMessageButton(message)
-                        : getReplyButton(message))
-                .addElement(isAdmin
-                        ? " " + getDeleteMessageButton(message)
-                        : "").setAlign("right"));
+                .addElement(getDeleteMessageButton(message))
+                .addElement(getActionWithMessage(message)));
     }
 
-    private A getAuthorAndActionWithMessage(MessageAddedBroadcast message) {
-        return new A("/wfe/manage_executor.do?id=" + message.getAuthor().getId(), message.getAuthor().getName());
+    private A getAuthor(MessageAddedBroadcast message) {
+        if (Delegates.getAuthorizationService().isAllowed(user, Permission.READ,
+                SecuredObjectType.EXECUTOR, message.getAuthor().getIdentifiableId())) {
+            return new A("/wfe/manage_executor.do?id=" + message.getAuthor().getId(), message.getAuthor().getName());
+        }
+        return new A().addElement(message.getAuthor().getName());
     }
 
-    private Input getEditMessageButton(MessageAddedBroadcast message) {
-        Input button = new Input("button", "editMessageButton", "Изменить сообщение");
-        button.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
-        return button;
+    private A getDeleteMessageButton(MessageAddedBroadcast message) {
+        A a = new A();
+        if (isAdmin) {
+            IMG button = new IMG(Commons.getUrl(Resources.IMAGE_DELETE, pageContext, PortletUrlType.Action));
+            button.setOnClick("deleteMessage(" + message.getId() + ");");
+            a.addElement(button.setAlign("right"));
+        }
+        return a;
     }
 
-    private Input getReplyButton(MessageAddedBroadcast message) {
-        Input button = new Input("button", "replyButton", "Ответить");
-        button.setOnClick("reply(\"" + message.getText() + "\");");
-        return button;
-    }
-
-    private Input getDeleteMessageButton(MessageAddedBroadcast message) {
-        Input deleteButton = new Input("button", "deleteMessageButton", "X");
-        deleteButton.setOnClick("deleteMessage(" + message.getId() + ");");
-        return deleteButton;
+    private A getActionWithMessage(MessageAddedBroadcast message) {
+        IMG button = new IMG();
+        if (message.getAuthor().equals(user.getActor())) {
+            button.setAlt("Изменить").setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
+        } else {
+            button.setAlt("Ответить").setOnClick("reply(\"" + message.getText() + "\");");
+        }
+        return new A().addElement(button.setAlign("right"));
     }
 }

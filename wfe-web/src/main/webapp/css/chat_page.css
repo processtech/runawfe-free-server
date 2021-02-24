@@ -14,6 +14,7 @@ table.messages {
 }
 
 table.message-card {
+    width: 100%;
     border-collapse: collapse;
 }
 
