@@ -5,7 +5,7 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat.css?"+Version.getHash() %>' />">
+    <link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/chat_page.css?"+Version.getHash() %>' />">
     <script type="text/javascript" src="<html:rewrite page="/js/jquery-1.8.3.min.js" />">c = 0;</script>
     <script type="text/javascript" src="<html:rewrite page='<%="/js/chatHandlers.js" %>' />">c = 0;</script>
     <script type="text/javascript" src="<html:rewrite page='<%="/js/chatFiles.js" %>' />">c = 0;</script>

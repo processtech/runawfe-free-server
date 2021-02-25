@@ -1,0 +1,23 @@
+#message {
+    font-weight: bold;
+    cursor: pointer;
+    resize: none;
+    display: block;
+    width: 100%;
+    height: 80px;
+    margin: auto;
+    overflow: auto;
+}
+
+table.messages {
+    border-spacing: 0 1em;
+}
+
+table.message-card {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.message-header {
+    border-bottom: 1px solid #ccc;
+}
