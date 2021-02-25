@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.websocket.CloseReason;
+import java.util.function.Function;
 import javax.websocket.Session;
 import lombok.extern.apachecommons.CommonsLog;
 import net.bull.javamelody.MonitoredWithSpring;
@@ -23,47 +23,42 @@ import ru.runa.wfe.user.User;
 @Component
 @MonitoredWithSpring
 public class ChatSessionHandler {
-    private final ConcurrentHashMap<Long, Session> sessions = new ConcurrentHashMap<>(256);
+
     @Autowired
     @Qualifier("sessionMessageSender")
     private MessageSender messageSender;
     @Autowired
     private ObjectMapper chatObjectMapper;
+    private final ConcurrentHashMap<Long, Set<SessionInfo>> sessions = new ConcurrentHashMap<>(256);
+
+    private static final Function<Long, Set<SessionInfo>> CREATE_SET = new Function<Long, Set<SessionInfo>>() {
+        @Override
+        public Set<SessionInfo> apply(Long aLong) {
+            return Collections.newSetFromMap(new ConcurrentHashMap<>());
+        }
+    };
 
     public void addSession(Session session) {
-        User user = ChatSessionUtils.getUser(session);
-        Long userId = user.getActor().getId();
-        Session replacedSession = sessions.replace(userId, session);
-        if (replacedSession != null) {
-            try {
-                CloseReason closeReason = new CloseReason(CloseReason.CloseCodes.CLOSED_ABNORMALLY,
-                        "Replace " + user.getName() + "'s session");
-                replacedSession.close(closeReason);
-            } catch (IOException e) {
-                log.error("An error occurred while closing " + user.getName() + "'s session");
-            }
-            log.warn("Replace " + user.getName() + "'s session");
-        } else {
-            sessions.put(userId, session);
-        }
+        Long userId = ChatSessionUtils.getUser(session).getActor().getId();
+        sessions.computeIfAbsent(userId, CREATE_SET).add(new SessionInfo(session));
     }
 
     public void removeSession(Session session) {
         Long userId = ChatSessionUtils.getUser(session).getActor().getId();
-        sessions.remove(userId, session);
+        sessions.get(userId).remove(new SessionInfo(session));
     }
 
     public void sendToSession(Session session, String message) throws IOException {
         session.getBasicRemote().sendText(message);
     }
 
-    public void sendMessage(MessageBroadcast dto) throws IOException {
+    public void sendMessage(MessageBroadcast dto) {
         sendMessage(Collections.emptySet(), dto);
     }
 
-    public void sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) throws IOException {
+    public void sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) {
         for (Long id : recipientIds) {
-            messageSender.handleMessage(dto, Optional.ofNullable(sessions.get(id)));
+            messageSender.handleMessage(dto, sessions.get(id));
         }
     }
 
