@@ -32,7 +32,7 @@ public class ProcessChatRoomClassPresentation extends ClassPresentation {
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(Process.class, "deployment.name"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "processName"}),
                 new FieldDescriptor(NEW_MESSAGES, Integer.class.getName(), new ChatMessageRecipientDbSource(ChatMessageRecipient.class, "readDate"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "newMessagesCount"})});
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomTdBuilder", new Object[]{Permission.READ, "processId"})});
     }
 
     public static ClassPresentation getInstance() {
