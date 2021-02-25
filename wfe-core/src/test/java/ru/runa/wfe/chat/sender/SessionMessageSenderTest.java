@@ -3,6 +3,7 @@ package ru.runa.wfe.chat.sender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.RemoteEndpoint;
@@ -34,7 +35,12 @@ public class SessionMessageSenderTest {
     private ObjectMapper chatObjectMapper;
     @InjectMocks
     private SessionMessageSender sessionMessageSender;
-    private Set<SessionInfo> sessionsSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+    public static final <T> Set<T> newHashSet(T... objs) {
+        Set<T> set = new HashSet<T>();
+        Collections.addAll(set, objs);
+        return set;
+    }
 
     @Test
     public void whenSessionsIsNotEmpty_thenMessageSent() throws IOException {
@@ -42,7 +48,7 @@ public class SessionMessageSenderTest {
         MessageBroadcast dto = mock(MessageBroadcast.class);
 
         Session session = mock(Session.class);
-        sessionsSet.add(new SessionInfo(session));
+        Set<SessionInfo> sessionsSet = newHashSet(new SessionInfo(session));
 
         when(session.getBasicRemote()).thenReturn(basic);
         when(chatObjectMapper.writeValueAsString(dto)).thenReturn("testContent");
@@ -58,7 +64,7 @@ public class SessionMessageSenderTest {
         MessageBroadcast dto = mock(MessageBroadcast.class);
 
         Session session = mock(Session.class);
-        sessionsSet.add(new SessionInfo(session));
+        Set<SessionInfo> sessionsSet = newHashSet(new SessionInfo(session));
 
         when(session.getBasicRemote()).thenReturn(basic);
         doThrow(new IOException()).when(basic).sendText(notNull());
@@ -71,19 +77,19 @@ public class SessionMessageSenderTest {
     }
 
     @Test
-    public void whenOneOfFewSessionsSendError_thenDontSendDelegated() throws IOException {
+    public void whenAnySessionSendSuccess_thenDelegateNotInvoked() throws IOException {
         RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
         MessageBroadcast dto = mock(MessageBroadcast.class);
 
         Session session = mock(Session.class);
         when(session.getId()).thenReturn("1");
         when(session.getBasicRemote()).thenReturn(basic);
-        sessionsSet.add(new SessionInfo(session));
 
         Session session2 = mock(Session.class);
         when(session2.getId()).thenReturn("2");
         when(session2.getBasicRemote()).thenReturn(basic);
-        sessionsSet.add(new SessionInfo(session2));
+
+        Set<SessionInfo> sessionsSet = newHashSet(new SessionInfo(session), new SessionInfo(session2));
 
         doThrow(new IOException()).when(basic).sendText("errorTest");
         when(chatObjectMapper.writeValueAsString(dto)).thenReturn("errorTest").thenReturn("testContent");
