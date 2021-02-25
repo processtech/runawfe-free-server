@@ -44,18 +44,13 @@ public class SwaggerConfig {
     }
 
     private SecurityContext securityContext() {
-        return SecurityContext.builder().securityReferences(securityReferences()).build();
+        return SecurityContext.builder().securityReferences(securityReferences())
+                .operationSelector(o -> !o.requestMappingPattern().contains("/auth/token")).build();
     }
 
     private List<SecurityReference> securityReferences() {
-        return Collections.singletonList(new SecurityReference("Authorization",
+        return Collections.singletonList(new SecurityReference("token",
                 new AuthorizationScope[] { new AuthorizationScope("global", "global") }));
     }
-
-    // @Bean
-    // public SecurityConfiguration security() {
-        // return SecurityConfigurationBuilder.builder().scopeSeparator(",").additionalQueryStringParams(null)
-        // .useBasicAuthenticationWithAccessCodeGrant(false).build();
-    // }
 
 }
