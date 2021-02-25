@@ -11,6 +11,7 @@ import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.definition.QDeployment;
 import ru.runa.wfe.execution.QProcess;
 import ru.runa.wfe.user.Actor;
 
@@ -42,7 +43,7 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         QProcess p = QProcess.process;
         return queryFactory.select(Projections.constructor(WfChatRoom.class, p.id, p.deployment.name, cr.count().subtract(cr.readDate.count())))
-                .from(cr, p).where(cr.executor.eq(actor), p.eq(cr.message.process)).groupBy(p.id, p.deployment.name).fetch();
+                .from(cr).join(cr.message.process, p).where(cr.executor.eq(actor)).groupBy(p.id, p.deployment.name).fetch();
     }
 
     @Transactional
