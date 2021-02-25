@@ -122,7 +122,7 @@ public class ChatFormTag extends TitledFormTag {
             button.setOnClick("deleteMessage(" + message.getId() + ");");
             return new A().addElement(button.setAlign("right"));
         }
-        return new A();
+        return null;
     }
 
     private A getEditMessageButton(MessageAddedBroadcast message) {
@@ -131,7 +131,7 @@ public class ChatFormTag extends TitledFormTag {
             button.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
             return new A().addElement(button.setAlign("right"));
         }
-        return new A();
+        return null;
     }
 
     private A getReplyButton(MessageAddedBroadcast message) {
