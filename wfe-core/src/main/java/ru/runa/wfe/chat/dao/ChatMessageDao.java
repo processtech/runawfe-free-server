@@ -41,8 +41,8 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     public List<WfChatRoom> getChatRooms(Actor actor) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         QProcess p = QProcess.process;
-        return queryFactory.select(Projections.constructor(WfChatRoom.class, p.deployment.id, p.deployment.name, cr.count().subtract(cr.readDate.count())))
-                .from(cr, p).where(cr.executor.eq(actor), p.eq(cr.message.process)).groupBy(p.deployment.id, p.deployment.name).fetch();
+        return queryFactory.select(Projections.constructor(WfChatRoom.class, p.id, p.deployment.name, cr.count().subtract(cr.readDate.count())))
+                .from(cr, p).where(cr.executor.eq(actor), p.eq(cr.message.process)).groupBy(p.id, p.deployment.name).fetch();
     }
 
     @Transactional
