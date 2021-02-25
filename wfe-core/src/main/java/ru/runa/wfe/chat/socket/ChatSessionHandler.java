@@ -17,7 +17,6 @@ import ru.runa.wfe.chat.dto.broadcast.ErrorMessageBroadcast;
 import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.chat.sender.MessageSender;
 import ru.runa.wfe.chat.utils.ChatSessionUtils;
-import ru.runa.wfe.user.User;
 
 @CommonsLog
 @Component
@@ -50,10 +49,6 @@ public class ChatSessionHandler {
 
     public void sendToSession(Session session, String message) throws IOException {
         session.getBasicRemote().sendText(message);
-    }
-
-    public void sendMessage(MessageBroadcast dto) {
-        sendMessage(Collections.emptySet(), dto);
     }
 
     public void sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) {

@@ -1,6 +1,7 @@
 package ru.runa.wfe.chat.socket;
 
 import java.io.IOException;
+import java.util.List;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,8 +22,10 @@ public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMess
     @Override
     @MonitoredWithSpring
     public void handleMessage(DeleteMessageRequest request, User user) throws IOException {
+        List<Long> recipientIds = chatLogic.getRecipientIdsByMessageId(user, request.getMessageId());
         chatLogic.deleteMessage(user, request.getMessageId());
-        sessionHandler.sendMessage(new MessageDeletedBroadcast(request.getMessageId()));
+        sessionHandler.sendMessage(recipientIds,
+                new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()));
     }
 
     @Override

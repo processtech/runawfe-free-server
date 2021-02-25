@@ -18,4 +18,7 @@ import ru.runa.wfe.chat.dto.ChatDto;
         @JsonSubTypes.Type(value = ErrorMessageBroadcast.class, name = "errorMessage")
 })
 public abstract class MessageBroadcast extends ChatDto {
+    public MessageBroadcast(Long processId) {
+        super(processId);
+    }
 }

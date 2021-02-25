@@ -26,7 +26,8 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
         if (message != null) {
             message.setText(request.getMessage());
             chatLogic.updateMessage(user, message);
-            sessionHandler.sendMessage(new MessageEditedBroadcast(message.getId(), message.getText()));
+            sessionHandler.sendMessage(chatLogic.getRecipientIdsByMessageId(user, message.getId()),
+                    new MessageEditedBroadcast(request.getProcessId(), message.getId(), message.getText(), user.getName()));
         }
     }
 
