@@ -2,6 +2,7 @@ package ru.runa.wfe.chat.sender;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.Collections;
 import javax.websocket.Session;
 import lombok.extern.apachecommons.CommonsLog;
 import net.bull.javamelody.MonitoredWithSpring;
@@ -26,7 +27,7 @@ public class SessionMessageSender implements MessageSender {
     @Override
     public void handleMessage(MessageBroadcast dto, Set<SessionInfo> sessions) {
         if (sessions == null || sessions.isEmpty()) {
-            messageSender.handleMessage(dto, sessions);
+            messageSender.handleMessage(dto, Collections.emptySet());
             return;
         }
 

@@ -2,10 +2,7 @@ package ru.runa.wfe.chat.sender;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import org.junit.Test;
@@ -26,6 +23,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static com.google.common.collect.Sets.newHashSet;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SessionMessageSenderTest {
@@ -35,12 +33,6 @@ public class SessionMessageSenderTest {
     private ObjectMapper chatObjectMapper;
     @InjectMocks
     private SessionMessageSender sessionMessageSender;
-
-    public static final <T> Set<T> newHashSet(T... objs) {
-        Set<T> set = new HashSet<T>();
-        Collections.addAll(set, objs);
-        return set;
-    }
 
     @Test
     public void whenSessionsIsNotEmpty_thenMessageSent() throws IOException {
@@ -107,7 +99,7 @@ public class SessionMessageSenderTest {
         sessionMessageSender.handleMessage(dto, null);
 
         verifyZeroInteractions(basic);
-        verify(mailMessageSender).handleMessage(notNull(), isNull());
+        verify(mailMessageSender).handleMessage(notNull(), eq(emptySet()));
     }
 
     @Test
