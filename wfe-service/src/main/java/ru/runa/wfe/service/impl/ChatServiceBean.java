@@ -2,7 +2,6 @@ package ru.runa.wfe.service.impl;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.jws.WebMethod;
@@ -16,6 +15,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageException;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
@@ -76,8 +76,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public Map<Long, Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user) {
-        return chatLogic.getNewMessagesCounts(user);
+    public List<WfChatRoom> getChatRooms(@WebParam(name = "user") @NonNull User user) {
+        return chatLogic.getChatRooms(user);
     }
 
     @WebMethod(exclude = false)

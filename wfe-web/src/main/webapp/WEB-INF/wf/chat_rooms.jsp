@@ -7,9 +7,10 @@
 
     <tiles:put name="body" type="string">
         <%
+            String returnAction = "/chat_rooms.do";
             String batchPresentationId = "listChatRoomsForm";
         %>
-        <wf:listChatRoomsForm batchPresentationId="<%= batchPresentationId %>"/>
+        <wf:listChatRoomsForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>"/>
     </tiles:put>
 
     <tiles:put name="messages" value="../common/messages.jsp" />

@@ -1,9 +1,9 @@
 package ru.runa.wfe.service.delegate;
 
 import java.util.List;
-import java.util.Map;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
@@ -37,8 +37,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public Map<Long, Long> getNewMessagesCounts(User user) {
-        return getChatService().getNewMessagesCounts(user);
+    public List<WfChatRoom> getChatRooms(User user) {
+        return getChatService().getChatRooms(user);
     }
 
     @Override

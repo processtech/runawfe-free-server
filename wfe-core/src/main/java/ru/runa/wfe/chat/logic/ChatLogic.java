@@ -3,10 +3,8 @@ package ru.runa.wfe.chat.logic;
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.mail.Authenticator;
@@ -23,17 +21,20 @@ import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
 import ru.runa.wfe.chat.utils.DtoConverters;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.security.AuthorizationException;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 public class ChatLogic extends WfCommonLogic {
+    private static final SecuredObjectType[] CHAT_ROOM_CLASSES = {SecuredObjectType.CHAT_ROOMS};
     private final Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
     @Autowired
     private ChatMessageDao messageDao;
@@ -71,17 +72,6 @@ public class ChatLogic extends WfCommonLogic {
         messageDao.readMessage(user.getActor(), messageId);
     }
 
-    public Map<Long, Long> getNewMessagesCounts(User user) {
-        List<Long> activeChatIds = messageDao.getActiveChatIds(user.getActor());
-        List<Long> newMessageCount = messageDao.getNewMessagesCounts(activeChatIds, user.getActor());
-        int activeChatCount = activeChatIds.size();
-        Map<Long, Long> result = new HashMap<>(activeChatCount);
-        for (int i = 0; i < activeChatCount; i++) {
-            result.put(activeChatIds.get(i), newMessageCount.get(i));
-        }
-        return result;
-    }
-
     public ChatMessage getMessageById(User user, Long messageId) {
         return messageDao.get(messageId);
     }
@@ -93,6 +83,10 @@ public class ChatLogic extends WfCommonLogic {
             messageDao.readMessage(user.getActor(), messages.get(0).getId());
         }
         return toMessageAddedBroadcast(user, messages);
+    }
+
+    public List<WfChatRoom> getChatRooms(User user) {
+        return messageDao.getChatRooms(user.getActor());
     }
 
     public void deleteMessage(User user, Long messageId) {

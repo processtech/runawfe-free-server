@@ -1,9 +1,9 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
-import java.util.Map;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
@@ -47,13 +47,12 @@ public interface ChatService {
     public List<MessageAddedBroadcast> getMessages(User user, Long processId);
 
     /**
-     * Gets a map with the process ID and number of new messages for this process
-     *
+     * Gets a list of chats
      * @param user
      *              authorized user
      * @return not <code>null</code>
      */
-    public Map<Long, Long> getNewMessagesCounts(User user);
+    public List<WfChatRoom> getChatRooms(User user);
 
     /**
      * Updates the message and sends the <code>MessageEditedBroadcast<code> to all active chats
