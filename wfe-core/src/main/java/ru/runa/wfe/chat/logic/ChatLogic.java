@@ -67,6 +67,10 @@ public class ChatLogic extends WfCommonLogic {
         }
     }
 
+    public List<Long> getRecipientIdsByMessageId(User user, Long messageId) {
+        return messageDao.getRecipientIdsByMessageId(messageId);
+    }
+
     @Transactional
     public void readMessage(User user, Long messageId) {
         messageDao.readMessage(user.getActor(), messageId);

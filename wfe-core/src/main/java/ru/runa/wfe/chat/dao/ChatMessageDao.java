@@ -23,6 +23,12 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return super.get(id);
     }
 
+    @Transactional(readOnly = true)
+    public List<Long> getRecipientIdsByMessageId(Long messageId) {
+        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
+        return queryFactory.select(cr.executor.id).from(cr).where(cr.message.id.eq(messageId)).fetch();
+    }
+
     public void readMessage(Actor user, Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Date date = new Date();
