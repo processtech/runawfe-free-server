@@ -82,7 +82,7 @@ function newMessageAlerter(message) {
 }
 
 function editMessageAlerter(message) {
-    if (message.author === currentUser) {
+    if (message.initiator === currentUser) {
         if (confirm("Сообщение успешно отредактировано! Хотите перезагрузить страницу?")) {
             location.reload();
         }
@@ -94,7 +94,7 @@ function editMessageAlerter(message) {
 }
 
 function deleteMessageAlerter(message) {
-    if (message.author === currentUser) {
+    if (message.initiator === currentUser) {
         if (confirm("Сообщение успешно удалено! Хотите перезагрузить страницу?")) {
             location.reload();
         }

@@ -8,12 +8,12 @@ import lombok.Setter;
 public class MessageEditedBroadcast extends MessageBroadcast {
     private Long id;
     private String text;
-    private String author;
+    private String initiator;
 
-    public MessageEditedBroadcast(Long processId, Long id, String text, String author) {
+    public MessageEditedBroadcast(Long processId, Long id, String text, String initiator) {
         super(processId);
         this.id = id;
         this.text = text;
-        this.author = author;
+        this.initiator = initiator;
     }
 }

@@ -7,11 +7,11 @@ import lombok.Setter;
 @Setter
 public class MessageDeletedBroadcast extends MessageBroadcast {
     private Long id;
-    private String author;
+    private String initiator;
 
-    public MessageDeletedBroadcast(Long processId, Long id, String author) {
+    public MessageDeletedBroadcast(Long processId, Long id, String initiator) {
         super(processId);
         this.id = id;
-        this.author = author;
+        this.initiator = initiator;
     }
 }
