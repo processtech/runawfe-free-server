@@ -22,6 +22,7 @@ import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.mapper.ChatMessageFileDetailMapper;
 import ru.runa.wfe.chat.mapper.MessageAddedBroadcastFileMapper;
@@ -76,18 +77,6 @@ public class ChatLogic extends WfCommonLogic {
         messageDao.readMessage(user.getActor(), messageId);
     }
 
-    public List<Long> getActiveChatIds(User user) {
-        List<Long> ret = messageDao.getActiveChatIds(user.getActor());
-        if (ret == null) {
-            ret = new ArrayList<>();
-        }
-        return ret;
-    }
-
-    public List<Long> getNewMessagesCounts(User user, List<Long> chatsIds) {
-        return messageDao.getNewMessagesCounts(chatsIds, user.getActor());
-    }
-
     public ChatMessage getMessageById(User user, Long messageId) {
         return messageDao.get(messageId);
     }
@@ -99,6 +88,10 @@ public class ChatLogic extends WfCommonLogic {
             messageDao.readMessage(user.getActor(), messages.get(0).getId());
         }
         return messageFileMapper.toDtos(messages);
+    }
+
+    public List<WfChatRoom> getChatRooms(User user) {
+        return messageDao.getChatRooms(user.getActor());
     }
 
     public void deleteMessage(User user, Long messageId) {

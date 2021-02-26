@@ -14,7 +14,6 @@
 		thinInterfacePage="/start.do";
 	}
 %>
-<%@include file="/WEB-INF/af/chat_menu.jsp" %>
 <%@include file="/WEB-INF/af/chat_notifications.jsp" %>
 <html:html lang="true">
   <head>

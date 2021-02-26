@@ -66,6 +66,8 @@ public class WebResources {
     public static final String ACTION_MAPPING_MANAGE_REPORT = "/manage_report";
     public static final String ACTION_MAPPING_BUILD_REPORT = "/build_report";
 
+    public static final String ACTION_MAPPING_CHAT_PAGE = "/chat_page";
+
     public static PropertyResources getResources() {
         return RESOURCES;
     }

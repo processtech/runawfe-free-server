@@ -97,7 +97,7 @@
 		<forward name="drop_settings" path="/drop_settings.do" />
 		<forward name="send_process_signal" path="/send_process_signal.do" />
 		<forward name="view_internal_storage" path="/viewInternalStorage.do?tabForwardName=view_internal_storage" />
-		<forward name="swich_chats" path="" redirect="no"  />
+		<forward name="chat_rooms" path="/chat_rooms.do?tabForwardName=chat_rooms" />
 	</global-forwards>
 
 	<!-- ========== Action Mapping Definitions =================================== -->
@@ -848,6 +848,9 @@
 			<forward name="success" path="/manage_processes.do" redirect="true" />
 			<forward name="failure" path="/send_process_signal.do" redirect="true" />
 		</action>
+
+		<action path="/chat_rooms" type="ru.runa.common.web.action.TabHeaderForwardAction"
+				parameter="/WEB-INF/wf/chat_rooms.jsp" />
 
 	</action-mappings>
 

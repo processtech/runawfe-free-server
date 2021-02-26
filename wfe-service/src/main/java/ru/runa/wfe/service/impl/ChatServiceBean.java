@@ -15,6 +15,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageException;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
@@ -50,13 +51,6 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<Long> getActiveChatIds(@WebParam(name = "user") @NonNull User user) {
-        return chatLogic.getActiveChatIds(user);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
     public void saveMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") AddMessageRequest request) {
         try {
             addNewMessageHandler.handleMessage(request, user);
@@ -82,8 +76,8 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processIds") List<Long> processIds) {
-        return chatLogic.getNewMessagesCounts(user, processIds);
+    public List<WfChatRoom> getChatRooms(@WebParam(name = "user") @NonNull User user) {
+        return chatLogic.getChatRooms(user);
     }
 
     @WebMethod(exclude = false)
