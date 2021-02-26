@@ -6,7 +6,7 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="escalation.default.hierarchy.loader"></property>
+		<property title="escalation.default.hierarchy.loader"/>
 		<property title="task.default.deadline" pattern="\s*[+\-]?\d+\s*(business|)\s*(seconds|minutes|hours|days|weeks|months|years)\s*" />
 		<property title="task.almostDeadlinePercents" pattern="\d*"/>
 		<property title="task.delegation.enabled">

@@ -5,7 +5,7 @@
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
 <tiles:put name="body" type="string" >
-	<p>Версия <b><%= ru.runa.common.Version.get() %> Free</b></p>
+	<p>Версия <b><%= ru.runa.common.Version.get() %></b></p>
 	<p>Запуск <b><%= ru.runa.common.Version.getStartupDateTimeString() %></b></p>
 </tiles:put>
 

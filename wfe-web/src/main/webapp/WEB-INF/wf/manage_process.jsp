@@ -64,8 +64,7 @@ function Reload() {
 <wf:processInfoForm buttonAlignment="right" identifiableId='<%= id %>' taskId='<%= taskId %>'>
 <table width="100%">
 	<tr>
-		<td align="right"></td>
-		<td width="200" align="right">
+		<td align="right">
 		<% if(graphMode) { %>
 			<wf:showProcessGraphLink identifiableId='<%=id %>' href='<%= "/show_process_graph.do?id=" + id + "&taskId=" + taskId + "&childProcessId=" + childProcessId %>'  />
 		<% } %>
@@ -75,7 +74,6 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
-		<td align="right"></td>
 		<td align="right">
 			<wf:showHistoryLink identifiableId='<%=id %>' href='<%= "/show_history.do?id=" + id %>'  />
 		</td>

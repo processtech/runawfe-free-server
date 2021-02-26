@@ -284,4 +284,5 @@ public class VariableDefinition implements Serializable {
     public void setStoreType(VariableStoreType storeType) {
         this.storeType = storeType;
     }
+
 }
