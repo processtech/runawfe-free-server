@@ -10,6 +10,8 @@
 <%@ page import="ru.runa.wf.web.form.ProcessForm" %>
 <%@ page import="ru.runa.common.web.Commons" %>
 <%@ page import="ru.runa.common.WebResources" %>
+<%@ page import="ru.runa.wfe.task.dto.WfTask" %>
+<%@ page import="ru.runa.wfe.execution.ProcessHierarchyUtils" %>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
@@ -49,8 +51,14 @@
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
 <% if(WebResources.isChatEnabled()){%>
 <div style="float:left; max-width: 150px; margin-top: -25px;">
-	<% String href = "/wfe/chat_page.do?processId=" +
-			Delegates.getTaskService().getTask(Commons.getUser(request.getSession()), taskId).getProcessId();%>
+	<%
+		WfTask task = Delegates.getTaskService().getTask(Commons.getUser(request.getSession()), taskId);
+		Long processId = task.getProcessId();
+		if (!task.getProcessHierarchyIds().equals(String.valueOf(processId))) {
+			processId = ProcessHierarchyUtils.getRootProcessId(task.getProcessHierarchyIds());
+		}
+		String href = "/wfe/chat_page.do?processId=" + processId;
+	%>
 	<a href="<%= href %>">Открыть чат</a>
 </div>
 <% }%>
