@@ -18,8 +18,10 @@
 package ru.runa.af.web.html;
 
 import javax.servlet.jsp.PageContext;
+
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Table;
+
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.form.UpdateExecutorDetailsForm;
 import ru.runa.common.web.HTMLUtils;
