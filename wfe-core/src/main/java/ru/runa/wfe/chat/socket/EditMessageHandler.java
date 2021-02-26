@@ -1,7 +1,7 @@
 package ru.runa.wfe.chat.socket;
 
 import java.io.IOException;
-import javax.websocket.Session;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.ChatMessage;
@@ -20,17 +20,19 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
     private ChatLogic chatLogic;
 
     @Override
-    public void handleMessage(Session session, EditMessageRequest request, User user) throws IOException {
+    @MonitoredWithSpring
+    public void handleMessage(EditMessageRequest request, User user) throws IOException {
         ChatMessage message = chatLogic.getMessageById(user, request.getEditMessageId());
         if (message != null) {
             message.setText(request.getMessage());
             chatLogic.updateMessage(user, message);
-            sessionHandler.sendMessage(new MessageEditedBroadcast(message.getId(), message.getText()));
+            sessionHandler.sendMessage(chatLogic.getRecipientIdsByMessageId(user, message.getId()),
+                    new MessageEditedBroadcast(request.getProcessId(), message.getId(), message.getText(), user.getName()));
         }
     }
 
     @Override
-    public boolean isSupports(Class<? extends MessageRequest> messageType) {
-        return messageType.equals(EditMessageRequest.class);
+    public Class<? extends MessageRequest> getRequestType() {
+        return EditMessageRequest.class;
     }
 }

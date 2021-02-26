@@ -42,8 +42,32 @@ function isChatOpen(message) {
         && window.location.search === "?processId=" + message.processId;
 }
 
+function notifyAboutNewMessage(message) {
+    $('#notification').remove();
+    let messageFrom = document.createElement("h3");
+    messageFrom.append(message.author);
+    let messageText = (message.text.length < 45) ? message.text : message.text.slice(0, 44) + "...";
+
+    let notification = document.createElement("div");
+    notification.setAttribute("id", "notification");
+    notification.append(messageFrom, messageText);
+    document.body.appendChild(notification);
+    $("#notification").dialog({
+        buttons: [{
+            text: "Перейти в чат",
+            click: function () {
+                window.location.href = "/wfe/chat_page.do?processId=" + message.processId;
+            }
+        }],
+        title: "Новое сообщение в чате процесса " + message.processId,
+        position: ['left', 'bottom'],
+        open: function () {
+            setTimeout("$('#notification').dialog('close')", 10000);
+        }
+    });
+}
+
 function newMessageAlerter(message) {
-    console.log(message);
     if (message.author === currentUser) {
         if (confirm("Сообщение успешно отправлено! Хотите перезагрузить страницу?")) {
             location.reload();
@@ -53,12 +77,12 @@ function newMessageAlerter(message) {
             location.reload();
         }
     } else {
-        alert("Вы получили новое сообщение!");
+        notifyAboutNewMessage(message);
     }
 }
 
 function editMessageAlerter(message) {
-    if (message.author === currentUser) {
+    if (message.initiator === currentUser) {
         if (confirm("Сообщение успешно отредактировано! Хотите перезагрузить страницу?")) {
             location.reload();
         }
@@ -70,7 +94,7 @@ function editMessageAlerter(message) {
 }
 
 function deleteMessageAlerter(message) {
-    if (message.author === currentUser) {
+    if (message.initiator === currentUser) {
         if (confirm("Сообщение успешно удалено! Хотите перезагрузить страницу?")) {
             location.reload();
         }

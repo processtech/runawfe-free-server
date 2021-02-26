@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
@@ -523,6 +524,7 @@ public class ExecutionLogic extends WfCommonLogic {
         return RestoreProcessStatus.OK;
     }
 
+    @MonitoredWithSpring
     public <T extends Executor> Set<T> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
         Set<T> result = new HashSet<>();
         Process process = processDao.getNotNull(processId);

@@ -59,6 +59,6 @@ public class ChatSocket {
     @OnMessage
     public void handleMessage(MessageRequest dto, Session session) throws IOException {
         ChatSocketMessageHandler handler = handlerByMessageType.get(dto.getClass());
-        handler.handleMessage(session, dto, ChatSessionUtils.getUser(session));
+        handler.handleMessage(dto, ChatSessionUtils.getUser(session));
     }
 }

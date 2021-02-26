@@ -1,83 +1,115 @@
 package ru.runa.wfe.chat.sender;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.Map;
+import java.util.Set;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
-import ru.runa.wfe.user.User;
+import ru.runa.wfe.chat.socket.SessionInfo;
 
-import static java.util.Collections.singletonMap;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-import static org.mockito.ArgumentMatchers.eq;
+import static java.util.Collections.emptySet;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.notNull;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static com.google.common.collect.Sets.newHashSet;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SessionMessageSenderTest {
-
-    @Mock
-    private Session session;
-    @Mock
-    private RemoteEndpoint.Basic basic;
-    @Mock
-    private MessageBroadcast dto;
     @Mock
     private MailMessageSender mailMessageSender;
     @Mock
     private ObjectMapper chatObjectMapper;
+    @InjectMocks
     private SessionMessageSender sessionMessageSender;
 
-    @Before
-    public void init() {
-        sessionMessageSender = new SessionMessageSender(mailMessageSender, chatObjectMapper);
-        when(session.getBasicRemote()).thenReturn(basic);
-        final Map<String, Object> sessionUserProperties = singletonMap("user", createUser());
-        when(session.getUserProperties()).thenReturn(sessionUserProperties);
-    }
-
     @Test
-    public void whenSessionIsNotNull_thenMessageSent() throws IOException {
+    public void whenSessionsIsNotEmpty_thenMessageSent() throws IOException {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
+
+        Session session = mock(Session.class);
+        Set<SessionInfo> sessionsSet = newHashSet(new SessionInfo(session));
+
+        when(session.getBasicRemote()).thenReturn(basic);
         when(chatObjectMapper.writeValueAsString(dto)).thenReturn("testContent");
 
-        sessionMessageSender.handleMessage(dto, of(session));
+        sessionMessageSender.handleMessage(dto, sessionsSet);
 
         verify(basic).sendText(eq("testContent"));
     }
 
     @Test
-    public void whenSessionIsNotNullAndSendError_thenSendDelegated() throws IOException {
+    public void whenSessionSendError_thenSendDelegated() throws IOException {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
+
+        Session session = mock(Session.class);
+        Set<SessionInfo> sessionsSet = newHashSet(new SessionInfo(session));
+
+        when(session.getBasicRemote()).thenReturn(basic);
         doThrow(new IOException()).when(basic).sendText(notNull());
         when(chatObjectMapper.writeValueAsString(dto)).thenReturn("testContent");
 
-        sessionMessageSender.handleMessage(dto, of(session));
+        sessionMessageSender.handleMessage(dto, sessionsSet);
 
         verify(basic).sendText(eq("testContent"));
-        verify(mailMessageSender).handleMessage(notNull(), eq(empty()));
+        verify(mailMessageSender).handleMessage(notNull(), anySet());
     }
 
     @Test
-    public void whenSessionIsNull_thenSendDelegated() {
-        sessionMessageSender.handleMessage(dto, empty());
+    public void whenAnySessionSendSuccess_thenDelegateNotInvoked() throws IOException {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
 
-        verifyZeroInteractions(basic);
-        verify(mailMessageSender).handleMessage(notNull(), eq(empty()));
+        Session session = mock(Session.class);
+        when(session.getId()).thenReturn("1");
+        when(session.getBasicRemote()).thenReturn(basic);
+
+        Session session2 = mock(Session.class);
+        when(session2.getId()).thenReturn("2");
+        when(session2.getBasicRemote()).thenReturn(basic);
+
+        Set<SessionInfo> sessionsSet = newHashSet(new SessionInfo(session), new SessionInfo(session2));
+
+        doThrow(new IOException()).when(basic).sendText("errorTest");
+        when(chatObjectMapper.writeValueAsString(dto)).thenReturn("errorTest").thenReturn("testContent");
+
+        sessionMessageSender.handleMessage(dto, sessionsSet);
+
+        verifyZeroInteractions(mailMessageSender);
     }
 
-    private static User createUser() {
-        final User user = mock(User.class);
-        when(user.getName()).thenReturn("testUserName");
-        return user;
+    @Test
+    public void whenSessionsIsNull_thenSendDelegated() {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
+
+        sessionMessageSender.handleMessage(dto, null);
+
+        verifyZeroInteractions(basic);
+        verify(mailMessageSender).handleMessage(notNull(), eq(emptySet()));
+    }
+
+    @Test
+    public void whenSessionsIsEmpty_thenSendDelegated() {
+        RemoteEndpoint.Basic basic = mock(RemoteEndpoint.Basic.class);
+        MessageBroadcast dto = mock(MessageBroadcast.class);
+
+        sessionMessageSender.handleMessage(dto, emptySet());
+
+        verifyZeroInteractions(basic);
+        verify(mailMessageSender).handleMessage(notNull(), eq(emptySet()));
     }
 }

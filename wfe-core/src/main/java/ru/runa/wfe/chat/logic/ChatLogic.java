@@ -13,6 +13,7 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +24,9 @@ import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
-import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
-import ru.runa.wfe.chat.utils.DtoConverters;
+import ru.runa.wfe.chat.mapper.ChatMessageFileDetailMapper;
+import ru.runa.wfe.chat.mapper.MessageAddedBroadcastFileMapper;
+import ru.runa.wfe.chat.mapper.MessageAddedBroadcastMapper;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.security.AuthorizationException;
@@ -32,16 +34,17 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
+@MonitoredWithSpring
 public class ChatLogic extends WfCommonLogic {
     private final Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
     @Autowired
     private ChatMessageDao messageDao;
     @Autowired
-    private ChatFileLogic fileLogic;
+    private MessageAddedBroadcastMapper messageMapper;
     @Autowired
-    private DtoConverters converter;
+    private MessageAddedBroadcastFileMapper messageFileMapper;
     @Autowired
-    private ChatMessageFileMapper fileMapper;
+    private ChatMessageFileDetailMapper fileDetailMapper;
     @Autowired
     private ChatFileIo fileIo;
     @Autowired
@@ -49,20 +52,24 @@ public class ChatLogic extends WfCommonLogic {
 
     public MessageAddedBroadcast saveMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
         final ChatMessage savedMessage = messageTransactionWrapper.save(message, recipients, processId);
-        return converter.convertChatMessageToAddedMessageBroadcast(savedMessage);
+        return messageMapper.toDto(savedMessage);
     }
 
     public MessageAddedBroadcast saveMessage(User user, Long processId, ChatMessage message, Set<Actor> recipients, List<ChatMessageFileDto> files) {
         final List<ChatMessageFile> savedFiles = fileIo.save(files);
         try {
             final ChatMessage savedMessage = messageTransactionWrapper.save(message, recipients, savedFiles, processId);
-            final MessageAddedBroadcast broadcast = converter.convertChatMessageToAddedMessageBroadcast(savedMessage);
-            broadcast.setFiles(fileMapper.toDetailDto(savedFiles));
+            final MessageAddedBroadcast broadcast = messageMapper.toDto(savedMessage);
+            broadcast.setFiles(fileDetailMapper.toDtos(savedFiles));
             return broadcast;
         } catch (Exception exception) {
             fileIo.delete(savedFiles);
             throw exception;
         }
+    }
+
+    public List<Long> getRecipientIdsByMessageId(User user, Long messageId) {
+        return messageDao.getRecipientIdsByMessageId(messageId);
     }
 
     @Transactional
@@ -80,7 +87,7 @@ public class ChatLogic extends WfCommonLogic {
         if (!messages.isEmpty()) {
             messageDao.readMessage(user.getActor(), messages.get(0).getId());
         }
-        return toMessageAddedBroadcast(user, messages);
+        return messageFileMapper.toDtos(messages);
     }
 
     public List<WfChatRoom> getChatRooms(User user) {
@@ -135,15 +142,4 @@ public class ChatLogic extends WfCommonLogic {
             log.warn("Unable to send chat email notification", e);
         }
     }
-
-    private List<MessageAddedBroadcast> toMessageAddedBroadcast(User user, List<ChatMessage> messages) {
-        List<MessageAddedBroadcast> result = new ArrayList<>(messages.size());
-        for (ChatMessage message : messages) {
-            MessageAddedBroadcast broadcast = converter.convertChatMessageToAddedMessageBroadcast(message);
-            broadcast.setFiles(fileMapper.toDetailDto(fileLogic.getByMessage(user, message)));
-            result.add(broadcast);
-        }
-        return result;
-    }
-
 }

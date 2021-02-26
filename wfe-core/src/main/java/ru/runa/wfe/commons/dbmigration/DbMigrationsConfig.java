@@ -32,6 +32,7 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
+import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
 import ru.runa.wfe.commons.dbmigration.impl.JbpmRefactoringPatch;
@@ -135,6 +136,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(RefactorPermissionsBack.class);
         dbMigrations.add(RemoveWfeConstants.class);
         dbMigrations.add(AddUuidAndDropBytesChatMessageFilePatch.class);
+        dbMigrations.add(DropQuotedMessageIdsPatch.class);
         return dbMigrations;
     }
 }

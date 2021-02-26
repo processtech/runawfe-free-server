@@ -4,6 +4,7 @@ import com.querydsl.core.types.Projections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
@@ -16,6 +17,7 @@ import ru.runa.wfe.execution.QProcess;
 import ru.runa.wfe.user.Actor;
 
 @Component
+@MonitoredWithSpring
 public class ChatMessageDao extends GenericDao<ChatMessage> {
 
     @Transactional(readOnly = true)
@@ -24,10 +26,16 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return super.get(id);
     }
 
+    @Transactional(readOnly = true)
+    public List<Long> getRecipientIdsByMessageId(Long messageId) {
+        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
+        return queryFactory.select(cr.executor.id).from(cr).where(cr.message.id.eq(messageId)).fetch();
+    }
+
     public void readMessage(Actor user, Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Date date = new Date();
-        queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.lt(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
+        queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.loe(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
                 .execute();
     }
 
@@ -50,7 +58,6 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     @Transactional
     public ChatMessage save(ChatMessage message, Set<Actor> recipients) {
         ChatMessage result = create(message);
-        recipients.add(message.getCreateActor());
         for (Actor recipient : recipients) {
             sessionFactory.getCurrentSession().save(new ChatMessageRecipient(message, recipient));
         }

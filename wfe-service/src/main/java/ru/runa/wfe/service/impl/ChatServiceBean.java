@@ -53,7 +53,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public void saveMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") AddMessageRequest request) {
         try {
-            addNewMessageHandler.handleMessage(null, request, user);
+            addNewMessageHandler.handleMessage(request, user);
         } catch (IOException exception) {
             throw new ChatMessageException("The message was not saved. Process ID: " + request.getProcessId());
         }
@@ -85,7 +85,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public void updateMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "request") EditMessageRequest request) {
         try {
-            editMessageHandler.handleMessage(null, request, user);
+            editMessageHandler.handleMessage(request, user);
         } catch (IOException exception) {
             throw new ChatMessageException("The message was not updated. Message ID: " + request.getEditMessageId());
         }
@@ -96,7 +96,7 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public void deleteMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "request") DeleteMessageRequest request) {
         try {
-            deleteMessageHandler.handleMessage(null, request, user);
+            deleteMessageHandler.handleMessage(request, user);
         } catch (IOException exception) {
             throw new ChatMessageException("The message was not deleted. Message ID: " + request.getMessageId());
         }
