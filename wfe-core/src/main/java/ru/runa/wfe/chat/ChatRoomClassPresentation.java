@@ -21,12 +21,12 @@ public class ChatRoomClassPresentation extends ClassPresentation {
 
     private ChatRoomClassPresentation() {
         super(Process.class, "", true, new FieldDescriptor[]{
-                new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(Process.class, "id"), true, FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "id"}),
+                new FieldDescriptor(PROCESS_ID, Long.class.getName(), new DefaultDbSource(Process.class, "id"), true, FieldFilterMode.DATABASE,
+                        "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{ Permission.READ, "id" }),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(Process.class, "deployment.name"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "processName"}),
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{ Permission.READ, "processName" }),
                 new FieldDescriptor(NEW_MESSAGES, Integer.class.getName(), new DefaultDbSource(ChatMessageRecipient.class, "readDate"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatNewMessagesCountTdBuilder", new Object[]{Permission.READ, "processId"})});
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatNewMessagesCountTdBuilder", new Object[]{ Permission.READ, "processId" }) });
     }
 
     public static ClassPresentation getInstance() {
