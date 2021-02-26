@@ -56,6 +56,8 @@ public class ImportDataFileAction extends ActionBase {
     public static final String UPLOAD_ONLY = "uploadOnly";
     public static final String SET_PASSWORD = "setPassword";
     public static final String CLEAR_PASSWORD = "clearPassword";
+    public static final String SET_PASSWORD_DATA_SOURCE = "setPasswordDataSource";
+    public static final String CLEAR_PASSWORD_DATA_SOURCE = "clearPasswordDataSource";
     public static final String PASSWORD_DATA_SOURCE_PARAM = "passwordTypeDataSource";
     public static final String PASSWORD_VALUE_DATA_SOURCE_PARAM = "passwordValueDataSource";
     public static final String CHANGE_INTERNAL_STORAGE_PATH_PARAM = "changeInternalStoragePathType";
