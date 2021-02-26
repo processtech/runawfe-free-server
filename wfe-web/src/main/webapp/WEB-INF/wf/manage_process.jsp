@@ -5,6 +5,7 @@
 <%@ page import="ru.runa.wf.web.form.TaskIdForm" %>
 <%@ page import="ru.runa.wf.web.action.ShowGraphModeHelper" %>
 <%@ page import="ru.runa.common.WebResources" %>
+<%@ page import="ru.runa.wfe.service.delegate.Delegates" %>
 
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -56,7 +57,8 @@ function Reload() {
 	if (childProcessIdString != null && !"null".equals(childProcessIdString)) {
 		childProcessId = Long.parseLong(childProcessIdString);
 	}
-	
+	boolean isRoot = Delegates.getExecutionService().getProcess(Commons.getUser(request.getSession()), id)
+			.getHierarchyIds().equals(String.valueOf(id));
 	boolean graphMode = ShowGraphModeHelper.isShowGraphMode();
 %>
 <wf:processInfoForm buttonAlignment="right" identifiableId='<%= id %>' taskId='<%= taskId %>'>
@@ -82,7 +84,7 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
-		<% if(WebResources.isChatEnabled()){%>
+		<% if (WebResources.isChatEnabled() && isRoot) {%>
 		<td align="right">
 			<% String href = "/wfe/chat_page.do?processId=" + id;%>
 			<a href="<%= href %>">Открыть чат</a>
