@@ -32,13 +32,12 @@ public abstract class AbstractSelectFromUserTypeList extends AbstractUserTypeLis
     @Override
     public Map<String, ? extends Object> extractVariables(Interaction interaction, VariableDefinition variableDefinition,
             Map<String, ? extends Object> userInput, Map<String, String> formatErrors) throws Exception {
-        final Map<String, Object> result = new HashMap<>();
         Object selected = null;
         String[] indexes = (String[]) userInput.get(getVariableNameForSubmissionProcessing());
         if (indexes != null) {
             List<?> list = getParameterVariableValueNotNull(List.class, 1);
             if (isMultiple()) {
-                selected = new ArrayList<>();
+                selected = new ArrayList<>(indexes.length);
                 for (String index : indexes) {
                     ((List<Object>) selected).add(list.get(TypeConversionUtil.convertTo(int.class, index)));
                 }
@@ -46,6 +45,7 @@ public abstract class AbstractSelectFromUserTypeList extends AbstractUserTypeLis
                 selected = list.get(TypeConversionUtil.convertTo(int.class, indexes[0]));
             }
         }
+        final Map<String, Object> result = new HashMap<>(1);
         result.put(getVariableNameForSubmissionProcessing(), selected);
         return result;
     }
