@@ -56,8 +56,13 @@ public class ImportDataFileAction extends ActionBase {
     public static final String UPLOAD_ONLY = "uploadOnly";
     public static final String SET_PASSWORD = "setPassword";
     public static final String CLEAR_PASSWORD = "clearPassword";
+    public static final String SET_PASSWORD_DATA_SOURCE = "setPasswordDataSource";
+    public static final String CLEAR_PASSWORD_DATA_SOURCE = "clearPasswordDataSource";
     public static final String PASSWORD_DATA_SOURCE_PARAM = "passwordTypeDataSource";
     public static final String PASSWORD_VALUE_DATA_SOURCE_PARAM = "passwordValueDataSource";
+    public static final String CHANGE_INTERNAL_STORAGE_PATH_PARAM = "changeInternalStoragePathType";
+    public static final String DO_NOT_CHANGE_INTERNAL_STORAGE_PATH = "doNotChangeInternalStoragePath";
+    public static final String CHANGE_INTERNAL_STORAGE_PATH = "changeInternalStoragePath";
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -69,11 +74,21 @@ public class ImportDataFileAction extends ActionBase {
                 throw new DataFileNotPresentException();
             }
 
+            User user = getLoggedUser(request);
+            boolean isAdmin = SystemProperties.getAdministratorName().equals(user.getName());
+
             boolean clearBeforeUpload = false;
 
             String paramType = request.getParameter(UPLOAD_PARAM);
             if (CLEAR_BEFORE_UPLOAD.equals(paramType) && SystemProperties.getAdministratorName().equals(getLoggedUser(request).getName())) {
                 clearBeforeUpload = true;
+            }
+
+            boolean doNotChangeInternalStoragePath = true;
+
+            String changeInternalStoragePathParamType = request.getParameter(CHANGE_INTERNAL_STORAGE_PATH_PARAM);
+            if (CHANGE_INTERNAL_STORAGE_PATH.equals(changeInternalStoragePathParamType) && isAdmin) {
+                doNotChangeInternalStoragePath = false;
             }
 
             String defaultPasswordValue = null;
@@ -104,7 +119,6 @@ public class ImportDataFileAction extends ActionBase {
             WorkflowScriptDto data = (WorkflowScriptDto) unmarshaller.unmarshal(new ByteArrayInputStream(scriptXml));
             data.validate(false);
 
-            User user = getLoggedUser(request);
             if (clearBeforeUpload) {
                 List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, BatchPresentationFactory.CURRENT_PROCESSES.createNonPaged());
                 ProcessFilter processFilter = new ProcessFilter();
@@ -158,7 +172,7 @@ public class ImportDataFileAction extends ActionBase {
                     ids.add(executor.getId());
                 }
                 Delegates.getExecutorService().remove(user, ids);
-                DataSourceStorage.clear();
+                DataSourceStorage.clear(doNotChangeInternalStoragePath);
             }
 
             List<String> errors = Delegates.getScriptingService().executeAdminScriptSkipError(user, scriptXml, externalResources,

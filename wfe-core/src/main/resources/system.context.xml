@@ -251,6 +251,8 @@
 	</bean>
 	<bean id="assignmentHelper" class="ru.runa.wfe.extension.assign.AssignmentHelper" />
 	<bean id="adminScriptRunner" class="ru.runa.wfe.script.AdminScriptRunner" />
+	<bean id="chatLogic" class="ru.runa.wfe.chat.logic.ChatLogic" />
+	<bean id="chatFileLogic" class="ru.runa.wfe.chat.logic.ChatFileLogic" />
 
 	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
 

@@ -2,6 +2,7 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -321,4 +322,8 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
         }
     }
 
+    @Override
+    public Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
+        return getExecutionService().getAllExecutorsByProcessId(user, processId, expandGroups);
+    }
 }

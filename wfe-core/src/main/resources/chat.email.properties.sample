@@ -1,0 +1,9 @@
+mail.smtp.host=smtp.yandex.ru
+mail.smtp.auth=true
+mail.smtp.socketFactory.port=465
+mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+login = RunaWFE-Chat@yandex.ru
+password = runawfe
+port = 465
+title.pattern = \u0412\u0430\u043c \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435 \u043e\u0442 $actorName \u043f\u043e \u0411\u041f \u2116 processId \u0432 RunaWFE
+message.pattern = $message\n \u044d\u0442\u043e \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0435 \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435, \u043d\u0430 \u043d\u0435\u0433\u043e \u043e\u0442\u0432\u0435\u0447\u0430\u0442\u044c \u043d\u0435 \u043d\u0443\u0436\u043d\u043e

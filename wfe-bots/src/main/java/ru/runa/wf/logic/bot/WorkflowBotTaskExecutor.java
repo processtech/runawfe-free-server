@@ -216,7 +216,9 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                     }
                 }.executeInTransaction(false);
             } else {
-                Errors.addProcessError(processError, task.getName(), th);
+                if (!Errors.addProcessError(processError, task.getName(), th)) {
+                    Errors.updateProcessError(processError, th);
+                }
             }
             // Double delay if exists
             failedDelaySeconds *= 2;

@@ -160,9 +160,13 @@ public class ReceiveMessageBean implements MessageListener {
         Enumeration<String> propertyNames = message.getPropertyNames();
         while (propertyNames.hasMoreElements()) {
             String propertyName = propertyNames.nextElement();
-            if (!propertyName.startsWith("JMS")) {
-                map.put(propertyName, message.getStringProperty(propertyName));
+            if (propertyName.startsWith("JMS")) {
+                continue;
             }
+            if (BaseMessageNode.EXPIRATION_PROPERTY.equals(propertyName)) {
+                continue;
+            }
+            map.put(propertyName, message.getStringProperty(propertyName));
         }
         return map;
     }

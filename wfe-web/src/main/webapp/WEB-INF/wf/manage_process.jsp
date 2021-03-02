@@ -1,9 +1,11 @@
+<%@page import="javax.jws.WebParam"%>
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.Version"%>
 <%@ page import="ru.runa.common.web.Commons"%>
 <%@ page import="ru.runa.wf.web.form.TaskIdForm" %>
 <%@ page import="ru.runa.wf.web.action.ShowGraphModeHelper" %>
 <%@ page import="ru.runa.common.WebResources" %>
+<%@ page import="ru.runa.wfe.service.delegate.Delegates" %>
 
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -16,6 +18,7 @@
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
 <script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
+
 <% if (WebResources.getDiagramRefreshInterval() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {
@@ -54,13 +57,15 @@ function Reload() {
 	if (childProcessIdString != null && !"null".equals(childProcessIdString)) {
 		childProcessId = Long.parseLong(childProcessIdString);
 	}
-	
+	boolean isRoot = Delegates.getExecutionService().getProcess(Commons.getUser(request.getSession()), id)
+			.getHierarchyIds().equals(String.valueOf(id));
 	boolean graphMode = ShowGraphModeHelper.isShowGraphMode();
 %>
 <wf:processInfoForm buttonAlignment="right" identifiableId='<%= id %>' taskId='<%= taskId %>'>
 <table width="100%">
 	<tr>
-		<td align="right">
+		<td align="right"></td>
+		<td width="200" align="right">
 		<% if(graphMode) { %>
 			<wf:showProcessGraphLink identifiableId='<%=id %>' href='<%= "/show_process_graph.do?id=" + id + "&taskId=" + taskId + "&childProcessId=" + childProcessId %>'  />
 		<% } %>
@@ -70,6 +75,7 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
+		<td align="right"></td>
 		<td align="right">
 			<wf:showHistoryLink identifiableId='<%=id %>' href='<%= "/show_history.do?id=" + id %>'  />
 		</td>
@@ -78,6 +84,12 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
+		<% if (WebResources.isChatEnabled() && isRoot) {%>
+		<td align="right">
+			<% String href = "/wfe/chat_page.do?processId=" + id;%>
+			<a href="<%= href %>">Открыть чат</a>
+		</td>
+		<% }%>
 		<td align="right">
 			<wf:showGraphHistoryLink identifiableId='<%=id %>' href='<%= "/show_graph_history.do?id=" + id %>'  />
 		</td>
