@@ -1,9 +1,10 @@
 package ru.runa.wf.web.tag;
 
+import java.util.List;
 import lombok.Setter;
 import org.apache.ecs.html.A;
-import org.apache.ecs.html.Input;
 import org.apache.ecs.html.IMG;
+import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
@@ -23,7 +24,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-import java.util.List;
 
 @Tag(bodyContent = BodyContent.JSP, name = "chatForm")
 public class ChatFormTag extends TitledFormTag {
@@ -110,7 +110,7 @@ public class ChatFormTag extends TitledFormTag {
 
     private A getAuthor(MessageAddedBroadcast message) {
         if (isAdmin || Delegates.getAuthorizationService().isAllowed(user, Permission.READ,
-                SecuredObjectType.EXECUTOR, message.getAuthor().getIdentifiableId())) {
+                SecuredObjectType.EXECUTOR, message.getAuthor().getId())) {
             return new A("/wfe/manage_executor.do?id=" + message.getAuthor().getId(), message.getAuthor().getName());
         }
         return new A().addElement(message.getAuthor().getName());

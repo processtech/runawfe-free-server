@@ -8,8 +8,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collections;
-import com.google.common.collect.Sets;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,17 +30,17 @@ import ru.runa.wfe.audit.CurrentProcessActivateLog;
 import ru.runa.wfe.audit.CurrentProcessCancelLog;
 import ru.runa.wfe.audit.CurrentProcessEndLog;
 import ru.runa.wfe.audit.CurrentProcessSuspendLog;
+import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLog.Type;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.dao.CurrentProcessLogDao;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.Errors;
-import ru.runa.wfe.audit.ProcessSuspendLog;
-import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
@@ -111,9 +109,9 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
@@ -140,6 +138,8 @@ public class ExecutionLogic extends WfCommonLogic {
     private CurrentProcessDao currentProcessDao;
     @Autowired
     private JobDao jobDao;
+    @Autowired
+    private CurrentProcessLogDao currentProcessLogDao;
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -803,14 +803,15 @@ public class ExecutionLogic extends WfCommonLogic {
         return RestoreProcessStatus.OK;
     }
 
+    @SuppressWarnings("unchecked")
     @MonitoredWithSpring
     public <T extends Executor> Set<T> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
         Set<T> result = new HashSet<>();
-        Process process = processDao.getNotNull(processId);
-        List<Process> subProcesses = nodeProcessDao.getSubprocessesRecursive(process);
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
+        List<CurrentProcess> subProcesses = currentNodeProcessDao.getSubprocessesRecursive(process);
         // select user from active tasks
         List<Task> tasks = new ArrayList<>(taskDao.findByProcess(process));
-        for (Process subProcess : subProcesses) {
+        for (CurrentProcess subProcess : subProcesses) {
             tasks.addAll(taskDao.findByProcess(subProcess));
         }
         for (Task task : tasks) {
@@ -822,14 +823,14 @@ public class ExecutionLogic extends WfCommonLogic {
         }
         // select user from completed tasks
         ProcessLogFilter filter = new ProcessLogFilter(processId);
-        filter.setRootClassName(TaskEndLog.class.getName());
-        List<ProcessLog> processLogs = new ArrayList<>(processLogDao.getAll(filter));
-        for (Process subProcess : subProcesses) {
+        filter.setType(ProcessLog.Type.TASK_END);
+        List<BaseProcessLog> processLogs = new ArrayList<>(currentProcessLogDao.getAll(filter));
+        for (CurrentProcess subProcess : subProcesses) {
             filter.setProcessId(subProcess.getId());
-            processLogs.addAll(processLogDao.getAll(filter));
+            processLogs.addAll(currentProcessLogDao.getAll(filter));
         }
         for (ProcessLog processLog : processLogs) {
-            String actorName = ((TaskEndLog) processLog).getActorName();
+            String actorName = ((CurrentTaskEndLog) processLog).getActorName();
             try {
                 if (!Strings.isNullOrEmpty(actorName)) {
                     result.add((T) executorDao.getActor(actorName));
@@ -850,6 +851,7 @@ public class ExecutionLogic extends WfCommonLogic {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Executor> void expandGroup(Executor executor, Set<T> result) {
         if (executor instanceof Group) {
             result.addAll((Set<T>) executorDao.getGroupActors((Group) executor));

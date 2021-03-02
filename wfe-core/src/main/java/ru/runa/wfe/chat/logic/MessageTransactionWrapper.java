@@ -11,7 +11,7 @@ import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
-import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
@@ -32,7 +32,7 @@ public class MessageTransactionWrapper {
     @Autowired
     private ChatFileDao fileDao;
     @Autowired
-    private ProcessDao processDao;
+    private CurrentProcessDao processDao;
 
     public ChatMessage save(ChatMessage message, Set<Actor> recipients, List<ChatMessageFile> files, long processId) {
         final ChatMessage savedMessage = save(message, recipients, processId);

@@ -12,13 +12,18 @@ import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.commons.dao.GenericDao;
-import ru.runa.wfe.definition.QDeployment;
-import ru.runa.wfe.execution.QProcess;
+import ru.runa.wfe.definition.QProcessDefinition;
+import ru.runa.wfe.definition.QProcessDefinitionVersion;
+import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.user.Actor;
 
 @Component
 @MonitoredWithSpring
 public class ChatMessageDao extends GenericDao<ChatMessage> {
+
+    public ChatMessageDao() {
+        super(ChatMessage.class);
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -48,11 +53,20 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
 
     @Transactional(readOnly = true)
     public List<WfChatRoom> getChatRooms(Actor actor) {
-        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        QProcess p = QProcess.process;
-        QDeployment d = QDeployment.deployment;
-        return queryFactory.select(Projections.constructor(WfChatRoom.class, p.id, d.name, cr.count().subtract(cr.readDate.count())))
-                .from(cr).join(cr.message.process, p).join(p.deployment, d).where(cr.executor.eq(actor)).groupBy(p.id, d.name).orderBy(p.id.desc()).fetch();
+        final QChatMessageRecipient chatMessageRecipient = QChatMessageRecipient.chatMessageRecipient;
+        final QCurrentProcess process = QCurrentProcess.currentProcess;
+        final QProcessDefinitionVersion definitionVersion = QProcessDefinitionVersion.processDefinitionVersion;
+        final QProcessDefinition definition = QProcessDefinition.processDefinition;
+        return queryFactory
+                .select(Projections.constructor(WfChatRoom.class, process.id, definition.name, chatMessageRecipient.count().subtract(chatMessageRecipient.readDate.count())))
+                .from(chatMessageRecipient)
+                .innerJoin(chatMessageRecipient.message.process, process)
+                .innerJoin(process.definitionVersion, definitionVersion)
+                .innerJoin(definitionVersion.definition, definition)
+                .where(chatMessageRecipient.executor.eq(actor))
+                .groupBy(process.id, definition.name)
+                .orderBy(process.id.desc())
+                .fetch();
     }
 
     @Transactional

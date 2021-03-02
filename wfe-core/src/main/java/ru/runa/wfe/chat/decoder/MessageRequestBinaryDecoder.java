@@ -8,10 +8,10 @@ import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-@Interceptors({SpringBeanAutowiringInterceptor.class})
+@Interceptors({ SpringBeanAutowiringInterceptor.class })
 public class MessageRequestBinaryDecoder implements Decoder.Binary<MessageRequest> {
 
     @Autowired
