@@ -3,15 +3,16 @@ package ru.runa.wfe.chat.sender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Set;
 import javax.websocket.Session;
 import lombok.extern.apachecommons.CommonsLog;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.chat.config.ChatBean;
 import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.chat.socket.SessionInfo;
-import java.util.Set;
 
 @CommonsLog
 @Component
@@ -22,6 +23,7 @@ public class SessionMessageSender implements MessageSender {
     @Autowired
     private MessageSender messageSender;
     @Autowired
+    @ChatBean
     private ObjectMapper chatObjectMapper;
 
     @Override
