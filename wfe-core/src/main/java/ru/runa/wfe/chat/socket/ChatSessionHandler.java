@@ -13,6 +13,7 @@ import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.chat.config.ChatBean;
 import ru.runa.wfe.chat.dto.broadcast.ErrorMessageBroadcast;
 import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.chat.sender.MessageSender;
@@ -27,6 +28,7 @@ public class ChatSessionHandler {
     @Qualifier("sessionMessageSender")
     private MessageSender messageSender;
     @Autowired
+    @ChatBean
     private ObjectMapper chatObjectMapper;
     private final ConcurrentHashMap<Long, Set<SessionInfo>> sessions = new ConcurrentHashMap<>(256);
 
