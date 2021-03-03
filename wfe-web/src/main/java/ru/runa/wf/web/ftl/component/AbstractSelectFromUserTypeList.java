@@ -14,7 +14,8 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
 public abstract class AbstractSelectFromUserTypeList extends AbstractUserTypeList implements FormComponentSubmissionHandler {
-    private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = -7344045578574357126L;
 
     protected abstract boolean isMultiple();
 
@@ -33,7 +34,8 @@ public abstract class AbstractSelectFromUserTypeList extends AbstractUserTypeLis
     public Map<String, ? extends Object> extractVariables(Interaction interaction, VariableDefinition variableDefinition,
             Map<String, ? extends Object> userInput, Map<String, String> formatErrors) throws Exception {
         Object selected = null;
-        String[] indexes = (String[]) userInput.get(getVariableNameForSubmissionProcessing());
+        final String variableName = getVariableNameForSubmissionProcessing();
+        final String[] indexes = (String[]) userInput.get(variableName);
         if (indexes != null) {
             List<?> list = getParameterVariableValueNotNull(List.class, 1);
             if (isMultiple()) {
@@ -46,7 +48,7 @@ public abstract class AbstractSelectFromUserTypeList extends AbstractUserTypeLis
             }
         }
         final Map<String, Object> result = new HashMap<>(1);
-        result.put(getVariableNameForSubmissionProcessing(), selected);
+        result.put(variableName, selected);
         return result;
     }
 
@@ -63,13 +65,13 @@ public abstract class AbstractSelectFromUserTypeList extends AbstractUserTypeLis
         }
 
         public String getChecked(TemplateModel arg0) throws TemplateModelException {
-            UserTypeMap userTypeMap = (UserTypeMap) BEANS_WRAPPER.unwrap(arg0);
-            List<UserTypeMap> selectedList = (List<UserTypeMap>) getInputVariable().getValue();
-            boolean checked = selectedList != null && selectedList.contains(userTypeMap);
-            if (checked) {
-                return "checked='true'";
+            boolean checked = false;
+            if (isMultiple()) {
+                final UserTypeMap userTypeMap = (UserTypeMap) BEANS_WRAPPER.unwrap(arg0);
+                final List<UserTypeMap> selectedList = (List<UserTypeMap>) getInputVariable().getValue();
+                checked = selectedList != null && selectedList.contains(userTypeMap);
             }
-            return "";
+            return checked ? "checked='true'" : "";
         }
 
     }
