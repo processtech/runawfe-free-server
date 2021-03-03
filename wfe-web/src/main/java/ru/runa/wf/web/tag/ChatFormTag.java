@@ -2,7 +2,10 @@ package ru.runa.wf.web.tag;
 
 import java.util.List;
 import lombok.Setter;
+import org.apache.ecs.Element;
+import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
+import org.apache.ecs.html.Div;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
@@ -58,21 +61,27 @@ public class ChatFormTag extends TitledFormTag {
         TextArea textArea = new TextArea();
         textArea.setID("message");
         textArea.addAttribute("placeholder", "Введите текст сообщения");
+        textArea.setClass("inputText");
         return textArea;
     }
 
     private TR getButtons() {
         Input sendMessageButton = new Input("button", "sendMessageButton", "Отправить сообщение");
         sendMessageButton.setOnClick("sendMessage()");
+
         Input fileInput = new Input("file");
         fileInput.setID("fileInput");
         fileInput.addAttribute("multiple", "true");
-        TD sendMessage = new TD(sendMessageButton);
-        TD file = new TD(fileInput);
-        sendMessage.setClass("list");
-        file.setClass("list");
-        return new TR(sendMessage.addElement(" Приватное сообщение: " +
-                new Input("checkbox").setID("isPrivate"))).addElement(file);
+
+        TD fileTd = new TD(fileInput);
+        fileTd.setClass("list");
+
+        TD sendMessageTd = new TD(sendMessageButton)
+                .addElement(new Div("Приватное сообщение").setClass("text message-card-header private-message-label"))
+                .addElement(new Input("checkbox").setID("isPrivate"))
+                .addElement(fileTd);
+        sendMessageTd.setClass("list");
+        return new TR(sendMessageTd);
     }
 
     private Table createMessages(List<MessageAddedBroadcast> messages) {
@@ -83,7 +92,7 @@ public class ChatFormTag extends TitledFormTag {
             messageCard.setClass("message-card");
             messageCard.addElement(getMessageHeader(message).setClass("message-header"));
             messageCard.addElement(getFileHolder(message));
-            messageCard.addElement(new TR(new TD(message.getText())));
+            messageCard.addElement(new TR(new TD(message.getText()).setClass("text")));
             table.addElement(new TR(new TD(messageCard)));
         }
         return table;
@@ -94,26 +103,28 @@ public class ChatFormTag extends TitledFormTag {
         table.setClass("fileHolder");
         for (ChatMessageFileDetailDto fileDto : message.getFiles()) {
             table.addElement(new TR(new TD("<a href='/wfe/chatFileOutput?fileId=" + fileDto.getId() +
-                    "' download='" + fileDto.getName() + "'>" + fileDto.getName() + "</a>")));
+                    "' download='" + fileDto.getName() + "'>" + fileDto.getName() + "</a>").setClass("link")));
         }
         return new TR(new TD(table));
     }
 
     private TR getMessageHeader(MessageAddedBroadcast message) {
+        final Div authorAndDateTime = new Div();
+        authorAndDateTime.setClass("text message-card-header");
+        authorAndDateTime.addElement(getAuthor(message)).addElement(" " + CalendarUtil.formatDateTime(message.getCreateDate()) + " ");
         return new TR(new TD()
-                .addElement(getAuthor(message))
-                .addElement(" " + CalendarUtil.formatDateTime(message.getCreateDate()) + " ")
+                .addElement(authorAndDateTime)
                 .addElement(getDeleteMessageButton(message))
                 .addElement(getEditMessageButton(message))
                 .addElement(getReplyButton(message)));
     }
 
-    private A getAuthor(MessageAddedBroadcast message) {
+    private Element getAuthor(MessageAddedBroadcast message) {
         if (isAdmin || Delegates.getAuthorizationService().isAllowed(user, Permission.READ,
                 SecuredObjectType.EXECUTOR, message.getAuthor().getId())) {
-            return new A("/wfe/manage_executor.do?id=" + message.getAuthor().getId(), message.getAuthor().getName());
+            return new A("/wfe/manage_executor.do?id=" + message.getAuthor().getId(), message.getAuthor().getName()).setClass("link");
         }
-        return new A().addElement(message.getAuthor().getName());
+        return new StringElement(message.getAuthor().getName());
     }
 
     private A getDeleteMessageButton(MessageAddedBroadcast message) {

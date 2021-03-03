@@ -22,3 +22,11 @@ table.message-card {
 .message-header {
     border-bottom: 1px solid #ccc;
 }
+
+.message-card-header {
+    display: inline;
+}
+
+.private-message-label {
+    margin: 4px;
+}
