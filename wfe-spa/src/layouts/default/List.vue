@@ -22,14 +22,16 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
+  import DefaultListGroup from './ListGroup.vue';
+  import DefaultListItem from './ListItem.vue';
 
   export default Vue.extend({
     name: 'DefaultList' as string,
 
     components: {
-      DefaultListGroup: () => import('./ListGroup.vue'),
-      DefaultListItem: () => import('./ListItem.vue'),
+      DefaultListGroup,
+      DefaultListItem,
     },
 
     props: {
@@ -38,5 +40,5 @@
         default: () => ([]),
       },
     },
-  })
+  });
 </script>

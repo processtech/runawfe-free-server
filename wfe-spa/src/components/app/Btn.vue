@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
   
   export default Vue.extend({
     name: 'AppBtn' as string,
@@ -19,5 +19,5 @@
         default: 'primary',
       },
     },
-  })
+  });
 </script>

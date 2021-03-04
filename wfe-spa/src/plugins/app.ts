@@ -1,20 +1,24 @@
-/**
- * plugins/app.ts
- *
- * Automatically loads and bootstraps files
- * in the `./src/components/` folder.
- */
+import Vue from 'vue';
+import Links from '../components/Links.vue';
+import MaterialAlert from '../components/MaterialAlert.vue';
+import MaterialCard from '../components/MaterialCard.vue';
+import MaterialChartCard from '../components/MaterialChartCard.vue';
+import MaterialSnackbar from '../components/MaterialSnackbar.vue';
+import MaterialStatCard from '../components/MaterialStatCard.vue';
+import ViewIntro from '../components/ViewIntro.vue';
+import AppBarItem from '../components/app/BarItem.vue';
+import AppBtn from '../components/app/Btn.vue';
+import AppCard from '../components/app/Card.vue';
+import AppTabs from '../components/app/Tabs.vue';
 
-// Imports
-import Vue from 'vue'
-
-const requireComponent = require.context('@/components', true, /\.vue$/)
-
-for (const file of requireComponent.keys()) {
-  const componentConfig = requireComponent(file)
-
-  Vue.component(
-    componentConfig.default.name,
-    componentConfig.default || componentConfig,
-  )
-}
+Vue.component('Links', Links);
+Vue.component('MaterialAlert', MaterialAlert);
+Vue.component('MaterialCard', MaterialCard);
+Vue.component('MaterialChartCard', MaterialChartCard);
+Vue.component('MaterialSnackbar', MaterialSnackbar);
+Vue.component('MaterialStatCard', MaterialStatCard);
+Vue.component('ViewIntro', ViewIntro);
+Vue.component('AppBarItem', AppBarItem);
+Vue.component('AppBtn', AppBtn);
+Vue.component('AppCard', AppCard);
+Vue.component('AppTabs', AppTabs);

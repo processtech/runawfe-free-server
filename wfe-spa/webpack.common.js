@@ -3,6 +3,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const yaml = require('yamljs');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 
 module.exports = {
   entry: {
@@ -20,6 +21,7 @@ module.exports = {
       template: 'src/index.html',
     }),
     new VueLoaderPlugin(),
+    new VuetifyLoaderPlugin(),
   ],
   optimization: {
     moduleIds: 'deterministic',
@@ -57,26 +59,6 @@ module.exports = {
         }
       },
       {
-        test: /\.s(c|a)ss$/,
-        use: [
-          'vue-style-loader',
-          'css-loader',
-          {
-            loader: 'sass-loader',
-            options: {
-              implementation: require('sass'),
-              sassOptions: {
-                indentedSyntax: true
-              },
-            },
-          },
-        ],
-      },
-      {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
         generator: {
@@ -100,6 +82,7 @@ module.exports = {
     ],
   },
   resolve: {
+    // Добавляем `.ts` как обрабатываемое расширение.
     extensions: [ '.ts', '.js', '.json' ],
   },
 };

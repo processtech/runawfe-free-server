@@ -3,7 +3,7 @@
     <v-list-item-avatar>
       <v-img
         :src="
-          require('@/assets/vmd.svg')"
+          require('../../../images/vmd.svg')"
       />
     </v-list-item-avatar>
 
@@ -18,13 +18,14 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
-  // Utilities
-  import { get } from 'vuex-pathify'
+  import Vue from 'vue';
+  import { get } from 'vuex-pathify';
 
   export default Vue.extend({
     name: 'DefaultDrawerHeader' as string,
 
-    computed: { version: get('app/version') },
+    computed: { 
+      version: get('app/version'),
+    },
   })
 </script>

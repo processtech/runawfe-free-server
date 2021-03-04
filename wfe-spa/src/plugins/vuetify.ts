@@ -1,8 +1,12 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
-import { Ripple } from 'vuetify/lib/directives'
+import Vue from 'vue';
+import Vuetify from 'Vuetify';
+import { Ripple } from 'vuetify/lib/directives';
 
-Vue.use(Vuetify, { directives: { Ripple } })
+Vue.use(Vuetify, { 
+  directives: { 
+    Ripple 
+  }
+});
 
 const theme = {
   primary: '#E91E63',
@@ -15,9 +19,13 @@ const theme = {
 }
 
 export default new Vuetify({
-  breakpoint: { mobileBreakpoint: 960 },
+  breakpoint: { 
+    mobileBreakpoint: 960 
+  },
   icons: {
-    values: { expand: 'mdi-menu-down' },
+    values: { 
+      expand: 'mdi-menu-down' 
+    },
   },
   theme: {
     themes: {
@@ -25,4 +33,4 @@ export default new Vuetify({
       light: theme,
     },
   },
-})
+});

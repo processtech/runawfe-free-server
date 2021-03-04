@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Vue from 'vue'
-  import { VHover, VListItem } from 'vuetify/lib'
+  import Vue from 'vue';
+  import { VHover, VListItem } from 'vuetify/lib';
 
   export default Vue.extend({
     name: 'AppBarItem' as string,
@@ -25,5 +25,5 @@
         },
       })
     }
-  })
+  });
 </script>

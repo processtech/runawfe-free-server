@@ -1,8 +1,5 @@
-// Utilities
-import { make } from 'vuex-pathify'
-
-// Globals
-import { IN_BROWSER } from '@/util/globals'
+import { make } from 'vuex-pathify';
+import IN_BROWSER from '../../util/globals';
 
 const state = {
   dark: false,
@@ -17,49 +14,49 @@ const state = {
     'rgba(244, 67, 54, .8), rgba(244, 67, 54, .8)',
   ],
   images: [
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-2.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-3.jpg',
-    'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-4.jpg',
+    require('../../images/sidebar-1.jpg'),
+    require('../../images/sidebar-2.jpg'),
+    require('../../images/sidebar-3.jpg'),
+    require('../../images/sidebar-4.jpg'),
   ],
   notifications: [],
   rtl: false,
 }
 
-const mutations = make.mutations(state)
+const mutations = make.mutations(state);
 
 const actions = {
-  fetch: ({ commit }) => {
-    const local = localStorage.getItem('vuetify@user') || '{}'
-    const user = JSON.parse(local)
+  fetch: (commit: any) => {
+    const local = localStorage.getItem('vuetify@user') || '{}';
+    const user = JSON.parse(local);
 
     for (const key in user) {
-      commit(key, user[key])
+      commit(key, user[key]);
     }
 
     if (user.dark === undefined) {
       commit('dark', window.matchMedia('(prefers-color-scheme: dark)'))
     }
   },
-  update: ({ state }) => {
-    if (!IN_BROWSER) return
-
-    localStorage.setItem('vuetify@user', JSON.stringify(state))
+  update: (obj: any) => {
+    if (!IN_BROWSER) return;
+    let { state } = obj;
+    localStorage.setItem('vuetify@user', JSON.stringify(state));
   },
 }
 
 const getters = {
-  dark: (state, getters) => {
+  dark: (state: any, getters: any) => {
     return (
       state.dark ||
       getters.gradient.indexOf('255, 255, 255') === -1
     )
   },
-  gradient: state => {
-    return state.gradients[state.drawer.gradient]
+  gradient: (state: any) => {
+    return state.gradients[state.drawer.gradient];
   },
-  image: state => {
-    return state.drawer.image === '' ? state.drawer.image : state.images[state.drawer.image]
+  image: (state: any) => {
+    return state.drawer.image === '' ? state.drawer.image : state.images[state.drawer.image];
   },
 }
 

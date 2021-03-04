@@ -237,13 +237,9 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
-
-  // Mixins
-  import Proxyable from 'vuetify/lib'
-
-  // Vuex
-  import { get, sync } from 'vuex-pathify'
+  import Vue from 'vue';
+  //import Proxyable from 'vuetify/src/mixins/proxyable';
+  import { get, sync } from 'vuex-pathify';
 
   export default Vue.extend({
     name: 'DashboardCoreSettings' as string,
@@ -264,28 +260,22 @@
       saveImage: '',
     }),
 
-    computed: {
-      ...sync('app', [
-        'drawer',
-        'drawerImage',
-        'mini',
-      ]),
-      ...sync('user', [
-        'drawer@gradient',
-        'drawer@image',
-      ]),
-      ...get('user', [
-        'images',
-        'gradients',
-      ]),
-    },
-
     watch: {
       color (val) {
-        this.$vuetify.theme.themes['light'].primary = val
+        this.$vuetify.theme.themes['light'].primary = val;
       },
     },
-  })
+
+    computed: {
+      drawer: sync('app/drawer'),
+      drawerImage: sync('app/drawerImage'),
+      mini: sync('app/mini'),
+      gradient: sync('user/drawer@gradient'),
+      image: sync('user/drawer@image'),
+      images: get('user/images'),
+      gradients: get('user/gradients'),
+    },
+  });
 </script>
 
 <style lang="sass">

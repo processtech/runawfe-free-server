@@ -6,16 +6,14 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
+  import DefaultList from '../List.vue';
 
   export default Vue.extend({
     name: 'DefaultAccountSettings' as string,
 
     components: {
-      DefaultList: () => import(
-        /* webpackChunkName: "default-list" */
-        '../List.vue'
-      ),
+      DefaultList,
     },
 
     data: () => ({
@@ -37,5 +35,5 @@
         },
       ],
     }),
-  })
+  });
 </script>

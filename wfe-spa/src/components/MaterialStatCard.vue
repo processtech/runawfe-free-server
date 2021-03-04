@@ -20,13 +20,13 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
 
   export default Vue.extend({
     name: 'MaterialStatCard' as string,
 
     props: { value: String },
-  })
+  });
 </script>
 
 <style lang="sass">

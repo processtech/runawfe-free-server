@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
 
   export default Vue.extend({
     name: 'DefaultListItem' as string,
@@ -49,10 +49,10 @@
 
     computed: {
       title () {
-        const matches = this.item.title.match(/\b(\w)/g)
+        const matches = this.item.title.match(/\b(\w)/g);
 
-        return matches.join('')
+        return matches.join('');
       },
     },
-  })
+  });
 </script>

@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
 
   export default Vue.extend({
     name: 'MaterialCard' as string,
@@ -90,20 +90,17 @@
       hasHeading () {
         return !!(
           this.icon ||
-          this.heading ||
-          this.$slots.heading
+          this.heading
         )
       },
       hasTitle () {
         return !!(
           this.title ||
-          this.subtitle ||
-          this.$slots.title ||
-          this.$slots.subtitle
+          this.subtitle
         )
       },
     },
-  })
+  });
 </script>
 
 <style lang="sass">

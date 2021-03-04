@@ -1,1 +1,0 @@
-(self.webpackChunkrunawfe_professional=self.webpackChunkrunawfe_professional||[]).push([[826],{212:(e,s,n)=>{"use strict";var a=n(144),u=n(277);n(718),a.Z.use(u.Z);const f=new u.Z({});new a.Z({el:"#app",vuetify:f})}},0,[[212,666,216]]]);

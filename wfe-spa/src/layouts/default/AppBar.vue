@@ -34,42 +34,30 @@
   </v-app-bar>
 </template>
 
-<script>
-  // Utilities
-  import { get, sync } from 'vuex-pathify'
+<script lang="ts">
+  import Vue from 'vue';
+  import DefaultAccount from './widgets/Account.vue';
+  import DefaultDrawerToggle from './widgets/DrawerToggle.vue';
+  import DefaultGoHome from './widgets/GoHome.vue';
+  import DefaultNotifications from './widgets/Notifications.vue';
+  import DefaultSearch from './widgets/Search.vue';
+  import { get, sync } from 'vuex-pathify';
 
-  export default {
-    name: 'DefaultBar',
+  export default Vue.extend({
+    name: 'DefaultBar' as string,
 
     components: {
-      DefaultAccount: () => import(
-        /* webpackChunkName: "default-account" */
-        './widgets/Account'
-      ),
-      DefaultDrawerToggle: () => import(
-        /* webpackChunkName: "default-drawer-toggle" */
-        './widgets/DrawerToggle'
-      ),
-      DefaultGoHome: () => import(
-        /* webpackChunkName: "default-go-home" */
-        './widgets/GoHome'
-      ),
-      DefaultNotifications: () => import(
-        /* webpackChunkName: "default-notifications" */
-        './widgets/Notifications'
-      ),
-      DefaultSearch: () => import(
-        /* webpackChunkName: "default-search" */
-        './widgets/Search'
-      ),
+      DefaultAccount,
+      DefaultDrawerToggle,
+      DefaultGoHome,
+      DefaultNotifications,
+      DefaultSearch,
     },
 
     computed: {
-      ...sync('app', [
-        'drawer',
-        'mini',
-      ]),
+      drawer: sync('app/drawer'),
+      mini: sync('app/mini'),
       name: get('route/name'),
-    },
-  }
+    }
+  });
 </script>

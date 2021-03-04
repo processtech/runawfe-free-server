@@ -46,9 +46,11 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
 
-  export default Vue.extend({ name: 'MaterialAlert' })
+  export default Vue.extend({ 
+    name: 'MaterialAlert',
+  });
 </script>
 
 <style lang="sass">

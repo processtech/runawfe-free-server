@@ -1,27 +1,33 @@
 {
     "compilerOptions": {
-      "outDir": "./dist/",
-      "types": [
-        "vuetify",
-        "webpack-env",
-        "lodash",
-        "webfontloader",
-      ],
+      "outDir": "dist",
       "baseUrl": ".",
       "paths": {
-        "@/*": [
+        "@/*": [ 
           "src/*"
-        ]
+        ],
       },
+      "typeRoots": [
+        "node_modules/@types/",
+        "node_modules/vuetify/types",
+        "node_modules/vuex-pathify/types",
+      ],
       "moduleResolution": "node",
       "sourceMap": true,
       "noImplicitAny": true,
-      "module": "ESNext",
-      "target": "ESNext",
+      "lib": [
+        "ES5", 
+        "ES2015", 
+        "DOM", 
+        "ScriptHost",
+      ], // Набор библиотечных файлов полифилов, которые будут включены в итоговый выходной файл.
+      "module": "ES2015", // Определяет тип импорта кода в итоговом файле.
+      "target": "ES5", // Тип кода создаваемого итогового файла.
       "strict": true,
       "allowJs": true
     },
     "include": [
+      "src/*.ts",
       "src/**/*.ts",
       "src/**/*.vue",
     ],

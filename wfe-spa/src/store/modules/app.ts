@@ -1,5 +1,5 @@
 // Pathify
-import { make } from 'vuex-pathify'
+import { make } from 'vuex-pathify';
 
 // Data
 const state = {
@@ -45,7 +45,7 @@ const state = {
   ],
 }
 
-const mutations = make.mutations(state)
+const mutations = make.mutations(state);
 
 const actions = {
   ...make.actions(state),

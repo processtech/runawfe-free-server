@@ -41,15 +41,15 @@
 </template>
 
 <script lang="ts">
-  // Utilities
-  import { get } from 'vuex-pathify'
-  import Vue from 'vue'
+  import { get } from 'vuex-pathify';
+  import Vue from 'vue';
+  import DefaultListItem from './ListItem.vue';
 
   export default Vue.extend({
     name: 'DefaultListGroup' as string,
 
     components: {
-      DefaultListItem: () => import('./ListItem.vue'),
+      DefaultListItem,
     },
 
     props: {
@@ -62,29 +62,29 @@
     computed: {
       gradient: get('user/drawer@gradient'),
       group () {
-        return this.genGroup(this.item.items)
+        return (this as any).genGroup(this.item.items);
       },
       title () {
-        const matches = this.item.title.match(/\b(\w)/g)
+        const matches = this.item.title.match(/\b(\w)/g);
 
-        return matches.join('')
+        return matches.join('');
       },
     },
 
     methods: {
       genGroup (items: any) {
         return items.reduce((acc: any, cur: any) => {
-          if (!cur.to) return acc
+          if (!cur.to) return acc;
 
           acc.push(
             cur.items
-              ? this.genGroup(cur.items)
+              ? (this as any).genGroup(cur.items)
               : cur.to.slice(1, -1),
-          )
+          );
 
-          return acc
-        }, []).join('|')
+          return acc;
+        }, []).join('|');
       },
     },
-  })
+  });
 </script>

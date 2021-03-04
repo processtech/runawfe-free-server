@@ -1,7 +1,7 @@
-const EN_LOCALE_ONLY = process.env.EN_LOCALE_ONLY === 'true'
+const EN_LOCALE_ONLY = 'true'; // process.env.EN_LOCALE_ONLY === 'true'
 const IN_BROWSER = typeof window !== 'undefined'
-const IS_DEBUG = process.env.DEBUG === 'true'
-const IS_PROD = process.env.NODE_ENV === 'production'
+const IS_DEBUG = true; //process.env.DEBUG === 'true'
+const IS_PROD = false; //process.env.NODE_ENV === 'production'
 
 export default {
   EN_LOCALE_ONLY,

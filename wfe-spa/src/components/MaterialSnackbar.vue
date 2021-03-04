@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
 
   export default Vue.extend({
     name: 'MaterialSnackbar',
@@ -56,7 +56,7 @@
         this.internalValue = val
       },
     },
-  })
+  });
 </script>
 
 <style lang="sass">

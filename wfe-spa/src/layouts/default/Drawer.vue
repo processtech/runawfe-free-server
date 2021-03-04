@@ -61,41 +61,31 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
-  // Utilities
-  import { get, sync } from 'vuex-pathify'
+  import Vue from 'vue';
+  import DefaultDrawerHeader from './widgets/DrawerHeader.vue';
+  import DefaultList from './List.vue';
+  import { get, sync } from 'vuex-pathify';
 
   export default Vue.extend({
     name: 'DefaultDrawer' as string,
 
     components: {
-      DefaultDrawerHeader: () => import(
-        /* webpackChunkName: "default-drawer-header" */
-        './widgets/DrawerHeader.vue'
-      ),
-      DefaultList: () => import(
-        /* webpackChunkName: "default-list" */
-        './List.vue'
-      ),
+      DefaultDrawerHeader,
+      DefaultList,
     },
 
     computed: {
-      ...get('user', [
-        'dark',
-        'gradient',
-        'image',
-      ]),
-      ...get('app', [
-        'items',
-        'version',
-      ]),
-      ...sync('app', [
-        'drawer',
-        'drawerImage',
-        'mini',
-      ]),
+      dark: get('user/dark'),
+      gradient: get('user/gradient'),
+      image: get('user/image'),
+      items: get('app/items'),
+      //version: get('app/version'),
+      drawer: sync('app/drawer'),
+      drawerImage: sync('app/drawerImage'),
+      mini: sync('app/mini'),
     },
-  })
+
+  });
 </script>
 
 <style lang="sass">

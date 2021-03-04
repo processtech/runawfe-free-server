@@ -190,13 +190,8 @@
 </template>
 
 <script lang="ts">
-  // Utilities
-  import { get } from 'vuex-pathify'
-  import Vue from 'vue'
-
-  const lineSmooth = Vue.chartist.Interpolation.cardinal({
-    tension: 0,
-  })
+  import { get } from 'vuex-pathify';
+  import Vue from 'vue';
 
   export default  Vue.extend({
     name: 'DashboardView' as string,
@@ -231,7 +226,7 @@
           ['screen and (max-width: 640px)', {
             seriesBarDistance: 5,
             axisX: {
-              labelInterpolationFnc: function (value) {
+              labelInterpolationFnc: function (value: any) {
                 return value[0]
               },
             },
@@ -250,7 +245,6 @@
           ],
         },
         options: {
-          lineSmooth,
           low: 0,
           high: 1000, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
           chartPadding: {
@@ -273,7 +267,6 @@
           ],
         },
         options: {
-          lineSmooth,
           low: 0,
           high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
           chartPadding: {
@@ -435,8 +428,8 @@
     computed: {
       sales: get('sales/sales'),
       totalSales () {
-        return this.sales.reduce((acc, val) => acc + val.salesInM, 0)
+        return this.sales.reduce((acc: any, val: any) => acc + val.salesInM, 0);
       },
     },
-  })
+  });
 </script>

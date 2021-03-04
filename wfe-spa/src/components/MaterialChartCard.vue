@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
 
   export default Vue.extend({
     name: 'MaterialChartCard' as string,
@@ -62,7 +62,7 @@
         validator: v => ['Bar', 'Line', 'Pie'].includes(v),
       },
     },
-  })
+  });
 </script>
 
 <style lang="sass">

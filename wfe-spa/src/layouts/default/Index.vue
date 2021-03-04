@@ -13,32 +13,22 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
+  import DefaultBar from './AppBar.vue';
+  import DefaultDrawer from './Drawer.vue';
+  import DefaultFooter from './Footer.vue';
+  import DefaultSettings from './Settings.vue';
+  import DefaultView from './View.vue';
 
   export default Vue.extend({
     name: 'DefaultLayout' as string,
 
     components: {
-      DefaultBar: () => import(
-        /* webpackChunkName: "default-app-bar" */
-        './AppBar.vue'
-      ),
-      DefaultDrawer: () => import(
-        /* webpackChunkName: "default-drawer" */
-        './Drawer.vue'
-      ),
-      DefaultFooter: () => import(
-        /* webpackChunkName: "default-footer" */
-        './Footer.vue'
-      ),
-      DefaultSettings: () => import(
-        /* webpackChunkName: "default-settings" */
-        './Settings.vue'
-      ),
-      DefaultView: () => import(
-        /* webpackChunkName: "default-view" */
-        './View.vue'
-      ),
+      DefaultBar,
+      DefaultDrawer,
+      DefaultFooter,
+      DefaultSettings,
+      DefaultView,
     },
-  })
+  });
 </script>

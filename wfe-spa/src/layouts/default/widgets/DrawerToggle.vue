@@ -13,17 +13,14 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
-
-  // Utilities
-  import { sync } from 'vuex-pathify'
+  import Vue from 'vue';
+  import { sync } from 'vuex-pathify';
 
   export default Vue.extend({
     name: 'DefaultDrawerToggle' as string,
 
     computed: {
-
       mini: sync('app/mini'),
     },
-  })
+  });
 </script>
