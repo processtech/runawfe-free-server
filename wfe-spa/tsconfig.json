@@ -24,7 +24,8 @@
       "module": "ES2015", // Определяет тип импорта кода в итоговом файле.
       "target": "ES5", // Тип кода создаваемого итогового файла.
       "strict": true,
-      "allowJs": true
+      "allowJs": true,
+      "allowSyntheticDefaultImports": true,
     },
     "include": [
       "src/*.ts",

@@ -1,6 +1,5 @@
 // Automatically included in './src/index.ts'
 
-import './app';
-import './chartist';
+import './components';
 import './webfontloader';
 import './vue-meta';

@@ -1,4 +1,4 @@
-// Polyfills
+// Polyfills for vuetify
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 // Imports
