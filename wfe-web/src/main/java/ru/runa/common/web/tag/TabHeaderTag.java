@@ -67,6 +67,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATA_SOURCES, SecuredSingleton.DATASOURCES));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SYSTEM, SecuredSingleton.SYSTEM));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_ERRORS, SecuredSingleton.ERRORS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
@@ -152,6 +153,11 @@ public class TabHeaderTag extends TagSupport {
             if (menuForward.menuMessage.getKey().equals("manage_observable_tasks")
                     && Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.VIEW_TASKS, SecuredObjectType.EXECUTOR)) {
                 return true;
+            }
+            if (menuForward.menuMessage.getKey().equals("manage_errors")
+                    && Delegates.getSystemService().getSystemErrors(getUser()).isEmpty()
+                    && Delegates.getSystemService().getAllProcessErrors(getUser()).isEmpty()) {
+                return false;
             }
             if (menuForward.object != null) {
                 return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, menuForward.object);
