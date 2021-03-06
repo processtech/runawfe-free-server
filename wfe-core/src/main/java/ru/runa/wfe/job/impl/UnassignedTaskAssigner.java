@@ -3,8 +3,8 @@ package ru.runa.wfe.job.impl;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.task.logic.TaskAssigner;
@@ -18,12 +18,8 @@ public class UnassignedTaskAssigner {
     private TaskDao taskDao;
 
     @Transactional
+    @Scheduled(fixedDelayString = "${timertask.period.millis.unassigned.tasks.execution}")
     public void execute() {
-        if (!ApplicationContextFactory.getInitializerLogic().isInitialized()) {
-            // Do not interfere with migrations.
-            return;
-        }
-
         List<Task> unassignedTasks = taskDao.findUnassignedTasksInActiveProcesses();
         log.debug("Unassigned tasks: " + unassignedTasks.size());
         for (Task unassignedTask : unassignedTasks) {

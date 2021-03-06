@@ -3,10 +3,11 @@ package ru.runa.wfe.job.impl;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.val;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.Dialect;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -15,7 +16,6 @@ import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.hibernate.HibernateUtil;
 import ru.runa.wfe.execution.NodeProcess;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.extension.ProcessArchiverStepHandler;
@@ -68,12 +68,8 @@ public class ProcessArchiver {
     private long lastHandledProcessId;
     private long totalProcessIdsHandled;
 
+    @Scheduled(fixedDelayString = "${timertask.period.millis.archive.processes}")
     public void execute() throws Exception {
-        if (!ApplicationContextFactory.getInitializerLogic().isInitialized()) {
-            // Do not interfere with migrations.
-            return;
-        }
-
         if (!SystemProperties.isProcessArchivingEnabled() || permanentFailure || !busy.compareAndSet(false, true)) {
             return;
         }
