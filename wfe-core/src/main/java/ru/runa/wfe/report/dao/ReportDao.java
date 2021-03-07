@@ -9,6 +9,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToPermissions;
+import ru.runa.wfe.report.QReportDefinition;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
 import ru.runa.wfe.report.ReportWithNameExistsException;
@@ -61,5 +62,10 @@ public class ReportDao extends GenericDao<ReportDefinition> {
 
     public void undeploy(Long reportId) {
         this.delete(reportId);
+    }
+
+    public long getAllCount() {
+        QReportDefinition rd = QReportDefinition.reportDefinition;
+        return queryFactory.selectFrom(rd).fetchCount();
     }
 }

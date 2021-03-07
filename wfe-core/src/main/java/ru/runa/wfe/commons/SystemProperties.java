@@ -32,10 +32,10 @@ public class SystemProperties {
     public static PropertyResources getResources() {
         return RESOURCES;
     }
-    
+
     public static boolean isTaskDelegationEnabled() {
         return RESOURCES.getBooleanProperty("task.delegation.enabled", true);
-    }       
+    }
 
     /**
      * Production or development mode?
@@ -422,5 +422,12 @@ public class SystemProperties {
 
     public static String getPreferredMessagesLanguage() {
         return RESOURCES.getStringProperty("preferred.messages.language");
+    }
+
+    /**
+     * System statistic report enabled
+     */
+    public static boolean isReportStatisticEnabled() {
+        return RESOURCES.getBooleanProperty("statistic.report.enabled", false);
     }
 }
