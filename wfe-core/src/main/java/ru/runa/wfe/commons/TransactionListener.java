@@ -13,6 +13,6 @@ public interface TransactionListener {
     /**
      * Invoked when EJb transaction committed
      */
-    public void onTransactionComplete(UserTransaction transaction);
+    void onTransactionComplete(UserTransaction transaction);
 
 }
