@@ -63,4 +63,9 @@ public class RelationDao extends GenericDao<Relation> {
         queryFactory.delete(rp).where(rp.relation.id.eq(id)).execute();
         super.delete(id);
     }
+
+    public long getAllCount() {
+        QRelationPair rp = QRelationPair.relationPair;
+        return queryFactory.selectFrom(rp).fetchCount();
+    }
 }

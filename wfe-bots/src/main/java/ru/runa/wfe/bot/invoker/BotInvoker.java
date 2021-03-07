@@ -10,6 +10,5 @@ import ru.runa.wfe.bot.BotStation;
  */
 public interface BotInvoker {
 
-    public void invokeBots(BotStation botStation, boolean resetFailedDelay);
-
+    void invokeBots(BotStation botStation, boolean resetFailedDelay);
 }
