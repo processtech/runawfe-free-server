@@ -300,6 +300,10 @@ tr.executor_group {
 	background-color: tomato;
 }
 
+.symbol {
+	color: #990000;
+}
+
 .checkBoxNone {
 	display: none;
 }
@@ -333,6 +337,10 @@ tr.executor_group {
 #hideSystemMenu.ui-icon-triangle-1-w {
 	background-image: url(images/ui-icons_ffffff_256x240.png);
 }
+td.fontRed {
+    color: red !important;
+}
+
 #mainTableSwitchChats{
 	display:none;
 }

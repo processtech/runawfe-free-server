@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.val;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,10 +156,10 @@ public class PermissionDao extends CommonDao {
     }
 
     /**
-     * Called once after patches are successfully applied.
+     * Called once after migrations are successfully applied.
      */
-    public void init() {
-        QPrivelegedMapping pm = QPrivelegedMapping.privelegedMapping;
+    public void preloadPrivilegedMapping() {
+        val pm = QPrivelegedMapping.privelegedMapping;
         CloseableIterator<PrivelegedMapping> i = queryFactory.selectFrom(pm).iterate();
         while (i.hasNext()) {
             PrivelegedMapping m = i.next();

@@ -5,17 +5,17 @@
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:task="http://www.springframework.org/schema/task"
 	xsi:schemaLocation="
-       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-       http://www.springframework.org/schema/tx 
+       http://www.springframework.org/schema/tx
        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
-       http://www.springframework.org/schema/aop 
+       http://www.springframework.org/schema/aop
        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
-       http://www.springframework.org/schema/jee 
+       http://www.springframework.org/schema/jee
        http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context-2.5.xsd
-       http://www.springframework.org/schema/task 
+       http://www.springframework.org/schema/task
        http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
 	<bean id="systemPropertiesConfigurer"
@@ -248,7 +248,7 @@
 	<bean id="executorLogic" class="ru.runa.wfe.user.logic.ExecutorLogic">
 		<property name="setStatusHandlers">
 			<list>
-				<!-- bean class="ru.runa.wfe.synchronizer.online.ActorStatusSynchronizer" 
+				<!-- bean class="ru.runa.wfe.synchronizer.online.ActorStatusSynchronizer"
 					/ -->
 			</list>
 		</property>
@@ -270,8 +270,6 @@
 	<bean id="reportLogic" class="ru.runa.wfe.report.logic.ReportLogic" />
 	<bean id="adminScriptLogic" class="ru.runa.wfe.script.logic.AdminScriptLogic" />
 
-	<bean id="dbTransactionalInitializer" class="ru.runa.wfe.commons.dbpatch.DbTransactionalInitializer" />
-	<bean id="initializerLogic" class="ru.runa.wfe.commons.dbpatch.InitializerLogic" />
 	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
 
 	<task:scheduler id="baseScheduler" />
@@ -279,6 +277,7 @@
 	<bean id="jobExecutor" class="ru.runa.wfe.job.impl.JobExecutor" />
 	<bean id="unassignedTaskAssigner" class="ru.runa.wfe.job.impl.UnassignedTaskAssigner" />
 	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
+    <bean id="statisticReportExecutor" class="ru.runa.wfe.statistics.job.StatisticReportExecutor" init-method="init"/>
 
 	<task:scheduled-tasks scheduler="baseScheduler">
 		<task:scheduled ref="jobExecutor" method="execute" fixed-delay="${timertask.period.millis.job.execution}" />
@@ -287,13 +286,15 @@
 	</task:scheduled-tasks>
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
-	
+
 	<bean id="executionContextFactory" class="ru.runa.wfe.execution.ExecutionContextFactory" />
-	
+
 	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
-	
+
 	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JmsNodeAsyncExecutor" />
-	
+
 	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
-	
+
+	<bean id="formHandlerExecutor" class="ru.runa.wfe.execution.FormHandlerExecutor" />
+
 </beans>

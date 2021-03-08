@@ -32,10 +32,10 @@ public class SystemProperties {
     public static PropertyResources getResources() {
         return RESOURCES;
     }
-    
+
     public static boolean isTaskDelegationEnabled() {
         return RESOURCES.getBooleanProperty("task.delegation.enabled", true);
-    }       
+    }
 
     /**
      * Production or development mode?
@@ -102,6 +102,13 @@ public class SystemProperties {
      */
     public static boolean useNonRuntimeSubstitutionCache() {
         return NO_DATABASE_RESOURCES.getBooleanProperty("nonruntime.susbstitution.cache", true);
+    }
+
+    /**
+     * Product name
+     */
+    public static String getProductName() {
+        return RESOURCES.getStringProperty("product.name");
     }
 
     /**
@@ -411,5 +418,16 @@ public class SystemProperties {
 
     public static boolean showErrorsInGroovyExpressionValidator() {
         return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
+    }
+
+    public static String getPreferredMessagesLanguage() {
+        return RESOURCES.getStringProperty("preferred.messages.language");
+    }
+
+    /**
+     * System statistic report enabled
+     */
+    public static boolean isReportStatisticEnabled() {
+        return RESOURCES.getBooleanProperty("statistic.report.enabled", false);
     }
 }

@@ -30,6 +30,7 @@ public class TaskIdForm extends IdNameForm {
     private static final long serialVersionUID = 23542935792835791L;
 
     public static final String TASK_ID_INPUT_NAME = "taskId";
+    public static final String SELECTED_TASK_PROCESS_ID_NAME = "selectedTaskProcessId";
 
     private Long taskId;
     private Long childProcessId;

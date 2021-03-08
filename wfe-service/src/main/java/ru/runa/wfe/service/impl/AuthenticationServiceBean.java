@@ -23,6 +23,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
@@ -32,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.security.logic.AuthenticationLogic;
 import ru.runa.wfe.service.decl.AuthenticationServiceLocal;
 import ru.runa.wfe.service.decl.AuthenticationServiceRemote;
@@ -89,6 +91,15 @@ public class AuthenticationServiceBean implements AuthenticationServiceLocal, Au
         log.debug("Authenticating (trusted) " + login);
         User user = authenticationLogic.authenticate(serviceUser, login);
         log.debug("Authenticated (trusted): " + user);
+        return user;
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public User authenticateBot(User botStationUser, Bot bot) {
+        log.debug("Authenticating (bot) " + bot.getUsername());
+        User user = authenticationLogic.authenticate(botStationUser, bot.getUsername());
+        log.debug("Authenticated (bot): " + user);
         return user;
     }
 }

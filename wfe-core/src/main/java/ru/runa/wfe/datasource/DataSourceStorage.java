@@ -1,5 +1,6 @@
 package ru.runa.wfe.datasource;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.File;
@@ -9,6 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -110,8 +114,26 @@ public class DataSourceStorage implements DataSourceStuff {
         return moveToHistory(new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX));
     }
 
-    public static synchronized void clear() {
+    public static synchronized void clear(boolean doNotChangeInternalStoragePath) {
         for (String dsName : getNames()) {
+            if (doNotChangeInternalStoragePath && dsName.equals(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)) {
+                DataSource ds = getDataSource(dsName);
+                if (ds instanceof ExcelDataSource) {
+                    try {
+                        for (Path path : Files.newDirectoryStream(Paths.get(((ExcelDataSource) ds).getFilePath()),
+                                "*{" + EXCEL_FILE_XLS_SUFFIX + "," + EXCEL_FILE_XLSX_SUFFIX + "}")) {
+                            File file = path.toFile();
+                            if (file.isFile() && file.delete()) {
+                                log.info(file + " is removed");
+                            }
+                        }
+                    } catch (IOException e) {
+                        log.error(e);
+                    }
+                }
+                continue;
+            }
+
             moveToHistory(new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX));
         }
     }
@@ -157,6 +179,14 @@ public class DataSourceStorage implements DataSourceStuff {
         return all;
     }
 
+    public static int getAllDataSourcesCount() {
+        List<DataSource> all = Lists.newArrayList();
+        for (String dsName : getNames()) {
+            all.add(getDataSource(dsName));
+        }
+        return all.size();
+    }
+
     public static List<String> getNames() {
         File[] files = getStorageDir().listFiles(new FileFilter() {
             @Override
@@ -188,35 +218,39 @@ public class DataSourceStorage implements DataSourceStuff {
         Document document = XmlUtils.parseWithoutValidation(content);
         Element root = document.getRootElement();
         String dsName = root.attributeValue(ATTR_NAME);
-        File dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
-        if (force || !dsFile.exists()) {
-            byte[] contentTmp = content;
-            if (dsFile.exists()) {
-                if (preservePassword && root.attributeValue(ATTR_TYPE).equals(DataSourceType.JDBC.name())) {
-                    String password = XmlUtils.parseWithoutValidation(restore(dsName)).getRootElement().elementText(ELEMENT_PASSWORD);
-                    Element psw = root.element(ELEMENT_PASSWORD);
-                    if (password == null) {
-                        if (psw != null) {
-                            root.remove(psw);
-                        }
-                    } else {
-                        if (psw != null) {
-                            psw.setText(password);
+        if (!Strings.isNullOrEmpty(dsName)) {
+            File dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
+            if (force || !dsFile.exists()) {
+                byte[] contentTmp = content;
+                if (dsFile.exists()) {
+                    if (preservePassword && root.attributeValue(ATTR_TYPE).equals(DataSourceType.JDBC.name())) {
+                        String password = XmlUtils.parseWithoutValidation(restore(dsName)).getRootElement().elementText(ELEMENT_PASSWORD);
+                        Element psw = root.element(ELEMENT_PASSWORD);
+                        if (password == null) {
+                            if (psw != null) {
+                                root.remove(psw);
+                            }
                         } else {
-                            root.addElement(ELEMENT_PASSWORD).setText(password);
+                            if (psw != null) {
+                                psw.setText(password);
+                            } else {
+                                root.addElement(ELEMENT_PASSWORD).setText(password);
+                            }
                         }
+                        contentTmp = XmlUtils.save(document, OutputFormat.createPrettyPrint());
                     }
-                    contentTmp = XmlUtils.save(document, OutputFormat.createPrettyPrint());
+                    if (moveToHistory(dsFile)) {
+                        dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
+                    }
                 }
-                if (moveToHistory(dsFile)) {
-                    dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
+                try (FileOutputStream fos = new FileOutputStream(dsFile)) {
+                    fos.write(contentTmp);
+                    return true;
+                } catch (IOException e) {
+                    throw new InternalApplicationException(e);
                 }
-            }
-            try (FileOutputStream fos = new FileOutputStream(dsFile)) {
-                fos.write(contentTmp);
-                return true;
-            } catch (IOException e) {
-                throw new InternalApplicationException(e);
+            } else {
+                return false;
             }
         } else {
             return false;
