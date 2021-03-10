@@ -32,8 +32,6 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.TabHttpSessionHelper;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceStuff;
@@ -146,10 +144,6 @@ public class TabHeaderTag extends TagSupport {
                 if (menuForward.menuMessage.getKey().equals(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE.getKey())) {
                     return DataSourceStorage.getNames().contains(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)
                             && DataSourceStorage.getDataSource(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME) instanceof ExcelDataSource;
-                }
-                if (menuForward.menuMessage.getKey().equals(MessagesCommon.MAIN_MENU_ITEM_ERRORS.getKey())) {
-                    return !Delegates.getSystemService().getSystemErrors(getUser()).isEmpty()
-                            || !Delegates.getSystemService().getAllProcessErrors(getUser()).isEmpty();
                 }
                 return true;
             }
