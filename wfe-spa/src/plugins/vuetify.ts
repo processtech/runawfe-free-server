@@ -23,9 +23,7 @@ export default new Vuetify({
     mobileBreakpoint: 960 
   },
   icons: {
-    values: { 
-      expand: 'mdi-menu-down' 
-    },
+    iconfont: 'mdi' 
   },
   theme: {
     themes: {

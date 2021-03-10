@@ -11,7 +11,7 @@
   export default Vue.extend({
     name: 'App' as string,
     metaInfo: {
-      title: 'Главная',
+      title: 'Рабочий стол',
       titleTemplate: '%s | Runawfe-Professional',
       meta: [
         { charset: 'utf-8' },

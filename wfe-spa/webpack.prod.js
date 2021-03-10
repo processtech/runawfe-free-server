@@ -22,6 +22,7 @@ module.exports = merge(common, {
               sassOptions: {
                 indentedSyntax: true
               },
+              //additionalData: "@import '@/styles/variables.scss'",
             },
           },
         ],
