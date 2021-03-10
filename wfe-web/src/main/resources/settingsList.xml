@@ -14,7 +14,7 @@
 			<value>false</value>
 		</property>		
 		<property title="token.maximum.depth" pattern="\d*"/>
-		<property title="token.maximum.length" pattern="\d*"/>
+		<property title="token.maximum.length" pattern="\d*|-1"/>
 		<property title="file.variable.local.storage.enabled">
 			<value>true</value>
 			<value>false</value>
@@ -66,6 +66,7 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="preferred.messages.language" />
 	</properties_file>
 	
 	<properties_file title="class.presentation.properties">

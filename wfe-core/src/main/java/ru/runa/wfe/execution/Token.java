@@ -107,4 +107,5 @@ public abstract class Token {
     public String getErrorMessage() {
         return errorMessage;
     }
+
 }

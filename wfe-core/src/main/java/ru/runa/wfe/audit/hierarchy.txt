@@ -1,38 +1,38 @@
 
     <!-- A : ru.runa.wfe.audit.ArchivedActionLog -->
-    <!-- B : ru.runa.bpm.log.SubprocessStartLog -->
-    <!-- C : ru.runa.bpm.log.CreateTimerLog -->
-    <!-- D : ru.runa.bpm.log.VariableDeleteLog -->
-    <!-- E : ru.runa.bpm.log.AdminActionLog -->
-    <!-- F : ru.runa.bpm.log.TaskDelegationLog -->
+    <!-- B : ru.runa.wfe.audit.SubprocessStartLog -->
+    <!-- C : ru.runa.wfe.audit.CreateTimerLog -->
+    <!-- D : ru.runa.wfe.audit.VariableDeleteLog -->
+    <!-- E : ru.runa.wfe.audit.AdminActionLog -->
+    <!-- F : ru.runa.wfe.audit.TaskDelegationLog -->
     <!-- G : ru.runa.wfe.audit.ArchivedProcessLog -->
-    <!-- H :  -->
-    <!-- I : ru.runa.bpm.log.ProcessCreateLog -->
+    <!-- H : ru.runa.wfe.audit.CurrentNodeErrorLog -->
+    <!-- I : ru.runa.wfe.audit.ProcessCreateLog -->
     <!-- J :  -->
-    <!-- K : ru.runa.bpm.log.TaskEndByAdminLog -->
-    <!-- L : ru.runa.bpm.log.NodeLeaveLog -->
-    <!-- M : ru.runa.bpm.log.TaskRemovedOnProcessEndLog -->
-    <!-- N : ru.runa.bpm.log.NodeEnterLog -->
-    <!-- O : ru.runa.bpm.log.TaskCancelledLog -->
+    <!-- K : ru.runa.wfe.audit.TaskEndByAdminLog -->
+    <!-- L : ru.runa.wfe.audit.NodeLeaveLog -->
+    <!-- M : ru.runa.wfe.audit.TaskRemovedOnProcessEndLog -->
+    <!-- N : ru.runa.wfe.audit.NodeEnterLog -->
+    <!-- O : ru.runa.wfe.audit.TaskCancelledLog -->
     <!-- P :  -->
     <!-- Q : ru.runa.wfe.audit.CurrentProcessLog -->
-    <!-- R : ru.runa.bpm.log.VariableCreateLog -->
-    <!-- S : ru.runa.bpm.log.TaskEndBySubstitutorLog -->
-    <!-- T : ru.runa.bpm.log.TransitionLog -->
+    <!-- R : ru.runa.wfe.audit.VariableCreateLog -->
+    <!-- S : ru.runa.wfe.audit.TaskEndBySubstitutorLog -->
+    <!-- T : ru.runa.wfe.audit.TransitionLog -->
     <!-- U : ru.runa.wfe.audit.ProcessActivateLog -->
     <!-- V : ru.runa.wfe.audit.ProcessSuspendLog -->
-    <!-- W : ru.runa.bpm.log.VariableUpdateLog -->
-    <!-- X : ru.runa.bpm.log.ProcessEndLog -->
-    <!-- Y : ru.runa.bpm.log.ProcessCancelLog -->
-    <!-- Z : ru.runa.bpm.log.SubprocessEndLog -->
+    <!-- W : ru.runa.wfe.audit.VariableUpdateLog -->
+    <!-- X : ru.runa.wfe.audit.ProcessEndLog -->
+    <!-- Y : ru.runa.wfe.audit.ProcessCancelLog -->
+    <!-- Z : ru.runa.wfe.audit.SubprocessEndLog -->
     <!-- 0 :  -->
-    <!-- 1 : ru.runa.bpm.log.TaskCreateLog -->
-    <!-- 2 : ru.runa.bpm.log.TaskAssignLog -->
-    <!-- 3 : ru.runa.bpm.log.TaskEndLog -->
-    <!-- 4 : ru.runa.bpm.log.SwimlaneAssignLog -->
-    <!-- 5 : ru.runa.bpm.log.TaskEscalationLog -->
+    <!-- 1 : ru.runa.wfe.audit.TaskCreateLog -->
+    <!-- 2 : ru.runa.wfe.audit.TaskAssignLog -->
+    <!-- 3 : ru.runa.wfe.audit.TaskEndLog -->
+    <!-- 4 : ru.runa.wfe.audit.SwimlaneAssignLog -->
+    <!-- 5 : ru.runa.wfe.audit.TaskEscalationLog -->
     <!-- 6 :  -->
-    <!-- 7 : ru.runa.bpm.log.SendMessageLog -->
-    <!-- 8 : ru.runa.bpm.log.ReceiveMessageLog -->
-    <!-- 9 : ru.runa.bpm.log.TaskExpiredLog -->
+    <!-- 7 : ru.runa.wfe.audit.SendMessageLog -->
+    <!-- 8 : ru.runa.wfe.audit.ReceiveMessageLog -->
+    <!-- 9 : ru.runa.wfe.audit.TaskExpiredLog -->
     

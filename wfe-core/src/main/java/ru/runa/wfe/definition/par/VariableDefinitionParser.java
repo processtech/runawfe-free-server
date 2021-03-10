@@ -4,12 +4,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDao;
@@ -137,11 +137,10 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 Object value = variableFormat.parse(stringDefaultValue);
                 variableDefinition.setDefaultValue(value);
             } catch (Exception e) {
+                Date createDate = parsedProcessDefinition.getProcessDefinitionVersion().getCreateDate();
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
-                        || parsedProcessDefinition.getProcessDefinitionVersion().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())
-                ) {
-                    throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue + "' for variable '"
-                            + variableDefinition.getName() + "'", e);
+                        || (createDate == null ? new Date() : createDate).after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
+                    throw e;
                 } else {
                     log.error("Unable to format default value '" + stringDefaultValue + "' in " + parsedProcessDefinition + ":" + variableDefinition, e);
                 }

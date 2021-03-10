@@ -87,7 +87,6 @@ public class ScriptingServiceBean implements ScriptingService {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(configData != null, "configData");
         Preconditions.checkArgument(externalResources != null, "externalResources");
-        Preconditions.checkArgument(defaultPasswordValue != null, "defaultPasswordValue");
         ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, defaultPasswordValue, dataSourceDefaultPasswordValue);
         val errors = new ArrayList<String>();
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {

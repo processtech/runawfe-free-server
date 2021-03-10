@@ -23,6 +23,7 @@ import ru.runa.wfe.commons.dbmigration.InitializerLogic;
 import ru.runa.wfe.commons.hibernate.Converters;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.FormHandlerExecutor;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
@@ -205,7 +206,10 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(VariableLogic.class);
     }
 
-    @SuppressWarnings("unchecked")
+    public static FormHandlerExecutor getFormHandlerExecutor() {
+        return getContext().getBean(FormHandlerExecutor.class);
+    }
+
     public static <T> T createAutowiredBean(String className) {
         return (T) createAutowiredBean(ClassLoaderUtil.loadClass(className));
     }

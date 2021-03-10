@@ -1,11 +1,11 @@
-package ru.runa.wfe.rest;
+package ru.runa.wfe.rest.config;
 
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.support.AbstractDispatcherServletInitializer;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 
-public class ApiServletInitializer extends AbstractDispatcherServletInitializer {
+public class SpringWebMvcDispatcherServletInitializer extends AbstractDispatcherServletInitializer {
 
     @Override
     protected String[] getServletMappings() {
@@ -15,7 +15,6 @@ public class ApiServletInitializer extends AbstractDispatcherServletInitializer 
     @Override
     protected WebApplicationContext createServletApplicationContext() {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(ApiConfig.class);
         return context;
     }
 
@@ -26,6 +25,8 @@ public class ApiServletInitializer extends AbstractDispatcherServletInitializer 
         }
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.setParent(ApplicationContextFactory.getContext());
+        context.register(AppConfig.class);
+        context.register(SpringSecurityConfig.class);
         return context;
     }
 

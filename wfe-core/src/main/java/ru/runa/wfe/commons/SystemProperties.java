@@ -449,4 +449,7 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
     }
 
+    public static String getPreferredMessagesLanguage() {
+        return RESOURCES.getStringProperty("preferred.messages.language");
+    }
 }

@@ -22,6 +22,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.CurrentAdminActionLog;
 import ru.runa.wfe.audit.CurrentCreateTimerLog;
+import ru.runa.wfe.audit.CurrentNodeErrorLog;
 import ru.runa.wfe.audit.CurrentProcessActivateLog;
 import ru.runa.wfe.audit.CurrentProcessCancelLog;
 import ru.runa.wfe.audit.CurrentProcessEndLog;
@@ -197,6 +198,12 @@ public class ExecutionLogic extends WfCommonLogic {
         String errorMessage = Utils.getCuttedString(throwable.toString(), 1024 / 2);
         stateChanged |= !Objects.equal(errorMessage, token.getErrorMessage());
         token.setErrorMessage(errorMessage);
+        // Log error
+        if (stateChanged) {
+            final Node node = token.getNodeNotNull(ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(token.getProcess()));
+            final CurrentNodeErrorLog errorLog = new CurrentNodeErrorLog(node, errorMessage);
+            ApplicationContextFactory.getProcessLogDao().addLog(errorLog, token.getProcess(), token);
+        }
         return stateChanged;
     }
 
