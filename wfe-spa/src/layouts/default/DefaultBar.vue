@@ -10,15 +10,15 @@
         flat
     >
         <v-app-bar-nav-icon
-        class="hidden-md-and-up"
-        @click="drawer = !drawer"
+            class="hidden-md-and-up"
+            @click="drawer = !drawer"
         />
 
         <default-drawer-toggle class="hidden-sm-and-down" />
 
         <v-toolbar-title
-        class="font-weight-light text-h5"
-        v-text="name"
+            class="font-weight-light text-h5"
+            v-text="name"
         />
 
     </v-app-bar>
@@ -42,5 +42,5 @@ export default Vue.extend({
     components: {
         DefaultDrawerToggle,
     }
-})
+});
 </script>

@@ -1,9 +1,9 @@
 <template>
     <v-list
-    expand
-    nav
-    v-bind="$attrs"
-    v-on="$listeners"
+        expand
+        nav
+        v-bind="$attrs"
+        v-on="$listeners"
     >
         <v-list-item v-for="(item, i) in items"
             :key="`item-${i}`"
@@ -40,5 +40,5 @@ export default Vue.extend({
         default: () => ([]),
       },
     },
-})
+});
 </script>

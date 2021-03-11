@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import { layout } from '../plugins/router-functions';
+import { layout } from './router-helpers';
 import Desktop from '../views/Desktop.vue';
 import TaskList from '../views/TaskList.vue';
 import ProcessStart from '../views/ProcessStart.vue';
@@ -12,22 +12,22 @@ const router = new Router({
   routes: [
     layout('Default', [
       {
-        name: 'Desktop',
+        name: 'Рабочий стол',
         component: Desktop,
         path: ''
       },
       {
-        name: 'TaskList',
+        name: 'Мои задачи',
         component: TaskList,
         path: '/task/list/'
       },
       {
-        name: 'ProcessStart',
+        name: 'Запустить процесс',
         component: ProcessStart,
         path: '/process/start/'
       },
       {
-        name: 'ProcessList',
+        name: 'Запущенные процессы',
         component: ProcessList,
         path: '/process/list/'
       },

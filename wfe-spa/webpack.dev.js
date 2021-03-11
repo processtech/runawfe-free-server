@@ -22,18 +22,24 @@ module.exports = merge(common, {
   module: {
     rules: [
       {
-        test: /\.((c|sa|sc)ss)$/i,
+        test: /\.(sa|sc|c)ss$/,
         use: [
-          'vue-style-loader', 
-          'css-loader', 
+          'vue-style-loader',
+          {
+            loader: 'css-loader', 
+            options: {
+              sourceMap: true, // Enables generation of source maps
+            },
+          },
           {
             loader: 'sass-loader', 
             options: {
               implementation: require('sass'),
+              sourceMap: true,
               sassOptions: {
                 indentedSyntax: true
               },
-              //additionalData: "@import '../styles/variables.scss'",
+              additionalData: "@import './src/styles/variables.scss'",
             },
           },
         ],

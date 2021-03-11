@@ -7,36 +7,24 @@ const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 
 module.exports = {
   entry: {
-      index: './src/index.ts',
+      index: './src/index.ts', // Главный файл js, который включает все остальные js модули, а во время сборки подключается в выходной index.html
   },
   output: {
     filename: 'assets/js/[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
   },
   plugins: [
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
+    new CleanWebpackPlugin(), // Очищает папку dist перед каждой сборкой
+    new HtmlWebpackPlugin({ // Генерирует файл ~/dist/index.html на базе шаблона ~src/index.html и включает ~src/index.ts перед закрывающим тегом </body>.
       title: 'RunaWFE Professional',
       filename: 'index.html',
       template: 'src/index.html',
     }),
-    new VueLoaderPlugin(),
-    new VuetifyLoaderPlugin(),
+    new VueLoaderPlugin(), // Обеспечивает работу однофайловых компонентов
+    new VuetifyLoaderPlugin(), // Управляет автозагрузкой компонентов Vuetify, хотя существует и ручной способ, но более сложный
   ],
-  optimization: {
-    moduleIds: 'deterministic',
-    runtimeChunk: 'single',
-    splitChunks: {
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-        },
-      },
-    },
-  },
   module: {
+    // Конфигурации загрузчиков файлов с правилами обработки, компиляции/транспиляции/минификации
     rules: [
       {
         test: /\.ts$/,
@@ -82,7 +70,7 @@ module.exports = {
     ],
   },
   resolve: {
-    // Добавляем `.ts` как обрабатываемое расширение.
-    extensions: [ '.ts', '.js', '.json' ],
+    // Обрабатываемые расширения.
+    extensions: [ '.ts', '.js', '.vue', '.json' ],
   },
 };

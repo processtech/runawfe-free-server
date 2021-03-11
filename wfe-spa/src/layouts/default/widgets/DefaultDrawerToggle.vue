@@ -1,10 +1,10 @@
 <template>
     <v-btn
-    class="ml-3 mr-4"
-    elevation="1"
-    fab
-    small
-    @click="mini = !mini"
+        class="ml-3 mr-4"
+        elevation="1"
+        fab
+        small
+        @click="mini = !mini"
     >
         <v-icon>
             {{ mini ? 'mdi-format-list-bulleted' : 'mdi-dots-vertical' }}
@@ -21,5 +21,5 @@ export default Vue.extend({
     computed: {
       mini: sync('app/mini'),
     },
-})
+});
 </script>

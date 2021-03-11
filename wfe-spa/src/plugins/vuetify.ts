@@ -1,17 +1,12 @@
 import Vue from 'vue';
 import Vuetify from 'Vuetify';
-import { Ripple } from 'vuetify/lib/directives';
 
-Vue.use(Vuetify, { 
-  directives: { 
-    Ripple 
-  }
-});
+Vue.use(Vuetify);
 
 const theme = {
-  primary: '#E91E63',
+  primary: '#4CAF50',
   secondary: '#9C27b0',
-  accent: '#e91e63',
+  accent: '#4CAF50',
   info: '#00CAE3',
   success: '#4CAF50',
   warning: '#FB8C00',

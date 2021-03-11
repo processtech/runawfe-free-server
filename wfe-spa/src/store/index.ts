@@ -19,5 +19,3 @@ const store = new Vuex.Store({
 store.dispatch('app/init');
 
 export default store;
-
-export const ROOT_DISPATCH = Object.freeze({ root: true });

@@ -40,7 +40,7 @@ export default Vue.extend({
       mini: sync('app/mini'),
       items: get('app/items'),
     },
-})
+});
 </script>
 
 <style lang="sass">

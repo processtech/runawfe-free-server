@@ -1,3 +1,4 @@
+// Модуль хранит состояние приложения, например данные для списка пунктов меню
 import { make } from 'vuex-pathify';
 
 const state = {
@@ -36,12 +37,14 @@ const actions = {
   },
 };
 
-const getters = {};
+const getters = {
+    ...make.getters(state),
+};
 
 export default {
-  namespaced: true,
-  state,
-  mutations,
-  actions,
-  getters,
+    namespaced: true,
+    state,
+    mutations,
+    actions,
+    getters,
 };

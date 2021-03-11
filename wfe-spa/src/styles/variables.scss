@@ -1,6 +1,3 @@
-// reduce button default elevation
-// default background color is #EEEEEE
-
 $btn-sizes: (
   'small': 28,
   'default': 41,
@@ -85,7 +82,7 @@ $headings: (
   ),
   'subtitle-2': (
     'size': 0.875rem,
-    'line-height': 1.5em !important,
+    'line-height': 1.5em,
     'weight': 300
   ),
   'caption': (

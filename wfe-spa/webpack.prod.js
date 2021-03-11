@@ -4,25 +4,40 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = merge(common, {
   mode: 'production',
+  optimization: {
+    moduleIds: 'deterministic',
+    runtimeChunk: 'single',
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
+  },
   module: {
     rules: [
       {
-        test: /\.((c|sa|sc)ss)$/i,
+        test: /\.(sa|sc|c)ss$/,
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-          },
+          MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
+            options: {
+              sourceMap: false, // Disable generation of source maps
+            }
           },
           {
             loader: 'sass-loader',
             options: {
               implementation: require('sass'),
+              sourceMap: false, // Disable generation of source maps
               sassOptions: {
                 indentedSyntax: true
               },
-              //additionalData: "@import '@/styles/variables.scss'",
+              additionalData: "@import './src/styles/variables.scss'",
             },
           },
         ],
@@ -36,7 +51,4 @@ module.exports = merge(common, {
       ignoreOrder: false,
     }),
   ],
-  stats: {
-    children: true,
-  },
 });
