@@ -21,6 +21,14 @@
             v-text="name"
         />
 
+        <v-spacer />
+
+        <default-search class="hidden-sm-and-down" />
+
+        <default-notifications />
+
+        <default-account />
+
     </v-app-bar>
 </template>
 
@@ -28,6 +36,9 @@
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
 import DefaultDrawerToggle from './widgets/DefaultDrawerToggle.vue';
+import DefaultSearch from './widgets/DefaultSearch.vue';
+import DefaultAccount from './widgets/DefaultAccount.vue';
+import DefaultNotifications from './widgets/DefaultNotifications.vue';
 
 export default Vue.extend({
     name: "DefaultBar",
@@ -41,6 +52,9 @@ export default Vue.extend({
     },
     components: {
         DefaultDrawerToggle,
+        DefaultSearch,
+        DefaultAccount,
+        DefaultNotifications
     }
 });
 </script>

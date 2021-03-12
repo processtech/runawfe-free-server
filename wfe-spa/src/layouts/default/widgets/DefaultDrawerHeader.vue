@@ -1,12 +1,8 @@
 <template>
     <v-list-item class="mb-0 justify-space-between pl-3">
-        <v-list-item-avatar>
-            <v-img
-                :src="
-                require('../../../assets/logo.png')"
-            />
+        <v-list-item-avatar rounded="0">
+            <v-img :src="require('../../../assets/logo.png')" />
         </v-list-item-avatar>
-
         <v-list-item-content class="pl-2">
             <v-list-item-title class="text-h3">
                 <strong class="mr-1 font-weight-black">Runa</strong>
