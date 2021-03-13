@@ -8,6 +8,7 @@ import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.User;
 
 /**
@@ -50,9 +51,11 @@ public interface ChatService {
      * Gets a list of chats
      * @param user
      *              authorized user
+     * @param batchPresentation
+     *              batch presentation
      * @return not <code>null</code>
      */
-    public List<WfChatRoom> getChatRooms(User user);
+    public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation);
 
     /**
      * Updates the message and sends the <code>MessageEditedBroadcast<code> to all active chats

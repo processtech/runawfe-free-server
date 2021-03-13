@@ -39,6 +39,7 @@ public class FilterCriteriaFactory {
     static {
         filterCriterias.put(String.class, StringFilterCriteria.class);
         filterCriterias.put(Integer.class, LongFilterCriteria.class);
+        filterCriterias.put(Long.class, LongFilterCriteria.class);
         filterCriterias.put(Date.class, DateFilterCriteria.class);
         filterCriterias.put(Variable.class, StringFilterCriteria.class);
     }

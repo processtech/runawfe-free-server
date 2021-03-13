@@ -8,6 +8,7 @@ import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.user.User;
 
@@ -37,8 +38,8 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<WfChatRoom> getChatRooms(User user) {
-        return getChatService().getChatRooms(user);
+    public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
+        return getChatService().getChatRooms(user, batchPresentation);
     }
 
     @Override

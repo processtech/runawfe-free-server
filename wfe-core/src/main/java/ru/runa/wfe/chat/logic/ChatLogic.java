@@ -29,7 +29,11 @@ import ru.runa.wfe.chat.mapper.MessageAddedBroadcastFileMapper;
 import ru.runa.wfe.chat.mapper.MessageAddedBroadcastMapper;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
+import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -90,8 +94,20 @@ public class ChatLogic extends WfCommonLogic {
         return messageFileMapper.toDtos(messages);
     }
 
-    public List<WfChatRoom> getChatRooms(User user) {
-        return messageDao.getChatRooms(user.getActor());
+    public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
+        List<Process> orderedProcesses = getPersistentObjects(user, batchPresentation, Permission.READ,
+                new SecuredObjectType[]{SecuredObjectType.CHAT_ROOMS}, true);
+        List<WfChatRoom> rooms = messageDao.getChatRooms(user.getActor());
+        List<WfChatRoom> result = new ArrayList<>(rooms.size());
+        for (Process process : orderedProcesses) {
+            for (WfChatRoom room : rooms) {
+                if (process.getId().equals(room.getId())) {
+                    result.add(room);
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     public void deleteMessage(User user, Long messageId) {

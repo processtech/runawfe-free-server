@@ -25,8 +25,19 @@ public class ChatRoomClassPresentation extends ClassPresentation {
                         "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{ Permission.READ, "id" }),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(Process.class, "deployment.name"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{ Permission.READ, "processName" }),
-                new FieldDescriptor(NEW_MESSAGES, Integer.class.getName(), new DefaultDbSource(ChatMessageRecipient.class, "readDate"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatNewMessagesCountTdBuilder", new Object[]{ Permission.READ, "processId" }) });
+                new FieldDescriptor(NEW_MESSAGES, Long.class.getName(), new ChatMessageDbSource(), true, FieldFilterMode.DATABASE,
+                        "ru.runa.wf.web.html.ChatNewMessagesCountTdBuilder", new Object[]{ Permission.READ, "processId" }) });
+    }
+
+    private static class ChatMessageDbSource extends DefaultDbSource {
+        public ChatMessageDbSource() {
+            super(ChatMessageRecipient.class, "readDate");
+        }
+
+        @Override
+        public String getJoinExpression(String alias) {
+            return classNameSQL + ".id=" + alias + ".id";
+        }
     }
 
     public static ClassPresentation getInstance() {
