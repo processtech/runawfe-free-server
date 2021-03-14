@@ -19,6 +19,12 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 
+/**
+ * Конфиг свагера влияет только на генерирование спецификации и на встроенный интерфейс swagger-ui.
+ * 
+ * @author Zuev Vladimir
+ * @since 14.03.2021
+ */
 @Configuration
 @EnableOpenApi
 public class SwaggerConfig {

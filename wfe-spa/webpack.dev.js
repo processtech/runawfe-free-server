@@ -11,7 +11,7 @@ module.exports = merge(common, {
     // writeToDisk: true,
     contentBase: path.join(__dirname, 'dist'),
     hot: true, // Enabling Hot Module Replacement
-    host: 'localhost',
+    host: '127.0.0.1',
     port: 3000,
     overlay: {
       warnings: true,

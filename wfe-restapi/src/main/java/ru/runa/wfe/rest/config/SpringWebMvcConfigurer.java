@@ -28,10 +28,12 @@ public class SpringWebMvcConfigurer implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
           registry
               .addMapping("/**")
-              .allowedOrigins("*")
+              //TODO Вынести настройку в properties с белым списком для кроссдоменных запросов
+              .allowedOrigins("http://127.0.0.1:3000")
               .allowCredentials(true)
-              .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH")
-              .allowedHeaders("Origin, X-Requested-With, Content-Type, Accept, Authorization");     
+              .allowedMethods("HEAD", "GET", "PUT", "POST", "OPTIONS", "DELETE", "PATCH")
+              .allowedHeaders("*")
+              .maxAge(3600);
     }
 
 }

@@ -7,10 +7,18 @@
         <v-data-table
             :headers="headers"
             :items="tasks"
+            item-key="id"
             :options.sync="options"
             :server-items-length="totalTasks"
             :loading="loading"
-            class="elevation-1" />
+            class="elevation-1">
+            <template v-slot:[`item.creationDate`]="{ item }">
+                {{ new Date(item.creationDate).toLocaleString() }}
+            </template>
+            <template v-slot:[`item.deadlineDate`]="{ item }">
+                {{ new Date(item.deadlineDate).toLocaleString() }}
+            </template>
+        </v-data-table>
 
     </v-container>
 </template>
@@ -18,6 +26,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import SwaggerClient from 'swagger-client';
+import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
     name: "Desktop",
@@ -35,10 +44,10 @@ export default Vue.extend({
                 value: 'name',
             },
             { text: '№ экз.', value: 'processId' },
-            // { text: 'Тип процесса', value: 'type' }, // TODO Добавить поле тип процесса в response
+            // { text: 'Тип процесса', value: 'category' }, // TODO Добавить поле "тип процесса"
             { text: 'Процесс', value: 'definitionName' },
             { text: 'Создана', value: 'creationDate' },
-            // { text: 'Выполнена', value: 'dateComplete' }, // TODO Добавить поле тип процесса в response
+            { text: 'Выполнена', value: 'deadlineDate' }, 
         ],
       }
     },
@@ -54,22 +63,40 @@ export default Vue.extend({
         getDataFromApi () {
             this.loading = true;
 
-            const client = new SwaggerClient({ 
+            new SwaggerClient({
                 url: 'http://localhost:8080/restapi/v3/api-docs',
-                disableInterfaces: false,
-                v2OperationIdCompatibilityMode: false,
-            });
-            
-            client.then((client: any) => {
-                const data = client.apis['test-api-controller'].getTasksUsingGET().then((data: any) => {
-                    const tasks = data.body;
+            }).then((client: any) => {
+                const data = client.apis['auth-controller'].tokenUsingPOST({
+                    login: "Administrator",
+                    password: "wf"
+                }).then((data: any) => {
+                    let token = data.body;
+                    token = token.split(' ')[1];
                     
-                    this.tasks = data.body;
-                    this.totalTasks = data.body.length;
-                    this.loading = false;
-                });
-                
-            });
+                    const client = new SwaggerClient({ 
+                        url: 'http://localhost:8080/restapi/v3/api-docs',
+                        authorizations: {
+                            token: {
+                                value: token,
+                            },
+                        },
+                    });
+                    
+                    // TODO Temprorary for test
+                    client.then((client: any) => {
+                        const data = client.apis['task-api-controller'].getTasksUsingPOST().then((data: any) => {
+                            const tasks = data.body;
+                            
+                            this.tasks = data.body;
+                            this.totalTasks = data.body.length;
+                            this.loading = false;
+                        });
+                    },
+                    (reason: string) => console.error('failed on api call: ' + reason));
+                },
+                (reason: string) => console.error('failed on api call: ' + reason));
+            },
+            (reason: string) => console.error('failed to load the spec: ' + reason));
 
         },
     },

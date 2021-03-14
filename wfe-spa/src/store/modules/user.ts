@@ -3,6 +3,9 @@
 import { make } from 'vuex-pathify';
 
 const state = {
+    login: 'Administrator',
+    password: 'wf',
+    token: '',
     dark: true, // TODO Сделать через геттеры возможность переключения темы
     notifications: [],
 };
@@ -11,7 +14,7 @@ const mutations = make.mutations(state);
 
 const actions = {
     fetch: (args: any) => {
-        const local = localStorage.getItem('vuetify@user') || '{}';
+        const local = localStorage.getItem('runawfe@user') || '{}';
         const user = JSON.parse(local);
     
         for (const key in user) {
@@ -19,7 +22,7 @@ const actions = {
         }
     },
     update: (args: any) => {
-        localStorage.setItem('vuetify@user', JSON.stringify(args.state));
+        localStorage.setItem('runawfe@user', JSON.stringify(args.state));
     },
 };
 
