@@ -8,6 +8,7 @@ import router from './router';
 import vuetify from './plugins/vuetify';
 import './plugins/component-loader';
 import './plugins/vue-meta';
+// import './plugins/swagger-client';
 import store from './store';
 import { sync } from 'vuex-router-sync';
 

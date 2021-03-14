@@ -4,97 +4,74 @@
         fluid
         tag="section"
     >
-        <v-simple-table>
-            <thead>
-                <tr>
-                    <th class="primary--text">
-                    ID
-                    </th>
-                    <th class="primary--text">
-                    Name
-                    </th>
-                    <th class="primary--text">
-                    Country
-                    </th>
-                    <th class="primary--text">
-                    City
-                    </th>
-                    <th class="text-right primary--text">
-                    Salary
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Dakota Rice</td>
-                    <td>Niger</td>
-                    <td>Oud-Turnhout</td>
-                    <td class="text-right">
-                    $36,738
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>2</td>
-                    <td>Minverva Hooper</td>
-                    <td>Curaçao</td>
-                    <td>Sinaas-Waas</td>
-                    <td class="text-right">
-                    $23,789
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>3</td>
-                    <td>Sage Rodriguez</td>
-                    <td>Netherlands</td>
-                    <td>Baileux</td>
-                    <td class="text-right">
-                    $56,142
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>4</td>
-                    <td>Philip Chaney</td>
-                    <td>Korea, South</td>
-                    <td>Overland Park</td>
-                    <td class="text-right">
-                    $38,735
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>5</td>
-                    <td>Doris Greene</td>
-                    <td>Malawi</td>
-                    <td>Feldkirchen in Kärnten</td>
-                    <td class="text-right">
-                    $63,542
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>6</td>
-                    <td>Mason Porter</td>
-                    <td>Chile</td>
-                    <td>Gloucester</td>
-                    <td class="text-right">
-                    $78,615
-                    </td>
-                </tr>
-            </tbody>
-        </v-simple-table>
+        <v-data-table
+            :headers="headers"
+            :items="tasks"
+            :options.sync="options"
+            :server-items-length="totalTasks"
+            :loading="loading"
+            class="elevation-1" />
 
     </v-container>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import SwaggerClient from 'swagger-client';
 
 export default Vue.extend({
     name: "Desktop",
+
+    data() {
+      return {
+        totalTasks: 0,
+        tasks: [],
+        loading: true,
+        options: {},
+        headers: [
+            {
+                text: 'Задача',
+                align: 'start',
+                value: 'name',
+            },
+            { text: '№ экз.', value: 'processId' },
+            // { text: 'Тип процесса', value: 'type' }, // TODO Добавить поле тип процесса в response
+            { text: 'Процесс', value: 'definitionName' },
+            { text: 'Создана', value: 'creationDate' },
+            // { text: 'Выполнена', value: 'dateComplete' }, // TODO Добавить поле тип процесса в response
+        ],
+      }
+    },
+    watch: {
+        options: {
+            handler () {
+                this.getDataFromApi()
+            },
+            deep: true,
+        },
+    },
+    methods: {
+        getDataFromApi () {
+            this.loading = true;
+
+            const client = new SwaggerClient({ 
+                url: 'http://localhost:8080/restapi/v3/api-docs',
+                disableInterfaces: false,
+                v2OperationIdCompatibilityMode: false,
+            });
+            
+            client.then((client: any) => {
+                const data = client.apis['test-api-controller'].getTasksUsingGET().then((data: any) => {
+                    const tasks = data.body;
+                    
+                    this.tasks = data.body;
+                    this.totalTasks = data.body.length;
+                    this.loading = false;
+                });
+                
+            });
+
+        },
+    },
 });
 </script>
