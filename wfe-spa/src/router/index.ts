@@ -3,7 +3,7 @@ import Router from 'vue-router';
 import { layout } from './router-helpers';
 import Desktop from '../views/Desktop.vue';
 import TaskList from '../views/TaskList.vue';
-import ProcessStart from '../views/ProcessStart.vue';
+import ProcessDefinitionList from '../views/ProcessDefinitionList.vue';
 import ProcessList from '../views/ProcessList.vue';
 
 Vue.use(Router);
@@ -23,8 +23,8 @@ const router = new Router({
       },
       {
         name: 'Запустить процесс',
-        component: ProcessStart,
-        path: '/process/start/'
+        component: ProcessDefinitionList,
+        path: '/process/definition/list/'
       },
       {
         name: 'Запущенные процессы',

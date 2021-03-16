@@ -17,7 +17,7 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.rest.auth.AuthUser;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest;
-import ru.runa.wfe.rest.dto.WfTaskDto;
+import ru.runa.wfe.rest.dto.WfTasksDto;
 import ru.runa.wfe.rest.dto.WfTaskMapper;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.logic.TaskLogic;
@@ -31,13 +31,17 @@ public class TaskApiController {
 
     // required = false temporary for simple queries without request body
     @PostMapping("")
-    public List<WfTaskDto> getTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody(required = false) BatchPresentationRequest request) {
+    public WfTasksDto getTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody(required = false) BatchPresentationRequest request) {
         BatchPresentation batchPresentation = request != null 
                 ? request.toBatchPresentation(ClassPresentationType.TASK)
                 : BatchPresentationFactory.TASKS.createDefault();
         List<WfTask> tasks = taskLogic.getMyTasks(authUser.getUser(), batchPresentation);
         WfTaskMapper mapper = Mappers.getMapper(WfTaskMapper.class);
-        return mapper.map(tasks);
+        WfTasksDto tasksDto = new WfTasksDto();
+        tasksDto.setTasks(mapper.map(tasks));
+        List<WfTask> total = taskLogic.getMyTasks(authUser.getUser(), BatchPresentationFactory.TASKS.createDefault());
+        tasksDto.setTotal(total.size());
+        return tasksDto;
     }
 
     @GetMapping("{id}")

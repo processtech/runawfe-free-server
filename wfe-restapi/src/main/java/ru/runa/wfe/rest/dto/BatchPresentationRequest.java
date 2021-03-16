@@ -46,6 +46,10 @@ public class BatchPresentationRequest {
         boolean[] sortingModes = new boolean[sortings.size()];
         for (int i = 0; i < sortings.size(); i++) {
             Sorting sorting = getSortings().get(i);
+            //TODO Добавил костыль, надо думать как лучше сделать для остальных полей сортировки
+            if (sorting.getName().equals("processId")) {
+                sorting.setName("batch_presentation.task.process_id");
+            }
             fieldsToSortIds[i] = classPresentationType.getFieldIndex(sorting.getName());
             sortingModes[i] = Order.asc == sorting.getOrder();
         }

@@ -1,26 +1,63 @@
 <template>
-    <v-container
-        id="regular-tables-view"
-        fluid
-        tag="section"
-    >
-        <v-data-table
-            :headers="headers"
-            :items="tasks"
-            item-key="id"
-            :options.sync="options"
-            :server-items-length="totalTasks"
-            :loading="loading"
-            class="elevation-1">
-            <template v-slot:[`item.creationDate`]="{ item }">
-                {{ new Date(item.creationDate).toLocaleString() }}
-            </template>
-            <template v-slot:[`item.deadlineDate`]="{ item }">
-                {{ new Date(item.deadlineDate).toLocaleString() }}
-            </template>
-        </v-data-table>
+    <v-card>
+        <v-tabs
+            v-model="tab"
+            align-with-title
+            background-color="transparent"
+        >
+            <v-tab
+                v-for="item in items"
+                :key="item.header"
+            >
+                {{ item.header }}
+            </v-tab>
 
-    </v-container>
+            <v-tabs-items v-model="tab">
+                <v-tab-item
+                    v-for="item in items"
+                    :key="item.header"
+                >
+                    <v-container fluid>
+                        <v-row>
+                            <v-col
+                                v-for="chart in item.charts"
+                                :key="chart.title"
+                                cols="12"
+                                md="4"
+                            >
+                                <v-card
+                                    class="mt-4 mx-auto"
+                                >
+                                    <v-sheet
+                                        class="v-sheet--offset mx-auto"
+                                        color="green"
+                                        elevation="12"
+                                        max-width="calc(100% - 32px)"
+                                    >
+                                        <v-sparkline
+                                            type="trend"
+                                            :labels="chart.labels"
+                                            :value="chart.values"
+                                            color="white"
+                                            line-width="2"
+                                            padding="30"
+                                            
+                                        ></v-sparkline>
+                                    </v-sheet>
+
+                                    <v-card-text class="pt-0">
+                                        <div class="title font-weight-light mb-2">
+                                            {{chart.title}}
+                                        </div>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-tab-item>
+            </v-tabs-items>
+        </v-tabs>
+    </v-card>
 </template>
 
 <script lang="ts">
@@ -33,72 +70,122 @@ export default Vue.extend({
 
     data() {
       return {
-        totalTasks: 0,
-        tasks: [],
-        loading: true,
-        options: {},
-        headers: [
-            {
-                text: 'Задача',
-                align: 'start',
-                value: 'name',
-            },
-            { text: '№ экз.', value: 'processId' },
-            // { text: 'Тип процесса', value: 'category' }, // TODO Добавить поле "тип процесса"
-            { text: 'Процесс', value: 'definitionName' },
-            { text: 'Создана', value: 'creationDate' },
-            { text: 'Выполнена', value: 'deadlineDate' }, 
-        ],
+            tab: null,
+            items: [
+                {
+                    header: 'Задачи',
+                    charts: [
+                        {
+                            title: 'Мои задачи',
+                            labels: [
+                                '01.01.2021',
+                                '11.02.2021',
+                                '08.03.2021',
+                                '01.05.2021',
+                            ],
+                            values: [
+                                5,
+                                25,
+                                15,
+                                45
+                            ]
+                        },
+                        {
+                            title: 'Задачи по сотрудникам',
+                            labels: [
+                                '01.01.2021',
+                                '11.02.2021',
+                                '08.03.2021',
+                                '01.05.2021',
+                            ],
+                            values: [
+                                7,
+                                75,
+                                15,
+                                25
+                            ]
+                        },
+                        {
+                            title: 'Задачи по подразделениям',
+                            labels: [
+                                '01.01.2021',
+                                '11.02.2021',
+                                '08.03.2021',
+                                '01.05.2021',
+                            ],
+                            values: [
+                                95,
+                                25,
+                                35,
+                                75
+                            ]
+                        },
+                    ]
+                },
+                {
+                    header: 'Бизнес процессы',
+                    charts: [
+                        {
+                            title: 'Всего',
+                            labels: [
+                                '01.01.2021',
+                                '11.02.2021',
+                                '08.03.2021',
+                                '01.05.2021',
+                            ],
+                            values: [
+                                7,
+                                75,
+                                15,
+                                25
+                            ]
+                        },
+                        {
+                            title: 'По названию',
+                            labels: [
+                                '01.01.2021',
+                                '11.02.2021',
+                                '08.03.2021',
+                                '01.05.2021',
+                            ],
+                            values: [
+                                5,
+                                25,
+                                15,
+                                45
+                            ]
+                        },
+                        {
+                            title: 'По типам',
+                            labels: [
+                                '01.01.2021',
+                                '11.02.2021',
+                                '08.03.2021',
+                                '01.05.2021',
+                            ],
+                            values: [
+                                95,
+                                25,
+                                35,
+                                75
+                            ]
+                        },
+                    ]
+                },
+            ],
       }
     },
     watch: {
-        options: {
-            handler () {
-                this.getDataFromApi()
-            },
-            deep: true,
-        },
+        
     },
     methods: {
-        getDataFromApi () {
-            this.loading = true;
-
-            new SwaggerClient({
-                url: 'http://localhost:8080/restapi/v3/api-docs',
-            }).then((client: any) => {
-                const data = client.apis['auth-controller'].tokenUsingPOST({
-                    login: "Administrator",
-                    password: "wf"
-                }).then((data: any) => {
-                    let token = data.body;
-                    token = token.split(' ')[1];
-                    
-                    const client = new SwaggerClient({ 
-                        url: 'http://localhost:8080/restapi/v3/api-docs',
-                        authorizations: {
-                            token: {
-                                value: token,
-                            },
-                        },
-                    });
-                    
-                    // TODO Temprorary for test
-                    client.then((client: any) => {
-                        const data = client.apis['task-api-controller'].getTasksUsingPOST().then((data: any) => {
-                            const tasks = data.body;
-                            
-                            this.tasks = data.body;
-                            this.totalTasks = data.body.length;
-                            this.loading = false;
-                        });
-                    },
-                    (reason: string) => console.error('failed on api call: ' + reason));
-                },
-                (reason: string) => console.error('failed on api call: ' + reason));
-            },
-            (reason: string) => console.error('failed to load the spec: ' + reason));
-
-        },
+        
     },
 });
 </script>
+
+<style lang="sass">
+.v-sheet--offset
+  top: -24px
+  position: relative
+</style>

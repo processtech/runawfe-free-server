@@ -3,6 +3,7 @@
         id="default-drawer"
         v-model="drawer"
         :dark="dark"
+        class="blue-grey darken-4"
         :mini-variant.sync="mini"
         mini-variant-width="80"
         app
