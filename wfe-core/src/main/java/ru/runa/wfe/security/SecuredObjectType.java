@@ -121,6 +121,8 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
 
     public static final SecuredObjectType BOTSTATIONS = new SecuredObjectType("BOTSTATIONS", true);
 
+    public static final SecuredObjectType DATASOURCES = new SecuredObjectType("DATASOURCES", true);
+
     public static final SecuredObjectType DEFINITION = new SecuredObjectType("DEFINITION", false);
 
     public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR", false);
@@ -134,7 +136,5 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
     public static final SecuredObjectType REPORT = new SecuredObjectType("REPORT", REPORTS);
     
     public static final SecuredObjectType SYSTEM = new SecuredObjectType("SYSTEM", true);
-    
-    public static final SecuredObjectType DATASOURCES = new SecuredObjectType("DATASOURCES", true);
 
 }
