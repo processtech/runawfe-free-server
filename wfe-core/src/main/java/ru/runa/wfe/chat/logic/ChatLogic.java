@@ -103,6 +103,7 @@ public class ChatLogic extends WfCommonLogic {
             for (WfChatRoom room : rooms) {
                 if (process.getId().equals(room.getId())) {
                     result.add(room);
+                    rooms.remove(room);
                     break;
                 }
             }
