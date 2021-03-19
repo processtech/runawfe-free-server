@@ -11,13 +11,17 @@ import org.hibernate.annotations.Formula;
 
 @Entity
 @Table(name = "CHAT_MESSAGE_RECIPIENT")
-public class ChatMessagePresentation {
+public class UnreadMessagesPresentation {
+
+    public static final String numberOfUnreadMessagesFormula = "(SELECT count(*) FROM CHAT_MESSAGE_RECIPIENT cr " +
+            "LEFT JOIN CHAT_MESSAGE cm ON cm.ID = cr.MESSAGE_ID " +
+            "WHERE cr.READ_DATE IS NULL AND cm.PROCESS_ID = process0_.ID AND cr.EXECUTOR_ID = unreadmess1_.EXECUTOR_ID)";
 
     private Long id;
     private Long numberOfUnreadMessages;
     private Long processId;
 
-    public ChatMessagePresentation() {
+    public UnreadMessagesPresentation() {
     }
 
     @Id
@@ -32,8 +36,7 @@ public class ChatMessagePresentation {
         this.id = id;
     }
 
-    @Formula("(SELECT count(*) FROM CHAT_MESSAGE_RECIPIENT cr LEFT JOIN CHAT_MESSAGE cm ON cm.ID = cr.MESSAGE_ID " +
-            "WHERE cr.READ_DATE IS NULL AND cm.PROCESS_ID = process0_.ID AND cr.EXECUTOR_ID = chatmessag1_.EXECUTOR_ID)")
+    @Formula(numberOfUnreadMessagesFormula)
     public Long getNumberOfUnreadMessages() {
         return numberOfUnreadMessages;
     }
@@ -42,7 +45,7 @@ public class ChatMessagePresentation {
         this.numberOfUnreadMessages = numberOfUnreadMessages;
     }
 
-    @Formula("(SELECT cm.PROCESS_ID FROM CHAT_MESSAGE cm LEFT JOIN CHAT_MESSAGE_RECIPIENT cr ON cm.ID = cr.MESSAGE_ID WHERE cr.ID = chatmessag1_.ID)")
+    @Formula("(SELECT cm.PROCESS_ID FROM CHAT_MESSAGE cm LEFT JOIN CHAT_MESSAGE_RECIPIENT cr ON cm.ID = cr.MESSAGE_ID WHERE cr.ID = unreadmess1_.ID)")
     public Long getProcessId() {
         return processId;
     }

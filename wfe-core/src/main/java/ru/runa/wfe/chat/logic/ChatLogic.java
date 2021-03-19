@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
+import ru.runa.wfe.chat.UnreadMessagesPresentation;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
@@ -101,8 +102,10 @@ public class ChatLogic extends WfCommonLogic {
         HashMap<Integer, FilterCriteria> filterCriteria = new HashMap<>();
         filterCriteria.put(0, new ChatRoomFilterCriteria(user.getActor().getId()));
         batchPresentation.setFilteredFields(filterCriteria);
-        List<Process> orderedProcesses = getPersistentObjects(user, batchPresentation, Permission.READ,
-                new SecuredObjectType[]{SecuredObjectType.CHAT_ROOMS}, true);
+        List<String> additionalClauses = new ArrayList<>();
+        additionalClauses.add(UnreadMessagesPresentation.numberOfUnreadMessagesFormula);
+        List<Process> orderedProcesses = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
+                new SecuredObjectType[]{SecuredObjectType.CHAT_ROOMS}, true, additionalClauses);
         List<WfChatRoom> rooms = messageDao.getChatRooms(user.getActor());
         List<WfChatRoom> result = new ArrayList<>(rooms.size());
         for (Process process : orderedProcesses) {

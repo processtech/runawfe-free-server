@@ -123,7 +123,12 @@ public class HibernateCompilerQueryBuilder {
         }
         int posDot = sqlRequest.indexOf(".");
         int posFrom = HibernateCompilerHelper.getFromClauseIndex(sqlRequest);
-        return sqlRequest.replace(posDot + 1, posFrom, "*");
+        sqlRequest.replace(posDot + 1, posFrom, "*");
+        for (String clause : parameters.getAdditionalSelectClauses()) {
+            int idx = sqlRequest.indexOf("*");
+            sqlRequest.insert(idx + 1, ", " + clause);
+        }
+        return sqlRequest;
     }
 
     /**

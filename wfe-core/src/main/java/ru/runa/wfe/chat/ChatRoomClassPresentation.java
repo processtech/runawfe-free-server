@@ -31,7 +31,7 @@ public class ChatRoomClassPresentation extends ClassPresentation {
 
     private static class ChatRoomDbSource extends DefaultDbSource {
         public ChatRoomDbSource() {
-            super(ChatMessagePresentation.class, "numberOfUnreadMessages");
+            super(UnreadMessagesPresentation.class, "numberOfUnreadMessages");
         }
 
         @Override

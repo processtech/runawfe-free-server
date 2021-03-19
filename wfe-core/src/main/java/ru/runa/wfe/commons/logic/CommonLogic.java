@@ -128,6 +128,30 @@ public class CommonLogic {
     }
 
     /**
+     * Load distinct objects list according to {@linkplain BatchPresentation} with permission check for subject.
+     *
+     * @param user
+     *            Current actor {@linkplain User}.
+     * @param batchPresentation
+     *            {@linkplain BatchPresentation} to load objects.
+     * @param permission
+     *            {@linkplain Permission}, which current actor must have on loaded objects.
+     * @param securedObjectTypes
+     *            Classes, loaded by query. Must be subset of classes, loaded by {@linkplain BatchPresentation}. For example {@linkplain Actor} for
+     *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
+     * @param enablePaging
+     *            Flag, equals true, if paging must be enabled; false to load all objects.
+     * @param additionalClauses
+     *            Clauses to be added to the select statement
+     * @return Loaded according to {@linkplain BatchPresentation} distinct objects list.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getDistinctPersistentObjects(User user, BatchPresentation batchPresentation, Permission permission,
+                                                    SecuredObjectType[] securedObjectTypes, boolean enablePaging, List<String> additionalClauses) {
+        return (List<T>) permissionDao.getDistinctPersistentObjects(user, batchPresentation, permission, securedObjectTypes, enablePaging, additionalClauses);
+    }
+
+    /**
      * Load objects count according to {@linkplain BatchPresentation} with permission check for subject.
      *
      * @param user

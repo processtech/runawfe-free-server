@@ -155,10 +155,14 @@ public class HibernateCompilerHqlBuider {
      * Builds 'select' HQL clause and 'from' clause with root persistent object.
      */
     private void buildSelectClause() {
+        query.append("select ");
         if (parameters.isCountQuery()) {
-            query.append("select count (").append(ClassPresentation.classNameSQL).append(")");
+            query.append("count (").append(ClassPresentation.classNameSQL).append(")");
         } else {
-            query.append("select ").append(ClassPresentation.classNameSQL);
+            if (parameters.isDistinct()) {
+                query.append(" distinct ");
+            }
+            query.append(ClassPresentation.classNameSQL);
             if (parameters.isOnlyIdentityLoad()) {
                 query.append(".id");
             }
