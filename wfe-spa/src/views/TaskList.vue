@@ -18,6 +18,7 @@
                 itemsPerPageText: 'Строк на странице',
             }"
             hide-default-header
+
             class="elevation-1">
             <template v-slot:[`item.creationDate`]="{ item }">
                 {{ new Date(item.creationDate).toLocaleString() }}
@@ -53,6 +54,22 @@
                     </td>
                 </tr>
             </template>
+            <template v-slot:[`item.name`]="{ item }">
+                <div class="d-flex align-center">
+                    <v-btn text icon @click="taskOpenCard(item)" color="primary">
+                        <v-icon>mdi-link</v-icon>
+                    </v-btn>
+                    <span>{{ $ucfirst(item.name) }}</span>
+                </div>
+            </template>
+            <template v-slot:[`item.definitionName`]="{ item }">
+                <div class="d-flex align-center">
+                    <v-btn text icon @click="processOpenCard(item)" color="primary">
+                        <v-icon>mdi-link</v-icon>
+                    </v-btn>
+                    <span>{{ $ucfirst(item.definitionName) }}</span>
+                </div>
+            </template>
         </v-data-table>
 
     </v-container>
@@ -63,7 +80,6 @@ import Vue from 'vue';
 import SwaggerClient from 'swagger-client';
 import { get, sync } from 'vuex-pathify';
 import { Options, Sorting } from '../ts/options';
-
 
 export default Vue.extend({
     name: "TaskList",
@@ -90,23 +106,25 @@ export default Vue.extend({
                     text: 'Задача',
                     align: 'start',
                     value: 'name',
-                    filter: (value: any): boolean => {
+                    // width: 20,
+                    filter: (value: string): boolean => {
                         if (!this.name) return true;
-                        return value.indexOf(this.name) !== -1;
+                        return value.toLowerCase().indexOf(this.name.toLowerCase()) !== -1;
                     },
                 },
                 { 
                     text: 'Описание', 
                     value:'description',
-                    filter: (value: any): boolean => {
+                    filter: (value: string): boolean => {
                         if (!this.description) return true;
-                        return value.indexOf(this.description) !== -1;
+                        return value.toLowerCase().indexOf(this.description.toLowerCase()) !== -1;
                     },
                 },
                 { 
                     text: '№ экз.', 
                     value: 'processId',
-                    filter: (value: any): boolean => {
+                    // width: 10,
+                    filter: (value: number): boolean => {
                         if (!this.processId) return true;
                         return value == parseInt(this.processId);
                     },
@@ -115,26 +133,30 @@ export default Vue.extend({
                     text: 'Тип процесса', 
                     value: 'category', 
                     sortable: false,
-                    filter: (value: any): boolean => {
+                    // width: '10%',
+                    filter: (value: string): boolean => {
                         if (!this.category) return true;
-                        return value.indexOf(this.category) !== -1;
+                        return value.toLowerCase().indexOf(this.category.toLowerCase()) !== -1;
                     },
                 },
                 { 
                     text: 'Процесс', 
                     value: 'definitionName',
-                    filter: (value: any): boolean => {
+                    // width: 20,
+                    filter: (value: string): boolean => {
                         if (!this.definitionName) return true;
-                        return value.indexOf(this.definitionName) !== -1;
+                        return value.toLowerCase().indexOf(this.definitionName.toLowerCase()) !== -1;
                     },
                 },
                 { 
                     text: 'Создана', 
-                    value: 'creationDate' 
+                    value: 'creationDate',
+                    // width: 10,
                 },
                 { 
                     text: 'Выполнена', 
-                    value: 'deadlineDate' 
+                    value: 'deadlineDate',
+                    // width: 10,
                 },
             ];
         }
@@ -148,6 +170,12 @@ export default Vue.extend({
         },
     },
     methods: {
+        taskOpenCard (item: any) {
+            this.$router.push({ name: 'Карточка задачи', params: { id: item.id }})
+        },
+        processOpenCard (item: any) {
+            this.$router.push({ name: 'Карточка процесса', params: { id: item.processId }})
+        },
         getDataFromApi () {
             this.loading = true;
 

@@ -3,6 +3,7 @@ import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 // Imports
 import Vue from 'vue';
+import './plugins/utils';
 import App from './App.vue';
 import router from './router';
 import vuetify from './plugins/vuetify';

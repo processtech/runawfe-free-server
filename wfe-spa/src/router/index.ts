@@ -5,6 +5,8 @@ import Desktop from '../views/Desktop.vue';
 import TaskList from '../views/TaskList.vue';
 import ProcessDefinitionList from '../views/ProcessDefinitionList.vue';
 import ProcessList from '../views/ProcessList.vue';
+import TaskCard from '../views/TaskCard.vue';
+import ProcessCard from '../views/ProcessCard.vue';
 
 Vue.use(Router);
 
@@ -30,6 +32,16 @@ const router = new Router({
         name: 'Запущенные процессы',
         component: ProcessList,
         path: '/process/list/'
+      },
+      {
+        name: 'Карточка задачи',
+        component: TaskCard,
+        path: '/task/:id'
+      },
+      {
+        name: 'Карточка процесса',
+        component: ProcessCard,
+        path: '/process/:id'
       },
     ]),
   ],
