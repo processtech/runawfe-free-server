@@ -23,8 +23,6 @@
 
         <v-spacer />
 
-        <default-search class="hidden-sm-and-down" />
-
         <default-notifications />
 
         <default-account />

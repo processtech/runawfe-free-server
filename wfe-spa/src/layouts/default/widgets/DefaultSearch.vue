@@ -27,6 +27,7 @@
 <script lang="ts">
 import Vue from 'vue';
 
+//TODO Пока не решили для чего использовать компонент поиска
 export default Vue.extend({
    name: "DefaultSearch",
 });

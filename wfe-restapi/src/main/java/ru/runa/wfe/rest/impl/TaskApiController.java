@@ -28,6 +28,8 @@ import ru.runa.wfe.task.logic.TaskLogic;
 public class TaskApiController {
     @Autowired
     private TaskLogic taskLogic;
+    @Autowired
+    private WfTaskMapper taskMapper;
 
     // required = false temporary for simple queries without request body
     @PostMapping("")
@@ -36,9 +38,8 @@ public class TaskApiController {
                 ? request.toBatchPresentation(ClassPresentationType.TASK)
                 : BatchPresentationFactory.TASKS.createDefault();
         List<WfTask> tasks = taskLogic.getMyTasks(authUser.getUser(), batchPresentation);
-        WfTaskMapper mapper = Mappers.getMapper(WfTaskMapper.class);
         WfTasksDto tasksDto = new WfTasksDto();
-        tasksDto.setTasks(mapper.map(tasks));
+        tasksDto.setTasks(taskMapper.map(tasks));
         List<WfTask> total = taskLogic.getMyTasks(authUser.getUser(), BatchPresentationFactory.TASKS.createDefault());
         tasksDto.setTotal(total.size());
         return tasksDto;

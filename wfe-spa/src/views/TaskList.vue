@@ -9,21 +9,49 @@
             :items="tasks"
             item-key="id"
             :options.sync="options"
-            :server-items-length="total"
             :loading="loading"
+            :search="search"
             :footer-props="{
-                disablePagination: true,
-                disableItemsPerPage: true,
+                disablePagination: false,
+                disableItemsPerPage: false,
                 itemsPerPageAllText: 'Все',
                 itemsPerPageText: 'Строк на странице',
             }"
-            hide-default-footer
+            hide-default-header
             class="elevation-1">
             <template v-slot:[`item.creationDate`]="{ item }">
                 {{ new Date(item.creationDate).toLocaleString() }}
             </template>
             <template v-slot:[`item.deadlineDate`]="{ item }">
                 {{ new Date(item.deadlineDate).toLocaleString() }}
+            </template>
+            <template v-slot:[`footer.page-text`]="items">
+                {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
+            </template>
+            <template v-slot:[`body.prepend`]>
+                <tr>
+                    <td>
+                        <v-text-field v-model="name" label="Задача" />
+                    </td>
+                    <td>
+                        <v-text-field v-model="description" label="Описание" />
+                    </td>
+                    <td>
+                        <v-text-field v-model="processId" type="number" label="№ экз." />
+                    </td>
+                    <td>
+                        <v-text-field v-model="category" type="text" label="Тип процесса" />
+                    </td>
+                    <td>
+                        <v-text-field v-model="definitionName" label="Процесс" />
+                    </td>
+                    <td>
+                        <v-text-field v-model="creationDate" label="Создана" />
+                    </td>
+                    <td>
+                        <v-text-field v-model="deadlineDate" label="Выполнена" />
+                    </td>
+                </tr>
             </template>
         </v-data-table>
 
@@ -42,23 +70,74 @@ export default Vue.extend({
 
     data() {
       return {
-        total: 0,
+        search: '',
+        name: '',
+        description: '',
+        processId: '',
+        category: '',
+        definitionName: '',
+        creationDate: '',
+        deadlineDate: '',
         tasks: [],
         loading: true,
         options: new Options(),
-        headers: [
-            {
-                text: 'Задача',
-                align: 'start',
-                value: 'name',
-            },
-            { text: '№ экз.', value: 'processId' },
-            // { text: 'Тип процесса', value: 'category' }, // TODO Добавить поле "тип процесса"
-            { text: 'Процесс', value: 'definitionName' },
-            { text: 'Создана', value: 'creationDate' },
-            { text: 'Выполнена', value: 'deadlineDate' }, 
-        ],
       }
+    },
+    computed: {
+        headers() {
+            return [
+                {
+                    text: 'Задача',
+                    align: 'start',
+                    value: 'name',
+                    filter: (value: any): boolean => {
+                        if (!this.name) return true;
+                        return value.indexOf(this.name) !== -1;
+                    },
+                },
+                { 
+                    text: 'Описание', 
+                    value:'description',
+                    filter: (value: any): boolean => {
+                        if (!this.description) return true;
+                        return value.indexOf(this.description) !== -1;
+                    },
+                },
+                { 
+                    text: '№ экз.', 
+                    value: 'processId',
+                    filter: (value: any): boolean => {
+                        if (!this.processId) return true;
+                        return value == parseInt(this.processId);
+                    },
+                },
+                { 
+                    text: 'Тип процесса', 
+                    value: 'category', 
+                    sortable: false,
+                    filter: (value: any): boolean => {
+                        if (!this.category) return true;
+                        return value.indexOf(this.category) !== -1;
+                    },
+                },
+                { 
+                    text: 'Процесс', 
+                    value: 'definitionName',
+                    filter: (value: any): boolean => {
+                        if (!this.definitionName) return true;
+                        return value.indexOf(this.definitionName) !== -1;
+                    },
+                },
+                { 
+                    text: 'Создана', 
+                    value: 'creationDate' 
+                },
+                { 
+                    text: 'Выполнена', 
+                    value: 'deadlineDate' 
+                },
+            ];
+        }
     },
     watch: {
         options: {
@@ -105,7 +184,6 @@ export default Vue.extend({
                             const body = data.body;
                             if (body) {
                                 this.tasks = body.tasks;
-                                this.total = body.total;
                             }
                             this.loading = false;
                         });

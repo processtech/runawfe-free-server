@@ -5,12 +5,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.runa.wfe.var.dto.WfVariable;
 
-@Mapper
-public interface WfVariableMapper {
+@Mapper(componentModel = "spring")
+public abstract class WfVariableMapper {
 
     @Mapping(source = "definition.name", target = "name")
-    WfVariableDto map(WfVariable variable);
+    public abstract WfVariableDto map(WfVariable variable);
 
-    List<WfVariableDto> map(List<WfVariable> variables);
+    public abstract List<WfVariableDto> map(List<WfVariable> variables);
 
 }

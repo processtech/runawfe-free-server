@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
@@ -46,9 +47,30 @@ public class BatchPresentationRequest {
         boolean[] sortingModes = new boolean[sortings.size()];
         for (int i = 0; i < sortings.size(); i++) {
             Sorting sorting = getSortings().get(i);
-            //TODO Добавил костыль, надо думать как лучше сделать для остальных полей сортировки
-            if (sorting.getName().equals("processId")) {
-                sorting.setName("batch_presentation.task.process_id");
+            //TODO Добавил костыль со switch, после доработок в ядре руны нужно удалить
+            switch(sorting.getName()) {
+            case "processId": 
+                sorting.setName(TaskClassPresentation.PROCESS_ID);
+                break;
+            case "name":
+                sorting.setName(TaskClassPresentation.NAME);
+                break;
+            case "definitionName":
+                sorting.setName(TaskClassPresentation.DEFINITION_NAME);
+                break;    
+            case "creationDate":
+                sorting.setName(TaskClassPresentation.TASK_CREATE_DATE);
+                break;
+            case "deadlineDate":
+                sorting.setName(TaskClassPresentation.TASK_DEADLINE);
+                break;
+            //TODO Сделать сортировку по типу процесса, пока не думал как
+            case "category":
+                sorting.setName(DefinitionClassPresentation.TYPE);
+                break;
+            case "description":
+                sorting.setName(TaskClassPresentation.DESCRIPTION);
+                break;
             }
             fieldsToSortIds[i] = classPresentationType.getFieldIndex(sorting.getName());
             sortingModes[i] = Order.asc == sorting.getOrder();

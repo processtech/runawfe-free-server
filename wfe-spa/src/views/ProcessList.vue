@@ -18,11 +18,11 @@
                 itemsPerPageText: 'Строк на странице',
             }"
             class="elevation-1">
-            <template v-slot:[`item.creationDate`]="{ item }">
-                {{ new Date(item.creationDate).toLocaleString() }}
+            <template v-slot:[`item.startDate`]="{ item }">
+                {{ new Date(item.startDate).toLocaleString() }}
             </template>
-            <template v-slot:[`item.deadlineDate`]="{ item }">
-                {{ new Date(item.deadlineDate).toLocaleString() }}
+            <template v-slot:[`item.endDate`]="{ item }">
+                {{ new Date(item.endDate).toLocaleString() }}
             </template>
         </v-data-table>
 

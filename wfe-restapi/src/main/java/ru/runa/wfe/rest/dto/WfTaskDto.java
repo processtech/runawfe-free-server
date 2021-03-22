@@ -9,6 +9,7 @@ import lombok.Data;
 public class WfTaskDto {
     private Long id;
     private String name;
+    private String category;
     private String nodeId;
     private String description;
     private String swimlaneName;
