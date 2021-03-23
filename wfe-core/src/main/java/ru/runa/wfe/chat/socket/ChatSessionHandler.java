@@ -80,7 +80,7 @@ public class ChatSessionHandler {
                 } catch (IOException e) {
                     log.warn("Unable ping session " + session.getId() + ". Closing...", e);
                     try {
-                        session.getSession().close(new CloseReason(CloseReason.CloseCodes.PROTOCOL_ERROR, "Unable send ping"));
+                        session.getSession().close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unable send ping"));
                     } catch (IOException ioException) {
                         log.warn("Unable close session " + session.getId() + ". Assume it is already closed", e);
                     }
