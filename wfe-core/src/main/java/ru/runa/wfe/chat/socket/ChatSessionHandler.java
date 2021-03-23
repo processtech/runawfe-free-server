@@ -2,11 +2,13 @@ package ru.runa.wfe.chat.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import javax.websocket.CloseReason;
 import javax.websocket.Session;
 import lombok.extern.apachecommons.CommonsLog;
 import net.bull.javamelody.MonitoredWithSpring;
@@ -39,6 +41,8 @@ public class ChatSessionHandler {
         }
     };
 
+    private static final ByteBuffer PING_PAYLOAD = ByteBuffer.allocate(0);
+
     public void addSession(Session session) {
         Long userId = ChatSessionUtils.getUser(session).getActor().getId();
         sessions.computeIfAbsent(userId, CREATE_SET).add(new SessionInfo(session));
@@ -65,6 +69,23 @@ public class ChatSessionHandler {
             sendToSession(session, chatObjectMapper.writeValueAsString(errorDto));
         } catch (IOException e) {
             log.error(e);
+        }
+    }
+
+    public void ping() {
+        for (Set<SessionInfo> sessions : sessions.values()) {
+            for (SessionInfo session : sessions) {
+                try {
+                    session.getSession().getBasicRemote().sendPing(PING_PAYLOAD);
+                } catch (IOException e) {
+                    log.warn("Unable ping session " + session.getId() + ". Closing...", e);
+                    try {
+                        session.getSession().close(new CloseReason(CloseReason.CloseCodes.PROTOCOL_ERROR, "Unable send ping"));
+                    } catch (IOException ioException) {
+                        log.warn("Unable close session " + session.getId() + ". Assume it is already closed", e);
+                    }
+                }
+            }
         }
     }
 }
