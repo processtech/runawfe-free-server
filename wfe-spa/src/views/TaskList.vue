@@ -10,15 +10,13 @@
             item-key="id"
             :options.sync="options"
             :loading="loading"
-            :search="search"
+            :search="filter.search"
             :footer-props="{
                 disablePagination: false,
                 disableItemsPerPage: false,
                 itemsPerPageAllText: 'Все',
                 itemsPerPageText: 'Строк на странице',
             }"
-            hide-default-header
-
             class="elevation-1">
             <template v-slot:[`item.creationDate`]="{ item }">
                 {{ new Date(item.creationDate).toLocaleString() }}
@@ -30,45 +28,70 @@
                 {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
             </template>
             <template v-slot:[`body.prepend`]>
-                <tr>
-                    <td>
-                        <v-text-field v-model="name" label="Задача" />
-                    </td>
-                    <td>
-                        <v-text-field v-model="description" label="Описание" />
-                    </td>
-                    <td>
-                        <v-text-field v-model="processId" type="number" label="№ экз." />
-                    </td>
-                    <td>
-                        <v-text-field v-model="category" type="text" label="Тип процесса" />
-                    </td>
-                    <td>
-                        <v-text-field v-model="definitionName" label="Процесс" />
-                    </td>
-                    <td>
-                        <v-text-field v-model="creationDate" label="Создана" />
-                    </td>
-                    <td>
-                        <v-text-field v-model="deadlineDate" label="Выполнена" />
+                <tr v-if="filter.visible">
+                    <td v-for="header in headers" :key="header.value">
+                        <v-text-field 
+                            color="grey" 
+                            v-model="filter[header.value]" 
+                            filled
+                            rounded
+                            dense 
+                            clearable 
+                            hide-details
+                        />
                     </td>
                 </tr>
             </template>
             <template v-slot:[`item.name`]="{ item }">
-                <div class="d-flex align-center">
-                    <v-btn text icon @click="taskOpenCard(item)" color="primary">
-                        <v-icon>mdi-link</v-icon>
-                    </v-btn>
-                    <span>{{ $ucfirst(item.name) }}</span>
-                </div>
+                <card-link :routeName="`Карточка задачи`" :id="item.id" :text="item.name" />
             </template>
             <template v-slot:[`item.definitionName`]="{ item }">
-                <div class="d-flex align-center">
-                    <v-btn text icon @click="processOpenCard(item)" color="primary">
-                        <v-icon>mdi-link</v-icon>
+                <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
+            </template>
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-spacer/>
+                    <v-btn 
+                        text 
+                        icon 
+                        @click="filter.visible = !filter.visible" 
+                        v-model="filter.visible" 
+                        color="grey"
+                    >
+                        <v-icon >mdi-filter</v-icon>
                     </v-btn>
-                    <span>{{ $ucfirst(item.definitionName) }}</span>
-                </div>
+                    <v-dialog v-model="dialog" max-width="500px">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                                text 
+                                icon
+                                v-bind="attrs"
+                                v-on="on"
+                                color="grey"
+                            >
+                                <v-icon>mdi-view-grid-plus</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-card>
+                            <v-card-title>
+                                <span class="headline">Настройка вида</span>
+                            </v-card-title>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4"> 
+                                            <v-checkbox 
+                                                v-model="header.visible" 
+                                                :label="header.text"
+                                                @change="initialHeaders" 
+                                            />
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+                        </v-card>
+                    </v-dialog>
+                </v-toolbar>
             </template>
         </v-data-table>
 
@@ -85,81 +108,107 @@ export default Vue.extend({
     name: "TaskList",
 
     data() {
-      return {
-        search: '',
-        name: '',
-        description: '',
-        processId: '',
-        category: '',
-        definitionName: '',
-        creationDate: '',
-        deadlineDate: '',
-        tasks: [],
-        loading: true,
-        options: new Options(),
-      }
-    },
-    computed: {
-        headers() {
-            return [
+        return {
+            dialog: false,
+            filter: {
+                visible: true,
+                search: '',
+                name: '',
+                description: '',
+                processId: '',
+                category: '',
+                definitionName: '',
+                creationDate: '',
+                deadlineDate: '',
+            },
+            tasks: [],
+            loading: true,
+            options: new Options(),
+            initialHeaders: [
                 {
                     text: 'Задача',
-                    align: 'start',
+                    align: 'start', 
                     value: 'name',
+                    visible: true,
                     // width: 20,
-                    filter: (value: string): boolean => {
-                        if (!this.name) return true;
-                        return value.toLowerCase().indexOf(this.name.toLowerCase()) !== -1;
-                    },
                 },
                 { 
                     text: 'Описание', 
                     value:'description',
-                    filter: (value: string): boolean => {
-                        if (!this.description) return true;
-                        return value.toLowerCase().indexOf(this.description.toLowerCase()) !== -1;
-                    },
+                    visible: false,
                 },
                 { 
                     text: '№ экз.', 
                     value: 'processId',
+                    visible: true,
                     // width: 10,
-                    filter: (value: number): boolean => {
-                        if (!this.processId) return true;
-                        return value == parseInt(this.processId);
-                    },
                 },
                 { 
                     text: 'Тип процесса', 
-                    value: 'category', 
+                    value: 'category',
+                    visible: false,
                     sortable: false,
                     // width: '10%',
-                    filter: (value: string): boolean => {
-                        if (!this.category) return true;
-                        return value.toLowerCase().indexOf(this.category.toLowerCase()) !== -1;
-                    },
                 },
                 { 
                     text: 'Процесс', 
                     value: 'definitionName',
+                    visible: true,
                     // width: 20,
-                    filter: (value: string): boolean => {
-                        if (!this.definitionName) return true;
-                        return value.toLowerCase().indexOf(this.definitionName.toLowerCase()) !== -1;
-                    },
                 },
                 { 
                     text: 'Создана', 
                     value: 'creationDate',
+                    visible: true,
                     // width: 10,
                 },
                 { 
                     text: 'Выполнена', 
                     value: 'deadlineDate',
+                    visible: true,
                     // width: 10,
                 },
-            ];
+            ]
         }
+    },
+    computed: {
+        headers(): any {
+            this.initialHeaders.forEach((h: any) => {
+                if (h.value === 'name') {
+                    h.filter = (value: string): boolean => {
+                        if (!this.filter.name) return true;
+                        return value.toLowerCase().indexOf(this.filter.name.toLowerCase()) !== -1;
+                    };
+                } else if (h.value === 'description') {
+                    h.filter = (value: string): boolean => {
+                        if (!this.filter.description) return true;
+                        return value.toLowerCase().indexOf(this.filter.description.toLowerCase()) !== -1;
+                    };
+                } else if (h.value === 'processId') {
+                    h.filter = (value: number): boolean => {
+                        if (!this.filter.processId) return true;
+                        return value == parseInt(this.filter.processId);
+                    };
+                } else if (h.value === 'category') {
+                    h.filter = (value: string): boolean => {
+                        if (!this.filter.category) return true;
+                        return value.toLowerCase().indexOf(this.filter.category.toLowerCase()) !== -1;
+                    };
+                } else if (h.value === 'definitionName') {
+                    h.filter = (value: string): boolean => {
+                        if (!this.filter.definitionName) return true;
+                        return value.toLowerCase().indexOf(this.filter.definitionName.toLowerCase()) !== -1;
+                    };
+                } else if (h.value === 'creationDate') {
+
+                } else if (h.value === 'deadlineDate') {
+
+                }
+            });
+            return this.initialHeaders.filter((h: any) => {
+                return h.visible;
+            });
+        },
     },
     watch: {
         options: {
@@ -170,12 +219,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        taskOpenCard (item: any) {
-            this.$router.push({ name: 'Карточка задачи', params: { id: item.id }})
-        },
-        processOpenCard (item: any) {
-            this.$router.push({ name: 'Карточка процесса', params: { id: item.processId }})
-        },
         getDataFromApi () {
             this.loading = true;
 
