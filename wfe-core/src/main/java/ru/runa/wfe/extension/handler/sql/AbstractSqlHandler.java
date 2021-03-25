@@ -31,11 +31,15 @@ import ru.runa.wfe.extension.handler.CommonHandler;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
+import ru.runa.wfe.var.UserType;
+import ru.runa.wfe.var.UserTypeMap;
+import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.format.ListFormat;
+import ru.runa.wfe.var.format.VariableFormat;
 
 public abstract class AbstractSqlHandler extends CommonHandler {
 
@@ -86,30 +90,47 @@ public abstract class AbstractSqlHandler extends CommonHandler {
                 fillQueryParameters(preparedStatement, variableProvider, query);
                 if (preparedStatement.execute()) {
                     final ResultSet resultSet = preparedStatement.getResultSet();
-                    boolean first = true;
-                    while (resultSet.next()) {
-                        Map<String, Object> result = extractResults(variableProvider, resultSet, query);
-                        if (first) {
-                            for (Map.Entry<String, Object> entry : result.entrySet()) {
-                                WfVariable variable = variableProvider.getVariableNotNull(entry.getKey());
-                                Object variableValue;
-                                if (variable.getDefinition().getFormatNotNull() instanceof ListFormat) {
-                                    ArrayList<Object> list = new ArrayList<Object>();
-                                    list.add(entry.getValue());
-                                    variableValue = list;
-                                } else {
-                                    variableValue = entry.getValue();
-                                }
-                                outputVariables.put(entry.getKey(), variableValue);
+                    String firstResultVariableName = query.getResults().get(0).getVariableName();
+                    VariableFormat vf = variableProvider.getVariableNotNull(firstResultVariableName).getDefinition().getFormatNotNull();
+                    if (vf instanceof ListFormat && ((ListFormat) vf).getComponentUserType(0) != null) {
+                        UserType userType = ((ListFormat) vf).getComponentUserType(0);
+                        List<UserTypeMap> result = new ArrayList<>();
+                        while (resultSet.next()) {
+                            UserTypeMap userTypeMap = new UserTypeMap(userType);
+                            for (int i = 0; i < resultSet.getMetaData().getColumnCount(); i++) {
+                                String columnName = resultSet.getMetaData().getColumnName(i + 1);
+                                String attributeName = findAttributeByColumnNameIgnoreCase(userType, columnName);
+                                userTypeMap.put(attributeName, resultSet.getObject(columnName));
                             }
-                            first = false;
-                        } else {
-                            for (Map.Entry<String, Object> entry : result.entrySet()) {
-                                Object object = outputVariables.get(entry.getKey());
-                                if (!(object instanceof List)) {
-                                    throw new Exception("Variable " + entry.getKey() + " expected to have List<X> format");
+                            result.add(userTypeMap);
+                        }
+                        outputVariables.put(firstResultVariableName, result);
+                    } else {
+                        boolean first = true;
+                        while (resultSet.next()) {
+                            Map<String, Object> result = extractResults(variableProvider, resultSet, query);
+                            if (first) {
+                                for (Map.Entry<String, Object> entry : result.entrySet()) {
+                                    WfVariable variable = variableProvider.getVariableNotNull(entry.getKey());
+                                    Object variableValue;
+                                    if (variable.getDefinition().getFormatNotNull() instanceof ListFormat) {
+                                        ArrayList<Object> list = new ArrayList<Object>();
+                                        list.add(entry.getValue());
+                                        variableValue = list;
+                                    } else {
+                                        variableValue = entry.getValue();
+                                    }
+                                    outputVariables.put(entry.getKey(), variableValue);
                                 }
-                                ((List<Object>) object).add(entry.getValue());
+                                first = false;
+                            } else {
+                                for (Map.Entry<String, Object> entry : result.entrySet()) {
+                                    Object object = outputVariables.get(entry.getKey());
+                                    if (!(object instanceof List)) {
+                                        throw new Exception("Variable " + entry.getKey() + " expected to have List<X> format");
+                                    }
+                                    ((List<Object>) object).add(entry.getValue());
+                                }
                             }
                         }
                     }
@@ -212,6 +233,15 @@ public abstract class AbstractSqlHandler extends CommonHandler {
             outputVariables.put(sqlHandlerQueryResult.getVariableName(), newValue);
         }
         return outputVariables;
+    }
+
+    private String findAttributeByColumnNameIgnoreCase(UserType userType, String columnName) throws Exception {
+        for (VariableDefinition variableDefinition : userType.getAttributes()) {
+            if (variableDefinition.getName().equalsIgnoreCase(columnName)) {
+                return variableDefinition.getName();
+            }
+        }
+        throw new Exception("Attribute not found in user type for column " + columnName);
     }
 
 }
