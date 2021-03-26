@@ -3,7 +3,6 @@ package ru.runa.wfe.chat.logic;
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -33,8 +32,6 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.filter.ChatRoomFilterCriteria;
-import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -99,11 +96,12 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
-        HashMap<Integer, FilterCriteria> filterCriteria = new HashMap<>();
-        filterCriteria.put(0, new ChatRoomFilterCriteria(user.getActor().getId()));
-        batchPresentation.setFilteredFields(filterCriteria);
+        if (batchPresentation == null) {
+            return messageDao.getChatRooms(user.getActor());
+        }
         List<String> additionalClauses = new ArrayList<>();
         additionalClauses.add(UnreadMessagesPresentation.numberOfUnreadMessagesFormula);
+        additionalClauses.add("deployment2_.NAME");
         List<Process> orderedProcesses = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
                 new SecuredObjectType[]{SecuredObjectType.CHAT_ROOMS}, true, additionalClauses);
         List<WfChatRoom> rooms = messageDao.getChatRooms(user.getActor());
@@ -112,7 +110,6 @@ public class ChatLogic extends WfCommonLogic {
             for (WfChatRoom room : rooms) {
                 if (process.getId().equals(room.getId())) {
                     result.add(room);
-                    rooms.remove(room);
                     break;
                 }
             }

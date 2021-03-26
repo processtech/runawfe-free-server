@@ -2,31 +2,30 @@ package ru.runa.wfe.chat;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Formula;
+import ru.runa.wfe.execution.Process;
 
 @Entity
-@Table(name = "CHAT_MESSAGE_RECIPIENT")
+@Table(name = "CHAT_MESSAGE")
 public class UnreadMessagesPresentation {
 
     public static final String numberOfUnreadMessagesFormula = "(SELECT count(*) FROM CHAT_MESSAGE_RECIPIENT cr " +
             "LEFT JOIN CHAT_MESSAGE cm ON cm.ID = cr.MESSAGE_ID " +
-            "WHERE cr.READ_DATE IS NULL AND cm.PROCESS_ID = process0_.ID AND cr.EXECUTOR_ID = unreadmess1_.EXECUTOR_ID)";
+            "WHERE cr.READ_DATE IS NULL AND cm.PROCESS_ID = process0_.ID)";
 
     private Long id;
+    private Process process;
     private Long numberOfUnreadMessages;
-    private Long processId;
 
     public UnreadMessagesPresentation() {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_CHAT_MESSAGE_RECIPIENT", allocationSize = 1)
     @Column(name = "ID")
     public Long getId() {
         return id;
@@ -36,6 +35,17 @@ public class UnreadMessagesPresentation {
         this.id = id;
     }
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "PROCESS_ID")
+    @ForeignKey(name = "FK_CHAT_MESSAGE_PROCESS_ID")
+    public Process getProcess() {
+        return process;
+    }
+
+    public void setProcess(Process process) {
+        this.process = process;
+    }
+
     @Formula(numberOfUnreadMessagesFormula)
     public Long getNumberOfUnreadMessages() {
         return numberOfUnreadMessages;
@@ -43,14 +53,5 @@ public class UnreadMessagesPresentation {
 
     public void setNumberOfUnreadMessages(Long numberOfUnreadMessages) {
         this.numberOfUnreadMessages = numberOfUnreadMessages;
-    }
-
-    @Formula("(SELECT cm.PROCESS_ID FROM CHAT_MESSAGE cm LEFT JOIN CHAT_MESSAGE_RECIPIENT cr ON cm.ID = cr.MESSAGE_ID WHERE cr.ID = unreadmess1_.ID)")
-    public Long getProcessId() {
-        return processId;
-    }
-
-    public void setProcessId(Long processId) {
-        this.processId = processId;
     }
 }

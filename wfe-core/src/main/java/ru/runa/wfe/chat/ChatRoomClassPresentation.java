@@ -36,7 +36,7 @@ public class ChatRoomClassPresentation extends ClassPresentation {
 
         @Override
         public String getJoinExpression(String alias) {
-            return classNameSQL + ".id=" + alias + ".processId";
+            return classNameSQL + ".id=" + alias + ".process.id";
         }
     }
 
