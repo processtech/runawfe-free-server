@@ -125,6 +125,8 @@ public final class SecuredObjectType implements Serializable, Comparable<Secured
 
     public static final SecuredObjectType DEFINITION = new SecuredObjectType("DEFINITION", false);
 
+    public static final SecuredObjectType ERRORS = new SecuredObjectType("ERRORS", true);
+
     public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR", false);
 
     public static final SecuredObjectType PROCESS = new SecuredObjectType("PROCESS", false);
