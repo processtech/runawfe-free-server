@@ -1,8 +1,11 @@
 package ru.runa.wfe.chat.dao;
 
+import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.stereotype.Component;
@@ -12,7 +15,7 @@ import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.commons.dao.GenericDao;
-import ru.runa.wfe.definition.QDeployment;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.QProcess;
 import ru.runa.wfe.user.Actor;
 
@@ -50,9 +53,23 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     public List<WfChatRoom> getChatRooms(Actor actor) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         QProcess p = QProcess.process;
-        QDeployment d = QDeployment.deployment;
-        return queryFactory.select(Projections.constructor(WfChatRoom.class, p.id, d.name, cr.count().subtract(cr.readDate.count())))
-                .from(cr).join(cr.message.process, p).join(p.deployment, d).where(cr.executor.eq(actor)).groupBy(p.id, d.name).orderBy(p.id.desc()).fetch();
+        return queryFactory.select(Projections.constructor(WfChatRoom.class, p, cr.count().subtract(cr.readDate.count()))).from(cr)
+                .join(cr.message.process, p).where(cr.executor.eq(actor))
+                .groupBy(p.id).orderBy(p.id.desc()).fetch();
+    }
+
+    @Transactional(readOnly = true)
+    public List<WfChatRoom> getOrderedChatRooms(Actor actor, List<Process> processes) {
+        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
+        QProcess p = QProcess.process;
+        Map<Long, WfChatRoom> processIdToChatRoom = queryFactory.from(cr).join(cr.message.process, p)
+                .where(cr.executor.eq(actor).and(p.in(processes))).groupBy(p.id).orderBy(p.id.desc())
+                .transform(GroupBy.groupBy(p.id).as(Projections.constructor(WfChatRoom.class, p, cr.count().subtract(cr.readDate.count()))));
+        List<WfChatRoom> rooms = new ArrayList<>(processes.size());
+        for (Process process : processes) {
+            rooms.add(processIdToChatRoom.get(process.getId()));
+        }
+        return rooms;
     }
 
     @Transactional

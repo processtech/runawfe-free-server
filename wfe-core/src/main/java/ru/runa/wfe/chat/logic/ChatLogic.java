@@ -1,7 +1,7 @@
 package ru.runa.wfe.chat.logic;
 
 import com.google.common.base.Joiner;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -99,22 +99,11 @@ public class ChatLogic extends WfCommonLogic {
         if (batchPresentation == null) {
             return messageDao.getChatRooms(user.getActor());
         }
-        List<String> additionalClauses = new ArrayList<>();
-        additionalClauses.add(UnreadMessagesPresentation.numberOfUnreadMessagesFormula);
-        additionalClauses.add("deployment2_.NAME");
+        List<String> additionalClauses = Arrays.asList(UnreadMessagesPresentation.numberOfUnreadMessagesFormula,
+                "deployment2_.NAME", "deployment2_.VERSION");
         List<Process> orderedProcesses = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
                 new SecuredObjectType[]{SecuredObjectType.CHAT_ROOMS}, true, additionalClauses);
-        List<WfChatRoom> rooms = messageDao.getChatRooms(user.getActor());
-        List<WfChatRoom> result = new ArrayList<>(rooms.size());
-        for (Process process : orderedProcesses) {
-            for (WfChatRoom room : rooms) {
-                if (process.getId().equals(room.getId())) {
-                    result.add(room);
-                    break;
-                }
-            }
-        }
-        return result;
+        return messageDao.getOrderedChatRooms(user.getActor(), orderedProcesses);
     }
 
     public void deleteMessage(User user, Long messageId) {
