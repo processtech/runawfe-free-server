@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.mail.Authenticator;
@@ -13,6 +14,8 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,7 @@ import ru.runa.wfe.chat.mapper.MessageAddedBroadcastMapper;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
@@ -38,10 +42,14 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.dto.WfVariable;
 
 @MonitoredWithSpring
 public class ChatLogic extends WfCommonLogic {
     private final Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
+    @Autowired
+    private ExecutionLogic executionLogic;
     @Autowired
     private ChatMessageDao messageDao;
     @Autowired
@@ -103,7 +111,20 @@ public class ChatLogic extends WfCommonLogic {
                 "deployment2_.NAME", "deployment2_.VERSION");
         List<Process> orderedProcesses = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
                 new SecuredObjectType[]{SecuredObjectType.CHAT_ROOMS}, true, additionalClauses);
-        return messageDao.getOrderedChatRooms(user.getActor(), orderedProcesses);
+        List<String> variableNamesToInclude = batchPresentation.getDynamicFieldsToDisplay(true);
+        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(orderedProcesses), variableNamesToInclude);
+        Map<Long, WfChatRoom> processIdToChatRoom = messageDao.getProcessIdToChatRoom(user.getActor(), orderedProcesses);
+        List<WfChatRoom> rooms = Lists.newArrayListWithExpectedSize(orderedProcesses.size());
+        for (Process process : orderedProcesses) {
+            WfChatRoom room = processIdToChatRoom.get(process.getId());
+            if (room != null) {
+                for (WfVariable variable : executionLogic.getVariables(variableNamesToInclude, variables, process)) {
+                    room.addVariable(variable);
+                }
+                rooms.add(room);
+            }
+        }
+        return rooms;
     }
 
     public void deleteMessage(User user, Long messageId) {

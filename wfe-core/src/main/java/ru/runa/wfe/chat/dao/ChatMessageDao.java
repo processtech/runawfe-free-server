@@ -2,7 +2,6 @@ package ru.runa.wfe.chat.dao;
 
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,17 +58,12 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     }
 
     @Transactional(readOnly = true)
-    public List<WfChatRoom> getOrderedChatRooms(Actor actor, List<Process> processes) {
+    public Map<Long, WfChatRoom> getProcessIdToChatRoom(Actor actor, List<Process> processes) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         QProcess p = QProcess.process;
-        Map<Long, WfChatRoom> processIdToChatRoom = queryFactory.from(cr).join(cr.message.process, p)
+        return queryFactory.from(cr).join(cr.message.process, p)
                 .where(cr.executor.eq(actor).and(p.in(processes))).groupBy(p.id).orderBy(p.id.desc())
                 .transform(GroupBy.groupBy(p.id).as(Projections.constructor(WfChatRoom.class, p, cr.count().subtract(cr.readDate.count()))));
-        List<WfChatRoom> rooms = new ArrayList<>(processes.size());
-        for (Process process : processes) {
-            rooms.add(processIdToChatRoom.get(process.getId()));
-        }
-        return rooms;
     }
 
     @Transactional

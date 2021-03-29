@@ -21,6 +21,7 @@ import org.apache.ecs.html.TD;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wf.web.ftl.component.ViewUtil;
+import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
@@ -47,13 +48,13 @@ public class ProcessVariableTdBuilder implements TdBuilder {
     //now used for excel export only
     @Override
     public String getValue(Object object, Env env) {
-        WfProcess process = (WfProcess) object;
-        WfVariable variable = process.getVariable(variableName);
+        WfVariable variable = getVariable(object);
+        Long id = getId(object);
         if (variable != null && variable.getValue() != null) {
             VariableFormat format = variable.getDefinition().getFormatNotNull();
             //workaround for correct excel export of FileVariable
             if (FileVariable.class.equals(format.getJavaClass())) {
-                return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), process.getId(), variable);
+                return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), id, variable);
             }
             return format.formatJSON(variable.getValue());
         }
@@ -66,12 +67,32 @@ public class ProcessVariableTdBuilder implements TdBuilder {
     }
     
     private String getDisplayValue(Object object, Env env) {
-        WfProcess process = (WfProcess) object;
-        WfVariable variable = process.getVariable(variableName);
+        WfVariable variable = getVariable(object);
+        Long id = getId(object);
         if (variable != null && variable.getValue() != null) {
-            return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), process.getId(), variable);
+            return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), id, variable);
         }
         return "";
+    }
+
+    private WfVariable getVariable(Object object) {
+        WfVariable variable = null;
+        if (object instanceof WfProcess) {
+            variable = ((WfProcess) object).getVariable(variableName);
+        } else if (object instanceof WfChatRoom) {
+            variable = ((WfChatRoom) object).getVariable(variableName);
+        }
+        return variable;
+    }
+
+    private Long getId(Object object) {
+        Long id = -1L;
+        if (object instanceof WfProcess) {
+            id = ((WfProcess) object).getId();
+        } else if (object instanceof WfChatRoom) {
+            id = ((WfChatRoom) object).getId();
+        }
+        return id;
     }
 
     @Override
