@@ -15,6 +15,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
+import static ru.runa.wfe.security.SecuredObjectType.ERRORS;
 import static ru.runa.wfe.security.SecuredObjectType.SYSTEM;
 
 public class CheckSingletonPermissionAndForwardAction extends ActionBase {
@@ -31,6 +32,7 @@ public class CheckSingletonPermissionAndForwardAction extends ActionBase {
     private static final String TAB_FORWARD_NAME_PARAMETER_NAME = "tabForwardName";
     private static final HashMap<SecuredObjectType, Config> configs = new HashMap<SecuredObjectType, Config>() {{
         put(SYSTEM, new Config(Permission.READ, "/WEB-INF/af/manage_system.jsp"));
+        put(ERRORS, new Config(Permission.READ, "/WEB-INF/af/manage_errors.jsp"));
     }};
 
     @Override

@@ -71,6 +71,10 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="definition.compatibility.check.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
 	</properties_file>
 
 	<properties_file title="class.presentation.properties">

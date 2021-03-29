@@ -340,6 +340,12 @@ tr.executor_group {
 td.fontRed {
     color: red !important;
 }
+a.permissionLink {
+	background-color: #990000;
+	color: white;
+}
+
+
 
 #mainTableSwitchChats{
 	display:none;
