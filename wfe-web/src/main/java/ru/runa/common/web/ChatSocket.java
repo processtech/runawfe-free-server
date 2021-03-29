@@ -8,6 +8,7 @@ import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
+import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import lombok.extern.apachecommons.CommonsLog;
@@ -22,11 +23,13 @@ import ru.runa.wfe.chat.utils.ChatSessionUtils;
 
 @ApplicationScoped
 @CommonsLog
-@Interceptors({SpringBeanAutowiringInterceptor.class})
-@ServerEndpoint(value = "/chatSocket",
-        subprotocols = {"wss"},
+@Interceptors({ SpringBeanAutowiringInterceptor.class })
+@ServerEndpoint(
+        value = "/chatSocket",
+        subprotocols = { "wss" },
         configurator = ChatSocketConfigurator.class,
-        decoders = {MessageRequestBinaryDecoder.class})
+        decoders = { MessageRequestBinaryDecoder.class }
+)
 public class ChatSocket {
 
     @Autowired
@@ -60,5 +63,10 @@ public class ChatSocket {
     public void handleMessage(MessageRequest dto, Session session) throws IOException {
         ChatSocketMessageHandler handler = handlerByMessageType.get(dto.getClass());
         handler.handleMessage(dto, ChatSessionUtils.getUser(session));
+    }
+
+    @OnMessage
+    public void pong(PongMessage pongMessage, Session session) {
+        log.debug("Pong " + session.getId());
     }
 }
