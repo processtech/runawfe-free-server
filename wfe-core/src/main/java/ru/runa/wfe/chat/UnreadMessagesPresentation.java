@@ -14,9 +14,10 @@ import ru.runa.wfe.execution.Process;
 @Table(name = "CHAT_MESSAGE")
 public class UnreadMessagesPresentation {
 
-    public static final String numberOfUnreadMessagesFormula = "(SELECT count(*) FROM CHAT_MESSAGE_RECIPIENT cr " +
+    public static final String UNREAD_MESSAGES_EXECUTOR_ID = "unreadmess1_.UNREAD_MESSAGES_EXECUTOR_ID";
+    public static final String NUMBER_OF_UNREAD_MESSAGES_FORMULA = "(SELECT count(*) FROM CHAT_MESSAGE_RECIPIENT cr " +
             "LEFT JOIN CHAT_MESSAGE cm ON cm.ID = cr.MESSAGE_ID " +
-            "WHERE cr.READ_DATE IS NULL AND cm.PROCESS_ID = process0_.ID)";
+            "WHERE cr.READ_DATE IS NULL AND cm.PROCESS_ID = process0_.ID AND cr.EXECUTOR_ID = " + UNREAD_MESSAGES_EXECUTOR_ID + ")";
 
     private Long id;
     private Process process;
@@ -46,7 +47,7 @@ public class UnreadMessagesPresentation {
         this.process = process;
     }
 
-    @Formula(numberOfUnreadMessagesFormula)
+    @Formula(NUMBER_OF_UNREAD_MESSAGES_FORMULA)
     public Long getNumberOfUnreadMessages() {
         return numberOfUnreadMessages;
     }

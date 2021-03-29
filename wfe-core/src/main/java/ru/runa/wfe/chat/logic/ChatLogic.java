@@ -107,8 +107,8 @@ public class ChatLogic extends WfCommonLogic {
         if (batchPresentation == null) {
             return messageDao.getChatRooms(user.getActor());
         }
-        List<String> additionalClauses = Arrays.asList(UnreadMessagesPresentation.numberOfUnreadMessagesFormula,
-                "deployment2_.NAME", "deployment2_.VERSION");
+        List<String> additionalClauses = Arrays.asList(UnreadMessagesPresentation.NUMBER_OF_UNREAD_MESSAGES_FORMULA, "deployment2_.NAME",
+                "deployment2_.VERSION", UnreadMessagesPresentation.UNREAD_MESSAGES_EXECUTOR_ID + "=" + user.getActor().getId());
         List<Process> orderedProcesses = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
                 new SecuredObjectType[]{SecuredObjectType.CHAT_ROOMS}, true, additionalClauses);
         List<String> variableNamesToInclude = batchPresentation.getDynamicFieldsToDisplay(true);
