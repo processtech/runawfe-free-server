@@ -21,6 +21,9 @@
  */
 package ru.runa.wfe.definition.par;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,17 +33,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
 
 public class ProcessArchive {
     private final Deployment deployment;
@@ -61,8 +59,8 @@ public class ProcessArchive {
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new GraphXmlParser()));
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new CommentsParser()));
     }
-    private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern.compile(FileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)."
-            + FileDataProvider.PROCESSDEFINITION_XML_FILE_NAME);
+    private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern
+            .compile(FileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)." + FileDataProvider.PROCESSDEFINITION_XML_FILE_NAME);
 
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 

@@ -48,6 +48,7 @@ import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -114,6 +115,9 @@ public class ExecutionLogic extends WfCommonLogic {
     private ProcessLogDao processLogDao;
     @Autowired
     private JobDao jobDao;
+    @Autowired
+    private DefinitionUpdateValidatorManager definitionVersionValidatorManager;
+
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -349,7 +353,11 @@ public class ExecutionLogic extends WfCommonLogic {
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }
         Deployment deployment = deploymentDao.getNotNull(definitionId);
+        if (Objects.equal(newVersion, deployment.getVersion())) {
+            return 0;
+        }
         Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newVersion);
+        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), getDefinition(nextDeployment.getId()));
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(deployment.getName());
         filter.setDefinitionVersion(deployment.getVersion());
@@ -377,6 +385,7 @@ public class ExecutionLogic extends WfCommonLogic {
             return false;
         }
         Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newDeploymentVersion);
+        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), getDefinition(nextDeployment.getId()), process);
         process.setDeployment(nextDeployment);
         processDao.update(process);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
