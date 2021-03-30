@@ -420,8 +420,7 @@ public class BpmnXmlReader {
             }
             Transition transition = new Transition();
             transition.setNodeId(id);
-            GraphElement sourceElement = parsedProcessDefinition.getGraphElementNotNull(from);
-            Node source = (Node) sourceElement;
+            Node source = parsedProcessDefinition.getNodeNotNull(from);
             transition.setFrom(source);
             Node target = parsedProcessDefinition.getNodeNotNull(to);
             transition.setTo(target);

@@ -248,6 +248,10 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("definition.comments.empty.allowed", true);
     }
 
+    public static boolean isDefinitionCompatibilityCheckEnabled() {
+        return RESOURCES.getBooleanProperty("definition.compatibility.check.enabled", true);
+    }
+
     public static boolean isCheckProcessStartPermissions() {
         return RESOURCES.getBooleanProperty("check.process.start.permissions", true);
     }
