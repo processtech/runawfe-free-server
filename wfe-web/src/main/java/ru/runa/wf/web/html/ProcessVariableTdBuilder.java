@@ -21,7 +21,6 @@ import org.apache.ecs.html.TD;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wf.web.ftl.component.ViewUtil;
-import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
@@ -75,28 +74,20 @@ public class ProcessVariableTdBuilder implements TdBuilder {
         return "";
     }
 
-    private WfVariable getVariable(Object object) {
-        WfVariable variable = null;
-        if (object instanceof WfProcess) {
-            variable = ((WfProcess) object).getVariable(variableName);
-        } else if (object instanceof WfChatRoom) {
-            variable = ((WfChatRoom) object).getVariable(variableName);
-        }
-        return variable;
+    protected WfVariable getVariable(Object object) {
+        return ((WfProcess) object).getVariable(variableName);
     }
 
-    private Long getId(Object object) {
-        Long id = -1L;
-        if (object instanceof WfProcess) {
-            id = ((WfProcess) object).getId();
-        } else if (object instanceof WfChatRoom) {
-            id = ((WfChatRoom) object).getId();
-        }
-        return id;
+    protected Long getId(Object object) {
+        return ((WfProcess) object).getId();
     }
 
     @Override
     public int getSeparatedValuesCount(Object object, Env env) {
         return 1;
+    }
+
+    public String getVariableName() {
+        return variableName;
     }
 }

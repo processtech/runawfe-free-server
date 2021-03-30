@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.UnreadMessagesPresentation;
+import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
@@ -107,8 +107,8 @@ public class ChatLogic extends WfCommonLogic {
         if (batchPresentation == null) {
             return messageDao.getChatRooms(user.getActor());
         }
-        List<String> additionalClauses = Arrays.asList(UnreadMessagesPresentation.NUMBER_OF_UNREAD_MESSAGES_FORMULA, "deployment2_.NAME",
-                "deployment2_.VERSION", UnreadMessagesPresentation.UNREAD_MESSAGES_EXECUTOR_ID + "=" + user.getActor().getId());
+        List<String> additionalClauses = Arrays.asList(ChatRoom.NEW_MESSAGES_FORMULA, "deployment2_.NAME",
+                "deployment2_.VERSION", ChatRoom.USER_ID + "=" + user.getActor().getId());
         List<Process> orderedProcesses = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
                 new SecuredObjectType[]{SecuredObjectType.CHAT_ROOMS}, true, additionalClauses);
         List<String> variableNamesToInclude = batchPresentation.getDynamicFieldsToDisplay(true);

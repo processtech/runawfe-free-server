@@ -33,20 +33,20 @@ public class ChatRoomClassPresentation extends ClassPresentation {
                 new FieldDescriptor(PROCESS_ID, Long.class.getName(), new DefaultDbSource(Process.class, "id"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "id"}),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(Process.class, "deployment.name"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "processName"}),
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "process.name"}),
                 new FieldDescriptor(PROCESS_START_DATE, Date.class.getName(), new DefaultDbSource(Process.class, "startDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomStartDateTdBuilder", new Object[]{}).setVisible(false),
                 new FieldDescriptor(PROCESS_END_DATE, Date.class.getName(), new DefaultDbSource(Process.class, "endDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomEndDateTdBuilder", new Object[]{}).setVisible(false),
                 new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDbSources.get(null), false,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[]{}),
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomVariableTdBuilder", new Object[]{}),
                 new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(Process.class, "deployment.version"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "version"}).setVisible(false)});
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "process.version"}).setVisible(false)});
     }
 
     private static class ChatRoomDbSource extends DefaultDbSource {
         public ChatRoomDbSource() {
-            super(UnreadMessagesPresentation.class, "numberOfUnreadMessages");
+            super(ChatRoom.class, "newMessagesCount");
         }
 
         @Override

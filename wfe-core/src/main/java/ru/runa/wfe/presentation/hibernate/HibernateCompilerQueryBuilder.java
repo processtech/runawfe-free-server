@@ -24,7 +24,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
-import ru.runa.wfe.chat.UnreadMessagesPresentation;
+import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 
@@ -131,10 +131,10 @@ public class HibernateCompilerQueryBuilder {
     }
 
     private StringBuilder addAdditionalSelectClauses(StringBuilder sqlRequest) {
-        String unreadMessagesExecutorId = "";
+        String chatRoomUserId = "";
         for (String clause : parameters.getAdditionalSelectClauses()) {
-            if (clause.contains(UnreadMessagesPresentation.UNREAD_MESSAGES_EXECUTOR_ID)) {
-                unreadMessagesExecutorId = clause;
+            if (clause.contains(ChatRoom.USER_ID)) {
+                chatRoomUserId = clause;
             }
             String clauseFromSql = (sqlRequest.indexOf(clause) == -1)
                     ? getClauseFromSql(sqlRequest, clause)
@@ -144,9 +144,9 @@ public class HibernateCompilerQueryBuilder {
                 sqlRequest.insert(idx + 1, ", " + clauseFromSql);
             }
         }
-        if (!unreadMessagesExecutorId.equals("") && sqlRequest.indexOf(UnreadMessagesPresentation.UNREAD_MESSAGES_EXECUTOR_ID) != -1) {
-            String userId = unreadMessagesExecutorId.substring(unreadMessagesExecutorId.indexOf("=") + 1);
-            return new StringBuilder(sqlRequest.toString().replace(UnreadMessagesPresentation.UNREAD_MESSAGES_EXECUTOR_ID, userId));
+        if (!chatRoomUserId.equals("") && sqlRequest.indexOf(ChatRoom.USER_ID) != -1) {
+            String userId = chatRoomUserId.substring(chatRoomUserId.indexOf("=") + 1);
+            return new StringBuilder(sqlRequest.toString().replace(ChatRoom.USER_ID, userId));
         }
         return sqlRequest;
     }

@@ -9,7 +9,7 @@ public class ChatRoomEndDateTdBuilder extends BaseDateTdBuilder<WfChatRoom> {
 
     @Override
     protected Date getDate(WfChatRoom object) {
-        return object.getEndDate();
+        return object.getProcess().getEndDate();
     }
 
     @Override
