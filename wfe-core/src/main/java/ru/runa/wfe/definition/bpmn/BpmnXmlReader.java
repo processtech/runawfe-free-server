@@ -49,6 +49,7 @@ import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.DataStore;
 import ru.runa.wfe.lang.bpmn2.EndToken;
 import ru.runa.wfe.lang.bpmn2.ExclusiveGateway;
+import ru.runa.wfe.lang.bpmn2.BusinessRule;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.lang.bpmn2.ParallelGateway;
 import ru.runa.wfe.lang.bpmn2.TextAnnotation;
@@ -76,6 +77,7 @@ public class BpmnXmlReader {
     private static final String MULTI_INSTANCE = "multiInstance";
     private static final String EXCLUSIVE_GATEWAY = "exclusiveGateway";
     private static final String PARALLEL_GATEWAY = "parallelGateway";
+    private static final String BUSINESS_RULE = "businessRule";
     private static final String DEFAULT_TASK_DEADLINE = "defaultTaskDeadline";
     private static final String TASK_DEADLINE = "taskDeadline";
     private static final String USER_TASK = "userTask";
@@ -141,6 +143,7 @@ public class BpmnXmlReader {
         nodeTypes.put(SCRIPT_TASK, ScriptNode.class);
         nodeTypes.put(EXCLUSIVE_GATEWAY, ExclusiveGateway.class);
         nodeTypes.put(PARALLEL_GATEWAY, ParallelGateway.class);
+        nodeTypes.put(BUSINESS_RULE, BusinessRule.class);
         nodeTypes.put(TEXT_ANNOTATION, TextAnnotation.class);
         nodeTypes.put(DATA_STORE, DataStore.class);
         // back compatibility v < 4.3.0
@@ -332,6 +335,10 @@ public class BpmnXmlReader {
         if (node instanceof ExclusiveGateway) {
             ExclusiveGateway gateway = (ExclusiveGateway) node;
             gateway.setDelegation(readDelegation(element, properties, false));
+        }
+        if (node instanceof BusinessRule) {
+            BusinessRule businessRule = (BusinessRule) node;
+            businessRule.setDelegation(readDelegation(element, properties, false));
         }
         if (node instanceof TimerNode) {
             TimerNode timerNode = (TimerNode) node;
