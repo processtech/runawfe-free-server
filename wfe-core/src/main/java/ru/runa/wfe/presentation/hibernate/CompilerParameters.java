@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 
 /**
@@ -75,6 +73,11 @@ public class CompilerParameters {
      * Clauses to be added to the select statement
      */
     private final List<String> additionalSelectClauses = new ArrayList<>();
+
+    /**
+     * SQL parameters, that will replace '?' in query
+     */
+    private final List<String> sqlParameters = new ArrayList<>();
 
     /**
      * Creates parameter object for building HQL query using other {@linkplain CompilerParameters} as source. Copy all parameters from source
@@ -414,10 +417,26 @@ public class CompilerParameters {
     }
 
     /**
-     * Add claus to the clauses to be added to the select statement
+     * Add clauses to the clauses to be added to the select statement
      */
-    public void addClausToAdditionalSelectClauses(String claus) {
-        additionalSelectClauses.add(claus);
+    public void addClausesToAdditionalSelectClauses(List<String> additionalClauses) {
+        additionalSelectClauses.addAll(additionalClauses);
+    }
+
+    /**
+     * Returns SQL parameters, that will replace '?' in query
+     *
+     * @return SQL parameters, that will replace '?' in query
+     */
+    public List<String> getSqlParameters() {
+        return sqlParameters;
+    }
+
+    /**
+     * Add parameters to the SQL parameters, that will replace '?' in query
+     */
+    public void addParametersToSqlParameters(List<String> parameters) {
+        sqlParameters.addAll(parameters);
     }
 
     /**

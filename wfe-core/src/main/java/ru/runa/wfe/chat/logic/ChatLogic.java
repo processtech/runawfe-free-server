@@ -3,6 +3,7 @@ package ru.runa.wfe.chat.logic;
 import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -110,10 +111,11 @@ public class ChatLogic extends WfCommonLogic {
         if (batchPresentation == null) {
             return chatRoomDao.getChatRooms(user.getActor());
         }
-        List<String> additionalClauses = Arrays.asList(ChatRoom.NEW_MESSAGES_FORMULA, "deployment2_.NAME",
-                "deployment2_.VERSION", ChatRoom.USER_ID + "=" + user.getActor().getId());
+        List<String> additionalClauses = Arrays.asList(ChatRoom.NEW_MESSAGES_FORMULA.replace("?", user.getActor().getId().toString()),
+                "deployment2_.NAME", "deployment2_.VERSION");
+        List<String> sqlParameters = Collections.singletonList(user.getActor().getId().toString());
         List<Process> processes = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
-                new SecuredObjectType[]{SecuredObjectType.PROCESS}, true, additionalClauses);
+                new SecuredObjectType[]{SecuredObjectType.PROCESS}, true, additionalClauses, sqlParameters);
 
         List<String> variableNamesToInclude = batchPresentation.getDynamicFieldsToDisplay(true);
         Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);

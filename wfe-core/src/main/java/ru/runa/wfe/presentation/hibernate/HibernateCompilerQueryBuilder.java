@@ -24,7 +24,6 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
-import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 
@@ -101,7 +100,7 @@ public class HibernateCompilerQueryBuilder {
     private String translateToSQL() {
         HibernateCompilerTranslator queryTranslator = new HibernateCompilerTranslator(hqlBuilder.getQuery(), parameters.isCountQuery());
         List<String> phSeq = HibernateCompilerPlaceholdersHelper.getPlaceholdersFromHQL(hqlBuilder.getQuery(), hqlBuilder.getPlaceholders());
-        StringBuilder sqlRequest = new StringBuilder(queryTranslator.translate());
+        StringBuilder sqlRequest = new StringBuilder(queryTranslator.translate(parameters.getSqlParameters()));
         HibernateCompilerPlaceholdersHelper.restorePlaceholdersInSQL(sqlRequest, phSeq);
         sqlRequest = tuneSelectClause(sqlRequest);
         new HibernateCompilerInheritanceFiltersBuilder(batchPresentation, hqlBuilder, queryTranslator).injectFiltersStatements(sqlRequest);
@@ -131,11 +130,7 @@ public class HibernateCompilerQueryBuilder {
     }
 
     private StringBuilder addAdditionalSelectClauses(StringBuilder sqlRequest) {
-        String chatRoomUserId = "";
         for (String clause : parameters.getAdditionalSelectClauses()) {
-            if (clause.contains(ChatRoom.USER_ID)) {
-                chatRoomUserId = clause;
-            }
             String clauseFromSql = (sqlRequest.indexOf(clause) == -1)
                     ? getClauseFromSql(sqlRequest, clause)
                     : clause;
@@ -143,10 +138,6 @@ public class HibernateCompilerQueryBuilder {
                 int idx = sqlRequest.indexOf("*");
                 sqlRequest.insert(idx + 1, ", " + clauseFromSql);
             }
-        }
-        if (!chatRoomUserId.equals("") && sqlRequest.indexOf(ChatRoom.USER_ID) != -1) {
-            String userId = chatRoomUserId.substring(chatRoomUserId.indexOf("=") + 1);
-            return new StringBuilder(sqlRequest.toString().replace(ChatRoom.USER_ID, userId));
         }
         return sqlRequest;
     }

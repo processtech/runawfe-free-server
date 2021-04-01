@@ -20,10 +20,9 @@ import ru.runa.wfe.execution.Process;
 @Table(name = "CHAT_MESSAGE")
 public class ChatRoom {
 
-    public static final String USER_ID = "chatroom1_.CHAT_ROOM_USER_ID";
     public static final String NEW_MESSAGES_FORMULA = "(SELECT count(*) FROM CHAT_MESSAGE_RECIPIENT cr " +
             "LEFT JOIN CHAT_MESSAGE cm ON cm.ID = cr.MESSAGE_ID " +
-            "WHERE cr.READ_DATE IS NULL AND cm.PROCESS_ID = process0_.ID AND cr.EXECUTOR_ID = " + USER_ID + ")";
+            "WHERE cr.READ_DATE IS NULL AND cm.PROCESS_ID = process0_.ID AND cr.EXECUTOR_ID = ?)";
 
     @Id
     @Column(name = "ID")

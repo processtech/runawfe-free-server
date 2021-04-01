@@ -143,12 +143,15 @@ public class CommonLogic {
      *            Flag, equals true, if paging must be enabled; false to load all objects.
      * @param additionalClauses
      *            Clauses to be added to the select statement
+     * @param sqlParameters
+     *            SQL parameters, that will replace '?' in query
      * @return Loaded according to {@linkplain BatchPresentation} distinct objects list.
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> getDistinctPersistentObjects(User user, BatchPresentation batchPresentation, Permission permission,
-                                                    SecuredObjectType[] securedObjectTypes, boolean enablePaging, List<String> additionalClauses) {
-        return (List<T>) permissionDao.getDistinctPersistentObjects(user, batchPresentation, permission, securedObjectTypes, enablePaging, additionalClauses);
+            SecuredObjectType[] securedObjectTypes, boolean enablePaging, List<String> additionalClauses, List<String> sqlParameters) {
+        return (List<T>) permissionDao.getDistinctPersistentObjects(
+                user, batchPresentation, permission, securedObjectTypes, enablePaging, additionalClauses, sqlParameters);
     }
 
     /**
