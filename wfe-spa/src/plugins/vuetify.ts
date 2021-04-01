@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Vuetify from 'Vuetify';
+import Vuetify from 'vuetify';
 
 Vue.use(Vuetify);
 
@@ -14,11 +14,11 @@ const theme = {
 }
 
 export default new Vuetify({
-  breakpoint: { 
-    mobileBreakpoint: 960 
+  breakpoint: {
+    mobileBreakpoint: 960
   },
   icons: {
-    iconfont: 'mdi' 
+    iconfont: 'mdi'
   },
   theme: {
     themes: {
