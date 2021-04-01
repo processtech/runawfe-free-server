@@ -112,6 +112,10 @@ public class WfProcess extends SecuredObjectBase {
         return hierarchyIds;
     }
 
+    public void addAllVariables(List<WfVariable> variables) {
+        this.variables.addAll(variables);
+    }
+
     public void addVariable(WfVariable variable) {
         if (variable != null) {
             variables.add(variable);

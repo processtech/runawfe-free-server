@@ -696,9 +696,7 @@ public class ExecutionLogic extends WfCommonLogic {
         Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
         for (Process process : processes) {
             WfProcess wfProcess = new WfProcess(process, getProcessErrors(process));
-            for (WfVariable variable : getVariables(variableNamesToInclude, variables, process)) {
-                wfProcess.addVariable(variable);
-            }
+            wfProcess.addAllVariables(getVariables(variableNamesToInclude, variables, process));
             result.add(wfProcess);
         }
         return result;

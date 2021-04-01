@@ -25,6 +25,7 @@ import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
+import ru.runa.wfe.chat.dao.ChatRoomDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
@@ -43,7 +44,6 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.dto.WfVariable;
 
 @MonitoredWithSpring
 public class ChatLogic extends WfCommonLogic {
@@ -52,6 +52,8 @@ public class ChatLogic extends WfCommonLogic {
     private ExecutionLogic executionLogic;
     @Autowired
     private ChatMessageDao messageDao;
+    @Autowired
+    private ChatRoomDao chatRoomDao;
     @Autowired
     private MessageAddedBroadcastMapper messageMapper;
     @Autowired
@@ -103,24 +105,25 @@ public class ChatLogic extends WfCommonLogic {
         return messageFileMapper.toDtos(messages);
     }
 
+    @Transactional(readOnly = true)
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
         if (batchPresentation == null) {
-            return messageDao.getChatRooms(user.getActor());
+            return chatRoomDao.getChatRooms(user.getActor());
         }
         List<String> additionalClauses = Arrays.asList(ChatRoom.NEW_MESSAGES_FORMULA, "deployment2_.NAME",
                 "deployment2_.VERSION", ChatRoom.USER_ID + "=" + user.getActor().getId());
-        List<Process> orderedProcesses = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
-                new SecuredObjectType[]{SecuredObjectType.CHAT_ROOMS}, true, additionalClauses);
+        List<Process> processes = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
+                new SecuredObjectType[]{SecuredObjectType.PROCESS}, true, additionalClauses);
+
         List<String> variableNamesToInclude = batchPresentation.getDynamicFieldsToDisplay(true);
-        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(orderedProcesses), variableNamesToInclude);
-        Map<Long, WfChatRoom> processIdToChatRoom = messageDao.getProcessIdToChatRoom(user.getActor(), orderedProcesses);
-        List<WfChatRoom> rooms = Lists.newArrayListWithExpectedSize(orderedProcesses.size());
-        for (Process process : orderedProcesses) {
+        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
+
+        Map<Long, WfChatRoom> processIdToChatRoom = chatRoomDao.getProcessIdToChatRoom(user.getActor(), processes);
+        List<WfChatRoom> rooms = Lists.newArrayListWithExpectedSize(processes.size());
+        for (Process process : processes) {
             WfChatRoom room = processIdToChatRoom.get(process.getId());
             if (room != null) {
-                for (WfVariable variable : executionLogic.getVariables(variableNamesToInclude, variables, process)) {
-                    room.addVariable(variable);
-                }
+                room.getProcess().addAllVariables(executionLogic.getVariables(variableNamesToInclude, variables, process));
                 rooms.add(room);
             }
         }

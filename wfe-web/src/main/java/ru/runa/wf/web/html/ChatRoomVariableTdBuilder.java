@@ -10,7 +10,7 @@ public class ChatRoomVariableTdBuilder extends ProcessVariableTdBuilder {
 
     @Override
     protected WfVariable getVariable(Object object) {
-        return ((WfChatRoom) object).getVariable(getVariableName());
+        return ((WfChatRoom) object).getProcess().getVariable(getVariableName());
     }
 
     @Override

@@ -10,7 +10,6 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.var.dto.WfVariable;
 
 /**
  * Created on 23.02.2021
@@ -29,14 +28,6 @@ public class WfChatRoom extends SecuredObjectBase {
     public WfChatRoom(Process process, Long newMessagesCount) {
         this.process = new WfProcess(process, "");
         this.newMessagesCount = newMessagesCount;
-    }
-
-    public void addVariable(WfVariable variable) {
-        process.addVariable(variable);
-    }
-
-    public WfVariable getVariable(String name) {
-        return process.getVariable(name);
     }
 
     @Override

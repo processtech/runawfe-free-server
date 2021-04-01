@@ -127,7 +127,7 @@ public class HibernateCompilerQueryBuilder {
         int posDot = sqlRequest.indexOf(".");
         int posFrom = HibernateCompilerHelper.getFromClauseIndex(sqlRequest);
         sqlRequest.replace(posDot + 1, posFrom, "*");
-        return (parameters.getAdditionalSelectClauses().isEmpty()) ? sqlRequest : addAdditionalSelectClauses(sqlRequest);
+        return parameters.getAdditionalSelectClauses().isEmpty() ? sqlRequest : addAdditionalSelectClauses(sqlRequest);
     }
 
     private StringBuilder addAdditionalSelectClauses(StringBuilder sqlRequest) {
