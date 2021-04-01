@@ -7,6 +7,7 @@ import ProcessDefinitionList from '../views/ProcessDefinitionList.vue';
 import ProcessList from '../views/ProcessList.vue';
 import TaskCard from '../views/TaskCard.vue';
 import ProcessCard from '../views/ProcessCard.vue';
+import Profile from '../views/Profile.vue';
 
 Vue.use(Router);
 
@@ -43,6 +44,11 @@ const router = new Router({
         component: ProcessCard,
         path: '/process/:id'
       },
+      {
+        name: 'Профиль',
+        component: Profile,
+        path: '/profile/'
+      }
     ]),
   ],
 });

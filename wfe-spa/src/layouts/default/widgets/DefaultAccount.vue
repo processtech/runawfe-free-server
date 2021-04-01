@@ -36,7 +36,10 @@
           :key="`item-${i}`"
           to="/"
         >
-          <v-list-item-title v-text="p.title" />
+          <v-list-item
+            v-text="p.title"
+            :to="p.path"
+          />
         </app-bar-item>
       </template>
     </v-list>
@@ -51,7 +54,7 @@ export default Vue.extend({
    data: function() {
        return {
            profile: [
-                { title: 'Profile' },
+                { title: 'Profile', path: '/profile' },
                 { title: 'Settings' },
                 { divider: true },
                 { title: 'Log out' },
