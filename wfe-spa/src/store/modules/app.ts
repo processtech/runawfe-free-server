@@ -2,8 +2,15 @@
 import { make } from 'vuex-pathify';
 
 const state = {
+  swagger: null,
   drawer: null,
   mini: false,
+  task: {
+    id: null,
+  },
+  process: {
+    id: null,
+  },
   items: [
     {
       title: 'Рабочий стол',

@@ -7,7 +7,7 @@ for (const file of requireComponent.keys()) {
     const componentConfig = requireComponent(file);
 
     Vue.component(
-        componentConfig.default.extendOptions.name,
+        componentConfig.default.extendOptions.name || componentConfig.default.name,
         componentConfig.default || componentConfig,
     );
 }

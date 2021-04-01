@@ -5,6 +5,7 @@
         tag="section"
     >
         <v-data-table
+            class="elevation-1 wfe-task-table"
             :headers="headers"
             :items="tasks"
             item-key="id"
@@ -17,7 +18,7 @@
                 itemsPerPageAllText: 'Все',
                 itemsPerPageText: 'Строк на странице',
             }"
-            class="elevation-1">
+            >
             <template v-slot:[`item.creationDate`]="{ item }">
                 {{ new Date(item.creationDate).toLocaleString() }}
             </template>
@@ -31,11 +32,10 @@
                 <tr v-if="filter.visible">
                     <td v-for="header in headers" :key="header.value">
                         <v-text-field 
-                            color="grey" 
+                            color="primary"
                             v-model="filter[header.value]" 
-                            filled
-                            rounded
                             dense 
+                            outlined 
                             clearable 
                             hide-details
                         />
@@ -43,7 +43,7 @@
                 </tr>
             </template>
             <template v-slot:[`item.name`]="{ item }">
-                <card-link :routeName="`Карточка задачи`" :id="item.id" :text="item.name" />
+                <card-link v-on:get-id="saveTaskId" :routeName="`Карточка задачи`" :id="item.id" :text="item.name" />
             </template>
             <template v-slot:[`item.definitionName`]="{ item }">
                 <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
@@ -100,7 +100,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import SwaggerClient from 'swagger-client';
 import { get, sync } from 'vuex-pathify';
 import { Options, Sorting } from '../ts/options';
 
@@ -130,43 +129,44 @@ export default Vue.extend({
                     align: 'start', 
                     value: 'name',
                     visible: true,
-                    // width: 20,
+                    width: '20em',
                 },
                 { 
                     text: 'Описание', 
                     value:'description',
                     visible: false,
+                    width: '20em',
                 },
                 { 
                     text: '№ экз.', 
                     value: 'processId',
                     visible: true,
-                    // width: 10,
+                    width: '7em',
                 },
                 { 
                     text: 'Тип процесса', 
                     value: 'category',
                     visible: false,
                     sortable: false,
-                    // width: '10%',
+                    width: '20em',
                 },
                 { 
                     text: 'Процесс', 
                     value: 'definitionName',
                     visible: true,
-                    // width: 20,
+                    width: '20em',
                 },
                 { 
                     text: 'Создана', 
                     value: 'creationDate',
                     visible: true,
-                    // width: 10,
+                    width: '12em',
                 },
                 { 
                     text: 'Выполнена', 
                     value: 'deadlineDate',
                     visible: true,
-                    // width: 10,
+                    width: '12em',
                 },
             ]
         }
@@ -209,6 +209,7 @@ export default Vue.extend({
                 return h.visible;
             });
         },
+        taskId: sync('app/task@id'),
     },
     watch: {
         options: {
@@ -219,53 +220,29 @@ export default Vue.extend({
         },
     },
     methods: {
+        saveTaskId (id: any) {
+            this.taskId = id;
+        },
         getDataFromApi () {
             this.loading = true;
-
-            new SwaggerClient({
-                url: 'http://localhost:8080/restapi/v3/api-docs',
-            }).then((client: any) => {
-                const data = client.apis['auth-controller'].tokenUsingPOST({
-                    login: "Administrator",
-                    password: "wf"
-                }).then((data: any) => {
-                    let token = data.body;
-                    token = token.split(' ')[1];
-                    
-                    const client = new SwaggerClient({ 
-                        url: 'http://localhost:8080/restapi/v3/api-docs',
-                        authorizations: {
-                            token: {
-                                value: token,
-                            },
-                        },
-                    });
-                    
-                    // TODO Temprorary for test
-                    client.then((client: any) => {
-                        const { page, itemsPerPage, sortBy, sortDesc } = this.options;
-                        const query = {
-                            filters: {},
-                            pageNumber: page,
-                            pageSize: itemsPerPage,
-                            sortings: Sorting.convert(sortBy, sortDesc),
-                            variables: []
-                        };
-                        const data = client.apis['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
-                            const body = data.body;
-                            if (body) {
-                                this.tasks = body.tasks;
-                            }
-                            this.loading = false;
-                        });
-                    },
-                    (reason: string) => console.error('failed on api call: ' + reason));
-                },
-                (reason: string) => console.error('failed on api call: ' + reason));
-            },
-            (reason: string) => console.error('failed to load the spec: ' + reason));
-
+            const { page, itemsPerPage, sortBy, sortDesc } = this.options;
+            const query = {
+                filters: {},
+                pageNumber: page,
+                pageSize: itemsPerPage,
+                sortings: Sorting.convert(sortBy, sortDesc),
+                variables: []
+            };
+            this.$apiClient().then((client: any) => {
+                client.apis['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
+                    const body = data.body;
+                    if (body) {
+                        this.tasks = body.tasks;
+                    }
+                    this.loading = false;
+                });
+            }); 
         },
-    },
+    }
 });
 </script>

@@ -22,6 +22,7 @@
       DefaultDrawer,
       DefaultView,
       DefaultFooter,
-    },      
+    },
+    
   });
 </script>

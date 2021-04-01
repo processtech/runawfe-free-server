@@ -20,28 +20,35 @@
 .overflow-y-scroll
   overflow-y: scroll
 
-table
-  > thead > tr > th
-    padding: 8px 16px !important
-    font-size: small !important
-  > thead > tr > th.header-align-center.text-start,
-  > thead > tr > th.header-align-center.text-end
-    text-align: center !important
+@mixin wfe-tables
+  & 
+    table
+      > thead > tr > th
+        padding: 0px 16px !important
+        font-size: small !important
+      > tbody > tr > td 
+        font-weight: 300 !important
+        font-size: small !important
+        border: none !important
+      > tbody tr:nth-of-type(even)
+        background-color: #f8f8f8 !important
+      /*> tbody tr:hover
+        transition: background-color .5s ease-in-out*/
+    .v-input__slot
+      min-height: 32px !important
+      padding-right: 4px !important
+      > .v-text-field__slot > input
+        font-size: small !important
+      > .v-input__append-inner
+        margin-top: 4px !important
+        .v-icon
+          font-size: medium !important
 
-table
-  > tbody > tr > td 
-    font-weight: 300 !important
-    font-size: small !important
+.wfe-task-table
+  @include wfe-tables
+
+.wfe-process-table
+  @include wfe-tables
 
 .v-btn
   text-transform: none !important
-
-// .action-link пока нигде не используется
-// a.action-link
-//   text-decoration: underline !important
-//   color: #3F51B5 !important
-//   display: block !important
-
-// a.action-link:hover
-//   text-decoration: none !important
-//   color: #FB8C00 !important

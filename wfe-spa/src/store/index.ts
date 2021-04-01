@@ -17,5 +17,6 @@ const store = new Vuex.Store({
 });
 
 store.dispatch('app/init');
+store.dispatch('user/fetch');
 
 export default store;

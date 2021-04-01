@@ -25,7 +25,21 @@ Vue.use({
                 }
             }
             return result;
-        }
+        };
+        Vue.prototype.$apiClient = function (): any {
+            return new Promise((resolve, reject) => {
+                const swagger = this.$store.state.app.swagger;
+                const token = this.$store.state.user.token;
+                if (!swagger) {
+                    reject = (reason: any) => {
+                        this.$router.push({ name: 'Login' });
+                    };
+                    this.$store.dispatch('user/makeSwaggerClient', { token, resolve, reject });
+                } else {
+                    resolve(swagger);
+                }
+            });
+        };
     }
 });
 

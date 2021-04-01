@@ -8,6 +8,7 @@
         ],
       },
       "typeRoots": [
+        "src/@types/",
         "node_modules/@types/",
         "node_modules/vuetify/types",
         "node_modules/vuex-pathify/types",
