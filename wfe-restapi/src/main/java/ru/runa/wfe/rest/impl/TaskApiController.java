@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
@@ -38,46 +40,31 @@ public class TaskApiController {
     private WfTaskMapper taskMapper;
 
     // required = false temporary for simple queries without request body
-    @PostMapping("")
-    public ResponseEntity<WfTasksDto> getTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody(required = false) BatchPresentationRequest request) {
+    @PostMapping
+    public WfTasksDto getTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody(required = false) BatchPresentationRequest request) {
         WfTasksDto tasksDto = new WfTasksDto();
-        try {
-            BatchPresentation batchPresentation = request != null 
-                    ? request.toBatchPresentation(ClassPresentationType.TASK)
-                    : BatchPresentationFactory.TASKS.createDefault();
-            List<WfTask> tasks = taskLogic.getMyTasks(authUser.getUser(), batchPresentation);
-            tasksDto.setTasks(taskMapper.map(tasks));
-            List<WfTask> total = taskLogic.getMyTasks(authUser.getUser(), BatchPresentationFactory.TASKS.createDefault());
-            tasksDto.setTotal(total.size());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(tasksDto, HttpStatus.OK);
+        BatchPresentation batchPresentation = request != null 
+                ? request.toBatchPresentation(ClassPresentationType.TASK)
+                : BatchPresentationFactory.TASKS.createDefault();
+        List<WfTask> tasks = taskLogic.getMyTasks(authUser.getUser(), batchPresentation);
+        tasksDto.setTasks(taskMapper.map(tasks));
+        List<WfTask> total = taskLogic.getMyTasks(authUser.getUser(), BatchPresentationFactory.TASKS.createDefault());
+        tasksDto.setTotal(total.size());
+        return tasksDto;
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<WfTaskDto> getTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public WfTaskDto getTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         WfTaskDto taskDto;
-        try {
-            WfTask task = taskLogic.getTask(authUser.getUser(), id);
-            taskDto = taskMapper.map(task);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(taskDto, HttpStatus.OK);
+        WfTask task = taskLogic.getTask(authUser.getUser(), id);
+        taskDto = taskMapper.map(task);
+        return taskDto;
     }
 
     @PostMapping("{id}/complete")
-    public ResponseEntity<WfTaskDto> completeTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
-        try {
-            taskLogic.completeTask(authUser.getUser(), id, variables);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    public void completeTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
+        taskLogic.completeTask(authUser.getUser(), id, variables);
     }
 
 }

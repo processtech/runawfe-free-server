@@ -5,12 +5,8 @@ const state = {
   swagger: null,
   drawer: null,
   mini: false,
-  task: {
-    id: null,
-  },
-  process: {
-    id: null,
-  },
+  task: null,
+  process: null,
   items: [
     {
       title: 'Рабочий стол',
@@ -31,6 +27,21 @@ const state = {
       title: 'Запущенные процессы',
       icon: 'mdi-graph-outline',
       to: '/process/list/',
+    },
+  ],
+  profile: [
+    { 
+      title: 'Профиль пользователя', 
+      icon: 'mdi-account-cog', 
+      to: '/profile' 
+    },
+    { 
+      divider: true 
+    },
+    { 
+      title: 'Выйти', 
+      icon: 'mdi-location-exit', 
+      to: '/logout' 
     },
   ],
 };

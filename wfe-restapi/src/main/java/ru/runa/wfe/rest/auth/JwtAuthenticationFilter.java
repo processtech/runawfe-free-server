@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import java.io.IOException;
 import java.security.Key;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.FilterChain;
@@ -41,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         try {
             Claims claims = getTokenClaims(request);
-            if (claims != null) {
+            if (claims != null && isNotExpired(claims)) {
                 setUpSpringAuthentication(request, claims);
             } else {
                 SecurityContextHolder.clearContext();
@@ -51,8 +52,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             e.printStackTrace(); // TODO newweb temporary, use logging
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-            return;
         }
+    }
+
+    private boolean isNotExpired(Claims claims) {
+        if (claims.getExpiration().before(Calendar.getInstance().getTime())) {
+            throw new JwtException("Exired token!");
+        }
+        return true;
     }
 
     private void setUpSpringAuthentication(HttpServletRequest request, Claims claims) {

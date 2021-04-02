@@ -1,6 +1,6 @@
 <template>
     <v-container
-        id="regular-tables-view"
+        id="my-tasks-view"
         fluid
         tag="section"
     >
@@ -43,10 +43,10 @@
                 </tr>
             </template>
             <template v-slot:[`item.name`]="{ item }">
-                <card-link v-on:get-id="saveTaskId" :routeName="`Карточка задачи`" :id="item.id" :text="item.name" />
+                <card-link v-on:get-item="setTask" :routeName="`Карточка задачи`" :item="item" :text="item.name" />
             </template>
             <template v-slot:[`item.definitionName`]="{ item }">
-                <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
+                <card-link v-on:get-item="setProcess" :routeName="`Карточка процесса`" :item="item" :text="item.definitionName" />
             </template>
             <template v-slot:top>
                 <v-toolbar flat>
@@ -209,7 +209,8 @@ export default Vue.extend({
                 return h.visible;
             });
         },
-        taskId: sync('app/task@id'),
+        task: sync('app/task'),
+        process: sync('app/process'),
     },
     watch: {
         options: {
@@ -220,8 +221,11 @@ export default Vue.extend({
         },
     },
     methods: {
-        saveTaskId (id: any) {
-            this.taskId = id;
+        setTask (task: any) {
+            this.task = task;
+        },
+        setProcess (process: any) {
+            this.process = process;
         },
         getDataFromApi () {
             this.loading = true;
@@ -234,14 +238,14 @@ export default Vue.extend({
                 variables: []
             };
             this.$apiClient().then((client: any) => {
-                client.apis['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
+                client['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
                         this.tasks = body.tasks;
                     }
                     this.loading = false;
                 });
-            }); 
+            });
         },
     }
 });

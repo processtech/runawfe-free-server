@@ -40,4 +40,9 @@ public class AuthController {
         return JwtAuthenticationFilter.BEARER_PREFIX + token;
     }
 
+    // Тестовый запрос для проверки авторизации по токену
+    @PostMapping("/validate")
+    public String validate(@RequestParam String token) {
+        return token;
+    }
 }

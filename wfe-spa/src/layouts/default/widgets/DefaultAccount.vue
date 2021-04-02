@@ -21,45 +21,44 @@
 
     <v-list
       :tile="false"
-      flat
       nav
+      dense
     >
-      <template v-for="(p, i) in profile">
-        <v-divider
-          v-if="p.divider"
-          :key="`divider-${i}`"
-          class="mb-2 mt-2"
-        />
-
-        <app-bar-item
-          v-else
-          :key="`item-${i}`"
-          to="/"
-        >
-          <v-list-item
-            v-text="p.title"
-            :to="p.path"
+      <v-list-item-group>
+        <template v-for="(item, i) in profile">
+          <v-divider
+            v-if="item.divider"
+            :key="`divider-${i}`"
+            class="mb-2 mt-2"
           />
-        </app-bar-item>
-      </template>
+          <v-list-item
+            v-else
+            :to="item.to"
+            :key="`list-item-${i}`"
+            dense
+            link
+          >
+            <v-list-item-icon>
+              <v-icon color="rgba(0, 0, 0, 0.87)" v-text="item.icon"></v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title v-text="item.title"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+      </v-list-item-group>
     </v-list>
   </v-menu>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import { get } from 'vuex-pathify';
 
 export default Vue.extend({
-   name: 'DefaultAccount',
-   data: function() {
-       return {
-           profile: [
-                { title: 'Profile', path: '/profile' },
-                { title: 'Settings' },
-                { divider: true },
-                { title: 'Log out' },
-            ],
-       }
-   },
+    name: 'DefaultAccount',
+    computed: {
+      profile: get('app/profile'),
+    }
 });
 </script>

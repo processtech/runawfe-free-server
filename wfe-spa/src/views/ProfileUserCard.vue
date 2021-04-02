@@ -34,12 +34,13 @@
   </v-card>
 </template>
 
-<script>
-export default {
-  props: [ 'user' ],
-}
+<script lang="ts">
+import Vue from 'vue';
+
+export default Vue.extend({
+  name: "ProfileUserCard",
+  props: {
+    user: Object,
+  }
+})
 </script>
-
-<style>
-
-</style>

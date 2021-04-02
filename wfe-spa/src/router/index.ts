@@ -39,12 +39,12 @@ const router = new VueRouter({
       {
         name: 'Карточка задачи',
         component: TaskCard,
-        path: '/task/:id',
+        path: '/task/:id/card/',
       },
       {
         name: 'Карточка процесса',
         component: ProcessCard,
-        path: '/process/:id',
+        path: '/process/:id/card/',
       },
       {
         name: 'Профиль',
@@ -57,7 +57,10 @@ const router = new VueRouter({
 
 // Здесь глобальный хук, чтобы проверять авторизацию всех маршрутах, кроме /login
 router.beforeEach((to, from, next) => {
-  if (to.name !== 'Login') {
+  if (to.path == '/logout') {
+    store.dispatch('user/logout');
+    next({ name: 'Login' });
+  } else if (to.name !== 'Login') {
     store.dispatch('user/authenticate').then(isAuthenticated => {
       next();
     }, notAuthenticated => {

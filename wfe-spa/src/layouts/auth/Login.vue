@@ -4,7 +4,15 @@
             <v-container fill-height fluid style="background: #EEEEEE">
                 <v-row justify="center" align="center">
                     <v-col md="3">
-                        <v-alert v-if="!!error" dense outlined type="error">{{ error }}</v-alert>
+                        <v-alert 
+                            v-model="hasError" 
+                            dense 
+                            outlined 
+                            type="error"
+                            dismissible
+                        >
+                            {{ error }}
+                        </v-alert>
                         <v-card class="pa-2">
                             <v-form class="login" @submit.prevent="login">
                                 <v-img 
@@ -32,7 +40,7 @@
                                     clearable
                                     @click:append="showPassword = !showPassword"
                                 ></v-text-field>
-                                <v-btn type="submit" color="primary" style="font-size: 16px" block>
+                                <v-btn type="submit" color="primary" block>
                                     Войти
                                 </v-btn>
                             </v-form>
@@ -56,7 +64,8 @@ export default Vue.extend({
             username: '',
             password: '',
             showPassword: false,
-            error: ''
+            error: '',
+            hasError: false
         }
     },
 
@@ -65,10 +74,11 @@ export default Vue.extend({
             this.$store.dispatch('user/login', {
                 username: this.username,
                 password: this.password
-            }).then(logedIn => {
+            }).then(isAuthenticated => {
                 this.$router.push({ name: 'Рабочий стол' });
-            }, reason => {
-                this.error = reason;
+            }, error => {
+                this.error = error;
+                this.hasError = true;
             });
         }
     }

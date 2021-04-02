@@ -27,10 +27,9 @@ const actions = {
     authenticate: (context: any) => {
         return new Promise((resolve, reject) => {
             if (!!context.state.token) {
-
-                resolve('Пользователь авторизован');
+                resolve(null);
             } else {
-                reject('Пользователь не авторизован!');
+                reject(null);
             }
         });
     },
@@ -49,8 +48,7 @@ const actions = {
                     context.dispatch('makeSwaggerClient', { token, resolve, reject });
                 },
                 (reason: string) => reject('Неверный логин или пароль!'));
-            },
-            (reason: string) => reject('Сервис не отвечает:' + reason));
+            });
         });
     },
     makeSwaggerClient: (context: any, params: any) => {
@@ -63,18 +61,27 @@ const actions = {
                 },
             },
         }).then((client: any) => {
+            context.dispatch('validateToken', { token, client: client.apis, resolve, reject });
+        });
+    },
+    validateToken: (context: any, params: any) => {
+        const { token, client, resolve, reject } = params;
+        client['auth-controller'].validateUsingPOST({
+            token
+        }).then((data: any) => {
+            const token = data.body;
             context.commit('token', token);
             context.commit('app/swagger', client, { root: true });
             context.dispatch('update');
-            if (resolve) {
-                resolve(client);
-            }
-        },
-        (reason: string) => {
-            if (reject) {
-                reject('Срок действия сессии истек. Попробуйте заново авторизоваться.');
-            }
+            resolve(client);
+        }, (reason: string) => {
+            reject(reason);
         });
+    },
+    logout: (context: any) => {
+        context.commit('token', null);
+        context.commit('app/swagger', null, { root: true });
+        context.dispatch('update');
     }
 };
 
