@@ -26,8 +26,10 @@ const actions = {
     },
     authenticate: (context: any) => {
         return new Promise((resolve, reject) => {
-            if (!!context.state.token) {
-                resolve(null);
+            const token = context.state.token;
+            const client = context.rootGetters['app/swagger'];
+            if (!!token && client) {
+                context.dispatch('validateToken', { token, client, resolve, reject});
             } else {
                 reject(null);
             }
@@ -46,8 +48,9 @@ const actions = {
                     let token = data.body;
                     token = token.split(' ')[1];
                     context.dispatch('makeSwaggerClient', { token, resolve, reject });
-                },
-                (reason: string) => reject('Неверный логин или пароль!'));
+                }, (reason: string) => reject('Неверный логин или пароль!')).catch((error: any) => {
+                    console.log(error);
+                });
             });
         });
     },
@@ -62,6 +65,8 @@ const actions = {
             },
         }).then((client: any) => {
             context.dispatch('validateToken', { token, client: client.apis, resolve, reject });
+        }).catch((error: any) => {
+            console.log(error);
         });
     },
     validateToken: (context: any, params: any) => {
@@ -76,6 +81,8 @@ const actions = {
             resolve(client);
         }, (reason: string) => {
             reject(reason);
+        }).catch((error: any) => {
+            console.log(error);
         });
     },
     logout: (context: any) => {

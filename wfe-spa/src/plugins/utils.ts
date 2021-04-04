@@ -13,6 +13,7 @@ Vue.use({
                 if (obj[prop] instanceof String || 
                     obj[prop] instanceof Number || 
                     obj[prop] instanceof Boolean ||
+                    obj[prop] === undefined ||
                     obj[prop] === null) {
                         result[prop] = obj[prop];
                 } else if (obj[prop] instanceof Array) {

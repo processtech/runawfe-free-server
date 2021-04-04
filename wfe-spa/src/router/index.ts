@@ -61,10 +61,12 @@ router.beforeEach((to, from, next) => {
     store.dispatch('user/logout');
     next({ name: 'Login' });
   } else if (to.name !== 'Login') {
-    store.dispatch('user/authenticate').then(isAuthenticated => {
+    store.dispatch('user/authenticate').then(ifAuthenticated => {
       next();
-    }, notAuthenticated => {
+    }, ifNotAuthenticated => {
       next({ name: 'Login' });
+    }).catch((error: any) => {
+      console.log(error);
     });
   } else {
     next();
