@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
+import ru.runa.wfe.execution.CurrentProcessClassPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
@@ -33,13 +34,38 @@ public class BatchPresentationRequest {
     }
 
     // TODO classPresentationType contains not friendly field names
-
     public BatchPresentation toBatchPresentation(ClassPresentationType classPresentationType) {
         BatchPresentation batchPresentation = new BatchPresentationFactory(classPresentationType).createDefault();
         batchPresentation.setPageNumber(pageNumber);
         batchPresentation.setRangeSize(pageSize);
         for (Map.Entry<String, String> entry : filters.entrySet()) {
-            int fieldIndex = classPresentationType.getFieldIndex(entry.getKey());
+            if (entry.getValue() == null || entry.getValue().isEmpty()) continue;
+            
+            //TODO Добавил костыль со switch, после доработок в ядре руны нужно удалить
+            String entryKey = "";
+            switch (entry.getKey()) {
+            case "id":
+                entryKey = CurrentProcessClassPresentation.PROCESS_ID;
+                break;
+            case "name":
+                entryKey = CurrentProcessClassPresentation.DEFINITION_NAME;
+                break;
+//            case "category":
+//                entryKey = CurrentProcessClassPresentation.PROCESS_EXECUTION_STATUS;
+//                break;
+            case "executionStatus":
+                entryKey = CurrentProcessClassPresentation.PROCESS_EXECUTION_STATUS;
+                break;
+            case "startDate":
+                entryKey = CurrentProcessClassPresentation.PROCESS_START_DATE;
+                break;
+            case "endDate":
+                entryKey = CurrentProcessClassPresentation.PROCESS_END_DATE;
+                break;
+            }
+            int fieldIndex = classPresentationType.getFieldIndex(entryKey);
+            
+            // int fieldIndex = classPresentationType.getFieldIndex(entry.getKey());
             // only strings are supported now
             batchPresentation.getFilteredFields().put(fieldIndex, new StringFilterCriteria(entry.getValue()));
         }

@@ -11,7 +11,6 @@
             item-key="id"
             :options.sync="options"
             :loading="loading"
-            :search="filter.search"
             :footer-props="{
                 disablePagination: false,
                 disableItemsPerPage: false,
@@ -111,7 +110,6 @@ export default Vue.extend({
             dialog: false,
             filter: {
                 visible: true,
-                search: '',
                 name: '',
                 description: '',
                 processId: '',

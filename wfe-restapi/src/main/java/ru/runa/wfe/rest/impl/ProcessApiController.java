@@ -1,15 +1,21 @@
 package ru.runa.wfe.rest.impl;
 
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.ProcessDefinitionLogic;
@@ -20,10 +26,12 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.rest.auth.AuthUser;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest;
+import ru.runa.wfe.rest.dto.WfDefinitionDto;
 import ru.runa.wfe.rest.dto.WfDefinitionMapper;
 import ru.runa.wfe.rest.dto.WfDefinitionsDto;
 import ru.runa.wfe.rest.dto.WfProcessMapper;
 import ru.runa.wfe.rest.dto.WfProcessesDto;
+import ru.runa.wfe.user.User;
 
 @RestController
 @RequestMapping("/process/")
@@ -62,5 +70,42 @@ public class ProcessApiController {
         List<WfDefinition> total = processDefinitionLogic.getProcessDefinitions(authUser.getUser(), BatchPresentationFactory.DEFINITIONS.createDefault(), true);
         definitionsDto.setTotal(total.size());
         return definitionsDto;
+    }
+    
+    @PostMapping("{id}/start")
+    @ResponseStatus(HttpStatus.OK)
+    public void start(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
+        User user = authUser.getUser();
+        WfProcess process = executionLogic.getProcess(user, id);
+        executionLogic.startProcess(user, process.getName(), variables);
+    }
+
+    @GetMapping("{id}/definition")
+    public WfDefinitionDto getDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        User user = authUser.getUser();
+        WfProcess process = executionLogic.getProcess(user, id);
+        WfDefinition definition = processDefinitionLogic.getProcessDefinition(user, process.getDefinitionVersionId());
+        WfDefinitionMapper mapper = Mappers.getMapper(WfDefinitionMapper.class);
+        WfDefinitionDto definitionDto = mapper.map(definition);
+        return definitionDto;
+    }
+
+    @PostMapping("{id}/graph")
+    public String getProcessGraph(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> request) {
+        User user = authUser.getUser();
+        Long childProcessId = null;
+        if (request.containsKey("childProcessId")) {
+            childProcessId = (Long) request.get("childProcessId");
+        }
+        String subprocessId = null;
+        if (request.containsKey("subprocessId")) {
+            subprocessId = (String) request.get("subprocessId");
+        }
+        WfProcess process = executionLogic.getProcess(user, id);
+        //TODO Как получить TaskID?
+        Long taskId = null;
+        byte[] processDiagram = executionLogic.getProcessDiagram(user, process.getId(), taskId, childProcessId, subprocessId);
+        
+        return Base64.getEncoder().encodeToString(processDiagram);
     }
 }

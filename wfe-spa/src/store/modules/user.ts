@@ -28,10 +28,12 @@ const actions = {
         return new Promise((resolve, reject) => {
             const token = context.state.token;
             const client = context.rootGetters['app/swagger'];
-            if (!!token && client) {
-                context.dispatch('validateToken', { token, client, resolve, reject});
-            } else {
+            if (!!!token) {
                 reject(null);
+            } else if (!client) {
+                context.dispatch('makeSwaggerClient', { token, resolve, reject });
+            } else {
+                context.dispatch('validateToken', { token, client, resolve, reject });
             }
         });
     },

@@ -1,10 +1,11 @@
 <template>
     <v-container
-        id="regular-tables-view"
+        id="processes-view"
         fluid
         tag="section"
     >
         <v-data-table
+            class="elevation-1 wfe-process-table"
             :headers="headers"
             :items="processes"
             item-key="id"
@@ -17,15 +18,79 @@
                 itemsPerPageAllText: 'Все',
                 itemsPerPageText: 'Строк на странице',
             }"
-            class="elevation-1">
+            >
             <template v-slot:[`item.startDate`]="{ item }">
                 {{ new Date(item.startDate).toLocaleString() }}
             </template>
             <template v-slot:[`item.endDate`]="{ item }">
                 {{ new Date(item.endDate).toLocaleString() }}
             </template>
+            <template v-slot:[`footer.page-text`]="items">
+                {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
+            </template>
+            <template v-slot:[`item.name`]="{ item }">
+                <card-link v-on:get-item="setProcess" :routeName="`Карточка процесса`" :item="item" :text="item.name" />
+            </template>
+            <template v-slot:[`body.prepend`]>
+                <tr v-if="filterVisible">
+                    <td v-for="header in headers" :key="header.value">
+                        <v-text-field 
+                            color="primary"
+                            v-model="filter[header.value]" 
+                            dense 
+                            outlined 
+                            clearable 
+                            hide-details
+                        />
+                    </td>
+                </tr>
+            </template>
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-spacer/>
+                    <v-btn 
+                        text 
+                        icon 
+                        @click="filterVisible = !filterVisible" 
+                        v-model="filterVisible" 
+                        color="grey"
+                    >
+                        <v-icon >mdi-filter</v-icon>
+                    </v-btn>
+                    <v-dialog v-model="dialog" max-width="500px">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                                text 
+                                icon
+                                v-bind="attrs"
+                                v-on="on"
+                                color="grey"
+                            >
+                                <v-icon>mdi-view-grid-plus</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-card>
+                            <v-card-title>
+                                <span class="headline">Настройка вида</span>
+                            </v-card-title>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4"> 
+                                            <v-checkbox 
+                                                v-model="header.visible" 
+                                                :label="header.text"
+                                                @change="initialHeaders" 
+                                            />
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+                        </v-card>
+                    </v-dialog>
+                </v-toolbar>
+            </template>
         </v-data-table>
-
     </v-container>
 </template>
 
@@ -38,20 +103,70 @@ export default Vue.extend({
     name: "ProcessList",
 
     data() {
-      return {
-        total: 0,
-        processes: [],
-        loading: true,
-        options: new Options(),
-        headers: [
-            { text: '№ экз.', align: 'start', value: 'id' },
-            { text: 'Процесс', value: 'name' },
-            // { text: 'Тип процесса', value: 'category' }, // TODO Добавить поле "тип процесса"
-            { text: 'Статус', value: 'executionStatus' },
-            { text: 'Запущен', value: 'startDate' },
-            { text: 'Окончен', value: 'endDate' }, 
-        ],
-      }
+        return {
+            dialog: false,
+            filterVisible: true,
+            filter: {
+                id: null,
+                name: null,
+                // category: '',
+                executionStatus: null,
+                startDate: null,
+                endDate: null,
+            },
+            total: 0,
+            processes: [],
+            loading: true,
+            options: new Options(),
+            initialHeaders: [
+                {
+                    text: '№ экз.',
+                    align: 'start', 
+                    value: 'id',
+                    visible: true,
+                    width: '3em',
+                },
+                { 
+                    text: 'Процесс', 
+                    value:'name',
+                    visible: true,
+                    width: '20em',
+                },
+                // {   
+                //     text: 'Тип процесса', 
+                //     value: 'category',
+                //     visible: false,
+                //     width: '20em',
+                // },
+                { 
+                    text: 'Статус', 
+                    value: 'executionStatus',
+                    visible: true,
+                    width: '20em',
+                },
+                { 
+                    text: 'Запущен', 
+                    value: 'startDate',
+                    visible: true,
+                    sortable: false,
+                    width: '10em',
+                },
+                { 
+                    text: 'Окончен', 
+                    value: 'endDate',
+                    visible: true,
+                    width: '10em',
+                },
+            ]
+        }
+    },
+    computed: {
+        headers(): any {
+            return this.initialHeaders.filter((h: any) => {
+                return h.visible;
+            });
+        },
+        process: sync('app/process'),
     },
     watch: {
         options: {
@@ -60,13 +175,22 @@ export default Vue.extend({
             },
             deep: true,
         },
+        filter: {
+            handler () {
+                this.getDataFromApi()
+            },
+            deep: true,
+        }
     },
     methods: {
+        setProcess (process: any) {
+            this.process = process;
+        },
         getDataFromApi () {
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = this.options;
             const query = {
-                filters: {},
+                filters: this.filter,
                 pageNumber: page,
                 pageSize: itemsPerPage,
                 sortings: Sorting.convert(sortBy, sortDesc),

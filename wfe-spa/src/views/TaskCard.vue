@@ -13,7 +13,7 @@
                             >
                                 <v-icon>mdi-chevron-double-left</v-icon>
                             </v-btn>
-                            <h1>{{ task.name }}</h1>
+                            <h1>{{ $__ucfirst(task.name) }}</h1>
                             <v-btn 
                                 text
                                 icon 
