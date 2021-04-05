@@ -39,7 +39,9 @@ public class BatchPresentationRequest {
         batchPresentation.setPageNumber(pageNumber);
         batchPresentation.setRangeSize(pageSize);
         for (Map.Entry<String, String> entry : filters.entrySet()) {
-            if (entry.getValue() == null || entry.getValue().isEmpty()) continue;
+            if (entry.getValue() == null || entry.getValue().isEmpty()) {
+                continue;
+            }
             
             //TODO Добавил костыль со switch, после доработок в ядре руны нужно удалить
             String entryKey = "";
@@ -104,12 +106,11 @@ public class BatchPresentationRequest {
         batchPresentation.setFieldsToSort(fieldsToSortIds, sortingModes);
         if (!variables.isEmpty()) {
             int[] fieldsToDisplayIds = new int[variables.size()];
+            // TODO now hardcoded field name for tasks only
+            int dynamicFieldIndex = classPresentationType.getFieldIndex(TaskClassPresentation.TASK_VARIABLE);
             for (int i = 0; i < variables.size(); i++) {
                 fieldsToDisplayIds[i] = i;
-                // TODO now hardcoded field name for tasks only
-                int dynamicFieldIndex = classPresentationType.getFieldIndex(TaskClassPresentation.TASK_VARIABLE);
-                // TODO seems like there is a bug if we will add more than one variable
-                batchPresentation.addDynamicField(dynamicFieldIndex, variables.get(i));
+                batchPresentation.addDynamicField(dynamicFieldIndex + i, variables.get(i));
             }
             batchPresentation.setFieldsToDisplayIds(fieldsToDisplayIds);
         }
