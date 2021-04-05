@@ -1,7 +1,6 @@
 package ru.runa.wf.web.tag;
 
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.BR;
 import org.apache.ecs.html.Form;
@@ -11,21 +10,21 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-
+import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.form.FileForm;
-import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.DefinitionCategoriesIterator;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.RedeployProcessDefinitionAction;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.FileDataProvider;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -50,7 +49,8 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
                 true, Input.FILE, strutsWebHelper));
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
         TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, definitionTypes, pageContext);
-        table.addElement(HTMLUtils.createRow(Messages.getMessage(DefinitionClassPresentation.TYPE, pageContext), hierarchyType));
+        table.addElement(HTMLUtils.createRow(Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.TYPE, pageContext),
+                hierarchyType));
         tdFormElement.addElement(table);
 
         TR applicationTypeTr = new TR();
