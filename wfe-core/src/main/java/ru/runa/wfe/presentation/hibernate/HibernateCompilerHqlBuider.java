@@ -232,12 +232,10 @@ public class HibernateCompilerHqlBuider {
                 }
                 StringBuilder joinRestriction = new StringBuilder();
                 joinRestriction.append("((").append(joinExpr).append(")");
-                if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
-                    String propertyDBPath = field.displayName.substring(ClassPresentation.removable_prefix.length(),
-                            field.displayName.indexOf(':', ClassPresentation.removable_prefix.length()));
-                    joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath).append("=:removableUserValue")
-                            .append(field.fieldIdx).append(")");
-                    placeholders.add("removableUserValue" + field.fieldIdx, field.displayName.substring(field.displayName.lastIndexOf(':') + 1));
+                if (field.filterByVariable) {
+                    String paramName = "variableValue" + field.fieldIdx;
+                    joinRestriction.append(" and (").append(alias).append(".name=:").append(paramName).append(")");
+                    placeholders.add(paramName, field.variableValue);
                 }
                 joinRestriction.append(")");
                 result.add(joinRestriction.toString());

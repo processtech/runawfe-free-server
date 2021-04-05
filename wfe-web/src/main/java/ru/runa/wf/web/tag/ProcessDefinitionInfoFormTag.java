@@ -7,7 +7,6 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
@@ -23,10 +22,10 @@ import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.task.TaskClassPresentation;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processDefinitionInfoForm")
 public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
@@ -46,7 +45,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
 
         TR nameTR = new TR();
         table.addElement(nameTR);
-        String definitionName = Messages.getMessage(TaskClassPresentation.DEFINITION_NAME, pageContext);
+        String definitionName = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.NAME, pageContext);
         nameTR.addElement(new TD(definitionName).setClass(Resources.CLASS_LIST_TABLE_TD));
         TD nameTD = new TD();
         nameTD.setClass(Resources.CLASS_LIST_TABLE_TD);
@@ -63,7 +62,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
 
         TR versionTR = new TR();
         table.addElement(versionTR);
-        String versionName = Messages.getMessage(DefinitionClassPresentation.VERSION, pageContext);
+        String versionName = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.VERSION, pageContext);
         versionTR.addElement(new TD(versionName).setClass(Resources.CLASS_LIST_TABLE_TD));
         TD versionTD = new TD();
         versionTD.addElement(definition.getVersion() + " (");
@@ -75,13 +74,13 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
 
         TR createdDateTR = new TR();
         table.addElement(createdDateTR);
-        String createDateMessage = Messages.getMessage(DefinitionClassPresentation.CREATE_DATE, pageContext);
+        String createDateMessage = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.CREATE_DATE, pageContext);
         createdDateTR.addElement(new TD(createDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
         createdDateTR.addElement(new TD(CalendarUtil.formatDateTime(definition.getCreateDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         TR createdByTR = new TR();
         table.addElement(createdByTR);
-        String createdByMessage = Messages.getMessage(DefinitionClassPresentation.CREATE_ACTOR, pageContext);
+        String createdByMessage = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.CREATE_ACTOR, pageContext);
         createdByTR.addElement(new TD(createdByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
         String createdBy = definition.getCreateActor() != null ? definition.getCreateActor().getLabel() : "";
         createdByTR.addElement(new TD(createdBy).setClass(Resources.CLASS_LIST_TABLE_TD));
@@ -89,13 +88,13 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         if (definition.getUpdateDate() != null) {
             TR updateDateTR = new TR();
             table.addElement(updateDateTR);
-            String updateDateMessage = Messages.getMessage(DefinitionClassPresentation.UPDATE_DATE, pageContext);
+            String updateDateMessage = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.UPDATE_DATE, pageContext);
             updateDateTR.addElement(new TD(updateDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
             updateDateTR.addElement(new TD(CalendarUtil.formatDateTime(definition.getUpdateDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
             TR updatedByTR = new TR();
             table.addElement(updatedByTR);
-            String updatedByMessage = Messages.getMessage(DefinitionClassPresentation.UPDATE_ACTOR, pageContext);
+            String updatedByMessage = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.UPDATE_ACTOR, pageContext);
             updatedByTR.addElement(new TD(updatedByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
             String updatedBy = definition.getUpdateActor() != null ? definition.getUpdateActor().getLabel() : "";
             updatedByTR.addElement(new TD(updatedBy).setClass(Resources.CLASS_LIST_TABLE_TD));
@@ -103,13 +102,14 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
 
         TR descriptionTR = new TR();
         table.addElement(descriptionTR);
-        String description = Messages.getMessage(DefinitionClassPresentation.DESCRIPTION, pageContext);
+        String description = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.DESCRIPTION, pageContext);
         descriptionTR.addElement(new TD(description).setClass(Resources.CLASS_LIST_TABLE_TD));
         descriptionTR.addElement(new TD(definition.getDescription()).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         TR subprocessBindingDateTr = new TR();
         table.addElement(subprocessBindingDateTr);
-        String updateDateMessage = Messages.getMessage(DefinitionClassPresentation.SUBPROCESS_BINDING_DATE, pageContext);
+        String updateDateMessage = Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.SUBPROCESS_BINDING_DATE,
+                pageContext);
         subprocessBindingDateTr.addElement(new TD(updateDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
         TD subprocessBindingDateTd = new TD();
         subprocessBindingDateTd.setClass(Resources.CLASS_LIST_TABLE_TD + " subprocessBindingDate");

@@ -18,12 +18,13 @@ import ru.runa.common.web.html.ItemUrlStrategy;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.StringsHeaderBuilder;
-import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.security.Permission;
@@ -77,7 +78,7 @@ public class ListExecutorRightRelationsFormTag extends SecuredObjectFormTag {
         FieldDescriptor[] fields = batchPresentation.getDisplayFields();
         String[] result = new String[fields.length];
         for (int i = 0; i < fields.length; ++i) {
-            result[i] = Messages.getMessage(fields[i].displayName, pageContext);
+            result[i] = Messages.getMessage(ClassPresentationType.RELATION, fields[i].name, pageContext);
         }
         return result;
     }

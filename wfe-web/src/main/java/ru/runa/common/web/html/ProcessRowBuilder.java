@@ -5,16 +5,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.GroupState;
 import ru.runa.common.web.Messages;
@@ -27,7 +24,6 @@ import ru.runa.common.web.form.SetSortingForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -60,8 +56,7 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
         Object item = items.get(currentState.getItemIndex());
         List<WfProcess> subrocesses = Delegates.getExecutionService().getSubprocesses(Commons.getUser(pageContext.getSession()),
                 ((WfProcess) item).getId(), true);
-        if (currentState.isGroupHeader()
-                && fieldsToDisplayNames[currentState.getCurrentGrouppedColumnIdx()].displayName.startsWith(ClassPresentation.filterable_prefix)) {
+        if (currentState.isGroupHeader() && fieldsToDisplayNames[currentState.getCurrentGrouppedColumnIdx()].groupableByProcessId) {
             result.add(buildGroupHeader(subrocesses));
         } else if (currentState.isGroupHeader()) {
             result.add(super.buildGroupHeader());
@@ -148,13 +143,7 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
                                     fieldDescriptorForBuilder = fieldDescriptor;
                                 }
                             }
-                            String message;
-                            String displayName = fieldDescriptorForBuilder.displayName;
-                            if (displayName.startsWith(ClassPresentation.removable_prefix)) {
-                                message = displayName.substring(displayName.lastIndexOf(':') + 1);
-                            } else {
-                                message = Messages.getMessage(displayName, pageContext);
-                            }
+                            String message = Messages.getMessage(batchPresentation, fieldDescriptorForBuilder, pageContext);
                             message += " " + MessagesOther.LABEL_IS_MISSED.message(pageContext);
                             td = new TD();
                             td.addElement(new A(href, message));
