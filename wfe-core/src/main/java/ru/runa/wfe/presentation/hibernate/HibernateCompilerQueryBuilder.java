@@ -18,8 +18,6 @@
 package ru.runa.wfe.presentation.hibernate;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -100,7 +98,7 @@ public class HibernateCompilerQueryBuilder {
     private String translateToSQL() {
         HibernateCompilerTranslator queryTranslator = new HibernateCompilerTranslator(hqlBuilder.getQuery(), parameters.isCountQuery());
         List<String> phSeq = HibernateCompilerPlaceholdersHelper.getPlaceholdersFromHQL(hqlBuilder.getQuery(), hqlBuilder.getPlaceholders());
-        StringBuilder sqlRequest = new StringBuilder(queryTranslator.translate(parameters.getSqlParameters()));
+        StringBuilder sqlRequest = new StringBuilder(queryTranslator.translate());
         HibernateCompilerPlaceholdersHelper.restorePlaceholdersInSQL(sqlRequest, phSeq);
         sqlRequest = tuneSelectClause(sqlRequest);
         new HibernateCompilerInheritanceFiltersBuilder(batchPresentation, hqlBuilder, queryTranslator).injectFiltersStatements(sqlRequest);
@@ -125,50 +123,7 @@ public class HibernateCompilerQueryBuilder {
         }
         int posDot = sqlRequest.indexOf(".");
         int posFrom = HibernateCompilerHelper.getFromClauseIndex(sqlRequest);
-        sqlRequest.replace(posDot + 1, posFrom, "*");
-        return parameters.getAdditionalSelectClauses().isEmpty() ? sqlRequest : addAdditionalSelectClauses(sqlRequest);
-    }
-
-    private StringBuilder addAdditionalSelectClauses(StringBuilder sqlRequest) {
-        for (String clause : parameters.getAdditionalSelectClauses()) {
-            String clauseFromSql = (sqlRequest.indexOf(clause) == -1)
-                    ? getClauseFromSql(sqlRequest, clause)
-                    : clause;
-            if (!clauseFromSql.equals("")) {
-                int idx = sqlRequest.indexOf("*");
-                sqlRequest.insert(idx + 1, ", " + clauseFromSql);
-            }
-        }
-        return sqlRequest;
-    }
-
-    /**
-     * @param sql
-     *          sql, in which clause is searched.
-     * @param clause
-     *          clause, that is searched for in sql.
-     * @return clause if found and empty string otherwise.
-     */
-    private String getClauseFromSql(StringBuilder sql, String clause) {
-        if (clause.matches(".*[0-9].*")) {
-            Matcher m = Pattern.compile("[0-9]").matcher(clause);
-            if (m.find()) {
-                int numberPosition = m.start();
-                String beforeNumber = clause.substring(0, numberPosition);
-                String afterNumber = clause.substring(numberPosition + 1);
-                int beforeNumberIndex = sql.indexOf(beforeNumber);
-                int afterNumberIndex = sql.indexOf(afterNumber);
-                if (beforeNumberIndex == -1 || afterNumberIndex == -1) {
-                    return "";
-                } else {
-                    while (afterNumberIndex - beforeNumberIndex > beforeNumber.length() * 2) {
-                        beforeNumberIndex = sql.indexOf(beforeNumber, beforeNumberIndex + beforeNumber.length());
-                    }
-                    return sql.substring(beforeNumberIndex, afterNumberIndex) + afterNumber;
-                }
-            }
-        }
-        return "";
+        return sqlRequest.replace(posDot + 1, posFrom, "*");
     }
 
     /**

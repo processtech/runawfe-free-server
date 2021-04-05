@@ -18,10 +18,10 @@
 package ru.runa.wfe.presentation.hibernate;
 
 import java.util.HashMap;
-import java.util.List;
-import com.google.common.collect.Lists;
+
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.hql.classic.QueryTranslatorImpl;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 
 /**
@@ -63,29 +63,13 @@ public class HibernateCompilerTranslator {
      * @return Translated SQL query.
      */
     public String translate() {
-        return translate(Lists.newArrayList());
-    }
-
-    /**
-     * Translates HQL query to SQL query and replace '?' with parameters.
-     *
-     * @param parameters
-     *            Parameters, that will replace '?'
-     * @return Translated SQL query.
-     */
-    public String translate(List<String> parameters) {
-        if (translator == null) {
-            translator = new QueryTranslatorImpl(hqlQuery, new HashMap<String, Object>(),
-                    (SessionFactoryImplementor) ApplicationContextFactory.getSessionFactory());
-            translator.compile(new HashMap<String, Object>(), isCountQuery);
+        if (translator != null) {
+            return translator.getSQLString();
         }
-        String SQL = translator.getSQLString();
-        if (!parameters.isEmpty() && SQL.contains("?")) {
-            for (String parameter : parameters) {
-                SQL = SQL.replaceFirst("[?]", parameter);
-            }
-        }
-        return SQL;
+        translator = new QueryTranslatorImpl(hqlQuery, new HashMap<String, Object>(),
+                (SessionFactoryImplementor) ApplicationContextFactory.getSessionFactory());
+        translator.compile(new HashMap<String, Object>(), isCountQuery);
+        return translator.getSQLString();
     }
 
     /**

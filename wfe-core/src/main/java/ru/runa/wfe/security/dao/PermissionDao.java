@@ -648,42 +648,10 @@ public class PermissionDao extends CommonDao {
      */
     public List<? extends SecuredObject> getPersistentObjects(User user, BatchPresentation batchPresentation, Permission permission,
             SecuredObjectType[] securedObjectTypes, boolean enablePaging) {
-        return getSecuredObjects(user, batchPresentation, permission, securedObjectTypes, enablePaging, false, Lists.newArrayList(), Lists.newArrayList());
-    }
-
-    /**
-     * Load list of distinct {@linkplain SecuredObject} for which executors have permission on.
-     *
-     * @param user
-     *            User which must have permission on loaded {@linkplain SecuredObject} (at least one).
-     * @param batchPresentation
-     *            {@linkplain BatchPresentation} with parameters for loading {@linkplain SecuredObject}'s.
-     * @param permission
-     *            {@linkplain Permission}, which executors must has on {@linkplain SecuredObject}.
-     * @param securedObjectTypes
-     *            {@linkplain SecuredObjectType} types, used to check permissions.
-     * @param enablePaging
-     *            Flag, equals true, if paging must be enabled and false otherwise.
-     * @param additionalClauses
-     *            Clauses to be added to the select statement
-     * @param sqlParameters
-     *            SQL parameters, that will replace '?' in query
-     * @return List of distinct {@link SecuredObject}'s for which executors have permission on.
-     */
-    public List<? extends SecuredObject> getDistinctPersistentObjects(User user, BatchPresentation batchPresentation, Permission permission,
-            SecuredObjectType[] securedObjectTypes, boolean enablePaging, List<String> additionalClauses, List<String> sqlParameters) {
-        return getSecuredObjects(user, batchPresentation, permission, securedObjectTypes, enablePaging, true, additionalClauses, sqlParameters);
-    }
-
-    private List<? extends SecuredObject> getSecuredObjects(User user, BatchPresentation batchPresentation, Permission permission,
-                                                            SecuredObjectType[] securedObjectTypes, boolean enablePaging, boolean isDistinct,
-                                                            List<String> additionalClauses, List<String> sqlParameters) {
         TimeMeasurer timeMeasurer = new TimeMeasurer(logger, 1000);
         timeMeasurer.jobStarted();
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, permission, securedObjectTypes);
-        CompilerParameters parameters = CompilerParameters.create(enablePaging, isDistinct).addPermissions(permissions);
-        parameters.addClausesToAdditionalSelectClauses(additionalClauses);
-        parameters.addParametersToSqlParameters(sqlParameters);
+        CompilerParameters parameters = CompilerParameters.create(enablePaging).addPermissions(permissions);
         List<? extends SecuredObject> result = new PresentationCompiler(batchPresentation).getBatch(parameters);
         timeMeasurer.jobEnded("getObjects: " + result.size());
         if (result.size() == 0 && enablePaging && batchPresentation.getPageNumber() > 1) {

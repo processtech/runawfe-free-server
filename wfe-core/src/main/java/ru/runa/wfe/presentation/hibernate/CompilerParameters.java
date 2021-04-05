@@ -17,10 +17,11 @@
  */
 package ru.runa.wfe.presentation.hibernate;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 
 /**
@@ -65,21 +66,6 @@ public class CompilerParameters {
     private final boolean onlyIdentityLoad;
 
     /**
-     * Flag, equals true, if used to return only distinct values.
-     */
-    private final boolean isDistinct;
-
-    /**
-     * Clauses to be added to the select statement
-     */
-    private final List<String> additionalSelectClauses = new ArrayList<>();
-
-    /**
-     * SQL parameters, that will replace '?' in query
-     */
-    private final List<String> sqlParameters = new ArrayList<>();
-
-    /**
      * Creates parameter object for building HQL query using other {@linkplain CompilerParameters} as source. Copy all parameters from source
      * {@linkplain CompilerParameters}, except isCountQuery flag.
      * 
@@ -99,7 +85,6 @@ public class CompilerParameters {
         this.requestedClass = src.requestedClass;
         this.idRestriction = src.idRestriction;
         this.onlyIdentityLoad = src.onlyIdentityLoad;
-        this.isDistinct = src.isDistinct;
     }
 
     /**
@@ -107,10 +92,8 @@ public class CompilerParameters {
      * 
      * @param enablePaging
      *            Flag, equals true, if paging must be used in request; false otherwise.
-     * @param isDistinct
-     *            Flag, equals true, if used to return only distinct values; false otherwise.
      */
-    private CompilerParameters(boolean enablePaging, boolean isDistinct) {
+    private CompilerParameters(boolean enablePaging) {
         this.ownersRestrictions = null;
         this.enablePaging = enablePaging;
         this.isCountQuery = false;
@@ -118,7 +101,6 @@ public class CompilerParameters {
         this.requestedClass = null;
         this.idRestriction = null;
         this.onlyIdentityLoad = false;
-        this.isDistinct = isDistinct;
     }
 
     /**
@@ -138,7 +120,6 @@ public class CompilerParameters {
         this.requestedClass = src.requestedClass;
         this.idRestriction = src.idRestriction;
         this.onlyIdentityLoad = src.onlyIdentityLoad;
-        this.isDistinct = src.isDistinct;
     }
 
     /**
@@ -158,7 +139,6 @@ public class CompilerParameters {
         this.requestedClass = src.requestedClass;
         this.idRestriction = src.idRestriction;
         this.onlyIdentityLoad = src.onlyIdentityLoad;
-        this.isDistinct = src.isDistinct;
     }
 
     /**
@@ -178,7 +158,6 @@ public class CompilerParameters {
         this.requestedClass = requestedClass;
         this.idRestriction = src.idRestriction;
         this.onlyIdentityLoad = src.onlyIdentityLoad;
-        this.isDistinct = src.isDistinct;
     }
 
     /**
@@ -196,7 +175,6 @@ public class CompilerParameters {
         this.requestedClass = src.requestedClass;
         this.idRestriction = src.idRestriction;
         this.onlyIdentityLoad = true;
-        this.isDistinct = src.isDistinct;
     }
 
     /**
@@ -216,16 +194,6 @@ public class CompilerParameters {
         this.requestedClass = src.requestedClass;
         this.idRestriction = idRestriction.idRestriction;
         this.onlyIdentityLoad = src.onlyIdentityLoad;
-        this.isDistinct = src.isDistinct;
-    }
-
-    /**
-     * Check if HQL/SQL query must return only distinct values
-     *
-     * @return true, if HQL/SQL query must return only distinct values; false otherwise.
-     */
-    public boolean isDistinct() {
-        return isDistinct;
     }
 
     /**
@@ -313,20 +281,7 @@ public class CompilerParameters {
      * @return Returns batch presentation compiler parameters.
      */
     public static CompilerParameters create(boolean enablePaging) {
-        return new CompilerParameters(enablePaging, false);
-    }
-
-    /**
-     * Creates compiler parameters for simple object's loading without any restrictions.
-     *
-     * @param enablePaging
-     *            Flag, equals true if page loading enabled and false otherwise.
-     * @param isDistinct
-     *            Flag, equals true, if used to return only distinct values and false otherwise.
-     * @return Returns batch presentation compiler parameters.
-     */
-    public static CompilerParameters create(boolean enablePaging, boolean isDistinct) {
-        return new CompilerParameters(enablePaging, isDistinct);
+        return new CompilerParameters(enablePaging);
     }
 
     /**
@@ -335,7 +290,7 @@ public class CompilerParameters {
      * @return Returns batch presentation compiler parameters.
      */
     public static CompilerParameters createPaged() {
-        return new CompilerParameters(true, false);
+        return new CompilerParameters(true);
     }
 
     /**
@@ -345,7 +300,7 @@ public class CompilerParameters {
      * @return Returns batch presentation compiler parameters.
      */
     public static CompilerParameters createNonPaged() {
-        return new CompilerParameters(false, false);
+        return new CompilerParameters(false);
     }
 
     /**
@@ -405,38 +360,6 @@ public class CompilerParameters {
      */
     public CompilerParameters loadOnlyIdentity() {
         return new CompilerParameters(this, new OnlyIdentity());
-    }
-
-    /**
-     * Returns clauses to be added to the select statement
-     *
-     * @return Clauses to be added to the select statement
-     */
-    public List<String> getAdditionalSelectClauses() {
-        return additionalSelectClauses;
-    }
-
-    /**
-     * Add clauses to the clauses to be added to the select statement
-     */
-    public void addClausesToAdditionalSelectClauses(List<String> additionalClauses) {
-        additionalSelectClauses.addAll(additionalClauses);
-    }
-
-    /**
-     * Returns SQL parameters, that will replace '?' in query
-     *
-     * @return SQL parameters, that will replace '?' in query
-     */
-    public List<String> getSqlParameters() {
-        return sqlParameters;
-    }
-
-    /**
-     * Add parameters to the SQL parameters, that will replace '?' in query
-     */
-    public void addParametersToSqlParameters(List<String> parameters) {
-        sqlParameters.addAll(parameters);
     }
 
     /**

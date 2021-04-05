@@ -2,6 +2,7 @@ package ru.runa.wfe.chat;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -10,29 +11,35 @@ import jdk.nashorn.internal.ir.annotations.Immutable;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Index;
+import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.execution.Process;
 
 @Getter
 @Setter
 @Immutable
 @Entity
-@Table(name = "CHAT_MESSAGE")
+@Table(name = "CHAT_ROOM")
 public class ChatRoom {
-
-    public static final String NEW_MESSAGES_FORMULA = "(SELECT count(*) FROM CHAT_MESSAGE_RECIPIENT cr " +
-            "LEFT JOIN CHAT_MESSAGE cm ON cm.ID = cr.MESSAGE_ID " +
-            "WHERE cr.READ_DATE IS NULL AND cm.PROCESS_ID = process0_.ID AND cr.EXECUTOR_ID = ?)";
 
     @Id
     @Column(name = "ID")
     private Long id;
 
+    @Column(name = "EXECUTOR_ID")
+    private Long executorId;
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "PROCESS_ID")
+    @JoinColumn(name = "ID", insertable = false, updatable = false)
     @ForeignKey(name = "FK_CHAT_MESSAGE_PROCESS_ID")
     private Process process;
 
-    @Formula(NEW_MESSAGES_FORMULA)
+    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "DEFINITION_ID", nullable = false)
+    @ForeignKey(name = "FK_PROCESS_DEFINITION")
+    @Index(name = "IX_PROCESS_DEFINITION")
+    private Deployment deployment;
+
+    @Column(name = "NEW_MESSAGES_COUNT")
     private Long newMessagesCount;
 }

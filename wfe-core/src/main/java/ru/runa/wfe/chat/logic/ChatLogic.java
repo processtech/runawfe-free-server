@@ -1,7 +1,6 @@
 package ru.runa.wfe.chat.logic;
 
 import com.google.common.base.Joiner;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,6 +37,7 @@ import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.filter.ChatRoomFilterCriteria;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -111,25 +111,24 @@ public class ChatLogic extends WfCommonLogic {
         if (batchPresentation == null) {
             return chatRoomDao.getChatRooms(user.getActor());
         }
-        List<String> additionalClauses = Arrays.asList(ChatRoom.NEW_MESSAGES_FORMULA.replace("?", user.getActor().getId().toString()),
-                "deployment2_.NAME", "deployment2_.VERSION");
-        List<String> sqlParameters = Collections.singletonList(user.getActor().getId().toString());
-        List<Process> processes = getDistinctPersistentObjects(user, batchPresentation, Permission.READ,
-                new SecuredObjectType[]{SecuredObjectType.PROCESS}, true, additionalClauses, sqlParameters);
+        batchPresentation.setFilteredFields(Collections.singletonMap(0, new ChatRoomFilterCriteria(user.getActor().getId())));
+        List<ChatRoom> chatRooms = getPersistentObjects(user, batchPresentation, Permission.READ,
+                new SecuredObjectType[]{SecuredObjectType.PROCESS}, true);
 
+        List<Process> processes = Lists.newArrayListWithExpectedSize(chatRooms.size());
+        for (ChatRoom room : chatRooms) {
+            processes.add(room.getProcess());
+        }
         List<String> variableNamesToInclude = batchPresentation.getDynamicFieldsToDisplay(true);
         Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
 
-        Map<Long, WfChatRoom> processIdToChatRoom = chatRoomDao.getProcessIdToChatRoom(user.getActor(), processes);
-        List<WfChatRoom> rooms = Lists.newArrayListWithExpectedSize(processes.size());
-        for (Process process : processes) {
-            WfChatRoom room = processIdToChatRoom.get(process.getId());
-            if (room != null) {
-                room.getProcess().addAllVariables(executionLogic.getVariables(variableNamesToInclude, variables, process));
-                rooms.add(room);
-            }
+        List<WfChatRoom> wfChatRooms = Lists.newArrayListWithExpectedSize(chatRooms.size());
+        for (ChatRoom room : chatRooms) {
+            WfChatRoom wfChatRoom = new WfChatRoom(room.getProcess(), room.getNewMessagesCount());
+            wfChatRoom.getProcess().addAllVariables(executionLogic.getVariables(variableNamesToInclude, variables, room.getProcess()));
+            wfChatRooms.add(wfChatRoom);
         }
-        return rooms;
+        return wfChatRooms;
     }
 
     public void deleteMessage(User user, Long messageId) {
