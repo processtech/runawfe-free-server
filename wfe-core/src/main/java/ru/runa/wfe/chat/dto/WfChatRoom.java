@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -31,7 +32,7 @@ public class WfChatRoom extends SecuredObject {
 
     @Override
     @EqualsAndHashCode.Include()
-    public Long getIdentifiableId() {
+    public Long getId() {
         return process.getId();
     }
 

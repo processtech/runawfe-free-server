@@ -1,6 +1,8 @@
 package ru.runa.wfe.chat.logic;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -13,8 +15,6 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,7 @@ import ru.runa.wfe.chat.mapper.MessageAddedBroadcastFileMapper;
 import ru.runa.wfe.chat.mapper.MessageAddedBroadcastMapper;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -155,15 +156,16 @@ public class ChatLogic extends WfCommonLogic {
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
         batchPresentation.getFilteredFields().put(0, new ChatRoomFilterCriteria(user.getActor().getId()));
         List<ChatRoom> chatRooms = getPersistentObjects(user, batchPresentation, Permission.READ,
-                new SecuredObjectType[]{SecuredObjectType.PROCESS}, true);
+                new SecuredObjectType[]{ SecuredObjectType.PROCESS }, true);
         return toWfChatRooms(chatRooms, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
+    @SuppressWarnings("rawtypes")
     private List<WfChatRoom> toWfChatRooms(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
-        Map<Process, Map<String, Variable<?>>> variables = getVariables(chatRooms, variableNamesToInclude);
+        Map<Process, Map<String, Variable>> variables = getVariables(chatRooms, variableNamesToInclude);
         List<WfChatRoom> wfChatRooms = Lists.newArrayListWithExpectedSize(chatRooms.size());
         for (ChatRoom room : chatRooms) {
-            Process process = room.getProcess();
+            CurrentProcess process = room.getProcess();
             WfChatRoom wfChatRoom = new WfChatRoom(process, executionLogic.getProcessErrors(process), room.getNewMessagesCount());
             wfChatRoom.getProcess().addAllVariables(executionLogic.getVariables(variableNamesToInclude, variables, process));
             wfChatRooms.add(wfChatRoom);
@@ -171,8 +173,9 @@ public class ChatLogic extends WfCommonLogic {
         return wfChatRooms;
     }
 
-    private Map<Process, Map<String, Variable<?>>> getVariables(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
-        Set<Process> processes = Sets.newHashSetWithExpectedSize(chatRooms.size());
+    @SuppressWarnings("rawtypes")
+    private Map<Process, Map<String, Variable>> getVariables(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
+        List<CurrentProcess> processes = new ArrayList<>(chatRooms.size());
         for (ChatRoom room : chatRooms) {
             processes.add(room.getProcess());
         }

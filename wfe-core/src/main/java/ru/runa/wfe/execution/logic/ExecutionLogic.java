@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -972,8 +973,10 @@ public class ExecutionLogic extends WfCommonLogic {
         return processes;
     }
 
+    @SuppressWarnings("rawtypes")
     private List<WfProcess> toWfProcesses(List<? extends Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
+        Map<Process, Map<String, Variable>> variables = variableDao.getVariables(processes, variableNamesToInclude);
         for (Process process : processes) {
             WfProcess wfProcess = new WfProcess(process, getProcessErrors(process));
             wfProcess.addAllVariables(getVariables(variableNamesToInclude, variables, process));
