@@ -102,29 +102,6 @@ public class ChatLogic extends WfCommonLogic {
         return messageFileMapper.toDtos(messages);
     }
 
-    @Transactional(readOnly = true)
-    public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
-        batchPresentation.getFilteredFields().put(0, new ChatRoomFilterCriteria(user.getActor().getId()));
-        List<ChatRoom> chatRooms = getPersistentObjects(user, batchPresentation, Permission.READ,
-                new SecuredObjectType[]{SecuredObjectType.PROCESS}, true);
-
-        Set<Process> processes = Sets.newHashSetWithExpectedSize(chatRooms.size());
-        for (ChatRoom room : chatRooms) {
-            processes.add(room.getProcess());
-        }
-        List<String> variableNamesToInclude = batchPresentation.getDynamicFieldsToDisplay(true);
-        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(processes, variableNamesToInclude);
-
-        List<WfChatRoom> wfChatRooms = Lists.newArrayListWithExpectedSize(chatRooms.size());
-        for (ChatRoom room : chatRooms) {
-            Process process = room.getProcess();
-            WfChatRoom wfChatRoom = new WfChatRoom(process, executionLogic.getProcessErrors(process), room.getNewMessagesCount());
-            wfChatRoom.getProcess().addAllVariables(executionLogic.getVariables(variableNamesToInclude, variables, process));
-            wfChatRooms.add(wfChatRoom);
-        }
-        return wfChatRooms;
-    }
-
     public void deleteMessage(User user, Long messageId) {
         fileIo.delete(messageTransactionWrapper.delete(user, messageId));
     }
@@ -172,5 +149,33 @@ public class ChatLogic extends WfCommonLogic {
         } catch (Exception e) {
             log.warn("Unable to send chat email notification", e);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
+        batchPresentation.getFilteredFields().put(0, new ChatRoomFilterCriteria(user.getActor().getId()));
+        List<ChatRoom> chatRooms = getPersistentObjects(user, batchPresentation, Permission.READ,
+                new SecuredObjectType[]{SecuredObjectType.PROCESS}, true);
+        return toWfChatRooms(chatRooms, batchPresentation.getDynamicFieldsToDisplay(true));
+    }
+
+    private List<WfChatRoom> toWfChatRooms(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
+        Map<Process, Map<String, Variable<?>>> variables = getVariables(chatRooms, variableNamesToInclude);
+        List<WfChatRoom> wfChatRooms = Lists.newArrayListWithExpectedSize(chatRooms.size());
+        for (ChatRoom room : chatRooms) {
+            Process process = room.getProcess();
+            WfChatRoom wfChatRoom = new WfChatRoom(process, executionLogic.getProcessErrors(process), room.getNewMessagesCount());
+            wfChatRoom.getProcess().addAllVariables(executionLogic.getVariables(variableNamesToInclude, variables, process));
+            wfChatRooms.add(wfChatRoom);
+        }
+        return wfChatRooms;
+    }
+
+    private Map<Process, Map<String, Variable<?>>> getVariables(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
+        Set<Process> processes = Sets.newHashSetWithExpectedSize(chatRooms.size());
+        for (ChatRoom room : chatRooms) {
+            processes.add(room.getProcess());
+        }
+        return variableDao.getVariables(processes, variableNamesToInclude);
     }
 }
