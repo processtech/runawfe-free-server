@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.commons.logic;
 
 import com.google.common.collect.Lists;
@@ -28,6 +11,8 @@ import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
+import ru.runa.wfe.execution.dao.ArchivedProcessDao;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
@@ -47,12 +32,17 @@ import ru.runa.wfe.user.dao.ExecutorDao;
  */
 public class CommonLogic {
     protected final Log log = LogFactory.getLog(getClass());
+
     @Autowired
     protected PermissionDao permissionDao;
     @Autowired
     protected ExecutorDao executorDao;
     @Autowired
     protected LocalizationDao localizationDao;
+    @Autowired
+    protected CurrentProcessDao currentProcessDao;
+    @Autowired
+    protected ArchivedProcessDao archivedProcessDao;
     @Autowired
     protected ProcessDao processDao;
     @Autowired
@@ -83,13 +73,25 @@ public class CommonLogic {
     }
 
     public <T extends SecuredObject> void isPermissionAllowed(User user, List<T> securedObjects, Permission permission,
-            CheckMassPermissionCallback callback) {
+            CheckMassPermissionCallback<SecuredObject> callback) {
         boolean[] allowedArray = permissionDao.isAllowed(user, permission, securedObjects);
         for (int i = 0; i < allowedArray.length; i++) {
             if (allowedArray[i]) {
                 callback.onPermissionGranted(securedObjects.get(i));
             } else {
                 callback.onPermissionDenied(securedObjects.get(i));
+            }
+        }
+    }
+
+    public void isPermissionAllowed(User user, SecuredObjectType type, List<Long> ids, Permission permission,
+            CheckMassPermissionCallback<Long> callback) {
+        boolean[] allowedArray = permissionDao.isAllowed(user, permission, type, ids);
+        for (int i = 0; i < allowedArray.length; i++) {
+            if (allowedArray[i]) {
+                callback.onPermissionGranted(ids.get(i));
+            } else {
+                callback.onPermissionDenied(ids.get(i));
             }
         }
     }
@@ -173,5 +175,4 @@ public class CommonLogic {
         settingDao.clear();
         PropertyResources.clearPropertiesCache();
     }
-
 }

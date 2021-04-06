@@ -14,24 +14,26 @@ import org.hibernate.dialect.Dialect;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDao;
+import ru.runa.wfe.commons.dbmigration.InitializerLogic;
 import ru.runa.wfe.commons.hibernate.Converters;
-import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.FormHandlerExecutor;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
-import ru.runa.wfe.execution.dao.NodeProcessDao;
-import ru.runa.wfe.execution.dao.ProcessDao;
-import ru.runa.wfe.execution.dao.SwimlaneDao;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
+import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
-import ru.runa.wfe.report.dao.ReportDao;
+import ru.runa.wfe.report.dao.ReportDefinitionDao;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.task.dao.TaskDao;
@@ -63,35 +65,39 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return transaction;
     }
 
-    public static JobDao getJobDAO() {
+    public static InitializerLogic getInitializerLogic() {
+        return getContext().getBean(InitializerLogic.class);
+    }
+
+    public static JobDao getJobDao() {
         return getContext().getBean(JobDao.class);
     }
 
-    public static TaskDao getTaskDAO() {
+    public static TaskDao getTaskDao() {
         return getContext().getBean(TaskDao.class);
     }
 
-    public static SwimlaneDao getSwimlaneDAO() {
-        return getContext().getBean(SwimlaneDao.class);
+    public static CurrentSwimlaneDao getCurrentSwimlaneDao() {
+        return getContext().getBean(CurrentSwimlaneDao.class);
     }
 
-    public static TokenDao getTokenDAO() {
-        return getContext().getBean(TokenDao.class);
+    public static CurrentTokenDao getCurrentTokenDao() {
+        return getContext().getBean(CurrentTokenDao.class);
     }
 
-    public static SettingDao getSettingDAO() {
+    public static SettingDao getSettingDao() {
         return getContext().getBean(SettingDao.class);
     }
 
-    public static ProcessDao getProcessDAO() {
-        return getContext().getBean(ProcessDao.class);
+    public static CurrentProcessDao getCurrentProcessDao() {
+        return getContext().getBean(CurrentProcessDao.class);
     }
 
-    public static NodeProcessDao getNodeProcessDAO() {
-        return getContext().getBean(NodeProcessDao.class);
+    public static CurrentNodeProcessDao getCurrentNodeProcessDao() {
+        return getContext().getBean(CurrentNodeProcessDao.class);
     }
 
-    public static ProcessLogDao getProcessLogDAO() {
+    public static ProcessLogDao getProcessLogDao() {
         return getContext().getBean(ProcessLogDao.class);
     }
 
@@ -150,38 +156,38 @@ public class ApplicationContextFactory implements ApplicationContextAware {
             } else if (hibernateDialect.contains("h2")) {
                 dbType = DbType.H2;
             } else {
-                dbType = DbType.GENERIC;
+                throw new RuntimeException("Unsupported DB dialect: " + hibernateDialect);
             }
         }
         return dbType;
     }
 
-    public static ExecutorDao getExecutorDAO() {
+    public static ExecutorDao getExecutorDao() {
         return getContext().getBean(ExecutorDao.class);
     }
 
-    public static DeploymentDao getDeploymentDAO() {
-        return getContext().getBean(DeploymentDao.class);
+    public static ReportDefinitionDao getReportDefinitionDao() {
+        return getContext().getBean(ReportDefinitionDao.class);
     }
 
-    public static PermissionDao getPermissionDAO() {
+    public static ProcessDefinitionDao getProcessDefinitionDao() {
+        return getContext().getBean(ProcessDefinitionDao.class);
+    }
+
+    public static PermissionDao getPermissionDao() {
         return getContext().getBean(PermissionDao.class);
     }
 
-    public static RelationDao getRelationDAO() {
+    public static RelationDao getRelationDao() {
         return getContext().getBean(RelationDao.class);
     }
 
-    public static RelationPairDao getRelationPairDAO() {
+    public static RelationPairDao getRelationPairDao() {
         return getContext().getBean(RelationPairDao.class);
     }
 
-    public static SubstitutionDao getSubstitutionDAO() {
+    public static SubstitutionDao getSubstitutionDao() {
         return getContext().getBean(SubstitutionDao.class);
-    }
-
-    public static ReportDao getReportDAO() {
-        return getContext().getBean(ReportDao.class);
     }
 
     public static List<TaskNotifier> getTaskNotifiers() {
@@ -190,6 +196,10 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static ExecutorLogic getExecutorLogic() {
         return getContext().getBean(ExecutorLogic.class);
+    }
+
+    public static ExecutionLogic getExecutionLogic() {
+        return getContext().getBean(ExecutionLogic.class);
     }
 
     public static VariableLogic getVariableLogic() {

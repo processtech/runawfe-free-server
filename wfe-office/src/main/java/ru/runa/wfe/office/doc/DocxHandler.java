@@ -41,5 +41,4 @@ public class DocxHandler extends OfficeFilesSupplierHandler<DocxConfig> {
         }
         return result;
     }
-
 }

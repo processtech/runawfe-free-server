@@ -1,16 +1,13 @@
 package ru.runa.wfe.execution.logic;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.dao.ExecutorDao;
-import ru.runa.wfe.var.VariableProvider;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.dao.ExecutorDao;
+import ru.runa.wfe.var.VariableProvider;
 
 public class BotSwimlaneInitializer extends SwimlaneInitializer {
     private static final String BEGIN = "#";
@@ -42,5 +39,4 @@ public class BotSwimlaneInitializer extends SwimlaneInitializer {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("botName", botName).toString();
     }
-
 }

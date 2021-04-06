@@ -4,32 +4,36 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.TaskDelegationLog;
+import ru.runa.wfe.audit.CurrentTaskDelegationLog;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessSuspendedException;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.MultiTaskNode;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.Synchronizable;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -66,6 +70,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
  * @author Dofs
  * @since 4.0
  */
+@Component
 public class TaskLogic extends WfCommonLogic {
     @Autowired
     private WfTaskFactory taskObjectFactory;
@@ -92,10 +97,10 @@ public class TaskLogic extends WfCommonLogic {
             if (variables == null) {
                 variables = new HashMap<>();
             }
-            ProcessDefinition processDefinition = getDefinition(task);
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
+            ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, task);
             TaskCompletionBy completionBy = checkCanParticipate(user.getActor(), task);
-            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNodeNotNull(task.getNodeId());
             if (completionBy == TaskCompletionBy.ASSIGNED_EXECUTOR && taskNode.getFirstTaskNotNull().isReassignSwimlaneToTaskPerformer()
                     && task.getSwimlane() != null) {
                 task.getSwimlane().assignExecutor(executionContext, user.getActor(), false);
@@ -123,7 +128,7 @@ public class TaskLogic extends WfCommonLogic {
                 }
             }
             VariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
-            validateVariables(executionContext, validationVariableProvider, processDefinition, task.getNodeId(), variables);
+            validateVariables(executionContext, validationVariableProvider, parsedProcessDefinition, task.getNodeId(), variables);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
             Transition transition;
@@ -141,7 +146,7 @@ public class TaskLogic extends WfCommonLogic {
             }
             log.info("Task '" + task.getName() + "' was done by " + user + " in process " + task.getProcess());
             Errors.removeProcessError(processError);
-            List<Task> tokenTasks = taskDao.findByToken(executionContext.getToken());
+            List<Task> tokenTasks = taskDao.findByToken(executionContext.getCurrentToken());
             if (tokenTasks.size() == 1) {
                 Task nextTask = tokenTasks.get(0);
                 TaskCompletionBy nextTaskCompletionBy = getTaskParticipationRole(user.getActor(), nextTask);
@@ -162,8 +167,8 @@ public class TaskLogic extends WfCommonLogic {
         if (task.getIndex() == null) {
             return;
         }
-        ProcessDefinition processDefinition = getDefinition(task);
-        MultiTaskNode node = (MultiTaskNode) processDefinition.getNodeNotNull(task.getNodeId());
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
+        MultiTaskNode node = (MultiTaskNode) parsedProcessDefinition.getNodeNotNull(task.getNodeId());
         for (VariableMapping mapping : node.getVariableMappings()) {
             Set<Map.Entry<String, Object>> entries = new HashSet<>(variables.entrySet());
             for (Map.Entry<String, Object> entry : entries) {
@@ -180,7 +185,7 @@ public class TaskLogic extends WfCommonLogic {
     }
 
     private void pushToken(ExecutionContext executionContext, Task task, Transition transition) {
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getCurrentToken();
         if (!Objects.equal(task.getNodeId(), token.getNodeId())) {
             throw new InternalApplicationException("completion of " + task + " failed. Different node id in task and token: " + token.getNodeId());
         }
@@ -241,14 +246,18 @@ public class TaskLogic extends WfCommonLogic {
 
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
-        Process process = processDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.READ, process);
-        for (Task task : taskDao.findByProcess(process)) {
+        Process p = processDao.getNotNull(processId);
+        permissionDao.checkAllowed(user, Permission.READ, p);
+        if (p.isArchived()) {
+            return Collections.emptyList();
+        }
+        val cp = (CurrentProcess) p;
+        for (Task task : taskDao.findByProcess(cp)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
-            List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
-            for (Process subprocess : subprocesses) {
+            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(cp);
+            for (CurrentProcess subprocess : subprocesses) {
                 permissionDao.checkAllowed(user, Permission.READ, subprocess);
                 for (Task task : taskDao.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
@@ -267,8 +276,8 @@ public class TaskLogic extends WfCommonLogic {
         if (SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
             checkCanParticipate(user.getActor(), task);
         }
-        ProcessDefinition processDefinition = getDefinition(task);
-        AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
+        AssignmentHelper.reassignTask(new ExecutionContext(parsedProcessDefinition, task), task, newExecutor, false);
     }
 
     public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors) {
@@ -298,9 +307,9 @@ public class TaskLogic extends WfCommonLogic {
             permissionDao.setPermissions(delegationGroup, selfPermissions, delegationGroup);
         }
         executorDao.addExecutorsToGroup(executors, delegationGroup);
-        ProcessDefinition processDefinition = getDefinition(task);
-        final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
-        executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
+        val executionContext = new ExecutionContext(parsedProcessDefinition, task);
+        executionContext.addLog(new CurrentTaskDelegationLog(task, user.getActor(), executors));
         AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
     }
 
@@ -340,5 +349,4 @@ public class TaskLogic extends WfCommonLogic {
         }
         return result;
     }
-
 }

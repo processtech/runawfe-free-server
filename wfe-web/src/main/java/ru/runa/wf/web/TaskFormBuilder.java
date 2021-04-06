@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.web;
 
 import java.util.Map;
@@ -38,7 +21,7 @@ public abstract class TaskFormBuilder {
     protected User user;
     protected PageContext pageContext;
     protected Interaction interaction;
-    protected Long definitionId;
+    protected Long definitionVersionId;
     protected WfTask task;
 
     public void setUser(User user) {
@@ -53,40 +36,40 @@ public abstract class TaskFormBuilder {
         this.pageContext = pageContext;
     }
 
-    public final String build(Long definitionId) {
-        this.definitionId = definitionId;
+    public final String build(Long definitionVersionId) {
+        this.definitionVersionId = definitionVersionId;
         if (interaction.hasForm()) {
-            VariableProvider variableProvider = new DelegateDefinitionVariableProvider(user, definitionId);
+            VariableProvider variableProvider = new DelegateDefinitionVariableProvider(user, definitionVersionId);
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request, interaction, variableProvider);
+            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
-            return buildForm(variableProvider, definitionId);
+            return buildForm(variableProvider, definitionVersionId);
         } else {
             return buildEmptyForm();
         }
     }
 
     public final String build(WfTask task) {
-        this.definitionId = task.getDefinitionId();
+        this.definitionVersionId = task.getDefinitionVersionId();
         this.task = task;
         if (interaction.hasForm()) {
             VariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request, interaction, variableProvider);
+            Map<String, Object> map = FormSubmissionUtils.getPreviousUserInputVariables(request);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
-            return buildForm(variableProvider, task.getDefinitionId());
+            return buildForm(variableProvider, task.getDefinitionVersionId());
         } else {
             return buildEmptyForm();
         }
     }
 
-    private String buildForm(VariableProvider variableProvider, Long definitionId) {
+    private String buildForm(VariableProvider variableProvider, Long definitionVersionId) {
         String form = buildForm(variableProvider);
-        return FormPresentationUtils.adjustForm(pageContext, definitionId, form, variableProvider, interaction.getRequiredVariableNames());
+        return FormPresentationUtils.adjustForm(pageContext, definitionVersionId, form, variableProvider, interaction.getRequiredVariableNames());
     }
 
     protected abstract String buildForm(VariableProvider variableProvider);

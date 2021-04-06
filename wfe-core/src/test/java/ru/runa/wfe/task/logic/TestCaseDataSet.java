@@ -21,42 +21,34 @@ public abstract class TestCaseDataSet implements ITestCaseDataSet {
 
     @Override
     public void mockRules(WfTaskFactory tastFactory) {
-
     }
 
     @Override
     public void mockRules(ExecutorDao executorDao) {
-
     }
 
     @Override
     public void mockRules(SubstitutionLogic substitutionLogic) {
-
     }
 
     @Override
     public void mockRules(ProcessDefinitionLoader processDefinitionLoader) {
-
     }
 
     @Override
     public void mockRules(TaskDao taskDao) {
-
     }
 
     @Override
     public void mockRules(ExecutionContextFactory executionContextFactory) {
-
     }
 
     @Override
     public void mockRules(BatchPresentationCompilerFactory<?> batchCompilerFactory) {
-
     }
 
     @Override
     public void mockRules(ProcessLogDao logDAO) {
-
     }
 
     @Override

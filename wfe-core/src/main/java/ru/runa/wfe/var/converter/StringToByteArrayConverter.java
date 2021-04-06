@@ -8,7 +8,7 @@ public class StringToByteArrayConverter implements Converter {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public Object convert(ExecutionContext executionContext, Variable<?> variable, Object o) {
+    public Object convert(ExecutionContext executionContext, Variable variable, Object o) {
         return ((String) o).getBytes();
     }
 

@@ -21,7 +21,7 @@ public abstract class AbstractUmlFigure extends AbstractFigure {
         super.initFigure(node, useEgdingOnly);
         List<CreateTimerAction> timerActions = CreateTimerAction.getNodeTimerActions(node, false);
         this.hasTimer = timerActions.size() > 0;
-        if (node.getProcessDefinition().isGraphActionsEnabled()) {
+        if (node.getParsedProcessDefinition().isGraphActionsEnabled()) {
             this.actionsCount = GraphImageHelper.getNodeActionsCount(node);
         }
     }

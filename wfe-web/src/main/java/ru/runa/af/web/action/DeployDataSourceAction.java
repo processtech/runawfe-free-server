@@ -2,11 +2,9 @@ package ru.runa.af.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.af.web.form.DeployDataSourceForm;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -31,5 +29,4 @@ public class DeployDataSourceAction extends ActionBase {
         }
         return new ActionForward("/manage_data_sources.do");
     }
-
 }

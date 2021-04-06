@@ -1,39 +1,19 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.ss;
 
+import com.google.common.base.Strings;
 import java.util.HashSet;
-import java.util.Set;
-
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-
-import com.google.common.base.Strings;
 
 /**
  * Substitution with this criteria applies when substitutor not in actor list. Actor list contains executors from process variable with 'conf' name.
@@ -49,8 +29,9 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
         String variableName = getConfiguration();
         Executor executor;
         if (variableName.startsWith(SWIMLANE_PREFIX)) {
+            val currentSwimlaneDao = ApplicationContextFactory.getCurrentSwimlaneDao();
             String swimlaneName = variableName.substring(SWIMLANE_PREFIX.length());
-            Swimlane swimlane = ApplicationContextFactory.getSwimlaneDAO().findByProcessAndName(executionContext.getProcess(), swimlaneName);
+            CurrentSwimlane swimlane = currentSwimlaneDao.findByProcessAndName(executionContext.getCurrentProcess(), swimlaneName);
             if (swimlane == null) {
                 return true;
             }
@@ -62,9 +43,9 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
             }
             executor = TypeConversionUtil.convertTo(Executor.class, variableValue);
         }
-        Set<Executor> confActors = new HashSet<Executor>();
+        val confActors = new HashSet<Executor>();
         if (executor instanceof Group) {
-            confActors.addAll(ApplicationContextFactory.getExecutorDAO().getGroupActors((Group) executor));
+            confActors.addAll(ApplicationContextFactory.getExecutorDao().getGroupActors((Group) executor));
         } else {
             confActors.add(executor);
         }
@@ -77,5 +58,4 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
             throw new InternalApplicationException(getClass().getName() + ": invalid configuration");
         }
     }
-
 }

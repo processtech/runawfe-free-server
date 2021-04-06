@@ -41,7 +41,7 @@ public class FtlFormBuilder extends TaskFormBuilder {
         }
 
         public WfDefinition getDefinition() {
-            return Delegates.getDefinitionService().getProcessDefinition(builder.user, builder.definitionId);
+            return Delegates.getDefinitionService().getProcessDefinition(builder.user, builder.definitionVersionId);
         }
 
         public WfProcess getProcess() {

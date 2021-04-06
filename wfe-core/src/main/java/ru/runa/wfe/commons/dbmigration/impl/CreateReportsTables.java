@@ -49,6 +49,8 @@ public class CreateReportsTables extends DbMigration implements DbMigrationPostP
 
     /**
      * Creates table, indexes e.t.c for {@link ReportDefinition}.
+     * 
+     * @return Returns list of sql commands for table creation.
      */
     private void createReportsTable() {
         executeUpdates(

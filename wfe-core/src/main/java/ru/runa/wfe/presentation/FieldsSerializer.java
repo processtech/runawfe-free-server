@@ -4,8 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -13,8 +12,8 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 
+@CommonsLog
 public class FieldsSerializer {
-    private static final Log log = LogFactory.getLog(FieldsSerializer.class);
 
     private static final String I = "i";
     private static final String STATE = "state";

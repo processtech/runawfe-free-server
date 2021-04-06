@@ -1,28 +1,10 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.presentation;
 
 import com.google.common.base.Objects;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
@@ -30,8 +12,8 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 /**
  * Description for field, available via {@link ClassPresentation}. Contains almost all aspects of field behavior.
  */
+@CommonsLog
 public class FieldDescriptor {
-    private static final Log log = LogFactory.getLog(FieldDescriptor.class);
 
     /**
      * Struts property, which will be used to get field display name.<br/>
@@ -227,7 +209,7 @@ public class FieldDescriptor {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof FieldDescriptor)) {
+        if (!(obj instanceof FieldDescriptor)) {
             return false;
         }
         if (obj == this) {

@@ -1,30 +1,11 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.commons.cache;
 
+import com.google.common.collect.Queues;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Queues;
 
 /**
  * Base cache implementation. Contains support for cache versions.
@@ -54,7 +35,7 @@ public abstract class BaseCacheImpl implements CacheImplementation {
     /**
      * Creates base cache implementation.
      */
-    public BaseCacheImpl() {
+    protected BaseCacheImpl() {
         currentCacheVersion = cacheVersion.get();
     }
 
@@ -74,7 +55,7 @@ public abstract class BaseCacheImpl implements CacheImplementation {
      * @return Returns versionned cached data model.
      */
     protected <TData> VersionedCacheData<TData> getVersionnedData(TData data) {
-        return new VersionedCacheDataImpl<TData>(data, currentCacheVersion);
+        return new VersionedCacheDataImpl<>(data, currentCacheVersion);
     }
 
     /**
@@ -100,30 +81,28 @@ public abstract class BaseCacheImpl implements CacheImplementation {
      *            Value type.
      * @param cacheName
      *            Cache name.
+     * @param infiniteLifeTime
+     *            Flag equals true, if element lifetime must be infinite; false to use ehcache settings.
      * @return Cache to store cached values.
      */
-    protected <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName) {
-        Cache<K, V> result = new CacheStatisticProxy<K, V>(new EhCacheSupport<K, V>(cacheName), cacheName);
+    protected <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName, boolean infiniteLifeTime) {
+        Cache<K, V> result = new CacheStatisticProxy<>(new EhCacheSupport<>(cacheName, infiniteLifeTime), cacheName);
         caches.add(result);
         return result;
     }
 
     /**
      * Create cache to store cached values.
-     * 
+     *
      * @param <K>
      *            Key type.
      * @param <V>
      *            Value type.
      * @param cacheName
      *            Cache name.
-     * @param infiniteLifeTime
-     *            Flag equals true, if element lifetime must be infinite; false to use ehcache settings.
      * @return Cache to store cached values.
      */
-    protected <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName, boolean infiniteLifeTime) {
-        Cache<K, V> result = new CacheStatisticProxy<K, V>(new EhCacheSupport<K, V>(cacheName, infiniteLifeTime), cacheName);
-        caches.add(result);
-        return result;
+    protected <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName) {
+        return createCache(cacheName, false);
     }
 }

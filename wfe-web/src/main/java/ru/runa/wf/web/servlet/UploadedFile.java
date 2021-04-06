@@ -1,10 +1,8 @@
 package ru.runa.wf.web.servlet;
 
-import java.io.Serializable;
-
-import ru.runa.wfe.var.file.FileVariable;
-
 import com.google.common.base.MoreObjects;
+import java.io.Serializable;
+import ru.runa.wfe.var.file.FileVariable;
 
 /*
  * Options not implemented: acceptFileTypes, maxFileSize
@@ -73,5 +71,4 @@ public class UploadedFile implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(getClass()).add("name", name).toString();
     }
-
 }

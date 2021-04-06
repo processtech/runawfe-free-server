@@ -1,6 +1,6 @@
 package ru.runa.wfe.definition;
 
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
@@ -8,25 +8,25 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
 public class DefinitionVariableProvider extends AbstractVariableProvider {
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
 
-    public DefinitionVariableProvider(ProcessDefinition processDefinition) {
-        this.processDefinition = processDefinition;
+    public DefinitionVariableProvider(ParsedProcessDefinition parsedProcessDefinition) {
+        this.parsedProcessDefinition = parsedProcessDefinition;
     }
 
     @Override
-    public Long getProcessDefinitionId() {
-        return processDefinition.getId();
+    public Long getProcessDefinitionVersionId() {
+        return parsedProcessDefinition.getId();
     }
 
     @Override
     public String getProcessDefinitionName() {
-        return processDefinition.getName();
+        return parsedProcessDefinition.getName();
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        return parsedProcessDefinition;
     }
 
     @Override
@@ -36,12 +36,12 @@ public class DefinitionVariableProvider extends AbstractVariableProvider {
 
     @Override
     public UserType getUserType(String name) {
-        return processDefinition.getUserType(name);
+        return parsedProcessDefinition.getUserType(name);
     }
 
     @Override
     public Object getValue(String variableName) {
-        Object object = processDefinition.getDefaultVariableValues().get(variableName);
+        Object object = parsedProcessDefinition.getDefaultVariableValues().get(variableName);
         if (object != null) {
             return object;
         }
@@ -54,7 +54,7 @@ public class DefinitionVariableProvider extends AbstractVariableProvider {
 
     @Override
     public WfVariable getVariable(String variableName) {
-        VariableDefinition variableDefinition = processDefinition.getVariable(variableName, true);
+        VariableDefinition variableDefinition = parsedProcessDefinition.getVariable(variableName, true);
         if (variableDefinition != null) {
             Object value = null;
             if (variableDefinition.getUserType() != null) {
@@ -64,5 +64,4 @@ public class DefinitionVariableProvider extends AbstractVariableProvider {
         }
         return null;
     }
-
 }

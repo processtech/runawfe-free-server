@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.presentation;
 
 /**
@@ -71,9 +54,11 @@ public class BatchPresentationConsts {
 
     public static final String ID_REPORTS = "listReportsForm";
 
-    public static final String ID_PROCESSES = "listProcessesForm";
+    public static final String ID_ARCHIVED_PROCESSES = "listArchivedProcessesForm";
 
-    public static final String ID_PROCESSES_WITH_TASKS = "listProcessesWithTasksForm";
+    public static final String ID_CURRENT_PROCESSES = "listCurrentProcessesForm";
+
+    public static final String ID_CURRENT_PROCESSES_WITH_TASKS = "listCurrentProcessesWithTasksForm";
 
     public static final String ID_DEFINITIONS = "listProcessesDefinitionsForm";
 
@@ -95,5 +80,4 @@ public class BatchPresentationConsts {
     public static int[] getAllowedViewSizes() {
         return ALLOWED_VIEW_SIZES.clone();
     }
-
 }

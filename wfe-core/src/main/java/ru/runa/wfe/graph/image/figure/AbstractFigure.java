@@ -1,21 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
-
 package ru.runa.wfe.graph.image.figure;
 
 import java.awt.Color;
@@ -30,10 +12,8 @@ import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.util.AngleInfo;
@@ -52,7 +32,7 @@ public abstract class AbstractFigure {
     protected String swimlaneName;
     protected boolean useEdgingOnly;
 
-    protected Map<String, TransitionFigure> transitions = new HashMap<String, TransitionFigure>();
+    protected Map<String, TransitionFigure> transitions = new HashMap<>();
     protected RenderHits renderHits;
 
     public void initFigure(Node node, boolean useEdgingOnly) {
@@ -223,7 +203,6 @@ public abstract class AbstractFigure {
 
         Line line1 = createBorderLine(angle);
         Line line2 = LineUtils.createLine(new Point((int) cx, (int) cy), angle.getAngle());
-        Point intersectionPoint = LineUtils.getIntersectionPoint(line1, line2);
-        return intersectionPoint;
+        return LineUtils.getIntersectionPoint(line1, line2);
     }
 }

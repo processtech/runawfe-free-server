@@ -35,6 +35,10 @@ public class FileVariableProxy implements FileVariable {
         this.stringValue = fileVariable.getStringValue();
     }
 
+    /**
+     * Used by TNMS.
+     */
+    @SuppressWarnings("unused")
     public FileVariableProxy(String unproxiedClassName, String stringValue) {
         this.unproxiedClassName = unproxiedClassName;
         this.stringValue = stringValue;

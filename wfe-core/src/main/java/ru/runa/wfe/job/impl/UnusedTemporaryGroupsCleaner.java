@@ -1,15 +1,12 @@
 package ru.runa.wfe.job.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+@CommonsLog
 public class UnusedTemporaryGroupsCleaner {
-    protected final Log log = LogFactory.getLog(getClass());
-    // @Autowired
-    // protected HibernateQueryFactory queryFactory;
     @Autowired
     protected SessionFactory sessionFactory;
 

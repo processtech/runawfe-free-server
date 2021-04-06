@@ -7,12 +7,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
-import ru.runa.wfe.definition.QDeployment;
-import ru.runa.wfe.execution.QProcess;
+import ru.runa.wfe.definition.QProcessDefinition;
+import ru.runa.wfe.execution.QArchivedProcess;
+import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.relation.QRelation;
 import ru.runa.wfe.report.QReportDefinition;
 import ru.runa.wfe.report.dto.WfReport;
@@ -138,13 +139,8 @@ public class SecuredObjectFactory {
         List<Tuple> tt = getLoader(type).getByNames(names);
         List<Long> foundIds = new ArrayList<>(tt.size());
         Set<String> missingNames = new HashSet<>(names);
-        boolean isDef = type.equals(SecuredObjectType.DEFINITION);
         for (Tuple t : tt) {
-            if(isDef) {
-                foundIds.add(ApplicationContextFactory.getDeploymentDAO().getNotNull(t.get(0, Long.class)).getIdentifiableId());
-            } else {
-                foundIds.add(t.get(0, Long.class));
-            }
+            foundIds.add(t.get(0, Long.class));
             missingNames.remove(t.get(1, String.class));
         }
         if (!missingNames.isEmpty()) {
@@ -168,13 +164,12 @@ public class SecuredObjectFactory {
 
     // Alphabetically, please:
     static {
-
         add(SecuredSingleton.BOTSTATIONS);
 
         add(SecuredObjectType.DEFINITION, new Loader(SecuredObjectType.DEFINITION) {
             @Override
             public SecuredObject findById(Long id) {
-                QDeployment d = QDeployment.deployment;
+                QProcessDefinition d = QProcessDefinition.processDefinition;
                 return getQueryFactory().selectFrom(d).where(d.id.eq(id)).fetchFirst();
             }
 //            @Override
@@ -183,7 +178,7 @@ public class SecuredObjectFactory {
 //            }
             @Override
             List<Tuple> getByNames(Set<String> names) {
-                QDeployment d = QDeployment.deployment;
+                QProcessDefinition d = QProcessDefinition.processDefinition;
                 return getQueryFactory().select(d.id, d.name).from(d).where(d.name.in(names)).fetch();
             }
         });
@@ -191,7 +186,7 @@ public class SecuredObjectFactory {
         add(SecuredObjectType.EXECUTOR, new Loader(SecuredObjectType.EXECUTOR) {
             @Override
             public SecuredObject findById(Long id) {
-                QExecutor e = QExecutor.executor;
+                val e = QExecutor.executor;
                 return getQueryFactory().selectFrom(e).where(e.id.eq(id)).fetchFirst();
             }
 //            @Override
@@ -202,7 +197,7 @@ public class SecuredObjectFactory {
 //            }
             @Override
             List<Tuple> getByNames(Set<String> names) {
-                QExecutor e = QExecutor.executor;
+                val e = QExecutor.executor;
                 return getQueryFactory().select(e.id, e.name).from(e).where(e.name.in(names)).fetch();
             }
         });
@@ -210,8 +205,13 @@ public class SecuredObjectFactory {
         add(SecuredObjectType.PROCESS, new Loader(SecuredObjectType.PROCESS) {
             @Override
             public SecuredObject findById(Long id) {
-                QProcess p = QProcess.process;
-                return getQueryFactory().selectFrom(p).where(p.id.eq(id)).fetchFirst();
+                val cp = QCurrentProcess.currentProcess;
+                val result = getQueryFactory().selectFrom(cp).where(cp.id.eq(id)).fetchFirst();
+                if (result != null) {
+                    return result;
+                }
+                val ap = QArchivedProcess.archivedProcess;
+                return getQueryFactory().selectFrom(ap).where(ap.id.eq(id)).fetchFirst();
             }
         });
 
@@ -230,7 +230,7 @@ public class SecuredObjectFactory {
         add(SecuredObjectType.REPORT, new Loader(SecuredObjectType.REPORT) {
             @Override
             public SecuredObject findById(Long id) {
-                QReportDefinition rd = QReportDefinition.reportDefinition;
+                val rd = QReportDefinition.reportDefinition;
                 return new WfReport(getQueryFactory().selectFrom(rd).where(rd.id.eq(id)).fetchFirst());
             }
         });

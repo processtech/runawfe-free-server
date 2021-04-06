@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-
 import ru.runa.wfe.graph.DrawProperties;
 
 /**
@@ -25,7 +24,6 @@ public class ExtraGraphics {
      * coordinates defines a point. The figure is not closed if the first point
      * differs from the last point.
      * 
-     * @author Artem Mikheev
      * @see java.awt.Graphics#drawPolyline
      * @param xPoints
      *            - an array of x points

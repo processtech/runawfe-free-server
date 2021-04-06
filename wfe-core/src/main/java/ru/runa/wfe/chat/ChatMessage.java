@@ -13,7 +13,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.user.Actor;
 
 @Entity
@@ -22,7 +22,7 @@ public class ChatMessage implements Serializable {
     private Long id;
     private Date createDate;
     private Actor createActor;
-    private Process process;
+    private CurrentProcess process;
     private String text;
 
     @Id
@@ -61,11 +61,11 @@ public class ChatMessage implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(name = "PROCESS_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_PROCESS_ID")
-    public Process getProcess() {
+    public CurrentProcess getProcess() {
         return process;
     }
 
-    public void setProcess(Process process) {
+    public void setProcess(CurrentProcess process) {
         this.process = process;
     }
 

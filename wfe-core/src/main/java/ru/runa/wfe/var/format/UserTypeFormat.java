@@ -5,8 +5,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import ru.runa.wfe.InternalApplicationException;
@@ -17,8 +16,8 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 
+@CommonsLog
 public class UserTypeFormat extends VariableFormat implements VariableDisplaySupport {
-    private static final Log log = LogFactory.getLog(UserTypeFormat.class);
     private final UserType userType;
 
     public UserTypeFormat(UserType userType) {
@@ -98,7 +97,7 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
     @Override
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object) {
         UserTypeMap userTypeMap = (UserTypeMap) object;
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         b.append("<table class=\"list usertype\">");
         for (VariableDefinition attributeDefinition : userType.getAttributes()) {
             b.append("<tr>");

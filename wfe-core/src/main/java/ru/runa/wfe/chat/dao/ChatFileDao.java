@@ -17,6 +17,10 @@ import ru.runa.wfe.commons.dao.GenericDao;
 @MonitoredWithSpring
 public class ChatFileDao extends GenericDao<ChatMessageFile> {
 
+    public ChatFileDao() {
+        super(ChatMessageFile.class);
+    }
+
     @Transactional
     @Override
     public ChatMessageFile create(ChatMessageFile entity) {

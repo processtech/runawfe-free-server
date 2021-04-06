@@ -33,6 +33,7 @@ public class DbMigrationManager {
         public boolean isWfeConstantsDropped() {
             return appliedMigrationNames != null && appliedMigrationNames.contains(RemoveWfeConstants.class.getSimpleName());
         }
+
     }
 
 
@@ -216,9 +217,17 @@ public class DbMigrationManager {
                         stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
                         stmt.executeUpdate();
                     }
-
+                }
+            });
+            txManager.runInTransaction(new TxRunnable() {
+                @Override
+                public void run(Connection conn) throws Exception {
                     migration.execute();
-
+                }
+            });
+            txManager.runInTransaction(new TxRunnable() {
+                @Override
+                public void run(Connection conn) throws Exception {
                     try (val stmt = conn.prepareStatement("update db_migration set when_finished = ? where name = ?")) {
                         stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
                         stmt.setString(2, name);

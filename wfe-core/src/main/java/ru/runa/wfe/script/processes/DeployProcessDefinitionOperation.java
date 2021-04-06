@@ -1,18 +1,15 @@
 package ru.runa.wfe.script.processes;
 
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.ScriptValidation;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 @XmlType(name = DeployProcessDefinitionOperation.SCRIPT_NAME + "Type", namespace = AdminScriptConstants.NAMESPACE)
 public class DeployProcessDefinitionOperation extends ScriptOperation {
@@ -24,6 +21,12 @@ public class DeployProcessDefinitionOperation extends ScriptOperation {
 
     @XmlAttribute(name = AdminScriptConstants.FILE_ATTRIBUTE_NAME, required = true)
     public String file;
+
+    /**
+     * If null or negative, will be nulled in database (default will be used).
+     */
+    @XmlAttribute(name = AdminScriptConstants.SECONDS_BEFORE_ARCHIVING)
+    public Integer secondsBeforeArchiving;
 
     @Override
     public List<String> getExternalResources() {
@@ -38,6 +41,7 @@ public class DeployProcessDefinitionOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         List<String> parsedType = Splitter.on("/").splitToList(Strings.isNullOrEmpty(type) ? "Script" : type);
-        context.getDefinitionLogic().deployProcessDefinition(context.getUser(), context.getExternalResource(file), parsedType);
+        context.getProcessDefinitionLogic().deployProcessDefinition(context.getUser(), context.getExternalResource(file), parsedType,
+                secondsBeforeArchiving);
     }
 }

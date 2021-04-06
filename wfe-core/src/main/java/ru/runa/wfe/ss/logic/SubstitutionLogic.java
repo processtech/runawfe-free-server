@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.ss.logic;
 
 import com.google.common.base.Objects;
@@ -24,12 +7,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.SubstitutionDoesNotExistException;
-import ru.runa.wfe.ss.cache.SubstitutionCache;
+import ru.runa.wfe.ss.cache.SubstitutionCacheCtrl;
 import ru.runa.wfe.ss.dao.SubstitutionCriteriaDao;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
@@ -41,9 +25,10 @@ import ru.runa.wfe.user.User;
  * @author Semochkin_v
  * @author Gordienko_m
  */
+@Component
 public class SubstitutionLogic extends CommonLogic {
     @Autowired
-    private SubstitutionCache substitutionCacheCtrl;
+    private SubstitutionCacheCtrl substitutionCacheCtrl;
     @Autowired
     private SubstitutionDao substitutionDao;
     @Autowired

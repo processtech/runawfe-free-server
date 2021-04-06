@@ -90,7 +90,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
         substituteUser = h.getAuthenticationService().authenticateByLoginPassword(nameSubstitute, pwdSubstitute);
 
         byte[] parBytes = WfServiceTestHelper.readBytesFromFile(PROCESS_NAME + ".par");
-        h.getDefinitionService().deployProcessDefinition(h.getAdminUser(), parBytes, Lists.newArrayList("testProcess"));
+        h.getDefinitionService().deployProcessDefinition(h.getAdminUser(), parBytes, Lists.newArrayList("testProcess"), null);
         WfDefinition definition = h.getDefinitionService().getLatestProcessDefinition(h.getAdminUser(), PROCESS_NAME);
         h.getAuthorizationService().setPermissions(h.getAdminUser(), actor1.getId(), Lists.newArrayList(Permission.START_PROCESS), definition);
     }

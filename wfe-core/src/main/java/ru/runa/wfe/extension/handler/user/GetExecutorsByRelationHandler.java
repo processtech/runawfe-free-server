@@ -1,9 +1,8 @@
 package ru.runa.wfe.extension.handler.user;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
 import ru.runa.wfe.relation.Relation;
@@ -12,8 +11,6 @@ import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.dao.ExecutorDao;
-
-import com.google.common.collect.Lists;
 
 public class GetExecutorsByRelationHandler extends CommonParamBasedHandler {
     @Autowired

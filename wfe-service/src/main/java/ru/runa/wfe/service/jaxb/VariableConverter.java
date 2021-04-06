@@ -5,7 +5,7 @@ import java.util.Map;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -43,12 +43,12 @@ public class VariableConverter {
         return result;
     }
 
-    private static Object unmarshal(ProcessDefinition processDefinition, Variable variable) {
+    private static Object unmarshal(ParsedProcessDefinition parsedProcessDefinition, Variable variable) {
         try {
             if (WfProcess.SELECTED_TRANSITION_KEY.equals(variable.name)) {
                 return variable.value;
             }
-            VariableDefinition variableDefinition = processDefinition.getVariableNotNull(variable.name, true);
+            VariableDefinition variableDefinition = parsedProcessDefinition.getVariableNotNull(variable.name, true);
             Object value = FormatCommons.create(variableDefinition).parseJSON(variable.value);
             return value;
         } catch (Exception e) {
@@ -56,11 +56,11 @@ public class VariableConverter {
         }
     }
 
-    public static Map<String, Object> unmarshal(ProcessDefinition processDefinition, List<Variable> variables) {
+    public static Map<String, Object> unmarshal(ParsedProcessDefinition parsedProcessDefinition, List<Variable> variables) {
         Map<String, Object> map = Maps.newHashMap();
         if (variables != null) {
             for (Variable variable : variables) {
-                Object object = unmarshal(processDefinition, variable);
+                Object object = unmarshal(parsedProcessDefinition, variable);
                 if (object instanceof UserTypeMap) {
                     map.putAll(((UserTypeMap) object).expand(variable.name));
                 } else {

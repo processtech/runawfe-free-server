@@ -1,24 +1,3 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2005, JBoss Inc., and individual contributors as indicated
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
 package ru.runa.wfe.lang;
 
 import com.google.common.base.Objects;
@@ -28,12 +7,13 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.NodeEnterLog;
-import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.audit.CurrentNodeEnterLog;
+import ru.runa.wfe.audit.CurrentNodeLeaveLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.execution.logic.ProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
@@ -177,21 +157,21 @@ public abstract class Node extends GraphElement {
      */
     public void enter(ExecutionContext executionContext) {
         log.debug("Entering " + this + " with " + executionContext);
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getCurrentToken();
         // update the runtime context information
         token.setNodeId(getNodeId());
         token.setNodeType(getNodeType());
         // fire the leave-node event for this node
         fireEvent(executionContext, ActionEvent.NODE_ENTER);
-        executionContext.addLog(new NodeEnterLog(this));
+        executionContext.addLog(new CurrentNodeEnterLog(this));
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessEndNode)) {
             for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
                 Node boundaryNode = (Node) boundaryEvent;
-                Token eventToken = new Token(executionContext.getToken(), boundaryNode.getNodeId());
+                CurrentToken eventToken = new CurrentToken(executionContext.getCurrentToken(), boundaryNode.getNodeId());
                 eventToken.setNodeId(boundaryNode.getNodeId());
                 eventToken.setNodeType(boundaryNode.getNodeType());
-                ApplicationContextFactory.getTokenDAO().create(eventToken);
-                ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
+                ApplicationContextFactory.getCurrentTokenDao().create(eventToken);
+                ExecutionContext eventExecutionContext = new ExecutionContext(getParsedProcessDefinition(), eventToken);
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
         }
@@ -207,8 +187,8 @@ public abstract class Node extends GraphElement {
         if (asyncExecution != null) {
             return asyncExecution;
         }
-        if (executionContext.getProcessDefinition().getNodeAsyncExecution() != null) {
-            return executionContext.getProcessDefinition().getNodeAsyncExecution();
+        if (executionContext.getParsedProcessDefinition().getNodeAsyncExecution() != null) {
+            return executionContext.getParsedProcessDefinition().getNodeAsyncExecution();
         }
         return SystemProperties.isProcessExecutionNodeAsyncEnabled(getNodeType());
     }
@@ -245,13 +225,12 @@ public abstract class Node extends GraphElement {
             endBoundaryEventTokens(executionContext);
         }
         if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
-            Token parentToken = executionContext.getToken().getParent();
-            ((Node) getParentElement()).onBoundaryEvent(new ExecutionContext(executionContext.getProcessDefinition(), parentToken),
+            CurrentToken parentToken = executionContext.getCurrentToken().getParent();
+            ((Node) getParentElement()).onBoundaryEvent(new ExecutionContext(executionContext.getParsedProcessDefinition(), parentToken),
                     (BoundaryEvent) this);
             endTokensRecursively(executionContext, parentToken.getChildren());
         }
-
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getCurrentToken();
         for (ProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
             listener.onNodeLeave(executionContext, this, transition);
         }
@@ -268,7 +247,7 @@ public abstract class Node extends GraphElement {
     }
 
     protected void addLeaveLog(ExecutionContext executionContext) {
-        executionContext.addLog(new NodeLeaveLog(this));
+        executionContext.addLog(new CurrentNodeLeaveLog(this));
     }
 
     @Override
@@ -293,11 +272,12 @@ public abstract class Node extends GraphElement {
 
     public void endBoundaryEventTokens(ExecutionContext executionContext) {
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
+            ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
-            for (Token token : executionContext.getToken().getActiveChildren()) {
-                Node node = token.getNodeNotNull(executionContext.getProcessDefinition());
+            for (CurrentToken token : executionContext.getCurrentToken().getActiveChildren()) {
+                Node node = token.getNodeNotNull(executionContext.getParsedProcessDefinition());
                 if (boundaryEvents.contains(node)) {
-                    token.end(executionContext.getProcessDefinition(), null, null, false);
+                    executionLogic.endToken(token, executionContext.getParsedProcessDefinition(), null, null, false);
                 }
             }
         }
@@ -308,20 +288,22 @@ public abstract class Node extends GraphElement {
     }
 
     protected void onBoundaryEvent(ExecutionContext executionContext, BoundaryEvent boundaryEvent) {
-        executionContext.getToken().end(executionContext.getProcessDefinition(), null,
+        ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
+        executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getParsedProcessDefinition(), null,
                 boundaryEvent.getTaskCompletionInfoIfInterrupting(executionContext), false);
     }
 
-    private void endTokensRecursively(ExecutionContext executionContext, Set<Token> tokens) {
-        for (Token token : tokens) {
+    private void endTokensRecursively(ExecutionContext executionContext, Set<CurrentToken> tokens) {
+        ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
+        for (CurrentToken token : tokens) {
             if (Objects.equal(token, executionContext.getToken())) {
                 continue;
             }
             if (token.hasEnded()) {
-                // inactive ParallelGateway behaviour
+                log.debug("Inactiving ParallelGateway behaviour");
                 token.setAbleToReactivateParent(false);
             } else {
-                token.end(executionContext.getProcessDefinition(), null,
+                executionLogic.endToken(token, executionContext.getParsedProcessDefinition(), null,
                         ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executionContext), true);
             }
             endTokensRecursively(executionContext, token.getChildren());

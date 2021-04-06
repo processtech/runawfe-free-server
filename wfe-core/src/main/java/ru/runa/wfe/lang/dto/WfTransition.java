@@ -73,5 +73,4 @@ public class WfTransition implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", id).add("name", name).toString();
     }
-
 }

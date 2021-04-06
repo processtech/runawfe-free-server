@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.validation;
 
 import com.google.common.base.MoreObjects;
@@ -52,8 +35,9 @@ public abstract class Validator {
     }
 
     /**
-     * Access only to old values (without submitted ones).
+     * Used by TNMS. Access only to old values (without submitted ones).
      */
+    @SuppressWarnings("unused")
     protected VariableProvider getOldVariableProvider() {
         return oldVariableProvider;
     }
@@ -71,13 +55,14 @@ public abstract class Validator {
     }
 
     /**
-     * Access only to submitted values (with previous ones).
+     * Used by TNMS. Access only to submitted values (with previous ones).
      */
+    @SuppressWarnings("unused")
     protected Map<String, Object> getNewVariables() {
         return newVariables;
     }
 
-    private <T extends Object> T getParameter(Class<T> clazz, String name) {
+    private <T> T getParameter(Class<T> clazz, String name) {
         String stringValue = config.getParams().get(name);
         if (stringValue == null) {
             return null;
@@ -86,12 +71,13 @@ public abstract class Validator {
         return TypeConversionUtil.convertTo(clazz, value);
     }
 
-    protected <T extends Object> T getParameter(Class<T> clazz, String name, T defaultValue) {
+    protected <T> T getParameter(Class<T> clazz, String name, T defaultValue) {
         T value = getParameter(clazz, name);
         return value == null ? defaultValue : value;
     }
 
-    protected <T extends Object> T getParameterNotNull(Class<T> clazz, String name) {
+    @SuppressWarnings("SameParameterValue")
+    protected <T> T getParameterNotNull(Class<T> clazz, String name) {
         T value = getParameter(clazz, name);
         if (value == null) {
             throw new InternalApplicationException("parameter '" + name + "' is null");

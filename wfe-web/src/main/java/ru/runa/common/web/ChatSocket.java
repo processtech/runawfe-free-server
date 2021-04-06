@@ -13,23 +13,21 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.common.WebResources;
 import ru.runa.wfe.chat.decoder.MessageRequestBinaryDecoder;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.socket.ChatSessionHandler;
 import ru.runa.wfe.chat.socket.ChatSocketMessageHandler;
 import ru.runa.wfe.chat.utils.ChatSessionUtils;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 @ApplicationScoped
 @CommonsLog
 @Interceptors({ SpringBeanAutowiringInterceptor.class })
-@ServerEndpoint(
-        value = "/chatSocket",
+@ServerEndpoint(value = "/chatSocket",
         subprotocols = { "wss" },
         configurator = ChatSocketConfigurator.class,
-        decoders = { MessageRequestBinaryDecoder.class }
-)
+        decoders = { MessageRequestBinaryDecoder.class })
 public class ChatSocket {
 
     @Autowired

@@ -76,5 +76,4 @@ public class WfVariable implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("definition", definition).add("value", value).toString();
     }
-
 }

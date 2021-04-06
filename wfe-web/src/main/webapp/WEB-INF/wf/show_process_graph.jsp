@@ -1,5 +1,5 @@
-<%@page import="ru.runa.common.Version"%>
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
+<%@ page import="ru.runa.common.Version"%>
 <%@ page import="ru.runa.common.web.form.IdForm" %>
 <%@ page import="ru.runa.wf.web.form.TaskIdForm" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>

@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.lang.dto;
 
 import com.google.common.base.MoreObjects;
@@ -31,7 +14,7 @@ import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.Transition;
 
@@ -57,7 +40,7 @@ public class WfNode implements Serializable {
     }
 
     public WfNode(Node node) {
-        this.parentId = node.getParentElement() instanceof ProcessDefinition ? null : node.getParentElement().getNodeId();
+        this.parentId = node.getParentElement() instanceof ParsedProcessDefinition ? null : node.getParentElement().getNodeId();
         this.id = node.getNodeId();
         this.type = node.getNodeType();
         this.name = node.getName();
@@ -105,5 +88,4 @@ public class WfNode implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", id).add("name", name).toString();
     }
-
 }

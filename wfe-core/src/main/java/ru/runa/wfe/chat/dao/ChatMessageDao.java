@@ -10,11 +10,18 @@ import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.definition.QProcessDefinition;
+import ru.runa.wfe.definition.QProcessDefinitionVersion;
+import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.user.Actor;
 
 @Component
 @MonitoredWithSpring
 public class ChatMessageDao extends GenericDao<ChatMessage> {
+
+    public ChatMessageDao() {
+        super(ChatMessage.class);
+    }
 
     @Transactional(readOnly = true)
     @Override

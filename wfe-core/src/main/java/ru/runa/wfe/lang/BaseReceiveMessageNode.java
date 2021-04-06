@@ -19,7 +19,7 @@ public class BaseReceiveMessageNode extends BaseMessageNode implements BoundaryE
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getToken().setMessageSelector(Utils.getReceiveMessageNodeSelector(executionContext.getVariableProvider(), this));
+        executionContext.getCurrentToken().setMessageSelector(Utils.getReceiveMessageNodeSelector(executionContext.getVariableProvider(), this));
     }
 
     public void leave(ExecutionContext executionContext, Map<String, Object> map) {
@@ -49,7 +49,7 @@ public class BaseReceiveMessageNode extends BaseMessageNode implements BoundaryE
 
     @Override
     public void leave(ExecutionContext executionContext, Transition transition) {
-        executionContext.getToken().setMessageSelector(null);
+        executionContext.getCurrentToken().setMessageSelector(null);
         super.leave(executionContext, transition);
     }
 

@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.common.web.tag;
 
 import java.util.ArrayList;
@@ -46,7 +29,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Represents tabs for managing different secured objects types. Created on 04.10.2004
- * 
+ *
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
  */
@@ -57,10 +40,12 @@ public class TabHeaderTag extends TagSupport {
     private boolean isVertical = true;
 
     private static final List<MenuForward> FORWARDS = new ArrayList<>();
+
     static {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_TASKS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DEFINITIONS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_PROCESSES));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_ARCHIVED_PROCESSES));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_EXECUTORS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_REPORTS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_RELATIONS, SecuredSingleton.RELATIONS));
@@ -140,10 +125,12 @@ public class TabHeaderTag extends TagSupport {
         try {
             if (menuForward.forAdministratorOnly) {
                 if (menuForward.menuMessage.getKey().equals(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE.getKey())) {
-                    if (DataSourceStorage.getNames().contains(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)) {
-                        if (!(DataSourceStorage.getDataSource(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME) instanceof ExcelDataSource)) {
-                            return false;
-                        }
+                    final boolean isInternalStoragePresent = DataSourceStorage.getNames().contains(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME);
+                    if (!isInternalStoragePresent) {
+                        return false;
+                    }
+                    if (!(DataSourceStorage.getDataSource(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME) instanceof ExcelDataSource)) {
+                        return false;
                     }
                 }
                 return Delegates.getExecutorService().isAdministrator(getUser());

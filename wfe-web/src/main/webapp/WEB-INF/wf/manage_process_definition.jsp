@@ -1,10 +1,16 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.Version"%>
 <%@ page import="ru.runa.common.web.Commons"%>
+<%@ page import="ru.runa.wfe.service.delegate.Delegates" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
+
+<%
+	long versionId = Long.parseLong(request.getParameter("id"));
+	long id = Delegates.getDefinitionService().getProcessDefinition(Commons.getUser(pageContext.getSession()), versionId).getId();
+%>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
@@ -32,9 +38,7 @@
 </tiles:put>
 
 <tiles:put name="body" type="string" >
-<% long id = Long.parseLong(request.getParameter("id")); %>
-
-<wf:processDefinitionInfoForm identifiableId='<%= id %>'>	
+<wf:processDefinitionInfoForm identifiableId='<%= versionId %>'>
 <table width="100%">
 	<tr>
 		<td align="right">
@@ -44,14 +48,12 @@
 </table>
 </wf:processDefinitionInfoForm>
 
-<wf:listProcessDefinitionChangesForm identifiableId='<%= id %>'>
+<wf:listProcessDefinitionChangesForm identifiableId='<%= versionId %>'>
 </wf:listProcessDefinitionChangesForm>
 
-<wf:redeployDefinitionForm identifiableId='<%= id %>'  />
-
-<wf:definitionGraphForm identifiableId='<%= id %>' />	
-
-
+<wf:redeployDefinitionForm identifiableId='<%= versionId %>'  />
+<wf:definitionGraphForm identifiableId='<%= versionId %>' />
 </tiles:put>
+
 <tiles:put name="messages" value="../common/messages.jsp" />
 </tiles:insert>

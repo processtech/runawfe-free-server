@@ -1,7 +1,7 @@
 package ru.runa.wfe.job;
 
+import com.google.common.base.MoreObjects;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -18,18 +18,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
-
-import com.google.common.base.MoreObjects;
 
 @Entity
 @Table(name = "BPM_JOB")
@@ -43,14 +37,14 @@ public abstract class Job {
     private String name;
     private String dueDateExpression;
     private Date dueDate;
-    private Process process;
-    private Token token;
+    private CurrentProcess process;
+    private CurrentToken token;
     private Date createDate;
 
     public Job() {
     }
 
-    public Job(Token token) {
+    public Job(CurrentToken token) {
         this.token = token;
         this.process = token.getProcess();
         this.createDate = new Date();
@@ -105,26 +99,23 @@ public abstract class Job {
         this.dueDate = dueDate;
     }
 
-    @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_JOB_PROCESS")
-    @Index(name = "IX_JOB_PROCESS")
-    public Process getProcess() {
+    public CurrentProcess getProcess() {
         return process;
     }
 
-    public void setProcess(Process process) {
+    public void setProcess(CurrentProcess process) {
         this.process = process;
     }
 
-    @ManyToOne(targetEntity = Token.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "TOKEN_ID")
-    @ForeignKey(name = "FK_JOB_TOKEN")
-    public Token getToken() {
+    public CurrentToken getToken() {
         return token;
     }
 
-    public void setToken(Token token) {
+    public void setToken(CurrentToken token) {
         this.token = token;
     }
 
@@ -144,5 +135,4 @@ public abstract class Job {
         return MoreObjects.toStringHelper(this).add("id", id).add("name", name).add("dueDate", CalendarUtil.formatDateTime(dueDate))
                 .add("process", getProcess()).toString();
     }
-
 }

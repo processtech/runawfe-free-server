@@ -1,17 +1,26 @@
 package ru.runa.wfe.commons.hibernate;
 
 import java.sql.Types;
+import org.hibernate.dialect.SQLServer2012Dialect;
+
+/**
+ * Maps strings to nvarchar's and unicode support for other types in MSSQL server.
+=======
 import org.hibernate.Hibernate;
 import org.hibernate.dialect.SQLServerDialect;
 
 /**
  * Maps strings to nvarchar's and unicode support for other types in MSSQL
  * server.
+>>>>>>> master
  *
  * @author dofs
  * @since 3.5
  */
-public class SqlServerUnicodeDialect extends SQLServerDialect {
+public class SqlServerUnicodeDialect extends SQLServer2012Dialect {
+    /**
+     * {@link org.hibernate.dialect.SQLServer2005Dialect#MAX_LENGTH}
+     */
     public static final int MAX_LENGTH = 8000;
 
     public SqlServerUnicodeDialect() {
@@ -26,7 +35,5 @@ public class SqlServerUnicodeDialect extends SQLServerDialect {
          */
         registerColumnType(Types.VARCHAR, "nvarchar(MAX)");
         registerColumnType(Types.VARCHAR, MAX_LENGTH, "nvarchar($l)");
-
-        registerHibernateType(Types.NVARCHAR, Hibernate.STRING.getName()); // Should be removed after migration to Hibernate 5
     }
 }

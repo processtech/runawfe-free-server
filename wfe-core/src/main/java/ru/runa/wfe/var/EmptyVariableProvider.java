@@ -1,12 +1,12 @@
 package ru.runa.wfe.var;
 
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
 public class EmptyVariableProvider extends AbstractVariableProvider {
 
     @Override
-    public Long getProcessDefinitionId() {
+    public Long getProcessDefinitionVersionId() {
         return null;
     }
 
@@ -16,7 +16,7 @@ public class EmptyVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
+    public ParsedProcessDefinition getParsedProcessDefinition() {
         return null;
     }
 

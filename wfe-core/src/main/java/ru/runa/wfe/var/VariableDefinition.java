@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.var;
 
 import com.google.common.base.MoreObjects;
@@ -25,7 +8,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
@@ -91,11 +74,11 @@ public class VariableDefinition implements Serializable {
         setDefaultValue(attributeDefinition.getDefaultValue());
     }
 
-    public void initComponentUserTypes(ProcessDefinition processDefinition) {
+    public void initComponentUserTypes(ParsedProcessDefinition parsedProcessDefinition) {
         String[] componentFormats = getFormatComponentClassNames();
         this.formatComponentUserTypes = new UserType[componentFormats.length];
         for (int i = 0; i < componentFormats.length; i++) {
-            this.formatComponentUserTypes[i] = processDefinition.getUserType(componentFormats[i]);
+            this.formatComponentUserTypes[i] = parsedProcessDefinition.getUserType(componentFormats[i]);
         }
     }
 
@@ -284,5 +267,4 @@ public class VariableDefinition implements Serializable {
     public void setStoreType(VariableStoreType storeType) {
         this.storeType = storeType;
     }
-
 }

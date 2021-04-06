@@ -107,6 +107,7 @@
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
+			<version>3.0</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>asm</artifactId>
@@ -127,7 +128,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.0</version>
 				<configuration>
 					<includes>
 						<include>ru/runa/junit/*.java</include>

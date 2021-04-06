@@ -5,7 +5,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,8 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -45,18 +43,16 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+@CommonsLog
 public class StoreServiceImpl implements StoreService {
-
     private static final int START_ROW_INDEX = 0;
-
-    private static final Log log = LogFactory.getLog(StoreServiceImpl.class);
     private static final String DEFAULT_TABLE_NAME_PREFIX = "SHEET";
     private static final String XLSX_SUFFIX = ".xlsx";
 
     private ExcelConstraints constraints;
     private VariableFormat format;
     private String fullPath;
-    VariableProvider variableProvider;
+    private VariableProvider variableProvider;
 
     public StoreServiceImpl(VariableProvider variableProvider) {
         this.variableProvider = variableProvider;
@@ -233,7 +229,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @SuppressWarnings("resource")
-    private Workbook getWorkbook(String fullPath) throws IOException, FileNotFoundException {
+    private Workbook getWorkbook(String fullPath) throws IOException {
         Workbook wb = null;
         InputStream is = new FileInputStream(fullPath);
         if (fullPath.endsWith(".xls")) {
@@ -433,13 +429,9 @@ public class StoreServiceImpl implements StoreService {
     }
 
     private VariableFormat getVariableFormat(VariableFormat variableFormat) {
-        VariableFormat format = null;
-        if (variableFormat instanceof ListFormat) {
-            format = FormatCommons.createComponent((VariableFormatContainer) variableFormat, 0);
-        } else {
-            format = variableFormat;
-        }
-        return format;
+        return variableFormat instanceof ListFormat
+                ? FormatCommons.createComponent((VariableFormatContainer) variableFormat, 0)
+                : variableFormat;
     }
 
     private boolean existOutputParamByVariableName(WfVariable variable) {

@@ -26,7 +26,7 @@ public abstract class OfficeFilesSupplierHandler<T extends FilesSupplierConfig> 
 
     @Override
     public void execute(ExecutionContext context) throws Exception {
-        Map<String, Object> result = executeAction(context.getVariableProvider(), context.getProcessDefinition());
+        Map<String, Object> result = executeAction(context.getVariableProvider(), context.getParsedProcessDefinition());
         if (result != null) {
             context.setVariableValues(result);
         }

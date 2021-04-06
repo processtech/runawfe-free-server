@@ -22,7 +22,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.service.delegate.Delegates;
 
 /**
@@ -46,8 +46,10 @@ public class ShowDefinitionHistoryDiffAction extends ActionBase {
         }
         WfDefinition definition1 = Delegates.getDefinitionService().getProcessDefinitionVersion(Commons.getUser(request.getSession()), definitionName, Long.valueOf(version1String));
         WfDefinition definition2 = Delegates.getDefinitionService().getProcessDefinitionVersion(Commons.getUser(request.getSession()), definitionName, Long.valueOf(version2String));
-        ProcessDefinition processDefinition1 = Delegates.getDefinitionService().getParsedProcessDefinition(Commons.getUser(request.getSession()), definition1.getId());
-        ProcessDefinition processDefinition2 = Delegates.getDefinitionService().getParsedProcessDefinition(Commons.getUser(request.getSession()), definition2.getId());
+        ParsedProcessDefinition processDefinition1 = Delegates.getDefinitionService().getParsedProcessDefinition(
+                Commons.getUser(request.getSession()), definition1.getId());
+        ParsedProcessDefinition processDefinition2 = Delegates.getDefinitionService().getParsedProcessDefinition(
+                Commons.getUser(request.getSession()), definition2.getId());
         Set<String> unsortedFileNames = new HashSet<>();
         unsortedFileNames.addAll(processDefinition1.getProcessFiles().keySet());
         unsortedFileNames.addAll(processDefinition2.getProcessFiles().keySet());

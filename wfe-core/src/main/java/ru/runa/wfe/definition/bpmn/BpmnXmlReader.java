@@ -34,11 +34,11 @@ import ru.runa.wfe.lang.MultiTaskCreationMode;
 import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.MultiTaskSynchronizationMode;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.ScriptNode;
 import ru.runa.wfe.lang.SendMessageNode;
 import ru.runa.wfe.lang.StartNode;
-import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.TaskDefinition;
@@ -156,14 +156,14 @@ public class BpmnXmlReader {
         this.document = document;
     }
 
-    public ProcessDefinition readProcessDefinition(ProcessDefinition processDefinition) {
+    public ParsedProcessDefinition readProcessDefinition(ParsedProcessDefinition parsedProcessDefinition) {
         try {
             Element definitionsElement = document.getRootElement();
-            readDataStores(processDefinition, definitionsElement.elements(DATA_STORE));
+            readDataStores(parsedProcessDefinition, definitionsElement.elements(DATA_STORE));
             Element process = definitionsElement.element(PROCESS);
-            processDefinition.setName(process.attributeValue(NAME));
+            parsedProcessDefinition.setName(process.attributeValue(NAME));
             Map<String, String> processProperties = parseExtensionProperties(process);
-            processDefinition.setDescription(processProperties.get(DOCUMENTATION));
+            parsedProcessDefinition.setDescription(processProperties.get(DOCUMENTATION));
             defaultTaskDeadline = processProperties.get(DEFAULT_TASK_DEADLINE);
             String swimlaneDisplayModeName = processProperties.get(SHOW_SWIMLANE);
             if (swimlaneDisplayModeName != null) {
@@ -171,32 +171,32 @@ public class BpmnXmlReader {
             }
             String accessTypeString = processProperties.get(ACCESS_TYPE);
             if (!Strings.isNullOrEmpty(accessTypeString)) {
-                processDefinition.setAccessType(ProcessDefinitionAccessType.valueOf(accessTypeString));
+                parsedProcessDefinition.setAccessType(ProcessDefinitionAccessType.valueOf(accessTypeString));
             }
             if ("false".equals(process.attributeValue(IS_EXECUTABLE))) {
-                throw new InvalidDefinitionException(processDefinition.getName(), "process is not executable");
+                throw new InvalidDefinitionException(parsedProcessDefinition.getName(), "process is not executable");
             }
             if (processProperties.containsKey(NODE_ASYNC_EXECUTION)) {
-                processDefinition.setNodeAsyncExecution("new".equals(processProperties.get(NODE_ASYNC_EXECUTION)));
+                parsedProcessDefinition.setNodeAsyncExecution("new".equals(processProperties.get(NODE_ASYNC_EXECUTION)));
             }
 
             // 1: read most content
-            readSwimlanes(processDefinition, process);
-            readNodes(processDefinition, process);
+            readSwimlanes(parsedProcessDefinition, process);
+            readNodes(parsedProcessDefinition, process);
 
             // 2: processing transitions
-            readTransitions(processDefinition, process);
+            readTransitions(parsedProcessDefinition, process);
 
             // 3: verify
-            verifyElements(processDefinition);
+            verifyElements(parsedProcessDefinition);
 
         } catch (Exception e) {
-            throw new InvalidDefinitionException(processDefinition.getName(), e);
+            throw new InvalidDefinitionException(parsedProcessDefinition.getName(), e);
         }
-        return processDefinition;
+        return parsedProcessDefinition;
     }
 
-    private void readSwimlanes(ProcessDefinition processDefinition, Element processElement) {
+    private void readSwimlanes(ParsedProcessDefinition parsedProcessDefinition, Element processElement) {
         Element swimlaneSetElement = processElement.element(LANE_SET);
         if (swimlaneSetElement != null) {
             List<Element> swimlanes = swimlaneSetElement.elements(LANE);
@@ -217,12 +217,12 @@ public class BpmnXmlReader {
                 }
                 swimlaneDefinition.setFlowNodeIds(flowNodeIds);
                 swimlaneDefinition.setGlobal("true".equals(parseExtensionProperties(swimlaneElement).get(GLOBAL)));
-                processDefinition.addSwimlane(swimlaneDefinition);
+                parsedProcessDefinition.addSwimlane(swimlaneDefinition);
             }
         }
     }
 
-    private void readNodes(ProcessDefinition processDefinition, Element parentElement) {
+    private void readNodes(ParsedProcessDefinition parsedProcessDefinition, Element parentElement) {
         List<Element> elements = parentElement.elements();
         for (Element element : elements) {
             String nodeName = element.getName();
@@ -231,14 +231,14 @@ public class BpmnXmlReader {
             if (nodeTypes.containsKey(nodeName)) {
                 node = ApplicationContextFactory.createAutowiredBean(nodeTypes.get(nodeName));
             } else if (START_EVENT.equals(nodeName)) {
-                if (processDefinition instanceof SubprocessDefinition) {
+                if (parsedProcessDefinition instanceof ParsedSubprocessDefinition) {
                     node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessStartNode.class);
                 } else {
                     node = ApplicationContextFactory.createAutowiredBean(StartNode.class);
                 }
             } else if (END_EVENT.equals(nodeName)) {
                 if (properties.containsKey(TOKEN)) {
-                    if (processDefinition instanceof SubprocessDefinition && !BEHAVIOUR_TERMINATE.equals(properties.get(BEHAVIOUR))) {
+                    if (parsedProcessDefinition instanceof ParsedSubprocessDefinition && !BEHAVIOUR_TERMINATE.equals(properties.get(BEHAVIOUR))) {
                         node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessEndNode.class);
                     } else {
                         node = ApplicationContextFactory.createAutowiredBean(EndToken.class);
@@ -261,7 +261,7 @@ public class BpmnXmlReader {
                 }
             } else if (BOUNDARY_EVENT.equals(nodeName)) {
                 String parentNodeId = element.attributeValue(ATTACHED_TO_REF);
-                Node parentNode = processDefinition.getNodeNotNull(parentNodeId);
+                Node parentNode = parsedProcessDefinition.getNodeNotNull(parentNodeId);
                 boolean interrupting = Boolean.valueOf(element.attributeValue(CANCEL_ACTIVITY));
                 Element timerElement = element.element(TIMER_EVENT_DEFINITION);
                 if (timerElement != null) {
@@ -274,34 +274,34 @@ public class BpmnXmlReader {
                 node.setParentElement(parentNode);
             }
             if (node != null) {
-                node.setProcessDefinition(processDefinition);
-                readNode(processDefinition, element, properties, node);
+                node.setParsedProcessDefinition(parsedProcessDefinition);
+                readNode(parsedProcessDefinition, element, properties, node);
             }
         }
     }
 
-    private void readNode(ProcessDefinition processDefinition, Element element, Map<String, String> properties, Node node) {
+    private void readNode(ParsedProcessDefinition parsedProcessDefinition, Element element, Map<String, String> properties, Node node) {
         node.setNodeId(element.attributeValue(ID));
         node.setName(element.attributeValue(NAME));
         node.setDescription(element.elementTextTrim(DOCUMENTATION));
         if (properties.containsKey(NODE_ASYNC_EXECUTION)) {
             node.setAsyncExecution("new".equals(properties.get(NODE_ASYNC_EXECUTION)));
         }
-        processDefinition.addNode(node);
+        parsedProcessDefinition.addNode(node);
         if (node instanceof StartNode) {
             StartNode startNode = (StartNode) node;
-            readTask(processDefinition, element, properties, startNode);
+            readTask(parsedProcessDefinition, element, properties, startNode);
         }
         if (node instanceof BaseTaskNode) {
             BaseTaskNode taskNode = (BaseTaskNode) node;
-            readTask(processDefinition, element, properties, taskNode);
+            readTask(parsedProcessDefinition, element, properties, taskNode);
             if (properties.containsKey(ASYNC)) {
                 taskNode.setAsync(Boolean.valueOf(properties.get(ASYNC)));
             }
             if (properties.containsKey(ASYNC_COMPLETION_MODE)) {
                 taskNode.setCompletionMode(AsyncCompletionMode.valueOf(properties.get(ASYNC_COMPLETION_MODE)));
             }
-            readActionHandlers(processDefinition, taskNode, element);
+            readActionHandlers(parsedProcessDefinition, taskNode, element);
         }
         if (node instanceof VariableContainerNode) {
             VariableContainerNode variableContainerNode = (VariableContainerNode) node;
@@ -402,7 +402,7 @@ public class BpmnXmlReader {
         return list;
     }
 
-    private void readTransitions(ProcessDefinition processDefinition, Element processElement) {
+    private void readTransitions(ParsedProcessDefinition parsedProcessDefinition, Element processElement) {
         List<Element> elements = processElement.elements(SEQUENCE_FLOW);
         for (Element element : elements) {
             String id = element.attributeValue(ID);
@@ -420,37 +420,37 @@ public class BpmnXmlReader {
             }
             Transition transition = new Transition();
             transition.setNodeId(id);
-            GraphElement sourceElement = processDefinition.getGraphElementNotNull(from);
+            GraphElement sourceElement = parsedProcessDefinition.getGraphElementNotNull(from);
             Node source = (Node) sourceElement;
             transition.setFrom(source);
-            Node target = processDefinition.getNodeNotNull(to);
+            Node target = parsedProcessDefinition.getNodeNotNull(to);
             transition.setTo(target);
             transition.setName(name);
             transition.setDescription(element.elementTextTrim(DOCUMENTATION));
-            transition.setProcessDefinition(processDefinition);
+            transition.setParsedProcessDefinition(parsedProcessDefinition);
             transition.setColor(parseExtensionProperties(element).get(COLOR));
             // add the transition to the node
             source.addLeavingTransition(transition);
             // set destinationNode of the transition
             target.addArrivingTransition(transition);
-            readActionHandlers(processDefinition, transition, element);
+            readActionHandlers(parsedProcessDefinition, transition, element);
         }
     }
 
-    private void readTask(ProcessDefinition processDefinition, Element element, Map<String, String> properties, InteractionNode node) {
+    private void readTask(ParsedProcessDefinition parsedProcessDefinition, Element element, Map<String, String> properties, InteractionNode node) {
         if (node instanceof EmbeddedSubprocessStartNode) {
             return;
         }
         TaskDefinition taskDefinition = new TaskDefinition();
         taskDefinition.setNodeId(node.getNodeId());
-        taskDefinition.setProcessDefinition(processDefinition);
+        taskDefinition.setParsedProcessDefinition(parsedProcessDefinition);
         taskDefinition.setName(node.getName());
         taskDefinition.setDescription(node.getDescription());
         node.addTask(taskDefinition);
         // assignment
         String swimlaneName = properties.get(LANE);
         if (!Strings.isNullOrEmpty(swimlaneName)) {
-            SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
+            SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getSwimlaneNotNull(swimlaneName);
             taskDefinition.setSwimlane(swimlaneDefinition);
         }
         if (properties.containsKey(REASSIGN)) {
@@ -490,13 +490,13 @@ public class BpmnXmlReader {
         return new Delegation(className, configuration);
     }
 
-    private void verifyElements(ProcessDefinition processDefinition) {
-        for (Node node : processDefinition.getNodes(false)) {
+    private void verifyElements(ParsedProcessDefinition parsedProcessDefinition) {
+        for (Node node : parsedProcessDefinition.getNodes(false)) {
             node.validate();
         }
     }
 
-    private void readActionHandlers(ProcessDefinition processDefinition, GraphElement ge, Element e) {
+    private void readActionHandlers(ParsedProcessDefinition parsedProcessDefinition, GraphElement ge, Element e) {
         Element extElements = e.element(EXTENSION_ELEMENTS);
         if (extElements != null) {
             List<Element> actionHandlers = extElements.elements(QName.get(ACTION_HANDLER, RUNA_NAMESPACE));
@@ -507,7 +507,7 @@ public class BpmnXmlReader {
                 if (eventType != null) {
                     String className = extProps.get(CLASS);
                     if (className == null) {
-                        throw new InvalidDefinitionException(processDefinition.getName(), "no className specified in " + element.asXML());
+                        throw new InvalidDefinitionException(parsedProcessDefinition.getName(), "no className specified in " + element.asXML());
                     }
                     String configuration = extProps.get(CONFIG);
                     Delegation delegation = new Delegation(className, configuration);
@@ -527,11 +527,11 @@ public class BpmnXmlReader {
         }
     }
 
-    private void readDataStores(ProcessDefinition processDefinition, List<Element> dataStoreElements) {
+    private void readDataStores(ParsedProcessDefinition parsedProcessDefinition, List<Element> dataStoreElements) {
         for (Element dataStoreElement : dataStoreElements) {
             final Node node = ApplicationContextFactory.createAutowiredBean(nodeTypes.get(DATA_STORE));
-            node.setProcessDefinition(processDefinition);
-            readNode(processDefinition, dataStoreElement, Collections.emptyMap(), node);
+            node.setParsedProcessDefinition(parsedProcessDefinition);
+            readNode(parsedProcessDefinition, dataStoreElement, Collections.emptyMap(), node);
         }
     }
 }

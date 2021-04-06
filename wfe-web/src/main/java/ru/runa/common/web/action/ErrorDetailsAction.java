@@ -1,5 +1,12 @@
 package ru.runa.common.web.action;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.html.HtmlEscapers;
+import com.google.common.io.Files;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -12,10 +19,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.struts.action.ActionForm;
@@ -23,16 +28,15 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdNameForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.common.web.html.TrRowBuilder;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.CalendarUtil;
@@ -45,14 +49,6 @@ import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.html.HtmlEscapers;
-import com.google.common.io.Files;
 
 @SuppressWarnings("unchecked")
 public class ErrorDetailsAction extends ActionBase {
@@ -146,7 +142,7 @@ public class ErrorDetailsAction extends ActionBase {
                             try {
                                 processFiles.put(
                                         processDefinitionFileName,
-                                        Delegates.getDefinitionService().getProcessDefinitionFile(user, process.getDefinitionId(),
+                                        Delegates.getDefinitionService().getProcessDefinitionFile(user, process.getDefinitionVersionId(),
                                                 FileDataProvider.PAR_FILE));
                                 fileIncluded = true;
                             } catch (Exception e) {
@@ -299,7 +295,7 @@ public class ErrorDetailsAction extends ActionBase {
         TD mergedEventDateTD = null;
         String mergedEventDateString = null;
         int mergedRowsCount = 0;
-        for (ProcessLog log : logs.getLogs()) {
+        for (BaseProcessLog log : logs.getLogs()) {
             String description;
             try {
                 Object[] arguments = log.getPatternArguments();

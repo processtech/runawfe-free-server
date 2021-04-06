@@ -11,7 +11,6 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageException;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
@@ -31,10 +30,11 @@ import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.user.User;
 
 @Stateless(name = "ChatServiceBean")
-@Interceptors({EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class})
+@Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "ChatAPI", serviceName = "ChatWebService")
 @SOAPBinding
 public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {

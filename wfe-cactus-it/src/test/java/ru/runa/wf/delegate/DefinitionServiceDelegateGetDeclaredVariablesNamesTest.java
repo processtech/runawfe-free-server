@@ -32,12 +32,12 @@ public class DefinitionServiceDelegateGetDeclaredVariablesNamesTest extends Serv
         h.setPermissionsToAuthorizedActor(Lists.newArrayList(Permission.CREATE_DEFINITION), SecuredSingleton.SYSTEM);
 
         definitionService.deployProcessDefinition(h.getAuthorizedUser(),
-                WfServiceTestHelper.readBytesFromFile(DEFINITION_WITH_VARIABLES_XML + ".par"), Lists.newArrayList("testProcess"));
+                WfServiceTestHelper.readBytesFromFile(DEFINITION_WITH_VARIABLES_XML + ".par"), Lists.newArrayList("testProcess"), null);
 
         h.setPermissionsToAuthorizedActorOnDefinitionByName(Lists.newArrayList(Permission.READ), DEFINITION_WITH_VARIABLES_XML);
 
         definitionWithVariablesXmlId = definitionService
-                .getLatestProcessDefinition(h.getAuthorizedUser(), DEFINITION_WITH_VARIABLES_XML).getId();
+                .getLatestProcessDefinition(h.getAuthorizedUser(), DEFINITION_WITH_VARIABLES_XML).getVersionId();
     }
 
     @Override

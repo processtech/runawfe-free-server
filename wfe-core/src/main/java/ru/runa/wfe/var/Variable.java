@@ -1,58 +1,14 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2005, JBoss Inc., and individual contributors as indicated
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
 package ru.runa.wfe.var;
 
+import com.google.common.base.MoreObjects;
 import java.util.Arrays;
 import java.util.Date;
-
 import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
-
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.VariableCreateLog;
-import ru.runa.wfe.audit.VariableDeleteLog;
-import ru.runa.wfe.audit.VariableLog;
-import ru.runa.wfe.audit.VariableUpdateLog;
+import ru.runa.wfe.audit.CurrentVariableLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -60,64 +16,49 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 
-import com.google.common.base.MoreObjects;
-
 /**
- * Base class for classes that store variable values in the database.
+ * Archived entities are read-lony.
+ * <p>
+ * But to avoid (at least for now) problems with field-based access in complex entity hierarchies, Archived* entity setters are defined private,
+ * or protected if inherited (I defined abstract setters in this class just in case, because Hibernate requires both getters and setters).
+ * <p>
+ * UPD: VariableLogic.getProcessStateOnTime() creates temporary fake variables which are then proxied;
+ * it uses VariableCreator which can access protected setters. Immutability of archive variables is enforced by WfeInterceptor.
+ *
+ * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
  */
-@Entity
-@Table(name = "BPM_VARIABLE", uniqueConstraints = { @UniqueConstraint(name = "UK_VARIABLE_PROCESS", columnNames = { "PROCESS_ID", "NAME" }) })
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
-@DiscriminatorValue(value = "V")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public abstract class Variable<T extends Object> {
+@MappedSuperclass
+public abstract class Variable<P extends Process, V> {
 
     public static int getMaxStringSize() {
         return SystemProperties.getStringVariableValueLength();
     }
 
-    protected Long id;
-    private Long version;
-    private String name;
-    private Process process;
-    private Converter converter;
-    private String stringValue;
-    private Date createDate;
+    protected Long version;
+    protected Converter converter;
+    protected String stringValue;
+    protected Date createDate;
 
-    public Variable() {
-    }
+    @Transient
+    public abstract boolean isArchived();
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_VARIABLE", allocationSize = 1)
-    @Column(name = "ID")
-    public Long getId() {
-        return id;
-    }
+    @Transient
+    public abstract Long getId();
 
-    protected void setId(Long id) {
-        this.id = id;
-    }
+    @Transient
+    public abstract String getName();
+    protected abstract void setName(String name);
+
+    @Transient
+    public abstract P getProcess();
+    protected abstract void setProcess(P process);
 
     @Column(name = "VERSION")
     public Long getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    @Column(name = "NAME", length = 1024)
-    @Index(name = "IX_VARIABLE_NAME")
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    protected abstract void setVersion(Long version);
 
     @Column(name = "CONVERTER")
     @Type(type = "ru.runa.wfe.commons.hibernate.ConverterEnumType")
@@ -125,69 +66,34 @@ public abstract class Variable<T extends Object> {
         return converter;
     }
 
-    public void setConverter(Converter converter) {
-        this.converter = converter;
-    }
-
-    @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_VARIABLE_PROCESS")
-    @Index(name = "IX_VARIABLE_PROCESS")
-    public Process getProcess() {
-        return process;
-    }
-
-    public void setProcess(Process process) {
-        this.process = process;
-    }
+    protected abstract void setConverter(Converter converter);
 
     @Column(name = "CREATE_DATE", nullable = false)
     public Date getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
+    protected abstract void setCreateDate(Date createDate);
 
     @Column(name = "STRINGVALUE", length = 1024)
     public String getStringValue() {
         return stringValue;
     }
 
-    public void setStringValue(String stringValue) {
-        this.stringValue = stringValue;
-    }
+    protected abstract void setStringValue(String stringValue);
 
     /**
      * Get the value of the variable.
      */
     @Transient
-    public abstract T getStorableValue();
+    public abstract V getStorableValue();
 
     /**
      * Set new variable value
      */
-    protected abstract void setStorableValue(T object);
+    protected abstract void setStorableValue(V object);
 
-    private VariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition) {
-        if (oldValue == null) {
-            return new VariableCreateLog(this, newValue, variableDefinition);
-        } else if (newValue == null) {
-            return new VariableDeleteLog(this);
-        } else {
-            return new VariableUpdateLog(this, oldValue, newValue, variableDefinition);
-        }
-    }
-
-    public boolean supports(Object value) {
-        if (value == null) {
-            return false;
-        }
-        return converter != null && converter.supports(value);
-    }
-
-    public VariableLog setValue(ExecutionContext executionContext, Object newValue, VariableDefinition variableDefinition) {
+    public CurrentVariableLog setValue(ExecutionContext executionContext, Object newValue, VariableDefinition variableDefinition) {
         Object newStorableValue;
         if (supports(newValue)) {
             if (converter != null && converter.supports(newValue)) {
@@ -208,9 +114,14 @@ public abstract class Variable<T extends Object> {
         if (converter != null && oldValue != null) {
             oldValue = converter.revert(oldValue);
         }
-        setStorableValue((T) newStorableValue);
+        setStorableValue((V) newStorableValue);
         return getLog(oldValue, newValue, variableDefinition);
     }
+
+    /**
+     * Null if called for ArchivedVariable (this can be only when called from VariableLogic.getProcessStateOnTime() which ignores result).
+     */
+    protected abstract CurrentVariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition);
 
     @Transient
     public Object getValue() {
@@ -221,6 +132,12 @@ public abstract class Variable<T extends Object> {
         return value;
     }
 
+    // ATTENTION! Overrides by Current* and Archive* subclasses are the same.
+    public boolean supports(Object value) {
+        return value != null && converter != null && converter.supports(value);
+    }
+
+    // ATTENTION! Overrides by Current* and Archive* subclasses are the same.
     public String toString(Object value, VariableDefinition variableDefinition) {
         String string;
         if (SystemProperties.isV3CompatibilityMode() && value != null && String[].class == value.getClass()) {
@@ -238,5 +155,4 @@ public abstract class Variable<T extends Object> {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", getId()).add("name", getName()).toString();
     }
-
 }

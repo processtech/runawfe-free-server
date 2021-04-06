@@ -57,5 +57,4 @@ public class ExcelDataStore {
     public void save(Workbook workbook, ExcelStorable<?, ?> storable) throws IOException {
         storable.storeIn(workbook);
     }
-
 }

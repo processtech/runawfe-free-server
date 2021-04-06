@@ -2,10 +2,11 @@ package ru.runa.wfe.commons.cache.states.audit;
 
 import ru.runa.wfe.commons.cache.CacheImplementation;
 
-public interface CommitCacheAudit<CacheImpl extends CacheImplementation, StateContext> extends StageSwitchAudit<CacheImpl, StateContext> {
-    public void stageIsNotCommitStage(CacheImpl cache);
+public interface CommitCacheAudit<CacheImpl extends CacheImplementation> extends StageSwitchAudit<CacheImpl> {
 
-    public void beforeCommit(CacheImpl cache);
+    void stageIsNotCommitStage(CacheImpl cache);
 
-    public void afterCommit(CacheImpl cache);
+    void beforeCommit(CacheImpl cache);
+
+    void afterCommit(CacheImpl cache);
 }

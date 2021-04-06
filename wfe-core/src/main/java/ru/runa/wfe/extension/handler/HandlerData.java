@@ -1,13 +1,11 @@
 package ru.runa.wfe.extension.handler;
 
+import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -16,18 +14,16 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableProvider;
 
-import com.google.common.collect.Lists;
-
 /**
  * Parameters holder for handler.
  * 
  * @author dofs
  */
 @SuppressWarnings("unchecked")
+@CommonsLog
 public class HandlerData {
-    private static final Log log = LogFactory.getLog(HandlerData.class);
     private final ParamsDef paramsDef;
-    private final Map<String, Object> outputVariables = new HashMap<String, Object>();
+    private final Map<String, Object> outputVariables = new HashMap<>();
     private final VariableProvider variableProvider;
     // case of action handler
     private final ExecutionContext executionContext;
@@ -68,7 +64,7 @@ public class HandlerData {
 
     public String getDefinitionName() {
         if (executionContext != null) {
-            return executionContext.getProcessDefinition().getName();
+            return executionContext.getParsedProcessDefinition().getName();
         }
         return task.getDefinitionName();
     }

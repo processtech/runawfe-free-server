@@ -56,5 +56,4 @@ public class ReplaceOperation extends Operation {
     public String toString() {
         return MoreObjects.toStringHelper(getClass()).add("placeholder", placeholder).add("value", value).toString();
     }
-
 }

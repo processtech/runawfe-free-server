@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wf.delegate;
 
 import com.google.common.collect.Lists;
@@ -54,7 +37,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         definitionService = Delegates.getDefinitionService();
 
         definitionService.deployProcessDefinition(h.getAdminUser(),
-                WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"));
+                WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"), null);
 
         val pp = Lists.newArrayList(Permission.START_PROCESS, Permission.READ_PROCESS);
         h.setPermissionsToAuthorizedActorOnDefinitionByName(pp, WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
@@ -78,7 +61,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
 
     public void testGetFormTestByAuthorizedUser() {
         initTaskData();
-        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), task.getDefinitionId(), task.getNodeId());
+        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), task.getDefinitionVersionId(), task.getNodeId());
         // TODO assertEquals("form name differ from original", STATE_1_NAME,
         // interaction.getStateName());
         // TODO assertEquals("form name differ from original", STATE_1_TYPE,
@@ -88,14 +71,14 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
 
     public void testGetFormTestByUnauthorizedUser() {
         initTaskData();
-        definitionService.getTaskNodeInteraction(h.getUnauthorizedUser(), task.getDefinitionId(), task.getNodeId());
+        definitionService.getTaskNodeInteraction(h.getUnauthorizedUser(), task.getDefinitionVersionId(), task.getNodeId());
     }
 
     public void testGetFormTestByFakeUser() {
         initTaskData();
         try {
             task = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation()).get(0);
-            definitionService.getTaskNodeInteraction(h.getFakeUser(), task.getDefinitionId(), task.getNodeId());
+            definitionService.getTaskNodeInteraction(h.getFakeUser(), task.getDefinitionVersionId(), task.getNodeId());
             fail();
         } catch (AuthenticationException e) {
             // Expected.
@@ -116,7 +99,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         List<WfTask> tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
         assertTrue(tasks.size() > 0);
 
-        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionId(),
+        Interaction interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionVersionId(),
                 tasks.get(0).getNodeId());
 
         // TODO assertEquals("state name differs from expected", STATE_1_NAME,
@@ -154,7 +137,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
             h.getTaskService().completeTask(h.getAuthorizedUser(), tasks.get(0).getId(), null);
 
             tasks = h.getTaskService().getMyTasks(h.getAuthorizedUser(), h.getTaskBatchPresentation());
-            interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionId(),
+            interaction = definitionService.getTaskNodeInteraction(h.getAuthorizedUser(), tasks.get(0).getDefinitionVersionId(),
                     tasks.get(0).getNodeId());
 
             // TODO assertEquals("state name differs from expected",

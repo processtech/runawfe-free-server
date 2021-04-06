@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.security.dao;
 
 import com.google.common.base.Objects;
@@ -30,13 +13,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
@@ -44,13 +24,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 
 @Entity
-@Table(
-        name = "PERMISSION_MAPPING",
-        uniqueConstraints = @UniqueConstraint(name = "UQ_MAPPINGS", columnNames = { "OBJECT_ID", "OBJECT_TYPE", "PERMISSION", "EXECUTOR_ID" })
-)
-@org.hibernate.annotations.Table(appliesTo = "PERMISSION_MAPPING", indexes = {
-        @Index(name = "IX_PERMISSION_MAPPING_DATA", columnNames = { "EXECUTOR_ID", "OBJECT_TYPE", "PERMISSION", "OBJECT_ID" })
-})
+@Table(name = "PERMISSION_MAPPING")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @Setter
@@ -64,7 +38,6 @@ public class PermissionMapping {
 
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "EXECUTOR_ID", nullable = false)
-    @ForeignKey(name = "FK_PERMISSION_EXECUTOR")
     private Executor executor;
 
     @Column(name = "OBJECT_TYPE", nullable = false)
@@ -86,7 +59,7 @@ public class PermissionMapping {
     public PermissionMapping(Executor executor, SecuredObject securedObject, Permission permission) {
         setExecutor(executor);
         setObjectType(securedObject.getSecuredObjectType());
-        setObjectId(securedObject.getIdentifiableId());
+        setObjectId(securedObject.getId());
         setPermission(permission);
     }
 

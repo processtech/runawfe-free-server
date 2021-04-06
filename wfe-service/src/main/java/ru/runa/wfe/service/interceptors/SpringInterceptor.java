@@ -1,9 +1,8 @@
 package ru.runa.wfe.service.interceptors;
 
-import org.springframework.beans.factory.access.BeanFactoryLocator;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.commons.SystemContextLocator;
+import ru.runa.wfe.springframework4.beans.factory.access.BeanFactoryLocator;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 /**
  * @author dofs

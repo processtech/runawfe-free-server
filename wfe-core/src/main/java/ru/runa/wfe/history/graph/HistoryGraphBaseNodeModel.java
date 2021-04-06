@@ -1,17 +1,17 @@
 package ru.runa.wfe.history.graph;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 import ru.runa.wfe.lang.Node;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Base model for history graph node.
@@ -32,7 +32,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     /**
      * Logs, belongs to this node.
      */
-    private final List<ProcessLog> nodeLogs = Lists.newArrayList();
+    private final List<BaseProcessLog> nodeLogs = Lists.newArrayList();
     /**
      * Process instance data.
      */
@@ -96,7 +96,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     }
 
     @Override
-    public HistoryGraphNode acceptLog(ProcessLog log) {
+    public HistoryGraphNode acceptLog(BaseProcessLog log) {
         nodeLogs.add(log);
         if (!(log instanceof TransitionLog)) {
             return null;
@@ -109,9 +109,9 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     }
 
     @Override
-    public <T extends ProcessLog> T getNodeLog(Class<T> clazz) {
+    public <T extends ProcessLog> T getNodeLog(ProcessLog.Type type) {
         for (ProcessLog log : nodeLogs) {
-            if (log.getClass().equals(clazz)) {
+            if (log.getType() == type) {
                 return (T) log;
             }
         }
@@ -119,10 +119,10 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     }
 
     @Override
-    public <T extends ProcessLog> List<T> getNodeLogs(Class<T> clazz) {
-        List<T> result = new ArrayList<T>();
+    public <T extends ProcessLog> List<T> getNodeLogs(ProcessLog.Type type) {
+        val result = new ArrayList<T>();
         for (ProcessLog log : nodeLogs) {
-            if (log.getClass().equals(clazz)) {
+            if (log.getType() == type) {
                 result.add((T) log);
             }
         }
@@ -156,7 +156,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
      *            New transition order.
      */
     public void reorderTransitions(List<Integer> newOrder) {
-        List<HistoryGraphTransitionModel> current = new ArrayList<HistoryGraphTransitionModel>(getTransitions());
+        List<HistoryGraphTransitionModel> current = new ArrayList<>(getTransitions());
         for (int i = 0; i < newOrder.size(); ++i) {
             transitions.set(i, current.get(newOrder.get(i)));
         }

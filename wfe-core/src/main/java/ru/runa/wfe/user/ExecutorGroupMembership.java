@@ -1,24 +1,8 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.user;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,14 +15,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 
 /**
  * Created on 02.02.2006
@@ -65,8 +43,6 @@ public class ExecutorGroupMembership {
 
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "EXECUTOR_ID", nullable = false, insertable = true, updatable = false)
-    @ForeignKey(name = "FK_MEMBER_EXECUTOR")
-    @Index(name = "IX_MEMBER_EXECUTOR")
     public Executor getExecutor() {
         return executor;
     }
@@ -77,8 +53,6 @@ public class ExecutorGroupMembership {
 
     @ManyToOne(targetEntity = Group.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "GROUP_ID", nullable = false, insertable = true, updatable = false)
-    @ForeignKey(name = "FK_MEMBER_GROUP")
-    @Index(name = "IX_MEMBER_GROUP")
     public Group getGroup() {
         return group;
     }

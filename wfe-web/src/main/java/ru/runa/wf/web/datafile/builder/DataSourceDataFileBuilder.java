@@ -2,12 +2,10 @@ package ru.runa.wf.web.datafile.builder;
 
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.user.User;
@@ -33,5 +31,4 @@ public class DataSourceDataFileBuilder implements DataFileBuilder {
             element.addAttribute("file", PATH_TO_DATA_SOURCE + fileName);
         }
     }
-
 }

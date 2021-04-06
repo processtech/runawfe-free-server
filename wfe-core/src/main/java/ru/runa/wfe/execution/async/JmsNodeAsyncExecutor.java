@@ -1,7 +1,7 @@
 package ru.runa.wfe.execution.async;
 
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 
 /**
  *
@@ -10,7 +10,7 @@ import ru.runa.wfe.execution.Token;
 public class JmsNodeAsyncExecutor implements NodeAsyncExecutor {
 
     @Override
-    public void execute(Token token, boolean retry) {
+    public void execute(CurrentToken token, boolean retry) {
         Utils.sendNodeAsyncExecutionMessage(token, retry);
     }
 

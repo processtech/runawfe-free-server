@@ -41,7 +41,7 @@ public class AjaxProcessDefinitionVersionsList extends JsonAjaxCommand {
     @SuppressWarnings("unchecked")
     private JSONObject definitionToJson(WfDefinition definition) {
         JSONObject result = new JSONObject();
-        result.put("id", definition.getId());
+        result.put("id", definition.getVersionId());
         result.put("version", definition.getVersion());
         String description = definition.getDescription();
         result.put("description", description != null ? description : "");

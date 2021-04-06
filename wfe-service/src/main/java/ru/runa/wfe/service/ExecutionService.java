@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.service;
 
 import java.util.List;
@@ -52,15 +35,11 @@ public interface ExecutionService {
      *
      * @param user
      *            authorized user
-     * @param definitionName
-     *            process definition name
      * @param variables
      *            initial variable values
      * @return id of started process
-     * @throws DefinitionDoesNotExistException
-     * @throws ValidationException
      */
-    public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
+    Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
             ValidationException;
 
     /**
@@ -68,15 +47,11 @@ public interface ExecutionService {
      *
      * @param user
      *            authorized user
-     * @param definitionId
-     *            process definition id
      * @param variables
      *            initial variable values
      * @return id of started process
-     * @throws DefinitionDoesNotExistException
-     * @throws ValidationException
      */
-    public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
+    Long startProcessById(User user, Long processDefinitionVersionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
             ValidationException;
 
     /**
@@ -85,9 +60,10 @@ public interface ExecutionService {
      * @param user
      *            authorized user
      * @param batchPresentation
+     *            of type CURRENT_PROCESSES | CURRENT_PROCESSES_WITH_TASKS | ARCHIVED_PROCESSES, or null
      * @return not <code>null</code>
      */
-    public int getProcessesCount(User user, BatchPresentation batchPresentation);
+    int getProcessesCount(User user, BatchPresentation batchPresentation);
 
     /**
      * Gets processes for {@link BatchPresentation}.
@@ -95,9 +71,10 @@ public interface ExecutionService {
      * @param user
      *            authorized user
      * @param batchPresentation
+     *            of type CURRENT_PROCESSES | CURRENT_PROCESSES_WITH_TASKS | ARCHIVED_PROCESSES, or null
      * @return not <code>null</code>
      */
-    public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation);
+    List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation);
 
     /**
      * Gets process by id.
@@ -107,9 +84,8 @@ public interface ExecutionService {
      * @param processId
      *            process id process id
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public WfProcess getProcess(User user, Long processId) throws ProcessDoesNotExistException;
+    WfProcess getProcess(User user, Long processId) throws ProcessDoesNotExistException;
 
     /**
      * Gets parent process if this process will be started as subprocess.
@@ -119,9 +95,8 @@ public interface ExecutionService {
      * @param processId
      *            process id process id
      * @return parent process or <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public WfProcess getParentProcess(User user, Long processId) throws ProcessDoesNotExistException;
+    WfProcess getParentProcess(User user, Long processId) throws ProcessDoesNotExistException;
 
     /**
      * Get all subprocesses (recursively) by process id.
@@ -133,9 +108,8 @@ public interface ExecutionService {
      * @param recursive
      *            <code>true</code> for all sub processes
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
+    List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
 
     /**
      * Cancels process by id.
@@ -144,9 +118,8 @@ public interface ExecutionService {
      *            authorized user
      * @param processId
      *            process id process id
-     * @throws ProcessDoesNotExistException
      */
-    public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException;
+    void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException;
 
     /**
      * Restore process by id.
@@ -167,9 +140,8 @@ public interface ExecutionService {
      * @param processId
      *            process id process id
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException;
+    List<WfSwimlane> getProcessSwimlanes(User user, Long processId) throws ProcessDoesNotExistException;
 
     /**
      * Gets all roles.
@@ -181,7 +153,7 @@ public interface ExecutionService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern);
+    List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern);
     
     /**
      * Reassigns initialized process role.
@@ -193,7 +165,7 @@ public interface ExecutionService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public boolean reassignSwimlane(User user, Long id);
+    boolean reassignSwimlane(User user, Long id);
     
     /**
      * Assigns role by name to specified executor.
@@ -206,9 +178,8 @@ public interface ExecutionService {
      *            swimlane name
      * @param executor
      *            new role executor
-     * @throws ProcessDoesNotExistException
      */
-    public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) throws ProcessDoesNotExistException;
+    void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) throws ProcessDoesNotExistException;
 
     /**
      * Gets all process variables.
@@ -218,9 +189,8 @@ public interface ExecutionService {
      * @param processId
      *            process id
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public List<WfVariable> getVariables(User user, Long processId) throws ProcessDoesNotExistException;
+    List<WfVariable> getVariables(User user, Long processId) throws ProcessDoesNotExistException;
 
     /**
      * Gets all process variables in batch mode.
@@ -231,7 +201,7 @@ public interface ExecutionService {
      *            process ids
      * @return not <code>null</code>
      */
-    public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds);
+    Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds);
 
     /**
      * Gets all process variables state on specified date.
@@ -241,9 +211,8 @@ public interface ExecutionService {
      * @param filter
      *            Criteria for filtering logs.
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
+    WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
 
     /**
      * Get process variable state for completed task.
@@ -255,9 +224,8 @@ public interface ExecutionService {
      * @param taskId
      *            Task id or null, for loading start form state.
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException;
+    WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException;
 
     /**
      * Gets variable by name from process.
@@ -269,9 +237,8 @@ public interface ExecutionService {
      * @param variableName
      *            variable name
      * @return variable or <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
+    WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
 
     /**
      * Gets variable by name from process for specified task.
@@ -280,14 +247,11 @@ public interface ExecutionService {
      *            authorized user
      * @param processId
      *            process id
-     * @param processId
-     *            task id. Task may have some additional variables (such as descriminator value for multiTask)
      * @param variableName
      *            variable name
      * @return variable or <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) throws ProcessDoesNotExistException;
+    WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) throws ProcessDoesNotExistException;
 
     /**
      * Gets file variable value by name from process.
@@ -299,9 +263,8 @@ public interface ExecutionService {
      * @param variableName
      *            variable name
      * @return FileVariable or <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public FileVariableImpl getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
+    FileVariableImpl getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
 
     /**
      * Updates process variables without any signalling.
@@ -312,9 +275,8 @@ public interface ExecutionService {
      *            process id
      * @param variables
      *            variable values
-     * @throws ProcessDoesNotExistException
      */
-    public void updateVariables(User user, Long processId, Map<String, Object> variables) throws ProcessDoesNotExistException;
+    void updateVariables(User user, Long processId, Map<String, Object> variables) throws ProcessDoesNotExistException;
 
     /**
      * Gets process diagram as PNG image.
@@ -330,9 +292,8 @@ public interface ExecutionService {
      * @param subprocessId
      *            embedded subprocess id, can be <code>null</code>
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId)
+    byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId)
             throws ProcessDoesNotExistException;
 
     /**
@@ -345,9 +306,8 @@ public interface ExecutionService {
      * @param subprocessId
      *            embedded subprocess id, can be <code>null</code>
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) throws ProcessDoesNotExistException;
+    List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) throws ProcessDoesNotExistException;
 
     /**
      * Gets process graph element for diagram.
@@ -359,28 +319,27 @@ public interface ExecutionService {
      * @param nodeId
      *            node id
      * @return element or <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) throws ProcessDoesNotExistException;
+    NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) throws ProcessDoesNotExistException;
 
     /**
      * Removes processes by filter criterias.
      */
-    public void removeProcesses(User user, ProcessFilter filter) throws ParentProcessExistsException;
+    void removeProcesses(User user, ProcessFilter filter) throws ParentProcessExistsException;
 
     /**
      * Upgrades running process to specified version of deployed definition.
      *
      * @return false if version equal to current process definition version
      */
-    public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version);
+    boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version);
 
     /**
      * Upgrades all running processes of specified definition to another version of this definition.
      * 
      * @return upgraded processes count
      */
-    public int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion);
+    int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionVersionId, Long newVersion);
 
     /**
      * Get all active jobs (recursively) by process id.
@@ -392,9 +351,8 @@ public interface ExecutionService {
      * @param recursive
      *            <code>true</code> for all sub processes
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public List<WfJob> getProcessJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
+    List<WfJob> getProcessJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
 
     /**
      * Get all active tokens (recursively) by process id.
@@ -406,41 +364,36 @@ public interface ExecutionService {
      * @param recursive
      *            <code>true</code> for all sub processes
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public List<WfToken> getProcessTokens(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
+    List<WfToken> getProcessTokens(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
 
     /**
      * Activates suspended process by id.
      *
      * @param user
      *            authorized user
-     * @param id
-     *            process id
      */
-    public void activateProcess(User user, Long processId);
+    void activateProcess(User user, Long processId);
 
     /**
      * Suspends active process by id.
      *
      * @param user
      *            authorized user
-     * @param id
-     *            process id
      */
-    public void suspendProcess(User user, Long processId);
+    void suspendProcess(User user, Long processId);
 
     /**
      * Sends signal to receivers (CatchEventNode).
      * 
      * @see https://runawfe.org/doc/BPMNImplementation#messages, https://runawfe.org/rus/doc/BPMNImplementation#messages
      */
-    public void sendSignal(User user, Map<String, String> routingData, Map<String, ?> payloadData, long ttlInSeconds);
+    void sendSignal(User user, Map<String, String> routingData, Map<String, ?> payloadData, long ttlInSeconds);
 
     /**
      * Check whether signal can be handled immediately (there are exist at least one matching active CatchEventNode).
      */
-    public boolean signalReceiverIsActive(User user, Map<String, String> routingData);
+    boolean signalReceiverIsActive(User user, Map<String, String> routingData);
 
     /**
      * @param user authorized user

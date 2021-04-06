@@ -3,19 +3,16 @@ package ru.runa.wfe.job;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.lang.jpdl.WaitNode;
 
 @Entity
 @DiscriminatorValue(value = "T")
+@CommonsLog
 public class TimerJob extends Job {
-    private static final Log log = LogFactory.getLog(TimerJob.class);
     public static final String ESCALATION_NAME = "__ESCALATION";
     public static final String STOP_RE_EXECUTION = "STOP_RE_EXECUTION";
 
@@ -25,7 +22,7 @@ public class TimerJob extends Job {
     public TimerJob() {
     }
 
-    public TimerJob(Token token) {
+    public TimerJob(CurrentToken token) {
         super(token);
     }
 

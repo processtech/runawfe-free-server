@@ -1,34 +1,10 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2005, JBoss Inc., and individual contributors as indicated
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
 package ru.runa.wfe.lang.jpdl;
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
-
-import ru.runa.wfe.audit.CreateTimerLog;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.audit.CurrentCreateTimerLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.job.TimerJob;
@@ -48,7 +24,7 @@ public class CreateTimerAction extends Action {
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        TimerJob timerJob = new TimerJob(executionContext.getToken());
+        TimerJob timerJob = new TimerJob(executionContext.getCurrentToken());
         timerJob.setName(getName());
         timerJob.setDueDateExpression(dueDate);
         timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDate));
@@ -56,7 +32,7 @@ public class CreateTimerAction extends Action {
         timerJob.setOutTransitionName(transitionName);
         jobDao.create(timerJob);
         log.debug("Created " + timerJob + " for duration '" + dueDate + "'");
-        executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
+        executionContext.addLog(new CurrentCreateTimerLog(timerJob.getDueDate()));
     }
 
     public String getDueDate() {

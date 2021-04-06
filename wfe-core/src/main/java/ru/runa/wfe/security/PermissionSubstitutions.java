@@ -39,7 +39,7 @@ import static ru.runa.wfe.security.SecuredObjectType.SYSTEM;
  * Substitution relations are transitive; e.g. if ALL on EXECUTORS assumes UPDATE on EXECUTORS which in turn assumes UPDATE on any ACTOR,
  * then ALL on EXECUTORS assumes UPDATE on any ACTOR.
  * <p>
- * Used by PermissionDAO.isAllowed() methods. Also may be used by permission editor forms: e.g. if admin checks ALL permission on EXECUTORS,
+ * Used by PermissionDao.isAllowed() methods. Also may be used by permission editor forms: e.g. if admin checks ALL permission on EXECUTORS,
  * then UPDATE and UPDATE_ACTOR_STATUS checkboxes should be disabled.
  *
  * @see SecuredObjectType
@@ -63,8 +63,12 @@ public class PermissionSubstitutions {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             ForCheck forCheck = (ForCheck) o;
             return Objects.equals(mutableSelfPermissions, forCheck.mutableSelfPermissions) &&
                     Objects.equals(mutableListPermissions, forCheck.mutableListPermissions);
@@ -87,8 +91,12 @@ public class PermissionSubstitutions {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             Key key = (Key) o;
             return Objects.equals(type, key.type) && Objects.equals(permission, key.permission);
         }

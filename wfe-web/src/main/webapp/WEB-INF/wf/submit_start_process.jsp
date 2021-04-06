@@ -41,7 +41,7 @@
 	String title = ru.runa.common.web.Commons.getMessage("title.start_form", pageContext);
 %>
 
-<wf:startForm title="<%= title %>" definitionId="<%= id %>" action="/submitStartProcessForm"/>
+<wf:startForm title="<%= title %>" definitionVersionId="<%= id %>" action="/submitStartProcessForm"/>
 
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />

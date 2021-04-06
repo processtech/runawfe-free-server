@@ -56,5 +56,4 @@ public class PostgreSqlStoreService extends JdbcStoreService {
     protected Map<Class<? extends VariableFormat>, String> typeMap() {
         return typeMap;
     }
-
 }

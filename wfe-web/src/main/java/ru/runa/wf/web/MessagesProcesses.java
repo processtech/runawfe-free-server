@@ -49,6 +49,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SHOW_GRAPH_HISTORY = new StrutsMessage("label.manage_graph_history");
     public static final StrutsMessage LABEL_SHOW_GANTT_DIAGRAM = new StrutsMessage("label.show_gantt_diagram");
     public static final StrutsMessage LABEL_DEFINITIONS_ARCHIVE = new StrutsMessage("process_definition.archive");
+    public static final StrutsMessage LABEL_DEFINITIONS_DAYS_BEFORE_ARCHIVING = new StrutsMessage("process_definition.days_before_archiving");
     public static final StrutsMessage LABEL_DEPLOY_APPLY_TYPE = new StrutsMessage("batch_presentation.process_definition.application_type");
     public static final StrutsMessage LABEL_DEPLOY_APPLY_NEW = new StrutsMessage("batch_presentation.process_definition.application_type.new.label");
     public static final StrutsMessage LABEL_DEPLOY_APPLY_ALL = new StrutsMessage("batch_presentation.process_definition.application_type.all.label");

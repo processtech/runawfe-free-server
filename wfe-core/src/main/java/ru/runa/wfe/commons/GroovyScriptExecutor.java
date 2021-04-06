@@ -1,24 +1,20 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.GroovyExceptionInterface;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.validation.ValidatorException;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
+import ru.runa.wfe.var.VariableProvider;
 
 public class GroovyScriptExecutor implements ScriptExecutor {
     protected static final Log log = LogFactory.getLog(GroovyScriptExecutor.class);
@@ -70,11 +66,11 @@ public class GroovyScriptExecutor implements ScriptExecutor {
 
         public GroovyScriptBinding(VariableProvider variableProvider) {
             this.variableProvider = variableProvider;
-            if (variableProvider.getProcessDefinition() != null) {
-                for (VariableDefinition variableDefinition : variableProvider.getProcessDefinition().getVariables()) {
+            if (variableProvider.getParsedProcessDefinition() != null) {
+                for (VariableDefinition variableDefinition : variableProvider.getParsedProcessDefinition().getVariables()) {
                     variableScriptingNameToNameMap.put(variableDefinition.getScriptingName(), variableDefinition.getName());
                 }
-                for (SwimlaneDefinition swimlaneDefinition : variableProvider.getProcessDefinition().getSwimlanes()) {
+                for (SwimlaneDefinition swimlaneDefinition : variableProvider.getParsedProcessDefinition().getSwimlanes()) {
                     variableScriptingNameToNameMap.put(swimlaneDefinition.getScriptingName(), swimlaneDefinition.getName());
                 }
             }

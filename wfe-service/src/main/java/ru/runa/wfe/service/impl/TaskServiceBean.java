@@ -14,9 +14,8 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.TaskServiceLocal;
@@ -28,6 +27,7 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.service.jaxb.Variable;
 import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
+import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.logic.TaskLogic;
 import ru.runa.wfe.user.Executor;
@@ -125,8 +125,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     public void completeTaskWS(@WebParam(name = "user") @NonNull User user, @WebParam(name = "taskId") @NonNull Long taskId,
             @WebParam(name = "variables") List<Variable> variables, @WebParam(name = "swimlaneActorId") Long swimlaneActorId) {
         WfTask task = taskLogic.getTask(user, taskId);
-        ProcessDefinition processDefinition = executionLogic.getDefinition(task.getDefinitionId());
-        completeTask(user, taskId, VariableConverter.unmarshal(processDefinition, variables), swimlaneActorId);
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(task.getDefinitionVersionId());
+        completeTask(user, taskId, VariableConverter.unmarshal(parsedProcessDefinition, variables), swimlaneActorId);
     }
 
     @WebMethod(exclude = true)
