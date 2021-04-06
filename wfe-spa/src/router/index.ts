@@ -27,7 +27,7 @@ const router = new VueRouter({
         path: '/task/list/',
       },
       {
-        name: 'Запустить процесс',
+        name: 'Определения процессов',
         component: ProcessDefinitionList,
         path: '/process/definition/list/',
       },

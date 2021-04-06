@@ -73,11 +73,10 @@ public class ProcessApiController {
     }
     
     @PostMapping("{id}/start")
-    @ResponseStatus(HttpStatus.OK)
-    public void start(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
+    public Long start(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
         User user = authUser.getUser();
         WfProcess process = executionLogic.getProcess(user, id);
-        executionLogic.startProcess(user, process.getName(), variables);
+        return executionLogic.startProcess(user, process.getName(), variables);
     }
 
     @GetMapping("{id}/definition")

@@ -19,19 +19,38 @@
                 itemsPerPageText: 'Строк на странице',
             }"
             >
-            <template v-slot:[`item.startDate`]="{ item }">
-                {{ new Date(item.startDate).toLocaleString() }}
+            <template v-slot:[`item.createActor`]="{ item }">
+                {{ item.createActor ? item.createActor.name : '' }}
             </template>
-            <template v-slot:[`item.endDate`]="{ item }">
-                {{ new Date(item.endDate).toLocaleString() }}
+            <template v-slot:[`item.updateActor`]="{ item }">
+                {{ item.updateActor ? item.updateActor.name : '' }}
+            </template>
+            <template v-slot:[`item.createDate`]="{ item }">
+                {{ new Date(item.createDate).toLocaleString() }}
+            </template>
+            <template v-slot:[`item.updateDate`]="{ item }">
+                {{ item.updateDate ? new Date(item.updateDate).toLocaleString() : '' }}
+            </template>
+            <template v-slot:[`item.start`]="{ item }">
+                <v-icon
+                    color="rgba(0, 0, 0, 0.67)"
+                    class="mr-2"
+                    @click="startProcess(item)"
+                >
+                    mdi-play-circle
+                </v-icon>
             </template>
             <template v-slot:[`footer.page-text`]="items">
                 {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
+            </template>
+            <template v-slot:no-data>
+                Данные отсутствуют
             </template>
             <template v-slot:[`body.prepend`]>
                 <tr v-if="filterVisible">
                     <td v-for="header in headers" :key="header.value">
                         <v-text-field 
+                            v-if="header.value != 'start'"
                             color="primary"
                             v-model="filter[header.value]" 
                             dense 
@@ -44,15 +63,23 @@
             </template>
             <template v-slot:top>
                 <v-toolbar flat>
+                    <v-alert 
+                        v-model="hasWarnings" 
+                        dense 
+                        type="warning"
+                        dismissible
+                    >
+                        {{ warnings }}
+                    </v-alert>
                     <v-spacer/>
                     <v-btn 
                         text 
                         icon 
                         @click="filterVisible = !filterVisible" 
                         v-model="filterVisible" 
-                        color="grey"
+                        color="rgba(0, 0, 0, 0.67)"
                     >
-                        <v-icon >mdi-filter</v-icon>
+                        <v-icon>mdi-filter</v-icon>
                     </v-btn>
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
@@ -61,7 +88,7 @@
                                 icon
                                 v-bind="attrs"
                                 v-on="on"
-                                color="grey"
+                                color="rgba(0, 0, 0, 0.67)"
                             >
                                 <v-icon>mdi-view-grid-plus</v-icon>
                             </v-btn>
@@ -101,31 +128,42 @@ export default Vue.extend({
     
     data() {
         return {
+            warnings: '',
+            hasWarnings: false,
             dialog: false,
-            filterVisible: true,
+            filterVisible: false,
             filter: {
-                id: null,
                 name: null,
                 // category: '',
-                executionStatus: null,
-                startDate: null,
-                endDate: null,
+                description: null,
+                createDate: null,
+                createActor: null,
+                updateDate: null,
+                updateActor: null,
             },
             total: 0,
             definitions: [],
             loading: true,
             options: new Options(),
             initialHeaders: [
-                {
-                    text: '№ экз.',
-                    align: 'start', 
-                    value: 'id',
+                {   
+                    text: 'Запустить', 
+                    value: 'start',
+                    align: 'center',
                     visible: true,
-                    width: '3em',
+                    sortable: false,
+                    width: '1px'
+                },
+                {
+                    text: 'Имя',
+                    align: 'start', 
+                    value: 'name',
+                    visible: true,
+                    width: '20em',
                 },
                 { 
-                    text: 'Процесс', 
-                    value:'name',
+                    text: 'Описание', 
+                    value:'description',
                     visible: true,
                     width: '20em',
                 },
@@ -136,24 +174,31 @@ export default Vue.extend({
                 //     width: '20em',
                 // },
                 { 
-                    text: 'Статус', 
-                    value: 'executionStatus',
+                    text: 'Дата загрузки', 
+                    value: 'createDate',
                     visible: true,
-                    width: '20em',
+                    width: '12em',
                 },
                 { 
-                    text: 'Запущен', 
-                    value: 'startDate',
+                    text: 'Автор загрузки', 
+                    value: 'createActor',
                     visible: true,
                     sortable: false,
-                    width: '10em',
+                    width: '12em',
                 },
                 { 
-                    text: 'Окончен', 
-                    value: 'endDate',
+                    text: 'Дата обновления', 
+                    value: 'updateDate',
                     visible: true,
-                    width: '10em',
+                    width: '12em',
                 },
+                { 
+                    text: 'Автор обновления', 
+                    value: 'updateActor',
+                    visible: true,
+                    sortable: false,
+                    width: '12em',
+                }
             ]
         }
     },
@@ -163,7 +208,6 @@ export default Vue.extend({
                 return h.visible;
             });
         },
-        process: sync('app/process'),
     },
     watch: {
         options: {
@@ -180,8 +224,22 @@ export default Vue.extend({
         }
     },
     methods: {
-        setProcess (process: any) {
-            this.process = process;
+        startProcess (process: any) {
+            this.hasWarnings = false;
+            this.$apiClient().then((client: any) => {
+                const variables = {};
+                client['process-api-controller'].startUsingPOST(null, {
+                    parameters: {
+                        id: process.id
+                    },
+                    requestBody: variables 
+                }).then((data: any) => {
+                    if (data.status == 200 && data.body) {
+                        this.warnings = `Экземпляр процесса запущен ${data.body}`;
+                        this.hasWarnings = true;
+                    }
+                });
+            });
         },
         getDataFromApi () {
             this.loading = true;

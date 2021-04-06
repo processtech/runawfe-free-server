@@ -31,6 +31,9 @@
             <template v-slot:[`item.name`]="{ item }">
                 <card-link v-on:get-item="setProcess" :routeName="`Карточка процесса`" :item="item" :text="item.name" />
             </template>
+            <template v-slot:no-data>
+                Данные отсутствуют
+            </template>
             <template v-slot:[`body.prepend`]>
                 <tr v-if="filterVisible">
                     <td v-for="header in headers" :key="header.value">
@@ -53,9 +56,9 @@
                         icon 
                         @click="filterVisible = !filterVisible" 
                         v-model="filterVisible" 
-                        color="grey"
+                        color="rgba(0, 0, 0, 0.67)"
                     >
-                        <v-icon >mdi-filter</v-icon>
+                        <v-icon>mdi-filter</v-icon>
                     </v-btn>
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
@@ -64,7 +67,7 @@
                                 icon
                                 v-bind="attrs"
                                 v-on="on"
-                                color="grey"
+                                color="rgba(0, 0, 0, 0.67)"
                             >
                                 <v-icon>mdi-view-grid-plus</v-icon>
                             </v-btn>
@@ -105,7 +108,7 @@ export default Vue.extend({
     data() {
         return {
             dialog: false,
-            filterVisible: true,
+            filterVisible: false,
             filter: {
                 id: null,
                 name: null,

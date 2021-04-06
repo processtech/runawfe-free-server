@@ -21,7 +21,7 @@ const state = {
     {
       title: 'Запустить процесс',
       icon: 'mdi-play-box',
-      to: '/process/start/',
+      to: '/process/definition/list/',
     },
     {
       title: 'Запущенные процессы',

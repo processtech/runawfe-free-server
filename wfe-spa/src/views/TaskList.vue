@@ -27,6 +27,9 @@
             <template v-slot:[`footer.page-text`]="items">
                 {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
             </template>
+            <template v-slot:no-data>
+                Данные отсутствуют
+            </template>
             <template v-slot:[`body.prepend`]>
                 <tr v-if="filter.visible">
                     <td v-for="header in headers" :key="header.value">
@@ -55,9 +58,9 @@
                         icon 
                         @click="filter.visible = !filter.visible" 
                         v-model="filter.visible" 
-                        color="grey"
+                        color="rgba(0, 0, 0, 0.67)"
                     >
-                        <v-icon >mdi-filter</v-icon>
+                        <v-icon>mdi-filter</v-icon>
                     </v-btn>
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
@@ -66,7 +69,7 @@
                                 icon
                                 v-bind="attrs"
                                 v-on="on"
-                                color="grey"
+                                color="rgba(0, 0, 0, 0.67)"
                             >
                                 <v-icon>mdi-view-grid-plus</v-icon>
                             </v-btn>
@@ -109,7 +112,7 @@ export default Vue.extend({
         return {
             dialog: false,
             filter: {
-                visible: true,
+                visible: false,
                 name: '',
                 description: '',
                 processId: '',
@@ -161,7 +164,7 @@ export default Vue.extend({
                     width: '12em',
                 },
                 { 
-                    text: 'Выполнена', 
+                    text: 'Время окончания', 
                     value: 'deadlineDate',
                     visible: true,
                     width: '12em',
