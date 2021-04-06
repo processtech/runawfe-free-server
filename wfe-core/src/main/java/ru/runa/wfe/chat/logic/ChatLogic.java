@@ -2,7 +2,6 @@ package ru.runa.wfe.chat.logic;
 
 import com.google.common.base.Joiner;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,6 @@ import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
-import ru.runa.wfe.chat.dao.ChatRoomDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
@@ -53,8 +51,6 @@ public class ChatLogic extends WfCommonLogic {
     private ExecutionLogic executionLogic;
     @Autowired
     private ChatMessageDao messageDao;
-    @Autowired
-    private ChatRoomDao chatRoomDao;
     @Autowired
     private MessageAddedBroadcastMapper messageMapper;
     @Autowired
@@ -108,24 +104,22 @@ public class ChatLogic extends WfCommonLogic {
 
     @Transactional(readOnly = true)
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
-        if (batchPresentation == null) {
-            return chatRoomDao.getChatRooms(user.getActor());
-        }
-        batchPresentation.setFilteredFields(Collections.singletonMap(0, new ChatRoomFilterCriteria(user.getActor().getId())));
+        batchPresentation.getFilteredFields().put(0, new ChatRoomFilterCriteria(user.getActor().getId()));
         List<ChatRoom> chatRooms = getPersistentObjects(user, batchPresentation, Permission.READ,
                 new SecuredObjectType[]{SecuredObjectType.PROCESS}, true);
 
-        List<Process> processes = Lists.newArrayListWithExpectedSize(chatRooms.size());
+        Set<Process> processes = Sets.newHashSetWithExpectedSize(chatRooms.size());
         for (ChatRoom room : chatRooms) {
             processes.add(room.getProcess());
         }
         List<String> variableNamesToInclude = batchPresentation.getDynamicFieldsToDisplay(true);
-        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
+        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(processes, variableNamesToInclude);
 
         List<WfChatRoom> wfChatRooms = Lists.newArrayListWithExpectedSize(chatRooms.size());
         for (ChatRoom room : chatRooms) {
-            WfChatRoom wfChatRoom = new WfChatRoom(room.getProcess(), room.getNewMessagesCount());
-            wfChatRoom.getProcess().addAllVariables(executionLogic.getVariables(variableNamesToInclude, variables, room.getProcess()));
+            Process process = room.getProcess();
+            WfChatRoom wfChatRoom = new WfChatRoom(process, executionLogic.getProcessErrors(process), room.getNewMessagesCount());
+            wfChatRoom.getProcess().addAllVariables(executionLogic.getVariables(variableNamesToInclude, variables, process));
             wfChatRooms.add(wfChatRoom);
         }
         return wfChatRooms;

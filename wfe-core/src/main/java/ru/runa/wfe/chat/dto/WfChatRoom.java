@@ -25,8 +25,8 @@ public class WfChatRoom extends SecuredObjectBase {
     private WfProcess process;
     private Long newMessagesCount;
 
-    public WfChatRoom(Process process, Long newMessagesCount) {
-        this.process = new WfProcess(process, "");
+    public WfChatRoom(Process process, String errors, Long newMessagesCount) {
+        this.process = new WfProcess(process, errors);
         this.newMessagesCount = newMessagesCount;
     }
 

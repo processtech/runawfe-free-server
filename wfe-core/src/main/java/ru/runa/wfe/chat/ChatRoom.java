@@ -2,7 +2,6 @@ package ru.runa.wfe.chat;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -19,7 +18,7 @@ import ru.runa.wfe.execution.Process;
 @Setter
 @Immutable
 @Entity
-@Table(name = "CHAT_ROOM")
+@Table(name = "V_CHAT_ROOM")
 public class ChatRoom {
 
     @Id
@@ -34,7 +33,7 @@ public class ChatRoom {
     @ForeignKey(name = "FK_CHAT_MESSAGE_PROCESS_ID")
     private Process process;
 
-    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Deployment.class)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION")
     @Index(name = "IX_PROCESS_DEFINITION")

@@ -26,6 +26,7 @@ import ru.runa.wfe.chat.socket.AddNewMessageHandler;
 import ru.runa.wfe.chat.socket.DeleteMessageHandler;
 import ru.runa.wfe.chat.socket.EditMessageHandler;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -79,6 +80,9 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebResult(name = "result")
     public List<WfChatRoom> getChatRooms(@WebParam(name = "user") @NonNull User user,
                                          @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.CHAT_ROOMS.createNonPaged();
+        }
         return chatLogic.getChatRooms(user, batchPresentation);
     }
 

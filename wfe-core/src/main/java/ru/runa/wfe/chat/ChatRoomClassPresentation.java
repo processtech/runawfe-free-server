@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat;
 
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -9,20 +10,21 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.var.Variable;
 import java.util.Date;
 
+import static ru.runa.wfe.execution.ProcessClassPresentation.DEFINITION_NAME;
+import static ru.runa.wfe.execution.ProcessClassPresentation.DEFINITION_VERSION;
+import static ru.runa.wfe.execution.ProcessClassPresentation.ERRORS;
+import static ru.runa.wfe.execution.ProcessClassPresentation.PROCESS_END_DATE;
+import static ru.runa.wfe.execution.ProcessClassPresentation.PROCESS_ID;
+import static ru.runa.wfe.execution.ProcessClassPresentation.PROCESS_START_DATE;
+import static ru.runa.wfe.execution.ProcessClassPresentation.PROCESS_VARIABLE;
+
 /**
  * Created on 21.02.2021
  *
  * @author Sergey Inyakin
  */
 public class ChatRoomClassPresentation extends ClassPresentation {
-    public static final String PROCESS_ID = "batch_presentation.process.id";
-    public static final String DEFINITION_NAME = "batch_presentation.process.definition_name";
     public static final String NEW_MESSAGES = "chat_rooms.new_messages";
-    public static final String PROCESS_START_DATE = "batch_presentation.process.started";
-    public static final String PROCESS_END_DATE = "batch_presentation.process.ended";
-    public static final String PROCESS_VARIABLE = editable_prefix + "name:batch_presentation.process.variable";
-    public static final String DEFINITION_VERSION = "batch_presentation.process.definition_version";
-
     private static final ClassPresentation INSTANCE = new ChatRoomClassPresentation();
 
     private ChatRoomClassPresentation() {
@@ -40,7 +42,9 @@ public class ChatRoomClassPresentation extends ClassPresentation {
                 new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDbSources.get(null), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomVariableTdBuilder", new Object[]{}),
                 new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(ChatRoom.class, "deployment.version"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "process.version"}).setVisible(false)});
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "process.version"}).setVisible(false),
+                new FieldDescriptor(ERRORS, String.class.getName(), new DefaultDbSource(Token.class, "errorMessage"), false,
+                        FieldFilterMode.NONE, "ru.runa.wf.web.html.ChatRoomErrorsTdBuilder", new Object[]{}).setVisible(false)});
     }
 
     public static ClassPresentation getInstance() {
