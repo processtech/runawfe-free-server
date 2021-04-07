@@ -29,6 +29,7 @@ import ru.runa.wfe.rest.dto.BatchPresentationRequest;
 import ru.runa.wfe.rest.dto.WfDefinitionDto;
 import ru.runa.wfe.rest.dto.WfDefinitionMapper;
 import ru.runa.wfe.rest.dto.WfDefinitionsDto;
+import ru.runa.wfe.rest.dto.WfProcessDto;
 import ru.runa.wfe.rest.dto.WfProcessMapper;
 import ru.runa.wfe.rest.dto.WfProcessesDto;
 import ru.runa.wfe.user.User;
@@ -87,6 +88,17 @@ public class ProcessApiController {
         WfDefinitionMapper mapper = Mappers.getMapper(WfDefinitionMapper.class);
         WfDefinitionDto definitionDto = mapper.map(definition);
         return definitionDto;
+    }
+
+    @GetMapping("{id}")
+    public WfProcessDto getProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        WfProcessDto processDto = new WfProcessDto();
+        WfProcess process = executionLogic.getProcess(authUser.getUser(), id);
+        if (process != null) {
+            WfProcessMapper mapper = Mappers.getMapper(WfProcessMapper.class);
+            processDto = mapper.map(process); 
+        }
+        return processDto;
     }
 
     @PostMapping("{id}/graph")
