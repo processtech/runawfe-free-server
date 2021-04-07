@@ -45,10 +45,10 @@
                 </tr>
             </template>
             <template v-slot:[`item.name`]="{ item }">
-                <card-link v-on:get-item="setTask" :routeName="`Карточка задачи`" :item="item" :text="item.name" />
+                <card-link :routeName="`Карточка задачи`" :id="item.id" :text="item.name" />
             </template>
             <template v-slot:[`item.definitionName`]="{ item }">
-                <card-link v-on:get-item="setProcess" :routeName="`Карточка процесса`" :item="item" :text="item.definitionName" />
+                <card-link :routeName="`Карточка процесса`" :id="item.processId" :text="item.definitionName" />
             </template>
             <template v-slot:top>
                 <v-toolbar flat>
@@ -211,7 +211,7 @@ export default Vue.extend({
             });
         },
         task: sync('app/task'),
-        process: sync('app/process'),
+        processId: sync('app/processId'),
     },
     watch: {
         options: {
@@ -222,12 +222,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        setTask (task: any) {
-            this.task = task;
-        },
-        setProcess (process: any) {
-            this.process = process;
-        },
         getDataFromApi () {
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = this.options;

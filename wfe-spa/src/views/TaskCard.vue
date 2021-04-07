@@ -13,7 +13,7 @@
                             >
                                 <v-icon>mdi-chevron-double-left</v-icon>
                             </v-btn>
-                            <h1>{{ $__ucfirst(task.name) }}</h1>
+                            <h1 v-if="task">{{ $__ucfirst(task.name) }}</h1>
                             <v-btn 
                                 text
                                 icon 
@@ -28,6 +28,7 @@
                     </v-col>
                     <v-col cols="3">
                         <v-btn
+                            v-if="task"
                             class="float-right"
                             color="primary"
                             @click="completeTask(task)"
@@ -38,7 +39,7 @@
                 </v-row>
                 <v-row v-if="showTaskInfo" justify="center" align="center">
                     <v-col cols="12">
-                        <ul>
+                        <ul v-if="task">
                             <li v-for="(value, name, index) in task" :key="index">
                                 {{ value }}
                             </li>
@@ -59,10 +60,8 @@ export default Vue.extend({
     data() {
         return {
             showTaskInfo: false,
+            task: null
         }
-    },
-    computed: {
-        task: get('app/task'),
     },
     methods: {
         goBack() {
@@ -83,6 +82,22 @@ export default Vue.extend({
                 });
             });
         },
+        loadTask() {
+            this.$apiClient().then((client: any) => {
+                client['task-api-controller'].getTaskUsingGET(null, { 
+                    parameters: {
+                        id: this.$route.params.id
+                    }
+                }).then((data: any) => {
+                    if (data.status == 200) {
+                        this.task = data.body;
+                    }
+                });
+            });
+        }
+    },
+    created: function() {
+        this.loadTask();
     }
 });
 </script>

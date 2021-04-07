@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex align-center">
-        <v-btn text icon @click="$emit('get-item', item);openCard(routeName, item.id)" color="rgba(0, 0, 0, 0.87)">
+        <v-btn text icon @click="openCard(routeName, id)" color="rgba(0, 0, 0, 0.87)">
             <v-icon>mdi-link</v-icon>
         </v-btn>
         <span>{{ $__ucfirst(text) }}</span>
@@ -14,8 +14,8 @@ export default Vue.extend({
     name: "CardLink",
     props: {
         routeName: String,
+        id: Number,
         text: String,
-        item: Object
     },
     methods: {
         openCard (routeName: string, id: number) {

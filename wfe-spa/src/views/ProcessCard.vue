@@ -13,7 +13,7 @@
                             >
                                 <v-icon>mdi-chevron-double-left</v-icon>
                             </v-btn>
-                            <h1>{{ $__ucfirst(process.name) }}</h1>
+                            <h1>{{ processId }}</h1>
                         </v-card-title>
                     </v-col>
                 </v-row>
@@ -40,10 +40,9 @@ export default Vue.extend({
     data() {
         return {
             graphImage: '',
+            process: null,
+            processId: null
         }
-    },
-    computed: {
-        process: get('app/process'),
     },
     methods: {
         goBack() {
@@ -53,7 +52,7 @@ export default Vue.extend({
             this.$apiClient().then((client: any) => {
                 client['process-api-controller'].getProcessGraphUsingPOST(null, { 
                     parameters: {
-                        id: this.process.id
+                        id: this.$route.params.id
                     },
                     requestBody: { 
                         childProcessId: null,
@@ -65,10 +64,13 @@ export default Vue.extend({
                     }
                 });
             });
+        },
+        loadProcess(): void {
+            this.getGraph();
         }
     },
-    mounted() {
-        this.getGraph();
+    created() {
+        this.loadProcess();
     }
 });
 </script>

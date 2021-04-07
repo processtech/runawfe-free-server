@@ -5,8 +5,6 @@ const state = {
   swagger: null,
   drawer: null,
   mini: false,
-  task: null,
-  process: null,
   items: [
     {
       title: 'Рабочий стол',

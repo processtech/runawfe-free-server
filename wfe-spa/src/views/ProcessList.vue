@@ -29,7 +29,7 @@
                 {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
             </template>
             <template v-slot:[`item.name`]="{ item }">
-                <card-link v-on:get-item="setProcess" :routeName="`Карточка процесса`" :item="item" :text="item.name" />
+                <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.name" />
             </template>
             <template v-slot:no-data>
                 Данные отсутствуют
@@ -169,7 +169,6 @@ export default Vue.extend({
                 return h.visible;
             });
         },
-        process: sync('app/process'),
     },
     watch: {
         options: {
@@ -186,9 +185,6 @@ export default Vue.extend({
         }
     },
     methods: {
-        setProcess (process: any) {
-            this.process = process;
-        },
         getDataFromApi () {
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = this.options;
