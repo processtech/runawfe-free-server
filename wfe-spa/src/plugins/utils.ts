@@ -19,7 +19,11 @@ Vue.use({
                 } else if (obj[prop] instanceof Array) {
                     result[prop] = [];
                     for (let item of obj[prop]) {
-                        result[prop].push(Vue.prototype.$__copy(obj[prop]));
+                        if (item instanceof Object) {
+                            result[prop].push(Vue.prototype.$__copy(item));
+                        } else {
+                            result[prop].push(item);
+                        }
                     }
                 } else if (obj[prop] instanceof Object) {
                     result[prop] = Vue.prototype.$__copy(obj[prop]);

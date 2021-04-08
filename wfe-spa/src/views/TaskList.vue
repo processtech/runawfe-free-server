@@ -76,13 +76,35 @@
                         </template>
                         <v-card>
                             <v-card-title>
-                                <span class="headline">Настройка вида</span>
+                                <h2>Настройка вида</h2>
                             </v-card-title>
                             <v-card-text>
                                 <v-container>
                                     <v-row>
+                                        <v-col cols="12" class="d-flex justify-end">
+                                            <v-btn 
+                                                class="d-inline-block" 
+                                                text
+                                                @click = "selectAll"
+                                            >
+                                                Выбрать всё
+                                            </v-btn>
+                                            <v-btn 
+                                                class="d-inline-block" 
+                                                text
+                                                @click = "unSelectAll"
+                                            >
+                                                Убрать всё
+                                            </v-btn>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
                                         <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4"> 
                                             <v-checkbox 
+                                                dense
+                                                class="mt-0"
+                                                color="success"
+                                                hide-details
                                                 v-model="header.visible" 
                                                 :label="header.text"
                                                 @change="initialHeaders" 
@@ -210,8 +232,6 @@ export default Vue.extend({
                 return h.visible;
             });
         },
-        task: sync('app/task'),
-        processId: sync('app/processId'),
     },
     watch: {
         options: {
@@ -222,6 +242,16 @@ export default Vue.extend({
         },
     },
     methods: {
+        selectAll () {
+            for (let header of this.initialHeaders) {
+                header.visible = true;
+            }
+        },
+        unSelectAll () {
+            for (let header of this.initialHeaders) {
+                header.visible = false;
+            }
+        },
         getDataFromApi () {
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = this.options;

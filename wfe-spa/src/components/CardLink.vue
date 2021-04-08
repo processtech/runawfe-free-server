@@ -1,6 +1,12 @@
 <template>
     <div class="d-flex align-center">
-        <v-btn text icon @click="openCard(routeName, id)" color="rgba(0, 0, 0, 0.87)">
+        <v-btn 
+            text 
+            class="mr-2"
+            icon 
+            @click="openCard(routeName, id)" 
+            color="rgba(0, 0, 0, 0.87)"
+        >
             <v-icon>mdi-link</v-icon>
         </v-btn>
         <span>{{ $__ucfirst(text) }}</span>

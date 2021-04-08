@@ -1,58 +1,75 @@
 <template>
     <v-card>
-        <v-form id="task-card-view">
-            <v-container fluid fill-height tag="section">
-                <v-row justify="center" align="center">
-                    <v-col cols="9">
+        <v-container fluid fill-height tag="section">
+            <v-row justify="center" align="center">
+                <v-col cols="12">
+                    <v-card>
                         <v-card-title>
                             <v-btn 
                                 text 
                                 icon 
                                 color="grey"
                                 @click="goBack"
+                                class="mr-2"
                             >
                                 <v-icon>mdi-chevron-double-left</v-icon>
                             </v-btn>
-                            <h1 v-if="task">{{ $__ucfirst(task.name) }}</h1>
+                            <div>
+                                <div class="mb-2 mt-2">
+                                    <h1>{{ $__ucfirst(task.definitionName) }}</h1>
+                                </div>
+                                <div class="mb-2 mt-2">
+                                    Экземпляр процесса № {{ task.processId }}
+                                </div>
+                                <div class="mb-2 mt-2 grey--text">
+                                    <h2>{{ $__ucfirst(task.name) }}</h2>
+                                </div>
+                            </div>
                             <v-btn 
                                 text
                                 icon 
                                 link
+                                class="ml-2"
                                 color="grey"
                                 @click="showTaskInfo = !showTaskInfo"
                                 v-model="showTaskInfo"
                             >
                                 <v-icon>mdi-information-outline</v-icon>
                             </v-btn>
+                            <v-spacer />
+                            <v-btn
+                                class="float-right"
+                                color="primary"
+                                @click="completeTask(task)"
+                            >
+                            Выполнить
+                            </v-btn>
                         </v-card-title>
-                    </v-col>
-                    <v-col cols="3">
-                        <v-btn
-                            v-if="task"
-                            class="float-right"
-                            color="primary"
-                            @click="completeTask(task)"
-                        >
-                        Выполнить
-                        </v-btn>
-                    </v-col>
-                </v-row>
-                <v-row v-if="showTaskInfo" justify="center" align="center">
-                    <v-col cols="12">
-                        <ul v-if="task">
-                            <li v-for="(value, name, index) in task" :key="index">
-                                {{ value }}
-                            </li>
-                        </ul>
-                    </v-col>
-                </v-row>
-            </v-container>
-        </v-form>
+                    </v-card>
+                    <v-expand-transition>
+                        <v-card v-show="showTaskInfo" class="mt-4">
+                            <v-card-title>
+                                Информация об экземпляре:
+                            </v-card-title>
+                            <v-card-text style="color: rgba(0, 0, 0, 1);">
+                                <template v-for="(value, name, index) in task.getTaskInfo()">
+                                    <div :key="index" class="mb-1">
+                                        <span class="d-inline-block" style="width: 20em">{{ $__ucfirst(name) }}: </span>
+                                        <span class="d-inline-block">{{ value }}</span>
+                                    </div>
+                                </template>
+                            </v-card-text>
+                        </v-card>
+                    </v-expand-transition>
+                </v-col>
+            </v-row>
+        </v-container>
     </v-card>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import { Task } from '../ts/task';
 import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
@@ -60,7 +77,7 @@ export default Vue.extend({
     data() {
         return {
             showTaskInfo: false,
-            task: null
+            task: new Task()
         }
     },
     methods: {
@@ -89,8 +106,8 @@ export default Vue.extend({
                         id: this.$route.params.id
                     }
                 }).then((data: any) => {
-                    if (data.status == 200) {
-                        this.task = data.body;
+                    if (data) {
+                        this.task = Object.assign(this.task, data.body);
                     }
                 });
             });
