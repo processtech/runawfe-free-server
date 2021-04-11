@@ -208,6 +208,7 @@
 		</property>
 		<property title="process.processStartButtonName" />
 		<property title="process.completeTaskButtonName" />
+		<property title="process.started"/>
 	</properties_file>
 
 	<properties_file title="office.properties">
