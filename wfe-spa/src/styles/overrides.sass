@@ -30,11 +30,12 @@
         font-weight: 300 !important
         font-size: small !important
         border: none !important
-      > tbody tr:nth-of-type(even)
+      > tbody tr:not(.task1, .task2, .task3, .task4, .process1, .process2):nth-of-type(even)
         background-color: #f8f8f8 !important
-      > tbody tr:not(.data-filter):hover
+      > tbody tr:hover,
+      > tbody tr:nth-of-type(even):hover
         background-color: #bcbdc4 !important
-      > tbody tr:first-child:hover
+      > tbody tr.filter-row:hover
         background-color: inherit !important
     .v-input__slot
       min-height: 32px !important
@@ -54,3 +55,21 @@
 
 .v-list-item__icon
   margin-right: 16px !important
+ 
+.task1
+  background-color: #fbf0ee !important
+
+.task2
+  background-color: #f9d0cc !important
+
+.task3
+  background-color: #ebf7ed !important
+
+.task4
+  background-color: #fffcd7 !important
+
+.process1
+  background-color: #fbf0ee !important
+
+.process2
+  background-color: #f9d0cc !important

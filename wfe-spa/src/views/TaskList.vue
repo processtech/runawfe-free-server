@@ -6,6 +6,7 @@
     >
         <v-data-table
             class="elevation-1 wfe-task-table"
+            :item-class="getClass"
             :headers="headers"
             :items="tasks"
             item-key="id"
@@ -31,7 +32,7 @@
                 Данные отсутствуют
             </template>
             <template v-slot:[`body.prepend`]>
-                <tr v-if="filter.visible">
+                <tr v-if="filter.visible" class="filter-row">
                     <td v-for="header in headers" :key="header.value">
                         <v-text-field 
                             color="primary"
@@ -62,59 +63,8 @@
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <v-dialog v-model="dialog" max-width="500px">
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                                text 
-                                icon
-                                v-bind="attrs"
-                                v-on="on"
-                                color="rgba(0, 0, 0, 0.67)"
-                            >
-                                <v-icon>mdi-view-grid-plus</v-icon>
-                            </v-btn>
-                        </template>
-                        <v-card>
-                            <v-card-title>
-                                <h2>Настройка вида</h2>
-                            </v-card-title>
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12" class="d-flex justify-end">
-                                            <v-btn 
-                                                class="d-inline-block" 
-                                                text
-                                                @click = "selectAll"
-                                            >
-                                                Выбрать всё
-                                            </v-btn>
-                                            <v-btn 
-                                                class="d-inline-block" 
-                                                text
-                                                @click = "unSelectAll"
-                                            >
-                                                Убрать всё
-                                            </v-btn>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4"> 
-                                            <v-checkbox 
-                                                dense
-                                                class="mt-0"
-                                                color="success"
-                                                hide-details
-                                                v-model="header.visible" 
-                                                :label="header.text"
-                                                @change="initialHeaders" 
-                                            />
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-                        </v-card>
-                    </v-dialog>
+                    <columns-visibility :initialHeaders="initialHeaders" />
+                    <color-description :colors="colors" />
                 </v-toolbar>
             </template>
         </v-data-table>
@@ -126,13 +76,12 @@
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
 import { Options, Sorting } from '../ts/options';
+import { Task } from '../ts/task';
 
 export default Vue.extend({
     name: "TaskList",
-
     data() {
         return {
-            dialog: false,
             filter: {
                 visible: false,
                 name: '',
@@ -146,6 +95,24 @@ export default Vue.extend({
             tasks: [],
             loading: true,
             options: new Options(),
+            colors: [
+                {
+                    value: 'task1',
+                    desc: 'Установленный срок задачи подходит к концу'
+                },
+                {
+                    value: 'task2',
+                    desc: 'Задача не выполнена в установленный срок'
+                },
+                {
+                    value: 'task3',
+                    desc: 'Задача получена по эскалации'
+                },
+                {
+                    value: 'task4',
+                    desc: 'Задача получена по замещению'
+                }
+            ],
             initialHeaders: [
                 {
                     text: 'Задача',
@@ -242,15 +209,19 @@ export default Vue.extend({
         },
     },
     methods: {
-        selectAll () {
-            for (let header of this.initialHeaders) {
-                header.visible = true;
+        getClass (task: any) {
+            let cl = '';
+            const timestamp = new Date().getTime();
+            if (task.acquiredBySubstitution) {
+                cl = 'task4';
+            } else if (task.escalated) {
+                cl = 'task3';
+            } else if (task.deadlineDate != null && task.deadlineDate < timestamp) {
+                cl = 'task2';
+            } else if (task.deadlineWarningDate != null && task.deadlineWarningDate < timestamp) {
+                cl = 'task1';
             }
-        },
-        unSelectAll () {
-            for (let header of this.initialHeaders) {
-                header.visible = false;
-            }
+            return cl;
         },
         getDataFromApi () {
             this.loading = true;

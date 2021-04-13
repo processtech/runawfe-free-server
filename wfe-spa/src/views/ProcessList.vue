@@ -6,6 +6,7 @@
     >
         <v-data-table
             class="elevation-1 wfe-process-table"
+            :item-class="getClass"
             :headers="headers"
             :items="processes"
             item-key="id"
@@ -35,7 +36,7 @@
                 Данные отсутствуют
             </template>
             <template v-slot:[`body.prepend`]>
-                <tr v-if="filterVisible">
+                <tr v-if="filterVisible" class="filter-row">
                     <td v-for="header in headers" :key="header.value">
                         <v-text-field 
                             color="primary"
@@ -60,37 +61,8 @@
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <v-dialog v-model="dialog" max-width="500px">
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                                text 
-                                icon
-                                v-bind="attrs"
-                                v-on="on"
-                                color="rgba(0, 0, 0, 0.67)"
-                            >
-                                <v-icon>mdi-view-grid-plus</v-icon>
-                            </v-btn>
-                        </template>
-                        <v-card>
-                            <v-card-title>
-                                <span class="headline">Настройка вида</span>
-                            </v-card-title>
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4"> 
-                                            <v-checkbox 
-                                                v-model="header.visible" 
-                                                :label="header.text"
-                                                @change="initialHeaders" 
-                                            />
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-                        </v-card>
-                    </v-dialog>
+                    <columns-visibility :initialHeaders="initialHeaders" />
+                    <color-description :colors="colors" />
                 </v-toolbar>
             </template>
         </v-data-table>
@@ -121,6 +93,16 @@ export default Vue.extend({
             processes: [],
             loading: true,
             options: new Options(),
+            colors: [
+                {
+                    value: 'process1',
+                    desc: 'Установленный срок окончания процесса подходит к концу'
+                },
+                {
+                    value: 'process2',
+                    desc: 'Процесс не завершён в установленный срок'
+                },
+            ],
             initialHeaders: [
                 {
                     text: '№ экз.',
@@ -185,6 +167,14 @@ export default Vue.extend({
         }
     },
     methods: {
+        getClass (process: any) {
+            let cl = '';
+            const timestamp = new Date().getTime();
+            if (process.endDate != null && process.endDate < timestamp) {
+                cl = 'process2';
+            }
+            return cl;
+        },
         getDataFromApi () {
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = this.options;

@@ -47,7 +47,7 @@
                 Данные отсутствуют
             </template>
             <template v-slot:[`body.prepend`]>
-                <tr v-if="filterVisible">
+                <tr v-if="filterVisible" class="filter-row">
                     <td v-for="header in headers" :key="header.value">
                         <v-text-field 
                             v-if="header.value != 'start'"
@@ -81,37 +81,7 @@
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <v-dialog v-model="dialog" max-width="500px">
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                                text 
-                                icon
-                                v-bind="attrs"
-                                v-on="on"
-                                color="rgba(0, 0, 0, 0.67)"
-                            >
-                                <v-icon>mdi-view-grid-plus</v-icon>
-                            </v-btn>
-                        </template>
-                        <v-card>
-                            <v-card-title>
-                                <span class="headline">Настройка вида</span>
-                            </v-card-title>
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4"> 
-                                            <v-checkbox 
-                                                v-model="header.visible" 
-                                                :label="header.text"
-                                                @change="initialHeaders" 
-                                            />
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-                        </v-card>
-                    </v-dialog>
+                    <columns-visibility :initialHeaders="initialHeaders" />
                 </v-toolbar>
             </template>
         </v-data-table>
@@ -230,7 +200,7 @@ export default Vue.extend({
                 const variables = {};
                 client['process-api-controller'].startUsingPOST(null, {
                     parameters: {
-                        id: process.id
+                        id: process.versionId
                     },
                     requestBody: variables 
                 }).then((data: any) => {
