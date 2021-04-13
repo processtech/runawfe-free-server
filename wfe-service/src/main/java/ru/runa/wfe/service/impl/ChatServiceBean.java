@@ -78,6 +78,13 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
+    public Long getNewMessagesCount(@WebParam(name = "user") @NonNull User user) {
+        return chatLogic.getNewMessagesCount(user);
+    }
+
+    @WebMethod(exclude = false)
+    @Override
+    @WebResult(name = "result")
     public List<WfChatRoom> getChatRooms(@WebParam(name = "user") @NonNull User user,
                                          @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         if (batchPresentation == null) {

@@ -48,6 +48,16 @@ public interface ChatService {
     public List<MessageAddedBroadcast> getMessages(User user, Long processId);
 
     /**
+     * Get new messages count for a concrete user.
+     *
+     * @param user
+     *              authorized user, the count of new messages for which will be returned
+     *
+     * @return new messages count
+     */
+    public Long getNewMessagesCount(User user);
+
+    /**
      * Gets a list of chats
      * @param user
      *              authorized user

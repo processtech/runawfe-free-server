@@ -35,7 +35,6 @@ import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.filter.ChatRoomFilterCriteria;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -102,6 +101,10 @@ public class ChatLogic extends WfCommonLogic {
         return messageFileMapper.toDtos(messages);
     }
 
+    public Long getNewMessagesCount(User user) {
+        return messageDao.getNewMessagesCount(user.getActor());
+    }
+
     public void deleteMessage(User user, Long messageId) {
         fileIo.delete(messageTransactionWrapper.delete(user, messageId));
     }
@@ -153,7 +156,7 @@ public class ChatLogic extends WfCommonLogic {
 
     @Transactional(readOnly = true)
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
-        batchPresentation.getFilteredFields().put(0, new ChatRoomFilterCriteria(user.getActor().getId()));
+        batchPresentation.getType().getRestrictions().add("instance.executorId = " + user.getActor().getId());
         List<ChatRoom> chatRooms = getPersistentObjects(user, batchPresentation, Permission.READ,
                 new SecuredObjectType[]{SecuredObjectType.PROCESS}, true);
         return toWfChatRooms(chatRooms, batchPresentation.getDynamicFieldsToDisplay(true));
