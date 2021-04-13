@@ -77,7 +77,7 @@ public class BpmnXmlReader {
     private static final String MULTI_INSTANCE = "multiInstance";
     private static final String EXCLUSIVE_GATEWAY = "exclusiveGateway";
     private static final String PARALLEL_GATEWAY = "parallelGateway";
-    private static final String BUSINESS_RULE = "businessRule";
+    private static final String BUSINESS_RULE = "businessRuleTask";
     private static final String DEFAULT_TASK_DEADLINE = "defaultTaskDeadline";
     private static final String TASK_DEADLINE = "taskDeadline";
     private static final String USER_TASK = "userTask";

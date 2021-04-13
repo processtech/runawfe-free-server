@@ -9,13 +9,13 @@ import java.util.regex.Pattern;
 
 public class BusinessRuleHandler extends ActionHandlerBase {
 
-	@Override
-	public void execute(ExecutionContext executionContext) throws Exception {
-		GroovyDecisionHandler groovyDecisionHandler = new GroovyDecisionHandler();
-		groovyDecisionHandler.setConfiguration(configuration);
-		String function = groovyDecisionHandler.decide(executionContext);
-		FormulaActionHandler formulaActionHandler = new FormulaActionHandler();
-		formulaActionHandler.setConfiguration(function);
-		formulaActionHandler.execute(executionContext);
-	}
+    @Override
+    public void execute(ExecutionContext executionContext) throws Exception {
+        GroovyDecisionHandler groovyDecisionHandler = new GroovyDecisionHandler();
+        groovyDecisionHandler.setConfiguration(configuration);
+        String function = groovyDecisionHandler.decide(executionContext);
+        FormulaActionHandler formulaActionHandler = new FormulaActionHandler();
+        formulaActionHandler.setConfiguration(function);
+        formulaActionHandler.execute(executionContext);
+    }
 }
