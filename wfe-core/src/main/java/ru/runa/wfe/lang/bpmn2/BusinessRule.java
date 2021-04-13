@@ -25,9 +25,6 @@ public class BusinessRule extends Node {
     @Override
     public void validate() {
         super.validate();
-        if (getLeavingTransitions().size() > 1) {
-            Preconditions.checkNotNull(delegation, "delegation in " + this);
-        }
         if (delegation != null) {
             delegation.validate();
         }
@@ -36,15 +33,12 @@ public class BusinessRule extends Node {
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         if (delegation != null) {
-//            log.debug("gateway " + name + " is treated as decision gateway");
             BusinessRuleHandler businessRuleHandler = delegation.getInstance();
             businessRuleHandler.execute(executionContext);
             Transition transition = getDefaultLeavingTransitionNotNull();
-//            log.debug("gateway " + name + " is taking '" + transition + "'");
             leave(executionContext, transition);
         } else {
-            log.debug("gateway " + name + " is treated as merge gateway");
-            leave(executionContext, getDefaultLeavingTransitionNotNull());
+            throw new NullPointerException();
         }
     }
 }

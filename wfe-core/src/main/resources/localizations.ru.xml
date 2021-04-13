@@ -19,7 +19,7 @@
   <artifact enabled="false" name="ru.runa.wfe.extension.handler.BSHActionHandler" label="Выполнить код BeanShell"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.decision.GroovyDecisionHandler" label="Выполнить код Groovy"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.GroovyActionHandler" label="Выполнить код Groovy"/>
-  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.BusinessRuleHandler" label="Бизнес правило"/>
+  <artifact enabled="false" name="ru.runa.wfe.extension.handler.var.BusinessRuleHandler" label="Бизнес-правило"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.JavaScriptActionHandler" label="Выполнить код JavaScript"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.RhinoJSActionHandler" label="Выполнить код JavaScript (rhino)"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.FormulaActionHandler" label="Выполнить формулу"/>
