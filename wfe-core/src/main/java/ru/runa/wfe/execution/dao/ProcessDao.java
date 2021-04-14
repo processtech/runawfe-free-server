@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
@@ -26,6 +27,12 @@ public class ProcessDao extends GenericDao<Process> {
         if (entity == null) {
             throw new ProcessDoesNotExistException(identity);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public String getDefinitionName(Process process) {
+        QProcess p = QProcess.process;
+        return queryFactory.select(p.deployment.name).from(p).where(p.eq(process)).fetchFirst();
     }
 
     /**

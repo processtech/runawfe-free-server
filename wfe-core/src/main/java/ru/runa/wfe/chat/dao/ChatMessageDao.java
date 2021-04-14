@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
+import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.commons.dao.GenericDao;
@@ -53,6 +54,14 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         QDeployment d = QDeployment.deployment;
         return queryFactory.select(Projections.constructor(WfChatRoom.class, p.id, d.name, cr.count().subtract(cr.readDate.count())))
                 .from(cr).join(cr.message.process, p).join(p.deployment, d).where(cr.executor.eq(actor)).groupBy(p.id, d.name).orderBy(p.id.desc()).fetch();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatMessage> getNewMessagesByActor(Actor actor) {
+        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
+        QChatMessage cm = QChatMessage.chatMessage;
+        return queryFactory.select(cm).from(cr).join(cr.message, cm).where(cr.executor.eq(actor).and(cr.readDate.isNull()))
+                .orderBy(cm.createDate.desc()).fetch();
     }
 
     @Transactional

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
@@ -406,6 +407,22 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
      */
     public List<Executor> getAllExecutors(BatchPresentation batchPresentation) {
         return getAll(Executor.class, batchPresentation);
+    }
+
+    /**
+     * Load all {@linkplain Actor}s with pagination.
+     *
+     * @param pageIndex
+     *            page number (first page = 0)
+     * @param itemsCount
+     *            number of items for a page
+     * @return {@linkplain Actor}s, loaded according to page namber and item count.
+     */
+    @Transactional(readOnly = true)
+    public List<Actor> getAllActorsWithPagination(int pageIndex, int itemsCount) {
+        QActor a = QActor.actor;
+        return queryFactory.selectFrom(a).where(a.email.isNotNull().and(a.email.isNotEmpty())).orderBy(a.name.asc())
+                .offset(pageIndex * itemsCount).limit(itemsCount).fetch();
     }
 
     /**
