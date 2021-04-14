@@ -86,7 +86,16 @@ public class ChatEmailNotificationJob {
                 EmailConfig config = EmailConfigParser.parse(configBytes);
                 config.getHeaderProperties().put(EmailConfig.HEADER_TO, emails);
                 config.clearMessage();
-                config.getHeaderProperties().put("Subject", "У вас " + messages.size() + " непрочитанных сообщений");
+                int messageCount = messages.size();
+                String suffix;
+                if (messageCount == 1) {
+                    suffix = "непрочитанное сообщение";
+                } else if (messageCount >= 2 && messageCount <= 4) {
+                    suffix = "непрочитанных сообщения";
+                } else {
+                    suffix = "непрочитанных сообщений";
+                }
+                config.getHeaderProperties().put("Subject", "У Вас " + messageCount + " " + suffix);
                 Map<Process, List<ChatMessage>> processNewMessagesMap = mappingByProcess(messages);
                 try {
                     for (Map.Entry<Process, List<ChatMessage>> entry : processNewMessagesMap.entrySet()) {
@@ -214,13 +223,21 @@ public class ChatEmailNotificationJob {
         result.append("<table><tbody>");
         for (ChatMessageFile file : files) {
             result.append("<tr><td>");
-            result.append("<span>\uD83D\uDCCE</span>");
-            result.append(file.getName());
+            result.append(createFileField(file));
             result.append("<td><tr>");
         }
         result.append("<tbody><table>");
         result.append("</td></tr>");
         return result.toString();
+    }
+
+    private String createFileField(ChatMessageFile file) {
+        String text = "<span>\uD83D\uDCCE</span>" + file.getName();
+        if (baseUrl != null) {
+            return "<a href='" + baseUrl + "/wfe/chatFileOutput?fileId=" + file.getId() + "' download='" + file.getName() + "'>" + text + "</a>";
+        } else {
+            return text;
+        }
     }
 
     private String createActorField(Actor actor) {
@@ -236,10 +253,18 @@ public class ChatEmailNotificationJob {
     }
 
     public String createAndMoreRow(int messageCount) {
+        String suffix;
+        if (messageCount == 1) {
+            suffix = "новое сообщение";
+        } else if (messageCount >= 2 && messageCount <= 4) {
+            suffix = "новых сообщения";
+        } else {
+            suffix = "новых сообщений";
+        }
         return String.join("\n",
                 "<tr><td style='padding: 0 20px;'>",
                 "   <div>...</div>",
-                "   <div>И еще " + messageCount + " новых сообщений</div>",
+                "   <div>И еще " + messageCount + " " + suffix + "</div>",
                 "</td></tr>"
         );
     }
