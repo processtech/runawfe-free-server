@@ -58,6 +58,17 @@ public interface ChatService {
     public Long getNewMessagesCount(User user);
 
     /**
+     * Get chats count
+     *
+     * @param user
+     *              authorized user
+     * @param batchPresentation
+     *              batch presentation
+     * @return chats count
+     */
+    public int getChatRoomsCount(User user, BatchPresentation batchPresentation);
+
+    /**
      * Gets a list of chats
      * @param user
      *              authorized user

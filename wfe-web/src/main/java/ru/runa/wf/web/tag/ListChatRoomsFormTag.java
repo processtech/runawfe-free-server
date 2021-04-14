@@ -28,9 +28,10 @@ public class ListChatRoomsFormTag extends BatchReturningTitledFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         BatchPresentation batchPresentation = getBatchPresentation();
+        int chatRoomsCount = Delegates.getChatService().getChatRoomsCount(getUser(), batchPresentation);
         List<WfChatRoom> chatRooms = Delegates.getChatService().getChatRooms(getUser(), batchPresentation);
 
-        PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, chatRooms.size());
+        PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, chatRoomsCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
 
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);

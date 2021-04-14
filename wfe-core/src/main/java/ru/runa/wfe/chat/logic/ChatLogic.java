@@ -155,10 +155,19 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     @Transactional(readOnly = true)
+    public int getChatRoomsCount(User user, BatchPresentation batchPresentation) {
+        batchPresentation.getType().getRestrictions().add(getExecutorIdRestriction(user));
+        int count = getPersistentObjectCount(user, batchPresentation, Permission.READ, new SecuredObjectType[]{SecuredObjectType.PROCESS});
+        batchPresentation.getType().getRestrictions().remove(getExecutorIdRestriction(user));
+        return count;
+    }
+
+    @Transactional(readOnly = true)
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
-        batchPresentation.getType().getRestrictions().add("instance.executorId = " + user.getActor().getId());
+        batchPresentation.getType().getRestrictions().add(getExecutorIdRestriction(user));
         List<ChatRoom> chatRooms = getPersistentObjects(user, batchPresentation, Permission.READ,
                 new SecuredObjectType[]{SecuredObjectType.PROCESS}, true);
+        batchPresentation.getType().getRestrictions().remove(getExecutorIdRestriction(user));
         return toWfChatRooms(chatRooms, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
@@ -180,5 +189,9 @@ public class ChatLogic extends WfCommonLogic {
             processes.add(room.getProcess());
         }
         return variableDao.getVariables(processes, variableNamesToInclude);
+    }
+
+    private String getExecutorIdRestriction(User user) {
+        return "instance.executorId = " + user.getActor().getId();
     }
 }
