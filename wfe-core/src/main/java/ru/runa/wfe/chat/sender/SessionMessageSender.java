@@ -19,9 +19,6 @@ import ru.runa.wfe.chat.socket.SessionInfo;
 @MonitoredWithSpring
 public class SessionMessageSender implements MessageSender {
 
-    @Qualifier("mailMessageSender")
-    @Autowired
-    private MessageSender messageSender;
     @Autowired
     @ChatBean
     private ObjectMapper chatObjectMapper;
@@ -29,25 +26,17 @@ public class SessionMessageSender implements MessageSender {
     @Override
     public void handleMessage(MessageBroadcast dto, Set<SessionInfo> sessions) {
         if (sessions == null || sessions.isEmpty()) {
-            messageSender.handleMessage(dto, Collections.emptySet());
             return;
         }
-
-        boolean isAnyBroadcastSent = false;
 
         for (SessionInfo sessionInfo : sessions) {
             try {
                 Session session = sessionInfo.getSession();
                 session.getBasicRemote().sendText(chatObjectMapper.writeValueAsString(dto));
-                isAnyBroadcastSent = true;
             } catch (IOException e) {
                 log.error("An error occurred while sending a message on session " +
                         sessionInfo.getId(), e);
             }
-        }
-
-        if (!isAnyBroadcastSent) {
-            messageSender.handleMessage(dto, sessions);
         }
     }
 }

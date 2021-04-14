@@ -40,7 +40,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import lombok.EqualsAndHashCode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -77,7 +76,6 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@EqualsAndHashCode(callSuper = false)
 public class Process extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Process.class);
