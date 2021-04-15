@@ -34,7 +34,7 @@ public class ChatRoom {
     @ForeignKey(name = "FK_CHAT_MESSAGE_PROCESS_ID")
     private CurrentProcess process;
 
-    @ManyToOne(targetEntity = ProcessDefinition.class)
+    @ManyToOne(targetEntity = ProcessDefinitionVersion.class)
     @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION")
     @Index(name = "IX_PROCESS_DEFINITION")
