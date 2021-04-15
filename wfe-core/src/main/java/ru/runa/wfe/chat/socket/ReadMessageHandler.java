@@ -22,7 +22,7 @@ public class ReadMessageHandler implements ChatSocketMessageHandler<ReadMessageR
     @MonitoredWithSpring
     public void handleMessage(ReadMessageRequest request, User user) {
         Long messageId = request.getMessageId();
-        chatLogic.readMessage(user, messageId);
+        chatLogic.readMessage(user, messageId, request.getProcessId());
     }
 
     @Override
