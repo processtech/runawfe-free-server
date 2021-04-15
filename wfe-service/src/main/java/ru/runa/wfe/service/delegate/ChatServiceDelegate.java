@@ -38,6 +38,16 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
+    public Long getNewMessagesCount(User user) {
+        return getChatService().getNewMessagesCount(user);
+    }
+
+    @Override
+    public int getChatRoomsCount(User user, BatchPresentation batchPresentation) {
+        return getChatService().getChatRoomsCount(user, batchPresentation);
+    }
+
+    @Override
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
         return getChatService().getChatRooms(user, batchPresentation);
     }

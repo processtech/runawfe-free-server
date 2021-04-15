@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatRoom;
+import ru.runa.wfe.chat.ChatRoomClassPresentation;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
@@ -36,7 +37,6 @@ import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.filter.ChatRoomFilterCriteria;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -103,6 +103,10 @@ public class ChatLogic extends WfCommonLogic {
         return messageFileMapper.toDtos(messages);
     }
 
+    public Long getNewMessagesCount(User user) {
+        return messageDao.getNewMessagesCount(user.getActor());
+    }
+
     public void deleteMessage(User user, Long messageId) {
         fileIo.delete(messageTransactionWrapper.delete(user, messageId));
     }
@@ -153,10 +157,19 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     @Transactional(readOnly = true)
+    public int getChatRoomsCount(User user, BatchPresentation batchPresentation) {
+        batchPresentation.getType().getRestrictions().add(ChatRoomClassPresentation.getExecutorIdRestriction(user.getActor().getId()));
+        int count = getPersistentObjectCount(user, batchPresentation, Permission.READ, new SecuredObjectType[]{SecuredObjectType.PROCESS});
+        batchPresentation.getType().getRestrictions().remove(ChatRoomClassPresentation.getExecutorIdRestriction(user.getActor().getId()));
+        return count;
+    }
+
+    @Transactional(readOnly = true)
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
-        batchPresentation.getFilteredFields().put(0, new ChatRoomFilterCriteria(user.getActor().getId()));
+        batchPresentation.getType().getRestrictions().add(ChatRoomClassPresentation.getExecutorIdRestriction(user.getActor().getId()));
         List<ChatRoom> chatRooms = getPersistentObjects(user, batchPresentation, Permission.READ,
-                new SecuredObjectType[]{ SecuredObjectType.PROCESS }, true);
+                new SecuredObjectType[]{SecuredObjectType.PROCESS}, true);
+        batchPresentation.getType().getRestrictions().remove(ChatRoomClassPresentation.getExecutorIdRestriction(user.getActor().getId()));
         return toWfChatRooms(chatRooms, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 

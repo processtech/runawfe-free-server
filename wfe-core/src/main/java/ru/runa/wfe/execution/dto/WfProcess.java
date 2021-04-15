@@ -98,7 +98,9 @@ public class WfProcess extends SecuredObject {
     }
 
     public void addAllVariables(List<WfVariable> variables) {
-        this.variables.addAll(variables);
+        for (WfVariable variable : variables) {
+            addVariable(variable);
+        }
     }
 
     public void addVariable(WfVariable variable) {

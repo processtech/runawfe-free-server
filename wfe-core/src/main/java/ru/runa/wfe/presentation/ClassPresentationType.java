@@ -1,6 +1,8 @@
 package ru.runa.wfe.presentation;
 
 import java.util.HashMap;
+import java.util.List;
+import com.google.common.collect.Lists;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SystemLogClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
@@ -37,7 +39,7 @@ public enum ClassPresentationType {
     CHAT_ROOM(ChatRoomClassPresentation.getInstance());
 
     private final Class<?> presentationClass;
-    private final String restrictions;
+    private final List<String> restrictions;
     private final boolean withPaging;
     private final FieldDescriptor[] fields;
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
@@ -55,7 +57,7 @@ public enum ClassPresentationType {
     ClassPresentationType(ClassPresentation cp) {
         if (cp != null) {
             presentationClass = cp.getPresentationClass();
-            restrictions = cp.getRestrictions();
+            restrictions = Lists.newArrayList(cp.getRestrictions());
             withPaging = cp.isWithPaging();
             fields = cp.getFields();
             populateFieldIndexesByName();
@@ -79,7 +81,7 @@ public enum ClassPresentationType {
         return presentationClass;
     }
 
-    public String getRestrictions() {
+    public List<String> getRestrictions() {
         return restrictions;
     }
 
