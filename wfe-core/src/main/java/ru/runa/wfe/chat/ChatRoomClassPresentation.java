@@ -50,4 +50,8 @@ public class ChatRoomClassPresentation extends ClassPresentation {
     public static ClassPresentation getInstance() {
         return INSTANCE;
     }
+
+    public static String getExecutorIdRestriction(Long id) {
+        return "instance.executorId = " + id;
+    }
 }

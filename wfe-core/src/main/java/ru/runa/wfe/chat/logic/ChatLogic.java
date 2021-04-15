@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatRoom;
+import ru.runa.wfe.chat.ChatRoomClassPresentation;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
@@ -156,18 +157,18 @@ public class ChatLogic extends WfCommonLogic {
 
     @Transactional(readOnly = true)
     public int getChatRoomsCount(User user, BatchPresentation batchPresentation) {
-        batchPresentation.getType().getRestrictions().add(getExecutorIdRestriction(user));
+        batchPresentation.getType().getRestrictions().add(ChatRoomClassPresentation.getExecutorIdRestriction(user.getActor().getId()));
         int count = getPersistentObjectCount(user, batchPresentation, Permission.READ, new SecuredObjectType[]{SecuredObjectType.PROCESS});
-        batchPresentation.getType().getRestrictions().remove(getExecutorIdRestriction(user));
+        batchPresentation.getType().getRestrictions().remove(ChatRoomClassPresentation.getExecutorIdRestriction(user.getActor().getId()));
         return count;
     }
 
     @Transactional(readOnly = true)
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
-        batchPresentation.getType().getRestrictions().add(getExecutorIdRestriction(user));
+        batchPresentation.getType().getRestrictions().add(ChatRoomClassPresentation.getExecutorIdRestriction(user.getActor().getId()));
         List<ChatRoom> chatRooms = getPersistentObjects(user, batchPresentation, Permission.READ,
                 new SecuredObjectType[]{SecuredObjectType.PROCESS}, true);
-        batchPresentation.getType().getRestrictions().remove(getExecutorIdRestriction(user));
+        batchPresentation.getType().getRestrictions().remove(ChatRoomClassPresentation.getExecutorIdRestriction(user.getActor().getId()));
         return toWfChatRooms(chatRooms, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
@@ -189,9 +190,5 @@ public class ChatLogic extends WfCommonLogic {
             processes.add(room.getProcess());
         }
         return variableDao.getVariables(processes, variableNamesToInclude);
-    }
-
-    private String getExecutorIdRestriction(User user) {
-        return "instance.executorId = " + user.getActor().getId();
     }
 }
