@@ -9,7 +9,6 @@ import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.VariableDbSources;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.var.CurrentVariable;
-import ru.runa.wfe.var.Variable;
 
 import static ru.runa.wfe.execution.CurrentProcessClassPresentation.DEFINITION_NAME;
 import static ru.runa.wfe.execution.CurrentProcessClassPresentation.DEFINITION_VERSION;
