@@ -300,6 +300,10 @@ tr.executor_group {
 	background-color: tomato;
 }
 
+.symbol {
+	color: #990000;
+}
+
 .checkBoxNone {
 	display: none;
 }
@@ -336,7 +340,4 @@ tr.executor_group {
 
 td.fontRed {
     color: red !important;
-}
-#mainTableSwitchChats{
-	display:none;
 }

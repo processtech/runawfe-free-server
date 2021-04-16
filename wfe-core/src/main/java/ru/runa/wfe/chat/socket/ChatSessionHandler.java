@@ -1,144 +1,91 @@
 package ru.runa.wfe.chat.socket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import javax.websocket.CloseReason;
 import javax.websocket.Session;
-import org.json.simple.JSONObject;
+import lombok.extern.apachecommons.CommonsLog;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.chat.dto.ChatDto;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.chat.dto.MessageForCloseChatDto;
-import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.execution.logic.ExecutionLogic;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.User;
+import ru.runa.wfe.chat.config.ChatBean;
+import ru.runa.wfe.chat.dto.broadcast.ErrorMessageBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
+import ru.runa.wfe.chat.sender.MessageSender;
+import ru.runa.wfe.chat.utils.ChatSessionUtils;
 
+@CommonsLog
 @Component
+@MonitoredWithSpring
 public class ChatSessionHandler {
-    private final CopyOnWriteArraySet<Session> sessions = new CopyOnWriteArraySet<Session>();
-    private final CopyOnWriteArraySet<Session> onlyNewMessagesSessions = new CopyOnWriteArraySet<Session>();
 
     @Autowired
-    private ExecutionLogic executionLogic;
+    @Qualifier("sessionMessageSender")
+    private MessageSender messageSender;
+    @Autowired
+    @ChatBean
+    private ObjectMapper chatObjectMapper;
+    private final ConcurrentHashMap<Long, Set<SessionInfo>> sessions = new ConcurrentHashMap<>(256);
+
+    private static final Function<Long, Set<SessionInfo>> CREATE_SET = new Function<Long, Set<SessionInfo>>() {
+        @Override
+        public Set<SessionInfo> apply(Long aLong) {
+            return Collections.newSetFromMap(new ConcurrentHashMap<>());
+        }
+    };
+
+    private static final ByteBuffer PING_PAYLOAD = ByteBuffer.allocate(0);
 
     public void addSession(Session session) {
-        String type = (String) session.getUserProperties().get("type");
-        switch (type) {
-        case "chat":
-            sessions.add(session);
-            break;
-        case "chatsNewMess":
-            List<WfProcess> processes = executionLogic.getProcesses((User) session.getUserProperties().get("user"), null);
-            Collection<Long> processIds = new HashSet<Long>();
-            for (WfProcess proc : processes) {
-                processIds.add(proc.getId());
-            }
-            session.getUserProperties().put("processIds", processIds);
-            onlyNewMessagesSessions.add(session);
-            break;
-        default:
-            sessions.add(session);
-            break;
-        }
+        Long userId = ChatSessionUtils.getUser(session).getActor().getId();
+        sessions.computeIfAbsent(userId, CREATE_SET).add(new SessionInfo(session));
     }
 
     public void removeSession(Session session) {
-        onlyNewMessagesSessions.remove(session);
-        sessions.remove(session);
+        Long userId = ChatSessionUtils.getUser(session).getActor().getId();
+        sessions.get(userId).remove(new SessionInfo(session));
     }
 
     public void sendToSession(Session session, String message) throws IOException {
         session.getBasicRemote().sendText(message);
     }
 
-    public void sendToAll(JSONObject message) throws IOException {
-        for (Session session : sessions) {
-            session.getBasicRemote().sendText(message.toString());
+    public void sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) {
+        for (Long id : recipientIds) {
+            messageSender.handleMessage(dto, sessions.get(id));
         }
     }
 
-    public void sendToChats(ChatDto messageDto, Long processId, Actor coreUser, Collection<Actor> mentionedActors, boolean isPrivate)
-            throws IOException {
-        for (Session session : sessions) {
-            // JSONObject sendObject = (JSONObject) message.clone(); // проверить клон!
-            ChatMessageDto message = (ChatMessageDto) messageDto;
-            Long thisId = (Long) session.getUserProperties().get("processId");
-            if (processId.equals(thisId)) {
-                Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
-                if (thisActor.equals(coreUser)) {
-                    message.setCoreUserFlag(true);
-                }
-                else {
-                    if (mentionedActors.contains(thisActor)) {
-                        message.setMentionedFlag(true);
-                    } else {
-                        if (isPrivate) {
-                            continue;
-                        }
+    public void messageError(Session session, String message) {
+        ErrorMessageBroadcast errorDto = new ErrorMessageBroadcast(message);
+        try {
+            sendToSession(session, chatObjectMapper.writeValueAsString(errorDto));
+        } catch (IOException e) {
+            log.error(e);
+        }
+    }
+
+    public void ping() {
+        for (Set<SessionInfo> sessions : sessions.values()) {
+            for (SessionInfo session : sessions) {
+                try {
+                    session.getSession().getBasicRemote().sendPing(PING_PAYLOAD);
+                } catch (IOException e) {
+                    log.warn("Unable ping session " + session.getId() + ". Closing...", e);
+                    try {
+                        session.getSession().close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unable send ping"));
+                    } catch (IOException ioException) {
+                        log.warn("Unable close session " + session.getId() + ". Assume it is already closed", e);
                     }
                 }
-                session.getBasicRemote().sendText(messageDto.convert());
-                message.setCoreUserFlag(false);
-                message.setMentionedFlag(false);
             }
         }
     }
-
-    public void sendToChats(ChatDto messageDto, Long processId, Actor coreUser) throws IOException {
-        sendToChats(messageDto, processId, coreUser, null, false);
-    }
-
-    public void sendToChats(ChatDto messageDto, Long processId) throws IOException {
-        sendToChats(messageDto, processId, null, new HashSet<Actor>(), false);
-    }
-
-    public void sendOnlyNewMessagesSessions(MessageForCloseChatDto messageDto, Long processId, Actor coreUser, Collection<Actor> mentionedActors,
-            boolean isPrivate)
-            throws IOException {
-        for (Session session : onlyNewMessagesSessions) {
-            // JSONObject sendObject = (JSONObject) message.clone();
-            if (((HashSet<Long>) session.getUserProperties().get("processIds")).contains(processId)) {
-                Actor thisActor = ((User) session.getUserProperties().get("user")).getActor();
-                if (thisActor.equals(coreUser)) {
-                    messageDto.setCoreUserFlag(true);
-                }
-                else {
-                    if (mentionedActors.contains(thisActor)) {
-                        messageDto.setMentionedFlag(true);
-                    } else {
-                        if (isPrivate) {
-                            continue;
-                        }
-                    }
-                }
-                session.getBasicRemote().sendText(messageDto.convert());
-                messageDto.setCoreUserFlag(false);
-                messageDto.setMentionedFlag(false);
-            }
-        }
-    }
-
-    public void sendNewMessage(Set<Executor> mentionedExecutors, ChatMessageDto messageDto, Boolean isPrivate) throws IOException {
-        Collection<Actor> mentionedActors = new HashSet<Actor>();
-        for (Executor mentionedExecutor : mentionedExecutors) {
-            if (mentionedExecutor.getClass() == Actor.class) {
-                mentionedActors.add((Actor) mentionedExecutor);
-            }
-        }
-        messageDto.setOld(false);
-        sendToChats(messageDto, messageDto.getMessage().getProcess().getId(), messageDto.getMessage().getCreateActor(), mentionedActors,
-                isPrivate);
-        MessageForCloseChatDto messageForCloseChat = new MessageForCloseChatDto();
-        messageForCloseChat.setCurrentMessageId(messageDto.getMessage().getProcess().getId());
-        messageForCloseChat.setMessType("newMessage");
-        sendOnlyNewMessagesSessions(messageForCloseChat, messageDto.getMessage().getProcess().getId(), messageDto.getMessage().getCreateActor(),
-                mentionedActors, isPrivate);
-    }
-
 }

@@ -264,12 +264,11 @@
 	<bean id="taskLogic" class="ru.runa.wfe.task.logic.TaskLogic" />
 	<bean id="variableLogic" class="ru.runa.wfe.var.logic.VariableLogic" />
 	<bean id="chatLogic" class="ru.runa.wfe.chat.logic.ChatLogic" />
-	
+	<bean id="chatFileLogic" class="ru.runa.wfe.chat.logic.ChatFileLogic" />
 	<bean id="assignmentHelper" class="ru.runa.wfe.extension.assign.AssignmentHelper" />
 	<bean id="adminScriptRunner" class="ru.runa.wfe.script.AdminScriptRunner" />
 	<bean id="reportLogic" class="ru.runa.wfe.report.logic.ReportLogic" />
 	<bean id="adminScriptLogic" class="ru.runa.wfe.script.logic.AdminScriptLogic" />
-
 	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
 
 	<task:scheduler id="baseScheduler" />
@@ -277,11 +276,13 @@
 	<bean id="jobExecutor" class="ru.runa.wfe.job.impl.JobExecutor" />
 	<bean id="unassignedTaskAssigner" class="ru.runa.wfe.job.impl.UnassignedTaskAssigner" />
 	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
+	<bean id="pingSessionsJob" class="ru.runa.wfe.chat.socket.PingSessionsJob" />
 
 	<task:scheduled-tasks scheduler="baseScheduler">
 		<task:scheduled ref="jobExecutor" method="execute" fixed-delay="${timertask.period.millis.job.execution}" />
 		<task:scheduled ref="unassignedTaskAssigner" method="execute" fixed-delay="${timertask.period.millis.unassigned.tasks.execution}" />
 		<task:scheduled ref="unusedTemporaryGroupsCleaner" method="execute" fixed-delay="${timertask.period.millis.remove.temp.groups}" />
+		<task:scheduled ref="pingSessionsJob" method="execute" fixed-delay="${timertask.period.millis.ping.chat.sessions}" />
 	</task:scheduled-tasks>
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />

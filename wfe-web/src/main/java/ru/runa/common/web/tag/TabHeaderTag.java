@@ -148,7 +148,7 @@ public class TabHeaderTag extends TagSupport {
                 }
                 return Delegates.getExecutorService().isAdministrator(getUser());
             }
-            if (menuForward.menuMessage.getKey().equals("swich_chats")) {
+            if (menuForward.menuMessage.getKey().equals("chat_rooms")) {
                 return WebResources.isChatEnabled();
             }
             if (menuForward.menuMessage.getKey().equals("view_logs")) {

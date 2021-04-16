@@ -419,4 +419,12 @@ public class SystemProperties {
     public static boolean showErrorsInGroovyExpressionValidator() {
         return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
     }
+
+    public static String getPreferredMessagesLanguage() {
+        return RESOURCES.getStringProperty("preferred.messages.language");
+    }
+
+    public static String getChatFileStoragePath() {
+        return RESOURCES.getStringProperty("chat.files.storage.path", IoCommons.getAppServerDirPath() + "/wfe.chat-files-storage");
+    }
 }

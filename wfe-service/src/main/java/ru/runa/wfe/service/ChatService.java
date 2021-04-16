@@ -1,12 +1,13 @@
 package ru.runa.wfe.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatRoom;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.chat.dto.request.AddMessageRequest;
+import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
+import ru.runa.wfe.chat.dto.request.EditMessageRequest;
 import ru.runa.wfe.user.User;
 
 /**
@@ -17,135 +18,66 @@ import ru.runa.wfe.user.User;
  */
 public interface ChatService {
 
-    public List<Long> getMentionedExecutorIds(User user, Long messageId);
-
-    public void deleteFile(User user, Long id);
-
-    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate,
-            ArrayList<ChatMessageFile> files);
-
-    public void readMessage(User user, Long messageId);
-
-    public Long getLastReadMessage(User user, Long processId);
-
-    public Long getLastMessage(User user, Long processId);
-
-    public List<Long> getActiveChatIds(User user);
-
-    public Set<Executor> getAllUsers(User user, Long processId);
-
-    public List<Long> getNewMessagesCounts(User user, List<Long> processIds, List<Boolean> isMentions);
-
     /**
-     * merge message in DB
+     * Saves a new message and sends the <code>MessageAddedBroadcast<code> to all active chats
      *
-     * @param message
-     *            message to merge
+     * @param user
+     *              authorized user
+     * @param request
+     *              request to add a new message
      */
-    public void updateChatMessage(User user, ChatMessage message);
-
-    /**
-     * Get List array of all ChatMessageFiles in chat message.
-     *
-     * @param message
-     *            chat message associated files
-     * @return not <code>null</code>
-     */
-    public List<ChatMessageFile> getChatMessageFiles(User user, ChatMessage message);
-
-    /**
-     * Get ChatMessageFiles by id.
-     *
-     * @param fileId
-     *            file Id
-     * @return ChatMessageFiles or <code>null</code>
-     */
-    public ChatMessageFile getChatMessageFile(User user, Long fileId);
-
-    /**
-     * Save ChatMessageFiles.
-     *
-     * @param file
-     *            new file to save (associated message in ChatMessageFiles)
-     * @return not <code>null</code>
-     */
-    public ChatMessageFile saveChatMessageFile(User user, ChatMessageFile file);
+    public void saveMessage(User user, AddMessageRequest request);
 
     /**
      * Gets ChatMessage.
      *
-     * @param messageId
-     *            message Id
+     * @param id
+     *              message Id
      * @return ChatMessage or <code>null</code>
      */
-    public ChatMessage getChatMessage(User user, Long messageId);
-
-    public ChatMessageDto getChatMessageDto(User user, Long messageId);
+    public ChatMessage getMessage(User user, Long id);
 
     /**
      * Get List array of ChatMessage, where all "message Id" < firstId.
      *
      * @param processId
-     *            chat Id
-     * @param firstId
-     *            message Id, all returned message id < firstId
-     * @param count
-     *            number of messages in the returned array
+     *              chat Id
      * @return not <code>null</code> order by date desc
      */
-    public List<ChatMessageDto> getChatMessages(User user, Long processId, Long firstId, int count);
+    public List<MessageAddedBroadcast> getMessages(User user, Long processId);
 
     /**
-     * Get List array of ChatMessage, where all "message Id" >= lastId.
-     *
-     * @param processId
-     *            chat Id
-     * @param lastId
-     *            message Id, all returned message id >= lastId
-     * @return not <code>null</code> order by date asc
-     */
-    public List<ChatMessageDto> getNewChatMessages(User user, Long processId);
-
-    /**
-     * Get List array of last ChatMessage (first in the array of all messages).
-     *
-     * @param processId
-     *            chat Id
-     * @param count
-     *            number of messages in the returned array
+     * Gets a list of chats
+     * @param user
+     *              authorized user
      * @return not <code>null</code>
      */
-    public List<ChatMessageDto> getFirstChatMessages(User user, Long processId, int count);
+    public List<WfChatRoom> getChatRooms(User user);
 
     /**
-     * Save ChatMessage in DB.
+     * Updates the message and sends the <code>MessageEditedBroadcast<code> to all active chats
      *
-     * @param processId
-     *            chat Id
-     * @param message
-     *            new message to save
-     * @return new message id
+     * @param request
+     *              request to edit message
      */
-    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate);
+    public void updateMessage(User user, EditMessageRequest request);
 
     /**
-     * Delete ChatMessage in DB.
+     * Deletes the message and sends the <code>MessageDeletedBroadcast<code> to all active chats
      *
-     * @param messId
-     *            message Id
+     * @param request
+     *              request to delete message
      */
-    public void deleteChatMessage(User user, Long messId);
+    public void deleteMessage(User user, DeleteMessageRequest request);
 
     /**
-     * Get number of chat messages with id > lastMessageId.
+     * Get <code>ChatMessageFilesDto</code> by id.
      *
-     * @param processId
-     *            chat Id
-     * @param lastMessageId
-     *            last message Id
-     * @return number of chat messages with id > lastMessageId
+     * @param fileId
+     *              file Id
+     * @return ChatMessageFiles or <code>null</code>
      */
-    public Long getNewChatMessagesCount(User user, Long processId);
+    public ChatMessageFileDto getChatMessageFile(User user, Long fileId);
 
     /**
      * Delete ChatMessages in DB.

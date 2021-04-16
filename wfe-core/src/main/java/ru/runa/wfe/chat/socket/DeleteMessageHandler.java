@@ -1,43 +1,35 @@
 package ru.runa.wfe.chat.socket;
 
 import java.io.IOException;
-import javax.websocket.Session;
+import java.util.List;
+import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import ru.runa.wfe.chat.dto.ChatDeleteMessageDto;
-import ru.runa.wfe.chat.dto.ChatNewMessageDto;
+import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
+import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
+import ru.runa.wfe.chat.dto.request.MessageRequest;
 import ru.runa.wfe.chat.logic.ChatLogic;
-import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 
 @Component
-public class DeleteMessageHandler implements ChatSocketMessageHandler {
+public class DeleteMessageHandler implements ChatSocketMessageHandler<DeleteMessageRequest> {
 
-    @Autowired
-    private ExecutionLogic executionLogic;
-    @Autowired
-    private ExecutorLogic executorLogic;
     @Autowired
     private ChatLogic chatLogic;
+    @Autowired
+    private ChatSessionHandler sessionHandler;
 
-    @Transactional
     @Override
-    public void handleMessage(Session session, String objectMessage, User user) throws IOException {
-        ChatDeleteMessageDto chatDeleteMessageDto = (ChatDeleteMessageDto) ChatNewMessageDto.load(objectMessage, ChatDeleteMessageDto.class);
-        if (executionLogic.getProcess(user, (Long) session.getUserProperties().get("processId")).isEnded()) {
-            return;
-        }
-        if (!executorLogic.isAdministrator(user)) {
-            return;
-        }
-        chatLogic.deleteMessage(user.getActor(), chatDeleteMessageDto.getMessageId());// messageId
+    @MonitoredWithSpring
+    public void handleMessage(DeleteMessageRequest request, User user) throws IOException {
+        List<Long> recipientIds = chatLogic.getRecipientIdsByMessageId(user, request.getMessageId());
+        chatLogic.deleteMessage(user, request.getMessageId());
+        sessionHandler.sendMessage(recipientIds,
+                new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()));
     }
 
     @Override
-    public boolean checkType(String messageType) {
-        return messageType.equals("deleteMessage");
+    public Class<? extends MessageRequest> getRequestType() {
+        return DeleteMessageRequest.class;
     }
-
 }

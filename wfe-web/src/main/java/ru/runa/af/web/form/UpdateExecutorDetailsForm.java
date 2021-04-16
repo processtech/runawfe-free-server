@@ -17,12 +17,15 @@
  */
 package ru.runa.af.web.form;
 
-import com.google.common.base.Strings;
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
+
+import com.google.common.base.Strings;
+
 import ru.runa.common.WebResources;
 import ru.runa.common.web.MessagesException;
 import ru.runa.common.web.form.IdForm;
