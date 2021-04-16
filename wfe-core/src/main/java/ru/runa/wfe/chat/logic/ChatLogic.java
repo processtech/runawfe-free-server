@@ -85,8 +85,8 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     @Transactional
-    public void readMessage(User user, Long messageId, Long processId) {
-        messageDao.readMessage(user.getActor(), messageId, processId);
+    public void readMessage(User user, Long messageId) {
+        messageDao.readMessage(user.getActor(), messageId);
     }
 
     public ChatMessage getMessageById(User user, Long messageId) {
@@ -97,7 +97,7 @@ public class ChatLogic extends WfCommonLogic {
     public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
         List<ChatMessage> messages = messageDao.getMessages(user.getActor(), processId);
         if (!messages.isEmpty()) {
-            messageDao.readMessage(user.getActor(), messages.get(0).getId(), processId);
+            messageDao.readMessage(user.getActor(), messages.get(0).getId());
         }
         return messageFileMapper.toDtos(messages);
     }

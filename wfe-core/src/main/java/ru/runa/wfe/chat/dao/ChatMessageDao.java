@@ -30,12 +30,13 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return queryFactory.select(cr.executor.id).from(cr).where(cr.message.id.eq(messageId)).fetch();
     }
 
-    public void readMessage(Actor user, Long messageId, Long processId) {
+    public void readMessage(Actor user, Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         QChatMessage cm = QChatMessage.chatMessage;
         Date date = new Date();
         queryFactory.update(cr).set(cr.readDate, date).where(cr.executor.eq(user).and(cr.message.id.loe(messageId)).and(cr.readDate.isNull())
-                .and(JPAExpressions.select(cm.process.id).from(cm).where(cm.id.eq(cr.message.id)).eq(processId))).execute();
+                .and(JPAExpressions.select(cm.process.id).from(cm).where(cm.id.eq(cr.message.id))
+                        .eq(JPAExpressions.select(cm.process.id).from(cm).where(cm.id.eq(messageId))))).execute();
     }
 
     public List<ChatMessage> getMessages(Actor user, Long processId) {
