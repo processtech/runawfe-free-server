@@ -105,6 +105,10 @@ public class ChatLogic extends WfCommonLogic {
         messageDao.update(message);
     }
 
+    public void deleteMessages(Actor actor, Long processId) {
+        messageDao.deleteMessages(processId);
+    }
+
     public void sendNotifications(User user, ChatMessage chatMessage, Collection<Executor> executors) {
         if (properties.isEmpty()) {
             log.debug("chat.email.properties are not defined");

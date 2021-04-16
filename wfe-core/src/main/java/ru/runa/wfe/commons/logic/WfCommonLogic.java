@@ -10,6 +10,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.dao.SystemLogDao;
+import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
@@ -83,6 +84,8 @@ public class WfCommonLogic extends CommonLogic {
     protected CurrentTokenDao currentTokenDao;
     @Autowired
     protected SystemLogDao systemLogDao;
+    @Autowired
+    protected ChatMessageDao chatMessageDao;
 
     public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) {
         return processDefinitionLoader.getDefinition(processDefinitionVersionId);
@@ -200,6 +203,7 @@ public class WfCommonLogic extends CommonLogic {
         currentVariableDao.deleteAll(process);
         taskDao.deleteAll(process);
         currentSwimlaneDao.deleteAll(process);
+        chatMessageDao.deleteMessages(process.getId());
         currentProcessDao.delete(process);
         systemLogDao.create(new ProcessDeleteLog(
                 user.getActor().getId(), process.getDefinitionVersion().getDefinition().getName(), process.getId()
@@ -208,7 +212,7 @@ public class WfCommonLogic extends CommonLogic {
 
     /**
      * Loads graph presentation elements for process definition.
-     * 
+     *
      * @param visitor
      *            Operation, which must be applied to loaded graph elements, or null, if nothing to apply.
      * @return List of graph presentation elements.

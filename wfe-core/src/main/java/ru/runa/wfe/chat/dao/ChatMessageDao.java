@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
+import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.commons.dao.GenericDao;
@@ -89,5 +90,13 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         queryFactory.delete(cr).where(cr.message.id.eq(id)).execute();
         delete(id);
+    }
+
+    @Transactional
+    public void deleteMessages(Long processId) {
+        QChatMessage m = QChatMessage.chatMessage;
+        for (ChatMessage cm : queryFactory.selectFrom(m).where(m.process.id.eq(processId)).fetch()) {
+            deleteMessageAndRecipient(cm.getId());
+        }
     }
 }
