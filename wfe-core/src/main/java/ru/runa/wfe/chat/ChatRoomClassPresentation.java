@@ -8,6 +8,7 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.VariableDbSources;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.Variable;
 
 import static ru.runa.wfe.execution.CurrentProcessClassPresentation.DEFINITION_NAME;
@@ -39,7 +40,7 @@ public class ChatRoomClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomStartDateTdBuilder", new Object[]{}).setVisible(false),
                 new FieldDescriptor(PROCESS_END_DATE, Date.class.getName(), new DefaultDbSource(ChatRoom.class, "process.endDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomEndDateTdBuilder", new Object[]{}).setVisible(false),
-                new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDbSources.get(null), true,
+                new FieldDescriptor(PROCESS_VARIABLE, CurrentVariable.class.getName(), VariableDbSources.get(null), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomVariableTdBuilder", new Object[]{}),
                 new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(ChatRoom.class, "definitionVersion.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{ Permission.READ, "process.version" }).setVisible(false),
