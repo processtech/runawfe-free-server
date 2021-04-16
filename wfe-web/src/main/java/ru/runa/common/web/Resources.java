@@ -71,6 +71,11 @@ public class Resources {
     public static final String H_MORE_ICON = "/images/h-more-16.png";
     public static final String V_MORE_ICON = "/images/v-more-16.png";
 
+    /* Chat actions */
+    public static final String IMAGE_CHAT_DELETE = "/images/chat_delete.png";
+    public static final String IMAGE_CHAT_EDIT = "/images/chat_edit.png";
+    public static final String IMAGE_CHAT_REPLY = "/images/chat_reply.png";
+
     /* Data source specifics */
     public static final String ICON_DATA_SOURCE_EXCEL = "/images/MS-Excel-2013-icon.png";
     public static final String ICON_DATA_SOURCE_JDBC = "/images/jdbc_16.gif";
