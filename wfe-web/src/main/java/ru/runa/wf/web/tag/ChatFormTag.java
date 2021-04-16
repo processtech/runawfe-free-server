@@ -138,7 +138,7 @@ public class ChatFormTag extends TitledFormTag {
 
     private A getEditMessageButton(MessageAddedBroadcast message) {
         if (message.getAuthor().equals(user.getActor())) {
-            IMG button = new IMG(Commons.getUrl(Resources.IMAGE_CHAT_EDIT, pageContext, PortletUrlType.Action)).setAlt("Изменить");
+            IMG button = new IMG(Commons.getUrl(Resources.IMAGE_CHAT_EDIT, pageContext, PortletUrlType.Action));
             button.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
             return new A().addElement(button.setAlign("right"));
         }
@@ -146,7 +146,7 @@ public class ChatFormTag extends TitledFormTag {
     }
 
     private A getReplyButton(MessageAddedBroadcast message) {
-        IMG button = new IMG(Commons.getUrl(Resources.IMAGE_CHAT_REPLY, pageContext, PortletUrlType.Action)).setAlt("Ответить");
+        IMG button = new IMG(Commons.getUrl(Resources.IMAGE_CHAT_REPLY, pageContext, PortletUrlType.Action));
         button.setOnClick("reply(\"" + message.getText() + "\");");
         return new A().addElement(button.setAlign("right"));
     }
