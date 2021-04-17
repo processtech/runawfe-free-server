@@ -421,8 +421,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     @Transactional(readOnly = true)
     public List<Actor> getAllActorsWithPagination(int pageIndex, int itemsCount) {
         QActor a = QActor.actor;
-        return queryFactory.selectFrom(a).where(a.email.isNotNull().and(a.email.isNotEmpty())).orderBy(a.name.asc())
-                .offset(pageIndex * itemsCount).limit(itemsCount).fetch();
+        return queryFactory.selectFrom(a).offset(pageIndex * itemsCount).limit(itemsCount).fetch();
     }
 
     /**

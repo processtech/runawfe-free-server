@@ -29,12 +29,6 @@ public class ProcessDao extends GenericDao<Process> {
         }
     }
 
-    @Transactional(readOnly = true)
-    public String getDefinitionName(Process process) {
-        QProcess p = QProcess.process;
-        return queryFactory.select(p.deployment.name).from(p).where(p.eq(process)).fetchFirst();
-    }
-
     /**
      * fetches all processes for the given process definition from the database. The returned list of processs is sorted start date, youngest first.
      */
