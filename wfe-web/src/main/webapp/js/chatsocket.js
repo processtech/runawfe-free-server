@@ -67,7 +67,7 @@ function notifyAboutNewMessage(message) {
         title: "Новое сообщение в чате процесса " + message.processId,
         position: ['left', 'bottom'],
         open: function () {
-            setTimeout(function(){$('#' + notificationId).dialog("close")},10000);
+            setTimeout(function () {$('#' + notificationId).dialog("close")}, 10000);
         }
     });
 }
