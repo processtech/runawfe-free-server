@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.NodeErrorLog;
+import ru.runa.wfe.audit.CurrentNodeErrorLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -100,7 +100,7 @@ public class MultiinstanceUtils {
         } else {
             group = executionContext.getVariableProvider().getValueNotNull(Group.class, parameters.discriminatorVariableName);
         }
-        parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
+        parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDao().getGroupActors(group));
         parameters.discriminatorTypeGroup();
     }
 
@@ -184,7 +184,7 @@ public class MultiinstanceUtils {
         } else if ("group".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null) {
             Object miVar = ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(), parameters.discriminatorVariableName);
             Group group = TypeConversionUtil.convertTo(Group.class, miVar);
-            parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
+            parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDao().getGroupActors(group));
             parameters.discriminatorTypeGroup();
         } else if ("relation".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null && miRelationDiscriminatorTypeParam != null) {
             String relationName = (String) ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(),
@@ -284,7 +284,7 @@ public class MultiinstanceUtils {
         @SuppressWarnings("unchecked")
         protected void logIfDiscriminatorValueEmpty(ExecutionContext executionContext, Node node) {
             if (discriminatorValue instanceof List && ((List<Object>) discriminatorValue).isEmpty()) {
-                executionContext.addLog(new NodeErrorLog(node,
+                executionContext.addLog(new CurrentNodeErrorLog(node,
                         String.format(discriminatorType.getMessage(), relationName != null ? relationName : discriminatorVariableName)));
             }
         }
