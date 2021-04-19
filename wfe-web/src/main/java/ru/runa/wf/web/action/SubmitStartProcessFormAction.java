@@ -6,6 +6,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
+import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
@@ -54,7 +55,11 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
 
     @Override
     protected ActionMessage getMessage(Long processId) {
-        return new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString());
+        if (WebResources.getProcessStartedMessage() == null) {
+            return new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString());
+        } else {
+            return new ActionMessage(WebResources.getProcessStartedMessage().replace("{0}", processId.toString()), false);
+        }
     }
 
     protected ActionForward getForward(ActionMapping mapping) {
