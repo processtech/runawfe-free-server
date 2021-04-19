@@ -614,10 +614,16 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         executor = sessionFactory.getCurrentSession().get(Executor.class, executor.getId());
         sessionFactory.getCurrentSession().delete(executor);
     }
-    
+
     public boolean hasPassword(Actor actor) {
         ActorPassword actorPassword = getActorPassword(actor);
         return actorPassword != null && actorPassword.getPassword().length > 0;
+    }
+
+    public long getAllActorsCount() {
+        QActor a = QActor.actor;
+        return queryFactory.selectFrom(a)
+                .fetchCount();
     }
 
     /**

@@ -53,6 +53,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATA_SOURCES, SecuredSingleton.DATASOURCES));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SYSTEM, SecuredSingleton.SYSTEM));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_ERRORS, SecuredSingleton.ERRORS, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
@@ -124,6 +125,9 @@ public class TabHeaderTag extends TagSupport {
     private boolean isMenuForwardVisible(MenuForward menuForward) {
         try {
             if (menuForward.forAdministratorOnly) {
+                if (!Delegates.getExecutorService().isAdministrator(getUser())) {
+                    return false;
+                }
                 if (menuForward.menuMessage.getKey().equals(MessagesCommon.MAIN_MENU_ITEM_INTERNAL_STORAGE.getKey())) {
                     final boolean isInternalStoragePresent = DataSourceStorage.getNames().contains(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME);
                     if (!isInternalStoragePresent) {
@@ -133,7 +137,7 @@ public class TabHeaderTag extends TagSupport {
                         return false;
                     }
                 }
-                return Delegates.getExecutorService().isAdministrator(getUser());
+                return true;
             }
             if (menuForward.menuMessage.getKey().equals("chat_rooms")) {
                 return WebResources.isChatEnabled();

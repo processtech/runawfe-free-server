@@ -11,7 +11,6 @@ import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
-import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.user.Executor;
 
 @Component
@@ -51,11 +50,4 @@ public class ProcessDao extends ArchiveAwareGenericDao<Process, CurrentProcess, 
         return result;
     }
 
-    // TODO Unused.
-    public List<Process> getProcesses(final ProcessFilter filter) {
-        val result = new ArrayList<Process>();
-        result.addAll(currentDao.getProcesses(filter));
-        result.addAll(archivedDao.getProcesses(filter));
-        return result;
-    }
 }

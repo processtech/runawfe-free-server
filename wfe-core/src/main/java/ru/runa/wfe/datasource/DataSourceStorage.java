@@ -179,6 +179,14 @@ public class DataSourceStorage implements DataSourceStuff {
         return all;
     }
 
+    public static int getAllDataSourcesCount() {
+        List<DataSource> all = Lists.newArrayList();
+        for (String dsName : getNames()) {
+            all.add(getDataSource(dsName));
+        }
+        return all.size();
+    }
+
     public static List<String> getNames() {
         File[] files = getStorageDir().listFiles(new FileFilter() {
             @Override

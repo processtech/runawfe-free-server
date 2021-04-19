@@ -20,6 +20,7 @@ public final class MessagesException {
     public static final StrutsMessage ERROR_DEFINITION_ALREADY_EXISTS = new StrutsMessage("definition.already.exists.error");
     public static final StrutsMessage ERROR_DEFINITION_DOES_NOT_EXIST = new StrutsMessage("definition.does.not.exist.error");
     public static final StrutsMessage ERROR_DEFINITION_NAME_MISMATCH = new StrutsMessage("definition.name.mismatch.error");
+    public static final StrutsMessage ERROR_DEFINITION_NOT_COMPATIBLE = new StrutsMessage("definition.not.compatible.error");
     public static final StrutsMessage ERROR_PROCESS_DOES_NOT_EXIST = new StrutsMessage("process.does.not.exist.error");
     public static final StrutsMessage ERROR_TASK_DOES_NOT_EXIST = new StrutsMessage("task.does.not.exist.error");
     public static final StrutsMessage ERROR_TASK_FORM_NOT_DEFINED = new StrutsMessage("task.form.not.defined.error");

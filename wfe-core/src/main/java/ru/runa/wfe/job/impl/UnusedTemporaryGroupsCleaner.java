@@ -3,6 +3,7 @@ package ru.runa.wfe.job.impl;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
 @CommonsLog
@@ -11,6 +12,7 @@ public class UnusedTemporaryGroupsCleaner {
     protected SessionFactory sessionFactory;
 
     @Transactional
+    @Scheduled(fixedDelayString = "${timertask.period.millis.remove.temp.groups}")
     public void execute() {
         log.debug("Cleaning unused temporary groups");
         // TODO seems like bug in generated query: Column "TEMPORARYG0_.PROCESS_ID" not found

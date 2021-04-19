@@ -34,10 +34,10 @@ public class SystemProperties {
     public static PropertyResources getResources() {
         return RESOURCES;
     }
-    
+
     public static boolean isTaskDelegationEnabled() {
         return RESOURCES.getBooleanProperty("task.delegation.enabled", true);
-    }       
+    }
 
     /**
      * Production or development mode?
@@ -248,6 +248,10 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("definition.comments.empty.allowed", true);
     }
 
+    public static boolean isDefinitionCompatibilityCheckEnabled() {
+        return RESOURCES.getBooleanProperty("definition.compatibility.check.enabled", true);
+    }
+
     public static boolean isCheckProcessStartPermissions() {
         return RESOURCES.getBooleanProperty("check.process.start.permissions", true);
     }
@@ -451,6 +455,13 @@ public class SystemProperties {
 
     public static String getPreferredMessagesLanguage() {
         return RESOURCES.getStringProperty("preferred.messages.language");
+    }
+
+    /**
+     * System statistic report enabled
+     */
+    public static boolean isReportStatisticEnabled() {
+        return RESOURCES.getBooleanProperty("statistic.report.enabled", false);
     }
 
     public static String getChatFileStoragePath() {

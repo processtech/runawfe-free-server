@@ -35,6 +35,7 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
+import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
 import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
@@ -144,6 +145,8 @@ public class DbMigrationsConfig {
         dbMigrations.add(CreateChatDbPatch.class);
         dbMigrations.add(RefactorPermissionsBack.class);
         dbMigrations.add(RemoveWfeConstants.class);
+        dbMigrations.add(CreateStatisticReportTable.class);
+        // develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);
         dbMigrations.add(SupportProcessArchivingBefore.class);
