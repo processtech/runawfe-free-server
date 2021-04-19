@@ -1,6 +1,5 @@
 package ru.runa.wfe.chat.dao;
 
-import com.querydsl.core.types.Projections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -11,7 +10,6 @@ import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageRecipient;
-import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.definition.QProcessDefinition;
 import ru.runa.wfe.definition.QProcessDefinitionVersion;
@@ -53,21 +51,9 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     }
 
     @Transactional(readOnly = true)
-    public List<WfChatRoom> getChatRooms(Actor actor) {
-        final QChatMessageRecipient chatMessageRecipient = QChatMessageRecipient.chatMessageRecipient;
-        final QCurrentProcess process = QCurrentProcess.currentProcess;
-        final QProcessDefinitionVersion definitionVersion = QProcessDefinitionVersion.processDefinitionVersion;
-        final QProcessDefinition definition = QProcessDefinition.processDefinition;
-        return queryFactory
-                .select(Projections.constructor(WfChatRoom.class, process.id, definition.name, chatMessageRecipient.count().subtract(chatMessageRecipient.readDate.count())))
-                .from(chatMessageRecipient)
-                .innerJoin(chatMessageRecipient.message.process, process)
-                .innerJoin(process.definitionVersion, definitionVersion)
-                .innerJoin(definitionVersion.definition, definition)
-                .where(chatMessageRecipient.executor.eq(actor))
-                .groupBy(process.id, definition.name)
-                .orderBy(process.id.desc())
-                .fetch();
+    public Long getNewMessagesCount(Actor user) {
+        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
+        return queryFactory.select(cr.count()).from(cr).where(cr.executor.eq(user).and(cr.readDate.isNull())).fetchCount();
     }
 
     @Transactional

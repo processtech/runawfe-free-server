@@ -30,13 +30,13 @@ public class ProcessVariableTdBuilder implements TdBuilder {
     //now used for excel export only
     @Override
     public String getValue(Object object, Env env) {
-        WfProcess process = (WfProcess) object;
-        WfVariable variable = process.getVariable(variableName);
+        WfVariable variable = getVariable(object);
+        Long id = getId(object);
         if (variable != null && variable.getValue() != null) {
             VariableFormat format = variable.getDefinition().getFormatNotNull();
             //workaround for correct excel export of FileVariable
             if (FileVariable.class.equals(format.getJavaClass())) {
-                return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), process.getId(), variable);
+                return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), id, variable);
             }
             return format.formatJSON(variable.getValue());
         }
@@ -49,16 +49,28 @@ public class ProcessVariableTdBuilder implements TdBuilder {
     }
     
     private String getDisplayValue(Object object, Env env) {
-        WfProcess process = (WfProcess) object;
-        WfVariable variable = process.getVariable(variableName);
+        WfVariable variable = getVariable(object);
+        Long id = getId(object);
         if (variable != null && variable.getValue() != null) {
-            return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), process.getId(), variable);
+            return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), id, variable);
         }
         return "";
+    }
+
+    protected WfVariable getVariable(Object object) {
+        return ((WfProcess) object).getVariable(variableName);
+    }
+
+    protected Long getId(Object object) {
+        return ((WfProcess) object).getId();
     }
 
     @Override
     public int getSeparatedValuesCount(Object object, Env env) {
         return 1;
+    }
+
+    public String getVariableName() {
+        return variableName;
     }
 }

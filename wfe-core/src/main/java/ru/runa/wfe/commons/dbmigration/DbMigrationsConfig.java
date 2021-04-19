@@ -7,6 +7,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddArchivedProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddAssignDateColumnPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddBatchPresentationIsSharedPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddChatRoomViewPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddColumnForEmbeddedBotTaskFileName;
 import ru.runa.wfe.commons.dbmigration.impl.AddColumnsToSubstituteEscalatedTasksPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddCreateDateColumns;
@@ -153,6 +154,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddArchivedProcessExternalData.class);
         dbMigrations.add(AddUuidAndDropBytesChatMessageFilePatch.class);
         dbMigrations.add(DropQuotedMessageIdsPatch.class);
+        dbMigrations.add(AddChatRoomViewPatch.class);
         return dbMigrations;
     }
 }
