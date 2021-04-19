@@ -128,4 +128,9 @@ public class DeploymentDao extends GenericDao<Deployment> {
         return queryFactory.selectFrom(d).where(d.name.eq(name)).orderBy(d.version.desc()).fetch();
     }
 
+    public long getAllDeploymentNameCount() {
+        QDeployment d = QDeployment.deployment;
+        return queryFactory.selectDistinct(d.name).from(d)
+                .fetchCount();
+    }
 }

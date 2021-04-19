@@ -206,6 +206,10 @@ public class WebResources {
     public static String getButtonName(String propertyName) {
         return RESOURCES.getStringProperty(propertyName);
     }
+
+    public static String getProcessStartedMessage() {
+        return RESOURCES.getStringProperty("process.started");
+    }
     public static boolean isChatEnabled() {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }
