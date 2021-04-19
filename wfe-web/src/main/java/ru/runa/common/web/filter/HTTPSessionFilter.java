@@ -1,5 +1,6 @@
 package ru.runa.common.web.filter;
 
+import com.google.common.net.HttpHeaders;
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -17,9 +18,16 @@ import ru.runa.common.web.InvalidSessionException;
  * @web.filter-mapping url-pattern = "/*"
  */
 public class HTTPSessionFilter extends HTTPFilterBase {
-
+    public static final String BEARER_PREFIX = "Bearer ";
+    
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header != null && header.startsWith(BEARER_PREFIX)) {
+            chain.doFilter(request, response);
+            return;
+        }
+        
         String query = request.getRequestURI();
         if (query.equals("/wfe/")) {
             try {

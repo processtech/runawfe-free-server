@@ -3,10 +3,7 @@ package ru.runa.wfe.rest.auth;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import java.io.IOException;
-import java.security.Key;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
@@ -25,15 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.rest.config.SpringSecurityConfig;
+import ru.runa.wfe.security.SecuredObjectUtil;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    public static final String BEARER_PREFIX = "Bearer ";
-    public static final Key JWT_SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     public static final String USER_ACTOR_ID_ATTRIBUTE_NAME = "uid";
     public static final String USER_SECURED_KEY_ATTRIBUTE_NAME = "usk";
 
@@ -75,10 +72,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private Claims getTokenClaims(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith(BEARER_PREFIX)) {
+        if (header == null || !header.startsWith(SecuredObjectUtil.BEARER_PREFIX)) {
             return null;
         }
-        return Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(header.replace(BEARER_PREFIX, "")).getBody();
+        return Jwts.parserBuilder().setSigningKey(SecuredObjectUtil.JWT_SECRET_KEY).build().parseClaimsJws(header.replace(SecuredObjectUtil.BEARER_PREFIX, "")).getBody();
     }
 
     // TODO newweb костыль на скорую руку

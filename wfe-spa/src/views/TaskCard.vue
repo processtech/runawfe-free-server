@@ -63,6 +63,17 @@
                     </v-expand-transition>
                 </v-col>
             </v-row>
+            <v-row>
+                <v-col cols="12">
+                    <iframe
+                        :src="oldFormUrl"
+                        width="100%"
+                        height="100%"
+                        frameborder="0" >
+                        Ваш браузер не поддерживает плавающие фреймы!
+                    </iframe>
+                </v-col>
+            </v-row>
         </v-container>
     </v-card>
 </template>
@@ -77,8 +88,12 @@ export default Vue.extend({
     data() {
         return {
             showTaskInfo: false,
-            task: new Task()
+            task: new Task(),
+            oldFormUrl: 'about:blank',
         }
+    },
+    computed: {
+        token: get('user/token'),
     },
     methods: {
         goBack() {
@@ -108,9 +123,13 @@ export default Vue.extend({
                 }).then((data: any) => {
                     if (data) {
                         this.task = Object.assign(this.task, data.body);
+                        this.loadForm();
                     }
                 });
             });
+        },
+        loadForm() {
+            this.oldFormUrl = `http://localhost:8080/wfe/form-preloader?taskId=${this.task.id}&jwt=${this.token}`;
         }
     },
     created: function() {

@@ -120,7 +120,6 @@
 	</dependencies>
 
 	<build>
-
 		<plugins>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
