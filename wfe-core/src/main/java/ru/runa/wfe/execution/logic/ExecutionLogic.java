@@ -102,6 +102,7 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
 
 /**
  * Process execution logic.
@@ -625,7 +626,7 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    private String getProcessErrors(Process process) {
+    public String getProcessErrors(Process process) {
         List<String> processErrors = Lists.newArrayList();
         try {
             for (WfToken token : getTokens(process)) {
@@ -654,6 +655,26 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
+    public List<WfVariable> getVariables(List<String> variableNamesToInclude, Map<Process, Map<String, Variable<?>>> variables, Process process) {
+        List<WfVariable> wfVariables = Lists.newArrayList();
+        if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
+            try {
+                ProcessDefinition processDefinition = getDefinition(process);
+                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
+                for (String variableName : variableNamesToInclude) {
+                    try {
+                        wfVariables.add(executionContext.getVariableProvider().getVariable(variableName));
+                    } catch (Exception e) {
+                        log.error("Unable to get '" + variableName + "' in " + process, e);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Unable to get variables in " + process, e);
+            }
+        }
+        return wfVariables;
+    }
+
     private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
         List<WfToken> result = Lists.newArrayList();
         List<Token> tokens = tokenDao.findByProcessAndExecutionStatusIsNotEnded(process);
@@ -675,21 +696,7 @@ public class ExecutionLogic extends WfCommonLogic {
         Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
         for (Process process : processes) {
             WfProcess wfProcess = new WfProcess(process, getProcessErrors(process));
-            if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
-                try {
-                    ProcessDefinition processDefinition = getDefinition(process);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
-                    for (String variableName : variableNamesToInclude) {
-                        try {
-                            wfProcess.addVariable(executionContext.getVariableProvider().getVariable(variableName));
-                        } catch (Exception e) {
-                            log.error("Unable to get '" + variableName + "' in " + process, e);
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("Unable to get variables in " + process, e);
-                }
-            }
+            wfProcess.addAllVariables(getVariables(variableNamesToInclude, variables, process));
             result.add(wfProcess);
         }
         return result;

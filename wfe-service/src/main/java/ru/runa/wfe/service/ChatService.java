@@ -8,6 +8,7 @@ import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.User;
 
 /**
@@ -47,12 +48,35 @@ public interface ChatService {
     public List<MessageAddedBroadcast> getMessages(User user, Long processId);
 
     /**
+     * Get new messages count for a concrete user.
+     *
+     * @param user
+     *              authorized user, the count of new messages for which will be returned
+     *
+     * @return new messages count
+     */
+    public Long getNewMessagesCount(User user);
+
+    /**
+     * Get chats count
+     *
+     * @param user
+     *              authorized user
+     * @param batchPresentation
+     *              batch presentation
+     * @return chats count
+     */
+    public int getChatRoomsCount(User user, BatchPresentation batchPresentation);
+
+    /**
      * Gets a list of chats
      * @param user
      *              authorized user
+     * @param batchPresentation
+     *              batch presentation
      * @return not <code>null</code>
      */
-    public List<WfChatRoom> getChatRooms(User user);
+    public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation);
 
     /**
      * Updates the message and sends the <code>MessageEditedBroadcast<code> to all active chats

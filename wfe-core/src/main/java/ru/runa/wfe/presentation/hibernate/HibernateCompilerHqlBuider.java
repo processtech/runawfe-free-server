@@ -215,9 +215,10 @@ public class HibernateCompilerHqlBuider {
      */
     private List<String> addClassPresentationRestriction() {
         List<String> result = new LinkedList<>();
-        String restrictions = batchPresentation.getType().getRestrictions();
-        if (!Strings.isNullOrEmpty(restrictions)) {
-            result.add(restrictions);
+        for (String restriction : batchPresentation.getType().getRestrictions()) {
+            if (!Strings.isNullOrEmpty(restriction)) {
+                result.add(restriction);
+            }
         }
         return result;
     }
