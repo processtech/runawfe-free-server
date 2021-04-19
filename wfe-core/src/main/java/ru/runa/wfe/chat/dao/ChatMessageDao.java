@@ -3,6 +3,7 @@ package ru.runa.wfe.chat.dao;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import com.querydsl.jpa.JPAExpressions;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,9 +39,11 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
 
     public void readMessage(Actor user, Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
+        QChatMessage cm = QChatMessage.chatMessage;
         Date date = new Date();
-        queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.loe(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
-                .execute();
+        queryFactory.update(cr).set(cr.readDate, date).where(cr.executor.eq(user).and(cr.message.id.loe(messageId)).and(cr.readDate.isNull())
+                .and(JPAExpressions.select(cm.process.id).from(cm).where(cm.id.eq(cr.message.id))
+                        .eq(JPAExpressions.select(cm.process.id).from(cm).where(cm.id.eq(messageId))))).execute();
     }
 
     public List<ChatMessage> getMessages(Actor user, Long processId) {
