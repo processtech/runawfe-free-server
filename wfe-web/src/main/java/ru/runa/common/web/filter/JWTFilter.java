@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.security.SecuredObjectUtil;
-import ru.runa.wfe.service.client.DelegateExecutorLoader;
+import ru.runa.wfe.security.auth.SubjectPrincipalsHelper;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
@@ -48,14 +48,11 @@ public class JWTFilter extends HTTPFilterBase {
     }
 
     private User getUser(HttpServletRequest request, Claims claims) throws UnsupportedEncodingException {
-        Actor actor = getActor(claims.getSubject());
-        byte[] securedKey = Base64.getDecoder().decode((String) claims.get(USER_SECURED_KEY_ATTRIBUTE_NAME));
+        String login = claims.getSubject();
+        Actor actor = Delegates.getExecutorService().getActorCaseInsensitive(login);
+        byte[] securedKey = Base64.getDecoder().decode(claims.get(USER_SECURED_KEY_ATTRIBUTE_NAME, String.class));
         User user = new User(actor, securedKey);
         return user;
-    }
-
-    private Actor getActor(String login) {
-        return Delegates.getExecutorService().getActorCaseInsensitive(login);
     }
 
     private Claims getTokenClaims(String token) {

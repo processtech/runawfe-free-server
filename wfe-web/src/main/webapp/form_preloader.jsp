@@ -17,7 +17,7 @@ function getHtmlForm() {
     $.ajax({
          url: '<%=request.getContextPath()%>/getForm',
          type: 'POST',
-         dataType: 'json',
+         dataType: 'html',
          data: {
             taskId: <%=taskId%>
          },

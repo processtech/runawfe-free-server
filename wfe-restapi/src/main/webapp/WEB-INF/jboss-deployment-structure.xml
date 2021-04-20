@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<jboss-deployment-structure
-	xmlns="urn:jboss:deployment-structure:1.1">
-	<module name="ru.runa.wfe.core">
-		<resources>
-			<resource-root path="wfe-core.jar" />
-		</resources>
-	</module>
-</jboss-deployment-structure>

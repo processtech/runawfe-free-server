@@ -57,12 +57,15 @@ public class OldFormBuilderServlet extends HttpServlet {
         ApplicationContextFactory.getFormHandlerExecutor().execute(taskId);
         task = Delegates.getTaskService().getTask(user, taskId);
         interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionVersionId(), task.getNodeId());
-        PageContextExtension pageContext = new PageContextExtension();
-        pageContext.initialize(this, request, response, null, false, 8192, true);
+        PageContextExtension pageContext = null;
+        if (interaction.hasForm()) {
+            pageContext = new PageContextExtension();
+            pageContext.initialize(this, request, response, null, false, 8192, true);
+        }
         TaskFormBuilder taskFormBuilder = TaskFormBuilderFactory.createTaskFormBuilder(user, pageContext, interaction);
         response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-        out.println(taskFormBuilder.build(task));
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().print(taskFormBuilder.build(task));
     }
 
     @Data

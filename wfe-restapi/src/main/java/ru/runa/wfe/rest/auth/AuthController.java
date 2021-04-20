@@ -34,7 +34,7 @@ public class AuthController {
                 .setId(UUID.randomUUID().toString())
                 .setSubject(login)
                 .claim(JwtAuthenticationFilter.USER_ACTOR_ID_ATTRIBUTE_NAME, user.getActor().getId())
-                .claim(JwtAuthenticationFilter.USER_SECURED_KEY_ATTRIBUTE_NAME, Base64.getEncoder().encode(user.getSecuredKey()))
+                .claim(JwtAuthenticationFilter.USER_SECURED_KEY_ATTRIBUTE_NAME, Base64.getEncoder().encodeToString(user.getSecuredKey()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(Date.from(expirationInstant))
                 .signWith(SecuredObjectUtil.JWT_SECRET_KEY, SignatureAlgorithm.HS512)
