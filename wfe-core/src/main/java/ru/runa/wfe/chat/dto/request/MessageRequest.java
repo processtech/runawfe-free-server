@@ -14,8 +14,7 @@ import ru.runa.wfe.chat.dto.ChatDto;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = AddMessageRequest.class, name = "newMessage"),
         @JsonSubTypes.Type(value = EditMessageRequest.class, name = "editMessage"),
-        @JsonSubTypes.Type(value = DeleteMessageRequest.class, name = "deleteMessage"),
-        @JsonSubTypes.Type(value = ReadMessageRequest.class, name = "readMessage")
+        @JsonSubTypes.Type(value = DeleteMessageRequest.class, name = "deleteMessage")
 })
 public abstract class MessageRequest extends ChatDto {
 }
