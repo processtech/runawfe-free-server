@@ -42,12 +42,12 @@ function isChatOpen(message) {
         && window.location.search === "?processId=" + message.processId;
 }
 
-let aliveNotifications = [];
+let aliveNotification = "";
 
 function notifyAboutNewMessage(message) {
+    $('#' + aliveNotification).remove();
     let notificationId = 'notification' + message.id.toString();
-    aliveNotifications.forEach(function (item) {$('#' + item).remove();});
-    aliveNotifications = [notificationId];
+    aliveNotification = notificationId;
 
     let messageFrom = document.createElement("h3");
     messageFrom.append(message.author);
