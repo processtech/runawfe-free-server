@@ -24,10 +24,10 @@ public class EditMessageHandler implements ChatSocketMessageHandler<EditMessageR
     public void handleMessage(EditMessageRequest request, User user) throws IOException {
         ChatMessage message = chatLogic.getMessageById(user, request.getEditMessageId());
         if (message != null) {
-            message.setText(request.getMessage());
+            message.setMessageText(request.getMessage());
             chatLogic.updateMessage(user, message);
             sessionHandler.sendMessage(chatLogic.getRecipientIdsByMessageId(user, message.getId()),
-                    new MessageEditedBroadcast(request.getProcessId(), message.getId(), message.getText(), user.getName()));
+                    new MessageEditedBroadcast(request.getProcessId(), message.getId(), message.getMessageText(), user.getName()));
         }
     }
 

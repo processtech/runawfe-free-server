@@ -8,7 +8,7 @@ public class MessageAddedBroadcastMapper extends AbstractModelMapper<ChatMessage
     public MessageAddedBroadcast toDto(ChatMessage entity) {
         MessageAddedBroadcast dto = new MessageAddedBroadcast();
         dto.setAuthor(entity.getCreateActor());
-        dto.setText(entity.getText());
+        dto.setText(entity.getMessageText());
         dto.setCreateDate(entity.getCreateDate());
         dto.setId(entity.getId());
         dto.setProcessId(entity.getProcess().getId());

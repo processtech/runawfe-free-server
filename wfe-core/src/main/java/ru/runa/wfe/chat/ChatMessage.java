@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -46,17 +47,18 @@ public class ChatMessage implements Serializable {
     @Column(name = "TEXT", length = 2048)
     private String text;
 
-    @Column(name = "EXTENDED_TEXT")
+    @Lob
+    @Column(name = "EXTENDED_TEXT", columnDefinition = "CLOB")
     private String extendedText;
 
-    public String getText() {
+    public String getMessageText() {
         if (extendedText != null) {
             return extendedText;
         }
         return text;
     }
 
-    public void setText(String text) {
+    public void setMessageText(String text) {
         if (text.length() > 2048) {
             this.extendedText = text;
             this.text = null;
