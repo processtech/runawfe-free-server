@@ -32,6 +32,7 @@ import ru.runa.wfe.chat.mapper.ChatMessageFileDetailMapper;
 import ru.runa.wfe.chat.mapper.MessageAddedBroadcastFileMapper;
 import ru.runa.wfe.chat.mapper.MessageAddedBroadcastMapper;
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
@@ -92,11 +93,9 @@ public class ChatLogic extends WfCommonLogic {
     public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
         List<ChatMessage> messages = messageDao.getMessages(user.getActor(), processId);
         if (!messages.isEmpty()) {
-            List<Long> messageIds = Lists.newArrayListWithExpectedSize(messages.size());
-            for (ChatMessage message : messages) {
-                messageIds.add(message.getId());
+            for (List<ChatMessage> messagesPart : Lists.partition(messages, SystemProperties.getDatabaseParametersCount())) {
+                messageDao.readMessages(user.getActor(), messagesPart);
             }
-            messageDao.readMessages(user.getActor(), messageIds);
         }
         return messageFileMapper.toDtos(messages);
     }

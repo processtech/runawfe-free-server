@@ -29,11 +29,11 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return queryFactory.select(cr.executor.id).from(cr).where(cr.message.id.eq(messageId)).fetch();
     }
 
-    public void readMessages(Actor user, List<Long> messageIds) {
+    public void readMessages(Actor user, List<ChatMessage> messages) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Date date = new Date();
         queryFactory.update(cr).set(cr.readDate, date)
-                .where(cr.executor.eq(user).and(cr.message.id.in(messageIds)).and(cr.readDate.isNull())).execute();
+                .where(cr.executor.eq(user).and(cr.message.in(messages)).and(cr.readDate.isNull())).execute();
     }
 
     public List<ChatMessage> getMessages(Actor user, Long processId) {
