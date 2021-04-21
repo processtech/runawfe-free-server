@@ -12,6 +12,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
@@ -45,26 +46,27 @@ public class ChatMessage implements Serializable {
     private Process process;
 
     @Column(name = "TEXT", length = 2048)
-    private String text;
+    private String shortText;
 
     @Lob
-    @Column(name = "EXTENDED_TEXT", columnDefinition = "CLOB")
-    private String extendedText;
+    @Column(name = "LONG_TEXT", columnDefinition = "CLOB")
+    private String longText;
 
-    public String getMessageText() {
-        if (extendedText != null) {
-            return extendedText;
+    @Transient
+    public String getText() {
+        if (longText != null) {
+            return longText;
         }
-        return text;
+        return shortText;
     }
 
-    public void setMessageText(String text) {
+    public void setText(String text) {
         if (text.length() > 2048) {
-            this.extendedText = text;
-            this.text = null;
+            this.longText = text;
+            this.shortText = null;
         } else {
-            this.text = text;
-            this.extendedText = null;
+            this.shortText = text;
+            this.longText = null;
         }
     }
 }

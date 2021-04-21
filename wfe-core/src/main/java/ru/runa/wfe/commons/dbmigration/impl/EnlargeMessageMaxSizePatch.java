@@ -8,6 +8,6 @@ public class EnlargeMessageMaxSizePatch extends DbMigration {
     protected void executeDDLBefore() throws Exception {
         executeUpdates(
                 getDDLModifyColumn("CHAT_MESSAGE", new VarcharColumnDef("TEXT", 2048)),
-                getDDLCreateColumn("CHAT_MESSAGE", new ClobColumnDef("EXTENDED_TEXT")));
+                getDDLCreateColumn("CHAT_MESSAGE", new ClobColumnDef("LONG_TEXT")));
     }
 }

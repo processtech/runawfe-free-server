@@ -144,7 +144,7 @@ public class ChatLogic extends WfCommonLogic {
             String title = titlePattern//
                     .replace("$actorName", chatMessage.getCreateActor().getName())//
                     .replace("$processId", chatMessage.getProcess().getId().toString());
-            String message = ((String) properties.get("message.pattern")).replace("$message", chatMessage.getMessageText());
+            String message = ((String) properties.get("message.pattern")).replace("$message", chatMessage.getText());
             mimeMessage.setFrom(new InternetAddress(properties.getProperty("login")));
             mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(Joiner.on(";").join(emails)));
             mimeMessage.setSubject(title);
