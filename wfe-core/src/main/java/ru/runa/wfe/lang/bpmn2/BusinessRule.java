@@ -10,7 +10,7 @@ import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
 
 public class BusinessRule extends Node {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1235L;
     private Delegation delegation;
 
     @Override
