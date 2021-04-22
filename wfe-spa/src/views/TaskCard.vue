@@ -36,14 +36,14 @@
                             >
                                 <v-icon>mdi-information-outline</v-icon>
                             </v-btn>
-                            <v-spacer />
+                            <!-- <v-spacer />
                             <v-btn
                                 class="float-right"
                                 color="primary"
                                 @click="completeTask(task)"
                             >
                             Выполнить
-                            </v-btn>
+                            </v-btn> -->
                         </v-card-title>
                     </v-card>
                     <v-expand-transition>

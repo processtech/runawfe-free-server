@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="ru.runa.common.Version" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <!DOCTYPE html>
 <html>
@@ -7,6 +8,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title></title>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/main.css?"+Version.getHash() %>' />">
+<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/jquery-ui-1.9.2.custom.css" />">
 <script type="text/javascript" src="<html:rewrite page="/js/jquery-1.8.3.min.js" />"></script>
 <script type="text/javascript">
 <% 

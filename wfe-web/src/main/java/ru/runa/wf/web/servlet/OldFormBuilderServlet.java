@@ -19,19 +19,18 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.el.ExpressionEvaluator;
 import javax.servlet.jsp.el.VariableResolver;
 import lombok.Data;
-import ru.runa.wf.web.TaskFormBuilder;
-import ru.runa.wf.web.TaskFormBuilderFactory;
-import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.task.dto.WfTask;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.ecs.ConcreteElement;
+import org.apache.struts.Globals;
+import ru.runa.common.web.ActionExceptionHelper;
+import ru.runa.wf.web.tag.TaskFormTag;
 import ru.runa.wfe.user.User;
 
 public class OldFormBuilderServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private User user;
-    private Interaction interaction;
-    private WfTask task;
+    private TaskFormTagExtension taskFormTag;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -54,20 +53,75 @@ public class OldFormBuilderServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "attribute user is null");
             return;
         }
-        ApplicationContextFactory.getFormHandlerExecutor().execute(taskId);
-        task = Delegates.getTaskService().getTask(user, taskId);
-        interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionVersionId(), task.getNodeId());
-        PageContextExtension pageContext = null;
-        if (interaction.hasForm()) {
-            pageContext = new PageContextExtension();
-            pageContext.initialize(this, request, response, null, false, 8192, true);
-        }
-        TaskFormBuilder taskFormBuilder = TaskFormBuilderFactory.createTaskFormBuilder(user, pageContext, interaction);
+        PageContextExtension pageContext = new PageContextExtension();
+        pageContext.initialize(this, request, response, null, false, 8192, true);
+        
         response.setContentType("text/html");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().print(taskFormBuilder.build(task));
+        
+        taskFormTag = new TaskFormTagExtension();
+        taskFormTag.setPageContext(pageContext);
+        taskFormTag.setUser(user);
+        taskFormTag.setResponse(response);
+        taskFormTag.setAction(null);
+        taskFormTag.setTaskId(taskId);
+        taskFormTag.doStartTag();
+        taskFormTag.doEndTag();
     }
 
+    private class TaskFormTagExtension extends TaskFormTag {
+        private static final long serialVersionUID = 1L;
+
+        private boolean isVisible = false;
+        
+        @Setter
+        private User user;
+        
+        @Getter
+        @Setter
+        private HttpServletResponse response;
+        
+        @Override
+        public int doStartTag() {
+            PrintWriter writer = null;
+            try {
+                isVisible = isVisible();
+                if (isVisible) {
+                    writer = response.getWriter();
+                    ConcreteElement element = getStartElement();
+                    element.output(writer);
+                }
+            } catch (Throwable th) {
+                log.debug("", th);
+                if (writer != null) {
+                    writer.write("<span class=\"error\">" + ActionExceptionHelper.getErrorMessage(th, pageContext) + "</span>");
+                }
+            }
+            return doStartTagReturnedValue();
+        }
+        
+        @Override
+        public int doEndTag() {
+            PrintWriter writer = null;
+            if (isVisible) {
+                try {
+                    writer = response.getWriter();
+                    ConcreteElement element = getEndElement();
+                    element.output(writer);
+                } catch (Throwable th) {
+                    log.debug("", th);
+                    writer.write("<span class=\"error\">" + ActionExceptionHelper.getErrorMessage(th, pageContext) + "</span>");
+                }
+            }
+            return doEndTagReturnedValue();
+        }
+        
+        @Override
+        protected User getUser() {
+            return user;
+        }
+    }
+    
     @Data
     private class PageContextExtension extends PageContext {
         private Servlet servlet;
@@ -88,6 +142,7 @@ public class OldFormBuilderServlet extends HttpServlet {
             this.needsSession = needsSession;
             this.bufferSize = bufferSize;
             this.autoFlush = autoFlush;
+            getSession().setAttribute(Globals.TRANSACTION_TOKEN_KEY, "");
         }
 
         @Override
@@ -98,8 +153,7 @@ public class OldFormBuilderServlet extends HttpServlet {
 
         @Override
         public HttpSession getSession() {
-            // TODO Auto-generated method stub
-            return null;
+            return request.getSession();
         }
 
         @Override
@@ -122,8 +176,7 @@ public class OldFormBuilderServlet extends HttpServlet {
 
         @Override
         public ServletContext getServletContext() {
-            // TODO Auto-generated method stub
-            return null;
+            return request.getServletContext();
         }
 
         @Override
