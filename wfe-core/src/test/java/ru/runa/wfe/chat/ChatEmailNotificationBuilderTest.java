@@ -7,12 +7,13 @@ import java.util.Map;
 import org.mockito.Mockito;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import ru.runa.wfe.chat.sender.ChatEmailNotificationContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Actor;
 
 import static org.testng.Assert.assertTrue;
 
-public class NewMessagesForProcessTableBuilderTest {
+public class ChatEmailNotificationBuilderTest {
 
     private final int messageLimit = 3;
     private final Process process = Mockito.mock(Process.class);
@@ -60,16 +61,21 @@ public class NewMessagesForProcessTableBuilderTest {
     @Test(dataProvider = "getEndMoreMessageData")
     public void givenAndMoreMessageCount_thenShouldContainAndMoreTextDependingNumber(int andMoreMessageCount, String andMoreTextDependingNumber) {
         int messageCount = messageLimit + andMoreMessageCount;
-        Map<ChatMessage, List<ChatMessageFile>> filesByMessages = new HashMap<>(messageCount);
+        Map<ChatMessage, List<ChatMessageFile>> files = new HashMap<>(messageCount);
         for (int i = 0; i < messageCount; i++) {
             ChatMessage message = new ChatMessage();
+            message.setProcess(process);
             message.setCreateActor(actor);
             message.setText(Integer.toString(i));
-            filesByMessages.put(message, files);
+            files.put(message, this.files);
         }
-        NewMessagesForProcessTableBuilder builder = new NewMessagesForProcessTableBuilder("", messageLimit, process,
-                "processName", filesByMessages);
-        String message = builder.build(true);
+        final ChatEmailNotificationContext context = new ChatEmailNotificationContext();
+        context.setMessages(new ArrayList<>(files.keySet()));
+        context.setFiles(files);
+
+        ChatEmailNotificationBuilder builder = new ChatEmailNotificationBuilder(messageLimit);
+        String message = builder.build(context);
+
         assertTrue(message.contains(andMoreTextDependingNumber));
     }
 }

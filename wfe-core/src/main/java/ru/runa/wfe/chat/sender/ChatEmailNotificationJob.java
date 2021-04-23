@@ -2,22 +2,31 @@ package ru.runa.wfe.chat.sender;
 
 import com.google.common.io.ByteStreams;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Set;
+import javax.annotation.Resource;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.transaction.annotation.Transactional;
+import ru.runa.wfe.chat.ChatEmailNotificationBuilder;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.NewMessagesForProcessTableBuilder;
+import ru.runa.wfe.chat.dao.ChatFileDao;
+import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.email.EmailConfig;
+import ru.runa.wfe.commons.email.EmailConfigParser;
+import ru.runa.wfe.commons.email.EmailUtils;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Created on 07.04.2021
@@ -28,13 +37,23 @@ import ru.runa.wfe.user.Actor;
 @CommonsLog
 public class ChatEmailNotificationJob {
 
+    @Resource(name = "chatEmailNotificationJob")
+    private ChatEmailNotificationJob self;
     @Autowired
-    private ChatEmailNotificationTransactionWrapper transactionWrapper;
+    private ExecutorDao executorDao;
+    @Autowired
+    private PermissionDao permissionDao;
+    @Autowired
+    private ProcessDefinitionLoader definitionLoader;
+    @Autowired
+    private ChatMessageDao chatMessageDao;
+    @Autowired
+    private ChatFileDao chatFileDao;
 
     private static final int MESSAGE_LIMIT = 3;
     private byte[] configBytes;
 
-    private String baseUrl;
+    private final ChatEmailNotificationBuilder emailBuilder = new ChatEmailNotificationBuilder(MESSAGE_LIMIT);
 
     @Required
     public void setConfigLocation(String path) {
@@ -48,84 +67,81 @@ public class ChatEmailNotificationJob {
 
     @Required
     public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
+        emailBuilder.setBaseUrl(baseUrl);
     }
 
     public void execute() {
         if (configBytes == null) {
             return;
         }
-        List<Actor> actors;
+        Map<Actor, ChatEmailNotificationContext> contextsByActors;
         int page = 0;
-        while (!(actors = transactionWrapper.getAllActorsWithPagination(page++, 10)).isEmpty()) {
-            sendEmailsToActors(actors);
+        while (!(contextsByActors = self.getContextsByActorsWithPagination(page++, 10)).isEmpty()) {
+            sendEmailsToActors(contextsByActors);
         }
     }
 
-    private void sendEmailsToActors(List<Actor> actors) {
+    private void sendEmailsToActors(Map<Actor, ChatEmailNotificationContext> contexts) {
+        for (Map.Entry<Actor, ChatEmailNotificationContext> entry : contexts.entrySet()) {
+            ChatEmailNotificationContext context = entry.getValue();
+            List<String> emailsToSend = EmailUtils.getEmails(entry.getKey());
+            String emails = EmailUtils.concatenateEmails(emailsToSend);
+            EmailConfig config = EmailConfigParser.parse(configBytes);
+            config.getHeaderProperties().put(EmailConfig.HEADER_TO, emails);
+            config.getHeaderProperties().put("Subject", "Количество непрочитанных сообщений: " + context.getMessagesSize());
+            config.setMessage(emailBuilder.build(context));
+            try {
+                EmailUtils.sendMessage(config);
+            } catch (Exception e) {
+                log.error("Email notification to: " + emails + " send error: " + e);
+            }
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Actor, ChatEmailNotificationContext> getContextsByActorsWithPagination(int pageIndex, int pageSize) {
+        List<Actor> actors = executorDao.getAllActorsHaveEmailWithPagination(pageIndex, pageSize);
+        Map<Actor, ChatEmailNotificationContext> result = new HashMap<>(actors.size());
         for (Actor actor : actors) {
-            if (!actor.isActive()) {
-                continue;
-            }
-            final ChatEmailNotificationConfigurator emailConfigurator = new ChatEmailNotificationConfigurator(configBytes);;
-            emailConfigurator.setAddressesByActor(actor);
-            if (emailConfigurator.isAddressesEmpty()) {
-                continue;
-            }
-            final List<ChatMessage> messages = transactionWrapper.getNewMessagesByActor(actor);
+            List<ChatMessage> messages = chatMessageDao.getNewMessagesByActor(actor);
             if (messages.isEmpty()) {
                 continue;
             }
-            emailConfigurator.setSubject(messages.size());
-            final String message = createMessageForActor(actor, mappingByProcess(messages));
-            emailConfigurator.sendMessage(message);
-        }
-    }
-
-    private Map<Process, List<ChatMessage>> mappingByProcess(List<ChatMessage> messages) {
-        final Map<Process, List<ChatMessage>> result = new HashMap<>();
-        for (ChatMessage message : messages) {
-            result.computeIfAbsent(message.getProcess(), new ComputeIfAbsentFunction()).add(message);
+            ChatEmailNotificationContext context = new ChatEmailNotificationContext();
+            context.setMessages(messages);
+            context.setFiles(getFilesByMessages(messages));
+            Set<Process> processes = context.getProcesses();
+            context.setProcessesNames(getNamesByProcesses(processes));
+            context.setPermissions(getPermissionByActorAndProcesses(actor, processes));
+            result.put(actor, context);
         }
         return result;
     }
 
-    public String createMessageForActor(Actor actor, Map<Process, List<ChatMessage>> messagesByProcess) {
-        StringBuilder result = new StringBuilder();
-        for (Map.Entry<Process, List<ChatMessage>> entry : messagesByProcess.entrySet()) {
-            if (entry.getValue().isEmpty()) {
-                continue;
-            }
-            Process process = entry.getKey();
-            Map<ChatMessage, List<ChatMessageFile>> filesByMessages = getFilesByMessages(entry.getValue());
-            ProcessDefinition definition = transactionWrapper.getProcessDefinition(process);
-            NewMessagesForProcessTableBuilder builder = new NewMessagesForProcessTableBuilder(baseUrl, MESSAGE_LIMIT,
-                    process, definition.getName(), filesByMessages);
-            boolean isAllowed = transactionWrapper.isProcessReadAllowed(actor, process);
-            result.append(builder.build(isAllowed));
-        }
-        return result.toString();
-    }
 
     private Map<ChatMessage, List<ChatMessageFile>> getFilesByMessages(List<ChatMessage> messages) {
-        final Map<ChatMessage, List<ChatMessageFile>> result = new LinkedHashMap<>(messages.size());
-        int messageCount = 0;
+        final Map<ChatMessage, List<ChatMessageFile>> result = new HashMap<>(messages.size());
         for (ChatMessage message : messages) {
-            List<ChatMessageFile> files;
-            if (messageCount++ < MESSAGE_LIMIT) {
-                files = transactionWrapper.getByMessage(message);
-            } else {
-                files = new ArrayList<>();
-            }
-            result.put(message, files);
+            result.put(message, chatFileDao.getByMessage(message));
         }
         return result;
     }
 
-    private static class ComputeIfAbsentFunction implements Function<Process, List<ChatMessage>> {
-        @Override
-        public List<ChatMessage> apply(Process process) {
-            return new ArrayList<>();
+    private Map<Process, String> getNamesByProcesses(Set<Process> processes) {
+        Map<Process, String> result = new HashMap<>(processes.size());
+        for (Process process : processes) {
+            ProcessDefinition definition = definitionLoader.getDefinition(process);
+            result.put(process, definition.getName());
         }
+        return result;
+    }
+
+    private Map<Process, Boolean> getPermissionByActorAndProcesses(Actor actor, Set<Process> processes) {
+        Map<Process, Boolean> result = new HashMap<>(processes.size());
+        for (Process process : processes) {
+            Boolean isAllowed = permissionDao.isAllowed(actor, Permission.READ, process.getSecuredObjectType(), process.getIdentifiableId());
+            result.put(process, isAllowed);
+        }
+        return result;
     }
 }

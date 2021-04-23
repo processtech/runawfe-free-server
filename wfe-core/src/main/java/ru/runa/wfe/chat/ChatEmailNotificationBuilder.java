@@ -2,6 +2,7 @@ package ru.runa.wfe.chat;
 
 import java.util.List;
 import java.util.Map;
+import ru.runa.wfe.chat.sender.ChatEmailNotificationContext;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Actor;
@@ -12,61 +13,62 @@ import ru.runa.wfe.user.Actor;
  * @author Sergey Inyakin
  * @since 2148
  */
-public class NewMessagesForProcessTableBuilder {
-    private final String baseUrl;
+
+public class ChatEmailNotificationBuilder {
     private final int messageLimit;
-    private final Process process;
-    private final String processName;
-    private final Map<ChatMessage, List<ChatMessageFile>> filesByMessages;
-    private boolean isProcessLink;
+    private String baseUrl;
 
-    public NewMessagesForProcessTableBuilder(String baseUrl, int messageLimit, Process process, String processName, Map<ChatMessage, List<ChatMessageFile>> filesByMessages) {
-        this.baseUrl = baseUrl;
+    public ChatEmailNotificationBuilder(int messageLimit) {
         this.messageLimit = messageLimit;
-        this.process = process;
-        this.processName = processName;
-        this.filesByMessages = filesByMessages;
     }
 
-    public String build(boolean isProcessLink) {
-        this.isProcessLink = isProcessLink;
-        return createTableForProcess();
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
-    private String createTableForProcess() {
+    public String build(ChatEmailNotificationContext context) {
+        StringBuilder result = new StringBuilder();
+        for (Process process : context.getProcesses()) {
+            result.append(createTableForProcess(process, context));
+        }
+        return result.toString();
+    }
+
+    private String createTableForProcess(Process process, ChatEmailNotificationContext context) {
         return "<table style='margin-bottom: 10px; border-spacing: 0.5em 0.5em; width: 100%;'>" +
                 "   <tbody>" +
                 "       <tr>" +
                 "           <td style='border-bottom: 1px solid #ccc;'>" +
-                                createProcessField() +
+                createProcessField(process, context) +
                 "           </td>" +
                 "       </tr>" +
-                        createMessageRows() +
+                createMessageRows(process, context) +
                 "   </tbody>" +
                 "</table>\n";
     }
 
-    private String createProcessField() {
-        String text = "#" + process.getId() + ": " + processName;
-        if (baseUrl != null && isProcessLink) {
+    private String createProcessField(Process process, ChatEmailNotificationContext context) {
+        String text = "#" + process.getId() + ": " + context.getNameByProcess(process);
+        if (baseUrl != null && context.isPermissionReadByProcess(process)) {
             return "<a href='" + baseUrl + "/wfe/manage_process.do?id=" + process.getId() + "'>" + text + "</a>";
         }
         return text;
     }
 
-    private String createMessageRows() {
+    private String createMessageRows(Process process, ChatEmailNotificationContext context) {
         StringBuilder result = new StringBuilder();
+        Map<ChatMessage, List<ChatMessageFile>> messagesByProcess = context.getMessagesByProcess(process);
         int messageCount = 0;
-        for (Map.Entry<ChatMessage, List<ChatMessageFile>> entry : filesByMessages.entrySet()) {
+        for (Map.Entry<ChatMessage, List<ChatMessageFile>> entry : messagesByProcess.entrySet()) {
             result.append("<tr><td style='padding: 0 10px;'>");
-            result.append(createMessageTable(entry.getKey() , entry.getValue()));
+            result.append(createMessageTable(entry.getKey(), entry.getValue()));
             result.append("</td></tr>");
             if (++messageCount >= messageLimit) {
                 break;
             }
         }
-        if (filesByMessages.size() > messageLimit) {
-            result.append(createAndMoreRow(filesByMessages.size() - messageLimit));
+        if (messagesByProcess.size() > messageLimit) {
+            result.append(createAndMoreRow(messagesByProcess.size() - messageLimit));
         }
         return result.toString();
     }
@@ -93,10 +95,10 @@ public class NewMessagesForProcessTableBuilder {
     }
 
     private String createFileFieldRow(List<ChatMessageFile> files) {
-        StringBuilder result = new StringBuilder();
         if (files.isEmpty()) {
             return "";
         }
+        StringBuilder result = new StringBuilder();
         result.append("<tr><td style='padding: 0 10px;'>");
         result.append("<table><tbody>");
         for (ChatMessageFile file : files) {
