@@ -8,15 +8,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import javax.annotation.Resource;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.NewMessagesForProcessTableBuilder;
-import ru.runa.wfe.chat.dao.ChatFileDao;
-import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -31,10 +28,6 @@ import ru.runa.wfe.user.Actor;
 @CommonsLog
 public class ChatEmailNotificationJob {
 
-    @Autowired
-    private ChatMessageDao chatMessageDao;
-    @Autowired
-    private ChatFileDao chatFileDao;
     @Autowired
     private ChatEmailNotificationTransactionWrapper transactionWrapper;
 
@@ -79,7 +72,7 @@ public class ChatEmailNotificationJob {
             if (emailConfigurator.isAddressesEmpty()) {
                 continue;
             }
-            final List<ChatMessage> messages = chatMessageDao.getNewMessagesByActor(actor);
+            final List<ChatMessage> messages = transactionWrapper.getNewMessagesByActor(actor);
             if (messages.isEmpty()) {
                 continue;
             }
@@ -120,7 +113,7 @@ public class ChatEmailNotificationJob {
         for (ChatMessage message : messages) {
             List<ChatMessageFile> files;
             if (messageCount++ < MESSAGE_LIMIT) {
-                files = chatFileDao.getByMessage(message);
+                files = transactionWrapper.getByMessage(message);
             } else {
                 files = new ArrayList<>();
             }

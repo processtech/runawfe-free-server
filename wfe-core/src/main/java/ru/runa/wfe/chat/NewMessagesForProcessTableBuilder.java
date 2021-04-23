@@ -28,12 +28,12 @@ public class NewMessagesForProcessTableBuilder {
         this.filesByMessages = filesByMessages;
     }
 
-    public String build(boolean withProcessLink) {
-        isProcessLink = withProcessLink;
+    public String build(boolean isProcessLink) {
+        this.isProcessLink = isProcessLink;
         return createTableForProcess();
     }
 
-    public String createTableForProcess() {
+    private String createTableForProcess() {
         return "<table style='margin-bottom: 10px; border-spacing: 0.5em 0.5em; width: 100%;'>" +
                 "   <tbody>" +
                 "       <tr>" +

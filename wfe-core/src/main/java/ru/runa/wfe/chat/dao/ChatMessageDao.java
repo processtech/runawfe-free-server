@@ -56,7 +56,6 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
                 .from(cr).join(cr.message.process, p).join(p.deployment, d).where(cr.executor.eq(actor)).groupBy(p.id, d.name).orderBy(p.id.desc()).fetch();
     }
 
-    @Transactional(readOnly = true)
     public List<ChatMessage> getNewMessagesByActor(Actor actor) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         QChatMessage cm = QChatMessage.chatMessage;
