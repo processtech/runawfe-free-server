@@ -2,7 +2,6 @@ package ru.runa.wfe.chat;
 
 import java.util.List;
 import java.util.Map;
-import lombok.AllArgsConstructor;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Actor;
@@ -13,16 +12,28 @@ import ru.runa.wfe.user.Actor;
  * @author Sergey Inyakin
  * @since 2148
  */
-@AllArgsConstructor
 public class NewMessagesForProcessTableBuilder {
     private final String baseUrl;
+    private final int messageLimit;
     private final Process process;
     private final String processName;
     private final Map<ChatMessage, List<ChatMessageFile>> filesByMessages;
-    private final boolean isAllowed;
-    private final int messageLimit;
+    private boolean isProcessLink;
 
-    public String build() {
+    public NewMessagesForProcessTableBuilder(String baseUrl, int messageLimit, Process process, String processName, Map<ChatMessage, List<ChatMessageFile>> filesByMessages) {
+        this.baseUrl = baseUrl;
+        this.messageLimit = messageLimit;
+        this.process = process;
+        this.processName = processName;
+        this.filesByMessages = filesByMessages;
+    }
+
+    public String build(boolean withProcessLink) {
+        isProcessLink = withProcessLink;
+        return createTableForProcess();
+    }
+
+    public String createTableForProcess() {
         return "<table style='margin-bottom: 10px; border-spacing: 0.5em 0.5em; width: 100%;'>" +
                 "   <tbody>" +
                 "       <tr>" +
@@ -32,16 +43,15 @@ public class NewMessagesForProcessTableBuilder {
                 "       </tr>" +
                         createMessageRows() +
                 "   </tbody>" +
-                "</table>";
+                "</table>\n";
     }
 
     private String createProcessField() {
         String text = "#" + process.getId() + ": " + processName;
-        if (baseUrl != null && isAllowed) {
+        if (baseUrl != null && isProcessLink) {
             return "<a href='" + baseUrl + "/wfe/manage_process.do?id=" + process.getId() + "'>" + text + "</a>";
-        } else {
-            return text;
         }
+        return text;
     }
 
     private String createMessageRows() {
@@ -103,30 +113,36 @@ public class NewMessagesForProcessTableBuilder {
         String text = "<span>\uD83D\uDCCE</span>" + file.getName();
         if (baseUrl != null) {
             return "<a href='" + baseUrl + "/wfe/chatFileOutput?fileId=" + file.getId() + "' download='" + file.getName() + "'>" + text + "</a>";
-        } else {
-            return text;
         }
+        return text;
     }
 
     private String createActorField(Actor actor) {
         if (baseUrl != null) {
             return "<a href='" + baseUrl + "/wfe/manage_executor.do?id=" + actor.getId() + "'>" + actor.getName() + "</a>";
-        } else {
-            return actor.getName();
         }
+        return actor.getName();
     }
 
     private String createAndMoreRow(int messageCount) {
+        return "<tr><td style='padding: 0 20px;'><div>...</div>" +
+                "<div>" + getAndMoreTextDependingNumber(messageCount) + "</div>" +
+                "</td></tr>";
+    }
+
+    private String getAndMoreTextDependingNumber(int num) {
+        int remainder = num % 100;
+        if (remainder > 19) {
+            remainder = remainder % 10;
+        }
         String suffix;
-        if (messageCount == 1) {
+        if (remainder == 1) {
             suffix = "новое сообщение";
-        } else if (messageCount >= 2 && messageCount <= 4) {
+        } else if (remainder >= 2 && remainder <= 4) {
             suffix = "новых сообщения";
         } else {
             suffix = "новых сообщений";
         }
-        return "<tr><td style='padding: 0 20px;'><div>...</div>" +
-                "<div>И еще " + messageCount + " " + suffix + "</div>" +
-                "</td></tr>";
+        return "И еше " + num + " " + suffix;
     }
 }

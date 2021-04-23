@@ -29,10 +29,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.dao.CommonDao;
@@ -410,29 +416,28 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     /**
-     * Load all {@linkplain Actor}s with pagination.
-     *
-     * @param pageIndex
-     *            page number (first page = 0)
-     * @param itemsCount
-     *            number of items for a page
-     * @return {@linkplain Actor}s, loaded according to page namber and item count.
-     */
-    @Transactional(readOnly = true)
-    public List<Actor> getAllActorsWithPagination(int pageIndex, int itemsCount) {
-        QActor a = QActor.actor;
-        return queryFactory.selectFrom(a).offset(pageIndex * itemsCount).limit(itemsCount).fetch();
-    }
-
-    /**
      * Load all {@linkplain Actor}s according to {@linkplain BatchPresentation} .</br> <b>Paging is not enabled. Really ALL actors is loading.</b>
-     * 
+     *
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load actors.
      * @return {@linkplain Actor}s, loaded according to {@linkplain BatchPresentation}.
      */
     public List<Actor> getAllActors(BatchPresentation batchPresentation) {
         return getAll(Actor.class, batchPresentation);
+    }
+
+    /**
+     * Load all {@linkplain Actor}s with pagination.
+     *
+     * @param pageIndex
+     *            page number (first page = 0)
+     * @param pageSize
+     *            number of items for a page
+     * @return {@linkplain Actor}s, loaded according to page namber and item count.
+     */
+    public List<Actor> getAllActorsWithPagination(int pageIndex, int pageSize) {
+        QActor a = QActor.actor;
+        return queryFactory.selectFrom(a).orderBy(a.id.asc()).offset(pageIndex * pageSize).limit(pageSize).fetch();
     }
 
     /**

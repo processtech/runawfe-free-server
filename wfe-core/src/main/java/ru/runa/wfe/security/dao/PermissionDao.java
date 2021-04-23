@@ -35,7 +35,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CollectionUtil;
@@ -274,7 +273,6 @@ public class PermissionDao extends CommonDao {
         return isAllowed(user.getActor(), permission, type, id);
     }
 
-    @Transactional(readOnly = true)
     public boolean isAllowed(Executor executor, Permission permission, SecuredObjectType type, Long id) {
         if (!SecurityCheckProperties.isPermissionCheckRequired(type)) {
             return checkRequiredRules(executor, permission, type, id);

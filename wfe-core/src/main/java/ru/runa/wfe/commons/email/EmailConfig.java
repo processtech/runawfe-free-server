@@ -80,10 +80,6 @@ public class EmailConfig implements Serializable {
         }
     }
 
-    public void clearMessage() {
-        this.message = "";
-    }
-
     public boolean isThrowErrorOnFailure() {
         if (getCommonProperties().containsKey(COMMON_THROW_ERROR_ON_FAILURE)) {
             return Boolean.valueOf(getCommonProperties().get(COMMON_THROW_ERROR_ON_FAILURE));
