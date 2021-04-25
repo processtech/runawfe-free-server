@@ -125,11 +125,6 @@
 		<servlet-name>version</servlet-name>
 		<servlet-class>ru.runa.wf.web.servlet.VersionServlet</servlet-class>
 	</servlet>
-
-	<servlet>
-		<servlet-name>oldFormBuilder</servlet-name>
-		<servlet-class>ru.runa.wf.web.servlet.OldFormBuilderServlet</servlet-class>
-	</servlet>
 	
 	<servlet>
 		<servlet-name>formPreloader</servlet-name>
@@ -184,11 +179,6 @@
 	<servlet-mapping>
 		<servlet-name>version</servlet-name>
 		<url-pattern>/version</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>oldFormBuilder</servlet-name>
-		<url-pattern>/getForm</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

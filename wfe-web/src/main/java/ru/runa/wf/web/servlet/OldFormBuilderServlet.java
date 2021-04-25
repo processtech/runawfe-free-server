@@ -10,6 +10,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +28,7 @@ import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.wf.web.tag.TaskFormTag;
 import ru.runa.wfe.user.User;
 
+@WebServlet(name = "OldFormBuilderServlet", urlPatterns = {"/getOldForm"})
 public class OldFormBuilderServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private User user;
