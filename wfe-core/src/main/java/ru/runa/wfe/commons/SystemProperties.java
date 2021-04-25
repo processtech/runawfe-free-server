@@ -434,4 +434,12 @@ public class SystemProperties {
     public static boolean isReportStatisticEnabled() {
         return RESOURCES.getBooleanProperty("statistic.report.enabled", false);
     }
+
+    public static boolean isReassignSwimlaneToInitializer() {
+        return RESOURCES.getBooleanProperty("reassign.swimlane.to.initializer", false);
+    }
+
+    public static boolean isReassignSwimlaneToTaskPerformer() {
+        return RESOURCES.getBooleanProperty("reassign.swimlane.to.task.performer", true);
+    }
 }
