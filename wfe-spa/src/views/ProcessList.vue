@@ -170,7 +170,7 @@ export default Vue.extend({
         getClass (process: any) {
             let cl = '';
             const timestamp = new Date().getTime();
-            if (process.endDate != null && process.endDate < timestamp) {
+            if (process.endDate != null && process.endDate > timestamp) {
                 cl = 'process2';
             }
             return cl;

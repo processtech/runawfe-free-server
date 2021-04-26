@@ -23,6 +23,8 @@
 <% } %>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/jquery.edit-list.js?"+Version.getHash() %>' />">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/common.v2.js?"+Version.getHash() %>' />">c=0;</script>
+<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />">c=0;</script>
+<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/taskformutils.js?"+Version.getHash() %>' />"></script>
 <script type="text/javascript" src="/wfe/js/i18n/delegate.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js?<%=Version.getHash()%>">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/delegate.dialog.js?"+Version.getHash() %>' />">c=0;</script>

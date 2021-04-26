@@ -16,11 +16,11 @@ const router = new VueRouter({
   routes: [
     layout('Auth'),
     layout('Default', [
-      {
-        name: 'Рабочий стол',
-        component: Desktop,
-        path: '',
-      },
+      // {
+      //   name: 'Рабочий стол',
+      //   component: Desktop,
+      //   path: '',
+      // },
       {
         name: 'Мои задачи',
         component: TaskList,

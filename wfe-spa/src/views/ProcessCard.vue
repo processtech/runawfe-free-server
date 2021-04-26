@@ -55,7 +55,8 @@
             <v-row justify="center" align="start">
                 <v-col cols="12">
                     <v-img 
-                        max-width="1000px"
+                        max-width="800px"
+                        max-height="100%"
                         :src="graphImage"
                     ></v-img>
                 </v-col>
@@ -80,7 +81,7 @@ export default Vue.extend({
     },
     methods: {
         goBack() {
-            window.history.length > 1 ? this.$router.go(-1) : this.$router.push({ name: 'Запущенные процессы' });
+            this.$router.push({ name: 'Запущенные процессы' });
         },
         loadProcess(): void {
             this.$apiClient().then((client: any) => {

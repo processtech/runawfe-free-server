@@ -97,7 +97,7 @@ export default Vue.extend({
     },
     methods: {
         goBack() {
-            window.history.length > 1 ? this.$router.go(-1) : this.$router.push({ name: 'Мои задачи' });
+            this.$router.push({ name: 'Мои задачи' });
         },
         completeTask(task: any) {
             const variables = {};
