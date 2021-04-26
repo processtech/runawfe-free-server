@@ -231,7 +231,7 @@ export default Vue.extend({
                 pageNumber: page,
                 pageSize: itemsPerPage,
                 sortings: Sorting.convert(sortBy, sortDesc),
-                variables: []
+                variables: Array
             };
             this.$apiClient().then((client: any) => {
                 client['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
