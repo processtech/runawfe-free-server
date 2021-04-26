@@ -22,6 +22,7 @@
     <script type="text/javascript" src="/wfe/js/i18n/jquery.ui.timepicker-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <% } %>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/jquery.edit-list.js?"+Version.getHash() %>' />">c=0;</script>
+<script type="text/javascript" src="<html:rewrite page='<%="/js/common.v2.js?"+Version.getHash() %>' />">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/taskformutils.js?"+Version.getHash() %>' />"></script>
 <script type="text/javascript" src="/wfe/js/i18n/delegate.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js?<%=Version.getHash()%>">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/delegate.dialog.js?"+Version.getHash() %>' />">c=0;</script>
@@ -39,6 +40,7 @@
 Long taskId = Long.valueOf(request.getParameter("taskId"));
 String token = "Bearer " + request.getParameter("jwt");
 %>
+var submitButton = null;
 function getHtmlForm() {
     $.ajax({
          url: '<%=request.getContextPath()%>/getOldForm',
@@ -68,6 +70,10 @@ $(document).ready(function () {
     $('body').on('submit', 'form#processForm', function() {
         var formElement = document.getElementById('processForm');
         var formData = new FormData(formElement);
+        if (null === submitButton) {
+            submitButton = $('form#processForm').find('input[name=submitButton]')[0];
+        }
+        formData.append(submitButton.name, submitButton.value);
         $.ajax({
             url: '<%=request.getContextPath()%>/submitOldTaskForm',
             type: 'POST',
@@ -78,7 +84,7 @@ $(document).ready(function () {
             contentType: false,
             success: function (data) {
                  if (data) {
-                      $('body').html(data.msg);
+                      $('body').html('<b style="color: blue;">' + data.msg + '</b>');
                  }
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -87,6 +93,9 @@ $(document).ready(function () {
         });
         //for prevent default and stop bubbling up
         return false;
+    });
+    $('body').on('click', 'input[name=submitButton]', function() {
+        submitButton = this;
     });
 });
 </script>

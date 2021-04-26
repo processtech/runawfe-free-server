@@ -117,10 +117,15 @@ public class OldFormBuilderServlet extends HttpServlet {
             }
             return doEndTagReturnedValue();
         }
-        
+
         @Override
         protected User getUser() {
             return user;
+        }
+
+        @Override
+        protected String getSubmitButtonName() {
+            return "Задание выполнено";
         }
     }
     

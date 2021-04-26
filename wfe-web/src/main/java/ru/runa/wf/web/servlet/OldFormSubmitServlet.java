@@ -5,6 +5,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,9 +37,8 @@ import ru.runa.wfe.var.VariableProvider;
 public class OldFormSubmitServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final String USER_DEFINED_VARIABLES = "UserInputVariables";
-    private static final String USER_INPUT_ERRORS = "UserInputErrors";
-    private static final String USER_INPUT_FILES = "UserInputFiles";
     private User user;
+    private Interaction interaction;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -50,6 +52,7 @@ public class OldFormSubmitServlet extends HttpServlet {
 
     @SuppressWarnings("unchecked")
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
         user = (User) request.getAttribute("user");
         if (user == null) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "attribute user is null");
@@ -61,7 +64,7 @@ public class OldFormSubmitServlet extends HttpServlet {
         }
         Long taskId = Long.valueOf(request.getParameter("id"));
         WfTask task = Delegates.getTaskService().getTask(user, taskId);
-        Interaction interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionVersionId(), task.getNodeId());
+        interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionVersionId(), task.getNodeId());
         Map<String, String> errors = Maps.newHashMap();
         Map<String, Object> variables = extractVariables(request, interaction, 
                 new DelegateProcessVariableProvider(user, task.getProcessId()), taskId.toString(), errors);
@@ -73,14 +76,21 @@ public class OldFormSubmitServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, buff.toString());
             return;
         }
-        String transitionName = request.getParameter("submitButton");
+        String transitionName = null;
+        if (isMultipleSubmit()) {
+            transitionName = decode(request.getParameter("submitButton"));
+        }
         variables.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         Delegates.getTaskService().completeTask(user, taskId, variables);
         FormSubmissionUtils.clearUserInputFiles(request);
         JSONObject message = new JSONObject();
-        message.put("msg", String.format("Задание %d выполнено!", taskId));
+        message.put("msg", "Задание выполнено");
         response.setContentType("application/json; charset=utf-8");
         response.getWriter().print(message);
+    }
+
+    private boolean isMultipleSubmit() {
+        return interaction.getOutputTransitions().size() > 1;
     }
 
     private Map<String, Object> extractVariables(HttpServletRequest request, Interaction interaction,
@@ -130,5 +140,9 @@ public class OldFormSubmitServlet extends HttpServlet {
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
+    }
+
+    private String decode(String value) throws UnsupportedEncodingException {
+        return URLDecoder.decode(value, StandardCharsets.UTF_8.toString());
     }
 }
