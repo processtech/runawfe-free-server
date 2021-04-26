@@ -1,14 +1,10 @@
 <template>
-  <v-container
-      id="profile-view"
-      fluid
-      tag="section"
-  >
-    <v-card>
-      
+  <v-container id="profile-view" fluid tag="section">
+    <v-card :loading="loading">
+
       <v-toolbar flat color="transparent" class="my-4 pt-3">
         <v-container class="d-flex">
-          <v-icon x-large>mdi-alien</v-icon>
+          <v-icon x-large>mdi-account</v-icon>
           <v-container v-if="user" class="mx-3">
             <v-toolbar-title>{{ user.name }}</v-toolbar-title>
             <p class="text-caption">{{ user.description }}</p>
@@ -58,23 +54,37 @@
           </v-card>
         </v-tab-item>
         <v-tab-item>
-          <profile-user-card :user="userCards.mikheev" />
+          <!-- Find out how to get users from substitutions, if it's possible -->
         </v-tab-item>
         <v-tab-item>
-          <profile-user-card :user="userCards.pauchkov" />
+          <!-- The same -->
         </v-tab-item>
         <v-tab-item>
           <v-card flat width="500" class="mx-auto my-10">
-            <ul class="text-caption">
-              <li v-for="(group, index) of groups" :key="index">{{ group }}</li>
-            </ul>
+            <v-list>
+              <v-list-item v-for="(group, index) of groups" :key="index" two-line>
+                <v-list-item-content>
+                  <v-list-item-title class="font-weight-bold">{{ group.name }}</v-list-item-title>
+                    <v-list-item-subtitle class="text-caption">
+                      {{ group.description }}
+                    </v-list-item-subtitle>
+                    <v-divider />
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
           </v-card>
         </v-tab-item>
         <v-tab-item>
           <v-card flat width="500" class="mx-auto my-10">
             <v-list>
-              <v-list-item v-for="(relation, index) of relations" :key="index">
-                <v-card-title>{{ relation }}</v-card-title>
+              <v-list-item v-for="(relation, index) of relations" :key="index" two-line>
+                <v-list-item-content>
+                  <v-list-item-title class="font-weight-bold">{{ relation.name }}</v-list-item-title>
+                    <v-list-item-subtitle class="text-caption">
+                      {{ relation.description }}
+                    </v-list-item-subtitle>
+                    <v-divider />
+                </v-list-item-content>
               </v-list-item>
             </v-list>
           </v-card>
@@ -92,59 +102,34 @@ import ProfileUserCard from './ProfileUserCard.vue';
 
 export default Vue.extend({
   name: 'Profile',
-  components: { 
-    ProfileUserCard, 
-    ProfilePasswordForm 
+  components: {
+    ProfileUserCard,
+    ProfilePasswordForm
   },
   data() {
     return {
-      loading: false,
-      user: null,
-      groups: null,
-      relations: null,
+      loading: true,
+      user: {},
+      groups: [],
+      relations: [],
 
       rules: {
         fileSize: (value: File) => !value
           || value.size < 2000000
           || 'Размер аватара дожен быть меньше, чем 2MB',
       },
-
-      userCards: {
-        zliminov: {
-          email: 'sszliminoc@mail.com',
-          phone: '8-987-654-32-10',
-          department: 'The department',
-          tabNumber: 33,
-          title: ''
-        },
-        mikheev: {
-          email: 'amikheev@mail.com',
-          phone: '8-111-222-33-44',
-          department: 'Hepartment',
-          tabNumber: 34,
-          title: ''
-        },
-        pauchkov: {
-          email: 'pauchkov@mail.com',
-          phone: '8-123-456-89-90',
-          department: 'Pepardment',
-          tabNumber: 34,
-          title: ''
-        },
-      },
     }
   },
 
   methods: {
-    getDataFromApi () {
-      this.loading = true;
+    getUserData() {
       this.$apiClient().then((client: any) => {
         client['profile-api-controller'].getProfileUsingPOST().then((data: any) => {
           const body = data.body;
           if (body) {
-              this.user = body.user;
-              this.groups = body.groups;
-              this.relations = body.relations;
+            this.user = body.user;
+            this.groups = body.groups;
+            this.relations = body.relations;
           }
           this.loading = false;
         });
@@ -153,7 +138,7 @@ export default Vue.extend({
   },
 
   mounted: function() {
-    this.getDataFromApi();
+    this.getUserData();
   }
 })
 </script>
