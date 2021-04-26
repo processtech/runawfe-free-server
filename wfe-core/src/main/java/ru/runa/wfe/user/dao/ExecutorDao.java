@@ -428,10 +428,9 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
      *            number of items for a page
      * @return {@linkplain Actor}s, loaded according to page namber and item count.
      */
-    public List<Actor> getAllActorsHaveEmailWithPagination(int pageIndex, int pageSize) {
+    public List<Actor> getAllActorsWithPagination(int pageIndex, int pageSize) {
         QActor a = QActor.actor;
-        return queryFactory.selectFrom(a).orderBy(a.id.asc()).where(a.active.isTrue().and(a.email.isNotNull()).and(a.email.isNotEmpty()))
-                .offset(pageIndex * pageSize).limit(pageSize).fetch();
+        return queryFactory.selectFrom(a).orderBy(a.id.asc()).offset(pageIndex * pageSize).limit(pageSize).fetch();
     }
 
     /**

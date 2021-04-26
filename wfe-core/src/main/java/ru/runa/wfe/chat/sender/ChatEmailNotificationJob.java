@@ -2,10 +2,12 @@ package ru.runa.wfe.chat.sender;
 
 import com.google.common.io.ByteStreams;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Resource;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,6 @@ import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
-import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.Process;
@@ -50,10 +51,9 @@ public class ChatEmailNotificationJob {
     @Autowired
     private ChatFileDao chatFileDao;
 
-    private static final int MESSAGE_LIMIT = 3;
     private byte[] configBytes;
-
-    private final ChatEmailNotificationBuilder emailBuilder = new ChatEmailNotificationBuilder(MESSAGE_LIMIT);
+    private String baseUrl;
+    private boolean isNextPage;
 
     @Required
     public void setConfigLocation(String path) {
@@ -67,57 +67,68 @@ public class ChatEmailNotificationJob {
 
     @Required
     public void setBaseUrl(String baseUrl) {
-        emailBuilder.setBaseUrl(baseUrl);
+        this.baseUrl = baseUrl;
     }
 
     public void execute() {
         if (configBytes == null) {
             return;
         }
-        Map<Actor, ChatEmailNotificationContext> contextsByActors;
+        Map<Actor, ChatEmailNotificationBuilder> buildersByActors;
         int page = 0;
-        while (!(contextsByActors = self.getContextsByActorsWithPagination(page++, 10)).isEmpty()) {
-            sendEmailsToActors(contextsByActors);
-        }
-    }
-
-    private void sendEmailsToActors(Map<Actor, ChatEmailNotificationContext> contexts) {
-        for (Map.Entry<Actor, ChatEmailNotificationContext> entry : contexts.entrySet()) {
-            ChatEmailNotificationContext context = entry.getValue();
-            List<String> emailsToSend = EmailUtils.getEmails(entry.getKey());
-            String emails = EmailUtils.concatenateEmails(emailsToSend);
-            EmailConfig config = EmailConfigParser.parse(configBytes);
-            config.getHeaderProperties().put(EmailConfig.HEADER_TO, emails);
-            config.getHeaderProperties().put("Subject", "Количество непрочитанных сообщений: " + context.getMessagesSize());
-            config.setMessage(emailBuilder.build(context));
-            try {
-                EmailUtils.sendMessage(config);
-            } catch (Exception e) {
-                log.error("Email notification to: " + emails + " send error: " + e);
-            }
-        }
+        do {
+            buildersByActors = self.getEmailBuildersByActors(page++, 10);
+            sendEmailsToActors(buildersByActors);
+        } while (isNextPage);
     }
 
     @Transactional(readOnly = true)
-    public Map<Actor, ChatEmailNotificationContext> getContextsByActorsWithPagination(int pageIndex, int pageSize) {
-        List<Actor> actors = executorDao.getAllActorsHaveEmailWithPagination(pageIndex, pageSize);
-        Map<Actor, ChatEmailNotificationContext> result = new HashMap<>(actors.size());
+    public Map<Actor, ChatEmailNotificationBuilder> getEmailBuildersByActors(int pageIndex, int pageSize) {
+        List<Actor> actors = executorDao.getAllActorsWithPagination(pageIndex, pageSize);
+        isNextPage = !actors.isEmpty();
+        Map<Actor, ChatEmailNotificationBuilder> result = new HashMap<>(actors.size());
         for (Actor actor : actors) {
+            if (!actor.isActive() || actor.getEmail() == null || actor.getEmail().isEmpty()) {
+                continue;
+            }
             List<ChatMessage> messages = chatMessageDao.getNewMessagesByActor(actor);
             if (messages.isEmpty()) {
                 continue;
             }
-            ChatEmailNotificationContext context = new ChatEmailNotificationContext();
-            context.setMessages(messages);
-            context.setFiles(getFilesByMessages(messages));
-            Set<Process> processes = context.getProcesses();
-            context.setProcessesNames(getNamesByProcesses(processes));
-            context.setPermissions(getPermissionByActorAndProcesses(actor, processes));
-            result.put(actor, context);
+            Map<Process, List<ChatMessage>> messagesByProcesses = mappedProcessesByMessages(messages);
+            ChatEmailNotificationBuilder emailBuilder = new ChatEmailNotificationBuilder()
+                    .setBaseUrl(baseUrl)
+                    .setNewMessagesCount(messages.size())
+                    .setActor(actor)
+                    .setMessages(messagesByProcesses)
+                    .setFiles(getFilesByMessages(messages))
+                    .setProcessesNames(getNamesByProcesses(messagesByProcesses.keySet()))
+                    .setPermissions(getPermissionByActorAndProcesses(actor, messagesByProcesses.keySet()));
+            result.put(actor, emailBuilder);
         }
         return result;
     }
 
+    private void sendEmailsToActors(Map<Actor, ChatEmailNotificationBuilder> contexts) {
+        for (Map.Entry<Actor, ChatEmailNotificationBuilder> entry : contexts.entrySet()) {
+            ChatEmailNotificationBuilder emailBuilder = entry.getValue();
+            try {
+                EmailConfig config = emailBuilder.build(configBytes);
+                EmailUtils.sendMessage(config);
+            } catch (Exception e) {
+                Actor actor = entry.getKey();
+                log.error("Email notification to: " + actor.getEmail() + " send error: " + e);
+            }
+        }
+    }
+
+    private Map<Process, List<ChatMessage>> mappedProcessesByMessages(List<ChatMessage> messages) {
+        Map<Process, List<ChatMessage>> result = new HashMap<>();
+        for (ChatMessage message : messages) {
+            result.computeIfAbsent(message.getProcess(), new ComputeIfAbsentFunction()).add(message);
+        }
+        return result;
+    }
 
     private Map<ChatMessage, List<ChatMessageFile>> getFilesByMessages(List<ChatMessage> messages) {
         final Map<ChatMessage, List<ChatMessageFile>> result = new HashMap<>(messages.size());
@@ -143,5 +154,12 @@ public class ChatEmailNotificationJob {
             result.put(process, isAllowed);
         }
         return result;
+    }
+
+    private static class ComputeIfAbsentFunction implements Function<Process, List<ChatMessage>> {
+        @Override
+        public List<ChatMessage> apply(Process process) {
+            return new ArrayList<>();
+        }
     }
 }
