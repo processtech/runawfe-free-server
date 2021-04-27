@@ -129,18 +129,18 @@ public class ChatEmailNotificationBuilder {
                 "   <tbody>" +
                 "       <tr>" +
                 "           <td>" +
-                createActorField(message.getCreateActor()) +
+                                createActorField(message.getCreateActor()) +
                 "               <div style='float: right;'>" +
-                CalendarUtil.formatDateTime(message.getCreateDate()) +
+                                    CalendarUtil.formatDateTime(message.getCreateDate()) +
                 "               </div>" +
                 "           </td>" +
                 "       </tr>" +
                 "       <tr>" +
                 "           <td>" +
-                message.getText() +
+                                message.getText() +
                 "           </td>" +
                 "       </tr>" +
-                createFileFieldRow(files) +
+                        createFileFieldRow(files) +
                 "   </tbody>" +
                 "</table>";
     }
@@ -186,7 +186,7 @@ public class ChatEmailNotificationBuilder {
     private String getAndMoreTextDependingNumber(int num) {
         String suffix = getTextDependingNumber(num,
                 new String[] {"новое сообщение", "новых сообщения", "новых сообщений"});
-        return "И еше " + num + " " + suffix;
+        return "И ещё " + num + " " + suffix;
     }
 
     private String getSubjectDependingNumber(int num) {
