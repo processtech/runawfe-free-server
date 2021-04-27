@@ -63,14 +63,6 @@
             </template>
             <template v-slot:top>
                 <v-toolbar flat>
-                    <v-alert 
-                        v-model="hasWarnings" 
-                        dense 
-                        type="warning"
-                        dismissible
-                    >
-                        {{ warnings }}
-                    </v-alert>
                     <v-spacer/>
                     <v-btn 
                         text 
@@ -85,6 +77,26 @@
                 </v-toolbar>
             </template>
         </v-data-table>
+        <v-snackbar
+            v-model="hasWarnings"
+            :timeout="timeout"
+            absolute
+            top
+            color="blue-grey"
+            rounded="pill"
+        >
+            {{ warnings }}
+            <template v-slot:action="{ attrs }">
+                <v-btn
+                    text 
+                    icon 
+                    v-bind="attrs"
+                    @click="hasWarnings = false"
+                >
+                    <v-icon>mdi-close</v-icon>
+                </v-btn>
+            </template>
+        </v-snackbar>
     </v-container>
 </template>
 
@@ -98,6 +110,7 @@ export default Vue.extend({
     
     data() {
         return {
+            timeout: 10000,
             warnings: '',
             hasWarnings: false,
             dialog: false,
@@ -205,7 +218,7 @@ export default Vue.extend({
                     requestBody: variables 
                 }).then((data: any) => {
                     if (data.status == 200 && data.body) {
-                        this.warnings = `Экземпляр процесса запущен ${data.body}`;
+                        this.warnings = `Экземпляр процесса № ${data.body} запущен`;
                         this.hasWarnings = true;
                     }
                 });
