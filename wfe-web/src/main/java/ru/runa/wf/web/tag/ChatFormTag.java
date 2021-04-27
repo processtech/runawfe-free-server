@@ -72,6 +72,7 @@ public class ChatFormTag extends TitledFormTag {
         Input fileInput = new Input("file");
         fileInput.setID("fileInput");
         fileInput.addAttribute("multiple", "true");
+        fileInput.addAttribute("autocomplete", "off");
 
         TD fileTd = new TD(fileInput);
         fileTd.setClass("list");
