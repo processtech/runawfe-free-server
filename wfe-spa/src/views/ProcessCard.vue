@@ -81,7 +81,7 @@ export default Vue.extend({
     },
     methods: {
         goBack() {
-            this.$router.push({ name: 'Запущенные процессы' });
+            window.history.length > 1 ? this.$router.go(-1) : this.$router.push({ name: 'Запущенные процессы' });
         },
         loadProcess(): void {
             this.$apiClient().then((client: any) => {
