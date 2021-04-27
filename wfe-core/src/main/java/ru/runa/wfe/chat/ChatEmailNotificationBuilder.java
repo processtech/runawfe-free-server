@@ -195,7 +195,7 @@ public class ChatEmailNotificationBuilder {
         return "У вас " + num + " " + suffix;
     }
 
-    private String getTextDependingNumber(int num, String[] texts) {
+    String getTextDependingNumber(int num, String[] texts) {
         int remainder = num % 100;
         if (remainder > 19) {
             remainder = remainder % 10;
