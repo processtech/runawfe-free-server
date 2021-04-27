@@ -54,8 +54,8 @@ public class ProcessApiController {
         List<WfProcess> processes = executionLogic.getProcesses(authUser.getUser(), batchPresentation);
         WfProcessMapper mapper = Mappers.getMapper(WfProcessMapper.class);
         processesDto.setProcesses(mapper.map(processes));
-        List<WfProcess> total = executionLogic.getProcesses(authUser.getUser(), BatchPresentationFactory.CURRENT_PROCESSES.createDefault());
-        processesDto.setTotal(total.size());
+        int total = executionLogic.getProcessesCount(authUser.getUser(), BatchPresentationFactory.CURRENT_PROCESSES.createDefault());
+        processesDto.setTotal(total);
         return processesDto;
     }
     
@@ -68,8 +68,8 @@ public class ProcessApiController {
         List<WfDefinition> definitions = processDefinitionLogic.getProcessDefinitions(authUser.getUser(), batchPresentation, true);
         WfDefinitionMapper mapper = Mappers.getMapper(WfDefinitionMapper.class);
         definitionsDto.setDefinitions(mapper.map(definitions));
-        List<WfDefinition> total = processDefinitionLogic.getProcessDefinitions(authUser.getUser(), BatchPresentationFactory.DEFINITIONS.createDefault(), true);
-        definitionsDto.setTotal(total.size());
+        int total = processDefinitionLogic.getProcessDefinitionsCount(authUser.getUser(), BatchPresentationFactory.DEFINITIONS.createDefault());
+        definitionsDto.setTotal(total);
         return definitionsDto;
     }
     
