@@ -125,7 +125,8 @@ public class ChatEmailNotificationBuilder {
     }
 
     private String createMessageTable(ChatMessage message, List<ChatMessageFile> files) {
-        return "<table style='padding: 10px; width: 100%; padding: 0 10px; border-radius: 0 10px 10px 10px; background-color: rgb(0%, 0%, 0%, 0.04);'>\n" +
+        return "<table style='padding: 10px; width: 100%; padding: 0 10px; border-radius: 0 10px 10px 10px; " +
+                "background-color: rgb(0%, 0%, 0%, 0.04);'>\n" +
                 "   <tbody>" +
                 "       <tr>" +
                 "           <td>" +
