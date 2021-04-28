@@ -28,39 +28,43 @@ public class ChatEmailNotificationBuilder {
     private Map<Process, Boolean> permissions = new HashMap<>();
     private Map<ChatMessage, List<ChatMessageFile>> files = new HashMap<>();
 
-    public ChatEmailNotificationBuilder setBaseUrl(String baseUrl) {
+    public ChatEmailNotificationBuilder baseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
         return this;
     }
 
-    public ChatEmailNotificationBuilder setNewMessagesCount(int newMessagesCount) {
+    public ChatEmailNotificationBuilder newMessagesCount(int newMessagesCount) {
         this.newMessagesCount = newMessagesCount;
         return this;
     }
 
-    public ChatEmailNotificationBuilder setActor(Actor actor) {
+    public ChatEmailNotificationBuilder actor(Actor actor) {
         this.actor = actor;
         return this;
     }
 
-    public ChatEmailNotificationBuilder setMessages(Map<Process, List<ChatMessage>> messages) {
+    public ChatEmailNotificationBuilder messages(Map<Process, List<ChatMessage>> messages) {
         this.messages = messages;
         return this;
     }
 
-    public ChatEmailNotificationBuilder setProcessesNames(Map<Process, String> processesNames) {
+    public ChatEmailNotificationBuilder processesNames(Map<Process, String> processesNames) {
         this.processesNames = processesNames;
         return this;
     }
 
-    public ChatEmailNotificationBuilder setPermissions(Map<Process, Boolean> permissions) {
+    public ChatEmailNotificationBuilder permissions(Map<Process, Boolean> permissions) {
         this.permissions = permissions;
         return this;
     }
 
-    public ChatEmailNotificationBuilder setFiles(Map<ChatMessage, List<ChatMessageFile>> files) {
+    public ChatEmailNotificationBuilder files(Map<ChatMessage, List<ChatMessageFile>> files) {
         this.files = files;
         return this;
+    }
+
+    public boolean isNoNewMessages() {
+        return newMessagesCount < 1;
     }
 
     public EmailConfig build(byte[] configBytes) {
@@ -75,6 +79,20 @@ public class ChatEmailNotificationBuilder {
         }
         config.setMessage(result.toString());
         return config;
+    }
+
+    String getTextDependingNumber(int num, String[] texts) {
+        int remainder = num % 100;
+        if (remainder > 19) {
+            remainder = remainder % 10;
+        }
+        if (remainder == 1) {
+            return texts[0];
+        } else if (remainder >= 2 && remainder <= 4) {
+            return texts[1];
+        } else {
+            return texts[2];
+        }
     }
 
     private String createTableForProcess(Process process) {
@@ -116,7 +134,7 @@ public class ChatEmailNotificationBuilder {
         return result.toString();
     }
 
-    public Map<ChatMessage, List<ChatMessageFile>> getMessagesByProcess(Process process) {
+    private Map<ChatMessage, List<ChatMessageFile>> getMessagesByProcess(Process process) {
         Map<ChatMessage, List<ChatMessageFile>> result = new LinkedHashMap<>();
         for (ChatMessage message : messages.get(process)) {
             result.put(message, files.get(message));
@@ -146,6 +164,13 @@ public class ChatEmailNotificationBuilder {
                 "</table>";
     }
 
+    private String createActorField(Actor actor) {
+        if (baseUrl != null) {
+            return "<a href='" + baseUrl + "/wfe/manage_executor.do?id=" + actor.getId() + "'>" + actor.getName() + "</a>";
+        }
+        return actor.getName();
+    }
+
     private String createFileFieldRow(List<ChatMessageFile> files) {
         if (files.isEmpty()) {
             return "";
@@ -171,13 +196,6 @@ public class ChatEmailNotificationBuilder {
         return text;
     }
 
-    private String createActorField(Actor actor) {
-        if (baseUrl != null) {
-            return "<a href='" + baseUrl + "/wfe/manage_executor.do?id=" + actor.getId() + "'>" + actor.getName() + "</a>";
-        }
-        return actor.getName();
-    }
-
     private String createAndMoreRow(int messageCount) {
         return "<tr><td style='padding: 0 20px;'><div>...</div>" +
                 "<div>" + getAndMoreTextDependingNumber(messageCount) + "</div>" +
@@ -194,19 +212,5 @@ public class ChatEmailNotificationBuilder {
         String suffix = getTextDependingNumber(num,
                 new String[] {"непрочитанное сообщение", "непрочитанных сообщения", "непрочитанных сообщений"});
         return "У вас " + num + " " + suffix;
-    }
-
-    String getTextDependingNumber(int num, String[] texts) {
-        int remainder = num % 100;
-        if (remainder > 19) {
-            remainder = remainder % 10;
-        }
-        if (remainder == 1) {
-            return texts[0];
-        } else if (remainder >= 2 && remainder <= 4) {
-            return texts[1];
-        } else {
-            return texts[2];
-        }
     }
 }

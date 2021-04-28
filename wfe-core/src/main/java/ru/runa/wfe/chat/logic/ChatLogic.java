@@ -104,42 +104,4 @@ public class ChatLogic extends WfCommonLogic {
         }
         messageDao.update(message);
     }
-
-    public void sendNotifications(User user, ChatMessage chatMessage, Collection<Executor> executors) {
-        if (properties.isEmpty()) {
-            log.debug("chat.email.properties are not defined");
-            return;
-        }
-        try {
-            Set<String> emails = new HashSet<String>();
-            for (Executor executor : executors) {
-                if (executor instanceof Actor && StringUtils.isNotBlank(((Actor) executor).getEmail())) {
-                    emails.add(((Actor) executor).getEmail());
-                }
-            }
-            if (emails.isEmpty()) {
-                log.debug("No emails found for " + chatMessage);
-                return;
-            }
-            javax.mail.Session session = javax.mail.Session.getDefaultInstance(properties, new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(properties.getProperty("login"), properties.getProperty("password"));
-                }
-            });
-            Message mimeMessage = new MimeMessage(session);
-            String titlePattern = (String) properties.get("title.pattern");
-            String title = titlePattern//
-                    .replace("$actorName", chatMessage.getCreateActor().getName())//
-                    .replace("$processId", chatMessage.getProcess().getId().toString());
-            String message = ((String) properties.get("message.pattern")).replace("$message", chatMessage.getText());
-            mimeMessage.setFrom(new InternetAddress(properties.getProperty("login")));
-            mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(Joiner.on(";").join(emails)));
-            mimeMessage.setSubject(title);
-            mimeMessage.setText(message);
-            Transport.send(mimeMessage);
-        } catch (Exception e) {
-            log.warn("Unable to send chat email notification", e);
-        }
-    }
 }
