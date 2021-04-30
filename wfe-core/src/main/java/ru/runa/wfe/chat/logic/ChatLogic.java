@@ -1,22 +1,12 @@
 package ru.runa.wfe.chat.logic;
 
-import com.google.common.base.Joiner;
-import java.util.Collection;
-import java.util.HashSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.bull.javamelody.MonitoredWithSpring;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
@@ -41,13 +31,11 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.Variable;
 
 @MonitoredWithSpring
 public class ChatLogic extends WfCommonLogic {
-    private final Properties properties = ClassLoaderUtil.getProperties("chat.email.properties", false);
     @Autowired
     private ExecutionLogic executionLogic;
     @Autowired
