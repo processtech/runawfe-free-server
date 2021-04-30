@@ -17,12 +17,12 @@
     }
 
     function editMessage(id, text) {
-        $("#message").append(text);
+        $("#message").val(document.getElementById("message").value + text);
         editMessageId = id;
     }
 
     function reply(text) {
-        $("#message").append(" > " + text + "\n");
+        $("#message").val(document.getElementById("message").value + " > " + text + "\n");
     }
 
     function deleteMessage(id) {
