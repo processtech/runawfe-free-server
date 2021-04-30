@@ -1,6 +1,14 @@
 package ru.runa.wfe.chat.sender;
 
 import com.google.common.io.ByteStreams;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import javax.annotation.Resource;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -18,11 +26,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.dao.ExecutorDao;
-
-import javax.annotation.Resource;
-import java.io.InputStream;
-import java.util.*;
-import java.util.function.Function;
 
 /**
  * Created on 07.04.2021
