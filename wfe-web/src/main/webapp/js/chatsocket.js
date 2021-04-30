@@ -1,5 +1,6 @@
 let chatSocket = null;
 let currentUser = "";
+let isConfirmDialogClosed = true;
 
 function initChatSocket(socket) {
     chatSocket = socket;
@@ -73,8 +74,11 @@ function newMessageAlerter(message) {
             location.reload();
         }
     } else if (isChatOpen(message)) {
-        if (confirm("Вы получили новое сообщение! Хотите перезагрузить страницу?")) {
-            location.reload();
+        if (isConfirmDialogClosed) {
+            isConfirmDialogClosed = false;
+            if (confirm("Вы получили новое сообщение! Хотите перезагрузить страницу?")) {
+                location.reload();
+            }
         }
     } else {
         notifyAboutNewMessage(message);
