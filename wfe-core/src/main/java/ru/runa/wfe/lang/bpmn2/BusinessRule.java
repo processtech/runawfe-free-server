@@ -8,18 +8,16 @@ import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
+import lombok.Setter;
 
 public class BusinessRule extends Node {
     private static final long serialVersionUID = 1235L;
+    @Setter
     private Delegation delegation;
 
     @Override
     public NodeType getNodeType() {
         return NodeType.BUSINESS_RULE;
-    }
-
-    public void setDelegation(Delegation delegation) {
-        this.delegation = delegation;
     }
 
     @Override
@@ -32,13 +30,13 @@ public class BusinessRule extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        if (delegation != null) {
+        if (delegation == null) {
+            throw new IllegalStateException("delegation cannot be null");
+        } else {
             BusinessRuleHandler businessRuleHandler = delegation.getInstance();
             businessRuleHandler.execute(executionContext);
             Transition transition = getDefaultLeavingTransitionNotNull();
             leave(executionContext, transition);
-        } else {
-            throw new NullPointerException();
         }
     }
 }
