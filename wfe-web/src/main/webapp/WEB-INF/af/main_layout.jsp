@@ -79,6 +79,7 @@
 						</a>
 						<tiles:insert attribute="messages"/>
 					</td>
+					<td align="center"><div id="alertMessage" style="color: blue;"></div></td>
 					<td align="right">
 						 <af:loginAsMessage message="<%= Commons.getMessage(\"label.logged_as\", pageContext) %>" /><br><af:logout />
 					<td>
