@@ -1,6 +1,5 @@
 let chatSocket = null;
 let currentUser = "";
-let isConfirmDialogClosed = true;
 
 function initChatSocket(socket) {
     chatSocket = socket;
@@ -70,16 +69,9 @@ function notifyAboutNewMessage(message) {
 
 function newMessageAlerter(message) {
     if (message.author === currentUser) {
-        if (confirm("Сообщение успешно отправлено! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        getMessageAlert("Сообщение успешно отправлено. Обновите страницу");
     } else if (isChatOpen(message)) {
-        if (isConfirmDialogClosed) {
-            isConfirmDialogClosed = false;
-            if (confirm("Вы получили новое сообщение! Хотите перезагрузить страницу?")) {
-                location.reload();
-            }
-        }
+        getMessageAlert("Получено новое сообщение. Обновите страницу");
     } else {
         notifyAboutNewMessage(message);
     }
@@ -87,28 +79,27 @@ function newMessageAlerter(message) {
 
 function editMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        if (confirm("Сообщение успешно отредактировано! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        getMessageAlert("Сообщение успешно отредактированно. Обновите страницу");
     } else if (isChatOpen(message)) {
-        if (confirm("Одно из сообщений было отредактировано! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        getMessageAlert("Одно из сообщений было изменено. Обновите страницу");
     }
 }
 
 function deleteMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        if (confirm("Сообщение успешно удалено! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        getMessageAlert("Сообщение успешно удалено. Обновите страницу");
     } else if (isChatOpen(message)) {
-        if (confirm("Одно из сообщений было удалено! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        getMessageAlert("Одно из сообщений было удалено. Обновите страницу");
     }
 }
 
 function errorMessageAlerter(message) {
-    alert("Сообщение не отправлено. Ошибка: " + message.message);
+    getMessageAlert("Ошибка при отправке сообщения: " + message.message);
+}
+
+function getMessageAlert(message) {
+    let alertMessage = document.createElement("b");
+    alertMessage.append(message);
+    let alertMessageDiv = document.getElementById("alertMessage");
+    alertMessageDiv.appendChild(alertMessage);
 }
