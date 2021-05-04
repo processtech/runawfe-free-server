@@ -36,6 +36,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 /**
  * Process definition service.
@@ -358,4 +359,13 @@ public interface DefinitionService {
      */
     List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2);
 
+    /**
+     * Gets file variable default value by name from process definition.
+     *
+     * @param user         authorized user
+     * @param definitionId process definition id
+     * @param variableName variable name
+     * @return FileVariable or <code>null</code>
+     */
+    public FileVariableImpl getFileVariableDefaultValue(User user, Long definitionId, String variableName);
 }
