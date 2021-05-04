@@ -1,7 +1,8 @@
 package ru.runa.wfe.service.client;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import java.util.List;
-
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.service.DefinitionService;
@@ -11,9 +12,8 @@ import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.format.FileFormat;
 
 public class DelegateDefinitionVariableProvider extends AbstractVariableProvider {
     private final DefinitionService definitionService;
@@ -76,7 +76,12 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
     public WfVariable getVariable(String variableName) {
         VariableDefinition variableDefinition = definitionService.getVariableDefinition(user, definitionId, variableName);
         if (variableDefinition != null) {
-            return new WfVariable(variableDefinition, null);
+            return new WfVariable(
+                    variableDefinition,
+                    variableDefinition.getFormatNotNull() instanceof FileFormat ?
+                            new FileVariableProxy(user, null, definitionId, variableName, (FileVariable) variableDefinition.getDefaultValue()) :
+                            null
+            );
         }
         List<SwimlaneDefinition> swimlaneDefinitions = definitionService.getSwimlaneDefinitions(user, definitionId);
         for (SwimlaneDefinition swimlaneDefinition : swimlaneDefinitions) {
