@@ -23,7 +23,9 @@ public class BusinessRule extends Node {
     @Override
     public void validate() {
         super.validate();
-        if (delegation != null) {
+        if (delegation == null) {
+            throw new IllegalStateException("delegation cannot be null");
+        } else {
             delegation.validate();
         }
     }
