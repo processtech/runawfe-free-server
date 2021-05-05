@@ -8,8 +8,8 @@ import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.security.Permission;
 
 public class RelationClassPresentation extends ClassPresentation {
-    public static final String NAME = "batch_presentation.relation.name";
-    public static final String DESCRIPTION = "batch_presentation.relation.description";
+    public static final String NAME = "name";
+    public static final String DESCRIPTION = "description";
 
     public static final ClassPresentation INSTANCE = new RelationClassPresentation();
 

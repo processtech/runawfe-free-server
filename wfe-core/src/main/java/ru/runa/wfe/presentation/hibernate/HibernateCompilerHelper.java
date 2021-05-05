@@ -40,7 +40,7 @@ public final class HibernateCompilerHelper {
                 (
                         (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx)) &&
                         field.sortable &&
-                        (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || batchPresentation.isFieldGroupped(idx))
+                        (!field.groupableByProcessId || batchPresentation.isFieldGroupped(idx))
                 );
     }
 

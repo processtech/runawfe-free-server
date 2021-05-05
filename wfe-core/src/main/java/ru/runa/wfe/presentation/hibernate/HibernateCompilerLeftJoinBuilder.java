@@ -3,7 +3,6 @@ package ru.runa.wfe.presentation.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 
 /**
@@ -35,7 +34,7 @@ public class HibernateCompilerLeftJoinBuilder {
     public void injectLeftJoin(StringBuilder sqlRequest) {
         List<LeftJoinDescription> leftJoins = new ArrayList<>();
         for (FieldDescriptor field : batchPresentation.getAllFields()) {
-            if (field.displayName.startsWith(ClassPresentation.editable_prefix)) {
+            if (field.variablePrototype) {
                 continue;
             }
             if (field.dbSources[0].getSourceObject().equals(batchPresentation.getType().getPresentationClass())) {
@@ -75,8 +74,8 @@ public class HibernateCompilerLeftJoinBuilder {
         String restriction = getJoinRestriction(sqlRequest, joinedTableAlias);
         String rootJoinTable = getRootJoinTable(joinedTableAlias, restriction);
         String leftJoinQuery;
-        if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
-            String condition = getRemovableFieldCondition(sqlRequest, joinedTableAlias);
+        if (field.filterByVariable) {
+            String condition = getFilterByVariableFieldCondition(sqlRequest, joinedTableAlias);
             leftJoinQuery = " left join (select " + joinedTableAlias + ".* from " + tableName + " " + joinedTableAlias + " where " + condition + ")"
                     + joinedTableAlias + " on " + restriction + " ";
         } else {
@@ -86,15 +85,15 @@ public class HibernateCompilerLeftJoinBuilder {
     }
 
     /**
-     * Get from query condition statement for removable field. E. q. it returns something like this: (var.name = 'name').
+     * Get from query condition statement for filter by variable field. E. q. it returns something like this: (var.name = 'name').
      *
      * @param sqlRequest
      *            SQL query to inject left joins.
      * @param joinedTableAlias
      *            SQL alias name, assigned to joining table.
-     * @return Condition statement for removable field.
+     * @return Condition statement for filter by variable field.
      */
-    private String getRemovableFieldCondition(StringBuilder sqlRequest, String joinedTableAlias) {
+    private String getFilterByVariableFieldCondition(StringBuilder sqlRequest, String joinedTableAlias) {
         int conditionTo = sqlRequest.indexOf(joinedTableAlias);
         int conditionFrom = sqlRequest.lastIndexOf("(", conditionTo);
         boolean inQuot = false;

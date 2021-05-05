@@ -17,7 +17,6 @@ import ru.runa.common.web.form.TableViewSetupForm;
 import ru.runa.common.web.html.format.FilterFormatsFactory;
 import ru.runa.wfe.commons.ArraysCommons;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
@@ -67,7 +66,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             FieldDescriptor[] fields = batchPresentation.getAllFields();
             int idx = 0;
             for (FieldDescriptor field : fields) {
-                if (field.displayName.startsWith("edit:") && field.fieldState == FieldState.ENABLED) {
+                if (field.name.startsWith("edit:") && field.fieldState == FieldState.ENABLED) {
                     break;
                 }
                 ++idx;
@@ -113,20 +112,20 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             int[] activeRemovable = tableViewSetupForm.getRemovableIds();
             int removeCount = 0;
             for (int i = fields.length - 1; i >= 0; --i) {
-                if (fields[i].displayName.startsWith(ClassPresentation.removable_prefix) && fields[i].fieldState == FieldState.ENABLED) {
+                if (fields[i].filterByVariable && fields[i].fieldState == FieldState.ENABLED) {
                     if (ArraysCommons.findPosition(activeRemovable, i) == -1) {
                         batchPresentation.removeDynamicField(i - removeCount);
                     }
                 }
             }
 
-            String[] editableValues = tableViewSetupForm.getEditableFieldsValues();
+            String[] variableValues = tableViewSetupForm.getEditableFieldsValues();
             int editIdx = 0;
             fields = batchPresentation.getAllFields();
             for (int idx = 0; idx < fields.length; ++idx) {
-                if (fields[idx].displayName.startsWith(ClassPresentation.editable_prefix) && fields[idx].fieldState == FieldState.ENABLED) {
-                    if (editableValues[editIdx] != null && editableValues[editIdx].length() != 0) {
-                        batchPresentation.addDynamicField(idx, editableValues[editIdx]);
+                if (fields[idx].variablePrototype && fields[idx].fieldState == FieldState.ENABLED) {
+                    if (variableValues[editIdx] != null && variableValues[editIdx].length() != 0) {
+                        batchPresentation.addDynamicField(idx, variableValues[editIdx]);
                     }
                     ++editIdx;
                 }

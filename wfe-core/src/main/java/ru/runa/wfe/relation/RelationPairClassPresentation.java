@@ -8,9 +8,9 @@ import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 
 public class RelationPairClassPresentation extends ClassPresentation {
-    public static final String NAME = "batch_presentation.relation.name";
-    public static final String EXECUTOR_FROM = "batch_presentation.relation.executor_from";
-    public static final String EXECUTOR_TO = "batch_presentation.relation.executor_to";
+    public static final String NAME = "relationName";
+    public static final String EXECUTOR_FROM = "relationExecutorFrom";
+    public static final String EXECUTOR_TO = "relationExecutorTo";
 
     public static final ClassPresentation INSTANCE = new RelationPairClassPresentation();
 
