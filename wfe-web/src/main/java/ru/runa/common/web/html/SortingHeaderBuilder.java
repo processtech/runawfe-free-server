@@ -22,7 +22,6 @@ import ru.runa.wfe.commons.ArraysCommons;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldState;
 
@@ -90,8 +89,7 @@ public class SortingHeaderBuilder implements HeaderBuilder {
 
     private void fillHeaderTR(FieldDescriptor[] fields, Map<Integer, Boolean> sortedFieldsIdModeMap, TR tr) {
         for (int i = 0; i < fields.length; i++) {
-            if (fields[i].displayName.startsWith(ClassPresentation.editable_prefix)
-                    || fields[i].displayName.startsWith(ClassPresentation.filterable_prefix) || fields[i].fieldState != FieldState.ENABLED) {
+            if (fields[i].variablePrototype || fields[i].groupableByProcessId || fields[i].fieldState != FieldState.ENABLED) {
                 continue;
             }
 
@@ -116,25 +114,15 @@ public class SortingHeaderBuilder implements HeaderBuilder {
             params.put(ReturnActionForm.RETURN_ACTION, returnActionName);
             if (fields[i].sortable) {
                 String url = Commons.getActionUrl(SetSortingAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
-                A link = new A(url, getDisplayString(fields[i]));
+                A link = new A(url, Messages.getMessage(batchPresentation, fields[i], pageContext));
                 header.addElement(link);
                 if (sortingImage != null) {
                     header.addElement(Entities.NBSP);
                     header.addElement(sortingImage);
                 }
             } else {
-                header.addElement(getDisplayString(fields[i]));
+                header.addElement(Messages.getMessage(batchPresentation, fields[i], pageContext));
             }
-        }
-    }
-
-    private String getDisplayString(FieldDescriptor field) {
-        if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
-            return field.displayName.substring(field.displayName.lastIndexOf(':') + 1);
-        } else if (field.displayName.startsWith(ClassPresentation.filterable_prefix)) {
-            return Messages.getMessage(field.displayName.substring(field.displayName.lastIndexOf(':') + 1), pageContext);
-        } else {
-            return Messages.getMessage(field.displayName, pageContext);
         }
     }
 

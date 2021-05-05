@@ -2,11 +2,11 @@ package ru.runa.wf.web.tag;
 
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.FormPresentationUtils;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
+import ru.runa.wfe.presentation.ClassPresentationType;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "htmlFilter")
 public class HtmlFilterTag extends TitledFormTag {
@@ -24,7 +24,7 @@ public class HtmlFilterTag extends TitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(DefinitionClassPresentation.DESCRIPTION, pageContext);
+        return Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.DESCRIPTION, pageContext);
     }
 
     @Override

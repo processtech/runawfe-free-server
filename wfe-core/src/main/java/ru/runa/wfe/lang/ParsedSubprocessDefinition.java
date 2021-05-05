@@ -44,7 +44,7 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
             throw new InternalApplicationException("Start state in embedded subprocess should have 1 leaving transition");
         }
         int endNodesCount = 0;
-        for (Node node : nodes) {
+        for (Node node : nodesList) {
             if (node instanceof EndNode) {
                 throw new InternalApplicationException("In embedded subprocess it is not allowed end state");
             }
@@ -67,7 +67,7 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
 
     public List<EmbeddedSubprocessEndNode> getEndNodes() {
         val list = new ArrayList<EmbeddedSubprocessEndNode>();
-        for (Node node : nodes) {
+        for (Node node : nodesList) {
             if (node instanceof EmbeddedSubprocessEndNode) {
                 list.add((EmbeddedSubprocessEndNode) node);
             }

@@ -6,6 +6,8 @@ public interface DataSourceStuff {
 
     String DATA_SOURCE_FILE_SUFFIX = ".xml";
     String DATA_SOURCE_ARCHIVE_SUFFIX = ".ds";
+    String EXCEL_FILE_XLS_SUFFIX = ".xls";
+    String EXCEL_FILE_XLSX_SUFFIX = ".xlsx";
 
     String DATABASE_NAME_MARKER = "DBNAME";
 

@@ -47,7 +47,7 @@ public class BatchPresentationFields implements Serializable {
     final HashMap<Integer, FilterCriteria> filters = Maps.newHashMap();
 
     /**
-     * Removable fields, created for editable fields (with values, inserted by user).
+     * Filter by variable fields
      */
     final List<DynamicField> dynamics = Lists.newArrayList();
 
@@ -188,11 +188,11 @@ public class BatchPresentationFields implements Serializable {
         newSortingIdList.addAll(sortingNotGroupingIdList);
         // end of calculation of newSortingIdList
 
-        // delete filterable row
+        // delete groupable row
         Iterator<Integer> iterator = newSortingIdList.iterator();
         while (iterator.hasNext()) {
             Integer id = iterator.next();
-            if (allFields[id].displayName.startsWith(ClassPresentation.filterable_prefix)) {
+            if (allFields[id].groupableByProcessId) {
                 iterator.remove();
             }
         }
@@ -253,16 +253,14 @@ public class BatchPresentationFields implements Serializable {
         fields.groupIds = new int[0];
         int displayedFieldsCount = fieldDescriptors.length;
         for (FieldDescriptor fieldDescriptor : fieldDescriptors) {
-            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
-                    || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
+            if (fieldDescriptor.variablePrototype || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 displayedFieldsCount--;
             }
         }
         fields.displayIds = new int[displayedFieldsCount];
         for (int i = fieldDescriptors.length - 1; i >= 0; i--) {
             FieldDescriptor fieldDescriptor = fieldDescriptors[i];
-            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
-                    || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
+            if (fieldDescriptor.variablePrototype || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 continue;
             }
             fields.displayIds[--displayedFieldsCount] = i;

@@ -27,6 +27,7 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -49,7 +50,8 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
         TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, def == null ? null : def.getCategories(), pageContext);
-        table.addElement(HTMLUtils.createRow(Messages.getMessage(DefinitionClassPresentation.TYPE, pageContext), hierarchyType));
+        table.addElement(HTMLUtils.createRow(Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.TYPE, pageContext),
+                hierarchyType));
 
         Integer secondsBeforeArchiving = def == null ? null : def.getSecondsBeforeArchiving();
         String daysBeforeArchiving = secondsBeforeArchiving == null ? "" : Integer.toString(secondsBeforeArchiving / 86400);

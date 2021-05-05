@@ -18,6 +18,7 @@
        http://www.springframework.org/schema/task 
        http://www.springframework.org/schema/task/spring-task.xsd">
 
+
 	<bean id="systemPropertiesConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="ignoreUnresolvablePlaceholders">
@@ -244,7 +245,7 @@
 	<bean id="executorLogic" class="ru.runa.wfe.user.logic.ExecutorLogic">
 		<property name="setStatusHandlers">
 			<list>
-				<!-- bean class="ru.runa.wfe.synchronizer.online.ActorStatusSynchronizer" 
+				<!-- bean class="ru.runa.wfe.synchronizer.online.ActorStatusSynchronizer"
 					/ -->
 			</list>
 		</property>
@@ -261,23 +262,18 @@
 	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
 	<bean id="processArchiver" class="ru.runa.wfe.job.impl.ProcessArchiver" />
 
-	<task:scheduled-tasks scheduler="baseScheduler">
-		<task:scheduled ref="jobExecutor" method="execute" fixed-delay="${timertask.period.millis.job.execution}" />
-		<task:scheduled ref="unassignedTaskAssigner" method="execute" fixed-delay="${timertask.period.millis.unassigned.tasks.execution}" />
-		<task:scheduled ref="unusedTemporaryGroupsCleaner" method="execute" fixed-delay="${timertask.period.millis.remove.temp.groups}" />
-		<task:scheduled ref="processArchiver" method="execute" fixed-delay="${timertask.period.millis.archive.processes}" />
-	</task:scheduled-tasks>
+    <bean id="statisticReportExecutor" class="ru.runa.wfe.statistics.job.StatisticReportExecutor" init-method="init"/>
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
-	
+
 	<bean id="executionContextFactory" class="ru.runa.wfe.execution.ExecutionContextFactory" />
-	
+
 	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
-	
+
 	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JmsNodeAsyncExecutor" />
-	
+
 	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
-	
+
 	<bean id="formHandlerExecutor" class="ru.runa.wfe.execution.FormHandlerExecutor" />
 
 </beans>

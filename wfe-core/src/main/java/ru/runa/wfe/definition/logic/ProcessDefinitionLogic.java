@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import lombok.NonNull;
 import lombok.val;
@@ -350,8 +351,8 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
     public Interaction getStartInteraction(User user, long processDefinitionVersionId) {
         ParsedProcessDefinition definition = getDefinition(processDefinitionVersionId);
         Interaction interaction = definition.getInteractionNotNull(definition.getStartStateNotNull().getNodeId());
-        val defaultValues = definition.getDefaultVariableValues();
-        for (val entry : defaultValues.entrySet()) {
+        Map<String, Object> defaultValues = definition.getDefaultVariableValues();
+        for (Entry<String, Object> entry : defaultValues.entrySet()) {
             interaction.getDefaultVariableValues().put(entry.getKey(), entry.getValue());
         }
         return interaction;

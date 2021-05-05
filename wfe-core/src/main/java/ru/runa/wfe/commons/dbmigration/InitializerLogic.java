@@ -3,12 +3,13 @@ package ru.runa.wfe.commons.dbmigration;
 import com.google.common.base.Throwables;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import lombok.val;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.DatabaseProperties;
 import ru.runa.wfe.commons.PropertyResources;
@@ -20,6 +21,7 @@ import ru.runa.wfe.commons.PropertyResources;
  */
 @Component
 @CommonsLog
+@Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
@@ -28,8 +30,6 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     private DbTransactionalInitializer dbTransactionalInitializer;
     @Autowired
     private DbMigrationManager dbMigrationManager;
-
-    private final AtomicBoolean initialized = new AtomicBoolean(false);
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -47,14 +47,9 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
                 PropertyResources.setDatabaseAvailable(true);
             }
             log.info("Initialization completed.");
-            initialized.set(true);
         } catch (Exception e) {
             Throwables.propagate(e);
         }
-    }
-
-    public boolean isInitialized() {
-        return initialized.get();
     }
 
     private void postProcessPatches(List<DbMigration> appliedMigrations) {

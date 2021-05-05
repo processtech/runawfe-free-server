@@ -5,6 +5,7 @@ import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
@@ -47,7 +48,10 @@ public class StartFormTag extends WFFormTag {
 
     @Override
     protected String getSubmitButtonName() {
-        return MessagesProcesses.LABEL_START_PROCESS.message(pageContext);
+        String processStartButtonName = WebResources.getButtonName("process.processStartButtonName");
+
+        return processStartButtonName != null ? processStartButtonName :
+                MessagesProcesses.LABEL_START_PROCESS.message(pageContext);
     }
 
     @Override

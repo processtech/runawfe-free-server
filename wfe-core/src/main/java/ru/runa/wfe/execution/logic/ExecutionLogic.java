@@ -48,6 +48,7 @@ import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
 import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentProcessClassPresentation;
@@ -130,6 +131,9 @@ public class ExecutionLogic extends WfCommonLogic {
     private CurrentProcessDao currentProcessDao;
     @Autowired
     private JobDao jobDao;
+    @Autowired
+    private DefinitionUpdateValidatorManager definitionVersionValidatorManager;
+
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -623,14 +627,19 @@ public class ExecutionLogic extends WfCommonLogic {
             );
         }
         ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
-        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.getByNameAndVersion(dwv.processDefinition.getName(), newVersion);
+        ProcessDefinitionWithVersion nextDwv = processDefinitionDao.getByNameAndVersion(dwv.processDefinition.getName(), newVersion);
+        if (Objects.equal(newVersion, dwv.processDefinitionVersion.getVersion())) {
+            return 0;
+        }
+        definitionVersionValidatorManager.validate(getDefinition(dwv.processDefinitionVersion.getId()),
+                getDefinition(nextDwv.processDefinitionVersion.getId()));
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(dwv.processDefinition.getName());
         filter.setDefinitionVersion(dwv.processDefinitionVersion.getVersion());
         filter.setFinished(false);
         List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
         for (CurrentProcess process : processes) {
-            process.setDefinitionVersion(nextDWV.processDefinitionVersion);
+            process.setDefinitionVersion(nextDwv.processDefinitionVersion);
             currentProcessDao.update(process);
             processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION,
                     dwv.processDefinitionVersion.getVersion(), newVersion), process, null);
@@ -652,8 +661,9 @@ public class ExecutionLogic extends WfCommonLogic {
         if (newVersion == dv.getVersion()) {
             return false;
         }
-        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.getByNameAndVersion(dv.getDefinition().getName(), newVersion);
-        process.setDefinitionVersion(nextDWV.processDefinitionVersion);
+        ProcessDefinitionWithVersion nextDwv = processDefinitionDao.getByNameAndVersion(dv.getDefinition().getName(), newVersion);
+        definitionVersionValidatorManager.validate(getDefinition(dv.getId()), getDefinition(nextDwv.processDefinitionVersion.getId()), process);
+        process.setDefinitionVersion(nextDwv.processDefinitionVersion);
         currentProcessDao.update(process);
         processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),
                 newVersion), process, null);

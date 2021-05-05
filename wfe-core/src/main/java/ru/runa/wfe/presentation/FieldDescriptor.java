@@ -4,7 +4,6 @@ import com.google.common.base.Objects;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
-import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
@@ -12,15 +11,12 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 /**
  * Description for field, available via {@link ClassPresentation}. Contains almost all aspects of field behavior.
  */
-@CommonsLog
 public class FieldDescriptor {
 
     /**
-     * Struts property, which will be used to get field display name.<br/>
-     * ATTENTION: If this field contains {@link ClassPresentation} editable or removable prefix, it must be treated in special way (see
-     * {@link ClassPresentation} for more details).
+     * Field name also used for struts property generation.
      */
-    public final String displayName;
+    public final String name;
 
     /**
      * Field type as class name (i. e. String.class.getName()). Used to get appreciate {@link FilterCriteria} and FilterTDFormatter (see web project).
@@ -41,7 +37,7 @@ public class FieldDescriptor {
     /**
      * Flag, equals true, if this field can be showed; false otherwise.
      */
-    public boolean showable = true;
+    private boolean showable = true;
 
     /**
      * The sort order, if the field is used for default batch sorting. Sorted fields indexes must start with 1 and be exactly sequential. Are set to
@@ -54,6 +50,13 @@ public class FieldDescriptor {
      * The sort mode if the field is used for default batch sorting. BatchPresentationConsts.ASC or BatchPresentationConsts.DSC considered in place.
      */
     public final boolean defaultSortMode;
+
+    /**
+     * If field has this prefix, when it must be showed as check box and it use for grouping.
+     * Mapped directly to batch_presentation.process.group_by_id; so currently its name implies this.
+     * See ClassPresentation.filterable_prefix in old code version.
+     */
+    public boolean groupableByProcessId = false;
 
     /**
      * Field filter mode.
@@ -88,110 +91,46 @@ public class FieldDescriptor {
     public final FieldState fieldState;
 
     /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSource
-     *            Components, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param fieldState
-     *            Field display and HQL/SQL affecting state.
+     * Means that this field can be used as variable filter.
+     * See ClassPresentation.editable_prefix in old code version.
      */
-    public FieldDescriptor(String displayName, String fieldType, DbSource dbSource, boolean sortable, FieldFilterMode filterMode,
+    public boolean variablePrototype = false;
+
+    public String variableValue;
+
+    /**
+     * Means that this field is used as variable filter.
+     * See ClassPresentation.removable_prefix in old code version.
+     */
+    public boolean filterByVariable = false;
+
+    public FieldDescriptor(String name, String fieldType, DbSource dbSource, boolean sortable, FieldFilterMode filterMode,
             FieldState fieldState) {
-        this(displayName, fieldType, new DbSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, null, null,
+        this(name, fieldType, new DbSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, null, null,
                 -1, fieldState);
     }
 
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSource
-     *            Component, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
-     */
-    public FieldDescriptor(String displayName, String fieldType, DbSource dbSource, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
+    public FieldDescriptor(String name, String fieldType, DbSource dbSource, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
             Object[] tdBuilderParams) {
-        this(displayName, fieldType, new DbSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder,
+        this(name, fieldType, new DbSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder,
                 tdBuilderParams, -1, null);
     }
 
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSource
-     *            Component, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param defaultSortOrder
-     *            The sort order, if the field is used for default batch sorting.
-     * @param defaultSortMode
-     *            The sort mode, if the field is used for default batch sorting.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
-     */
-    public FieldDescriptor(String displayName, String fieldType, DbSource dbSource, boolean sortable, int defaultSortOrder, boolean defaultSortMode,
+    public FieldDescriptor(String name, String fieldType, DbSource dbSource, boolean sortable, int defaultSortOrder, boolean defaultSortMode,
             FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams) {
-        this(displayName, fieldType, new DbSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
+        this(name, fieldType, new DbSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
                 tdBuilderParams, -1, null);
     }
 
-    public FieldDescriptor(String displayName, String fieldType, DbSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
+    public FieldDescriptor(String name, String fieldType, DbSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
             String tdBuilder, Object[] tdBuilderParams) {
-        this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams, -1,
+        this(name, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams, -1,
                 null);
     }
 
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSources
-     *            Components, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
-     * @param fieldIdx
-     *            Ordinal field index in {@link BatchPresentation}.
-     * @param fieldState
-     *            Field display and HQL/SQL affecting state.
-     */
-    private FieldDescriptor(String displayName, String fieldType, DbSource[] dbSources, boolean sortable, int defaultSortOrder,
+    private FieldDescriptor(String name, String fieldType, DbSource[] dbSources, boolean sortable, int defaultSortOrder,
             boolean defaultSortMode, FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams, int fieldIdx, FieldState fieldState) {
-        this.displayName = displayName;
+        this.name = name;
         this.fieldType = fieldType;
         this.sortable = sortable;
         this.defaultSortOrder = defaultSortOrder;
@@ -201,7 +140,7 @@ public class FieldDescriptor {
         this.tdBuilderParams = tdBuilderParams;
         this.dbSources = dbSources;
         this.fieldIdx = fieldIdx;
-        this.fieldState = fieldState == null ? loadFieldState(displayName) : fieldState;
+        this.fieldState = fieldState == null ? FieldState.ENABLED : fieldState;
         if (filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION && sortable) {
             throw new InternalApplicationException("DATABASE_ID_RESTRICTION must not be used on filterable fields.");
         }
@@ -216,13 +155,13 @@ public class FieldDescriptor {
             return true;
         }
         FieldDescriptor other = (FieldDescriptor) obj;
-        return Objects.equal(displayName, other.displayName) && Objects.equal(fieldType, other.fieldType)
-                && Arrays.equals(dbSources, other.dbSources);
+        return Objects.equal(name, other.name) && Objects.equal(fieldType, other.fieldType)
+                && Arrays.equals(dbSources, other.dbSources) && Objects.equal(variableValue, other.variableValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(displayName);
+        return Objects.hashCode(name);
     }
 
     /**
@@ -233,25 +172,26 @@ public class FieldDescriptor {
      * @return {@link FieldDescriptor} instance with provided index.
      */
     public FieldDescriptor createConcreteField(int fieldIdx) {
-        return new FieldDescriptor(displayName, fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
-                tdBuilderParams, fieldIdx, fieldState).setVisible(visible).setShowable(showable);
+        return new FieldDescriptor(name, fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder, tdBuilderParams,
+                fieldIdx, fieldState).setVisible(visible).setShowable(showable).setGroupableByProcessId(groupableByProcessId).setVariablePrototype(variablePrototype);
     }
 
     /**
-     * Creates removable field for editable field. If this method called not to editable field, null will be returned.
+     * Creates filter by variable field. If this method called not to variable prototype field, null will be returned.
      *
-     * @param value
+     * @param variableValue
      *            Value, inserted by user to editable field editor.
      * @param fieldIdx
-     *            New removable field index.
-     * @return {@link FieldDescriptor} for removable field, constructed based on editable field.
+     *            New field index.
      */
-    public FieldDescriptor createConcreteEditableField(String value, int fieldIdx) {
-        if (!displayName.startsWith(ClassPresentation.editable_prefix)) {
-            throw new InternalApplicationException("Field '" + displayName + "' is not editable");
+    public FieldDescriptor createConcreteEditableField(String variableValue, int fieldIdx) {
+        if (!variablePrototype) {
+            throw new InternalApplicationException("Field '" + name + "' is not a prototype");
         }
-        return new FieldDescriptor(displayName.replace(ClassPresentation.editable_prefix, ClassPresentation.removable_prefix) + ":" + value,
-                fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder, tdBuilderParams, fieldIdx, fieldState);
+        FieldDescriptor fieldDescriptor = new FieldDescriptor(name, fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode,
+                tdBuilder, tdBuilderParams, fieldIdx, fieldState).setFilterByVariable(true);
+        fieldDescriptor.variableValue = variableValue;
+        return fieldDescriptor;
     }
 
     private Object loadedTdBuilder;
@@ -286,6 +226,21 @@ public class FieldDescriptor {
         return this;
     }
 
+    public FieldDescriptor setGroupableByProcessId(boolean groupableByProcessId) {
+        this.groupableByProcessId = groupableByProcessId;
+        return this;
+    }
+
+    public FieldDescriptor setVariablePrototype(boolean variablePrototype) {
+        this.variablePrototype = variablePrototype;
+        return this;
+    }
+
+    public FieldDescriptor setFilterByVariable(boolean filterByVariable) {
+        this.filterByVariable = filterByVariable;
+        return this;
+    }
+
     /**
      * Loads preferred object to display this field value in web interface.
      *
@@ -293,14 +248,14 @@ public class FieldDescriptor {
      */
     private Object loadTdBuilder() {
         Object builder = null;
-        if (displayName.startsWith(ClassPresentation.removable_prefix)) {
+        if (filterByVariable) {
             Object[] params = new Object[tdBuilderParams.length + 1];
             for (int idx = 0; idx < tdBuilderParams.length; ++idx) {
                 params[idx] = tdBuilderParams[idx];
             }
-            params[params.length - 1] = displayName.substring(displayName.lastIndexOf(':') + 1);
+            params[params.length - 1] = variableValue;
             builder = ClassLoaderUtil.instantiate(tdBuilder, params);
-        } else if (displayName.startsWith(ClassPresentation.editable_prefix)) {
+        } else if (variablePrototype) {
             Object[] params = new Object[tdBuilderParams.length + 1];
             for (int idx = 0; idx < tdBuilderParams.length; ++idx) {
                 params[idx] = tdBuilderParams[idx];
@@ -313,19 +268,4 @@ public class FieldDescriptor {
         return builder;
     }
 
-    /**
-     * Load field state from properties file. If property loading fails, return ENABLED.
-     *
-     * @param displayName
-     *            Field display name.
-     * @return Field state, loaded from properties file.
-     */
-    private FieldState loadFieldState(String displayName) {
-        try {
-            return ClassPresentationResources.getFieldState(displayName);
-        } catch (Exception e) {
-            log.warn("Can't load state for field " + displayName, e);
-        }
-        return FieldState.ENABLED;
-    }
 }

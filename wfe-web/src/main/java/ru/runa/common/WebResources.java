@@ -181,4 +181,7 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("import.export.enabled", true);
     }
 
+    public static String getButtonName(String propertyName) {
+        return RESOURCES.getStringProperty(propertyName);
+    }
 }
