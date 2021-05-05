@@ -2,8 +2,7 @@ package ru.runa.wfe.rest.impl;
 
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,42 +19,34 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.rest.auth.AuthUser;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest;
+import ru.runa.wfe.rest.dto.PagedList;
 import ru.runa.wfe.rest.dto.WfTaskDto;
-import ru.runa.wfe.rest.dto.WfTasksDto;
 import ru.runa.wfe.rest.dto.WfTaskMapper;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.logic.TaskLogic;
 
 @RestController
-@RequestMapping("/tasks/")
+@RequestMapping("/task/")
 @Transactional
 public class TaskApiController {
-    Logger log = LoggerFactory.getLogger(TaskApiController.class);
     
     @Autowired
     private TaskLogic taskLogic;
-    @Autowired
-    private WfTaskMapper taskMapper;
 
-    // required = false temporary for simple queries without request body
     @PostMapping
-    public WfTasksDto getTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody(required = false) BatchPresentationRequest request) {
-        WfTasksDto tasksDto = new WfTasksDto();
-        BatchPresentation batchPresentation = request != null 
-                ? request.toBatchPresentation(ClassPresentationType.TASK)
-                : BatchPresentationFactory.TASKS.createDefault();
+    public PagedList<WfTaskDto> getTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
+        BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.TASK);
         List<WfTask> tasks = taskLogic.getMyTasks(authUser.getUser(), batchPresentation);
-        tasksDto.setTasks(taskMapper.map(tasks));
         List<WfTask> total = taskLogic.getMyTasks(authUser.getUser(), BatchPresentationFactory.TASKS.createDefault());
-        tasksDto.setTotal(total.size());
-        return tasksDto;
+        WfTaskMapper mapper = Mappers.getMapper(WfTaskMapper.class);
+        return new PagedList<WfTaskDto>(total.size(), mapper.map(tasks));
     }
 
     @GetMapping("{id}")
     public WfTaskDto getTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        WfTaskDto taskDto;
         WfTask task = taskLogic.getTask(authUser.getUser(), id);
-        taskDto = taskMapper.map(task);
+        WfTaskMapper mapper = Mappers.getMapper(WfTaskMapper.class);
+        WfTaskDto taskDto = mapper.map(task);
         return taskDto;
     }
 

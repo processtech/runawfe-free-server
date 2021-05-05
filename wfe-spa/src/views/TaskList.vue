@@ -19,8 +19,8 @@
                 itemsPerPageText: 'Строк на странице',
             }"
             >
-            <template v-slot:[`item.creationDate`]="{ item }">
-                {{ new Date(item.creationDate).toLocaleString() }}
+            <template v-slot:[`item.createDate`]="{ item }">
+                {{ new Date(item.createDate).toLocaleString() }}
             </template>
             <template v-slot:[`item.deadlineDate`]="{ item }">
                 {{ new Date(item.deadlineDate).toLocaleString() }}
@@ -87,9 +87,8 @@ export default Vue.extend({
                 name: '',
                 description: '',
                 processId: '',
-                category: '',
                 definitionName: '',
-                creationDate: '',
+                createDate: '',
                 deadlineDate: '',
             },
             tasks: [],
@@ -123,7 +122,7 @@ export default Vue.extend({
                 },
                 { 
                     text: 'Описание', 
-                    value:'description',
+                    value: 'description',
                     visible: false,
                     width: '20em',
                 },
@@ -133,14 +132,7 @@ export default Vue.extend({
                     visible: true,
                     width: '7em',
                 },
-                { 
-                    text: 'Тип процесса', 
-                    value: 'category',
-                    visible: false,
-                    sortable: false,
-                    width: '20em',
-                },
-                { 
+                {
                     text: 'Процесс', 
                     value: 'definitionName',
                     visible: true,
@@ -148,7 +140,7 @@ export default Vue.extend({
                 },
                 { 
                     text: 'Создана', 
-                    value: 'creationDate',
+                    value: 'createDate',
                     visible: true,
                     width: '12em',
                 },
@@ -179,17 +171,12 @@ export default Vue.extend({
                         if (!this.filter.processId) return true;
                         return value == parseInt(this.filter.processId);
                     };
-                } else if (h.value === 'category') {
-                    h.filter = (value: string): boolean => {
-                        if (!this.filter.category) return true;
-                        return value.toLowerCase().indexOf(this.filter.category.toLowerCase()) !== -1;
-                    };
                 } else if (h.value === 'definitionName') {
                     h.filter = (value: string): boolean => {
                         if (!this.filter.definitionName) return true;
                         return value.toLowerCase().indexOf(this.filter.definitionName.toLowerCase()) !== -1;
                     };
-                } else if (h.value === 'creationDate') {
+                } else if (h.value === 'createDate') {
 
                 } else if (h.value === 'deadlineDate') {
 
@@ -237,7 +224,7 @@ export default Vue.extend({
                 client['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
-                        this.tasks = body.tasks;
+                        this.tasks = body.data;
                     }
                     this.loading = false;
                 });

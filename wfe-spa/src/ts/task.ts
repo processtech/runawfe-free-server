@@ -14,7 +14,7 @@ export class Task {
     processId: number|null = null;
     processHierarchyIds: string = '';
     tokenId: number|null = null;
-    creationDate: Date|null = null;
+    createDate: Date|null = null;
     deadlineDate: Date|null = null;
     deadlineWarningDate: Date|null = null;
     assignDate: Date|null = null;
@@ -33,7 +33,7 @@ export class Task {
             'Номер экземпляра процесса': this.processId,
             'Владелец': this.owner ? this.owner.fullName : '',
             'Роль': this.targetActor ? this.targetActor.fullName : '',
-            'Создана': this.creationDate ? new Date(this.creationDate).toLocaleString() : '',
+            'Создана': this.createDate ? new Date(this.createDate).toLocaleString() : '',
             'Время окончания': this.deadlineDate ? new Date(this.deadlineDate).toLocaleString() : ''
         };
     }

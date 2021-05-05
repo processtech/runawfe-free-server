@@ -104,7 +104,6 @@ export default Vue.extend({
             filterVisible: false,
             filter: {
                 name: null,
-                // category: '',
                 description: null,
                 createDate: null,
                 createActor: null,
@@ -137,12 +136,6 @@ export default Vue.extend({
                     visible: true,
                     width: '20em',
                 },
-                // {   
-                //     text: 'Тип процесса', 
-                //     value: 'category',
-                //     visible: false,
-                //     width: '20em',
-                // },
                 { 
                     text: 'Дата загрузки', 
                     value: 'createDate',
@@ -222,10 +215,10 @@ export default Vue.extend({
                 variables: []
             };
             this.$apiClient().then((client: any) => {
-                client['process-api-controller'].getDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
+                client['process-definition-api-controller'].getDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
-                        this.definitions = body.definitions;
+                        this.definitions = body.data;
                         this.total = body.total;
                     }
                     this.loading = false;

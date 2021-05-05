@@ -9,7 +9,6 @@ import lombok.Data;
 public class WfTaskDto {
     private Long id;
     private String name;
-    private String category;
     private String nodeId;
     private String description;
     private String swimlaneName;
@@ -20,7 +19,7 @@ public class WfTaskDto {
     private Long processId;
     private String processHierarchyIds;
     private Long tokenId;
-    private Date creationDate;
+    private Date createDate;
     private Date deadlineDate;
     private Date deadlineWarningDate;
     private Date assignDate;
