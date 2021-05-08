@@ -161,7 +161,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                         false, FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTdBuilder", new Object[] {}).setShowable(false),
                 new FieldDescriptor(TASK_DEADLINE_DATE, Date.class.getName(), new ChildDbSource(Task.class, "deadlineDate"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTdBuilder", new Object[] {}).setShowable(false),
-                new FieldDescriptor(PROCESS_ID, String.class.getName(), new SubProcessDbSource(
+                new FieldDescriptor("groupBy_" + PROCESS_ID, String.class.getName(), new SubProcessDbSource(
                         Process.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTdBuilder", new Object[] {}).setGroupableByProcessId(true),
                 new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}).setVariablePrototype(true) });
