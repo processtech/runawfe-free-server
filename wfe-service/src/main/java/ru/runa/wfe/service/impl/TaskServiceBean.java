@@ -110,7 +110,7 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
 
     @Override
     @WebResult(name = "result")
-    public boolean reassignTask(@WebParam(name = "user") @NonNull User user, @WebParam(name = "batchPresentation") @NonNull Long taskId) {
+    public boolean reassignTask(@WebParam(name = "user") @NonNull User user, @WebParam(name = "taskId") @NonNull Long taskId) {
         return taskLogic.reassignTask(user, taskId);
     }
 
