@@ -38,6 +38,7 @@ public enum ClassPresentationType {
     private final FieldDescriptor[] fields;
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
     private final String localizationKey;
+    private int variablePrototypeIndex = -1;
 
     ClassPresentationType(ClassPresentation cp, String localizationKey) {
         if (cp != null) {
@@ -59,6 +60,9 @@ public enum ClassPresentationType {
         if (fields != null) {
             for (int i = 0; i < fields.length; i++) {
                 fieldIndexesByName.put(fields[i].name, i);
+                if (fields[i].variablePrototype) {
+                    variablePrototypeIndex = i;
+                }
             }
         }
     }
@@ -91,4 +95,9 @@ public enum ClassPresentationType {
     public String getLocalizationKey() {
         return localizationKey;
     }
+
+    public int getVariablePrototypeIndex() {
+        return variablePrototypeIndex;
+    }
+
 }
