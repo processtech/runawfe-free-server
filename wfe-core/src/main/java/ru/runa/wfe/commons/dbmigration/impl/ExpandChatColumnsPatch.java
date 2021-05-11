@@ -7,7 +7,7 @@ public class ExpandChatColumnsPatch extends DbMigration {
     @Override
     protected void executeDDLBefore() {
         executeUpdates(
-                getDDLModifyColumn("CHAT_MESSAGE", new TimestampColumnDef("CREATE_DATE")),
+                getDDLModifyColumn("CHAT_MESSAGE", new TimestampColumnDef("CREATE_DATE").notNull()),
                 getDDLModifyColumn("CHAT_MESSAGE_RECIPIENT", new TimestampColumnDef("READ_DATE"))
         );
     }
