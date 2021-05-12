@@ -74,9 +74,9 @@ function notifyAboutNewMessage(message) {
 
 function newMessageAlerter(message) {
     if (message.author === currentUser) {
-        getMessageAlert("Сообщение успешно отправлено. Обновите страницу");
+        setMessageAlert("Сообщение успешно отправлено. Обновите страницу");
     } else if (isChatOpen(message)) {
-        getMessageAlert("Получено новое сообщение. Обновите страницу");
+        setMessageAlert("Получено новое сообщение. Обновите страницу");
     } else {
         notifyAboutNewMessage(message);
     }
@@ -84,27 +84,28 @@ function newMessageAlerter(message) {
 
 function editMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        getMessageAlert("Сообщение успешно отредактированно. Обновите страницу");
+        setMessageAlert("Сообщение успешно отредактированно. Обновите страницу");
     } else if (isChatOpen(message)) {
-        getMessageAlert("Одно из сообщений было изменено. Обновите страницу");
+        setMessageAlert("Одно из сообщений было изменено. Обновите страницу");
     }
 }
 
 function deleteMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        getMessageAlert("Сообщение успешно удалено. Обновите страницу");
+        setMessageAlert("Сообщение успешно удалено. Обновите страницу");
     } else if (isChatOpen(message)) {
-        getMessageAlert("Одно из сообщений было удалено. Обновите страницу");
+        setMessageAlert("Одно из сообщений было удалено. Обновите страницу");
     }
 }
 
 function errorMessageAlerter(message) {
-    getMessageAlert("Ошибка при отправке сообщения: " + message.message);
+    setMessageAlert("Ошибка при отправке сообщения: " + message.message);
 }
 
-function getMessageAlert(message) {
+function setMessageAlert(message) {
     let alertMessage = document.createElement("b");
     alertMessage.append(message);
     let alertMessageDiv = document.getElementById("alertMessage");
+    alertMessageDiv.innerHTML = "";
     alertMessageDiv.appendChild(alertMessage);
 }
