@@ -12,7 +12,7 @@ public class RemoveAllPermissionsOperation extends ChangePermissionsOperation {
 
     @Override
     public void validate(ScriptExecutionContext context) {
-        if (!permissions.isEmpty()) {
+        if (permissions != null && !permissions.isEmpty()) {
             throw new ScriptValidationException("'permission' children are not allowed");
         }
         super.validate(context);

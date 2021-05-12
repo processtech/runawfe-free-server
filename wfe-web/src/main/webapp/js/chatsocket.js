@@ -42,17 +42,22 @@ function isChatOpen(message) {
         && window.location.search === "?processId=" + message.processId;
 }
 
+let aliveNotification = "";
+
 function notifyAboutNewMessage(message) {
-    $('#notification').remove();
+    $('#' + aliveNotification).remove();
+    let notificationId = 'notification' + message.id.toString();
+    aliveNotification = notificationId;
+
     let messageFrom = document.createElement("h3");
     messageFrom.append(message.author);
     let messageText = (message.text.length < 45) ? message.text : message.text.slice(0, 44) + "...";
 
     let notification = document.createElement("div");
-    notification.setAttribute("id", "notification");
+    notification.setAttribute("id", notificationId);
     notification.append(messageFrom, messageText);
     document.body.appendChild(notification);
-    $("#notification").dialog({
+    $('#' + notificationId).dialog({
         buttons: [{
             text: "Перейти в чат",
             click: function () {
@@ -62,7 +67,7 @@ function notifyAboutNewMessage(message) {
         title: "Новое сообщение в чате процесса " + message.processId,
         position: ['left', 'bottom'],
         open: function () {
-            setTimeout("$('#notification').dialog('close')", 10000);
+            setTimeout(function () {$('#' + notificationId).dialog("close")}, 10000);
         }
     });
 }

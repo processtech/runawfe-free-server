@@ -72,6 +72,7 @@ public class ChatFormTag extends TitledFormTag {
         Input fileInput = new Input("file");
         fileInput.setID("fileInput");
         fileInput.addAttribute("multiple", "true");
+        fileInput.addAttribute("autocomplete", "off");
 
         TD fileTd = new TD(fileInput);
         fileTd.setClass("list");
@@ -129,7 +130,7 @@ public class ChatFormTag extends TitledFormTag {
 
     private A getDeleteMessageButton(MessageAddedBroadcast message) {
         if (isAdmin) {
-            IMG button = new IMG(Commons.getUrl(Resources.IMAGE_DELETE, pageContext, PortletUrlType.Action));
+            IMG button = new IMG(Commons.getUrl(Resources.IMAGE_CHAT_DELETE, pageContext, PortletUrlType.Action));
             button.setOnClick("deleteMessage(" + message.getId() + ");");
             return new A().addElement(button.setAlign("right"));
         }
@@ -138,7 +139,7 @@ public class ChatFormTag extends TitledFormTag {
 
     private A getEditMessageButton(MessageAddedBroadcast message) {
         if (message.getAuthor().equals(user.getActor())) {
-            IMG button = new IMG().setAlt("Изменить");
+            IMG button = new IMG(Commons.getUrl(Resources.IMAGE_CHAT_EDIT, pageContext, PortletUrlType.Action));
             button.setOnClick("editMessage(" + message.getId() + ",\"" + message.getText() + "\");");
             return new A().addElement(button.setAlign("right"));
         }
@@ -146,7 +147,7 @@ public class ChatFormTag extends TitledFormTag {
     }
 
     private A getReplyButton(MessageAddedBroadcast message) {
-        IMG button = new IMG().setAlt("Ответить");
+        IMG button = new IMG(Commons.getUrl(Resources.IMAGE_CHAT_REPLY, pageContext, PortletUrlType.Action));
         button.setOnClick("reply(\"" + message.getText() + "\");");
         return new A().addElement(button.setAlign("right"));
     }

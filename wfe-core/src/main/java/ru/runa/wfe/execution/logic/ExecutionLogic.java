@@ -53,6 +53,7 @@ import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -102,6 +103,7 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
 
 /**
  * Process execution logic.
@@ -121,6 +123,9 @@ public class ExecutionLogic extends WfCommonLogic {
     private ProcessLogDao processLogDao;
     @Autowired
     private JobDao jobDao;
+    @Autowired
+    private DefinitionUpdateValidatorManager definitionVersionValidatorManager;
+
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -356,7 +361,11 @@ public class ExecutionLogic extends WfCommonLogic {
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }
         Deployment deployment = deploymentDao.getNotNull(definitionId);
+        if (Objects.equal(newVersion, deployment.getVersion())) {
+            return 0;
+        }
         Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newVersion);
+        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), getDefinition(nextDeployment.getId()));
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(deployment.getName());
         filter.setDefinitionVersion(deployment.getVersion());
@@ -384,6 +393,7 @@ public class ExecutionLogic extends WfCommonLogic {
             return false;
         }
         Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newDeploymentVersion);
+        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), getDefinition(nextDeployment.getId()), process);
         process.setDeployment(nextDeployment);
         processDao.update(process);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
@@ -625,7 +635,7 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    private String getProcessErrors(Process process) {
+    public String getProcessErrors(Process process) {
         List<String> processErrors = Lists.newArrayList();
         try {
             for (WfToken token : getTokens(process)) {
@@ -654,6 +664,26 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
+    public List<WfVariable> getVariables(List<String> variableNamesToInclude, Map<Process, Map<String, Variable<?>>> variables, Process process) {
+        List<WfVariable> wfVariables = Lists.newArrayList();
+        if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
+            try {
+                ProcessDefinition processDefinition = getDefinition(process);
+                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
+                for (String variableName : variableNamesToInclude) {
+                    try {
+                        wfVariables.add(executionContext.getVariableProvider().getVariable(variableName));
+                    } catch (Exception e) {
+                        log.error("Unable to get '" + variableName + "' in " + process, e);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Unable to get variables in " + process, e);
+            }
+        }
+        return wfVariables;
+    }
+
     private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
         List<WfToken> result = Lists.newArrayList();
         List<Token> tokens = tokenDao.findByProcessAndExecutionStatusIsNotEnded(process);
@@ -675,21 +705,7 @@ public class ExecutionLogic extends WfCommonLogic {
         Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
         for (Process process : processes) {
             WfProcess wfProcess = new WfProcess(process, getProcessErrors(process));
-            if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
-                try {
-                    ProcessDefinition processDefinition = getDefinition(process);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
-                    for (String variableName : variableNamesToInclude) {
-                        try {
-                            wfProcess.addVariable(executionContext.getVariableProvider().getVariable(variableName));
-                        } catch (Exception e) {
-                            log.error("Unable to get '" + variableName + "' in " + process, e);
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("Unable to get variables in " + process, e);
-                }
-            }
+            wfProcess.addAllVariables(getVariables(variableNamesToInclude, variables, process));
             result.add(wfProcess);
         }
         return result;

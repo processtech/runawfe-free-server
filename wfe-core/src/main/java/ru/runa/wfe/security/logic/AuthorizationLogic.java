@@ -296,6 +296,31 @@ public class AuthorizationLogic extends CommonLogic {
         setPermissionsImpl(user, executorName, objectNames, permissions, true);
     }
 
+    /**
+     * Used by script's SetPermissionsOperationById.
+     */
+    public void setPermissionsById(User user, String executorName, Set<Permission> permissions, String type, Set<Long> ids) {
+        grantPermissionsById(user, executorName, permissions, type, ids, true);
+    }
+
+    /**
+     * Used by script's AddPermissionsOperationById.
+     */
+    public void addPermissionsById(User user, String executorName, Set<Permission> permissions, String type, Set<Long> ids) {
+        grantPermissionsById(user, executorName, permissions, type, ids, false);
+    }
+
+    private void grantPermissionsById(User user, String executorName, Set<Permission> permissions, String type, Set<Long> ids, boolean dropExistingPermissions) {
+        Executor executor = executorDao.getExecutor(executorName);
+        for (Long id : ids) {
+            SecuredObject securedObject = findSecuredObject(SecuredObjectType.valueOf(type), id);
+            if (!dropExistingPermissions) {
+                permissions.addAll(permissionDao.getIssuedPermissions(executor, securedObject));
+            }
+            setPermissions(user, executor, permissions, securedObject);
+        }
+    }
+
     private void setPermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions,
             boolean deleteExisting) {
         Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
@@ -374,6 +399,25 @@ public class AuthorizationLogic extends CommonLogic {
      */
     public void removeAllPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
         removePermissionsImpl(user, executorName, objectNames, null);
+    }
+    
+    /**
+     * Used by scripts RemovePermissionsOperationById and RemoveAllPermissionsOperationById.
+     */
+    public void removePermissionsById(User user, String executorName, Set<Permission> permissions, String type, Set<Long> ids) {
+        Executor executor = executorDao.getExecutor(executorName);
+        permissionDao.checkAllowed(user, Permission.READ, executor);
+        QPermissionMapping pm = QPermissionMapping.permissionMapping; 
+        for(Long id : ids) {
+            SecuredObject securedObject = findSecuredObject(SecuredObjectType.valueOf(type), id);
+            permissionDao.checkAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
+            HibernateDeleteClause q = queryFactory.delete(pm)
+                    .where(pm.executor.eq(executor).and(pm.objectType.eq(securedObject.getSecuredObjectType())).and(pm.objectId.in(ids)));
+            if (!permissions.isEmpty()){
+                q.where(pm.permission.in(permissions));
+            }
+            q.execute();
+        }
     }
 
     /**
@@ -464,10 +508,11 @@ public class AuthorizationLogic extends CommonLogic {
         for (Executor privelegedExecutor : permissionDao.getPrivilegedExecutors(securedObject.getSecuredObjectType())) {
             if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
                     && permissionDao.isAllowed(user, Permission.READ, privelegedExecutor)) {
-                if (hasPermission)
-                  executors.add(0, privelegedExecutor);
-                else
-                  executors.remove(privelegedExecutor);
+                if (hasPermission) {
+                    executors.add(0, privelegedExecutor);
+                } else {
+                    executors.remove(privelegedExecutor);
+                }
             }
         }
         return executors;

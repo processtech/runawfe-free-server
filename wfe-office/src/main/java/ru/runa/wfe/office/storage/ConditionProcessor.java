@@ -65,7 +65,7 @@ public class ConditionProcessor {
         previousOperator = "";
     }
 
-    private static String parse(String condition, Map<String, Object> attributes, VariableProvider variableProvider) {
+    private static String parse(String condition, Map<String, Object> attributes, VariableProvider variableProvider) throws Exception {
         condition = hideSpacesInAttributeNames(condition);
         StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(condition);
@@ -127,12 +127,15 @@ public class ConditionProcessor {
         }
     }
 
-    private static StringBuilder appendAttribute(StringBuilder sb, Map<String, Object> variables, String token) {
+    private static StringBuilder appendAttribute(StringBuilder sb, Map<String, Object> variables, String token) throws Exception {
         String var = token.substring(1, token.length() - 1);
         if (variables.keySet().contains(var)) {
             Object obj = variables.get(var);
             previousAttributeValue = obj;
             sb.append(formatParameterValue(obj));
+        }
+        else {
+            throw new Exception("Atttribute " + token + " does not exist.");
         }
         return sb;
     }
