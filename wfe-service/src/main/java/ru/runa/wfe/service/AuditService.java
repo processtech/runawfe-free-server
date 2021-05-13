@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service;
 
+import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -107,4 +108,12 @@ public interface AuditService {
      * @return not <code>null</code>
      */
     public int getSystemLogsCount(User user, BatchPresentation batchPresentation);
+
+    /**
+     *  Clean process logs before date
+     *
+     * @param user Requester user.
+     * @param date Date
+     */
+    public void cleanProcessLogsBeforeDate(User user, Date date);
 }

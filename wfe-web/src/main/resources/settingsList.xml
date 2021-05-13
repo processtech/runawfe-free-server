@@ -71,6 +71,10 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="processLog.cleanButton.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
 		<property title="definition.compatibility.check.enabled">
 			<value>true</value>
 			<value>false</value>
