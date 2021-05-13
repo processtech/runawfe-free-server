@@ -89,12 +89,6 @@
 		</property>
 	</properties_file>
 
-	<properties_file title="class.presentation.properties">
-		<value>ENABLED</value>
-		<value>HIDDEN</value>
-		<value>DISABLED</value>
-	</properties_file>
-
 	<properties_file title="web.properties">
 		<property title="group.subprocess.enabled">
 			<value>true</value>

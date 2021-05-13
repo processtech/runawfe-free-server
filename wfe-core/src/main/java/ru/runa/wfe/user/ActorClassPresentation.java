@@ -31,9 +31,9 @@ import ru.runa.wfe.security.Permission;
  * @since 4.0
  */
 public class ActorClassPresentation extends ClassPresentation {
-    public static final String NAME = "batch_presentation.actor.name";
-    public static final String FULL_NAME = "batch_presentation.actor.full_name";
-    public static final String DESCRIPTION = "batch_presentation.actor.description";
+    public static final String NAME = "name";
+    public static final String FULL_NAME = "fullName";
+    public static final String DESCRIPTION = "description";
 
     private static final ClassPresentation INSTANCE = new ActorClassPresentation();
 

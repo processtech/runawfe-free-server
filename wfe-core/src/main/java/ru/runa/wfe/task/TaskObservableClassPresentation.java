@@ -34,19 +34,18 @@ import ru.runa.wfe.var.Variable;
  * Created on 2017-04-05
  */
 public class TaskObservableClassPresentation extends ClassPresentation {
-
-    public static final String NAME = "batch_presentation.task.name";
-    public static final String DESCRIPTION = "batch_presentation.task.description";
-    public static final String DEFINITION_NAME = "batch_presentation.task.definition_name";
-    public static final String PROCESS_ID = "batch_presentation.task.process_id";
-    public static final String OWNER = "batch_presentation.task.owner";
-    public static final String TASK_SWIMLINE = "batch_presentation.task.swimlane";
-    public static final String TASK_VARIABLE = editable_prefix + "name:batch_presentation.task.variable";
-    public static final String TASK_DEADLINE = "batch_presentation.task.deadline";
-    public static final String TASK_CREATE_DATE = "batch_presentation.task.create_date";
-    public static final String TASK_ASSIGN_DATE = "batch_presentation.task.assign_date";
-    public static final String TASK_DURATION = "batch_presentation.task.duration";
-    public static final String TASK_OBSERVABLE_EXECUTOR = "batch_presentation.task.observable_executor";
+    public static final String NAME = "name";
+    public static final String DESCRIPTION = "description";
+    public static final String DEFINITION_NAME = "definitionName";
+    public static final String PROCESS_ID = "processId";
+    public static final String OWNER = "owner";
+    public static final String TASK_SWIMLINE = "swimlaneName";
+    public static final String TASK_VARIABLE = "variable";
+    public static final String TASK_DEADLINE = "deadlineDate";
+    public static final String TASK_CREATE_DATE = "createDate";
+    public static final String TASK_ASSIGN_DATE = "assignDate";
+    public static final String TASK_DURATION = "duration";
+    public static final String TASK_OBSERVABLE_EXECUTOR = "observableExecutor";
 
     private static final ClassPresentation INSTANCE = new TaskObservableClassPresentation();
 
@@ -65,7 +64,7 @@ public class TaskObservableClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDbSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTdBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_VARIABLE, Variable.class.getName(), VariableDbSources.get("process"), true, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.TaskVariableTdBuilder", new Object[] {}),
+                        "ru.runa.wf.web.html.TaskVariableTdBuilder", new Object[] {}).setVariablePrototype(true),
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDbSource(Task.class, "deadlineDate"), true, 1,
                         BatchPresentationConsts.DESC, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDeadlineTdBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_CREATE_DATE, Date.class.getName(), new DefaultDbSource(Task.class, "createDate"), true,

@@ -69,9 +69,9 @@ public class HibernateCompilerAliasMapping {
             final Class<?> entity = field.dbSources[0].getSourceObject();
             if (entity.equals(batchPresentation.getType().getPresentationClass())) {
                 addAliasMapping(field, ClassPresentation.classNameSQL);
-            } else if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
-                addAliasMapping(field, "editedField" + idx);
-            } else if (field.displayName.startsWith(ClassPresentation.editable_prefix)) {
+            } else if (field.filterByVariable) {
+                addAliasMapping(field, "variableField" + idx);
+            } else if (field.variablePrototype) {
                 ;
             } else {
                 if (!joinedClassToAlias.containsKey(entity)) {
