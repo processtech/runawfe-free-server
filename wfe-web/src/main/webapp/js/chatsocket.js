@@ -69,9 +69,9 @@ function notifyAboutNewMessage(message) {
 
 function newMessageAlerter(message) {
     if (message.author === currentUser) {
-        setMessageAlert("Сообщение успешно отправлено. Обновите страницу");
+        setMessageAlert("Сообщение успешно отправлено. Обновите страницу", false);
     } else if (isChatOpen(message)) {
-        setMessageAlert("Получено новое сообщение. Обновите страницу");
+        setMessageAlert("Получено новое сообщение. Обновите страницу", false);
     } else {
         notifyAboutNewMessage(message);
     }
@@ -79,28 +79,32 @@ function newMessageAlerter(message) {
 
 function editMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        setMessageAlert("Сообщение успешно отредактированно. Обновите страницу");
+        setMessageAlert("Сообщение успешно отредактированно. Обновите страницу", false);
     } else if (isChatOpen(message)) {
-        setMessageAlert("Одно из сообщений было изменено. Обновите страницу");
+        setMessageAlert("Одно из сообщений было изменено. Обновите страницу", false);
     }
 }
 
 function deleteMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        setMessageAlert("Сообщение успешно удалено. Обновите страницу");
+        setMessageAlert("Сообщение успешно удалено. Обновите страницу", false);
     } else if (isChatOpen(message)) {
-        setMessageAlert("Одно из сообщений было удалено. Обновите страницу");
+        setMessageAlert("Одно из сообщений было удалено. Обновите страницу", false);
     }
 }
 
 function errorMessageAlerter(message) {
-    setMessageAlert("Ошибка при отправке сообщения: " + message.message);
+    setMessageAlert("Ошибка при отправке сообщения: " + message.message, true);
 }
 
-function setMessageAlert(message) {
-    let alertMessage = document.createElement("b");
-    alertMessage.append(message);
-    let alertMessageDiv = document.getElementById("alertMessage");
-    alertMessageDiv.innerHTML = "";
-    alertMessageDiv.appendChild(alertMessage);
+function setMessageAlert(message, error) {
+    let alertMessageDiv;
+    if (error) {
+        alertMessageDiv = document.getElementById("errorAlert");
+        alertMessageDiv.innerHTML = "";
+    } else {
+        alertMessageDiv = document.getElementById("messageAlert");
+        alertMessageDiv.innerHTML = "";
+    }
+    alertMessageDiv.append(message);
 }
