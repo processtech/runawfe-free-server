@@ -63,7 +63,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 
 /**
  * Variables access logic.
- * 
+ *
  * @author Dofs
  * @since 2.0
  */
@@ -176,6 +176,14 @@ public class VariableLogic extends WfCommonLogic {
         return executionContext.getVariable(variableName, true);
     }
 
+    public WfVariable getVariableDefaultValue(User user, Long definitionId, String variableName) {
+        final ParsedProcessDefinition definition = getDefinition(definitionId);
+        if (definition == null) {
+            return null;
+        }
+        return new WfVariable(definition.getVariableNotNull(variableName, false), null);
+    }
+
     public WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) {
         Task task = taskDao.getNotNull(taskId);
         if (task.getIndex() == null) {
@@ -246,7 +254,7 @@ public class VariableLogic extends WfCommonLogic {
 
     /**
      * Removes from processes state variables, which is in sync state with base process and BaseProcessMode is on.
-     * 
+     *
      * @param processStateOnTime
      *            Loaded from history state for process and all it's base processes.
      * @param baseProcessVariableLoader
@@ -278,7 +286,7 @@ public class VariableLogic extends WfCommonLogic {
 
     /**
      * Load process and all base processes state from logs according to filter.
-     * 
+     *
      * @param user
      *            Authorized user.
      * @param process
@@ -321,7 +329,7 @@ public class VariableLogic extends WfCommonLogic {
 
     /**
      * Load simple (as it stored in database/logs) variables state for process and all his base processes.
-     * 
+     *
      * @param user
      *            Authorized user.
      * @param process
@@ -343,7 +351,7 @@ public class VariableLogic extends WfCommonLogic {
 
     /**
      * Load simple variables (as it stored in database/logs) for process with specified filter parameters.
-     * 
+     *
      * @param user
      *            Authorized user.
      * @param process

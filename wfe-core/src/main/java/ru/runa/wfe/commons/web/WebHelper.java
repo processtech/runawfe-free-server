@@ -17,6 +17,7 @@ public interface WebHelper {
     String PARAM_ID = "id";
     String PARAM_FILE_NAME = "fileName";
     String PARAM_VARIABLE_NAME = "variableName";
+    String PARAM_DEFINITION_ID = "definitionId";
 
     String getMessage(String key);
 

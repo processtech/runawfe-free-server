@@ -17,7 +17,9 @@ public class TaskClassPresentation extends ClassPresentation {
     public static final String NAME = "name";
     public static final String DESCRIPTION = "description";
     public static final String DEFINITION_NAME = "definitionName";
+    public static final String ROOT_DEFINITION_NAME = "rootDefinitionName";
     public static final String PROCESS_ID = "processId";
+    public static final String ROOT_PROCESS_ID = "rootProcessId";
     public static final String OWNER = "owner";
     public static final String TASK_SWIMLINE = "swimlaneName";
     public static final String TASK_VARIABLE = "variable";
@@ -38,8 +40,12 @@ public class TaskClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDescriptionTdBuilder", new Object[] {}),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(Task.class, "process.definitionVersion.definition.name"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessDefinitionTdBuilder", new Object[] {}),
+                new FieldDescriptor(ROOT_DEFINITION_NAME, String.class.getName(), new DefaultDbSource(Task.class, "process.definitionVersion.definition.name"), false,
+                        FieldFilterMode.NONE, "ru.runa.wf.web.html.TaskRootProcessDefinitionTdBuilder", new Object[] {}),
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(Task.class, "process.id"), true, 2,
                         BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessIdTdBuilder", new Object[] {}),
+                new FieldDescriptor(ROOT_PROCESS_ID, Integer.class.getName(), new DefaultDbSource(Task.class, "process.id"), false,
+                        FieldFilterMode.NONE, "ru.runa.wf.web.html.TaskRootProcessIdTdBuilder", new Object[] {}),
                 new FieldDescriptor(OWNER, String.class.getName(), new DefaultDbSource(Task.class, "executor.name"), true,
                         FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskOwnerTdBuilder", new Object[] {}),

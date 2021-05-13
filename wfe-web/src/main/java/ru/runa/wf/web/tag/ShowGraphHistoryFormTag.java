@@ -1,25 +1,24 @@
 package ru.runa.wf.web.tag;
 
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.HistoryGraphImageAction;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
+import ru.runa.wfe.audit.BaseProcessLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showGraphHistoryForm")
 public class ShowGraphHistoryFormTag extends ProcessBaseFormTag {
@@ -59,6 +58,13 @@ public class ShowGraphHistoryFormTag extends ProcessBaseFormTag {
 
     @Override
     protected void fillFormData(final TD formDataTD) {
+        ProcessLogFilter filter = new ProcessLogFilter();
+        filter.setProcessId(getProcess().getId());
+        List<BaseProcessLog> logs = Delegates.getAuditService().getProcessLogs(getUser(), filter).getLogs();
+        if (logs.isEmpty()){
+            return;
+        }
+
         Map<String, Object> params = Maps.newHashMap();
         params.put(IdForm.ID_INPUT_NAME, getProcess().getId());
         params.put("childProcessId", childProcessId);
