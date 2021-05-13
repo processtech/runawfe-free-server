@@ -464,6 +464,14 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("statistic.report.enabled", false);
     }
 
+    public static boolean isReassignSwimlaneToInitializer() {
+        return RESOURCES.getBooleanProperty("reassign.swimlane.to.initializer", false);
+    }
+
+    public static boolean isReassignSwimlaneToTaskPerformer() {
+        return RESOURCES.getBooleanProperty("reassign.swimlane.to.task.performer", true);
+    }
+
     public static String getChatFileStoragePath() {
         return RESOURCES.getStringProperty("chat.files.storage.path", IoCommons.getAppServerDirPath() + "/wfe.chat-files-storage");
     }

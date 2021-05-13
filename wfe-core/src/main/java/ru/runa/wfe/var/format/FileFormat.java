@@ -10,6 +10,7 @@ import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.FileVariableImpl;
+import ru.runa.wfe.var.file.LinkedWithProcessDefinition;
 
 /**
  * This class is marker class for validation.
@@ -67,13 +68,17 @@ public class FileFormat extends VariableFormat implements VariableDisplaySupport
 
     @Override
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object) {
-        if (object == null) {
-            return "&nbsp;";
-        }
         FileVariable value = (FileVariable) object;
-        HashMap<String, Object> params = Maps.newHashMap();
+        if (value == null || value.getName() == null) {
+            return "";
+        }
+        HashMap<String, Object> params = new HashMap<>(4);
         params.put(WebHelper.PARAM_ID, processId);
         params.put(WebHelper.PARAM_VARIABLE_NAME, name);
+        if (value instanceof LinkedWithProcessDefinition) {
+            params.put(WebHelper.PARAM_DEFINITION_ID, ((LinkedWithProcessDefinition) value).getDefinitionId());
+        }
+
         String href = webHelper.getActionUrl(WebHelper.ACTION_DOWNLOAD_PROCESS_FILE, params);
         return "<a href=\"" + href + "\">" + value.getName() + "</a>";
     }

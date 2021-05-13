@@ -513,22 +513,10 @@ public class ExecutionLogic extends WfCommonLogic {
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(parsedProcessDefinition));
         StartNode startNode = parsedProcessDefinition.getStartStateNotNull();
-        SwimlaneDefinition startTaskSwimlaneDefinition = parsedProcessDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
-        String startTaskSwimlaneName = startTaskSwimlaneDefinition.getName();
-        if (!variables.containsKey(startTaskSwimlaneName)) {
-            variables.put(startTaskSwimlaneName, user.getActor());
-        }
         validateVariables(null, variableProvider, parsedProcessDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
-        CurrentProcess process = processFactory.startProcess(parsedProcessDefinition, variables, user.getActor(), transitionName, transientVariables);
-        Object predefinedProcessStarterObject = variables.get(startTaskSwimlaneDefinition.getName());
-        if (!Objects.equal(predefinedProcessStarterObject, user.getActor())) {
-            Executor predefinedProcessStarter = TypeConversionUtil.convertTo(Executor.class, predefinedProcessStarterObject);
-            ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process);
-            CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, startTaskSwimlaneDefinition);
-            swimlane.assignExecutor(executionContext, predefinedProcessStarter, true);
-        }
+        Process process = processFactory.startProcess(parsedProcessDefinition, variables, user.getActor(), transitionName, transientVariables);
         log.info(process + " was successfully started by " + user);
         return process.getId();
     }

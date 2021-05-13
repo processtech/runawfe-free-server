@@ -75,6 +75,14 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="reassign.swimlane.to.initializer">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="reassign.swimlane.to.task.performer">
+			<value>true</value>
+			<value>false</value>
+		</property>
 	</properties_file>
 
 	<properties_file title="web.properties">

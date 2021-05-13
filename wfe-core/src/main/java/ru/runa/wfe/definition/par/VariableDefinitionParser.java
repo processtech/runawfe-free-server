@@ -19,6 +19,8 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableStoreType;
+import ru.runa.wfe.var.file.FileVariableImpl;
+import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -128,18 +130,30 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         return variableDefinition;
     }
 
+    private String getProcessFileName(String path) {
+        return path.substring(FileDataProvider.PROCESS_FILE_PROTOCOL.length());
+    }
+
     private void parseDefaultValue(ParsedProcessDefinition parsedProcessDefinition, VariableDefinition variableDefinition) {
         String stringDefaultValue = (String) variableDefinition.getDefaultValue();
         if (!Strings.isNullOrEmpty(stringDefaultValue)) {
             try {
-                variableDefinition.setDefaultValue(null);
                 VariableFormat variableFormat = FormatCommons.create(variableDefinition);
-                Object value = variableFormat.parse(stringDefaultValue);
-                variableDefinition.setDefaultValue(value);
+
+                if (variableFormat instanceof FileFormat) {
+                    String fileName = getProcessFileName(stringDefaultValue);
+                    byte[] fileData = parsedProcessDefinition.getFileData(fileName);
+                    Object value = new FileVariableImpl(fileName, fileData, "application/octet-stream");
+                    variableDefinition.setDefaultValue(value);
+                } else {
+                    variableDefinition.setDefaultValue(variableFormat.parse(stringDefaultValue));
+                }
             } catch (Exception e) {
                 Date createDate = parsedProcessDefinition.getProcessDefinitionVersion().getCreateDate();
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
                         || (createDate == null ? new Date() : createDate).after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
+                    log.warn("Unable to parse default value '" + stringDefaultValue +
+                            "' for variable '" + variableDefinition.getName() + "'" + ": " + e);
                     throw e;
                 } else {
                     log.error("Unable to format default value '" + stringDefaultValue + "' in " + parsedProcessDefinition + ":" + variableDefinition, e);

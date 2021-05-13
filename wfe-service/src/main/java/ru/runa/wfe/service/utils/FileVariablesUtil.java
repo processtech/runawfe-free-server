@@ -10,10 +10,11 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.UserType;
+import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.logic.VariableLogic;
 
@@ -21,16 +22,24 @@ public class FileVariablesUtil {
     private static final VariableLogic variableLogic = ApplicationContextFactory.getVariableLogic();
 
     public static void proxyFileVariables(User user, Long processId, WfVariable variable) {
+        proxyFileVariables(user, processId, null, variable);
+    }
+
+    public static void proxyFileVariables(User user, Long processId, Long definitionId, WfVariable variable) {
         if (variable == null) {
             return;
         }
-        variable.setValue(proxyFileVariableValues(user, processId, variable.getDefinition().getName(), variable.getValue()));
+        variable.setValue(proxyFileVariableValues(user, processId, definitionId, variable.getDefinition().getName(), variable.getValue()));
     }
 
-    private static Object proxyFileVariableValues(User user, Long processId, String variableName, Object variableValue) {
+    public static Object proxyFileVariableValues(User user, Long processId, String variableName, Object variableValue) {
+        return proxyFileVariableValues(user, processId, null, variableName, variableValue);
+    }
+
+    public static Object proxyFileVariableValues(User user, Long processId, Long definitionId, String variableName, Object variableValue) {
         if (variableValue instanceof FileVariable) {
             FileVariable fileVariable = (FileVariable) variableValue;
-            return new FileVariableProxy(user, processId, variableName, fileVariable);
+            return new FileVariableProxy(user, processId, definitionId, variableName, fileVariable);
         }
         if (variableValue instanceof List) {
             @SuppressWarnings("unchecked")
@@ -38,9 +47,9 @@ public class FileVariablesUtil {
             int i = 0;
             for (val object : list) {
                 if (object instanceof FileVariable || object instanceof List || object instanceof Map) {
-                    String proxyName = variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + i +
-                            VariableFormatContainer.COMPONENT_QUALIFIER_END;
-                    Object proxy = proxyFileVariableValues(user, processId, proxyName, object);
+                    String proxyName = variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+                    Object proxy = proxyFileVariableValues(user, processId, definitionId, proxyName, object);
                     if (object instanceof FileVariable) {
                         TypeConversionUtil.setListValue(variableValue, i, proxy);
                     }
@@ -58,7 +67,7 @@ public class FileVariablesUtil {
                             ? variableName + UserType.DELIM + entry.getKey()
                             : variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + entry.getKey() +
                               VariableFormatContainer.COMPONENT_QUALIFIER_END;
-                    Object proxy = proxyFileVariableValues(user, processId, proxyName, object);
+                    Object proxy = proxyFileVariableValues(user, processId, definitionId, proxyName, object);
                     if (object instanceof FileVariable) {
                         entry.setValue(proxy);
                     }
@@ -69,10 +78,14 @@ public class FileVariablesUtil {
     }
 
     public static void unproxyFileVariables(User user, Long processId, Long taskId, Map<String, Object> variables) {
-        unproxyFileVariableValues(user, processId, taskId, variables);
+        unproxyFileVariableValues(user, processId, null, taskId, variables);
     }
 
-    private static Object unproxyFileVariableValues(User user, Long processId, Long taskId, Object variableValue) {
+    public static void unproxyFileVariables(User user, Long definitionId, Map<String, Object> variables) {
+        unproxyFileVariableValues(user, null, definitionId, null, variables);
+    }
+
+    private static Object unproxyFileVariableValues(User user, Long processId, Long definitionId, Long taskId, Object variableValue) {
         if (variableValue instanceof FileVariableProxy) {
             FileVariableProxy proxy = (FileVariableProxy) variableValue;
             if (proxy.getUnproxiedClassName() != null) {
@@ -81,16 +94,21 @@ public class FileVariablesUtil {
                 WfVariable variable;
                 if (taskId != null) {
                     variable = variableLogic.getTaskVariable(user, processId, taskId, proxy.getVariableName());
-                } else {
+                } else if (processId != null) {
                     variable = variableLogic.getVariable(user, processId, proxy.getVariableName());
+                } else {
+                    if (definitionId == null) {
+                        throw new IllegalStateException("One of processId, definitionId, taskId should not be null");
+                    }
+                    variable = variableLogic.getVariableDefaultValue(user, definitionId, proxy.getVariableName());
                 }
-                if (variable == null || variable.getValue() == null) {
-                    throw new InternalApplicationException("FileVariableProxy provided for null variable " + proxy.getVariableName());
+                if (variable == null) {
+                    throw new InternalApplicationException("FileVariableProxy provided for non-existing variable " + proxy.getVariableName());
                 }
-                if (variable.getValue() instanceof FileVariable) {
-                    return variable.getValue();
+                if (!(variable.getDefinition().getFormatNotNull() instanceof FileFormat)) {
+                    throw new InternalApplicationException("FileVariableProxy provided for non-file " + variable);
                 }
-                throw new InternalApplicationException("FileVariableProxy provided for non-file " + variable);
+                return variable.getValue();
             }
         }
         if (variableValue instanceof List) {
@@ -99,7 +117,7 @@ public class FileVariablesUtil {
             int i = 0;
             for (val object : list) {
                 if (object instanceof FileVariableProxy || object instanceof List || object instanceof Map) {
-                    Object unproxied = unproxyFileVariableValues(user, processId, taskId, object);
+                    Object unproxied = unproxyFileVariableValues(user, processId, definitionId, taskId, object);
                     if (object instanceof FileVariable) {
                         TypeConversionUtil.setListValue(variableValue, i, unproxied);
                     }
@@ -113,7 +131,7 @@ public class FileVariablesUtil {
             for (val entry : map.entrySet()) {
                 val object = entry.getValue();
                 if (object instanceof FileVariableProxy || object instanceof List || object instanceof Map) {
-                    Object unproxied = unproxyFileVariableValues(user, processId, taskId, object);
+                    Object unproxied = unproxyFileVariableValues(user, processId, definitionId, taskId, object);
                     if (object instanceof FileVariable) {
                         entry.setValue(unproxied);
                     }
