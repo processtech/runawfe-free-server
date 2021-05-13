@@ -31,8 +31,8 @@ import ru.runa.wfe.security.Permission;
  * @since 4.0
  */
 public class GroupClassPresentation extends ClassPresentation {
-    public static final String NAME = "batch_presentation.group.name";
-    public static final String DESCRIPTION = "batch_presentation.group.description";
+    public static final String NAME = "name";
+    public static final String DESCRIPTION = "description";
 
     private static final ClassPresentation INSTANCE = new GroupClassPresentation();
 

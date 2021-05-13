@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service.delegate;
 
+import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -80,6 +81,15 @@ public class AuditServiceDelegate extends Ejb3Delegate implements AuditService {
     public int getSystemLogsCount(User user, BatchPresentation batchPresentation) {
         try {
             return getAuditService().getSystemLogsCount(user, batchPresentation);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void cleanProcessLogsBeforeDate(User user, Date date) {
+        try {
+            getAuditService().cleanProcessLogsBeforeDate(user, date);
         } catch (Exception e) {
             throw handleException(e);
         }

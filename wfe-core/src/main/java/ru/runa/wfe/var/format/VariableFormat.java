@@ -1,5 +1,6 @@
 package ru.runa.wfe.var.format;
 
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -32,6 +33,7 @@ public abstract class VariableFormat {
         try {
             return convertFromStringValue(source);
         } catch (Exception e) {
+            LogFactory.getLog(getClass()).warn("Unable to parse '" + source + "' in " + this + ": " + e);
             throw new InternalApplicationException(e);
         }
     }

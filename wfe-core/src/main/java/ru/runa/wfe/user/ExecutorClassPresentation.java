@@ -28,10 +28,10 @@ import ru.runa.wfe.security.Permission;
  * Created on 22.10.2005
  */
 public class ExecutorClassPresentation extends ClassPresentation {
-    public static final String NAME = "batch_presentation.executor.name";
-    public static final String FULL_NAME = "batch_presentation.executor.full_name";
-    public static final String DESCRIPTION = "batch_presentation.executor.description";
-    public static final String TYPE = "batch_presentation.executor.type";
+    public static final String NAME = "name";
+    public static final String FULL_NAME = "fullName";
+    public static final String DESCRIPTION = "description";
+    public static final String TYPE = "type";
 
     private static final ClassPresentation INSTANCE = new ExecutorClassPresentation();
 

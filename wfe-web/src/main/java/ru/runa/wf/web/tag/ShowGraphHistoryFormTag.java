@@ -31,6 +31,8 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.HistoryGraphImageAction;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
+import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.security.Permission;
@@ -76,6 +78,13 @@ public class ShowGraphHistoryFormTag extends ProcessBaseFormTag {
 
     @Override
     protected void fillFormData(final TD formDataTD) {
+        ProcessLogFilter filter = new ProcessLogFilter();
+        filter.setProcessId(getProcess().getId());
+        List<ProcessLog> logs = Delegates.getAuditService().getProcessLogs(getUser(),filter).getLogs();
+        if (logs.isEmpty()){
+            return;
+        }
+
         Map<String, Object> params = Maps.newHashMap();
         params.put(IdForm.ID_INPUT_NAME, getProcess().getId());
         params.put("childProcessId", childProcessId);

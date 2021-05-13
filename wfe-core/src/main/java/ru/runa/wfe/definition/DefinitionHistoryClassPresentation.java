@@ -30,15 +30,16 @@ import ru.runa.wfe.user.Actor;
  * Class presentation for process definition history.
  */
 public class DefinitionHistoryClassPresentation extends ClassPresentation {
-    public static final String NAME = "batch_presentation.process_definition.name";
-    public static final String DESCRIPTION = "batch_presentation.process_definition.description";
-    public static final String VERSION = "batch_presentation.process_definition.version";
-    public static final String TYPE = "batch_presentation.process_definition.process_type";
-    public static final String CREATE_DATE = "batch_presentation.process_definition.create_date";
-    public static final String CREATE_ACTOR = "batch_presentation.process_definition.create_actor";
-    public static final String UPDATE_DATE = "batch_presentation.process_definition.update_date";
-    public static final String UPDATE_ACTOR = "batch_presentation.process_definition.update_actor";
-    public static final String PROCESSES_COUNT = "batch_presentation.process_definition.processes_count";
+    public static final String NAME = "name";
+    public static final String DESCRIPTION = "description";
+    public static final String VERSION = "version";
+    public static final String TYPE = "type";
+    public static final String CREATE_DATE = "createDate";
+    public static final String CREATE_ACTOR = "createActor";
+    public static final String UPDATE_DATE = "updateDate";
+    public static final String UPDATE_ACTOR = "updateActor";
+    public static final String SUBPROCESS_BINDING_DATE = "subprocessBindingDate";
+    public static final String PROCESSES_COUNT = "processesCount";
 
     private static final ClassPresentation INSTANCE = new DefinitionHistoryClassPresentation();
 

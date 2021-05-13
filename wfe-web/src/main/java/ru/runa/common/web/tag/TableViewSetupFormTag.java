@@ -51,7 +51,6 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
@@ -226,25 +225,23 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             FieldDescriptor[] displayedFields = batchPresentation.getDisplayFields();
             table.addElement(getHeaderRow());
             for (int i = 0; i < displayedFields.length; ++i) {
-                if (displayedFields[i].displayName.startsWith(ClassPresentation.filterable_prefix)) {
+                if (displayedFields[i].groupableByProcessId) {
                     continue;
                 }
-                if (!displayedFields[i].displayName.startsWith(ClassPresentation.editable_prefix)
-                        && displayedFields[i].fieldState == FieldState.ENABLED) {
+                if (!displayedFields[i].variablePrototype && displayedFields[i].fieldState == FieldState.ENABLED) {
                     table.addElement(buildViewRow(batchPresentation, displayedFields[i].fieldIdx, i));
                 }
             }
             for (FieldDescriptor f : batchPresentation.getHiddenFields()) {
-                if (f.displayName.startsWith(ClassPresentation.filterable_prefix)) {
+                if (f.groupableByProcessId) {
                     continue;
                 }
-                if (!f.displayName.startsWith(ClassPresentation.editable_prefix) && f.fieldState == FieldState.ENABLED) {
+                if (!f.variablePrototype && f.fieldState == FieldState.ENABLED) {
                     table.addElement(buildViewRow(batchPresentation, f.fieldIdx, -1));
                 }
             }
             for (FieldDescriptor f : batchPresentation.getAllFields()) {
-                if (f.displayName.startsWith(ClassPresentation.editable_prefix) && f.fieldState == FieldState.ENABLED
-                        || f.displayName.startsWith(ClassPresentation.filterable_prefix) && groupBySubprocessEnabled) {
+                if (f.variablePrototype && f.fieldState == FieldState.ENABLED || f.groupableByProcessId && groupBySubprocessEnabled) {
                     table.addElement(buildViewRow(batchPresentation, f.fieldIdx, -1));
                 }
             }
@@ -260,23 +257,17 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         TR tr = new TR();
 
         FieldDescriptor field = batchPresentation.getAllFields()[fieldIdx];
-        boolean isEditable = field.displayName.startsWith(ClassPresentation.editable_prefix);
-        boolean isDynamic = field.displayName.startsWith(ClassPresentation.removable_prefix);
-        boolean isFilterable = field.displayName.startsWith(ClassPresentation.filterable_prefix);
-        tr.addAttribute("field", field.displayName);
+        tr.addAttribute("field", field.name);
 
         { // field name section
             TD td;
-            if (isEditable) {
-                td = new TD(Messages.getMessage(field.displayName.substring(field.displayName.lastIndexOf(':') + 1), pageContext) + ":");
+            if (field.variablePrototype) {
+                td = new TD(Messages.getMessage(batchPresentation, field, pageContext));
                 td.addElement(new Input(Input.TEXT, TableViewSetupForm.EDITABLE_FIELDS, ""));
-            } else if (isDynamic) {
-                int end = field.displayName.lastIndexOf(':');
-                int begin = field.displayName.lastIndexOf(':', end - 1) + 1;
+            } else if (field.filterByVariable) {
                 td = new TD(new Input(Input.CHECKBOX, TableViewSetupForm.REMOVABLE_FIELD_IDS, fieldIdx).setChecked(true));
-                td.addElement(Messages.getMessage(field.displayName.substring(begin, end), pageContext) + ":"
-                        + field.displayName.substring(field.displayName.lastIndexOf(':') + 1));
-            } else if (isFilterable) {
+                td.addElement(Messages.getMessage(batchPresentation, field, pageContext));
+            } else if (field.groupableByProcessId) {
                 Input groupingInput = new Input(Input.CHECKBOX, TableViewSetupForm.GROUPING_POSITIONS, fieldIdx);
                 if (batchPresentation.isFieldGroupped(fieldIdx)) {
                     groupingInput.setChecked(true);
@@ -284,12 +275,12 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 td = new TD(groupingInput);
                 td.addElement(MessagesCommon.LABEL_GROUP_BY_ID.message(pageContext));
             } else {
-                td = new TD(Messages.getMessage(field.displayName, pageContext));
+                td = new TD(Messages.getMessage(batchPresentation, field, pageContext));
             }
             td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.IDS_INPUT_NAME, String.valueOf(fieldIdx)));
             tr.addElement(td);
         }
-        if (isEditable || isFilterable) { // Editable fields havn't fields for
+        if (field.variablePrototype || field.groupableByProcessId) { // Editable fields havn't fields for
             // sorting/filtering e t.c.
             for (int idx = 0; idx < 5; ++idx) {
                 tr.addElement(new TD());
@@ -301,7 +292,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS,
                         createPositionOptions(batchPresentation, fieldIdx));
                 tr.addElement(new TD(displayFieldPositionSelect));
-                if (fieldDisplayPosition >= 0 && !isEditable) {
+                if (fieldDisplayPosition >= 0 && !field.variablePrototype) {
                     displayFieldPositionSelect.selectOption(fieldDisplayPosition + 1);
                 } else {
                     displayFieldPositionSelect.selectOption(noneOptionPosition);
@@ -363,12 +354,12 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
 
     protected Option[] createPositionOptions(BatchPresentation batchPresentation, int fieldIdx) {
         FieldDescriptor[] fields = batchPresentation.getAllFields();
-        if (fields[fieldIdx].displayName.startsWith(ClassPresentation.editable_prefix)) {
+        if (fields[fieldIdx].variablePrototype) {
             return new Option[] { HTMLUtils.createOption("-1", MessagesBatch.OPTION_NONE.message(pageContext), false) };
         }
         int fieldsCount = fields.length;
         for (int i = fields.length - 1; i >= 0; --i) {
-            if (fields[i].displayName.startsWith(ClassPresentation.editable_prefix) || fields[i].fieldState != FieldState.ENABLED) {
+            if (fields[i].variablePrototype || fields[i].fieldState != FieldState.ENABLED) {
                 --fieldsCount;
             }
         }

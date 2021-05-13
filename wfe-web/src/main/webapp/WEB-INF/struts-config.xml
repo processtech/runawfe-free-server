@@ -848,6 +848,11 @@
 			<forward name="failure" path="/send_process_signal.do" redirect="true" />
 		</action>
 
+		<action path="/cleanProcessLogs" type="ru.runa.wf.web.action.CleanProcessLogsAction">
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
+		</action>
+
 	</action-mappings>
 
 	<controller contentType="text/html; charset=UTF-8" nocache="true"

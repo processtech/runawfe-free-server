@@ -312,7 +312,7 @@ tr.executor_group {
 	top: -2px;
 	width: 16px;
 	height: 16px;
-	background: url(images/checkmark.png) center no-repeat white;
+	background: url(images/equal.png) center no-repeat;
 	background-size: cover;
 	cursor: pointer;
 	display: inline-block;
@@ -326,7 +326,7 @@ tr.executor_group {
 	right: 0px;
 	bottom: 0px;
 	left: 0px;
-	background: url(images/cross.png) center no-repeat white;
+	background: url(images/equal_no.png) center no-repeat white;
 	background-size: cover;
 }
 .button-more {

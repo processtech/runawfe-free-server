@@ -71,16 +71,22 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="processLog.cleanButton.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
 		<property title="definition.compatibility.check.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>
-	</properties_file>
-
-	<properties_file title="class.presentation.properties">
-		<value>ENABLED</value>
-		<value>HIDDEN</value>
-		<value>DISABLED</value>
+		<property title="reassign.swimlane.to.initializer">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="reassign.swimlane.to.task.performer">
+			<value>true</value>
+			<value>false</value>
+		</property>
 	</properties_file>
 
 	<properties_file title="web.properties">
@@ -208,6 +214,7 @@
 		</property>
 		<property title="process.processStartButtonName" />
 		<property title="process.completeTaskButtonName" />
+		<property title="process.started"/>
 		<property title="chat.enabled">
 			<value>true</value>
 			<value>false</value>

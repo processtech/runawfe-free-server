@@ -64,10 +64,13 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
             }
         }
         String js = "var tasks = {data:[";
-        for (int i = 0; i < barList.size(); i++) {
-            js += (i > 0 ? "," : "") + barList.get(i);
+        if (barList.size() > 1) {
+            for (int i = 0; i < barList.size(); i++) {
+                js += (i > 0 ? "," : "") + barList.get(i);
+            }
+            js += "\n";
         }
-        js += "\n]};";
+        js += "]};";
 
         Script script = new Script();
         script.setLanguage("javascript");
