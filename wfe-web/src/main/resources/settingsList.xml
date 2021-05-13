@@ -116,6 +116,7 @@
 			<value>false</value>
 		</property>
 		<property title="view.logs.limit.lines.count" pattern="\d*"/>
+		<property title="view.logs.limit.line.characters.count" pattern="\d*"/>
 		<property title="view.logs.timeout.autoreload.seconds" pattern="\d*" />
 
 		<property title="menu.additional_links" />
