@@ -40,7 +40,7 @@ public class ChatRoomClassPresentation extends ClassPresentation {
                 new FieldDescriptor(PROCESS_END_DATE, Date.class.getName(), new DefaultDbSource(ChatRoom.class, "process.endDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomEndDateTdBuilder", new Object[]{}).setVisible(false),
                 new FieldDescriptor(PROCESS_VARIABLE, CurrentVariable.class.getName(), VariableDbSources.get(null), true,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomVariableTdBuilder", new Object[]{}),
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomVariableTdBuilder", new Object[]{}).setVariablePrototype(true),
                 new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(ChatRoom.class, "definitionVersion.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{ Permission.READ, "process.version" }).setVisible(false),
                 new FieldDescriptor(ERRORS, String.class.getName(), new DefaultDbSource(Token.class, "errorMessage"), false,

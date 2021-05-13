@@ -36,7 +36,7 @@ public enum ClassPresentationType {
     TASK(TaskClassPresentation.INSTANCE, "task"),
     TASK_OBSERVABLE(TaskObservableClassPresentation.INSTANCE, "task"),
     REPORTS(ReportClassPresentation.INSTANCE, "report"),
-    CHAT_ROOM(ChatRoomClassPresentation.getInstance(), "");
+    CHAT_ROOM(ChatRoomClassPresentation.getInstance(), "process");
 
     private final Class<?> presentationClass;
     private final List<String> restrictions;
