@@ -112,11 +112,18 @@ public class TaskDao extends GenericDao<Task> {
 
     public void deleteAll(Process process) {
         log.debug("deleting tasks for process " + process.getId());
-        QTask t = QTask.task;
         List<Task> tasks = findByProcess(process);
         for (Task task : tasks) {
             task.delete();
         }
         flushPendingChanges();
+    }
+
+    /**
+     * @return return all async tasks with ended parent process
+     */
+    public List<Task> findByEndedProcess() {
+        QTask t = QTask.task;
+        return queryFactory.selectFrom(t).where(t.process.endDate.isNotNull()).fetch();
     }
 }
