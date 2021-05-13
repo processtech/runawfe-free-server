@@ -176,14 +176,14 @@ public class ProcessFactory {
         }
         executionContext.setVariableValues(variables);
         if (actor != null) {
-            StartNode startNode = executionContext.getProcessDefinition().getStartStateNotNull();
+            StartNode startNode = executionContext.getParsedProcessDefinition().getStartStateNotNull();
             TaskDefinition taskDefinition = startNode.getFirstTaskNotNull();
             if (startNode.getFirstTaskNotNull().isReassignSwimlaneToTaskPerformer()) {
-                SwimlaneDefinition swimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
-                CurrentSwimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
+                SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
+                CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, swimlaneDefinition);
                 swimlane.assignExecutor(executionContext, actor, false);
             }
-            executionContext.addLog(new TaskEndLog(process, processDefinition.getStartStateNotNull(), actor));
+            executionContext.addLog(new CurrentTaskEndLog(process, parsedProcessDefinition.getStartStateNotNull(), actor));
         }
         return executionContext;
     }

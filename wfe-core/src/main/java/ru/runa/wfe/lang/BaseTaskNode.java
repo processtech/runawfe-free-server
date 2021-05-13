@@ -64,7 +64,7 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     }
 
     protected CurrentSwimlane getInitializedSwimlaneNotNull(ExecutionContext executionContext, TaskDefinition taskDefinition) {
-        return currentSwimlaneDao.findOrCreateInitialized(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlane());
+        return currentSwimlaneDao.findOrCreateInitialized(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlaneToInitializer());
     }
 
     @Override

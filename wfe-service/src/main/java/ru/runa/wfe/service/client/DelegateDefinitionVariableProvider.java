@@ -79,7 +79,7 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
             return new WfVariable(
                     variableDefinition,
                     variableDefinition.getFormatNotNull() instanceof FileFormat ?
-                            new FileVariableProxy(user, null, definitionId, variableName, (FileVariable) variableDefinition.getDefaultValue()) :
+                            new FileVariableProxy(user, null, definitionVersionId, variableName, (FileVariable) variableDefinition.getDefaultValue()) :
                             null
             );
         }
