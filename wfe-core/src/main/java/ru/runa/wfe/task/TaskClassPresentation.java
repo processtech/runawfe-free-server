@@ -37,7 +37,9 @@ public class TaskClassPresentation extends ClassPresentation {
     public static final String NAME = "batch_presentation.task.name";
     public static final String DESCRIPTION = "batch_presentation.task.description";
     public static final String DEFINITION_NAME = "batch_presentation.task.definition_name";
+    public static final String ROOT_DEFINITION_NAME = "batch_presentation.task.root.definition_name";
     public static final String PROCESS_ID = "batch_presentation.task.process_id";
+    public static final String ROOT_PROCESS_ID = "batch_presentation.task.root.process_id";
     public static final String OWNER = "batch_presentation.task.owner";
     public static final String TASK_SWIMLINE = "batch_presentation.task.swimlane";
     public static final String TASK_VARIABLE = editable_prefix + "name:batch_presentation.task.variable";
@@ -57,9 +59,13 @@ public class TaskClassPresentation extends ClassPresentation {
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(Task.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDescriptionTdBuilder", new Object[] {}),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(Task.class, "process.deployment.name"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessDefinitionTdBuilder", new Object[] {}),
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessDefinitionTdBuilder", new Object[] {}).setVisible(false),
+                new FieldDescriptor(ROOT_DEFINITION_NAME, String.class.getName(), new DefaultDbSource(Task.class, "process.deployment.name"), false,
+                        FieldFilterMode.NONE, "ru.runa.wf.web.html.TaskRootProcessDefinitionTdBuilder", new Object[] {}),
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(Task.class, "process.id"), true, 2,
-                        BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessIdTdBuilder", new Object[] {}),
+                        BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessIdTdBuilder", new Object[] {}).setVisible(false),
+                new FieldDescriptor(ROOT_PROCESS_ID, Integer.class.getName(), new DefaultDbSource(Task.class, "process.id"), false,
+                        FieldFilterMode.NONE, "ru.runa.wf.web.html.TaskRootProcessIdTdBuilder", new Object[] {}),
                 new FieldDescriptor(OWNER, String.class.getName(), new DefaultDbSource(Task.class, "executor.name"), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskOwnerTdBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDbSource(Task.class, "swimlane.name"), false,
