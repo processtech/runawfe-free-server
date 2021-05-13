@@ -38,6 +38,9 @@
 </span>
 
 <%--Used for chat alerts displaying --%>
-	<div id="alertMessage" style="color: blue;"></div>
+	<div class="chatAlert">
+		<b id="errorAlert" style="color: red;"></b>
+		<b id="messageAlert" style="color: blue;"></b>
+	</div>
 </center>
 </div>
