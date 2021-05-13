@@ -17,6 +17,11 @@
  */
 package ru.runa.wfe.var.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,9 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -51,17 +54,18 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionVariableProvider;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
@@ -69,15 +73,9 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 /**
  * Variables access logic.
- * 
+ *
  * @author Dofs
  * @since 2.0
  */
@@ -190,6 +188,14 @@ public class VariableLogic extends WfCommonLogic {
         return executionContext.getVariable(variableName, true);
     }
 
+    public WfVariable getVariableDefaultValue(User user, Long definitionId, String variableName) {
+        final ProcessDefinition definition = getDefinition(definitionId);
+        if (definition == null) {
+            return null;
+        }
+        return new WfVariable(definition.getVariableNotNull(variableName, false), null);
+    }
+
     public WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) {
         Task task = taskDao.getNotNull(taskId);
         if (task.getIndex() == null) {
@@ -261,7 +267,7 @@ public class VariableLogic extends WfCommonLogic {
 
     /**
      * Removes from processes state variables, which is in sync state with base process and BaseProcessMode is on.
-     * 
+     *
      * @param processStateOnTime
      *            Loaded from history state for process and all it's base processes.
      * @param baseProcessVariableLoader
@@ -294,7 +300,7 @@ public class VariableLogic extends WfCommonLogic {
 
     /**
      * Load process and all base processes state from logs according to filter.
-     * 
+     *
      * @param user
      *            Authorized user.
      * @param process
@@ -337,7 +343,7 @@ public class VariableLogic extends WfCommonLogic {
 
     /**
      * Load simple (as it stored in database/logs) variables state for process and all his base processes.
-     * 
+     *
      * @param user
      *            Authorized user.
      * @param process
@@ -359,7 +365,7 @@ public class VariableLogic extends WfCommonLogic {
 
     /**
      * Load simple variables (as it stored in database/logs) for process with specified filter parameters.
-     * 
+     *
      * @param user
      *            Authorized user.
      * @param process
