@@ -22,8 +22,9 @@
 package ru.runa.wfe.execution;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -245,7 +246,7 @@ public class Process extends SecuredObjectBase {
             Node node = parentProcessDefinition.getNodeNotNull(parentNodeProcess.getNodeId());
             Synchronizable synchronizable = (Synchronizable) node;
             if (!synchronizable.isAsync()) {
-                log.info("Signalling to parent " + parentNodeProcess.getProcess());
+                log.debug("Signalling to parent " + parentNodeProcess.getProcess());
                 parentNodeProcess.getParentToken().signalOnSubprocessEnd(executionContext);
             }
         }
@@ -257,26 +258,7 @@ public class Process extends SecuredObjectBase {
 
         // flush just created tasks
         ApplicationContextFactory.getTaskDAO().flushPendingChanges();
-        boolean activeSuperProcessExists = isExistNotEndedParentProcessInHierarchy(executionContext);
-        for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(this)) {
-            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
-            if (taskNode.isAsync()) {
-                switch (taskNode.getCompletionMode()) {
-                case NEVER:
-                    continue;
-                case ON_MAIN_PROCESS_END:
-                    if (activeSuperProcessExists) {
-                        continue;
-                    }
-                case ON_PROCESS_END:
-                }
-            }
-            task.end(executionContext, taskNode, taskCompletionInfo);
-        }
-        if (!activeSuperProcessExists) {
-            log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
-            endSubprocessAndTasksOnMainProcessEndRecursively(executionContext, canceller);
-        }
+        endAsyncActivitiesRecursively(executionContext, taskCompletionInfo, canceller);
         for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDAO().findByProcess(this)) {
             if (swimlane.getExecutor() instanceof TemporaryGroup) {
                 swimlane.setExecutor(null);
@@ -305,56 +287,73 @@ public class Process extends SecuredObjectBase {
         }
     }
 
-    private boolean isExistNotEndedParentProcessInHierarchy(ExecutionContext executionContext) {
-        NodeProcess parentNodeProcess = executionContext.getParentNodeProcess();
-        boolean activeSuperProcessExists = true;
-        if (parentNodeProcess == null ) {
-            activeSuperProcessExists = false;
-        }else {
-            List<Long> processIds = ProcessHierarchyUtils.getProcessIds(hierarchyIds);
-            for (Long processId : processIds) {
-                if (ApplicationContextFactory.getProcessDAO().get(processId).hasEnded()) {
-                    if (Objects.equal(this.id, processId)) {
-                        activeSuperProcessExists = false;
-                        break;
-                    }
-                }else {
-                    break;
+    protected void endAsyncActivitiesRecursively(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo, Actor canceller) {
+        boolean mainProcessForAsyncActivitiesIsActive = isMainProcessForAsyncActivitiesIsActive(executionContext);
+        endAsyncTasks(executionContext, taskCompletionInfo, mainProcessForAsyncActivitiesIsActive);
+        endAsyncSubprocesses(executionContext, canceller, mainProcessForAsyncActivitiesIsActive);
+        // we should handle case of active subprocesses in ended ones
+        for (Process subProcess : executionContext.getSubprocessesRecursively()) {
+            if (subProcess.hasEnded()) {
+                ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+                subProcess.endAsyncActivitiesRecursively(subExecutionContext, taskCompletionInfo, canceller);
+            }
+        }
+    }
+
+    private boolean isMainProcessForAsyncActivitiesIsActive(ExecutionContext executionContext) {
+        final List<Long> processIdsReversed = Lists.newArrayList(ProcessHierarchyUtils.getProcessIds(hierarchyIds));
+        Collections.reverse(processIdsReversed);
+        for (Long processId : processIdsReversed) {
+            NodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDAO().findBySubProcessId(processId);
+            if (nodeProcess != null) {
+                ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(nodeProcess.getProcess());
+                SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNodeNotNull(nodeProcess.getNodeId());
+                if (subprocessNode.isAsync() && subprocessNode.getCompletionMode() == AsyncCompletionMode.NEVER) {
+                    return !nodeProcess.getSubProcess().hasEnded();
                 }
             }
         }
-        return activeSuperProcessExists;
+        Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(hierarchyIds);
+        return !ApplicationContextFactory.getProcessDAO().get(rootProcessId).hasEnded();
     }
 
-    private void endSubprocessAndTasksOnMainProcessEndRecursively(ExecutionContext executionContext, Actor canceller) {
-        List<Process> subprocesses = executionContext.getSubprocesses();
-        if (subprocesses.size() > 0) {
-            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
-            for (Process subProcess : subprocesses) {
-                ProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
-                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
-
-                endSubprocessAndTasksOnMainProcessEndRecursively(subExecutionContext, canceller);
-
-                for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(subProcess)) {
-                    BaseTaskNode taskNode = (BaseTaskNode) subProcessDefinition.getNodeNotNull(task.getNodeId());
-                    if (taskNode.isAsync()) {
-                        switch (taskNode.getCompletionMode()) {
-                        case NEVER:
-                        case ON_PROCESS_END:
-                            continue;
-                        case ON_MAIN_PROCESS_END:
-                            task.end(subExecutionContext, taskNode, TaskCompletionInfo.createForProcessEnd(id));
-                        }
+    private void endAsyncTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo, boolean mainProcessForAsyncActivitiesIsActive) {
+        for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(this)) {
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
+            if (taskNode.isAsync()) {
+                switch (taskNode.getCompletionMode()) {
+                case NEVER:
+                    continue;
+                case ON_MAIN_PROCESS_END:
+                    if (mainProcessForAsyncActivitiesIsActive) {
+                        continue;
                     }
+                case ON_PROCESS_END:
                 }
+                task.end(executionContext, taskNode, taskCompletionInfo);
+            }
+        }
+    }
 
-                if (!subProcess.hasEnded()) {
-                    NodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDAO().findBySubProcessId(subProcess.getId());
-                    SubprocessNode subprocessNode = (SubprocessNode) executionContext.getProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
-                    if (subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
-                        subProcess.end(subExecutionContext, canceller);
+    private void endAsyncSubprocesses(ExecutionContext executionContext, Actor canceller, boolean mainProcessForAsyncActivitiesIsActive) {
+        for (Process subProcess : executionContext.getSubprocesses()) {
+            if (!subProcess.hasEnded()) {
+                NodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDAO().findBySubProcessId(subProcess.getId());
+                SubprocessNode subprocessNode = (SubprocessNode) executionContext.getProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
+                if (subprocessNode.isAsync()) {
+                    switch (subprocessNode.getCompletionMode()) {
+                    case NEVER:
+                        continue;
+                    case ON_MAIN_PROCESS_END:
+                        if (mainProcessForAsyncActivitiesIsActive) {
+                            continue;
+                        }
+                    case ON_PROCESS_END:
                     }
+                    ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                    ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+                    subProcess.end(subExecutionContext, canceller);
                 }
             }
         }
