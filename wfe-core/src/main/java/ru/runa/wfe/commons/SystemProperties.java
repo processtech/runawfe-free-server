@@ -442,4 +442,8 @@ public class SystemProperties {
     public static boolean isReassignSwimlaneToTaskPerformer() {
         return RESOURCES.getBooleanProperty("reassign.swimlane.to.task.performer", true);
     }
+
+    public static boolean isProcessLogCleanButtonEnabled() {
+        return RESOURCES.getBooleanProperty("processLog.cleanButton.enabled", false);
+    }
 }

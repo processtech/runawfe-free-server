@@ -12,6 +12,7 @@ import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.audit.QNodeEnterLog;
 import ru.runa.wfe.audit.QProcessLog;
 import ru.runa.wfe.audit.QTransitionLog;
@@ -22,6 +23,7 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.user.User;
 
 /**
  * DAO for {@link ProcessLog}.
@@ -34,6 +36,9 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
 
     @Autowired
     private ProcessLogAwareDao customizationDao;
+
+    @Autowired
+    protected SystemLogDao systemLogDao;
 
     @SuppressWarnings("unchecked")
     public List<ProcessLog> getAll(Long processId) {
@@ -193,4 +198,9 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
         }
     }
 
+    public void deleteBeforeDate(User user, Date date) {
+        QProcessLog pl = QProcessLog.processLog;
+        queryFactory.delete(pl).where(pl.createDate.before(date)).execute();
+        systemLogDao.create(new ProcessLogsCleanLog(user.getActor().getId(), date));
+    }
 }

@@ -18,6 +18,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddNodeIdToProcessLogPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddParentProcessIdPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessExternalData;
+import ru.runa.wfe.commons.dbmigration.impl.AddProcessLogCleanBeforeDateColumnPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbmigration.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
@@ -135,6 +136,8 @@ public class DbMigrationsConfig {
         dbMigrations.add(RefactorPermissionsBack.class);
         dbMigrations.add(RemoveWfeConstants.class);
         dbMigrations.add(CreateStatisticReportTable.class);
+        // 4.4.3
+        dbMigrations.add(AddProcessLogCleanBeforeDateColumnPatch.class);
         return dbMigrations;
     }
 }
