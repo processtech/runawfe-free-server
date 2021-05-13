@@ -168,7 +168,7 @@ public class HibernateCompilerInheritanceFiltersBuilder {
             return fieldsToFilterCriteria.buildWhereCondition(
                     dbSource.getValueDBPath(AccessType.FILTER, hqlBuilder.getAliasMapping().getAlias(field)), hqlBuilder.getPlaceholders());
         } catch (Exception e) {
-            log.error("Filter can't be applied to field with inheritance. Field name is " + field.displayName + ", database source is "
+            log.error("Filter can't be applied to field with inheritance. Field name is " + field.name + ", database source is "
                     + dbSource.getSourceObject().getName(), e);
             return null;
         }

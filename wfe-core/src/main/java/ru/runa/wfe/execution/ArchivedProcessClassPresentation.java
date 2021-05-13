@@ -11,12 +11,12 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.var.ArchivedVariable;
 
 public class ArchivedProcessClassPresentation extends ClassPresentation {
-    public static final String PROCESS_ID = "batch_presentation.process.id";
-    public static final String DEFINITION_NAME = "batch_presentation.process.definition_name";
-    public static final String PROCESS_START_DATE = "batch_presentation.process.started";
-    public static final String PROCESS_END_DATE = "batch_presentation.process.ended";
-    public static final String DEFINITION_VERSION = "batch_presentation.process.definition_version";
-    public static final String PROCESS_VARIABLE = editable_prefix + "name:batch_presentation.process.variable";
+    public static final String PROCESS_ID = "id";
+    public static final String DEFINITION_NAME = "definitionName";
+    public static final String PROCESS_START_DATE = "startDate";
+    public static final String PROCESS_END_DATE = "endDate";
+    public static final String DEFINITION_VERSION = "definitionVersion";
+    public static final String PROCESS_VARIABLE = "variable";
 
     public static final ClassPresentation INSTANCE = new ArchivedProcessClassPresentation();
 
@@ -32,10 +32,11 @@ public class ArchivedProcessClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessEndDateTdBuilder", new Object[] {}),
                 new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(ArchivedProcess.class, "definitionVersion.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "version" }),
-                new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(), new SubProcessDbSource(
-                        ArchivedProcess.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTdBuilder", new Object[] {}),
+                new FieldDescriptor(PROCESS_ID, String.class.getName(), new SubProcessDbSource(ArchivedProcess.class,
+                        "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTdBuilder", new Object[] {})
+                        .setGroupableByProcessId(true),
                 new FieldDescriptor(PROCESS_VARIABLE, ArchivedVariable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {})
+                        "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}).setVariablePrototype(true)
         });
     }
 }

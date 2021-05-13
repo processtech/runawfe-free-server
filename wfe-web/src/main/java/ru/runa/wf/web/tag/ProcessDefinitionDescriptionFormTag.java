@@ -3,7 +3,6 @@ package ru.runa.wf.web.tag;
 import org.apache.ecs.html.IFrame;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.form.IdForm;
@@ -11,6 +10,7 @@ import ru.runa.wf.web.action.ProcessDefinitionDescriptionAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -45,7 +45,7 @@ public class ProcessDefinitionDescriptionFormTag extends ProcessDefinitionBaseFo
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(DefinitionClassPresentation.DESCRIPTION, pageContext);
+        return Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.DESCRIPTION, pageContext);
     }
 
 }

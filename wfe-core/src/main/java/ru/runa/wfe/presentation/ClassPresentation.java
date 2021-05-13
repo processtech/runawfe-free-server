@@ -9,23 +9,6 @@ public class ClassPresentation {
      * At DB request HQL/SQL string requested (root persistent) class has this name.
      */
     public static final String classNameSQL = "instance";
-    /**
-     * Edited fields format: editable_prefix:DB path to property value:displayed name. If field has this prefix, when it must be showed as editor
-     * and not affecting HQL/SQL queries. After insert value into editor, batch presentation must store this value and create removable field, which
-     * will affect HQL/SQL queries.
-     */
-    public static final String editable_prefix = "editable:";
-
-    /**
-     * Removable field format: removable_prefix:value. Value in field format is a text, inserted by user to editor, created for editable field.
-     */
-    public static final String removable_prefix = "removable:";
-
-    /**
-     * Filtered fields format:filterable_prefix:displayed name. If field has this prefix, when it must be showed as check box and it use for
-     * grouping.
-     */
-    public static final String filterable_prefix = "filterable:";
 
     /**
      * Root persistent class of {@link ClassPresentation}. All fields is queried against this object.

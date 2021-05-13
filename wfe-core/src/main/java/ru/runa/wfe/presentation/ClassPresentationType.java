@@ -21,40 +21,31 @@ import ru.runa.wfe.user.ExecutorClassPresentation;
 import ru.runa.wfe.user.GroupClassPresentation;
 
 public enum ClassPresentationType {
-    NONE(null),
-    SYSTEM_LOG(SystemLogClassPresentation.INSTANCE),
-    EXECUTOR(ExecutorClassPresentation.INSTANCE),
-    ACTOR(ActorClassPresentation.INSTANCE),
-    GROUP(GroupClassPresentation.INSTANCE),
-    RELATION(RelationClassPresentation.INSTANCE),
-    RELATIONPAIR(RelationPairClassPresentation.INSTANCE),
-    DEFINITION(DefinitionClassPresentation.INSTANCE),
-    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.INSTANCE),
-    ARCHIVED_PROCESS(ArchivedProcessClassPresentation.INSTANCE),
-    CURRENT_PROCESS(CurrentProcessClassPresentation.INSTANCE),
-    CURRENT_PROCESS_WITH_TASKS(CurrentProcessWithTasksClassPresentation.INSTANCE),
-    TASK(TaskClassPresentation.INSTANCE),
-    TASK_OBSERVABLE(TaskObservableClassPresentation.INSTANCE),
-    REPORTS(ReportClassPresentation.INSTANCE),
-    CHAT_ROOM(ChatRoomClassPresentation.getInstance());
+    NONE(null, ""),
+    SYSTEM_LOG(SystemLogClassPresentation.INSTANCE, "system_log"),
+    EXECUTOR(ExecutorClassPresentation.INSTANCE, "executor"),
+    ACTOR(ActorClassPresentation.INSTANCE, ""),
+    GROUP(GroupClassPresentation.INSTANCE, "group"),
+    RELATION(RelationClassPresentation.INSTANCE, "relation"),
+    RELATIONPAIR(RelationPairClassPresentation.INSTANCE, "relationpair"),
+    DEFINITION(DefinitionClassPresentation.INSTANCE, "process_definition"),
+    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.INSTANCE, ""),
+    ARCHIVED_PROCESS(ArchivedProcessClassPresentation.INSTANCE, "process"),
+    CURRENT_PROCESS(CurrentProcessClassPresentation.INSTANCE, "process"),
+    CURRENT_PROCESS_WITH_TASKS(CurrentProcessWithTasksClassPresentation.INSTANCE, "process"),
+    TASK(TaskClassPresentation.INSTANCE, "task"),
+    TASK_OBSERVABLE(TaskObservableClassPresentation.INSTANCE, "task"),
+    REPORTS(ReportClassPresentation.INSTANCE, "report"),
+    CHAT_ROOM(ChatRoomClassPresentation.getInstance(), "");
 
     private final Class<?> presentationClass;
     private final List<String> restrictions;
     private final boolean withPaging;
     private final FieldDescriptor[] fields;
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
+    private final String localizationKey;
 
-    // TODO dimgel wants to transform ClassPresentation class hierarchy to enum
-//    ClassPresentationType(Class<?> presentationClass, String restrictions, boolean withPaging, FieldDescriptor[] fields) {
-//        this.presentationClass = presentationClass;
-//        this.restrictions = restrictions;
-//        this.withPaging = withPaging;
-//        this.fields = fields;
-//        populateFieldIndexesByName();
-//    }
-
-//    @Deprecated
-    ClassPresentationType(ClassPresentation cp) {
+    ClassPresentationType(ClassPresentation cp, String localizationKey) {
         if (cp != null) {
             presentationClass = cp.getPresentationClass();
             restrictions = Lists.newArrayList(cp.getRestrictions());
@@ -67,12 +58,13 @@ public enum ClassPresentationType {
             withPaging = false;
             fields = null;
         }
+        this.localizationKey = localizationKey;
     }
 
     private void populateFieldIndexesByName() {
         if (fields != null) {
             for (int i = 0; i < fields.length; i++) {
-                fieldIndexesByName.put(fields[i].displayName, i);
+                fieldIndexesByName.put(fields[i].name, i);
             }
         }
     }
@@ -100,5 +92,9 @@ public enum ClassPresentationType {
         } else {
             throw new InternalApplicationException("Field '" + name + "' is not found in " + this);
         }
+    }
+
+    public String getLocalizationKey() {
+        return localizationKey;
     }
 }

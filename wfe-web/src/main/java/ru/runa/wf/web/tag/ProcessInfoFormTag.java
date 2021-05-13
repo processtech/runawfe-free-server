@@ -35,11 +35,11 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.CurrentProcessClassPresentation;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -112,7 +112,8 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
         TR nameTR = new TR();
         table.addElement(nameTR);
-        String definitionName = Messages.getMessage(DefinitionClassPresentation.NAME, pageContext);
+        String definitionName = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.DEFINITION_NAME,
+                pageContext);
         nameTR.addElement(new TD(definitionName).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         Element processDefinitionHref;
@@ -128,13 +129,14 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
         TR processIdTR = new TR();
         table.addElement(processIdTR);
-        String idName = Messages.getMessage(CurrentProcessClassPresentation.PROCESS_ID, pageContext);
+        String idName = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.PROCESS_ID, pageContext);
         processIdTR.addElement(new TD(idName).setClass(Resources.CLASS_LIST_TABLE_TD));
         processIdTR.addElement(new TD(String.valueOf(process.getId())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         TR versionTR = new TR();
         table.addElement(versionTR);
-        String definitionVersion = Messages.getMessage(DefinitionClassPresentation.VERSION, pageContext);
+        String definitionVersion = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.DEFINITION_VERSION,
+                pageContext);
         versionTR.addElement(new TD(definitionVersion).setClass(Resources.CLASS_LIST_TABLE_TD));
         Element versionElement = new StringElement(String.valueOf(process.getVersion()));
         versionElement = addUpgradeLinkIfRequired(process, versionElement);
@@ -142,7 +144,8 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
         TR startedTR = new TR();
         table.addElement(startedTR);
-        String startedName = Messages.getMessage(CurrentProcessClassPresentation.PROCESS_START_DATE, pageContext);
+        String startedName = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.PROCESS_START_DATE,
+                pageContext);
         startedTR.addElement(new TD(startedName).setClass(Resources.CLASS_LIST_TABLE_TD));
         startedTR.addElement(new TD(CalendarUtil.formatDateTime(process.getStartDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
@@ -195,7 +198,8 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                 throw new InternalApplicationException(String.valueOf(process.getExecutionStatus()));
             }
             TR statusTR = new TR();
-            String statusLabel = Messages.getMessage(CurrentProcessClassPresentation.PROCESS_EXECUTION_STATUS, pageContext);
+            String statusLabel = Messages.getMessage(ClassPresentationType.CURRENT_PROCESS, CurrentProcessClassPresentation.PROCESS_EXECUTION_STATUS,
+                    pageContext);
             statusTR.addElement(new TD(statusLabel).setClass(Resources.CLASS_LIST_TABLE_TD));
             statusTR.addElement(new TD(statusElement).setClass(Resources.CLASS_LIST_TABLE_TD));
             table.addElement(statusTR);
