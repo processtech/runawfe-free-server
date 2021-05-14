@@ -74,9 +74,9 @@ function notifyAboutNewMessage(message) {
 
 function newMessageAlerter(message) {
     if (message.author === currentUser) {
-        setMessageAlert("Сообщение успешно отправлено. Обновите страницу", false);
+        setNotification("Сообщение успешно отправлено. Обновите страницу");
     } else if (isChatOpen(message)) {
-        setMessageAlert("Получено новое сообщение. Обновите страницу", false);
+        setNotification("Получено новое сообщение. Обновите страницу");
     } else {
         notifyAboutNewMessage(message);
     }
@@ -84,24 +84,28 @@ function newMessageAlerter(message) {
 
 function editMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        setMessageAlert("Сообщение успешно отредактированно. Обновите страницу", false);
+        setNotification("Сообщение успешно отредактированно. Обновите страницу");
     } else if (isChatOpen(message)) {
-        setMessageAlert("Одно из сообщений было изменено. Обновите страницу", false);
+        setNotification("Одно из сообщений было изменено. Обновите страницу");
     }
 }
 
 function deleteMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        setMessageAlert("Сообщение успешно удалено. Обновите страницу", false);
+        setNotification("Сообщение успешно удалено. Обновите страницу");
     } else if (isChatOpen(message)) {
-        setMessageAlert("Одно из сообщений было удалено. Обновите страницу", false);
+        setNotification("Одно из сообщений было удалено. Обновите страницу");
     }
 }
 
 function errorMessageAlerter(message) {
-    setMessageAlert("Ошибка при отправке сообщения: " + message.message, true);
+    setError("Ошибка при отправке сообщения: " + message.message);
 }
 
-function setMessageAlert(message, error) {
-    error ? $("#errorAlert").empty().append(message) : $("#messageAlert").empty().append(message);
+function setNotification(message) {
+    $("#chatNotificationAlert").text(message);
+}
+
+function setError(message) {
+    $("#chatErrorAlert").text(message);
 }
