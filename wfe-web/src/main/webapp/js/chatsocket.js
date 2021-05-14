@@ -98,13 +98,5 @@ function errorMessageAlerter(message) {
 }
 
 function setMessageAlert(message, error) {
-    let alertMessageDiv;
-    if (error) {
-        alertMessageDiv = document.getElementById("errorAlert");
-        alertMessageDiv.innerHTML = "";
-    } else {
-        alertMessageDiv = document.getElementById("messageAlert");
-        alertMessageDiv.innerHTML = "";
-    }
-    alertMessageDiv.append(message);
+    error ? $("#errorAlert").empty().append(message) : $("#messageAlert").empty().append(message);
 }
