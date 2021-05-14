@@ -3,8 +3,11 @@ package ru.runa.wfe.service.delegate;
 import java.util.List;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatMessageBroadcast;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageEditedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
@@ -23,53 +26,93 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public void saveMessage(User user, AddMessageRequest request) {
-        getChatService().saveMessage(user, request);
+    public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
+        try {
+            return getChatService().saveMessage(user, request);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request) {
+        try {
+            return getChatService().editMessage(user, request);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request) {
+        try {
+            return getChatService().deleteMessage(user, request);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
     public ChatMessage getMessage(User user, Long id) {
-        return getChatService().getMessage(user, id);
+        try {
+            return getChatService().getMessage(user, id);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
     public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
-        return getChatService().getMessages(user, processId);
+        try {
+            return getChatService().getMessages(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
     public Long getNewMessagesCount(User user) {
-        return getChatService().getNewMessagesCount(user);
+        try {
+            return getChatService().getNewMessagesCount(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
     public int getChatRoomsCount(User user, BatchPresentation batchPresentation) {
-        return getChatService().getChatRoomsCount(user, batchPresentation);
+        try {
+            return getChatService().getChatRoomsCount(user, batchPresentation);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
-        return getChatService().getChatRooms(user, batchPresentation);
-    }
-
-    @Override
-    public void updateMessage(User user, EditMessageRequest request) {
-        getChatService().updateMessage(user, request);
-    }
-
-    @Override
-    public void deleteMessage(User user, DeleteMessageRequest request) {
-        getChatService().deleteMessage(user, request);
+        try {
+            return getChatService().getChatRooms(user, batchPresentation);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
     public ChatMessageFileDto getChatMessageFile(User user, Long fileId) {
-        return getChatService().getChatMessageFile(user, fileId);
+        try {
+            return getChatService().getChatMessageFile(user, fileId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
     public void deleteChatMessages(User user, Long processId) {
-        getChatService().deleteChatMessages(user, processId);
+        try {
+            getChatService().deleteChatMessages(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
 }

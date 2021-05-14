@@ -6,7 +6,6 @@ import java.util.Set;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
@@ -21,7 +20,6 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
  * @author Alekseev Mikhail
  * @since #2047
  */
-@Transactional
 @Component
 @MonitoredWithSpring
 public class MessageTransactionWrapper {

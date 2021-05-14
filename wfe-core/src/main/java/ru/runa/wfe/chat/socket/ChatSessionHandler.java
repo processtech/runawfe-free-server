@@ -3,7 +3,6 @@ package ru.runa.wfe.chat.socket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.chat.config.ChatBean;
+import ru.runa.wfe.chat.dto.WfChatMessageBroadcast;
 import ru.runa.wfe.chat.dto.broadcast.ErrorMessageBroadcast;
-import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
 import ru.runa.wfe.chat.sender.MessageSender;
 import ru.runa.wfe.chat.utils.ChatSessionUtils;
+import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.jaxb.WfExecutor;
 
 @CommonsLog
 @Component
@@ -57,9 +58,9 @@ public class ChatSessionHandler {
         session.getBasicRemote().sendText(message);
     }
 
-    public void sendMessage(Collection<Long> recipientIds, MessageBroadcast dto) {
-        for (Long id : recipientIds) {
-            messageSender.handleMessage(dto, sessions.get(id));
+    public void sendMessage(WfChatMessageBroadcast<?> broadcast) {
+        for (Actor recipient : broadcast.getRecipients()) {
+            messageSender.handleMessage(broadcast.getBroadcast(), sessions.get(recipient.getId()));
         }
     }
 

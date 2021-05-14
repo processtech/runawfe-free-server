@@ -18,6 +18,7 @@ import ru.runa.wfe.user.Actor;
 @Setter
 @NoArgsConstructor
 public class MessageAddedBroadcast extends MessageBroadcast implements Serializable {
+    private static final long serialVersionUID = -3904529324962957714L;
 
     private Long id;
     private String text;
