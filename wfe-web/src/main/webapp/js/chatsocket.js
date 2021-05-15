@@ -104,8 +104,10 @@ function errorMessageAlerter(message) {
 
 function setNotification(message) {
     $("#chatNotificationAlert").text(message);
+    $("#chatErrorAlert").empty();
 }
 
 function setError(message) {
     $("#chatErrorAlert").text(message);
+    $("#chatNotificationAlert").empty();
 }
