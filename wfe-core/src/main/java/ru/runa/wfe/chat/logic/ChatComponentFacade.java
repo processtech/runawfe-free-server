@@ -22,7 +22,7 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
  */
 @Component
 @MonitoredWithSpring
-public class MessageTransactionWrapper {
+public class ChatComponentFacade {
     @Autowired
     private ExecutorLogic executorLogic;
     @Autowired

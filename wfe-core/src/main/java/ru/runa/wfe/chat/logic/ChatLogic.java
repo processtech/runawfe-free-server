@@ -56,7 +56,7 @@ public class ChatLogic extends WfCommonLogic {
     @Autowired
     private ChatFileIo fileIo;
     @Autowired
-    private MessageTransactionWrapper messageTransactionWrapper;
+    private ChatComponentFacade chatComponentFacade;
     @Autowired
     private RecipientCalculator recipientCalculator;
 
@@ -102,7 +102,7 @@ public class ChatLogic extends WfCommonLogic {
     public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request) {
         final ChatMessage message = chatMessageDao.getNotNull(request.getMessageId());
         final Set<Actor> recipients = getRecipientsByMessageId(user, message.getId());
-        fileIo.delete(messageTransactionWrapper.delete(user, message.getId()));
+        fileIo.delete(chatComponentFacade.delete(user, message.getId()));
         return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()), recipients);
     }
 
@@ -144,7 +144,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     private MessageAddedBroadcast saveMessageInternal(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
-        final ChatMessage savedMessage = messageTransactionWrapper.save(message, recipients, processId);
+        final ChatMessage savedMessage = chatComponentFacade.save(message, recipients, processId);
         return messageAddedBroadcastMapper.toDto(savedMessage);
     }
 
@@ -157,7 +157,7 @@ public class ChatLogic extends WfCommonLogic {
     ) {
         final List<ChatMessageFile> savedFiles = fileIo.save(files);
         try {
-            final ChatMessage savedMessage = messageTransactionWrapper.save(message, recipients, savedFiles, processId);
+            final ChatMessage savedMessage = chatComponentFacade.save(message, recipients, savedFiles, processId);
             final MessageAddedBroadcast broadcast = messageAddedBroadcastMapper.toDto(savedMessage);
             broadcast.setFiles(fileDetailMapper.toDtos(savedFiles));
             return broadcast;
