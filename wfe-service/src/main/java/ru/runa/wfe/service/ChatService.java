@@ -29,25 +29,23 @@ public interface ChatService {
      *              authorized user
      * @param request
      *              request to add a new message
-     * @return created message dto with destination recipients
+     * @return id of created message
      */
-    public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request);
+    public Long saveMessage(User user, AddMessageRequest request);
 
     /**
      * Edit message according to provided request
      * @param user authorized user
      * @param request request to edit message
-     * @return edited message broadcast
      */
-    public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request);
+    public void editMessage(User user, EditMessageRequest request);
 
     /**
      * Delete message according to provided request
      * @param user authorized user
      * @param request request to edit message
-     * @return deleted message broadcast
      */
-    public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request);
+    public void deleteMessage(User user, DeleteMessageRequest request);
 
     /**
      * Gets ChatMessage.
