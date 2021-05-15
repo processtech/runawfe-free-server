@@ -27,4 +27,14 @@ public class ChatFileDao extends GenericDao<ChatMessageFile> {
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         return queryFactory.select(mf).from(mf).where(mf.message.eq(message)).fetch();
     }
+
+    public long deleteByMessage(ChatMessage message) {
+        QChatMessageFile mf = QChatMessageFile.chatMessageFile;
+        return queryFactory.delete(mf).where(mf.message.eq(message)).execute();
+    }
+
+    public List<String> getAllFileUuids() {
+        final QChatMessageFile file = QChatMessageFile.chatMessageFile;
+        return queryFactory.select(file.uuid).from(file).fetch();
+    }
 }

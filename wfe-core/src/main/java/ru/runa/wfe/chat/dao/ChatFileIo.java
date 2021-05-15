@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.stream.Stream;
 import lombok.extern.apachecommons.CommonsLog;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +92,25 @@ public class ChatFileIo {
             } catch (Exception exception) {
                 log.error("File not deleted. UUID: " + file.getUuid(), exception);
             }
+        }
+    }
+
+    public Stream<Path> getFilesOlderThan(ZonedDateTime olderThan) throws IOException {
+        final BiPredicate<Path, BasicFileAttributes> filePredicate =
+                new BiPredicate<Path, BasicFileAttributes>() {
+                    @Override
+                    public boolean test(Path path, BasicFileAttributes basicFileAttributes) {
+                        return basicFileAttributes.creationTime().toInstant().isBefore(olderThan.toInstant()) && Files.isRegularFile(path);
+                    }
+                };
+        return Files.find(Paths.get(storagePath), 1, filePredicate);
+    }
+
+    public void deleteByUuid(String uuid) {
+        try {
+            Files.delete(Paths.get(storagePath + "/" + uuid));
+        } catch (IOException e) {
+            throw new ChatFileIoException("Unable delete file by UUID " + uuid);
         }
     }
 

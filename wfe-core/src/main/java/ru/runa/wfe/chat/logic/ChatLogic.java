@@ -13,7 +13,7 @@ import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.chat.ChatRoomClassPresentation;
-import ru.runa.wfe.chat.MessageDoesNotExistException;
+import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatFileIo;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.WfChatMessageBroadcast;
@@ -39,6 +39,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 
 @MonitoredWithSpring
@@ -59,6 +60,10 @@ public class ChatLogic extends WfCommonLogic {
     private ChatComponentFacade chatComponentFacade;
     @Autowired
     private RecipientCalculator recipientCalculator;
+    @Autowired
+    private ExecutorLogic executorLogic;
+    @Autowired
+    private ChatFileDao fileDao;
 
     public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
         final ChatMessage newMessage = messageRequestMapper.toEntity(request);
@@ -73,9 +78,9 @@ public class ChatLogic extends WfCommonLogic {
                 ChatMessageFileDto chatMessageFile = new ChatMessageFileDto(entry.getKey(), entry.getValue());
                 chatMessageFiles.add(chatMessageFile);
             }
-            messageAddedBroadcast = saveMessageInternal(user, processId, newMessage, recipients, chatMessageFiles);
+            messageAddedBroadcast = saveMessageInternal(processId, newMessage, recipients, chatMessageFiles);
         } else {
-            messageAddedBroadcast = saveMessageInternal(user, processId, newMessage, recipients);
+            messageAddedBroadcast = saveMessageInternal(processId, newMessage, recipients);
         }
 
         return new WfChatMessageBroadcast<>(messageAddedBroadcast, recipients);
@@ -83,10 +88,6 @@ public class ChatLogic extends WfCommonLogic {
 
     public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request) {
         final ChatMessage message = chatMessageDao.getNotNull(request.getEditMessageId());
-        if (message == null) {
-            throw new MessageDoesNotExistException(request.getEditMessageId());
-        }
-
         message.setText(request.getMessage());
         if (!message.getCreateActor().equals(user.getActor())) {
             throw new AuthorizationException("Allowed for author only");
@@ -95,14 +96,18 @@ public class ChatLogic extends WfCommonLogic {
 
         return new WfChatMessageBroadcast<>(
                 new MessageEditedBroadcast(request.getProcessId(), message.getId(), message.getText(), user.getName()),
-                getRecipientsByMessageId(user, message.getId())
+                getRecipientsByMessageId(message.getId())
         );
     }
 
     public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request) {
+        if (!executorLogic.isAdministrator(user)) {
+            throw new AuthorizationException("Allowed for admin only");
+        }
         final ChatMessage message = chatMessageDao.getNotNull(request.getMessageId());
-        final Set<Actor> recipients = getRecipientsByMessageId(user, message.getId());
-        fileIo.delete(chatComponentFacade.delete(user, message.getId()));
+        final Set<Actor> recipients = getRecipientsByMessageId(message.getId());
+        fileDao.deleteByMessage(message);
+        chatMessageDao.deleteMessageAndRecipient(message.getId());
         return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()), recipients);
     }
 
@@ -125,6 +130,9 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public void deleteMessages(User user, Long processId) {
+        if (!executorLogic.isAdministrator(user)) {
+            throw new AuthorizationException("Allowed for admin only");
+        }
         chatMessageDao.deleteMessages(processId);
     }
 
@@ -143,31 +151,20 @@ public class ChatLogic extends WfCommonLogic {
         return toWfChatRooms(chatRooms, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
-    private MessageAddedBroadcast saveMessageInternal(User user, Long processId, ChatMessage message, Set<Actor> recipients) {
+    private MessageAddedBroadcast saveMessageInternal(Long processId, ChatMessage message, Set<Actor> recipients) {
         final ChatMessage savedMessage = chatComponentFacade.save(message, recipients, processId);
         return messageAddedBroadcastMapper.toDto(savedMessage);
     }
 
-    private MessageAddedBroadcast saveMessageInternal(
-            User user,
-            Long processId,
-            ChatMessage message,
-            Set<Actor> recipients,
-            List<ChatMessageFileDto> files
-    ) {
+    private MessageAddedBroadcast saveMessageInternal(Long processId, ChatMessage message, Set<Actor> recipients, List<ChatMessageFileDto> files) {
         final List<ChatMessageFile> savedFiles = fileIo.save(files);
-        try {
-            final ChatMessage savedMessage = chatComponentFacade.save(message, recipients, savedFiles, processId);
-            final MessageAddedBroadcast broadcast = messageAddedBroadcastMapper.toDto(savedMessage);
-            broadcast.setFiles(fileDetailMapper.toDtos(savedFiles));
-            return broadcast;
-        } catch (Exception exception) {
-            fileIo.delete(savedFiles);
-            throw exception;
-        }
+        final ChatMessage savedMessage = chatComponentFacade.save(message, recipients, savedFiles, processId);
+        final MessageAddedBroadcast broadcast = messageAddedBroadcastMapper.toDto(savedMessage);
+        broadcast.setFiles(fileDetailMapper.toDtos(savedFiles));
+        return broadcast;
     }
 
-    private Set<Actor> getRecipientsByMessageId(User user, Long messageId) {
+    private Set<Actor> getRecipientsByMessageId(Long messageId) {
         return new HashSet<>(chatMessageDao.getRecipientsByMessageId(messageId));
     }
 
