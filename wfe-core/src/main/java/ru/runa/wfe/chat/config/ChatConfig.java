@@ -28,7 +28,7 @@ public class ChatConfig {
     }
 
     @Bean
-    @ChatBean
+    @ChatQualifier
     public ObjectMapper chatObjectMapper() {
         return new ObjectMapper();
     }

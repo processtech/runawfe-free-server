@@ -9,14 +9,14 @@ import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.runa.wfe.chat.config.ChatBean;
+import ru.runa.wfe.chat.config.ChatQualifier;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
 
 @Interceptors({ SpringBeanAutowiringInterceptor.class })
 public class MessageRequestBinaryDecoder implements Decoder.Binary<MessageRequest> {
 
     @Autowired
-    @ChatBean
+    @ChatQualifier
     private ObjectMapper objectMapper;
 
     @Override
