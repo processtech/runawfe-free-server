@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class ChatDto implements Serializable {
+public abstract class AbstractChatDto implements Serializable {
     private static final long serialVersionUID = -4017045271560463046L;
 
     private Long processId;

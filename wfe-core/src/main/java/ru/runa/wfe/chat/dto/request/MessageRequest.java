@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 import lombok.NoArgsConstructor;
-import ru.runa.wfe.chat.dto.ChatDto;
+import ru.runa.wfe.chat.dto.AbstractChatDto;
 
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,6 +17,6 @@ import ru.runa.wfe.chat.dto.ChatDto;
         @JsonSubTypes.Type(value = EditMessageRequest.class, name = "editMessage"),
         @JsonSubTypes.Type(value = DeleteMessageRequest.class, name = "deleteMessage")
 })
-public abstract class MessageRequest extends ChatDto implements Serializable {
+public abstract class MessageRequest extends AbstractChatDto implements Serializable {
     private static final long serialVersionUID = 4917458326971028795L;
 }
