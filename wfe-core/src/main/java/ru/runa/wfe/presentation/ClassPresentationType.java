@@ -26,7 +26,7 @@ public enum ClassPresentationType {
     RELATION(RelationClassPresentation.INSTANCE, "relation"),
     RELATIONPAIR(RelationPairClassPresentation.INSTANCE, "relationpair"),
     DEFINITION(DefinitionClassPresentation.INSTANCE, "process_definition"),
-    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.INSTANCE, ""),
+    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.INSTANCE, "process_definition"),
     ARCHIVED_PROCESS(ArchivedProcessClassPresentation.INSTANCE, "process"),
     CURRENT_PROCESS(CurrentProcessClassPresentation.INSTANCE, "process"),
     CURRENT_PROCESS_WITH_TASKS(CurrentProcessWithTasksClassPresentation.INSTANCE, "process"),
