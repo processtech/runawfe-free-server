@@ -35,6 +35,8 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
 import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
+import ru.runa.wfe.commons.dbmigration.impl.DropMessageNotNullConstraintPatch;
+import ru.runa.wfe.commons.dbmigration.impl.EnlargeMessageMaxSizePatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandChatColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
@@ -143,6 +145,8 @@ public class DbMigrationsConfig {
         dbMigrations.add(DropQuotedMessageIdsPatch.class);
         dbMigrations.add(ExpandChatColumnsPatch.class);
         dbMigrations.add(AddChatRoomViewPatch.class);
+        dbMigrations.add(EnlargeMessageMaxSizePatch.class);
+        dbMigrations.add(DropMessageNotNullConstraintPatch.class);
         return dbMigrations;
     }
 }
