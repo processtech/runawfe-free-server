@@ -37,6 +37,10 @@ import ru.runa.wfe.springframework4.ejb.interceptor.SpringBeanAutowiringIntercep
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
+import ru.runa.wfe.var.logic.VariableLogic;
 
 @Stateless(name = "DefinitionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -46,6 +50,8 @@ import ru.runa.wfe.var.VariableDefinition;
 public class DefinitionServiceBean implements DefinitionServiceLocal, DefinitionServiceRemote, DefinitionWebServiceRemote {
     @Autowired
     private ProcessDefinitionLogic processDefinitionLogic;
+    @Autowired
+    private VariableLogic variableLogic;
 
     @Override
     @WebResult(name = "result")
@@ -296,4 +302,20 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         return processDefinitionLogic.findChanges(definitionName, version1, version2);
     }
+
+    @Override
+    @WebResult(name = "result")
+    public FileVariableImpl getFileVariableDefaultValue(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId,
+            @WebParam(name = "variableName") @NonNull String variableName
+    ) {
+        WfVariable variable = variableLogic.getVariableDefaultValue(user, definitionId, variableName);
+        if (variable != null) {
+            FileVariable fileVariable = (FileVariable) variable.getValue();
+            return new FileVariableImpl(fileVariable);
+        }
+        return null;
+    }
+
 }

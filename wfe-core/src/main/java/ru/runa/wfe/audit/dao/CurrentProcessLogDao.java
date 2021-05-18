@@ -1,5 +1,6 @@
 package ru.runa.wfe.audit.dao;
 
+import java.util.Date;
 import java.util.List;
 import lombok.NonNull;
 import lombok.val;
@@ -13,6 +14,7 @@ import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.ParsedSubprocessDefinition;
+import ru.runa.wfe.user.User;
 
 /**
  * DAO for {@link CurrentProcessLog}.
@@ -58,4 +60,10 @@ public class CurrentProcessLogDao extends GenericDao<CurrentProcessLog> {
         val nel = QCurrentNodeEnterLog.currentNodeEnterLog;
         return queryFactory.select(nel.id).from(nel).where(nel.processId.eq(process.getId()).and(nel.nodeId.eq(nodeId))).fetchFirst() != null;
     }
+
+    void deleteBeforeDate(User user, Date date) {
+        QCurrentProcessLog pl = QCurrentProcessLog.currentProcessLog;
+        queryFactory.delete(pl).where(pl.createDate.before(date)).execute();
+    }
+
 }

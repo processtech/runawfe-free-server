@@ -251,8 +251,14 @@ public class JpdlXmlReader {
         if (swimlaneName != null) {
             SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getSwimlaneNotNull(swimlaneName);
             taskDefinition.setSwimlane(swimlaneDefinition);
-            taskDefinition.setReassignSwimlane(Boolean.valueOf(element.attributeValue(REASSIGN, "false")));
-            taskDefinition.setReassignSwimlaneToTaskPerformer(Boolean.valueOf(element.attributeValue(REASSIGN_SWIMLANE_TO_TASK_PERFORMER, "true")));
+            String reassignSwimlaneToInitializer = element.attributeValue(REASSIGN, null);
+            if (reassignSwimlaneToInitializer != null) {
+                taskDefinition.setReassignSwimlaneToInitializer(Boolean.valueOf(reassignSwimlaneToInitializer));
+            }
+            String reassignSwimlaneToTaskPerformer = element.attributeValue(REASSIGN_SWIMLANE_TO_TASK_PERFORMER,null);
+            if (reassignSwimlaneToTaskPerformer != null) {
+                taskDefinition.setReassignSwimlaneToTaskPerformer(Boolean.valueOf(reassignSwimlaneToTaskPerformer));
+            }
             taskDefinition.setIgnoreSubsitutionRules(Boolean.valueOf(element.attributeValue(IGNORE_SUBSTITUTION_RULES, "false")));
         }
     }

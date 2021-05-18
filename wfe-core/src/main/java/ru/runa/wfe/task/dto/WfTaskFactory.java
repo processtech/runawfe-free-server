@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ProcessHierarchyUtils;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
@@ -26,6 +28,8 @@ public class WfTaskFactory {
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private ExecutorDao executorDao;
+    @Autowired
+    private CurrentProcessDao currentProcessDao;
 
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude) {
         return create(task, targetActor, acquiredBySubstitution, variableNamesToInclude, !task.getOpenedByExecutorIds().contains(targetActor.getId()));
@@ -33,6 +37,10 @@ public class WfTaskFactory {
 
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude, boolean firstOpen) {
         CurrentProcess process = task.getProcess();
+        Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(process.getHierarchyIds());
+        CurrentProcess rootProcess = rootProcessId.equals(process.getId()) ? process : currentProcessDao.get(rootProcessId);
+        Long rootDefinitionId = rootProcess.getDefinitionVersion().getId();
+        String rootDefinitionName = rootProcess.getDefinitionVersion().getDefinition().getName();
         boolean escalated = false;
         if (task.getExecutor() instanceof EscalationGroup) {
             val escalationGroup = (EscalationGroup) task.getExecutor();
@@ -43,7 +51,8 @@ public class WfTaskFactory {
                 escalated = !Objects.equal(originalExecutor, targetActor);
             }
         }
-        val wfTask = new WfTask(task, targetActor, escalated, acquiredBySubstitution, firstOpen);
+        WfTask wfTask = new WfTask(task, rootProcessId, rootDefinitionId, rootDefinitionName,
+                targetActor, escalated, acquiredBySubstitution, firstOpen);
         if (variableNamesToInclude != null && !variableNamesToInclude.isEmpty()) {
             val processDefinition = processDefinitionLoader.getDefinition(process);
             val executionContext = new ExecutionContext(processDefinition, process);

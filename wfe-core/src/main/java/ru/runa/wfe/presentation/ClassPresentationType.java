@@ -26,7 +26,7 @@ public enum ClassPresentationType {
     RELATION(RelationClassPresentation.INSTANCE, "relation"),
     RELATIONPAIR(RelationPairClassPresentation.INSTANCE, "relationpair"),
     DEFINITION(DefinitionClassPresentation.INSTANCE, "process_definition"),
-    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.INSTANCE, ""),
+    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.INSTANCE, "process_definition"),
     ARCHIVED_PROCESS(ArchivedProcessClassPresentation.INSTANCE, "process"),
     CURRENT_PROCESS(CurrentProcessClassPresentation.INSTANCE, "process"),
     CURRENT_PROCESS_WITH_TASKS(CurrentProcessWithTasksClassPresentation.INSTANCE, "process"),
@@ -40,6 +40,7 @@ public enum ClassPresentationType {
     private final FieldDescriptor[] fields;
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
     private final String localizationKey;
+    private int variablePrototypeIndex = -1;
 
     ClassPresentationType(ClassPresentation cp, String localizationKey) {
         if (cp != null) {
@@ -61,6 +62,9 @@ public enum ClassPresentationType {
         if (fields != null) {
             for (int i = 0; i < fields.length; i++) {
                 fieldIndexesByName.put(fields[i].name, i);
+                if (fields[i].variablePrototype) {
+                    variablePrototypeIndex = i;
+                }
             }
         }
     }
@@ -93,4 +97,9 @@ public enum ClassPresentationType {
     public String getLocalizationKey() {
         return localizationKey;
     }
+
+    public int getVariablePrototypeIndex() {
+        return variablePrototypeIndex;
+    }
+
 }
