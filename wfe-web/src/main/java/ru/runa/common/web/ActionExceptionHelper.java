@@ -17,18 +17,14 @@
  */
 package ru.runa.common.web;
 
+import com.google.common.base.Throwables;
 import java.util.Locale;
-
 import javax.security.auth.login.LoginException;
 import javax.servlet.jsp.PageContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-
-import com.google.common.base.Throwables;
-
 import ru.runa.wf.web.VariablesFormatException;
 import ru.runa.wf.web.action.DataFileNotPresentException;
 import ru.runa.wfe.InternalApplicationException;
@@ -39,6 +35,7 @@ import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.validation.ProcessDefinitionNotCompatibleException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.presentation.filter.FilterFormatException;
@@ -120,6 +117,10 @@ public class ActionExceptionHelper {
             DefinitionNameMismatchException exception = (DefinitionNameMismatchException) e;
             actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(), exception.getDeployedProcessDefinitionName(),
                     exception.getGivenProcessDefinitionName());
+        } else if (e instanceof ProcessDefinitionNotCompatibleException) {
+            ProcessDefinitionNotCompatibleException exception = (ProcessDefinitionNotCompatibleException) e;
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NOT_COMPATIBLE.getKey() + "." + exception.getType(),
+                    exception.getArgs());
         } else if (e instanceof TaskDoesNotExistException) {
             actionMessage = new ActionMessage(MessagesException.ERROR_TASK_DOES_NOT_EXIST.getKey());
         } else if (e instanceof SubstitutionDoesNotExistException) {

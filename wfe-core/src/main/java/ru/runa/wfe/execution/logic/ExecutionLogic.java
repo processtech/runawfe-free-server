@@ -47,12 +47,12 @@ import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
-import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -122,6 +122,9 @@ public class ExecutionLogic extends WfCommonLogic {
     private ProcessLogDao processLogDao;
     @Autowired
     private JobDao jobDao;
+    @Autowired
+    private DefinitionUpdateValidatorManager definitionVersionValidatorManager;
+
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -234,22 +237,10 @@ public class ExecutionLogic extends WfCommonLogic {
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(processDefinition));
         StartNode startNode = processDefinition.getStartStateNotNull();
-        SwimlaneDefinition startTaskSwimlaneDefinition = startNode.getFirstTaskNotNull().getSwimlane();
-        String startTaskSwimlaneName = startTaskSwimlaneDefinition.getName();
-        if (!variables.containsKey(startTaskSwimlaneName)) {
-            variables.put(startTaskSwimlaneName, user.getActor());
-        }
         validateVariables(null, variableProvider, processDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
         Process process = processFactory.startProcess(processDefinition, variables, user.getActor(), transitionName, transientVariables);
-        Object predefinedProcessStarterObject = variables.get(startTaskSwimlaneName);
-        if (!Objects.equal(predefinedProcessStarterObject, user.getActor())) {
-            Executor predefinedProcessStarter = TypeConversionUtil.convertTo(Executor.class, predefinedProcessStarterObject);
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-            Swimlane swimlane = swimlaneDao.findOrCreate(process, startTaskSwimlaneDefinition);
-            swimlane.assignExecutor(executionContext, predefinedProcessStarter, true);
-        }
         log.info(process + " was successfully started by " + user);
         return process.getId();
     }
@@ -357,7 +348,11 @@ public class ExecutionLogic extends WfCommonLogic {
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }
         Deployment deployment = deploymentDao.getNotNull(definitionId);
+        if (Objects.equal(newVersion, deployment.getVersion())) {
+            return 0;
+        }
         Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newVersion);
+        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), getDefinition(nextDeployment.getId()));
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(deployment.getName());
         filter.setDefinitionVersion(deployment.getVersion());
@@ -385,6 +380,7 @@ public class ExecutionLogic extends WfCommonLogic {
             return false;
         }
         Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newDeploymentVersion);
+        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), getDefinition(nextDeployment.getId()), process);
         process.setDeployment(nextDeployment);
         processDao.update(process);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),

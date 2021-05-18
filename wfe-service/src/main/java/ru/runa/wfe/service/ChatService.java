@@ -102,4 +102,12 @@ public interface ChatService {
      * @return ChatMessageFiles or <code>null</code>
      */
     public ChatMessageFileDto getChatMessageFile(User user, Long fileId);
+
+    /**
+     * Delete ChatMessages in DB.
+     *
+     * @param processId
+     *            process Id
+     */
+    public void deleteChatMessages(User user, Long processId);
 }

@@ -22,6 +22,7 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDao;
@@ -170,9 +171,13 @@ public class ProcessFactory {
         }
         executionContext.setVariableValues(variables);
         if (actor != null) {
-            SwimlaneDefinition swimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
-            Swimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
-            swimlane.assignExecutor(executionContext, actor, false);
+            StartNode startNode = executionContext.getProcessDefinition().getStartStateNotNull();
+            TaskDefinition taskDefinition = startNode.getFirstTaskNotNull();
+            if (startNode.getFirstTaskNotNull().isReassignSwimlaneToTaskPerformer()) {
+                SwimlaneDefinition swimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
+                Swimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
+                swimlane.assignExecutor(executionContext, actor, false);
+            }
             executionContext.addLog(new TaskEndLog(process, processDefinition.getStartStateNotNull(), actor));
         }
         return executionContext;

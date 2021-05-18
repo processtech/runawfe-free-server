@@ -85,7 +85,7 @@ public class BpmnXmlReader {
     private static final String LANE = "lane";
     private static final String FLOW_NODE_REF = "flowNodeRef";
     private static final String SHOW_SWIMLANE = "showSwimlane";
-    private static final String REASSIGN = "reassign";
+    private static final String REASSIGN_SWIMLANE_TO_INITIALIZER = "reassign";
     private static final String REASSIGN_SWIMLANE_TO_TASK_PERFORMER = "reassignSwimlaneToTaskPerformer";
     private static final String CLASS = "class";
     private static final String SEQUENCE_FLOW = "sequenceFlow";
@@ -420,8 +420,7 @@ public class BpmnXmlReader {
             }
             Transition transition = new Transition();
             transition.setNodeId(id);
-            GraphElement sourceElement = processDefinition.getGraphElementNotNull(from);
-            Node source = (Node) sourceElement;
+            Node source = processDefinition.getNodeNotNull(from);
             transition.setFrom(source);
             Node target = processDefinition.getNodeNotNull(to);
             transition.setTo(target);
@@ -453,8 +452,8 @@ public class BpmnXmlReader {
             SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
             taskDefinition.setSwimlane(swimlaneDefinition);
         }
-        if (properties.containsKey(REASSIGN)) {
-            taskDefinition.setReassignSwimlane(Boolean.parseBoolean(properties.get(REASSIGN)));
+        if (properties.containsKey(REASSIGN_SWIMLANE_TO_INITIALIZER)) {
+            taskDefinition.setReassignSwimlaneToInitializer(Boolean.parseBoolean(properties.get(REASSIGN_SWIMLANE_TO_INITIALIZER)));
         }
         if (properties.containsKey(REASSIGN_SWIMLANE_TO_TASK_PERFORMER)) {
             taskDefinition.setReassignSwimlaneToTaskPerformer(Boolean.parseBoolean(properties.get(REASSIGN_SWIMLANE_TO_TASK_PERFORMER)));

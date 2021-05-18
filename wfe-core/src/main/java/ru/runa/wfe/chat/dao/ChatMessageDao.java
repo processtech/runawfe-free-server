@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
+import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.user.Actor;
@@ -28,11 +29,11 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return queryFactory.select(cr.executor.id).from(cr).where(cr.message.id.eq(messageId)).fetch();
     }
 
-    public void readMessage(Actor user, Long messageId) {
+    public void readMessages(Actor user, List<ChatMessage> messages) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Date date = new Date();
-        queryFactory.update(cr).where(cr.executor.eq(user).and(cr.message.id.loe(messageId)).and(cr.readDate.isNull())).set(cr.readDate, date)
-                .execute();
+        queryFactory.update(cr).set(cr.readDate, date)
+                .where(cr.executor.eq(user).and(cr.message.in(messages)).and(cr.readDate.isNull())).execute();
     }
 
     public List<ChatMessage> getMessages(Actor user, Long processId) {
@@ -68,5 +69,13 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         queryFactory.delete(cr).where(cr.message.id.eq(id)).execute();
         delete(id);
+    }
+
+    @Transactional
+    public void deleteMessages(Long processId) {
+        QChatMessage m = QChatMessage.chatMessage;
+        for (ChatMessage cm : queryFactory.selectFrom(m).where(m.process.id.eq(processId)).fetch()) {
+            deleteMessageAndRecipient(cm.getId());
+        }
     }
 }

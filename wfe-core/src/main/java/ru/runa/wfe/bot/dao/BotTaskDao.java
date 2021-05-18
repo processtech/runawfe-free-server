@@ -54,4 +54,9 @@ public class BotTaskDao extends GenericDao<BotTask> {
         QBotTask bt = QBotTask.botTask;
         return queryFactory.selectFrom(bt).where(bt.bot.eq(bot)).fetch();
     }
+
+    public long getAllCount() {
+        QBotTask bt = QBotTask.botTask;
+        return queryFactory.selectFrom(bt).fetchCount();
+    }
 }

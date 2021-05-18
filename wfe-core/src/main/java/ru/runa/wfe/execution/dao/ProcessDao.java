@@ -104,4 +104,19 @@ public class ProcessDao extends GenericDao<Process> {
         }
         super.delete(process);
     }
+
+    public long getAllCompletedProcessesCount() {
+        QProcess p = QProcess.process;
+        return queryFactory.selectFrom(p)
+                .where(p.endDate.isNotNull())
+                .fetchCount();
+    }
+
+    public long getAllActiveProcessesCount() {
+        QProcess p = QProcess.process;
+        return queryFactory.selectFrom(p)
+                .where(p.endDate.isNull())
+                .fetchCount();
+    }
+
 }
