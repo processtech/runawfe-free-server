@@ -4,15 +4,19 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.CurrentNodeErrorLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.logic.RelationSwimlaneInitializer;
 import ru.runa.wfe.lang.MultiTaskNode;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.VariableContainerNode;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
@@ -54,6 +58,7 @@ public class MultiinstanceUtils {
             throw new InternalApplicationException("No valid parameters found for multiinstances in " + node);
         }
         parameters.check(node);
+        parameters.logIfDiscriminatorValueEmpty(executionContext, node);
         return parameters;
     }
 
@@ -63,6 +68,7 @@ public class MultiinstanceUtils {
         VariableMapping mapping = new VariableMapping(parameters.discriminatorVariableName, null, node.getDiscriminatorUsage());
         if (Strings.isNullOrEmpty(mapping.getUsage()) || mapping.isMultiinstanceLinkByVariable()) {
             parameters.discriminatorValue = executionContext.getVariableProvider().getValueNotNull(List.class, parameters.discriminatorVariableName);
+            parameters.discriminatorTypeVariable();
         } else if (mapping.isMultiinstanceLinkByGroup()) {
             setDiscriminatorValueByGroup(parameters, executionContext, mapping);
         } else if (mapping.isMultiinstanceLinkByRelation()) {
@@ -70,6 +76,7 @@ public class MultiinstanceUtils {
         } else {
             throw new InternalApplicationException("invalid discriminator mode: '" + mapping.getUsage() + "'");
         }
+        parameters.logIfDiscriminatorValueEmpty(executionContext, node);
         return parameters;
     }
 
@@ -94,6 +101,7 @@ public class MultiinstanceUtils {
             group = executionContext.getVariableProvider().getValueNotNull(Group.class, parameters.discriminatorVariableName);
         }
         parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDao().getGroupActors(group));
+        parameters.discriminatorTypeGroup();
     }
 
     private static void setDiscriminatorValueByRelation(Parameters parameters, ExecutionContext executionContext, VariableMapping mapping) {
@@ -105,6 +113,7 @@ public class MultiinstanceUtils {
             initializer.setRelationName(relationName);
         }
         parameters.discriminatorValue = initializer.evaluate(executionContext.getVariableProvider());
+        parameters.discriminatorTypeRelation(initializer.getRelationName());
     }
 
     private static Parameters parseInModernMode(ExecutionContext executionContext, VariableContainerNode node) {
@@ -115,6 +124,7 @@ public class MultiinstanceUtils {
                 parameters.iteratorVariableName = mapping.getMappedName();
                 if (mapping.isMultiinstanceLinkByVariable()) {
                     parameters.discriminatorValue = executionContext.getVariableValue(parameters.discriminatorVariableName);
+                    parameters.discriminatorTypeVariable();
                 }
                 if (mapping.isMultiinstanceLinkByGroup()) {
                     setDiscriminatorValueByGroup(parameters, executionContext, mapping);
@@ -170,10 +180,12 @@ public class MultiinstanceUtils {
         }
         if ("variable".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null) {
             parameters.discriminatorValue = executionContext.getVariableValue(parameters.discriminatorVariableName);
+            parameters.discriminatorTypeVariable();
         } else if ("group".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null) {
             Object miVar = ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(), parameters.discriminatorVariableName);
             Group group = TypeConversionUtil.convertTo(Group.class, miVar);
             parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDao().getGroupActors(group));
+            parameters.discriminatorTypeGroup();
         } else if ("relation".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null && miRelationDiscriminatorTypeParam != null) {
             String relationName = (String) ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(),
                     parameters.discriminatorVariableName);
@@ -181,6 +193,7 @@ public class MultiinstanceUtils {
                     miRelationDiscriminatorTypeParam);
             Executor rightExecutor = TypeConversionUtil.convertTo(Executor.class, relationParam);
             parameters.discriminatorValue = getActorsByRelation(relationName, rightExecutor, true);
+            parameters.discriminatorTypeRelation(relationName);
         }
         return parameters;
     }
@@ -223,9 +236,13 @@ public class MultiinstanceUtils {
     }
 
     public static class Parameters {
+        private static final Properties logMessageProperties = ClassLoaderUtil.getLocalizedProperties("log.messages",
+                Parameters.class, null);
         private String discriminatorVariableName;
         private String iteratorVariableName;
         private Object discriminatorValue;
+        private String relationName;
+        private DiscriminatorType discriminatorType;
 
         public String getDiscriminatorVariableName() {
             return discriminatorVariableName;
@@ -237,6 +254,19 @@ public class MultiinstanceUtils {
 
         public String getIteratorVariableName() {
             return iteratorVariableName;
+        }
+
+        public void discriminatorTypeVariable() {
+            discriminatorType = DiscriminatorType.VARIABLE;
+        }
+
+        public void discriminatorTypeGroup() {
+            discriminatorType = DiscriminatorType.GROUP;
+        }
+
+        public void discriminatorTypeRelation(String relationName) {
+            discriminatorType = DiscriminatorType.RELATION;
+            this.relationName = relationName;
         }
 
         protected void check(VariableContainerNode node) {
@@ -251,5 +281,27 @@ public class MultiinstanceUtils {
             }
         }
 
+        @SuppressWarnings("unchecked")
+        protected void logIfDiscriminatorValueEmpty(ExecutionContext executionContext, Node node) {
+            if (discriminatorValue instanceof List && ((List<Object>) discriminatorValue).isEmpty()) {
+                executionContext.addLog(new CurrentNodeErrorLog(node,
+                        String.format(discriminatorType.getMessage(), relationName != null ? relationName : discriminatorVariableName)));
+            }
+        }
+
+        private enum DiscriminatorType {
+            VARIABLE((String) logMessageProperties.get("multiple.instance.not.created.by.variable")),
+            GROUP((String) logMessageProperties.get("multiple.instance.not.created.by.group")),
+            RELATION((String) logMessageProperties.get("multiple.instance.not.created.by.relation"));
+            private final String message;
+
+            DiscriminatorType(String message) {
+                this.message = message;
+            }
+
+            public String getMessage() {
+                return logMessageProperties.get("multiple.instance.not.created") + " " + message;
+            }
+        }
     }
 }

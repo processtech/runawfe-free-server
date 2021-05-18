@@ -1,5 +1,5 @@
 <div class="inputVariable ${model.uniqueName}" variable="${model.variable.definition.name}">
-<input type="hidden" name="${model.variable.definition.name}.indexes" value="" autocomplete="off" />
+<input type="hidden" name="${model.variable.definition.name}.indexes" value="" />
 
 <table class="userTypeList list" id="eutl${model.uniqueName}">
 	<thead>

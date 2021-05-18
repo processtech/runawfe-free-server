@@ -1,6 +1,8 @@
 package ru.runa.wfe.audit.logic;
 
 import com.google.common.base.Preconditions;
+
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
+import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecuredSingleton;
@@ -93,5 +96,18 @@ public class AuditLogic extends CommonLogic {
         permissionDao.checkAllowed(user, Permission.VIEW_LOGS, SecuredSingleton.SYSTEM);
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getCount();
+    }
+
+    /**
+     *  Clean process logs before date
+     *
+     * @param user Requester user.
+     * @param date Date
+     */
+    public void cleanProcessLogsBeforeDate(User user, Date date) {
+        if (!executorDao.isAdministrator(user.getActor())) {
+            throw new AuthorizationException("Only administrator can clean process logs");
+        }
+        processLogDao.deleteBeforeDate(user, date);
     }
 }

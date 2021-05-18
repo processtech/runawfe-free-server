@@ -64,7 +64,11 @@ public class NamedIdentitySet {
         }
         Set<String> result = new HashSet<>();
         for (Identity id : identities) {
-            result.add(id.name);
+            if (id.id == null) {
+                result.add(id.name);
+            } else if (id.name == null) {
+                result.add(id.id);
+            }
         }
         for (NamedIdentitySet innerSet : identitySetsReferences) {
             if (innerSet.type != type) {
@@ -102,7 +106,10 @@ public class NamedIdentitySet {
         EXECUTOR(SecuredObjectType.EXECUTOR, "Executor"),
 
         @XmlEnumValue(value = "Report")
-        REPORT(SecuredObjectType.REPORT, "Report");
+        REPORT(SecuredObjectType.REPORT, "Report"),
+
+        @XmlEnumValue(value = "Process")
+        PROCESS(SecuredObjectType.PROCESS, "Process");
 
         private final SecuredObjectType securedObjectType;
         private final String scriptName;

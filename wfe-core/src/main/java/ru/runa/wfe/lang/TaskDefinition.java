@@ -1,6 +1,7 @@
 package ru.runa.wfe.lang;
 
 import com.google.common.base.Preconditions;
+import ru.runa.wfe.commons.SystemProperties;
 
 /**
  * defines a task and how the actor must be calculated at runtime.
@@ -14,12 +15,12 @@ public class TaskDefinition extends GraphElement {
     /**
      * reassign swimlane value to evaluated swimlane initializer due to task create
      */
-    protected boolean reassignSwimlane;
+    protected Boolean reassignSwimlaneToInitializer = null;
     // TODO switch reassignSwimlane to useSwimlaneInitializerForTaskExecutor;
     /**
      * reassign swimlane value to actor who completed task on task end
      */
-    protected boolean reassignSwimlaneToTaskPerformer = true;
+    protected Boolean reassignSwimlaneToTaskPerformer = null;
     protected boolean ignoreSubsitutionRules;
 
     @Override
@@ -39,16 +40,16 @@ public class TaskDefinition extends GraphElement {
         this.swimlaneDefinition = swimlaneDefinition;
     }
 
-    public boolean isReassignSwimlane() {
-        return reassignSwimlane;
+    public boolean isReassignSwimlaneToInitializer() {
+        return reassignSwimlaneToInitializer != null ? reassignSwimlaneToInitializer : SystemProperties.isReassignSwimlaneToInitializer();
     }
 
-    public void setReassignSwimlane(boolean reassignSwimlane) {
-        this.reassignSwimlane = reassignSwimlane;
+    public void setReassignSwimlaneToInitializer(boolean reassignSwimlaneToInitializer) {
+        this.reassignSwimlaneToInitializer = reassignSwimlaneToInitializer;
     }
 
     public boolean isReassignSwimlaneToTaskPerformer() {
-        return reassignSwimlaneToTaskPerformer;
+        return reassignSwimlaneToTaskPerformer != null ? reassignSwimlaneToTaskPerformer : SystemProperties.isReassignSwimlaneToTaskPerformer();
     }
 
     public void setReassignSwimlaneToTaskPerformer(boolean reassignSwimlaneToTaskExecutor) {

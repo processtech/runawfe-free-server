@@ -1,17 +1,18 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.Version"%>
+<%@ page import="ru.runa.wfe.commons.SystemProperties" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
-
 <tiles:put name="head" type="string" >
 	<script>
         var storageVisible = true;
         var systemErrorsVisible = true;
         var processErrorsVisible = true;
         $(document).ready(function() {
+
             $("#storageButton").click(function() {
                 if (storageVisible) {
                     $("#storageContentDiv").hide();
@@ -118,6 +119,33 @@
 	</tr>
 </table>
 
+<% if(SystemProperties.isProcessLogCleanButtonEnabled()){ %>
+<table class='box'>
+	<tr>
+		<th class='box'><bean:message key="process_log_clean.title" /></th>
+	</tr>
+	<tr>
+		<td class='box'>
+			<form action="${pageContext.request.contextPath}/cleanProcessLogs.do" method="post">
+			<label for="processLogCleanCalendar"><bean:message key="process_log_clean.select_date" /></label>
+			<span class="inputVariable date" variable="date">
+				<input class="inputDate required"
+					   id="processLogCleanCalendar"
+					   name="date"
+					   type="text"
+					   required
+				>
+			</span>
+				<input type="submit"
+					   value="<bean:message key="process_log_clean.button"/>"
+					   onclick="return confirm('<bean:message key="process_log_clean.confirm.label"/>'+ ' '
+							   + $('#processLogCleanCalendar').val() + '?');"
+				>
+			</form>	
+		</td>
+	</tr>
+</table>
+<% } %>
 </tiles:put>
 
 <tiles:put name="messages" value="../common/messages.jsp" />

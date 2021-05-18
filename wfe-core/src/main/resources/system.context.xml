@@ -264,6 +264,10 @@
 
     <bean id="statisticReportExecutor" class="ru.runa.wfe.statistics.job.StatisticReportExecutor" init-method="init"/>
 
+	<bean id="asyncTaskChecker" class="ru.runa.wfe.job.impl.AsyncTaskChecker">
+		<property name="ttlInSeconds" value="${async.tasks.ttl.in.seconds}" />
+	</bean>
+
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
 
 	<bean id="executionContextFactory" class="ru.runa.wfe.execution.ExecutionContextFactory" />

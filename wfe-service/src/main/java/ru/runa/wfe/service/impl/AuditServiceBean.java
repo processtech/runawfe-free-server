@@ -1,5 +1,6 @@
 package ru.runa.wfe.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -99,5 +100,11 @@ public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
             batchPresentation = BatchPresentationFactory.SYSTEM_LOGS.createNonPaged();
         }
         return auditLogic.getSystemLogsCount(user, batchPresentation);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public void cleanProcessLogsBeforeDate(@WebParam(name = "user") @NonNull User user, @WebParam(name = "date") @NonNull Date date) {
+        auditLogic.cleanProcessLogsBeforeDate(user, date);
     }
 }
