@@ -25,7 +25,7 @@ public enum ClassPresentationType {
     RELATION(RelationClassPresentation.getInstance(), "relation"),
     RELATIONPAIR(RelationPairClassPresentation.getInstance(), "relationpair"),
     DEFINITION(DefinitionClassPresentation.getInstance(), "process_definition"),
-    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.getInstance(), ""),
+    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.getInstance(), "process_definition"),
     PROCESS(ProcessClassPresentation.getInstance(), "process"),
     PROCESS_WITH_TASKS(ProcessWithTasksClassPresentation.getInstance(), "process"),
     TASK(TaskClassPresentation.getInstance(), "task"),
