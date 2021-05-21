@@ -8,9 +8,9 @@ import lombok.Data;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
-import ru.runa.wfe.presentation.filter.StringFilterCriteria;
+import ru.runa.wfe.presentation.filter.FilterCriteria;
+import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest.Sorting.Order;
-import ru.runa.wfe.task.TaskClassPresentation;
 
 @Data
 public class BatchPresentationRequest {
@@ -36,12 +36,10 @@ public class BatchPresentationRequest {
         batchPresentation.setPageNumber(pageNumber);
         batchPresentation.setRangeSize(pageSize);
         for (Map.Entry<String, String> entry : filters.entrySet()) {
-            if (entry.getValue() == null || entry.getValue().isEmpty()) {
+            if (entry.getValue() == null || entry.getValue().isEmpty() || variables.contains(entry.getKey())) {
                 continue;
             }
-            int fieldIndex = classPresentationType.getFieldIndex(entry.getKey());
-            // only strings are supported now
-            batchPresentation.getFilteredFields().put(fieldIndex, new StringFilterCriteria(entry.getValue()));
+            addFilteredField(batchPresentation, classPresentationType.getFieldIndex(entry.getKey()), entry.getValue());
         }
         int[] fieldsToSortIds = new int[sortings.size()];
         boolean[] sortingModes = new boolean[sortings.size()];
@@ -53,14 +51,25 @@ public class BatchPresentationRequest {
         batchPresentation.setFieldsToSort(fieldsToSortIds, sortingModes);
         if (!variables.isEmpty()) {
             int[] fieldsToDisplayIds = new int[variables.size()];
-            // TODO now hardcoded field name for tasks only
-            int dynamicFieldIndex = classPresentationType.getFieldIndex(TaskClassPresentation.TASK_VARIABLE);
+            int variablePrototypeIndex = classPresentationType.getVariablePrototypeIndex();
             for (int i = 0; i < variables.size(); i++) {
                 fieldsToDisplayIds[i] = i;
-                batchPresentation.addDynamicField(dynamicFieldIndex + i, variables.get(i));
+                String variable = variables.get(i);
+                batchPresentation.addDynamicField(variablePrototypeIndex + i, variable);
+                if (filters.containsKey(variable)) {
+                    addFilteredField(batchPresentation, 0, filters.get(variable));
+                }
             }
             batchPresentation.setFieldsToDisplayIds(fieldsToDisplayIds);
         }
         return batchPresentation;
+    }
+
+    private void addFilteredField(BatchPresentation batchPresentation, int fieldIndex, String value) {
+        FilterCriteria filterCriteria = FilterCriteriaFactory.createFilterCriteria(batchPresentation, fieldIndex);
+        // TODO #2261
+        String[] templates = filterCriteria.getTemplatesCount() > 1 ? value.split("\\|", -1) : new String[] { value };
+        filterCriteria.applyFilterTemplates(templates);
+        batchPresentation.getFilteredFields().put(fieldIndex, filterCriteria);
     }
 }
