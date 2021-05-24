@@ -14,19 +14,27 @@
 <script type="text/javascript">
     function sendMessage() {
         sendMessageHandler();
+        $(document.getElementsByName("submitButton")).click();
     }
 
     function editMessage(id, text) {
         $("#message").val(document.getElementById("message").value + text);
         editMessageId = id;
+        openChatForm();
     }
 
     function reply(text) {
         $("#message").val(document.getElementById("message").value + " > " + text + "\n");
+        openChatForm();
     }
 
     function deleteMessage(id) {
         deleteMessageHandler(id);
+    }
+
+    function openChatForm() {
+        $("#ChatForm").css("display", "block");
+        $(document.getElementsByName("submitButton")).css("display", "none");
     }
 </script>
 </body>

@@ -24,6 +24,8 @@ import java.io.Serializable;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import lombok.Getter;
+import lombok.Setter;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
@@ -32,6 +34,8 @@ import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 
+@Getter
+@Setter
 @XmlAccessorType(XmlAccessType.FIELD)
 public class VariableDefinition implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -46,6 +50,7 @@ public class VariableDefinition implements Serializable {
     // web-service serialization limitation
     private UserType[] formatComponentUserTypes;
     private boolean publicAccess;
+    private boolean editableInChat;
     private Object defaultValue;
     private VariableStoreType storeType = VariableStoreType.DEFAULT;
     private transient VariableFormat variableFormat;
@@ -99,24 +104,8 @@ public class VariableDefinition implements Serializable {
         }
     }
 
-    public boolean isSynthetic() {
-        return synthetic;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
     public void setDescription(String description) {
         this.description = null == description ? null : description.intern();
-    }
-
-    public String getScriptingName() {
-        return scriptingName;
     }
 
     public String getScriptingNameWithoutDots() {
@@ -138,10 +127,6 @@ public class VariableDefinition implements Serializable {
         return format;
     }
 
-    public String getFormat() {
-        return format;
-    }
-
     public void setFormat(String format) {
         this.format = null == format ? null : format.intern();
     }
@@ -155,20 +140,8 @@ public class VariableDefinition implements Serializable {
         return new String[0];
     }
 
-    public boolean isPublicAccess() {
-        return publicAccess;
-    }
-
-    public void setPublicAccess(boolean publicAccess) {
-        this.publicAccess = publicAccess;
-    }
-
     public Object getDefaultValue() {
         return Utils.getContainerCopy(defaultValue);
-    }
-
-    public void setDefaultValue(Object defaultValue) {
-        this.defaultValue = defaultValue;
     }
 
     public String getFormatLabel() {
@@ -187,18 +160,6 @@ public class VariableDefinition implements Serializable {
 
     public boolean isUserType() {
         return getUserType() != null;
-    }
-
-    public UserType getUserType() {
-        return userType;
-    }
-
-    public void setUserType(UserType userType) {
-        this.userType = userType;
-    }
-
-    public UserType[] getFormatComponentUserTypes() {
-        return formatComponentUserTypes;
     }
 
     public List<VariableDefinition> expandUserType(boolean preserveComplex) {
@@ -276,13 +237,4 @@ public class VariableDefinition implements Serializable {
         String scriptingName = String.valueOf(chars).intern();
         return scriptingName;
     }
-
-    public VariableStoreType getStoreType() {
-        return storeType;
-    }
-
-    public void setStoreType(VariableStoreType storeType) {
-        this.storeType = storeType;
-    }
-
 }
