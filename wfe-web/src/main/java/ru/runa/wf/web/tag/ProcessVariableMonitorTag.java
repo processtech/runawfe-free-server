@@ -84,14 +84,16 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
-        headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
-        if (WebResources.isDisplayVariablesJavaType()) {
-            headerNames.add("Java " + MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
+        if (displayType()) {
+            headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
+            if (WebResources.isDisplayVariablesJavaType()) {
+                headerNames.add("Java " + MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
+            }
         }
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_VALUE.message(pageContext));
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);
 
-        RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext);
+        RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext, displayType());
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
     }
 
@@ -125,6 +127,10 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         String updateVariableUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_VARIABLES, params, pageContext, PortletUrlType.Render);
         A a = new A(updateVariableUrl, MessagesProcesses.LINK_UPDATE_VARIABLE.message(pageContext));
         updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
+    }
+
+    protected boolean displayType() {
+        return true;
     }
 
     @Override
