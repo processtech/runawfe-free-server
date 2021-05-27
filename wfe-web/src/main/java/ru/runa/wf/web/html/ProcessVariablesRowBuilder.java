@@ -40,13 +40,13 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
     private final List<WfVariable> variables;
     private final PageContext pageContext;
     private final Long processId;
-    private final boolean displayType;
+    private final boolean isDisplayVariableType;
 
-    public ProcessVariablesRowBuilder(Long processId, List<WfVariable> variables, PageContext pageContext, boolean displayType) {
+    public ProcessVariablesRowBuilder(Long processId, List<WfVariable> variables, PageContext pageContext, boolean isDisplayVariableType) {
         this.variables = variables;
         this.processId = processId;
         this.pageContext = pageContext;
-        this.displayType = displayType;
+        this.isDisplayVariableType = isDisplayVariableType;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
             nameTd.setStyle("color: #aaaaaa;");
         }
         tr.addElement(nameTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-        if (displayType) {
+        if (isDisplayVariableType) {
             String fl = variable.getDefinition() != null ? variable.getDefinition().getFormatLabel() : "-";
             tr.addElement(new TD(fl).setClass(Resources.CLASS_LIST_TABLE_TD));
             if (WebResources.isDisplayVariablesJavaType()) {

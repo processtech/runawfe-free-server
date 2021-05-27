@@ -74,6 +74,7 @@ function notifyAboutNewMessage(message) {
 
 function newMessageAlerter(message) {
     if (message.author === currentUser) {
+        sendChatForm();
         if (confirm("Сообщение успешно отправлено! Хотите перезагрузить страницу?")) {
             location.reload();
         }

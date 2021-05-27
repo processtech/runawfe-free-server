@@ -9,9 +9,9 @@ import java.util.List;
 @Tag(bodyContent = BodyContent.EMPTY, name = "updateProcessVariablesInChat")
 public class UpdateProcessVariablesInChatFormTag extends UpdateProcessVariablesFormTag {
     @Override
-    protected List<VariableDefinition> getVariables(Long definitionId) {
+    protected List<VariableDefinition> getVariableDefinitions(Long definitionId) {
         List<VariableDefinition> variables = new ArrayList<>();
-        for (VariableDefinition variable : super.getVariables(definitionId)) {
+        for (VariableDefinition variable : super.getVariableDefinitions(definitionId)) {
             if (variable.isEditableInChat()) {
                 variables.add(variable);
             }

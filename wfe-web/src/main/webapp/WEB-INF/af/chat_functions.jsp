@@ -13,8 +13,11 @@
 <body>
 <script type="text/javascript">
     function sendMessage() {
-        sendMessageHandler();
-        $(document.getElementsByName("submitButton")).click();
+        if (document.getElementById("message").value === "" && attachedFiles.length === 0) {
+            sendChatForm();
+        } else {
+            sendMessageHandler();
+        }
     }
 
     function editMessage(id, text) {
@@ -35,6 +38,12 @@
     function openChatForm() {
         $("#ChatForm").css("display", "block");
         $(document.getElementsByName("submitButton")).css("display", "none");
+    }
+
+    function sendChatForm() {
+        if ($("#ChatForm").css('display') !== 'none') {
+            $(document.getElementsByName("submitButton")).click();
+        }
     }
 </script>
 </body>

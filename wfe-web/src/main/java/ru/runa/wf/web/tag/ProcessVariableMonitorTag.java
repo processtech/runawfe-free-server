@@ -84,7 +84,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
-        if (displayType()) {
+        if (isDisplayVariableType()) {
             headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
             if (WebResources.isDisplayVariablesJavaType()) {
                 headerNames.add("Java " + MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
@@ -93,7 +93,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_VALUE.message(pageContext));
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);
 
-        RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext, displayType());
+        RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext, isDisplayVariableType());
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
     }
 
@@ -129,7 +129,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
     }
 
-    protected boolean displayType() {
+    protected boolean isDisplayVariableType() {
         return true;
     }
 

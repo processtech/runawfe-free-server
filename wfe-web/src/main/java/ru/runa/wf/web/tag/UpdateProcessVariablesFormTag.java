@@ -40,7 +40,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getProcessId());
-        List<VariableDefinition> variables = getVariables(process.getDefinitionId());
+        List<VariableDefinition> variables = getVariableDefinitions(process.getDefinitionId());
         if (!variables.isEmpty()) {
             if (WebResources.isUpdateProcessVariablesEnabled() && isAvailable()) {
                 getForm().setEncType(Form.ENC_UPLOAD);
@@ -139,7 +139,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         }
     }
 
-    protected List<VariableDefinition> getVariables(Long definitionId) {
+    protected List<VariableDefinition> getVariableDefinitions(Long definitionId) {
         return Delegates.getDefinitionService().getVariableDefinitions(getUser(), definitionId);
     }
 

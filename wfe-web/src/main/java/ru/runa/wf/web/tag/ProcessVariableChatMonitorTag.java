@@ -31,7 +31,7 @@ public class ProcessVariableChatMonitorTag extends ProcessVariableMonitorTag {
     }
 
     @Override
-    protected boolean displayType() {
+    protected boolean isDisplayVariableType() {
         return false;
     }
 }
