@@ -16,7 +16,7 @@
                             </v-btn>
                             <div>
                                 <div class="mb-2 mt-2">
-                                    <h1>{{ $__ucfirst(process.name) }}</h1>
+                                    <h1>{{ $__ucfirst(process.definitionName) }}</h1>
                                 </div>
                                 <div class="mb-2 mt-2">
                                     Экземпляр процесса № {{ process.id }}

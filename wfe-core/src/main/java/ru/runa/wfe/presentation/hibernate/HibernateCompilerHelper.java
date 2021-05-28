@@ -2,11 +2,9 @@ package ru.runa.wfe.presentation.hibernate;
 
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.SingleTableEntityPersister;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
@@ -40,7 +38,7 @@ public final class HibernateCompilerHelper {
                 (
                         (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx)) &&
                         field.sortable &&
-                        (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || batchPresentation.isFieldGroupped(idx))
+                        (!field.groupableByProcessId || batchPresentation.isFieldGroupped(idx))
                 );
     }
 

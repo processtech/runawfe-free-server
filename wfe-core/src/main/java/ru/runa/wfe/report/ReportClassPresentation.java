@@ -14,9 +14,9 @@ import ru.runa.wfe.security.Permission;
 public class ReportClassPresentation extends ClassPresentation {
     private static final String PropertyTdBuilder = "ru.runa.common.web.html.PropertyTdBuilder";
 
-    public static final String NAME = "reports.batch_presentation.name";
-    public static final String DESCRIPTION = "reports.batch_presentation.description";
-    public static final String TYPE = "reports.batch_presentation.type";
+    public static final String NAME = "name";
+    public static final String DESCRIPTION = "description";
+    public static final String TYPE = "type";
 
     public static final ClassPresentation INSTANCE = new ReportClassPresentation();
 

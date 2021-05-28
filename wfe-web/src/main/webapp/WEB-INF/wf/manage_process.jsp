@@ -36,6 +36,7 @@ function Reload() {
 <% } %>
 <style>
 	.ui-tooltip {
+		max-width: -moz-fit-content !important;
 		max-width: fit-content !important;
 	}
 </style>

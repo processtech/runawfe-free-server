@@ -29,8 +29,8 @@
             <template v-slot:[`footer.page-text`]="items">
                 {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
             </template>
-            <template v-slot:[`item.name`]="{ item }">
-                <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.name" />
+            <template v-slot:[`item.definitionName`]="{ item }">
+                <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
             </template>
             <template v-slot:no-data>
                 Данные отсутствуют
@@ -83,8 +83,7 @@ export default Vue.extend({
             filterVisible: false,
             filter: {
                 id: null,
-                name: null,
-                // category: '',
+                definitionName: null,
                 executionStatus: null,
                 startDate: null,
                 endDate: null,
@@ -113,16 +112,10 @@ export default Vue.extend({
                 },
                 { 
                     text: 'Процесс', 
-                    value:'name',
+                    value: 'definitionName',
                     visible: true,
                     width: '20em',
                 },
-                // {   
-                //     text: 'Тип процесса', 
-                //     value: 'category',
-                //     visible: false,
-                //     width: '20em',
-                // },
                 { 
                     text: 'Статус', 
                     value: 'executionStatus',
@@ -189,7 +182,7 @@ export default Vue.extend({
                 client['process-api-controller'].getProcessesUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
-                        this.processes = body.processes;
+                        this.processes = body.data;
                         this.total = body.total;
                     }
                     this.loading = false;

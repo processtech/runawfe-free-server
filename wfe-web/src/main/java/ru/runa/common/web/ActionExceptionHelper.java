@@ -17,6 +17,7 @@ import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.validation.ProcessDefinitionNotCompatibleException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.presentation.filter.FilterFormatException;
@@ -98,6 +99,10 @@ public class ActionExceptionHelper {
             DefinitionNameMismatchException exception = (DefinitionNameMismatchException) e;
             actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(), exception.getExpectedProcessDefinitionName(),
                     exception.getGivenProcessDefinitionName());
+        } else if (e instanceof ProcessDefinitionNotCompatibleException) {
+            ProcessDefinitionNotCompatibleException exception = (ProcessDefinitionNotCompatibleException) e;
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NOT_COMPATIBLE.getKey() + "." + exception.getType(),
+                    exception.getArgs());
         } else if (e instanceof TaskDoesNotExistException) {
             actionMessage = new ActionMessage(MessagesException.ERROR_TASK_DOES_NOT_EXIST.getKey());
         } else if (e instanceof SubstitutionDoesNotExistException) {

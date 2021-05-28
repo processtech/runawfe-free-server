@@ -102,4 +102,12 @@ public class TaskDao extends GenericDao<Task> {
         }
         flushPendingChanges();
     }
+
+    /**
+     * @return return all async tasks with ended parent process
+     */
+    public List<Task> findByEndedProcess() {
+        QTask t = QTask.task;
+        return queryFactory.selectFrom(t).where(t.process.endDate.isNotNull()).fetch();
+    }
 }

@@ -12,7 +12,7 @@
 		<property title="task.delegation.enabled">
 			<value>true</value>
 			<value>false</value>
-		</property>		
+		</property>
 		<property title="token.maximum.depth" pattern="\d*"/>
 		<property title="token.maximum.length" pattern="\d*|-1"/>
 		<property title="file.variable.local.storage.enabled">
@@ -67,14 +67,28 @@
 			<value>false</value>
 		</property>
 		<property title="preferred.messages.language" />
+		<property title="statistic.report.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="processLog.cleanButton.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.compatibility.check.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="reassign.swimlane.to.initializer">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="reassign.swimlane.to.task.performer">
+			<value>true</value>
+			<value>false</value>
+		</property>
 	</properties_file>
-	
-	<properties_file title="class.presentation.properties">
-		<value>ENABLED</value>
-		<value>HIDDEN</value>
-		<value>DISABLED</value>
-	</properties_file>
-	
+
 	<properties_file title="web.properties">
 		<property title="group.subprocess.enabled">
 			<value>true</value>
@@ -103,7 +117,7 @@
 		</property>
 		<property title="view.logs.limit.lines.count" pattern="\d*"/>
 		<property title="view.logs.timeout.autoreload.seconds" pattern="\d*" />
-		
+
 		<property title="menu.additional_links" />
 		<property title="process.showGraphMode">
 			<value>true</value>
@@ -181,7 +195,7 @@
 		<property title="process.removal.enabled">
 			<value>true</value>
 			<value>false</value>
-		</property>		
+		</property>
 		<property title="process.swimlane.assignment.enabled">
 			<value>true</value>
 			<value>false</value>
@@ -198,15 +212,18 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="process.processStartButtonName" />
+		<property title="process.completeTaskButtonName" />
+		<property title="process.started"/>
 	</properties_file>
-	
+
 	<properties_file title="office.properties">
 		<property title="docx.placeholder.start" />
 		<property title="docx.placeholder.end" />
 		<property title="docx.element.start" />
 		<property title="docx.element.end" />
 	</properties_file>
-	
+
 	<properties_file title="graph.properties">
 		<property title="edgingOnly">
 			<value>true</value>
@@ -236,7 +253,7 @@
 		<property title="alarmColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
 		<property title="lightAlarmColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
 	</properties_file>
-	
+
 	<properties_file title="business.calendar.properties">
 		<property title="business.week.expressed.in.business.days" pattern="\d*"/>
 		<property title="business.month.expressed.in.business.days" pattern="\d*"/>
@@ -248,8 +265,8 @@
 		<property title="weekday.friday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
 		<property title="weekday.saturday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
 		<property title="weekday.sunday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
-	</properties_file>	
-	
+	</properties_file>
+
 	<property_file title="botstation.properties">
 		<property title="botstation.invocation.period.seconds" pattern="\d*"/>
 		<property title="botstation.system.username" />
@@ -265,9 +282,9 @@
 		<property title="botstation.failedExecutionMaxDelaySeconds" pattern="\d*"/>
 		<property title="botstation.invocation.handler.timeout.milliseconds" pattern="\d*"/>
 	</property_file>
-	
+
 	<property_file title="securitycheck.properties">
-	
+
 		<property title="permission.check.required.EXECUTOR">
 			<value>true</value>
 			<value>false</value>

@@ -64,15 +64,15 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @WebMethod(exclude = true)
     @Override
     public Long startProcess(@NonNull User user, @NonNull String definitionName, Map<String, Object> variables) {
-        FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
+        FileVariablesUtil.unproxyFileVariables(user, processDefinitionLogic.getLatestProcessDefinition(user, definitionName).getId(), variables);
         return executionLogic.startProcess(user, definitionName, variables);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public Long startProcessById(@NonNull User user, @NonNull Long processDefinitionVersionId, Map<String, Object> variables) {
-        FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
-        return executionLogic.startProcess(user, processDefinitionVersionId, variables);
+    public Long startProcessById(@NonNull User user, @NonNull Long definitionId, Map<String, Object> variables) {
+        FileVariablesUtil.unproxyFileVariables(user, definitionId, variables);
+        return executionLogic.startProcess(user, definitionId, variables);
     }
 
     @Override

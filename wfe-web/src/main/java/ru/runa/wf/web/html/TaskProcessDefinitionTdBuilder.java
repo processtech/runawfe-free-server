@@ -1,6 +1,5 @@
 package ru.runa.wf.web.html;
 
-import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
@@ -9,10 +8,7 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.execution.ProcessHierarchyUtils;
-import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 
 /**
@@ -29,36 +25,24 @@ public class TaskProcessDefinitionTdBuilder implements TdBuilder {
         WfTask task = (WfTask) object;
         TD td = new TD();
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
+        Long definitionId = getDefinitionId(task);
         String definitionName = getValue(object, env);
-        Long definitionVersionId = task.getDefinitionVersionId();
-        Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(task.getProcessHierarchyIds());
-        if (!rootProcessId.equals(task.getProcessId())) {
-            WfProcess wfp = Delegates.getExecutionService().getProcess(env.getUser(), rootProcessId);
-            definitionName = wfp.getName();
-            definitionVersionId = wfp.getDefinitionVersionId();
-        }
-        if (env.hasProcessDefinitionPermission(Permission.READ, definitionVersionId)) {
-            String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, definitionVersionId,
-                    env.getPageContext(), PortletUrlType.Render);
-            A definitionNameLink = new A(url, definitionName);
-            td.addElement(definitionNameLink);
+        if (env.hasProcessDefinitionPermission(Permission.READ, definitionId)) {
+            td.addElement(new A(Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME,
+                    definitionId, env.getPageContext(), PortletUrlType.Render), definitionName));
         } else {
-            // this should never happend, since read permission required to
-            // get definition
-            addDisabledDefinitionName(td, definitionName);
+            td.addElement(new StringElement(definitionName));
         }
         return td;
+    }
+
+    protected Long getDefinitionId(WfTask task) {
+        return task.getDefinitionVersionId();
     }
 
     @Override
     public String getValue(Object object, Env env) {
         return ((WfTask) object).getDefinitionName();
-    }
-
-    private TD addDisabledDefinitionName(TD td, String name) {
-        ConcreteElement nameElement = new StringElement(name);
-        td.addElement(nameElement);
-        return td;
     }
 
     @Override

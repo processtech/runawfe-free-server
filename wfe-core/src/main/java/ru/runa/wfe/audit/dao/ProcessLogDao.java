@@ -6,15 +6,15 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import lombok.NonNull;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.ArchivedProcessLog;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.CurrentProcessLog;
-import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.commons.dao.ArchiveAwareGenericDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ArchivedProcess;
@@ -23,6 +23,7 @@ import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.user.User;
 
 @Component
 @CommonsLog
@@ -30,12 +31,15 @@ public class ProcessLogDao extends ArchiveAwareGenericDao<BaseProcessLog, Curren
 
     private ProcessDao processDao;
     private ProcessDefinitionLoader processDefinitionLoader;
+    private SystemLogDao systemLogDao;
 
     @Autowired
-    public ProcessLogDao(CurrentProcessLogDao currentDao, ArchivedProcessLogDao archivedDao, ProcessDao processDao, ProcessDefinitionLoader loader) {
+    public ProcessLogDao(CurrentProcessLogDao currentDao, ArchivedProcessLogDao archivedDao, ProcessDao processDao, ProcessDefinitionLoader loader,
+            SystemLogDao systemLogDao) {
         super(currentDao, archivedDao);
         this.processDao = processDao;
         this.processDefinitionLoader = loader;
+        this.systemLogDao = systemLogDao;
     }
 
     public List<? extends BaseProcessLog> getAll(@NonNull Process process) {
@@ -123,5 +127,10 @@ public class ProcessLogDao extends ArchiveAwareGenericDao<BaseProcessLog, Curren
      */
     public void deleteAll(CurrentProcess process) {
         currentDao.deleteAll(process);
+    }
+
+    public void deleteBeforeDate(User user, Date date) {
+        currentDao.deleteBeforeDate(user, date);
+        systemLogDao.create(new ProcessLogsCleanLog(user.getActor().getId(), date));
     }
 }

@@ -12,6 +12,8 @@ import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.format.FileFormat;
 
 public class DelegateDefinitionVariableProvider extends AbstractVariableProvider {
     private final DefinitionService definitionService;
@@ -74,7 +76,12 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
     public WfVariable getVariable(String variableName) {
         VariableDefinition variableDefinition = definitionService.getVariableDefinition(user, definitionVersionId, variableName);
         if (variableDefinition != null) {
-            return new WfVariable(variableDefinition, null);
+            return new WfVariable(
+                    variableDefinition,
+                    variableDefinition.getFormatNotNull() instanceof FileFormat ?
+                            new FileVariableProxy(user, null, definitionVersionId, variableName, (FileVariable) variableDefinition.getDefaultValue()) :
+                            null
+            );
         }
         List<SwimlaneDefinition> swimlaneDefinitions = definitionService.getSwimlaneDefinitions(user, definitionVersionId);
         for (SwimlaneDefinition swimlaneDefinition : swimlaneDefinitions) {

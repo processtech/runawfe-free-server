@@ -34,7 +34,6 @@ import ru.runa.wfe.execution.ProcessHierarchyUtils;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
@@ -121,17 +120,8 @@ public class ReflectionRowBuilder implements RowBuilder {
 
         td.addElement(link);
         link.addElement(Entities.NBSP);
-        final String displayName = batchPresentation.getAllFields()[currentState.getCurrentGrouppedColumnIdx()].displayName;
-        if (displayName.startsWith(ClassPresentation.removable_prefix)) {
-            int end = displayName.lastIndexOf(':');
-            int begin = displayName.lastIndexOf(':', end - 1) + 1;
-            link.addElement(Messages.getMessage(displayName.substring(begin, end), pageContext) + " '"
-                    + displayName.substring(displayName.lastIndexOf(':') + 1) + "':");
-        } else if (displayName.startsWith(ClassPresentation.filterable_prefix)) {
-            link.addElement(Messages.getMessage(displayName.substring(displayName.lastIndexOf(':') + 1), pageContext));
-        } else {
-            link.addElement(ru.runa.common.web.Messages.getMessage(displayName, pageContext) + ":");
-        }
+        final FieldDescriptor fieldDescriptor = batchPresentation.getAllFields()[currentState.getCurrentGrouppedColumnIdx()];
+        link.addElement(ru.runa.common.web.Messages.getMessage(batchPresentation, fieldDescriptor, pageContext));
         link.addElement(Entities.NBSP);
         link.addElement(currentState.getCurrentGrouppedColumnValue());
         td.setColSpan(builders.length + batchPresentation.getGrouppedFields().length - currentState.getGroupIndex() + additionalEmptyCells);
@@ -174,7 +164,7 @@ public class ReflectionRowBuilder implements RowBuilder {
         for (int i = 0; i < builders.length; i++) {
             TD td = builders[i].build(item, env);
 
-            if (env.isFilterable()) {
+            if (env.isGroupable()) {
                 StringBuilder str = new StringBuilder();
                 for (int j = 1; j < ProcessHierarchyUtils.getProcessIdsArray(((WfProcess) item).getHierarchyIds()).length; j++) {
                     str.append(Entities.NBSP);
@@ -211,13 +201,7 @@ public class ReflectionRowBuilder implements RowBuilder {
                                     fieldDescriptorForBuilder = fieldDescriptor;
                                 }
                             }
-                            String message;
-                            String displayName = fieldDescriptorForBuilder.displayName;
-                            if (displayName.startsWith(ClassPresentation.removable_prefix)) {
-                                message = displayName.substring(displayName.lastIndexOf(':') + 1);
-                            } else {
-                                message = Messages.getMessage(displayName, pageContext);
-                            }
+                            String message = Messages.getMessage(batchPresentation, fieldDescriptorForBuilder, pageContext);
                             message += " " + MessagesOther.LABEL_IS_MISSED.message(pageContext);
                             td = new TD();
                             td.addElement(new A(href, message));
@@ -246,11 +230,6 @@ public class ReflectionRowBuilder implements RowBuilder {
     @Override
     public TR buildNext() {
         TR tr = renderTRFromCurrentState();
-        // If element not displayed (in group), we must emulate displaying.
-        // int curIdx = currentState.getItemIndex();
-        // if (currentState.isGroupHeader()) {
-        // curIdx--;
-        // }
         do {
             currentState = currentState.buildNextState(batchPresentation);
         } while (currentState.getStateType().equals(GroupState.StateType.TYPE_EMPTY_STATE));
@@ -356,19 +335,18 @@ public class ReflectionRowBuilder implements RowBuilder {
             return retVal[currentState.getItemIndex()];
         }
 
-        public boolean isFilterable() {
-            boolean isFilterable = false;
+        private boolean isGroupable() {
+            boolean isGroupable = false;
             int idx = 0;
             FieldDescriptor[] fields = batchPresentation.getAllFields();
             for (FieldDescriptor field : fields) {
-                if (field.displayName.startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx)) {
-                    isFilterable = true;
+                if (field.groupableByProcessId && batchPresentation.isFieldGroupped(idx)) {
+                    isGroupable = true;
                     break;
                 }
                 idx++;
             }
-
-            return isFilterable;
+            return isGroupable;
         }
 
     }

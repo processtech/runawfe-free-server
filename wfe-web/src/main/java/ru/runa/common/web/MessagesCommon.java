@@ -25,6 +25,8 @@ public final class MessagesCommon {
     public static final StrutsMessage MAIN_MENU_ITEM_DATA_SOURCES = new StrutsMessage("manage_data_sources");
     // Forward menu (left main menu items) -> System.
     public static final StrutsMessage MAIN_MENU_ITEM_SYSTEM = new StrutsMessage("manage_system");
+    // Forward menu (left main menu items) -> Errors.
+    public static final StrutsMessage MAIN_MENU_ITEM_ERRORS = new StrutsMessage("manage_errors");
     // Forward menu (left main menu items) -> Settings.
     public static final StrutsMessage MAIN_MENU_ITEM_SETTINGS = new StrutsMessage("manage_settings");
     // Forward menu (left main menu items) -> Logs.
