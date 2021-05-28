@@ -588,6 +588,11 @@
 			<forward name="failure" path="/update_process_variables.do"
 				redirect="false" />
 		</action>
+		<action path="/updateProcessVariableInChat" type="ru.runa.wf.web.action.UpdateProcessVariableAction"
+				name="commonProcessForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/chat_page.do" redirect="true"/>
+			<forward name="failure" path="/chat_page.do" redirect="false"/>
+		</action>
 		<action path="/updateProcessSwimlane"
 			type="ru.runa.wf.web.action.UpdateProcessSwimlaneAction" name="commonProcessForm"
 			scope="request" unknown="false" validate="false">
