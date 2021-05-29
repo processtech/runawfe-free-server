@@ -1,4 +1,8 @@
 <%@ page import="ru.runa.common.web.Commons" %>
+<%@ page import="ru.runa.common.WebResources" %>
+<%@ page import="ru.runa.wfe.commons.web.PortletUrlType" %>
+<%@ page import="ru.runa.wf.web.MessagesProcesses" %>
+<%@ page import="com.google.common.collect.ImmutableMap" %>
 <%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles" %>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -23,20 +27,31 @@
     <tiles:put name="body" type="string">
         <% Long processId = getId(request); %>
         <% String title = "Чат процесса " + processId; %>
-        <table width="100%">
+        <table class="box">
+            <tr>
+                <th class="box">
+                    <%=title%>
+                </th>
+            </tr>
             <tr>
                 <td align="right">
-                    <a href="<%= "/wfe/manage_process.do?id=" + processId %>">Экземпляр процесса</a>
+                    <a href="<%=Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_PROCESS,
+                        ImmutableMap.of("id", processId), pageContext, PortletUrlType.Render)%>">
+                        <%=MessagesProcesses.TITLE_PROCESS.message(pageContext)%>
+                    </a>
                 </td>
             </tr>
         </table>
         <wf:processVariableChatMonitor identifiableId='<%= processId %>'/>
 
-        <div id="ChatForm" processId="<%= processId %>">
-            <wf:updateProcessVariablesInChat processId='<%= processId %>'/>
-        </div>
-
-        <wf:chatForm processId='<%= processId %>' title='<%= title %>'/>
+        <table class="box">
+            <tr>
+                <td id="ChatForm" processId="<%= processId %>">
+                    <wf:updateProcessVariablesInChat processId='<%= processId %>'/>
+                </td>
+            </tr>
+        </table>
+        <wf:chatForm processId='<%= processId %>' title='<%= "" %>'/>
     </tiles:put>
 
     <tiles:put name="messages" value="../common/messages.jsp"/>
