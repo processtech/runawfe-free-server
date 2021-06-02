@@ -57,8 +57,6 @@ public class ChatLogic extends WfCommonLogic {
     @Autowired
     private ChatFileIo fileIo;
     @Autowired
-    private ChatComponentFacade chatComponentFacade;
-    @Autowired
     private RecipientCalculator recipientCalculator;
     @Autowired
     private ExecutorLogic executorLogic;
@@ -133,7 +131,7 @@ public class ChatLogic extends WfCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException("Allowed for admin only");
         }
-        chatMessageDao.deleteMessages(processId);
+        chatComponentFacade.deleteByProcessId(processId);
     }
 
     public int getChatRoomsCount(User user, BatchPresentation batchPresentation) {

@@ -39,4 +39,11 @@ public class ChatComponentFacade {
         message.setProcess(processDao.getNotNull(processId));
         return messageDao.save(message, recipients);
     }
+
+    public void deleteByProcessId(long processId) {
+        for (ChatMessage message : messageDao.getByProcessId(processId)) {
+            fileDao.deleteByMessage(message);
+            messageDao.deleteMessageAndRecipient(message.getId());
+        }
+    }
 }
