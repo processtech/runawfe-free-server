@@ -9,7 +9,6 @@ import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.user.Actor;
 
