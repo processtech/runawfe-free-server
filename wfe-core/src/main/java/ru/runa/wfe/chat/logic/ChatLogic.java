@@ -1,9 +1,6 @@
 package ru.runa.wfe.chat.logic;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
