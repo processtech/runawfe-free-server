@@ -61,4 +61,9 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
             deleteMessageAndRecipient(cm.getId());
         }
     }
+
+    public List<ChatMessage> getByProcessId(long processId) {
+        final QChatMessage message = QChatMessage.chatMessage;
+        return queryFactory.select(message).from(message).where(message.process.id.eq(processId)).fetch();
+    }
 }

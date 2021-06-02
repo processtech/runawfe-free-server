@@ -9,6 +9,7 @@ import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.user.Actor;
 
@@ -38,5 +39,12 @@ public class ChatComponentFacade {
     public ChatMessage save(ChatMessage message, Set<Actor> recipients, long processId) {
         message.setProcess(processDao.getNotNull(processId));
         return messageDao.save(message, recipients);
+    }
+
+    public void deleteByProcessId(long processId) {
+        for (ChatMessage message : messageDao.getByProcessId(processId)) {
+            fileDao.deleteByMessage(message);
+            messageDao.deleteMessageAndRecipient(message.getId());
+        }
     }
 }
