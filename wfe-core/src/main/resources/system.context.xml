@@ -264,8 +264,9 @@
 	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
 	<bean id="processArchiver" class="ru.runa.wfe.job.impl.ProcessArchiver" />
 	<bean id="pingSessionsJob" class="ru.runa.wfe.chat.socket.PingSessionsJob" />
+	<bean id="chatUnusedFilesCleanerJob" class="ru.runa.wfe.chat.ChatUnusedFilesCleanerJob" />
 
-    <bean id="statisticReportExecutor" class="ru.runa.wfe.statistics.job.StatisticReportExecutor" init-method="init"/>
+	<bean id="statisticReportExecutor" class="ru.runa.wfe.statistics.job.StatisticReportExecutor" init-method="init"/>
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
 
