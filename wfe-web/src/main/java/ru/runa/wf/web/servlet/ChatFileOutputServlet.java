@@ -17,6 +17,7 @@ public class ChatFileOutputServlet extends HttpServlet {
         User user = Commons.getUser(request.getSession());
         Long fileId = Long.parseLong(request.getParameter("fileId"));
         ChatMessageFileDto file = Delegates.getChatService().getChatMessageFile(user, fileId);
+        response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());;
         response.getOutputStream().write(file.getBytes());
     }
 }

@@ -191,7 +191,7 @@ public class ChatEmailNotificationBuilder {
     private String createFileField(ChatMessageFile file) {
         String text = "<span>\uD83D\uDCCE</span>" + file.getName();
         if (baseUrl != null) {
-            return "<a href='" + baseUrl + "/wfe/chatFileOutput?fileId=" + file.getId() + "' download='" + file.getName() + "'>" + text + "</a>";
+            return "<a href='" + baseUrl + "/wfe/chatFileOutput?fileId=" + file.getId() + "'>" + text + "</a>";
         }
         return text;
     }
