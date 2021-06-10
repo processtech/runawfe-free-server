@@ -278,12 +278,14 @@
 	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
     <bean id="statisticReportExecutor" class="ru.runa.wfe.statistics.job.StatisticReportExecutor" init-method="init"/>
 	<bean id="pingSessionsJob" class="ru.runa.wfe.chat.socket.PingSessionsJob" />
+	<bean id="chatUnusedFilesCleanerJob" class="ru.runa.wfe.chat.ChatUnusedFilesCleanerJob" />
 
 	<task:scheduled-tasks scheduler="baseScheduler">
 		<task:scheduled ref="jobExecutor" method="execute" fixed-delay="${timertask.period.millis.job.execution}" />
 		<task:scheduled ref="unassignedTaskAssigner" method="execute" fixed-delay="${timertask.period.millis.unassigned.tasks.execution}" />
 		<task:scheduled ref="unusedTemporaryGroupsCleaner" method="execute" fixed-delay="${timertask.period.millis.remove.temp.groups}" />
 		<task:scheduled ref="pingSessionsJob" method="execute" fixed-delay="${timertask.period.millis.ping.chat.sessions}" />
+		<task:scheduled ref="chatUnusedFilesCleanerJob" method="execute" fixed-delay="${timertask.period.millis.clean.unused.chat.files}" />
 	</task:scheduled-tasks>
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
