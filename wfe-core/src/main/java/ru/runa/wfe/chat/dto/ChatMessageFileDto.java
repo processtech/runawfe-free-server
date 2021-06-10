@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ChatMessageFileDto extends ChatDto implements Serializable {
+public class ChatMessageFileDto extends AbstractChatDto implements Serializable {
     private Long id;
     private String name;
     private byte[] bytes;

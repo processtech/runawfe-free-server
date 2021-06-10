@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessage;
@@ -15,6 +14,7 @@ import ru.runa.wfe.definition.QProcessDefinition;
 import ru.runa.wfe.definition.QProcessDefinitionVersion;
 import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.QActor;
 
 @Component
 @MonitoredWithSpring
@@ -24,16 +24,9 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         super(ChatMessage.class);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public ChatMessage get(Long id) {
-        return super.get(id);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Long> getRecipientIdsByMessageId(Long messageId) {
+    public List<Actor> getRecipientsByMessageId(Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        return queryFactory.select(cr.executor.id).from(cr).where(cr.message.id.eq(messageId)).fetch();
+        return queryFactory.select(cr.executor.as(QActor.class)).from(cr).where(cr.message.id.eq(messageId)).fetch();
     }
 
     public void readMessages(Actor user, List<ChatMessage> messages) {
@@ -50,13 +43,11 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
                 .orderBy(cr.message.createDate.desc()).fetch();
     }
 
-    @Transactional(readOnly = true)
     public Long getNewMessagesCount(Actor user) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.count()).from(cr).where(cr.executor.eq(user).and(cr.readDate.isNull())).fetchCount();
     }
 
-    @Transactional
     public ChatMessage save(ChatMessage message, Set<Actor> recipients) {
         ChatMessage result = create(message);
         for (Actor recipient : recipients) {
@@ -65,24 +56,21 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
         return result;
     }
 
-    @Transactional
-    @Override
-    public ChatMessage update(ChatMessage entity) {
-        return super.update(entity);
-    }
-
-    @Transactional
     public void deleteMessageAndRecipient(Long id) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         queryFactory.delete(cr).where(cr.message.id.eq(id)).execute();
         delete(id);
     }
 
-    @Transactional
     public void deleteMessages(Long processId) {
         QChatMessage m = QChatMessage.chatMessage;
         for (ChatMessage cm : queryFactory.selectFrom(m).where(m.process.id.eq(processId)).fetch()) {
             deleteMessageAndRecipient(cm.getId());
         }
+    }
+
+    public List<ChatMessage> getByProcessId(long processId) {
+        final QChatMessage message = QChatMessage.chatMessage;
+        return queryFactory.select(message).from(message).where(message.process.id.eq(processId)).fetch();
     }
 }
