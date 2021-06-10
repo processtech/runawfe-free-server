@@ -10,9 +10,6 @@ import ru.runa.wfe.chat.ChatMessageRecipient;
 import ru.runa.wfe.chat.QChatMessage;
 import ru.runa.wfe.chat.QChatMessageRecipient;
 import ru.runa.wfe.commons.dao.GenericDao;
-import ru.runa.wfe.definition.QProcessDefinition;
-import ru.runa.wfe.definition.QProcessDefinitionVersion;
-import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.QActor;
 
