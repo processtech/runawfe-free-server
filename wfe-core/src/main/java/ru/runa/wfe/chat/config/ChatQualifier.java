@@ -13,5 +13,5 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier
-public @interface ChatBean {
+public @interface ChatQualifier {
 }

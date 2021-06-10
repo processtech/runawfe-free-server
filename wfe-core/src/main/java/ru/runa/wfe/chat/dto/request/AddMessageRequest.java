@@ -1,5 +1,6 @@
 package ru.runa.wfe.chat.dto.request;
 
+import java.io.Serializable;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +11,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class AddMessageRequest extends MessageRequest {
+public class AddMessageRequest extends MessageRequest implements Serializable {
+    private static final long serialVersionUID = -2343987208864174162L;
+
     private String message;
     private Boolean isPrivate;
     private Map<String, byte[]> files;

@@ -324,6 +324,10 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
 
     @Override
     public Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
-        return getExecutionService().getAllExecutorsByProcessId(user, processId, expandGroups);
+        try {
+            return getExecutionService().getAllExecutorsByProcessId(user, processId, expandGroups);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 }

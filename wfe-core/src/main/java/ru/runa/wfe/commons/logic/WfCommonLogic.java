@@ -11,6 +11,7 @@ import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.dao.SystemLogDao;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
+import ru.runa.wfe.chat.logic.ChatComponentFacade;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
@@ -86,6 +87,8 @@ public class WfCommonLogic extends CommonLogic {
     protected SystemLogDao systemLogDao;
     @Autowired
     protected ChatMessageDao chatMessageDao;
+    @Autowired
+    protected ChatComponentFacade chatComponentFacade;
 
     public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) {
         return processDefinitionLoader.getDefinition(processDefinitionVersionId);
@@ -203,7 +206,7 @@ public class WfCommonLogic extends CommonLogic {
         currentVariableDao.deleteAll(process);
         taskDao.deleteAll(process);
         currentSwimlaneDao.deleteAll(process);
-        chatMessageDao.deleteMessages(process.getId());
+        chatComponentFacade.deleteByProcessId(process.getId());
         currentProcessDao.delete(process);
         systemLogDao.create(new ProcessDeleteLog(
                 user.getActor().getId(), process.getDefinitionVersion().getDefinition().getName(), process.getId()
