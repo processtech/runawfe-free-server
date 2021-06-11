@@ -666,12 +666,16 @@ public class ExecutionLogic extends WfCommonLogic {
             token.setExecutionStatus(ExecutionStatus.SUSPENDED);
         }
         processLogDao.addLog(new ProcessSuspendLog(user.getActor()), process, null);
-        List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
-        for (Process subprocess : subprocesses) {
-            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED) {
+        ProcessDefinition definition = getDefinition(process);
+        for (NodeProcess subprocessNode : nodeProcessDao.getNodeProcesses(process, null, null, null)) {
+            Process subprocess = subprocessNode.getSubProcess();
+            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED && !isDisableCascadingSuspension(definition, subprocessNode)) {
                 suspendProcessWithSubprocesses(user, subprocess);
             }
         }
     }
 
+    private boolean isDisableCascadingSuspension(ProcessDefinition parentProcessDefinition, NodeProcess nodeProcess) {
+        return ((SubprocessNode) parentProcessDefinition.getNode(nodeProcess.getNodeId())).isDisableCascadingSuspension();
+    }
 }

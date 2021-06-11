@@ -31,6 +31,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     private boolean embedded;
     private boolean transactional;
     private boolean validateAtStart;
+    private boolean disableCascadingSuspension;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
     private transient ProcessDefinitionLoader processDefinitionLoader;
@@ -88,6 +89,14 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
 
     public void setValidateAtStart(boolean validateAtStart) {
         this.validateAtStart = validateAtStart;
+    }
+
+    public boolean isDisableCascadingSuspension() {
+        return disableCascadingSuspension;
+    }
+
+    public void setDisableCascadingSuspension(boolean disableCascadingSuspension) {
+        this.disableCascadingSuspension = disableCascadingSuspension;
     }
 
     @Override
