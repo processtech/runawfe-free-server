@@ -10,7 +10,7 @@ import ru.runa.wfe.webservice.User;
 /**
  * @author Sergey Inyakin
  */
-public class ChatWebServiceTest {
+public class Chat {
     public static final ChatAPI chatAPI;
     public static final User USER;
     public static final Long PROCESS_ID = 1L;
