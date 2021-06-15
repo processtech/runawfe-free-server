@@ -3,7 +3,6 @@ package ru.runa.wfe.chat.dao;
 import java.util.List;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.QChatMessageFile;
@@ -21,13 +20,6 @@ public class ChatFileDao extends GenericDao<ChatMessageFile> {
         super(ChatMessageFile.class);
     }
 
-    @Transactional
-    @Override
-    public ChatMessageFile create(ChatMessageFile entity) {
-        return super.create(entity);
-    }
-
-    @Transactional
     public List<ChatMessageFile> save(List<ChatMessageFile> files) {
         for (ChatMessageFile file : files) {
             sessionFactory.getCurrentSession().save(file);
@@ -35,9 +27,18 @@ public class ChatFileDao extends GenericDao<ChatMessageFile> {
         return files;
     }
 
-    @Transactional(readOnly = true)
     public List<ChatMessageFile> getByMessage(ChatMessage message) {
         QChatMessageFile mf = QChatMessageFile.chatMessageFile;
         return queryFactory.select(mf).from(mf).where(mf.message.eq(message)).fetch();
+    }
+
+    public long deleteByMessage(ChatMessage message) {
+        QChatMessageFile mf = QChatMessageFile.chatMessageFile;
+        return queryFactory.delete(mf).where(mf.message.eq(message)).execute();
+    }
+
+    public List<String> getAllFileUuids() {
+        final QChatMessageFile file = QChatMessageFile.chatMessageFile;
+        return queryFactory.select(file.uuid).from(file).fetch();
     }
 }

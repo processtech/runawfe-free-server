@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.runa.wfe.chat.dto.request.MessageRequest;
-import ru.runa.wfe.chat.mapper.ActorToLongMapper;
 import ru.runa.wfe.chat.mapper.AddMessageRequestMapper;
 import ru.runa.wfe.chat.mapper.ChatMessageFileDetailMapper;
 import ru.runa.wfe.chat.mapper.ChatMessageFileMapper;
@@ -29,7 +28,7 @@ public class ChatConfig {
     }
 
     @Bean
-    @ChatBean
+    @ChatQualifier
     public ObjectMapper chatObjectMapper() {
         return new ObjectMapper();
     }
@@ -42,11 +41,6 @@ public class ChatConfig {
     @Bean
     public ChatMessageFileDetailMapper chatMessageFileDetailMapper() {
         return new ChatMessageFileDetailMapper();
-    }
-
-    @Bean
-    public ActorToLongMapper actorToLongMapper() {
-        return new ActorToLongMapper();
     }
 
     @Bean
