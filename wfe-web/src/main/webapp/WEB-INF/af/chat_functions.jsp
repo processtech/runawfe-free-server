@@ -41,7 +41,7 @@
     }
 
     function sendChatForm() {
-        if ($("#ChatForm").css('display') !== 'none') {
+        if ($("#ChatForm").css('display') !== 'none' && $("#variableSelect").val() !== undefined) {
             $(document.getElementsByName("submitButton")).click();
         }
     }
