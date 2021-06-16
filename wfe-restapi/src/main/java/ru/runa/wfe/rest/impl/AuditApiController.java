@@ -26,9 +26,9 @@ public class AuditApiController {
     @Autowired
     private AuditLogic auditLogic;
 
-    @GetMapping("process/{processId}")
-    public ProcessLogs getProcessLogs(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long processId) {
-        return auditLogic.getProcessLogs(authUser.getUser(), new ProcessLogFilter(processId));
+    @GetMapping("process/{id}")
+    public ProcessLogs getProcessLogs(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        return auditLogic.getProcessLogs(authUser.getUser(), new ProcessLogFilter(id));
     }
 
     @PostMapping("system")
