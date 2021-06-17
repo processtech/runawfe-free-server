@@ -15,6 +15,7 @@ import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.chat.ChatRoomClassPresentation;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatFileIo;
+import ru.runa.wfe.chat.dao.ChatMessageRecipientDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.WfChatMessageBroadcast;
 import ru.runa.wfe.chat.dto.WfChatRoom;
@@ -62,6 +63,8 @@ public class ChatLogic extends WfCommonLogic {
     private ExecutorLogic executorLogic;
     @Autowired
     private ChatFileDao fileDao;
+    @Autowired
+    private ChatMessageRecipientDao chatMessageRecipientDao;
 
     public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
         final ChatMessage newMessage = messageRequestMapper.toEntity(request);
@@ -105,7 +108,7 @@ public class ChatLogic extends WfCommonLogic {
         final ChatMessage message = chatMessageDao.getNotNull(request.getMessageId());
         final Set<Actor> recipients = getRecipientsByMessageId(message.getId());
         fileDao.deleteByMessage(message);
-        chatMessageDao.deleteMessageAndRecipient(message.getId());
+        chatMessageRecipientDao.deleteMessageAndRecipient(message.getId());
         return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()), recipients);
     }
 
@@ -114,17 +117,17 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
-        List<ChatMessage> messages = chatMessageDao.getMessages(user.getActor(), processId);
+        List<ChatMessage> messages = chatMessageRecipientDao.getMessages(user.getActor(), processId);
         if (!messages.isEmpty()) {
             for (List<ChatMessage> messagesPart : Lists.partition(messages, SystemProperties.getDatabaseParametersCount())) {
-                chatMessageDao.readMessages(user.getActor(), messagesPart);
+                chatMessageRecipientDao.readMessages(user.getActor(), messagesPart);
             }
         }
         return messageFileMapper.toDtos(messages);
     }
 
     public Long getNewMessagesCount(User user) {
-        return chatMessageDao.getNewMessagesCount(user.getActor());
+        return chatMessageRecipientDao.getNewMessagesCount(user.getActor());
     }
 
     public void deleteMessages(User user, Long processId) {
@@ -163,7 +166,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     private Set<Actor> getRecipientsByMessageId(Long messageId) {
-        return new HashSet<>(chatMessageDao.getRecipientsByMessageId(messageId));
+        return new HashSet<>(chatMessageRecipientDao.getRecipientsByMessageId(messageId));
     }
 
     private List<WfChatRoom> toWfChatRooms(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
