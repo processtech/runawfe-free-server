@@ -19,26 +19,26 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
 
     public List<Actor> getRecipientsByMessageId(Long messageId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        return queryFactory.select(cr.executor.as(QActor.class)).from(cr).where(cr.message.id.eq(messageId)).fetch();
+        return queryFactory.select(cr.actor.as(QActor.class)).from(cr).where(cr.message.id.eq(messageId)).fetch();
     }
 
     public void readMessages(Actor user, List<ChatMessage> messages) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         Date date = new Date();
         queryFactory.update(cr).set(cr.readDate, date)
-                .where(cr.executor.eq(user).and(cr.message.in(messages)).and(cr.readDate.isNull())).execute();
+                .where(cr.actor.eq(user).and(cr.message.in(messages)).and(cr.readDate.isNull())).execute();
     }
 
     public List<ChatMessage> getMessages(Actor user, Long processId) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         return queryFactory.select(cr.message).from(cr)
-                .where(cr.message.process.id.eq(processId).and(cr.executor.eq(user)))
+                .where(cr.message.process.id.eq(processId).and(cr.actor.eq(user)))
                 .orderBy(cr.message.createDate.desc()).fetch();
     }
 
     public Long getNewMessagesCount(Actor user) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
-        return queryFactory.select(cr.count()).from(cr).where(cr.executor.eq(user).and(cr.readDate.isNull())).fetchCount();
+        return queryFactory.select(cr.count()).from(cr).where(cr.actor.eq(user).and(cr.readDate.isNull())).fetchCount();
     }
 
     public ChatMessage save(ChatMessage message, Set<Actor> recipients) {

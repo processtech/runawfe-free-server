@@ -49,6 +49,7 @@ import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep4;
 import ru.runa.wfe.commons.dbmigration.impl.RemoveWfeConstants;
+import ru.runa.wfe.commons.dbmigration.impl.RenameColumnInChatMessageRecipientPatch;
 import ru.runa.wfe.commons.dbmigration.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbmigration.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbmigration.impl.TaskOpenedByExecutorsPatch;
@@ -147,6 +148,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddChatRoomViewPatch.class);
         dbMigrations.add(EnlargeMessageMaxSizePatch.class);
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
+        dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
         return dbMigrations;
     }
 }
