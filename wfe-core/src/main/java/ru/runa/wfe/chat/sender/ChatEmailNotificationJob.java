@@ -21,6 +21,8 @@ import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailUtils;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDao;
@@ -83,7 +85,7 @@ public class ChatEmailNotificationJob {
         Map<Actor, ChatEmailNotificationBuilder> result = new HashMap<>(actors.size());
         for (Actor actor : actors) {
             List<ChatMessage> messages = chatMessageDao.getNewMessagesByActor(actor);
-            Map<Process, List<ChatMessage>> messagesByProcesses = getMessagesByProcesses(messages);
+            Map<Process<CurrentToken>, List<ChatMessage>> messagesByProcesses = getMessagesByProcesses(messages);
             ChatEmailNotificationBuilder emailBuilder = new ChatEmailNotificationBuilder()
                     .baseUrl(baseUrl)
                     .newMessagesCount(messages.size())
@@ -113,8 +115,8 @@ public class ChatEmailNotificationJob {
         }
     }
 
-    private Map<Process, List<ChatMessage>> getMessagesByProcesses(List<ChatMessage> messages) {
-        Map<Process, List<ChatMessage>> result = new HashMap<>();
+    private Map<Process<CurrentToken>, List<ChatMessage>> getMessagesByProcesses(List<ChatMessage> messages) {
+        Map<Process<CurrentToken>, List<ChatMessage>> result = new HashMap<>();
         for (ChatMessage message : messages) {
             result.computeIfAbsent(message.getProcess(), new ComputeIfAbsentFunction()).add(message);
         }
@@ -129,24 +131,24 @@ public class ChatEmailNotificationJob {
         return result;
     }
 
-    private Map<Process, String> getDefinitionNamesByProcesses(Set<Process> processes) {
-        Map<Process, String> result = new HashMap<>(processes.size());
-        for (Process process : processes) {
-            result.put(process, process.getDeployment().getName());
+    private Map<Process<CurrentToken>, String> getDefinitionNamesByProcesses(Set<Process<CurrentToken>> processes) {
+        Map<Process<CurrentToken>, String> result = new HashMap<>(processes.size());
+        for (Process<CurrentToken> process : processes) {
+            result.put(process, process.getDefinitionVersion().getDefinition().getName());
         }
         return result;
     }
 
-    private Map<Process, Boolean> getPermissionByActorAndProcesses(Actor actor, Set<Process> processes) {
-        Map<Process, Boolean> result = new HashMap<>(processes.size());
-        for (Process process : processes) {
-            Boolean isAllowed = permissionDao.isAllowed(actor, Permission.READ, process.getSecuredObjectType(), process.getIdentifiableId());
+    private Map<Process<CurrentToken>, Boolean> getPermissionByActorAndProcesses(Actor actor, Set<Process<CurrentToken>> processes) {
+        Map<Process<CurrentToken>, Boolean> result = new HashMap<>(processes.size());
+        for (Process<CurrentToken> process : processes) {
+            Boolean isAllowed = permissionDao.isAllowed(actor, Permission.READ, process.getSecuredObjectType(), process.getId());
             result.put(process, isAllowed);
         }
         return result;
     }
 
-    private static class ComputeIfAbsentFunction implements Function<Process, List<ChatMessage>> {
+    private static class ComputeIfAbsentFunction implements Function<Process<CurrentToken>, List<ChatMessage>> {
         @Override
         public List<ChatMessage> apply(Process process) {
             return new ArrayList<>();
