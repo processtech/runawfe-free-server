@@ -64,7 +64,7 @@ public class ChatLogic extends WfCommonLogic {
     @Autowired
     private ChatFileDao fileDao;
     @Autowired
-    private ChatMessageRecipientDao chatMessageRecipientDao;
+    private ChatMessageRecipientDao recipientDao;
 
     public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
         final ChatMessage newMessage = messageRequestMapper.toEntity(request);
@@ -108,7 +108,8 @@ public class ChatLogic extends WfCommonLogic {
         final ChatMessage message = chatMessageDao.getNotNull(request.getMessageId());
         final Set<Actor> recipients = getRecipientsByMessageId(message.getId());
         fileDao.deleteByMessage(message);
-        chatMessageRecipientDao.deleteMessageAndRecipient(message.getId());
+        recipientDao.deleteRecipientsByMessageId(message.getId());
+        chatMessageDao.deleteMessage(message.getId());
         return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()), recipients);
     }
 
@@ -117,17 +118,17 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
-        List<ChatMessage> messages = chatMessageRecipientDao.getMessages(user.getActor(), processId);
+        List<ChatMessage> messages = chatMessageDao.getMessages(user.getActor(), processId);
         if (!messages.isEmpty()) {
             for (List<ChatMessage> messagesPart : Lists.partition(messages, SystemProperties.getDatabaseParametersCount())) {
-                chatMessageRecipientDao.readMessages(user.getActor(), messagesPart);
+                chatMessageDao.readMessages(user.getActor(), messagesPart);
             }
         }
         return messageFileMapper.toDtos(messages);
     }
 
     public Long getNewMessagesCount(User user) {
-        return chatMessageRecipientDao.getNewMessagesCount(user.getActor());
+        return recipientDao.getNewMessagesCount(user.getActor());
     }
 
     public void deleteMessages(User user, Long processId) {
@@ -166,7 +167,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     private Set<Actor> getRecipientsByMessageId(Long messageId) {
-        return new HashSet<>(chatMessageRecipientDao.getRecipientsByMessageId(messageId));
+        return new HashSet<>(recipientDao.getRecipientsByMessageId(messageId));
     }
 
     private List<WfChatRoom> toWfChatRooms(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {

@@ -27,7 +27,7 @@ public class ChatComponentFacade {
     @Autowired
     private ProcessDao processDao;
     @Autowired
-    private ChatMessageRecipientDao chatMessageRecipientDao;
+    private ChatMessageRecipientDao recipientDao;
 
     public ChatMessage save(ChatMessage message, Set<Actor> recipients, List<ChatMessageFile> files, long processId) {
         final ChatMessage savedMessage = save(message, recipients, processId);
@@ -46,7 +46,8 @@ public class ChatComponentFacade {
     public void deleteByProcessId(long processId) {
         for (ChatMessage message : messageDao.getByProcessId(processId)) {
             fileDao.deleteByMessage(message);
-            chatMessageRecipientDao.deleteMessageAndRecipient(message.getId());
+            recipientDao.deleteRecipientsByMessageId(message.getId());
+            messageDao.deleteMessage(message.getId());
         }
     }
 }
