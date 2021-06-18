@@ -74,13 +74,9 @@ function notifyAboutNewMessage(message) {
 
 function newMessageAlerter(message) {
     if (message.author === currentUser) {
-        if (confirm("Сообщение успешно отправлено! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        setNotification("Сообщение успешно отправлено. Обновите страницу");
     } else if (isChatOpen(message)) {
-        if (confirm("Вы получили новое сообщение! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        setNotification("Получено новое сообщение. Обновите страницу");
     } else {
         notifyAboutNewMessage(message);
     }
@@ -88,28 +84,30 @@ function newMessageAlerter(message) {
 
 function editMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        if (confirm("Сообщение успешно отредактировано! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        setNotification("Сообщение успешно отредактированно. Обновите страницу");
     } else if (isChatOpen(message)) {
-        if (confirm("Одно из сообщений было отредактировано! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        setNotification("Одно из сообщений было изменено. Обновите страницу");
     }
 }
 
 function deleteMessageAlerter(message) {
     if (message.initiator === currentUser) {
-        if (confirm("Сообщение успешно удалено! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        setNotification("Сообщение успешно удалено. Обновите страницу");
     } else if (isChatOpen(message)) {
-        if (confirm("Одно из сообщений было удалено! Хотите перезагрузить страницу?")) {
-            location.reload();
-        }
+        setNotification("Одно из сообщений было удалено. Обновите страницу");
     }
 }
 
 function errorMessageAlerter(message) {
-    alert("Сообщение не отправлено. Ошибка: " + message.message);
+    setError("Ошибка при отправке сообщения: " + message.message);
+}
+
+function setNotification(message) {
+    $("#chatNotificationAlert").text(message);
+    $("#chatErrorAlert").empty();
+}
+
+function setError(message) {
+    $("#chatErrorAlert").text(message);
+    $("#chatNotificationAlert").empty();
 }

@@ -3,8 +3,11 @@ package ru.runa.wfe.service;
 import java.util.List;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatMessageBroadcast;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageEditedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
@@ -20,14 +23,29 @@ import ru.runa.wfe.user.User;
 public interface ChatService {
 
     /**
-     * Saves a new message and sends the <code>MessageAddedBroadcast<code> to all active chats
+     * Saves a new message
      *
      * @param user
      *              authorized user
      * @param request
      *              request to add a new message
+     * @return id of created message
      */
-    public void saveMessage(User user, AddMessageRequest request);
+    public Long saveMessage(User user, AddMessageRequest request);
+
+    /**
+     * Edit message according to provided request
+     * @param user authorized user
+     * @param request request to edit message
+     */
+    public void editMessage(User user, EditMessageRequest request);
+
+    /**
+     * Delete message according to provided request
+     * @param user authorized user
+     * @param request request to edit message
+     */
+    public void deleteMessage(User user, DeleteMessageRequest request);
 
     /**
      * Gets ChatMessage.
@@ -77,22 +95,6 @@ public interface ChatService {
      * @return not <code>null</code>
      */
     public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation);
-
-    /**
-     * Updates the message and sends the <code>MessageEditedBroadcast<code> to all active chats
-     *
-     * @param request
-     *              request to edit message
-     */
-    public void updateMessage(User user, EditMessageRequest request);
-
-    /**
-     * Deletes the message and sends the <code>MessageDeletedBroadcast<code> to all active chats
-     *
-     * @param request
-     *              request to delete message
-     */
-    public void deleteMessage(User user, DeleteMessageRequest request);
 
     /**
      * Get <code>ChatMessageFilesDto</code> by id.

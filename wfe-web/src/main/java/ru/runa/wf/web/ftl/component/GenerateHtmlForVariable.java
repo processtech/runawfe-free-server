@@ -399,27 +399,20 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         Preconditions.checkNotNull(webHelper, "webHelper");
         String id = webHelper.getRequest().getParameter("id");
         UploadedFile file = FormSubmissionUtils.getUserInputFiles(webHelper.getRequest(), id).get(variableName);
-        if (value != null && file == null) {
+        if (value != null && value.getName() != null && file == null) {
             // display file
             file = new UploadedFile(value);
             FormSubmissionUtils.addUserInputFile(webHelper.getRequest(), id, variableName, file);
-        } else if (value == null && file != null) {
+        } else if ((value == null || value.getName() == null) && file != null) {
             // sf1095
             file = null;
             FormSubmissionUtils.removeUserInputFile(webHelper.getRequest(), id, variableName);
         }
-        String attachImageUrl = "";
-        String loadingImageUrl = "";
-        String deleteImageUrl = "";
-        String uploadFileTitle = "Upload file";
-        String loadingMessage = "Loading ...";
-        if (webHelper != null) {
-            attachImageUrl = webHelper.getUrl(Resources.IMAGE_ATTACH);
-            loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
-            deleteImageUrl = webHelper.getUrl(Resources.IMAGE_DELETE);
-            uploadFileTitle = webHelper.getMessage("message.upload.file");
-            loadingMessage = webHelper.getMessage("message.loading");
-        }
+        String attachImageUrl = webHelper.getUrl(Resources.IMAGE_ATTACH);
+        String loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
+        String deleteImageUrl = webHelper.getUrl(Resources.IMAGE_DELETE);
+        String uploadFileTitle = webHelper.getMessage("message.upload.file");
+        String loadingMessage = webHelper.getMessage("message.loading");
         String hideStyle = "style=\"display: none;\"";
         String html = "<div class=\"inputFileContainer\"" + (!enabled && file == null ? hideStyle : "") + ">";
         html += "<div class=\"dropzone\" " + (file != null ? hideStyle : "") + ">";
@@ -439,7 +432,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         }
 
         html += "<span class=\"statusText\">";
-        if (file != null && webHelper != null) {
+        if (file != null) {
             String viewUrl = webHelper.getUrl("/upload?action=view&inputId=" + variableName + "&id=" + id);
             html += "<a href='" + viewUrl + "'>" + file.getName() + (file.getSize() != null ? " - " + file.getSize() : "") + "</a>";
         } else {

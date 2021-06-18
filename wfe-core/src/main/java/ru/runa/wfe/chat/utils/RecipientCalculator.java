@@ -6,7 +6,6 @@ import lombok.extern.apachecommons.CommonsLog;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -25,7 +24,6 @@ public class RecipientCalculator {
     @Autowired
     private ExecutionLogic executionLogic;
 
-    @Transactional(readOnly = true)
     public Set<Actor> calculateRecipients(User user, boolean isPrivate, String messageText, Long processId) {
         return isPrivate
                 ? findMentionedActorsInMessageText(user, messageText)

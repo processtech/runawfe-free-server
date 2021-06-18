@@ -33,6 +33,7 @@ import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 /**
  * Provides simplified access to local ProcessDefinition. Created on 28.09.2004
@@ -285,6 +286,15 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         try {
             return getDefinitionService().findChanges(definitionName, version1, version2);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public FileVariableImpl getFileVariableDefaultValue(User user, Long definitionId, String variableName) {
+        try {
+            return getDefinitionService().getFileVariableDefaultValue(user, definitionId, variableName);
         } catch (Exception e) {
             throw handleException(e);
         }
