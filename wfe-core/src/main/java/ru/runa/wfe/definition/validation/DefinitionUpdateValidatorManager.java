@@ -1,5 +1,6 @@
 package ru.runa.wfe.definition.validation;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -28,6 +29,7 @@ public class DefinitionUpdateValidatorManager {
         if (!SystemProperties.isDefinitionCompatibilityCheckEnabled()) {
             return;
         }
+
         TimeMeasurer timeMeasurer = new TimeMeasurer(log);
         timeMeasurer.jobStarted();
         ProcessFilter filter = new ProcessFilter();
@@ -37,7 +39,14 @@ public class DefinitionUpdateValidatorManager {
         List<Process> processes = processDao.getProcesses(filter);
         timeMeasurer.jobEnded("Loading " + processes.size() + " active processes");
         timeMeasurer.jobStarted();
-        validate(oldDefinition, newDefinition, processes);
+
+        int processesLimit = SystemProperties.getDefinitionCompatibilityCheckProcessesLimit();
+        if (processesLimit == -1) {
+            validate(oldDefinition, newDefinition, processes);
+        } else {
+            validate(oldDefinition, newDefinition, processes.subList(0, processesLimit));
+        }
+
         timeMeasurer.jobEnded("Validation of " + oldDefinition);
     }
 
