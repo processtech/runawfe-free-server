@@ -74,6 +74,7 @@ function notifyAboutNewMessage(message) {
 
 function newMessageAlerter(message) {
     if (message.author === currentUser) {
+        sendChatForm();
         setNotification("Сообщение успешно отправлено. Обновите страницу");
     } else if (isChatOpen(message)) {
         setNotification("Получено новое сообщение. Обновите страницу");
