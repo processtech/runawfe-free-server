@@ -31,6 +31,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String NAME = "name";
     private static final String VARIABLE = "variable";
     private static final String PUBLIC = "public";
+    private static final String EDITABLE_IN_CHAT = "editableInChat";
     private static final String DEFAULT_VALUE = "defaultValue";
     private static final String SCRIPTING_NAME = "scriptingName";
     private static final String USER_TYPE = "usertype";
@@ -121,6 +122,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         }
         variableDefinition.initComponentUserTypes(processDefinition);
         variableDefinition.setPublicAccess(Boolean.parseBoolean(element.attributeValue(PUBLIC, "false")));
+        variableDefinition.setEditableInChat(Boolean.parseBoolean(element.attributeValue(EDITABLE_IN_CHAT, "false")));
         variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
         String storeTypeString = element.attributeValue(STORE_TYPE);
         if (!Strings.isNullOrEmpty(storeTypeString)) {
