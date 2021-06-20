@@ -165,9 +165,8 @@ public class DataSourceStorage implements DataSourceStuff {
         if (!s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) && !s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
             return null;
         }
-        final String dsName = s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) ?
-                s.substring(s.indexOf(':') + 1) :
-                (String) variableProvider.getValue(s.substring(s.indexOf(':') + 1));
+        final String dsName = s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) ? s.substring(s.indexOf(':') + 1)
+                : (String) variableProvider.getValue(s.substring(s.indexOf(':') + 1));
         return DataSourceStorage.getDataSource(dsName);
     }
 
