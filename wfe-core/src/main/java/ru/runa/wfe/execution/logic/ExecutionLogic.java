@@ -717,6 +717,10 @@ public class ExecutionLogic extends WfCommonLogic {
         AssignmentHelper.assign(new ExecutionContext(parsedProcessDefinition, process), swimlane, executors);
     }
 
+    public void assignSwimlane(User user, Long processId, String swimlaneName, Long executorId) {
+        assignSwimlane(user, processId, swimlaneName, executorLogic.getExecutor(user, executorId));
+    }
+
     public void activateProcess(User user, Long processId) {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException("Only administrator can activate process");

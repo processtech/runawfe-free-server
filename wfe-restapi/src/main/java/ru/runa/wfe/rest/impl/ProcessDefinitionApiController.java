@@ -17,22 +17,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.ProcessDefinitionLogic;
-import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.dto.WfNode;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.rest.auth.AuthUser;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest;
+import ru.runa.wfe.rest.dto.InteractionDto;
+import ru.runa.wfe.rest.dto.InteractionMapper;
+import ru.runa.wfe.rest.dto.NodeGraphElementDto;
+import ru.runa.wfe.rest.dto.NodeGraphElementMapper;
 import ru.runa.wfe.rest.dto.PagedList;
 import ru.runa.wfe.rest.dto.SwimlaneDefinitionDto;
 import ru.runa.wfe.rest.dto.SwimlaneDefinitionMapper;
+import ru.runa.wfe.rest.dto.UserTypeDto;
+import ru.runa.wfe.rest.dto.UserTypeMapper;
+import ru.runa.wfe.rest.dto.VariableDefinitionDto;
+import ru.runa.wfe.rest.dto.VariableDefinitionMapper;
 import ru.runa.wfe.rest.dto.WfDefinitionDto;
 import ru.runa.wfe.rest.dto.WfDefinitionMapper;
-import ru.runa.wfe.var.UserType;
-import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.rest.dto.WfNodeDto;
+import ru.runa.wfe.rest.dto.WfNodeMapper;
 
 @RestController
 @RequestMapping("/definition/")
@@ -43,111 +48,107 @@ public class ProcessDefinitionApiController {
     private ProcessDefinitionLogic processDefinitionLogic;
 
     @PutMapping()
-    public WfDefinitionDto deployDefinition(@AuthenticationPrincipal AuthUser authUser, byte[] par,
-            List<String> categories, @RequestParam(required = false) Integer secondsBeforeArchiving) {
-        WfDefinition definition = processDefinitionLogic.deployProcessDefinition(authUser.getUser(), par, categories, secondsBeforeArchiving);
-        return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
+    public WfDefinitionDto deploy(@AuthenticationPrincipal AuthUser authUser, @RequestBody byte[] par,
+            @RequestParam List<String> categories, @RequestParam(required = false) Integer secondsBeforeArchiving) {
+        return Mappers.getMapper(WfDefinitionMapper.class).map(
+                processDefinitionLogic.deployProcessDefinition(authUser.getUser(), par, categories, secondsBeforeArchiving));
     }
 
     @PatchMapping("{id}/redeploy")
-    public WfDefinitionDto redeployDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, byte[] par,
-            List<String> categories, @RequestParam(required = false) Integer secondsBeforeArchiving) {
-        WfDefinition definition = processDefinitionLogic.redeployProcessDefinition(authUser.getUser(), id, par, categories, secondsBeforeArchiving);
-        return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
+    public WfDefinitionDto redeploy(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody byte[] par,
+            @RequestParam List<String> categories, @RequestParam(required = false) Integer secondsBeforeArchiving) {
+        return Mappers.getMapper(WfDefinitionMapper.class).map(
+                processDefinitionLogic.redeployProcessDefinition(authUser.getUser(), id, par, categories, secondsBeforeArchiving));
     }
 
     @PatchMapping("{id}/update")
-    public WfDefinitionDto updateDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, byte[] par) {
-        WfDefinition definition = processDefinitionLogic.updateProcessDefinition(authUser.getUser(), id, par);
-        return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
+    public WfDefinitionDto update(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody byte[] par) {
+        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.updateProcessDefinition(authUser.getUser(), id, par));
     }
 
     @DeleteMapping()
-    public void undeployDefinition(@AuthenticationPrincipal AuthUser authUser, String name, Long version) {
+    public void undeploy(@AuthenticationPrincipal AuthUser authUser, String name, Long version) {
         processDefinitionLogic.undeployProcessDefinition(authUser.getUser(), name, version);
     }
 
     @GetMapping("{name}/latest")
-    public WfDefinitionDto getLatestDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
-        WfDefinition definition = processDefinitionLogic.getLatestProcessDefinition(authUser.getUser(), name);
-        return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
+    public WfDefinitionDto getLatest(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
+        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getLatestProcessDefinition(authUser.getUser(), name));
     }
 
     @GetMapping("{name}/version")
-    public WfDefinitionDto getDefinitionVersion(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name, Long version) {
-        WfDefinition definition = processDefinitionLogic.getProcessDefinitionVersion(authUser.getUser(), name, version);
-        return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
+    public WfDefinitionDto getVersion(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name, Long version) {
+        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinitionVersion(authUser.getUser(), name, version));
     }
 
     @GetMapping("{name}/history")
-    public List<WfDefinitionDto> getDefinitionHistory(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
-        List<WfDefinition> definitions = processDefinitionLogic.getProcessDefinitionHistory(authUser.getUser(), name);
-        return Mappers.getMapper(WfDefinitionMapper.class).map(definitions);
+    public List<WfDefinitionDto> getHistory(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
+        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinitionHistory(authUser.getUser(), name));
     }
 
     @GetMapping("{id}")
     public WfDefinitionDto getDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        WfDefinition definition = processDefinitionLogic.getProcessDefinition(authUser.getUser(), id);
-        return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
+        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinition(authUser.getUser(), id));
     }
 
     @GetMapping("{id}/node")
-    public WfNode getNode(@PathVariable Long id, String nodeId) {
+    public WfNodeDto getNode(@PathVariable Long id, String nodeId) {
         Node node = processDefinitionLogic.getDefinition(id).getNode(nodeId);
-        return (node != null) ? new WfNode(node) : null;
+        return (node != null) ? Mappers.getMapper(WfNodeMapper.class).map(new WfNode(node)) : null;
     }
 
     @GetMapping("{id}/file")
-    public byte[] getDefinitionFile(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String fileName) {
+    public byte[] getFile(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String fileName) {
         return processDefinitionLogic.getFile(authUser.getUser(), id, fileName);
     }
 
     @GetMapping("{id}/graph")
-    public byte[] getDefinitionGraph(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public byte[] getGraph(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) String subprocessId) {
         return processDefinitionLogic.getGraph(authUser.getUser(), id, subprocessId);
     }
 
     @GetMapping("{id}/graph/elements")
-    public List<NodeGraphElement> getDefinitionGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public List<NodeGraphElementDto> getGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) String subprocessId) {
-        return processDefinitionLogic.getProcessDefinitionGraphElements(authUser.getUser(), id, subprocessId);
+        return Mappers.getMapper(NodeGraphElementMapper.class).map(
+                processDefinitionLogic.getProcessDefinitionGraphElements(authUser.getUser(), id, subprocessId));
     }
 
     @GetMapping("{id}/interaction")
-    public Interaction getStartInteraction(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        return processDefinitionLogic.getStartInteraction(authUser.getUser(), id);
+    public InteractionDto getStartInteraction(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        return Mappers.getMapper(InteractionMapper.class).map(processDefinitionLogic.getStartInteraction(authUser.getUser(), id));
     }
 
     @GetMapping("{id}/interaction/{nodeId}")
-    public Interaction getTaskNodeInteraction(@PathVariable Long id, @PathVariable String nodeId) {
-        return processDefinitionLogic.getDefinition(id).getInteractionNotNull(nodeId);
+    public InteractionDto getTaskNodeInteraction(@PathVariable Long id, @PathVariable String nodeId) {
+        return Mappers.getMapper(InteractionMapper.class).map(processDefinitionLogic.getDefinition(id).getInteractionNotNull(nodeId));
     }
 
-    @GetMapping("{id}/swimlane")
-    public List<SwimlaneDefinitionDto> getSwimlaneDefinitions(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        List<SwimlaneDefinition> definitions = processDefinitionLogic.getSwimlanes(authUser.getUser(), id);
-        return Mappers.getMapper(SwimlaneDefinitionMapper.class).map(definitions);
+    @GetMapping("{id}/swimlanes")
+    public List<SwimlaneDefinitionDto> getSwimlanes(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        return Mappers.getMapper(SwimlaneDefinitionMapper.class).map(processDefinitionLogic.getSwimlanes(authUser.getUser(), id));
+    }
+
+    @GetMapping("{id}/userTypes")
+    public List<UserTypeDto> getUserTypes(@PathVariable Long id) {
+        return Mappers.getMapper(UserTypeMapper.class).map(processDefinitionLogic.getDefinition(id).getUserTypes());
     }
 
     @GetMapping("{id}/userType")
-    public List<UserType> getUserTypes(@PathVariable Long id) {
-        return processDefinitionLogic.getDefinition(id).getUserTypes();
+    public UserTypeDto getUserType(@PathVariable Long id, String name) {
+        return Mappers.getMapper(UserTypeMapper.class).map(processDefinitionLogic.getDefinition(id).getUserType(name));
     }
 
-    @GetMapping("{id}/userType/{name}")
-    public UserType getUserType(@PathVariable Long id, @PathVariable String name) {
-        return processDefinitionLogic.getDefinition(id).getUserType(name);
+    @GetMapping("{id}/variables")
+    public List<VariableDefinitionDto> getVariableDefinitions(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        return Mappers.getMapper(VariableDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinitionVariables(authUser.getUser(), id));
     }
 
     @GetMapping("{id}/variable")
-    public List<VariableDefinition> getVariableDefinitions(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        return processDefinitionLogic.getProcessDefinitionVariables(authUser.getUser(), id);
-    }
-
-    @GetMapping("{id}/variable/{name}")
-    public VariableDefinition getVariableDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @PathVariable String name) {
-        return processDefinitionLogic.getProcessDefinitionVariable(authUser.getUser(), id, name);
+    public VariableDefinitionDto getVariableDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String name) {
+        return Mappers.getMapper(VariableDefinitionMapper.class).map(
+                processDefinitionLogic.getProcessDefinitionVariable(authUser.getUser(), id, name));
     }
 
     @PostMapping("list")
