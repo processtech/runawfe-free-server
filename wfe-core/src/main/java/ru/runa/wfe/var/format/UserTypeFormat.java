@@ -3,6 +3,8 @@ package ru.runa.wfe.var.format;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.logging.Log;
@@ -93,6 +95,24 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
             }
         }
         return map;
+    }
+
+    @Override
+    protected Object convertToExcelCellValue(Object value) {
+        UserTypeMap userTypeMap = (UserTypeMap) value;
+        List<Object> result = new ArrayList<>();
+        Map<Object, Object> map = Maps.newLinkedHashMap();
+        for (VariableDefinition attributeDefinition : userType.getAttributes()) {
+            VariableFormat attributeFormat = FormatCommons.create(attributeDefinition);
+            Object attributeValue = userTypeMap.get(attributeDefinition.getName());
+            if (attributeValue != null) {
+                attributeValue = TypeConversionUtil.convertTo(attributeFormat.getJavaClass(), attributeValue);
+                attributeValue = attributeFormat.convertToExcelCellValue(attributeValue);
+                map.put(attributeDefinition.getName(), attributeValue);
+                result.add(attributeDefinition.getName() + ": " + attributeValue);
+            }
+        }
+        return result;
     }
 
     @Override

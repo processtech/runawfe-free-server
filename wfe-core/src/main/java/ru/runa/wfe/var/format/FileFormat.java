@@ -54,6 +54,11 @@ public class FileFormat extends VariableFormat implements VariableDisplaySupport
     }
 
     @Override
+    protected Object convertToExcelCellValue(Object value) {
+        return convertToStringValue(value);
+    }
+
+    @Override
     protected Object convertToJSONValue(Object value) {
         FileVariable fileVariable = (FileVariable) value;
         JSONObject jsonObject = new JSONObject();
