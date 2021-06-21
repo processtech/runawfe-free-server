@@ -29,6 +29,13 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
                 .orderBy(cr.message.createDate.desc()).fetch();
     }
 
+    public List<ChatMessage> getNewMessagesByActor(Actor actor) {
+        QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
+        QChatMessage cm = QChatMessage.chatMessage;
+        return queryFactory.select(cm).from(cr).join(cr.message, cm).where(cr.executor.eq(actor).and(cr.readDate.isNull()))
+                .orderBy(cm.createDate.desc()).fetch();
+    }
+
     public ChatMessage save(ChatMessage message, Set<Actor> recipients) {
         ChatMessage result = create(message);
         for (Actor recipient : recipients) {

@@ -28,8 +28,6 @@ import static com.google.common.collect.Sets.newHashSet;
 @RunWith(MockitoJUnitRunner.class)
 public class SessionMessageSenderTest {
     @Mock
-    private MailMessageSender mailMessageSender;
-    @Mock
     private ObjectMapper chatObjectMapper;
     @InjectMocks
     private SessionMessageSender sessionMessageSender;
@@ -65,7 +63,6 @@ public class SessionMessageSenderTest {
         sessionMessageSender.handleMessage(dto, sessionsSet);
 
         verify(basic).sendText(eq("testContent"));
-        verify(mailMessageSender).handleMessage(notNull(), anySet());
     }
 
     @Test
@@ -87,8 +84,6 @@ public class SessionMessageSenderTest {
         when(chatObjectMapper.writeValueAsString(dto)).thenReturn("errorTest").thenReturn("testContent");
 
         sessionMessageSender.handleMessage(dto, sessionsSet);
-
-        verifyZeroInteractions(mailMessageSender);
     }
 
     @Test
@@ -99,7 +94,6 @@ public class SessionMessageSenderTest {
         sessionMessageSender.handleMessage(dto, null);
 
         verifyZeroInteractions(basic);
-        verify(mailMessageSender).handleMessage(notNull(), eq(emptySet()));
     }
 
     @Test
@@ -110,6 +104,5 @@ public class SessionMessageSenderTest {
         sessionMessageSender.handleMessage(dto, emptySet());
 
         verifyZeroInteractions(basic);
-        verify(mailMessageSender).handleMessage(notNull(), eq(emptySet()));
     }
 }
