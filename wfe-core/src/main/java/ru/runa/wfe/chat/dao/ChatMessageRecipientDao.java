@@ -23,7 +23,7 @@ public class ChatMessageRecipientDao extends GenericDao<ChatMessageRecipient> {
         return queryFactory.select(cr.count()).from(cr).where(cr.actor.eq(user).and(cr.readDate.isNull())).fetchCount();
     }
 
-    public void deleteRecipientsByMessageId(Long id) {
+    public void deleteByMessageId(Long id) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         queryFactory.delete(cr).where(cr.message.id.eq(id)).execute();
     }

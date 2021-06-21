@@ -108,8 +108,8 @@ public class ChatLogic extends WfCommonLogic {
         final ChatMessage message = chatMessageDao.getNotNull(request.getMessageId());
         final Set<Actor> recipients = getRecipientsByMessageId(message.getId());
         fileDao.deleteByMessage(message);
-        recipientDao.deleteRecipientsByMessageId(message.getId());
-        chatMessageDao.deleteMessage(message.getId());
+        recipientDao.deleteByMessageId(message.getId());
+        chatMessageDao.delete(message.getId());
         return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()), recipients);
     }
 

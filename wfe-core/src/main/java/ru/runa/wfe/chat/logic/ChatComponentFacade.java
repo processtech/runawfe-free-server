@@ -46,8 +46,8 @@ public class ChatComponentFacade {
     public void deleteByProcessId(long processId) {
         for (ChatMessage message : messageDao.getByProcessId(processId)) {
             fileDao.deleteByMessage(message);
-            recipientDao.deleteRecipientsByMessageId(message.getId());
-            messageDao.deleteMessage(message.getId());
+            recipientDao.deleteByMessageId(message.getId());
+            messageDao.delete(message.getId());
         }
     }
 }
