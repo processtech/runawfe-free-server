@@ -108,11 +108,9 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
             int i = 0;
             for (TdBuilder builder : builders) {
                 String string = builder.getValue(object, env);
-                // TODO strings instead of native types
                 CellUtil.createCell(row, i++, string);
             }
         }
-
     }
 
     private static class EnvImpl extends EnvBaseImpl {
