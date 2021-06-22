@@ -32,7 +32,7 @@ public class ChatMessageDao extends GenericDao<ChatMessage> {
     public List<ChatMessage> getNewMessagesByActor(Actor actor) {
         QChatMessageRecipient cr = QChatMessageRecipient.chatMessageRecipient;
         QChatMessage cm = QChatMessage.chatMessage;
-        return queryFactory.select(cm).from(cr).join(cr.message, cm).where(cr.executor.eq(actor).and(cr.readDate.isNull()))
+        return queryFactory.select(cm).from(cr).join(cr.message, cm).where(cr.actor.eq(actor).and(cr.readDate.isNull()))
                 .orderBy(cm.createDate.desc()).fetch();
     }
 
