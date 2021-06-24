@@ -11,4 +11,11 @@ public interface WfGroupDtoMapper {
     WfGroupDto map(Group group);
 
     List<WfGroupDto> map(List<Group> groups);
+
+    default Group map(WfGroupDto dto) {
+        Group group = new Group(dto.getName(), dto.getDescription());
+        group.setId(dto.getId());
+        group.setFullName(dto.getFullName());
+        return group;
+    }
 }
