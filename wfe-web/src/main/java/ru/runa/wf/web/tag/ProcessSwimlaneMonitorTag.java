@@ -55,7 +55,6 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
         if (WebResources.isUpdateProcessSwimlanesEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
             Table table = new Table();
             tdFormElement.addElement(table);
-            table.addAttribute("width", "100%");
 
             TR updateVariableTR = new TR();
             table.addElement(updateVariableTR);
@@ -64,7 +63,7 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
             params.put("id", getIdentifiableId());
             String updateSwimlaneUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_SWIMLANES, params, pageContext, PortletUrlType.Render);
             A a = new A(updateSwimlaneUrl, MessagesProcesses.LINK_UPDATE_SWIMLANE.message(pageContext));
-            updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
+            updateVariableTR.addElement(new TD(a));
         }
         List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(getUser(), getIdentifiableId());
         List<String> headerNames = Lists.newArrayList();
