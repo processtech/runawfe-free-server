@@ -1,6 +1,5 @@
 package ru.runa.wfe.definition.validation;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.logging.Log;
@@ -41,7 +40,7 @@ public class DefinitionUpdateValidatorManager {
         timeMeasurer.jobStarted();
 
         int processesLimit = SystemProperties.getDefinitionCompatibilityCheckProcessesLimit();
-        if (processesLimit == -1) {
+        if (processesLimit == -1 || processesLimit >= processes.size()) {
             validate(oldDefinition, newDefinition, processes);
         } else {
             validate(oldDefinition, newDefinition, processes.subList(0, processesLimit));
