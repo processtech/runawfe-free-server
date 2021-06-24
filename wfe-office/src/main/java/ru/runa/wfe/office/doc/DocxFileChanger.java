@@ -56,7 +56,8 @@ public class DocxFileChanger {
             if (bodyElement instanceof XWPFTable) {
                 XWPFTable table = (XWPFTable) bodyElement;
                 List<XWPFTableRow> rows = table.getRows();
-                for (XWPFTableRow row : Lists.newArrayList(rows)) {
+                for (int i = 0; i < rows.size(); i++) {
+                    XWPFTableRow row = rows.get(i);
                     List<XWPFTableCell> cells = row.getTableCells();
                     // try to expand cells by column
                     TableExpansionOperation tableExpansionOperation = new TableExpansionOperation(row);
@@ -74,6 +75,14 @@ public class DocxFileChanger {
                         String text0 = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, 0);
                         if (!java.util.Objects.equals(text0, cell.getText())) {
                             DocxUtils.setCellText(cell, text0);
+                        }
+                    }
+                    boolean wholeRowIsEmpty = true;
+                    for (int columnIndex = 0; columnIndex < cells.size(); columnIndex++) {
+                        final XWPFTableCell cell = cells.get(columnIndex);
+                        if (cell.getText() != null && !cell.getText().trim().isEmpty()) {
+                            wholeRowIsEmpty = false;
+                            break;
                         }
                     }
                     if (tableExpansionOperation.getRows() == 0) {
@@ -105,6 +114,9 @@ public class DocxFileChanger {
                                 }
                             }
                         }
+                    }
+                    if (wholeRowIsEmpty) {
+                        table.removeRow(i);
                     }
                 }
             }
