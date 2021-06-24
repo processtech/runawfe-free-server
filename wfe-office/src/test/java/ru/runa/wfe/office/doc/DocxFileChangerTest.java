@@ -70,6 +70,9 @@ public class DocxFileChangerTest extends Assert {
         actors.put("2", new Actor("borisov", "", "Borisov B.B", 333L));
         actors.put("3", new Actor("denisov", "", "Denisov Alexey", 555L));
         data.put("actorMap", createVariable("actorMap", createMapFormat(StringFormat.class, ActorFormat.class), actors));
+        ListFormat emptyListFormat = new ListFormat();
+        emptyListFormat.setComponentClassNames(new String[] { "UserType" });
+        data.put("emptyList", createVariable("emptyList", emptyListFormat, Lists.newArrayList()));
         testDocx(true, "tables.docx", data);
     }
 
