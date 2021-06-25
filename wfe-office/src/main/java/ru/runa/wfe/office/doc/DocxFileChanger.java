@@ -77,14 +77,6 @@ public class DocxFileChanger {
                             DocxUtils.setCellText(cell, text0);
                         }
                     }
-                    boolean wholeRowIsEmpty = true;
-                    for (int columnIndex = 0; columnIndex < cells.size(); columnIndex++) {
-                        final XWPFTableCell cell = cells.get(columnIndex);
-                        if (cell.getText() != null && !cell.getText().trim().isEmpty()) {
-                            wholeRowIsEmpty = false;
-                            break;
-                        }
-                    }
                     if (tableExpansionOperation.getRows() == 0) {
                         for (XWPFTableCell cell : cells) {
                             DocxUtils.replaceInParagraphs(config, variableProvider, cell.getParagraphs());
@@ -114,9 +106,6 @@ public class DocxFileChanger {
                                 }
                             }
                         }
-                    }
-                    if (wholeRowIsEmpty) {
-                        table.removeRow(i);
                     }
                 }
             }
