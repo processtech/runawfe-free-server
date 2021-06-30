@@ -33,7 +33,8 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     protected ProcessDefinitionVersion processDefinitionVersion;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
     protected StartNode startNode;
-    protected final List<Node> nodes = Lists.newArrayList();
+    protected final List<Node> nodesList = Lists.newArrayList();
+    protected final Map<String, Node> nodesMap = Maps.newHashMap();
     protected final List<SwimlaneDefinition> swimlaneDefinitions = Lists.newArrayList();
     protected final Map<String, SwimlaneDefinition> swimlaneDefinitionsMap = Maps.newHashMap();
     protected final Map<String, Interaction> interactions = Maps.newHashMap();
@@ -302,7 +303,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     }
 
     public List<Node> getNodes(boolean withEmbeddedSubprocesses) {
-        List<Node> result = Lists.newArrayList(nodes);
+        List<Node> result = Lists.newArrayList(nodesList);
         if (withEmbeddedSubprocesses) {
             for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
                 result.addAll(subprocessDefinition.getNodes(withEmbeddedSubprocesses));
@@ -313,7 +314,10 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
 
     public Node addNode(Node node) {
         Preconditions.checkArgument(node != null, "can't add a null node to a processdefinition");
-        nodes.add(node);
+        nodesList.add(node);
+        if (nodesMap.put(node.getNodeId(), node) != null) {
+            throw new InvalidDefinitionException(getName(), "found duplicated node " + node.getNodeId());
+        }
         node.parsedProcessDefinition = this;
         if (node instanceof StartNode) {
             if (startNode != null) {
@@ -324,21 +328,18 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
         return node;
     }
 
-    public void removeNode(Node node) {
-        nodes.remove(node);
-    }
-
     public Node getNode(String id) {
         Preconditions.checkNotNull(id);
-        for (Node node : nodes) {
-            if (id.equals(node.getNodeId())) {
-                return node;
-            }
+        Node node = nodesMap.get(id);
+        if (node != null) {
+            return node;
         }
-        for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
-            Node node = subprocessDefinition.getNode(id);
-            if (node != null) {
-                return node;
+        if (id.startsWith(FileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
+            for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
+                node = subprocessDefinition.getNode(id);
+                if (node != null) {
+                    return node;
+                }
             }
         }
         return null;
@@ -351,38 +352,6 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
             return node;
         }
         throw new InternalApplicationException("node '" + id + "' not found");
-    }
-
-    public GraphElement getGraphElement(String id) {
-        for (Node node : nodes) {
-            if (id.equals(node.getNodeId())) {
-                return node;
-            }
-            Action action = node.getAction(id);
-            if (action != null) {
-                return action;
-            }
-        }
-        for (SwimlaneDefinition swimlaneDefinition : swimlaneDefinitions) {
-            if (id.equals(swimlaneDefinition.getNodeId())) {
-                return swimlaneDefinition;
-            }
-        }
-        for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
-            GraphElement graphElement = subprocessDefinition.getGraphElement(id);
-            if (graphElement != null) {
-                return graphElement;
-            }
-        }
-        return null;
-    }
-
-    public GraphElement getGraphElementNotNull(String id) {
-        GraphElement graphElement = getGraphElement(id);
-        if (graphElement == null) {
-            throw new InternalApplicationException("element '" + id + "' not found");
-        }
-        return graphElement;
     }
 
     @Override
@@ -407,6 +376,15 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
 
     public SwimlaneDefinition getSwimlane(String swimlaneName) {
         return swimlaneDefinitionsMap.get(swimlaneName);
+    }
+
+    public SwimlaneDefinition getSwimlaneById(String id) {
+        for (SwimlaneDefinition swimlaneDefinition : swimlaneDefinitions) {
+            if (Objects.equal(id, swimlaneDefinition.getNodeId())) {
+                return swimlaneDefinition;
+            }
+        }
+        return null;
     }
 
     public SwimlaneDefinition getSwimlaneNotNull(String swimlaneName) {
@@ -444,7 +422,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
 
     public List<String> getEmbeddedSubprocessNodeIds() {
         List<String> result = Lists.newArrayList();
-        for (Node node : nodes) {
+        for (Node node : nodesList) {
             if (node instanceof SubprocessNode && ((SubprocessNode) node).isEmbedded()) {
                 result.add(node.getNodeId());
             }
@@ -453,7 +431,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     }
 
     public String getEmbeddedSubprocessNodeId(String subprocessName) {
-        for (Node node : nodes) {
+        for (Node node : nodesList) {
             if (node instanceof SubprocessNode) {
                 SubprocessNode subprocessNode = (SubprocessNode) node;
                 if (subprocessNode.isEmbedded() && Objects.equal(subprocessName, subprocessNode.getSubProcessName())) {
@@ -502,7 +480,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     }
 
     public void mergeWithEmbeddedSubprocesses() {
-        for (Node node : Lists.newArrayList(nodes)) {
+        for (Node node : Lists.newArrayList(nodesList)) {
             if (node instanceof SubprocessNode) {
                 SubprocessNode subprocessNode = (SubprocessNode) node;
                 if (subprocessNode.isEmbedded()) {

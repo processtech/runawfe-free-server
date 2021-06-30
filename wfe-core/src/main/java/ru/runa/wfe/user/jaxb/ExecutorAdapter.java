@@ -1,9 +1,11 @@
 package ru.runa.wfe.user.jaxb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.beanutils.BeanUtils;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.user.Executor;
 
 @CommonsLog
@@ -24,7 +26,21 @@ public class ExecutorAdapter extends XmlAdapter<WfExecutor, Executor> {
 
     @Override
     public Executor unmarshal(WfExecutor executor) {
-        return ApplicationContextFactory.getExecutorDao().getExecutor(executor.getId());
+        TransactionalExecutorLoader loader = new TransactionalExecutorLoader(executor.getId());
+        loader.executeInTransaction(true);
+        return loader.executor;
+    }
+
+    @RequiredArgsConstructor
+    private class TransactionalExecutorLoader extends TransactionalExecutor {
+        final Long executorId;
+        Executor executor;
+
+        @Override
+        protected void doExecuteInTransaction() throws Exception {
+            executor = ApplicationContextFactory.getExecutorDao().getExecutor(executorId);
+        }
+
     }
 
 }

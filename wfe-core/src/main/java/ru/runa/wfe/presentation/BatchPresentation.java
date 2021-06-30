@@ -1,10 +1,12 @@
 package ru.runa.wfe.presentation;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -17,20 +19,13 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlTransient;
-
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import ru.runa.wfe.commons.ArraysCommons;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
+import ru.runa.wfe.presentation.jaxb.BatchPresentationAdapter;
 
 /**
  * Presentation of objects collection, contains sorting rules, filter rules and so on.
@@ -38,7 +33,7 @@ import com.google.common.collect.Lists;
 @Entity
 @Table(name = "BATCH_PRESENTATION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlJavaTypeAdapter(BatchPresentationAdapter.class)
 public class BatchPresentation implements Cloneable, Serializable {
     private static final long serialVersionUID = 6631653373163613071L;
 
@@ -55,8 +50,6 @@ public class BatchPresentation implements Cloneable, Serializable {
     // TODO: only this field or 'BatchPresentationFields fields' must stay.
     // One of field must be removed.
     private byte[] fieldsData;
-    @XmlTransient
-    // TODO: refactor to compatible with WebServices format in jboss7
     private BatchPresentationFields fields;
     /**
      * Helper to hold fields set (such us fields to display, sort and so on).

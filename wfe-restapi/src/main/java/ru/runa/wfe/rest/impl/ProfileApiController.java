@@ -1,5 +1,6 @@
 package ru.runa.wfe.rest.impl;
 
+import java.util.List;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,8 +24,6 @@ import ru.runa.wfe.rest.dto.WfUserDtoMapper;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/profile")
@@ -57,13 +56,13 @@ public class ProfileApiController {
     private List<WfGroupDto> getGroupsDto(User user) {
         WfGroupDtoMapper groupDtoMapper = Mappers.getMapper(WfGroupDtoMapper.class);
         List<Group> groups = executorLogic.getExecutorGroups(
-                user, user.getActor(), BatchPresentationFactory.GROUPS.createDefault(), false);
+user, user.getActor(), BatchPresentationFactory.GROUPS.createNonPaged(), false);
         return groupDtoMapper.map(groups);
     }
 
     private List<WfRelationDto> getRelations(User user) {
         WfRelationDtoMapper relationDtoMapper = Mappers.getMapper(WfRelationDtoMapper.class);
-        List<Relation> relations = relationLogic.getRelations(user, BatchPresentationFactory.RELATIONS.createDefault());
+        List<Relation> relations = relationLogic.getRelations(user, BatchPresentationFactory.RELATIONS.createNonPaged());
         return relationDtoMapper.map(relations);
     }
 }

@@ -15,6 +15,9 @@ public class MessagesOther {
     public static final StrutsMessage HISTORY_SYSTEM_PH_PI = new StrutsMessage("history.system.placeholders.process");
     public static final StrutsMessage HISTORY_SYSTEM_PH_PD = new StrutsMessage("history.system.placeholders.process_definition");
     public static final StrutsMessage HISTORY_SYSTEM_PH_VERSION = new StrutsMessage("history.system.placeholders.version");
+    
+    public static final StrutsMessage PROCESS_LOG_CLEAN_DESCRIPTION = new StrutsMessage("process_log_clean.description");
+    public static final StrutsMessage PROCESS_LOG_CLEAN_BEFORE_DATE = new StrutsMessage("process_log_clean.placeholders.date");
 
     public static final StrutsMessage LABEL_SHOW_HISTORY = new StrutsMessage("label.manage_history");
     public static final StrutsMessage LABEL_HISTORY_DATE = new StrutsMessage("label.history.date");
@@ -34,6 +37,9 @@ public class MessagesOther {
     public static final StrutsMessage LABEL_DATAFILE_UPLOADONLY = new StrutsMessage("managesystem.datafile.uploadonly.label");
     public static final StrutsMessage LABEL_DATAFILE_CLEARBEFOREUPLOAD = new StrutsMessage("managesystem.datafile.clearbeforeupload.label");
     public static final StrutsMessage TITLE_DATAFILE_ACTION = new StrutsMessage("managesystem.datafile.action.title");
+    public static final StrutsMessage LABEL_DATAFILE_DO_NOT_CHANGE_INTERNAL_STORAGE_PATH = new StrutsMessage("managesystem.datafile.do.not.change.internal.storage.path.label");
+    public static final StrutsMessage LABEL_DATAFILE_CHANGE_INTERNAL_STORAGE_PATH = new StrutsMessage("managesystem.datafile.change.internal.storage.path.label");
+    public static final StrutsMessage CHANGE_INTERNAL_STORAGE_PATH_ACTION = new StrutsMessage("managesystem.datafile.action.change.internal.storage.path");
 
     public static final StrutsMessage LINK_DROP_SETTINGS = new StrutsMessage("link.drop_settings");
     public static final StrutsMessage EXECUTOR_STATE_DONT_UPDATE = new StrutsMessage("executor.state.dont.update");

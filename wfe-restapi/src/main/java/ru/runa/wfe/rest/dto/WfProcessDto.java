@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class WfProcessDto {
     private Long id;
-    private String name;
+    private String definitionName;
     private String executionStatus;
     private Date startDate;
     private Date endDate; 

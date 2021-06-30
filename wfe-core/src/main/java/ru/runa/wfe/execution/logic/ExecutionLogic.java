@@ -38,7 +38,6 @@ import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
-import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.error.ProcessError;
@@ -48,6 +47,7 @@ import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
 import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentProcessClassPresentation;
@@ -130,6 +130,9 @@ public class ExecutionLogic extends WfCommonLogic {
     private CurrentProcessDao currentProcessDao;
     @Autowired
     private JobDao jobDao;
+    @Autowired
+    private DefinitionUpdateValidatorManager definitionVersionValidatorManager;
+
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -240,7 +243,7 @@ public class ExecutionLogic extends WfCommonLogic {
             Node node = parentProcessDefinition.getNodeNotNull(parentNodeProcess.getNodeId());
             Synchronizable synchronizable = (Synchronizable) node;
             if (!synchronizable.isAsync()) {
-                log.info("Signalling to parent " + parentNodeProcess.getProcess());
+                log.debug("Signalling to parent " + parentNodeProcess.getProcess());
                 endSubprocessSignalToken(parentNodeProcess.getParentToken(), executionContext);
             }
         }
@@ -251,26 +254,7 @@ public class ExecutionLogic extends WfCommonLogic {
         jobDao.deleteByProcess(process);
         // flush just created tasks
         ApplicationContextFactory.getTaskDao().flushPendingChanges();
-        boolean activeSuperProcessExists = isExistNotEndedParentProcessInHierarchy(executionContext);
-        for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(process)) {
-            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNodeNotNull(task.getNodeId());
-            if (taskNode.isAsync()) {
-                switch (taskNode.getCompletionMode()) {
-                    case NEVER:
-                        continue;
-                    case ON_MAIN_PROCESS_END:
-                        if (activeSuperProcessExists) {
-                            continue;
-                        }
-                    case ON_PROCESS_END:
-                }
-            }
-            task.end(executionContext, taskNode, taskCompletionInfo);
-        }
-        if (!activeSuperProcessExists) {
-            log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
-            endSubprocessAndTasksOnMainProcessEndRecursively(process, executionContext, canceller);
-        }
+        endAsyncActivitiesRecursively(executionContext, taskCompletionInfo, canceller);
         for (CurrentSwimlane swimlane : ApplicationContextFactory.getCurrentSwimlaneDao().findByProcess(process)) {
             if (swimlane.getExecutor() instanceof TemporaryGroup) {
                 swimlane.setExecutor(null);
@@ -299,57 +283,76 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    private boolean isExistNotEndedParentProcessInHierarchy(ExecutionContext executionContext) {
-        CurrentProcess process = executionContext.getCurrentProcess();
-        CurrentNodeProcess parentNodeProcess = executionContext.getCurrentParentNodeProcess();
-        boolean activeSuperProcessExists = true;
-        if (parentNodeProcess == null) {
-            activeSuperProcessExists = false;
-        } else {
-            List<Long> processIds = ProcessHierarchyUtils.getProcessIds(process.getHierarchyIds());
-            for (Long processId : processIds) {
-                if (currentProcessDao.get(processId).hasEnded()) {
-                    if (Objects.equal(process.getId(), processId)) {
-                        activeSuperProcessExists = false;
-                        break;
-                    }
-                } else {
-                    break;
+    protected void endAsyncActivitiesRecursively(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo, Actor canceller) {
+        boolean mainProcessForAsyncActivitiesIsActive = isMainProcessForAsyncActivitiesIsActive(executionContext);
+        endAsyncTasks(executionContext, taskCompletionInfo, mainProcessForAsyncActivitiesIsActive);
+        endAsyncSubprocesses(executionContext, canceller, mainProcessForAsyncActivitiesIsActive);
+        // we should handle case of active subprocesses in ended ones
+        for (CurrentProcess subProcess : executionContext.getCurrentSubprocessesRecursively()) {
+            if (subProcess.hasEnded()) {
+                ParsedProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+                endAsyncActivitiesRecursively(subExecutionContext, taskCompletionInfo, canceller);
+            }
+        }
+    }
+
+    private boolean isMainProcessForAsyncActivitiesIsActive(ExecutionContext executionContext) {
+        final List<Long> processIdsReversed = Lists.newArrayList(ProcessHierarchyUtils.getProcessIds(executionContext.getCurrentProcess()
+                .getHierarchyIds()));
+        Collections.reverse(processIdsReversed);
+        for (Long processId : processIdsReversed) {
+            CurrentNodeProcess nodeProcess = ApplicationContextFactory.getCurrentNodeProcessDao().findBySubProcessId(processId);
+            if (nodeProcess != null) {
+                ParsedProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(
+                        nodeProcess.getProcess());
+                SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNodeNotNull(nodeProcess.getNodeId());
+                if (subprocessNode.isAsync() && subprocessNode.getCompletionMode() == AsyncCompletionMode.NEVER) {
+                    return !nodeProcess.getSubProcess().hasEnded();
                 }
             }
         }
-        return activeSuperProcessExists;
+        Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(executionContext.getCurrentProcess().getHierarchyIds());
+        return !ApplicationContextFactory.getCurrentProcessDao().get(rootProcessId).hasEnded();
     }
 
-    private void endSubprocessAndTasksOnMainProcessEndRecursively(CurrentProcess process, ExecutionContext executionContext, Actor canceller) {
-        List<CurrentProcess> subprocesses = executionContext.getCurrentSubprocesses();
-        if (subprocesses.size() > 0) {
-            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
-            for (CurrentProcess subProcess : subprocesses) {
-                ParsedProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
-                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
-
-                endSubprocessAndTasksOnMainProcessEndRecursively(process, subExecutionContext, canceller);
-
-                for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(subProcess)) {
-                    BaseTaskNode taskNode = (BaseTaskNode) subProcessDefinition.getNodeNotNull(task.getNodeId());
-                    if (taskNode.isAsync()) {
-                        switch (taskNode.getCompletionMode()) {
-                            case NEVER:
-                            case ON_PROCESS_END:
-                                continue;
-                            case ON_MAIN_PROCESS_END:
-                                task.end(subExecutionContext, taskNode, TaskCompletionInfo.createForProcessEnd(process.getId()));
-                        }
+    private void endAsyncTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo, boolean mainProcessForAsyncActivitiesIsActive) {
+        for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(executionContext.getCurrentProcess())) {
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNodeNotNull(task.getNodeId());
+            if (taskNode.isAsync()) {
+                switch (taskNode.getCompletionMode()) {
+                case NEVER:
+                    continue;
+                case ON_MAIN_PROCESS_END:
+                    if (mainProcessForAsyncActivitiesIsActive) {
+                        continue;
                     }
+                case ON_PROCESS_END:
                 }
+                task.end(executionContext, taskNode, taskCompletionInfo);
+            }
+        }
+    }
 
-                if (!subProcess.hasEnded()) {
-                    CurrentNodeProcess nodeProcess = ApplicationContextFactory.getCurrentNodeProcessDao().findBySubProcessId(subProcess.getId());
-                    SubprocessNode subprocessNode = (SubprocessNode) executionContext.getParsedProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
-                    if (subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
-                        endProcess(subProcess, subExecutionContext, canceller);
+    private void endAsyncSubprocesses(ExecutionContext executionContext, Actor canceller, boolean mainProcessForAsyncActivitiesIsActive) {
+        for (CurrentProcess subProcess : executionContext.getCurrentSubprocesses()) {
+            if (!subProcess.hasEnded()) {
+                CurrentNodeProcess nodeProcess = ApplicationContextFactory.getCurrentNodeProcessDao().findBySubProcessId(subProcess.getId());
+                SubprocessNode subprocessNode = (SubprocessNode) executionContext.getParsedProcessDefinition()
+                        .getNodeNotNull(nodeProcess.getNodeId());
+                if (subprocessNode.isAsync()) {
+                    switch (subprocessNode.getCompletionMode()) {
+                    case NEVER:
+                        continue;
+                    case ON_MAIN_PROCESS_END:
+                        if (mainProcessForAsyncActivitiesIsActive) {
+                            continue;
+                        }
+                    case ON_PROCESS_END:
                     }
+                    ParsedProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                    ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+                    endProcess(subProcess, subExecutionContext, canceller);
                 }
             }
         }
@@ -498,22 +501,10 @@ public class ExecutionLogic extends WfCommonLogic {
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(parsedProcessDefinition));
         StartNode startNode = parsedProcessDefinition.getStartStateNotNull();
-        SwimlaneDefinition startTaskSwimlaneDefinition = parsedProcessDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
-        String startTaskSwimlaneName = startTaskSwimlaneDefinition.getName();
-        if (!variables.containsKey(startTaskSwimlaneName)) {
-            variables.put(startTaskSwimlaneName, user.getActor());
-        }
         validateVariables(null, variableProvider, parsedProcessDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
         CurrentProcess process = processFactory.startProcess(parsedProcessDefinition, variables, user.getActor(), transitionName, transientVariables);
-        Object predefinedProcessStarterObject = variables.get(startTaskSwimlaneDefinition.getName());
-        if (!Objects.equal(predefinedProcessStarterObject, user.getActor())) {
-            Executor predefinedProcessStarter = TypeConversionUtil.convertTo(Executor.class, predefinedProcessStarterObject);
-            ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process);
-            CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, startTaskSwimlaneDefinition);
-            swimlane.assignExecutor(executionContext, predefinedProcessStarter, true);
-        }
         log.info(process + " was successfully started by " + user);
         return process.getId();
     }
@@ -623,14 +614,19 @@ public class ExecutionLogic extends WfCommonLogic {
             );
         }
         ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
-        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.getByNameAndVersion(dwv.processDefinition.getName(), newVersion);
+        ProcessDefinitionWithVersion nextDwv = processDefinitionDao.getByNameAndVersion(dwv.processDefinition.getName(), newVersion);
+        if (Objects.equal(newVersion, dwv.processDefinitionVersion.getVersion())) {
+            return 0;
+        }
+        definitionVersionValidatorManager.validate(getDefinition(dwv.processDefinitionVersion.getId()),
+                getDefinition(nextDwv.processDefinitionVersion.getId()));
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(dwv.processDefinition.getName());
         filter.setDefinitionVersion(dwv.processDefinitionVersion.getVersion());
         filter.setFinished(false);
         List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
         for (CurrentProcess process : processes) {
-            process.setDefinitionVersion(nextDWV.processDefinitionVersion);
+            process.setDefinitionVersion(nextDwv.processDefinitionVersion);
             currentProcessDao.update(process);
             processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION,
                     dwv.processDefinitionVersion.getVersion(), newVersion), process, null);
@@ -652,8 +648,9 @@ public class ExecutionLogic extends WfCommonLogic {
         if (newVersion == dv.getVersion()) {
             return false;
         }
-        ProcessDefinitionWithVersion nextDWV = processDefinitionDao.getByNameAndVersion(dv.getDefinition().getName(), newVersion);
-        process.setDefinitionVersion(nextDWV.processDefinitionVersion);
+        ProcessDefinitionWithVersion nextDwv = processDefinitionDao.getByNameAndVersion(dv.getDefinition().getName(), newVersion);
+        definitionVersionValidatorManager.validate(getDefinition(dv.getId()), getDefinition(nextDwv.processDefinitionVersion.getId()), process);
+        process.setDefinitionVersion(nextDwv.processDefinitionVersion);
         currentProcessDao.update(process);
         processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),
                 newVersion), process, null);

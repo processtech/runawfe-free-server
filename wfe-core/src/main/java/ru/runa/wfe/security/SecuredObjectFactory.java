@@ -183,6 +183,8 @@ public class SecuredObjectFactory {
             }
         });
 
+        add(SecuredSingleton.ERRORS);
+
         add(SecuredObjectType.EXECUTOR, new Loader(SecuredObjectType.EXECUTOR) {
             @Override
             public SecuredObject findById(Long id) {

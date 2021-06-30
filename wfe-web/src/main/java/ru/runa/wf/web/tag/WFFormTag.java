@@ -1,8 +1,10 @@
 package ru.runa.wf.web.tag;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
@@ -11,11 +13,7 @@ import org.apache.ecs.html.Script;
 import org.apache.ecs.html.TD;
 import org.apache.struts.Globals;
 import org.apache.struts.taglib.html.Constants;
-
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
+import ru.runa.common.WebResources;
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
@@ -77,6 +75,7 @@ public abstract class WFFormTag extends TitledFormTag {
         getForm().setAcceptCharset(Charsets.UTF_8.name());
         getForm().setName(FORM_NAME);
         getForm().setID(FORM_NAME);
+        getForm().addAttribute("autocomplete", "off");
         Input tokenInput = new Input();
         tokenInput.setType(Input.HIDDEN);
         tokenInput.addAttribute("name", Constants.TOKEN_KEY);
@@ -100,7 +99,10 @@ public abstract class WFFormTag extends TitledFormTag {
 
     @Override
     protected String getSubmitButtonName() {
-        return MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
+        String processStartButtonName = WebResources.getButtonName("process.completeTaskButtonName");
+
+        return processStartButtonName != null ? processStartButtonName :
+                MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
     }
 
     protected List<String> getTransitionNames() {

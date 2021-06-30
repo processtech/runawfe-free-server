@@ -150,4 +150,15 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
         }
         super.delete(process);
     }
+
+    public long getAllCompletedProcessesCount() {
+        QCurrentProcess p = QCurrentProcess.currentProcess;
+        return queryFactory.selectFrom(p).where(p.endDate.isNotNull()).fetchCount();
+    }
+
+    public long getAllActiveProcessesCount() {
+        QCurrentProcess p = QCurrentProcess.currentProcess;
+        return queryFactory.selectFrom(p).where(p.endDate.isNull()).fetchCount();
+    }
+
 }

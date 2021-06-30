@@ -5,14 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
-import ru.runa.wfe.definition.DefinitionClassPresentation;
-import ru.runa.wfe.execution.CurrentProcessClassPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
-import ru.runa.wfe.presentation.filter.StringFilterCriteria;
+import ru.runa.wfe.presentation.filter.FilterCriteria;
+import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest.Sorting.Order;
-import ru.runa.wfe.task.TaskClassPresentation;
 
 @Data
 public class BatchPresentationRequest {
@@ -33,88 +31,46 @@ public class BatchPresentationRequest {
         }
     }
 
-    // TODO classPresentationType contains not friendly field names
     public BatchPresentation toBatchPresentation(ClassPresentationType classPresentationType) {
         BatchPresentation batchPresentation = new BatchPresentationFactory(classPresentationType).createDefault();
         // setRangeSize перед setPageNumber т.к. по дефолту сбрасывает значение pageNumber = 1
         batchPresentation.setRangeSize(pageSize);
         batchPresentation.setPageNumber(pageNumber);  
         for (Map.Entry<String, String> entry : filters.entrySet()) {
-            if (entry.getValue() == null || entry.getValue().isEmpty()) {
+            if (entry.getValue() == null || entry.getValue().isEmpty() || variables.contains(entry.getKey())) {
                 continue;
             }
-            
-            //TODO Добавил костыль со switch, после доработок в ядре руны нужно удалить
-            String entryKey = "";
-            switch (entry.getKey()) {
-            case "id":
-                entryKey = CurrentProcessClassPresentation.PROCESS_ID;
-                break;
-            case "name":
-                entryKey = CurrentProcessClassPresentation.DEFINITION_NAME;
-                break;
-//            case "category":
-//                entryKey = CurrentProcessClassPresentation.PROCESS_EXECUTION_STATUS;
-//                break;
-            case "executionStatus":
-                entryKey = CurrentProcessClassPresentation.PROCESS_EXECUTION_STATUS;
-                break;
-            case "startDate":
-                entryKey = CurrentProcessClassPresentation.PROCESS_START_DATE;
-                break;
-            case "endDate":
-                entryKey = CurrentProcessClassPresentation.PROCESS_END_DATE;
-                break;
-            }
-            int fieldIndex = classPresentationType.getFieldIndex(entryKey);
-            
-            // int fieldIndex = classPresentationType.getFieldIndex(entry.getKey());
-            // only strings are supported now
-            batchPresentation.getFilteredFields().put(fieldIndex, new StringFilterCriteria(entry.getValue()));
+            addFilteredField(batchPresentation, classPresentationType.getFieldIndex(entry.getKey()), entry.getValue());
         }
         int[] fieldsToSortIds = new int[sortings.size()];
         boolean[] sortingModes = new boolean[sortings.size()];
         for (int i = 0; i < sortings.size(); i++) {
             Sorting sorting = getSortings().get(i);
-            //TODO Добавил костыль со switch, после доработок в ядре руны нужно удалить
-            switch(sorting.getName()) {
-            case "processId": 
-                sorting.setName(TaskClassPresentation.PROCESS_ID);
-                break;
-            case "name":
-                sorting.setName(TaskClassPresentation.NAME);
-                break;
-            case "definitionName":
-                sorting.setName(TaskClassPresentation.DEFINITION_NAME);
-                break;    
-            case "creationDate":
-                sorting.setName(TaskClassPresentation.TASK_CREATE_DATE);
-                break;
-            case "deadlineDate":
-                sorting.setName(TaskClassPresentation.TASK_DEADLINE);
-                break;
-            //TODO Сделать сортировку по типу процесса, пока не думал как
-            case "category":
-                sorting.setName(DefinitionClassPresentation.TYPE);
-                break;
-            case "description":
-                sorting.setName(TaskClassPresentation.DESCRIPTION);
-                break;
-            }
             fieldsToSortIds[i] = classPresentationType.getFieldIndex(sorting.getName());
             sortingModes[i] = Order.asc == sorting.getOrder();
         }
         batchPresentation.setFieldsToSort(fieldsToSortIds, sortingModes);
         if (!variables.isEmpty()) {
             int[] fieldsToDisplayIds = new int[variables.size()];
-            // TODO now hardcoded field name for tasks only
-            int dynamicFieldIndex = classPresentationType.getFieldIndex(TaskClassPresentation.TASK_VARIABLE);
+            int variablePrototypeIndex = classPresentationType.getVariablePrototypeIndex();
             for (int i = 0; i < variables.size(); i++) {
                 fieldsToDisplayIds[i] = i;
-                batchPresentation.addDynamicField(dynamicFieldIndex + i, variables.get(i));
+                String variable = variables.get(i);
+                batchPresentation.addDynamicField(variablePrototypeIndex + i, variable);
+                if (filters.containsKey(variable)) {
+                    addFilteredField(batchPresentation, 0, filters.get(variable));
+                }
             }
             batchPresentation.setFieldsToDisplayIds(fieldsToDisplayIds);
         }
         return batchPresentation;
+    }
+
+    private void addFilteredField(BatchPresentation batchPresentation, int fieldIndex, String value) {
+        FilterCriteria filterCriteria = FilterCriteriaFactory.createFilterCriteria(batchPresentation, fieldIndex);
+        // TODO #2261
+        String[] templates = filterCriteria.getTemplatesCount() > 1 ? value.split("\\|", -1) : new String[] { value };
+        filterCriteria.applyFilterTemplates(templates);
+        batchPresentation.getFilteredFields().put(fieldIndex, filterCriteria);
     }
 }

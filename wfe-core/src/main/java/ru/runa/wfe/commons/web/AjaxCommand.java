@@ -7,6 +7,6 @@ import ru.runa.wfe.user.User;
 
 public interface AjaxCommand {
 
-    public void execute(User user, HttpServletRequest request, HttpServletResponse response) throws Exception;
+    void execute(User user, HttpServletRequest request, HttpServletResponse response) throws Exception;
 
 }
