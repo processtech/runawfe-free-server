@@ -54,8 +54,7 @@ public class StartProcessAction extends ActionBase {
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
                 forward = mapping.findForward(Resources.FORWARD_SUCCESS);
                 if (WebResources.isAutoShowForm()) {
-                    Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
-                    ActionForward autoShowForward = AutoShowFormHelper.getNextActionForward(getLoggedUser(request), mapping, profile, processId);
+                    ActionForward autoShowForward = AutoShowFormHelper.getNextActionForward(getLoggedUser(request), mapping, processId);
                     if (autoShowForward != null) {
                         return autoShowForward;
                     }

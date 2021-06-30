@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.security.SecuredObjectUtil;
 import ru.runa.wfe.security.logic.AuthenticationLogic;
 import ru.runa.wfe.user.User;

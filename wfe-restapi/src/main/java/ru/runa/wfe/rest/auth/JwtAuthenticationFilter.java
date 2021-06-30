@@ -13,6 +13,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.extern.apachecommons.CommonsLog;
+import lombok.extern.log4j.Log4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.rest.config.SpringSecurityConfig;
 import ru.runa.wfe.security.SecuredObjectUtil;
@@ -30,6 +31,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
+@CommonsLog
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String USER_ACTOR_ID_ATTRIBUTE_NAME = "uid";
     public static final String USER_SECURED_KEY_ATTRIBUTE_NAME = "usk";
@@ -46,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             chain.doFilter(request, response);
         } catch (JwtException e) {
-            e.printStackTrace(); // TODO newweb temporary, use logging
+            log.error("", e);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         }
@@ -54,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean isNotExpired(Claims claims) {
         if (claims.getExpiration().before(Calendar.getInstance().getTime())) {
-            throw new JwtException("Exired token!");
+            throw new JwtException("Expired token!");
         }
         return true;
     }

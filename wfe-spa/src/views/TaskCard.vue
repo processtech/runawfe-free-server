@@ -36,14 +36,6 @@
                             >
                                 <v-icon>mdi-information-outline</v-icon>
                             </v-btn>
-                            <!-- <v-spacer />
-                            <v-btn
-                                class="float-right"
-                                color="primary"
-                                @click="completeTask(task)"
-                            >
-                            Выполнить
-                            </v-btn> -->
                         </v-card-title>
                     </v-card>
                     <v-expand-transition>
@@ -69,7 +61,8 @@
                         :src="oldFormUrl"
                         width="100%"
                         height="100%"
-                        frameborder="0" >
+                        frameborder="0"
+                        style="min-height: 317px;">
                         Ваш браузер не поддерживает плавающие фреймы!
                     </iframe>
                 </v-col>
@@ -129,7 +122,7 @@ export default Vue.extend({
             });
         },
         loadForm() {
-            this.oldFormUrl = `http://localhost:8080/wfe/form-preloader?taskId=${this.task.id}&jwt=${this.token}`;
+            this.oldFormUrl = `http://localhost:8080/wfe/newweboldform.do?id=${this.task.id}&jwt=${this.token}`;
         }
     },
     created: function() {
