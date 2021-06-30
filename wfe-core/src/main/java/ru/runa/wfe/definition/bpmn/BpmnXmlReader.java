@@ -126,6 +126,7 @@ public class BpmnXmlReader {
     private static final String COLOR = "color";
     private static final String GLOBAL = "global";
     private static final String VALIDATE_AT_START = "validateAtStart";
+    private static final String DISABLE_CASCADING_SUSPENSION = "disableCascadingSuspension";
 
     @Autowired
     private LocalizationDao localizationDao;
@@ -324,6 +325,9 @@ public class BpmnXmlReader {
             }
             if (properties.containsKey(VALIDATE_AT_START)) {
                 subprocessNode.setValidateAtStart(Boolean.parseBoolean(properties.get(VALIDATE_AT_START)));
+            }
+            if (properties.containsKey(DISABLE_CASCADING_SUSPENSION)) {
+                subprocessNode.setDisableCascadingSuspension(Boolean.parseBoolean(properties.get(DISABLE_CASCADING_SUSPENSION)));
             }
             if (node instanceof MultiSubprocessNode && properties.containsKey(DISCRIMINATOR_CONDITION)) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(properties.get(DISCRIMINATOR_CONDITION));

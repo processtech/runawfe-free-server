@@ -14,4 +14,9 @@ public enum JdbcDataSourceType {
     private final String driverClassName;
     private final String databaseDelimiter;
 
+    // TODO DS needs this method yet
+    public String urlSample() {
+        return name();
+    }
+
 }

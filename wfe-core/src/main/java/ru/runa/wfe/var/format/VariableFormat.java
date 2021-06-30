@@ -101,6 +101,14 @@ public abstract class VariableFormat {
         return value;
     }
 
+    public final String formatExcelCell(Object value) {
+        return String.valueOf(convertToExcelCellValue(value));
+    }
+
+    protected Object convertToExcelCellValue(Object value) {
+        return convertToJSONValue(value);
+    }
+
     /**
      * Applies operation depends on variable format type.
      *

@@ -475,4 +475,8 @@ public class SystemProperties {
     public static boolean isProcessLogCleanButtonEnabled() {
         return RESOURCES.getBooleanProperty("processLog.cleanButton.enabled", false);
     }
+
+    public static int getDefinitionCompatibilityCheckProcessesLimit() {
+        return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
+    }
 }

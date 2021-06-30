@@ -74,7 +74,6 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         if (WebResources.isUpdateProcessVariablesEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
             Table table = new Table();
             tdFormElement.addElement(table);
-            table.addAttribute("width", "100%");
 
             TR updateVariableTR = new TR();
             table.addElement(updateVariableTR);
@@ -83,7 +82,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
             params.put("id", identifiableId);
             String updateVariableUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_VARIABLES, params, pageContext, PortletUrlType.Render);
             A a = new A(updateVariableUrl, MessagesProcesses.LINK_UPDATE_VARIABLE.message(pageContext));
-            updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
+            updateVariableTR.addElement(new TD(a));
         }
 
         List<String> headerNames = Lists.newArrayList();

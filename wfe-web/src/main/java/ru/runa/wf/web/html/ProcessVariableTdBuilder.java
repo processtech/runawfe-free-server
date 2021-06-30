@@ -6,7 +6,6 @@ import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.VariableFormat;
 
 /**
@@ -34,11 +33,7 @@ public class ProcessVariableTdBuilder implements TdBuilder {
         WfVariable variable = process.getVariable(variableName);
         if (variable != null && variable.getValue() != null) {
             VariableFormat format = variable.getDefinition().getFormatNotNull();
-            //workaround for correct excel export of FileVariable
-            if (FileVariable.class.equals(format.getJavaClass())) {
-                return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), process.getId(), variable);
-            }
-            return format.formatJSON(variable.getValue());
+            return format.formatExcelCell(variable.getValue());
         }
         return "";
     }

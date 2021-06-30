@@ -175,7 +175,10 @@ function restoreDefaultSettingValue(settingName, fileName) {
 	jQuery.ajax({
 		type: "POST",
 		url: "/wfe/restore_setting.do",
-		data: { settingName: settingName, fileName: fileName }
+		data: { settingName: settingName, fileName: fileName },
+		success: function () {
+			window.location.href = "/wfe/manage_settings.do";
+		}
 	});
 }
 

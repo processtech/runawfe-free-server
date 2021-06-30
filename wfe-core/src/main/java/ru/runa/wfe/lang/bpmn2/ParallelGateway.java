@@ -134,7 +134,7 @@ public class ParallelGateway extends Node {
         if (token.isAbleToReactivateParent()) {
             if (token.getExecutionStatus() != ExecutionStatus.ACTIVE && Objects.equal(token.getNodeId(), getNodeId())) {
                 stateInfo.arrivedTokens.add(token);
-            } else if (token.getExecutionStatus() == ExecutionStatus.ACTIVE) {
+            } else if (token.getExecutionStatus() == ExecutionStatus.ACTIVE || token.getExecutionStatus() == ExecutionStatus.FAILED) {
                 stateInfo.activeTokenNodeIds.add(token.getNodeId());
             }
         }

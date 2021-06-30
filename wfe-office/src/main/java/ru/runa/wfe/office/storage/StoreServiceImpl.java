@@ -9,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,6 +33,9 @@ import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.excel.OnSheetConstraints;
 import ru.runa.wfe.office.excel.utils.ExcelHelper;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
+import ru.runa.wfe.office.storage.projection.ProjectionModel;
+import ru.runa.wfe.office.storage.projection.Sort;
+import ru.runa.wfe.office.storage.projection.UserTypeMapFieldBasedComparator;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
@@ -76,7 +81,7 @@ public class StoreServiceImpl implements StoreService {
         }
 
         try (Workbook workbook = path.endsWith(XLSX_SUFFIX) ? new XSSFWorkbook() : new HSSFWorkbook(); OutputStream os = new FileOutputStream(path)) {
-            workbook.createSheet(tableName());
+            workbook.createSheet();
             workbook.write(os);
         } catch (Exception e) {
             log.error("", e);
@@ -86,12 +91,38 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public ExecutionResult findByFilter(Properties properties, UserType userType, String condition) throws Exception {
+        return findByFilter(properties, userType, condition, Collections.emptyList());
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public ExecutionResult findByFilter(Properties properties, UserType userType, String condition, Iterable<ProjectionModel> projections) throws Exception {
         if (!isConditionValid(condition)) {
             throw new WrongOperatorException(condition);
         }
         initParams(properties);
         Workbook wb = getWorkbook(fullPath);
-        return new ExecutionResult(find(wb, constraints, format, condition));
+        final List result = find(wb, constraints, format, condition);
+
+        if (!result.isEmpty() && result.get(0) instanceof UserTypeMap) {
+            Comparator<UserTypeMap> comparator = null;
+            for (ProjectionModel projection : projections) {
+                if (projection.getSort() == Sort.NONE) {
+                    continue;
+                }
+                final UserTypeMapFieldBasedComparator newComparator = new UserTypeMapFieldBasedComparator(
+                        projection.getFieldName(),
+                        projection.getSort()
+                );
+                comparator = comparator == null ? newComparator : comparator.thenComparing(newComparator);
+            }
+
+            if (comparator != null) {
+                ((List<UserTypeMap>) result).sort(comparator);
+            }
+        }
+
+        return new ExecutionResult(result);
     }
 
     @Override
