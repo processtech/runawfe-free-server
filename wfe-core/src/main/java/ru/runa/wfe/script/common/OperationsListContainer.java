@@ -29,9 +29,13 @@ import ru.runa.wfe.script.executor.DeleteExecutorsOperation;
 import ru.runa.wfe.script.executor.RemoveExecutorsFromGroupOperation;
 import ru.runa.wfe.script.executor.SetActorInactiveOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOperation;
+import ru.runa.wfe.script.permission.AddPermissionsOperationById;
 import ru.runa.wfe.script.permission.RemoveAllPermissionsOperation;
+import ru.runa.wfe.script.permission.RemoveAllPermissionsOperationById;
 import ru.runa.wfe.script.permission.RemovePermissionsOperation;
+import ru.runa.wfe.script.permission.RemovePermissionsOperationById;
 import ru.runa.wfe.script.permission.SetPermissionsOperation;
+import ru.runa.wfe.script.permission.SetPermissionsOperationById;
 import ru.runa.wfe.script.processes.CancelProcessesOperation;
 import ru.runa.wfe.script.processes.DeployProcessDefinitionOperation;
 import ru.runa.wfe.script.processes.RedeployProcessDefinitionOperation;
@@ -84,7 +88,11 @@ public abstract class OperationsListContainer {
             @XmlElement(name = AddPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = AddPermissionsOperation.class),
             @XmlElement(name = RemovePermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemovePermissionsOperation.class),
             @XmlElement(name = RemoveAllPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemoveAllPermissionsOperation.class),
-            @XmlElement(name = SetPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOperation.class) })
+            @XmlElement(name = SetPermissionsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOperation.class), 
+            @XmlElement(name = AddPermissionsOperationById.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = AddPermissionsOperationById.class),
+            @XmlElement(name = SetPermissionsOperationById.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOperationById.class),
+            @XmlElement(name = RemovePermissionsOperationById.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemovePermissionsOperationById.class),
+            @XmlElement(name = RemoveAllPermissionsOperationById.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemoveAllPermissionsOperationById.class) })
     public List<ScriptOperation> operations = Lists.newArrayList();
 
     /**

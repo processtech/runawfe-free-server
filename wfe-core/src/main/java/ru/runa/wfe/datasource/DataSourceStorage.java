@@ -10,6 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -111,8 +114,26 @@ public class DataSourceStorage implements DataSourceStuff {
         return moveToHistory(new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX));
     }
 
-    public static synchronized void clear() {
+    public static synchronized void clear(boolean doNotChangeInternalStoragePath) {
         for (String dsName : getNames()) {
+            if (doNotChangeInternalStoragePath && dsName.equals(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME)) {
+                DataSource ds = getDataSource(dsName);
+                if (ds instanceof ExcelDataSource) {
+                    try {
+                        for (Path path : Files.newDirectoryStream(Paths.get(((ExcelDataSource) ds).getFilePath()),
+                                "*{" + EXCEL_FILE_XLS_SUFFIX + "," + EXCEL_FILE_XLSX_SUFFIX + "}")) {
+                            File file = path.toFile();
+                            if (file.isFile() && file.delete()) {
+                                log.info(file + " is removed");
+                            }
+                        }
+                    } catch (IOException e) {
+                        log.error(e);
+                    }
+                }
+                continue;
+            }
+
             moveToHistory(new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX));
         }
     }
@@ -144,9 +165,8 @@ public class DataSourceStorage implements DataSourceStuff {
         if (!s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) && !s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
             return null;
         }
-        final String dsName = s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) ?
-                s.substring(s.indexOf(':') + 1) :
-                (String) variableProvider.getValue(s.substring(s.indexOf(':') + 1));
+        final String dsName = s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) ? s.substring(s.indexOf(':') + 1)
+                : (String) variableProvider.getValue(s.substring(s.indexOf(':') + 1));
         return DataSourceStorage.getDataSource(dsName);
     }
 
@@ -156,6 +176,14 @@ public class DataSourceStorage implements DataSourceStuff {
             all.add(getDataSource(dsName));
         }
         return all;
+    }
+
+    public static int getAllDataSourcesCount() {
+        List<DataSource> all = Lists.newArrayList();
+        for (String dsName : getNames()) {
+            all.add(getDataSource(dsName));
+        }
+        return all.size();
     }
 
     public static List<String> getNames() {

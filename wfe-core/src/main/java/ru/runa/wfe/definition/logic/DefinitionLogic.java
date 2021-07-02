@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -42,6 +43,7 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
+import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -66,6 +68,8 @@ import ru.runa.wfe.var.VariableDefinition;
  * Created on 15.03.2005
  */
 public class DefinitionLogic extends WfCommonLogic {
+    @Autowired
+    DefinitionUpdateValidatorManager definitionVersionValidatorManager;
 
     public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
         permissionDao.checkAllowed(user, Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
@@ -171,6 +175,7 @@ public class DefinitionLogic extends WfCommonLogic {
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
             }
         }
+        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), uploadedDefinition);
         deployment.setContent(uploadedDefinition.getDeployment().getContent());
         deployment.setUpdateDate(new Date());
         deployment.setUpdateActor(user.getActor());
@@ -194,6 +199,7 @@ public class DefinitionLogic extends WfCommonLogic {
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(deployment.getName());
         filter.setDefinitionVersion(deployment.getVersion());
+        filter.setFinished(false);
         List<Process> processes = processDao.getProcesses(filter);
         for (Process process : processes) {
             processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION), process, null);

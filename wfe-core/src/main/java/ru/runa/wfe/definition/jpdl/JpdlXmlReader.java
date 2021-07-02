@@ -107,6 +107,7 @@ public class JpdlXmlReader {
     private static final String EXECUTION_CONDITION = "executionCondition";
     private static final String GLOBAL = "global";
     private static final String VALIDATE_AT_START = "validateAtStart";
+    private static final String DISABLE_CASCADING_SUSPENSION = "disableCascadingSuspension";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
@@ -251,8 +252,14 @@ public class JpdlXmlReader {
         if (swimlaneName != null) {
             SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
             taskDefinition.setSwimlane(swimlaneDefinition);
-            taskDefinition.setReassignSwimlane(Boolean.valueOf(element.attributeValue(REASSIGN, "false")));
-            taskDefinition.setReassignSwimlaneToTaskPerformer(Boolean.valueOf(element.attributeValue(REASSIGN_SWIMLANE_TO_TASK_PERFORMER, "true")));
+            String reassignSwimlaneToInitializer = element.attributeValue(REASSIGN, null);
+            if (reassignSwimlaneToInitializer != null) {
+                taskDefinition.setReassignSwimlaneToInitializer(Boolean.valueOf(reassignSwimlaneToInitializer));
+            }
+            String reassignSwimlaneToTaskPerformer = element.attributeValue(REASSIGN_SWIMLANE_TO_TASK_PERFORMER,null);
+            if (reassignSwimlaneToTaskPerformer != null) {
+                taskDefinition.setReassignSwimlaneToTaskPerformer(Boolean.valueOf(reassignSwimlaneToTaskPerformer));
+            }
             taskDefinition.setIgnoreSubsitutionRules(Boolean.valueOf(element.attributeValue(IGNORE_SUBSTITUTION_RULES, "false")));
         }
     }
@@ -339,6 +346,8 @@ public class JpdlXmlReader {
                 subprocessNode.setEmbedded(Boolean.parseBoolean(subProcessElement.attributeValue(EMBEDDED, "false")));
                 subprocessNode.setTransactional(Boolean.parseBoolean(subProcessElement.attributeValue(TRANSACTIONAL, "false")));
                 subprocessNode.setValidateAtStart(Boolean.parseBoolean(subProcessElement.attributeValue(VALIDATE_AT_START, "false")));
+                subprocessNode.setDisableCascadingSuspension(
+                        Boolean.parseBoolean(subProcessElement.attributeValue(DISABLE_CASCADING_SUSPENSION, "false")));
             }
             if (node instanceof MultiSubprocessNode) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(element.attributeValue(EXECUTION_CONDITION));

@@ -21,11 +21,10 @@
  */
 package ru.runa.wfe.lang;
 
-import java.io.Serializable;
-import java.util.List;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import java.io.Serializable;
+import java.util.List;
 
 public class ActionEvent implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -38,6 +37,7 @@ public class ActionEvent implements Serializable {
     public static final String TASK_CREATE = "task-create";
     public static final String TASK_ASSIGN = "task-assign";
     public static final String TASK_END = "task-end";
+    public static final String TASK_OPEN = "task-open";
     
     public static final String TIMER = "timer";
 

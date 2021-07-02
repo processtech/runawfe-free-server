@@ -17,7 +17,7 @@
  */
 package ru.runa.wf.web.html;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
 import java.util.Map;
 import org.apache.ecs.ConcreteElement;
@@ -32,7 +32,6 @@ import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.ProcessHierarchyUtils;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.task.dto.WfTask;
@@ -52,41 +51,41 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
     @Override
     public TD build(Object object, Env env) {
         WfTask task = (WfTask) object;
-        Long processId = task.getProcessId();
+        Long processId = getProcessId(task);
         ConcreteElement link = new StringElement(processId.toString());
-        boolean isAllowed = false;
-        try {
-            isAllowed = env.isAllowed(Permission.READ, new SecuredObjectExtractor() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public SecuredObject getSecuredObject(final Object o, final Env env) {
-                    Process securedObject = new Process();
-                    securedObject.setId(((WfTask) o).getProcessId());
-                    return securedObject;
-                }
-
-            });
-        } catch (Exception e) {
-            // Do nothing.
-        }
-        if (isAllowed) {
-            Map<String, Object> params = Maps.newHashMap();
-            if (task.getProcessId() == null) {
-                params.put(IdForm.ID_INPUT_NAME, processId);
-                params.put(TaskIdForm.TASK_ID_INPUT_NAME, task.getId());
-            } else {
-                Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(task.getProcessHierarchyIds());
-                link = new StringElement((rootProcessId == null ? task.getProcessId() : rootProcessId).toString());
-                params.put(IdForm.ID_INPUT_NAME, link);
-                params.put(TaskIdForm.TASK_ID_INPUT_NAME, task.getId());
-            }
+        if (isAllowed(env, processId)) {
+            Map<String, Object> params = ImmutableMap.of(
+                    IdForm.ID_INPUT_NAME, link,
+                    TaskIdForm.SELECTED_TASK_PROCESS_ID_NAME, processId,
+                    TaskIdForm.TASK_ID_INPUT_NAME, task.getId());
             String url = Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, env.getPageContext(), PortletUrlType.Render);
             link = new A(url, link);
         }
         TD td = new TD(link);
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         return td;
+    }
+
+    protected Long getProcessId(WfTask task) {
+        return task.getProcessId();
+    }
+
+    private boolean isAllowed(Env env, Long processId) {
+        try {
+            return env.isAllowed(Permission.READ, new SecuredObjectExtractor() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public SecuredObject getSecuredObject(final Object o, final Env env) {
+                    Process securedObject = new Process();
+                    securedObject.setId(processId);
+                    return securedObject;
+                }
+
+            });
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     @Override

@@ -1,19 +1,20 @@
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.apache.ecs.html.TextArea;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.FormSubmissionUtils;
@@ -56,10 +57,6 @@ import ru.runa.wfe.var.format.VariableDisplaySupport;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 import ru.runa.wfe.var.format.VariableInputSupport;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 /**
  * Component for generation HTML code for displaying variable or get inputs from usr for variable.
@@ -383,7 +380,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         html.append("<option value=\"\"> ------------------------- </option>");
         for (Executor executor : executors) {
             html.append("<option value=\"ID").append(executor.getId()).append("\"");
-            if (Objects.equal(executor, value)) {
+            // TODO #1394 Fields of type Executor mapped as executor.name in JdbcStoreService. Need full entity mapping
+            if (Objects.equal(executor, value) || value instanceof String && value.equals(executor.getName())) {
                 html.append(" selected");
             }
             html.append(">").append(executor.getLabel()).append("</option>");
@@ -399,27 +397,20 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         Preconditions.checkNotNull(webHelper, "webHelper");
         String id = webHelper.getRequest().getParameter("id");
         UploadedFile file = FormSubmissionUtils.getUserInputFiles(webHelper.getRequest(), id).get(variableName);
-        if (value != null && file == null) {
+        if (value != null && value.getName() != null && file == null) {
             // display file
             file = new UploadedFile(value);
             FormSubmissionUtils.addUserInputFile(webHelper.getRequest(), id, variableName, file);
-        } else if (value == null && file != null) {
+        } else if ((value == null || value.getName() == null) && file != null) {
             // sf1095
             file = null;
             FormSubmissionUtils.removeUserInputFile(webHelper.getRequest(), id, variableName);
         }
-        String attachImageUrl = "";
-        String loadingImageUrl = "";
-        String deleteImageUrl = "";
-        String uploadFileTitle = "Upload file";
-        String loadingMessage = "Loading ...";
-        if (webHelper != null) {
-            attachImageUrl = webHelper.getUrl(Resources.IMAGE_ATTACH);
-            loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
-            deleteImageUrl = webHelper.getUrl(Resources.IMAGE_DELETE);
-            uploadFileTitle = webHelper.getMessage("message.upload.file");
-            loadingMessage = webHelper.getMessage("message.loading");
-        }
+        String attachImageUrl = webHelper.getUrl(Resources.IMAGE_ATTACH);
+        String loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
+        String deleteImageUrl = webHelper.getUrl(Resources.IMAGE_DELETE);
+        String uploadFileTitle = webHelper.getMessage("message.upload.file");
+        String loadingMessage = webHelper.getMessage("message.loading");
         String hideStyle = "style=\"display: none;\"";
         String html = "<div class=\"inputFileContainer\"" + (!enabled && file == null ? hideStyle : "") + ">";
         html += "<div class=\"dropzone\" " + (file != null ? hideStyle : "") + ">";
@@ -439,7 +430,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         }
 
         html += "<span class=\"statusText\">";
-        if (file != null && webHelper != null) {
+        if (file != null) {
             String viewUrl = webHelper.getUrl("/upload?action=view&inputId=" + variableName + "&id=" + id);
             html += "<a href='" + viewUrl + "'>" + file.getName() + (file.getSize() != null ? " - " + file.getSize() : "") + "</a>";
         } else {

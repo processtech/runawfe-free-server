@@ -48,6 +48,8 @@ import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
@@ -176,14 +178,19 @@ public class ReceiveMessageBean implements MessageListener {
         Enumeration<String> propertyNames = message.getPropertyNames();
         while (propertyNames.hasMoreElements()) {
             String propertyName = propertyNames.nextElement();
-            if (!propertyName.startsWith("JMS")) {
-                map.put(propertyName, message.getStringProperty(propertyName));
+            if (propertyName.startsWith("JMS")) {
+                continue;
             }
+            if (BaseMessageNode.EXPIRATION_PROPERTY.equals(propertyName)) {
+                continue;
+            }
+            map.put(propertyName, message.getStringProperty(propertyName));
         }
         return map;
     }
 
     private void handleMessage(final ReceiveMessageData data, final ObjectMessage message) {
+        ProcessError processError = new ProcessError(ProcessErrorType.system, data.processId, data.node.getNodeId());
         try {
             new TransactionalExecutor(context.getUserTransaction()) {
 
@@ -202,11 +209,10 @@ public class ReceiveMessageBean implements MessageListener {
                     data.node.leave(executionContext, map);
                 }
             }.executeInTransaction(true);
+            Errors.removeProcessError(processError);
         } catch (final Throwable th) {
-            boolean needReprocessing = Utils.failProcessExecution(context.getUserTransaction(), data.tokenId, th);
-            if (needReprocessing) {
-                Throwables.propagate(th);
-            }
+            Errors.addProcessError(processError, data.node.getName(), th);
+            Throwables.propagate(th);
         }
     }
 

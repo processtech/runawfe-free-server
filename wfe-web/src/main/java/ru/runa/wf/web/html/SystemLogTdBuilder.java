@@ -27,7 +27,9 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
 import ru.runa.wfe.audit.ProcessDeleteLog;
+import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.audit.SystemLog;
+import ru.runa.wfe.commons.CalendarUtil;
 
 /**
  * {@link TdBuilder} implementation to show system log as human readable
@@ -53,6 +55,11 @@ public class SystemLogTdBuilder implements TdBuilder {
      */
     private static String placeHolderVersion = null;
 
+    /**
+     * Place holder name for date before which to delete the process log.
+     */
+    private static String placeHolderBeforeDate = null;
+    
     private static synchronized void initPlaceholders(PageContext pageContext) {
         if (placeHolderProcess != null) {
             return;
@@ -60,6 +67,7 @@ public class SystemLogTdBuilder implements TdBuilder {
         placeHolderProcess = MessagesOther.HISTORY_SYSTEM_PH_PI.message(pageContext);
         placeHolderProcessDefinition = MessagesOther.HISTORY_SYSTEM_PH_PD.message(pageContext);
         placeHolderVersion = MessagesOther.HISTORY_SYSTEM_PH_VERSION.message(pageContext);
+        placeHolderBeforeDate = MessagesOther.PROCESS_LOG_CLEAN_BEFORE_DATE.message(pageContext);
     }
 
     @Override
@@ -83,6 +91,10 @@ public class SystemLogTdBuilder implements TdBuilder {
             return MessagesOther.SYSTEM_LOG_DEFINITION_DELETED.message(env.getPageContext())
                     .replaceAll("\\{" + placeHolderProcessDefinition + "\\}", log.getName())
                     .replaceAll("\\{" + placeHolderVersion + "\\}", String.valueOf(log.getVersion()));
+        } else if (systemLog instanceof ProcessLogsCleanLog) {
+            ProcessLogsCleanLog log = (ProcessLogsCleanLog) systemLog;
+            return MessagesOther.PROCESS_LOG_CLEAN_DESCRIPTION.message(env.getPageContext())
+                    .replaceAll("\\{" + placeHolderBeforeDate + "\\}", CalendarUtil.formatDate(log.getBeforeDate()));
         }
         return "Unsupported log instance";
     }

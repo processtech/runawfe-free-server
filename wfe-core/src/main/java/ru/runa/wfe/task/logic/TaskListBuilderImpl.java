@@ -343,7 +343,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     private String getObservableExecutorNameTemplate(BatchPresentation batchPresentation) {
         for (Map.Entry<Integer, FilterCriteria> entry : batchPresentation.getFilteredFields().entrySet()) {
             FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
-            if (field.displayName.equals(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
+            if (field.name.equals(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
                 return entry.getValue().getFilterTemplates()[0];
             }
         }

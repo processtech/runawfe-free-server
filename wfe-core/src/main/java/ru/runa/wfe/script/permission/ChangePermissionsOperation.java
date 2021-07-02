@@ -26,17 +26,20 @@ public abstract class ChangePermissionsOperation extends ScriptOperation {
     @XmlAttribute(name = "executor", required = true)
     protected String xmlExecutor;
 
+    @XmlAttribute(name = "id")
+    protected String xmlId;
+
     @XmlAttribute(name = "type")
-    private String xmlType;
+    protected String xmlType;
 
     @XmlAttribute(name = "name")
     private String xmlName;
 
     @XmlElement(name = "namedIdentitySet", namespace = AdminScriptConstants.NAMESPACE)
-    private List<NamedIdentitySet> xmlNamedIdentitySets = Lists.newArrayList();
+    protected List<NamedIdentitySet> xmlNamedIdentitySets = Lists.newArrayList();
 
     @XmlElement(name = "permission", namespace = AdminScriptConstants.NAMESPACE)
-    private List<ru.runa.wfe.script.permission.Permission> xmlPermissions = new ArrayList<>();
+    protected List<ru.runa.wfe.script.permission.Permission> xmlPermissions = new ArrayList<>();
 
     protected Map<SecuredObjectType, Set<String>> objectNames = null;
     protected Set<Permission> permissions = null;

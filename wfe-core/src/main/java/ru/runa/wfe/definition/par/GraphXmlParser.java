@@ -1,13 +1,10 @@
 package ru.runa.wfe.definition.par;
 
+import com.google.common.base.Throwables;
 import java.util.List;
-
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
-import com.google.common.base.Throwables;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
@@ -16,7 +13,6 @@ import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
-import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 
 public class GraphXmlParser implements ProcessArchiveParser {
@@ -48,21 +44,25 @@ public class GraphXmlParser implements ProcessArchiveParser {
             List<Element> nodeElements = root.elements(NODE_ELEMENT);
             for (Element nodeElement : nodeElements) {
                 String nodeId = nodeElement.attributeValue("name");
-                GraphElement graphElement = processDefinition.getGraphElementNotNull(nodeId);
+                GraphElement graphElement;
+                Node transitionSource = processDefinition.getNode(nodeId);
+                if (transitionSource != null) {
+                    graphElement = transitionSource;
+                } else {
+                    graphElement = processDefinition.getSwimlaneById(nodeId);
+                    if (graphElement == null) {
+                        LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + processDefinition);
+                        continue;
+                    }
+                }
                 graphElement.setGraphConstraints(Integer.parseInt(nodeElement.attributeValue("x")) - xOffset,
                         Integer.parseInt(nodeElement.attributeValue("y")) - yOffset, Integer.parseInt(nodeElement.attributeValue("width")),
                         Integer.parseInt(nodeElement.attributeValue("height")));
-                Node transitionSource;
-                if (graphElement instanceof Node) {
-                    boolean minimizedView = Boolean.parseBoolean(nodeElement.attributeValue("minimizedView", "false"));
-                    ((Node) graphElement).setGraphMinimizedView(minimizedView);
-                    transitionSource = (Node) graphElement;
-                } else {
-                    if (!(graphElement instanceof SwimlaneDefinition)) {
-                        LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + processDefinition);
-                    }
+                if (transitionSource == null) {
                     continue;
                 }
+                boolean minimizedView = Boolean.parseBoolean(nodeElement.attributeValue("minimizedView", "false"));
+                transitionSource.setGraphMinimizedView(minimizedView);
                 List<Element> transitionElements = nodeElement.elements(TRANSITION_ELEMENT);
                 for (Element transitionElement : transitionElements) {
                     String transitionName = transitionElement.attributeValue("name");

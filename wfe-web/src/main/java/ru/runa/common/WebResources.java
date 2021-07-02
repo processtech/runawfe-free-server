@@ -197,4 +197,11 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("import.export.enabled", true);
     }
 
+    public static String getButtonName(String propertyName) {
+        return RESOURCES.getStringProperty(propertyName);
+    }
+
+    public static String getProcessStartedMessage() {
+        return RESOURCES.getStringProperty("process.started");
+    }
 }

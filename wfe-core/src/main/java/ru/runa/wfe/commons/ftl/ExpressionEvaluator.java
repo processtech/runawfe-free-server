@@ -20,6 +20,7 @@ import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
 
 public class ExpressionEvaluator {
     private static final Pattern VARIABLE_REGEXP = Pattern.compile("\\$\\{(.*?[^\\\\])\\}");
@@ -126,8 +127,8 @@ public class ExpressionEvaluator {
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
             String variableName = matcher.group(1);
-            Object variable = variableProvider.getValueNotNull(variableName);
-            matcher.appendReplacement(buffer, Matcher.quoteReplacement(variable.toString()));
+            WfVariable variable = variableProvider.getVariableNotNull(variableName);
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(variable.getDefinition().getFormatNotNull().format(variable.getValue())));
         }
         matcher.appendTail(buffer);
         return buffer.toString();

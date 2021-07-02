@@ -1,16 +1,14 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.bpmn2.EndToken;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.collect.Lists;
 
 public class SubprocessDefinition extends ProcessDefinition {
     private static final long serialVersionUID = 1L;
@@ -45,7 +43,7 @@ public class SubprocessDefinition extends ProcessDefinition {
             throw new InternalApplicationException("Start state in embedded subprocess should have 1 leaving transition");
         }
         int endNodesCount = 0;
-        for (Node node : nodes) {
+        for (Node node : nodesList) {
             if (node instanceof EndNode) {
                 throw new InternalApplicationException("In embedded subprocess it is not allowed end state");
             }
@@ -68,7 +66,7 @@ public class SubprocessDefinition extends ProcessDefinition {
 
     public List<EmbeddedSubprocessEndNode> getEndNodes() {
         List<EmbeddedSubprocessEndNode> list = Lists.newArrayList();
-        for (Node node : nodes) {
+        for (Node node : nodesList) {
             if (node instanceof EmbeddedSubprocessEndNode) {
                 list.add((EmbeddedSubprocessEndNode) node);
             }

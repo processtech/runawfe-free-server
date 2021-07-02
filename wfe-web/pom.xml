@@ -28,6 +28,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-office</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<scope>provided</scope>

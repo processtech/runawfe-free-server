@@ -35,13 +35,13 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.web.HTMLUtils;
+import ru.runa.common.web.Messages;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.form.BatchPresentationForm;
 import ru.runa.common.web.html.EnvBaseImpl;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.security.Permission;
@@ -90,26 +90,13 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
         Row header = workbook.getSheetAt(0).createRow(0);
         int i = 0;
         for (FieldDescriptor fieldDescriptor : batchPresentation.getDisplayFields()) {
-            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
-                    || fieldDescriptor.displayName.startsWith(ClassPresentation.filterable_prefix)
-                    || fieldDescriptor.fieldState != FieldState.ENABLED) {
+            if (fieldDescriptor.variablePrototype || fieldDescriptor.groupableByProcessId || fieldDescriptor.fieldState != FieldState.ENABLED) {
                 continue;
             }
             Cell cell = header.createCell(i++);
             cell.setCellStyle(boldCellStyle);
-            cell.setCellValue(getDisplayString(request, fieldDescriptor));
+            cell.setCellValue(Messages.getMessage(batchPresentation, fieldDescriptor, getResources(request)));
         }
-    }
-
-    private String getDisplayString(HttpServletRequest request, FieldDescriptor fieldDescriptor) {
-        if (fieldDescriptor.displayName.startsWith(ClassPresentation.removable_prefix)) {
-            return fieldDescriptor.displayName.substring(fieldDescriptor.displayName.lastIndexOf(':') + 1);
-        }
-        String messageKey = fieldDescriptor.displayName;
-        if (fieldDescriptor.displayName.startsWith(ClassPresentation.filterable_prefix)) {
-            messageKey = fieldDescriptor.displayName.substring(fieldDescriptor.displayName.lastIndexOf(':') + 1);
-        }
-        return getResources(request).getMessage(messageKey);
     }
 
     private void buildData(Sheet dataSheet, User user, BatchPresentation batchPresentation, List<T> data) {
@@ -121,11 +108,9 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
             int i = 0;
             for (TdBuilder builder : builders) {
                 String string = builder.getValue(object, env);
-                // TODO strings instead of native types
                 CellUtil.createCell(row, i++, string);
             }
         }
-
     }
 
     private static class EnvImpl extends EnvBaseImpl {

@@ -37,22 +37,22 @@ import ru.runa.wfe.var.Variable;
  *
  */
 public class ProcessWithTasksClassPresentation extends ClassPresentation {
-    public static final String PROCESS_ID = "batch_presentation.process.id";
-    public static final String DEFINITION_NAME = "batch_presentation.process.definition_name";
-    public static final String PROCESS_START_DATE = "batch_presentation.process.started";
-    public static final String PROCESS_END_DATE = "batch_presentation.process.ended";
-    public static final String DEFINITION_VERSION = "batch_presentation.process.definition_version";
-    public static final String PROCESS_EXECUTION_STATUS = "batch_presentation.process.execution_status";
-    public static final String ERRORS = "batch_presentation.process.errors";
-    public static final String TASK_EXECUTOR = "batch_presentation.process.task.executor.name";
-    public static final String TASK_SWIMLINE = "batch_presentation.task.swimlane";
-    public static final String TASK_NAME = "batch_presentation.process.task.name";
-    public static final String TASK_DURATION = "batch_presentation.process.task.duration";
-    public static final String TASK_DURATION_CURRENT = "batch_presentation.process.task.duration_current";
-    public static final String TASK_CREATE_DATE = "batch_presentation.process.task.create_date";
-    public static final String TASK_TAKE_DATE = "batch_presentation.process.task.take_date";
-    public static final String TASK_DEADLINE = "batch_presentation.process.task.deadline";
-    public static final String PROCESS_VARIABLE = editable_prefix + "name:batch_presentation.process.variable";
+    public static final String PROCESS_ID = "id";
+    public static final String DEFINITION_NAME = "definitionName";
+    public static final String PROCESS_START_DATE = "startDate";
+    public static final String PROCESS_END_DATE = "endDate";
+    public static final String DEFINITION_VERSION = "definitionVersion";
+    public static final String PROCESS_EXECUTION_STATUS = "executionStatus";
+    public static final String ERRORS = "errors";
+    public static final String TASK_EXECUTOR = "taskExecutorName";
+    public static final String TASK_SWIMLINE_NAME = "taskSwimlaneName";
+    public static final String TASK_NAME = "taskName";
+    public static final String TASK_DURATION_DATE = "taskDurationDate";
+    public static final String TASK_DURATION = "taskDuration";
+    public static final String TASK_CREATE_DATE = "taskCreateDate";
+    public static final String TASK_ASSIGN_DATE = "taskAssignDate";
+    public static final String TASK_DEADLINE_DATE = "taskDeadlineDate";
+    public static final String PROCESS_VARIABLE = "variable";
 
     private static final ClassPresentation INSTANCE = new ProcessWithTasksClassPresentation();
 
@@ -143,28 +143,28 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_EXECUTOR, UserOrGroupFilterCriteria.class.getName(), new ChildDbSource(Task.class, "executor.name"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ,
                                 "executor" }).setShowable(false),
-                new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new ChildDbSource(Task.class, "swimlane.name"), false,
+                new FieldDescriptor(TASK_SWIMLINE_NAME, String.class.getName(), new ChildDbSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ,
                                 "swimlane" }).setShowable(false),
                 new FieldDescriptor(TASK_NAME, TaskStatusFilterCriteria.class.getName(), new TaskAggregatedLogDbSource(TaskAggregatedLog.class, "taskName"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ,
                                 "taskName" }).setShowable(false),
-                new FieldDescriptor(TASK_DURATION, TaskDurationFilterCriteria.class.getName(), new DeltaDataChildDbSource(Task.class, "deadlineDate",
+                new FieldDescriptor(TASK_DURATION_DATE, TaskDurationFilterCriteria.class.getName(), new DeltaDataChildDbSource(Task.class, "deadlineDate",
                         "createDate"), false, FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] {
                         Permission.READ, "taskDuration" }).setShowable(false),
-                new FieldDescriptor(TASK_DURATION_CURRENT, TaskDurationFilterCriteria.class.getName(), new DeltaDataChildDbSource(Task.class,
+                new FieldDescriptor(TASK_DURATION, TaskDurationFilterCriteria.class.getName(), new DeltaDataChildDbSource(Task.class,
                         "$current_date", "createDate"), false, FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTdBuilder",
                         new Object[] { Permission.READ, "currentTaskDuration" }).setShowable(false),
                 new FieldDescriptor(TASK_CREATE_DATE, Date.class.getName(), new ChildDbSource(Task.class, "createDate"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTdBuilder", new Object[] {}).setShowable(false),
-                new FieldDescriptor(TASK_TAKE_DATE, Date.class.getName(), new NotNullChildDbSource(Task.class, "executor", "swimlane.createDate"),
+                new FieldDescriptor(TASK_ASSIGN_DATE, Date.class.getName(), new NotNullChildDbSource(Task.class, "executor", "swimlane.createDate"),
                         false, FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTdBuilder", new Object[] {}).setShowable(false),
-                new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new ChildDbSource(Task.class, "deadlineDate"), false,
+                new FieldDescriptor(TASK_DEADLINE_DATE, Date.class.getName(), new ChildDbSource(Task.class, "deadlineDate"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTdBuilder", new Object[] {}).setShowable(false),
-                new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(), new SubProcessDbSource(
-                        Process.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTdBuilder", new Object[] {}),
+                new FieldDescriptor("groupBy_" + PROCESS_ID, String.class.getName(), new SubProcessDbSource(
+                        Process.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTdBuilder", new Object[] {}).setGroupableByProcessId(true),
                 new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}) });
+                        "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}).setVariablePrototype(true) });
     }
 
     public static ClassPresentation getInstance() {

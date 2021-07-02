@@ -17,38 +17,30 @@ import ru.runa.wfe.user.ExecutorClassPresentation;
 import ru.runa.wfe.user.GroupClassPresentation;
 
 public enum ClassPresentationType {
-    NONE(null),
-    SYSTEM_LOG(SystemLogClassPresentation.getInstance()),
-    EXECUTOR(ExecutorClassPresentation.getInstance()),
-    ACTOR(ActorClassPresentation.getInstance()),
-    GROUP(GroupClassPresentation.getInstance()),
-    RELATION(RelationClassPresentation.getInstance()),
-    RELATIONPAIR(RelationPairClassPresentation.getInstance()),
-    DEFINITION(DefinitionClassPresentation.getInstance()),
-    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.getInstance()),
-    PROCESS(ProcessClassPresentation.getInstance()),
-    TASK(TaskClassPresentation.getInstance()),
-    TASK_OBSERVABLE(TaskObservableClassPresentation.getInstance()),
-    REPORTS(ReportClassPresentation.getInstance()),
-    PROCESS_WITH_TASKS(ProcessWithTasksClassPresentation.getInstance());
+    NONE(null, ""),
+    SYSTEM_LOG(SystemLogClassPresentation.getInstance(), "system_log"),
+    EXECUTOR(ExecutorClassPresentation.getInstance(), "executor"),
+    ACTOR(ActorClassPresentation.getInstance(), ""),
+    GROUP(GroupClassPresentation.getInstance(), "group"),
+    RELATION(RelationClassPresentation.getInstance(), "relation"),
+    RELATIONPAIR(RelationPairClassPresentation.getInstance(), "relationpair"),
+    DEFINITION(DefinitionClassPresentation.getInstance(), "process_definition"),
+    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.getInstance(), "process_definition"),
+    PROCESS(ProcessClassPresentation.getInstance(), "process"),
+    PROCESS_WITH_TASKS(ProcessWithTasksClassPresentation.getInstance(), "process"),
+    TASK(TaskClassPresentation.getInstance(), "task"),
+    TASK_OBSERVABLE(TaskObservableClassPresentation.getInstance(), "task"),
+    REPORTS(ReportClassPresentation.getInstance(), "report");
 
     private final Class<?> presentationClass;
     private final String restrictions;
     private final boolean withPaging;
     private final FieldDescriptor[] fields;
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
+    private final String localizationKey;
+    private int variablePrototypeIndex = -1;
 
-    // dimgel want transform ClassPresentation class hierarchy to enum
-//    ClassPresentationType(Class<?> presentationClass, String restrictions, boolean withPaging, FieldDescriptor[] fields) {
-//        this.presentationClass = presentationClass;
-//        this.restrictions = restrictions;
-//        this.withPaging = withPaging;
-//        this.fields = fields;
-//        populateFieldIndexesByName();
-//    }
-
-//    @Deprecated
-    ClassPresentationType(ClassPresentation cp) {
+    ClassPresentationType(ClassPresentation cp, String localizationKey) {
         if (cp != null) {
             presentationClass = cp.getPresentationClass();
             restrictions = cp.getRestrictions();
@@ -61,12 +53,16 @@ public enum ClassPresentationType {
             withPaging = false;
             fields = null;
         }
+        this.localizationKey = localizationKey;
     }
 
     private void populateFieldIndexesByName() {
         if (fields != null) {
             for (int i = 0; i < fields.length; i++) {
-                fieldIndexesByName.put(fields[i].displayName, i);
+                fieldIndexesByName.put(fields[i].name, i);
+                if (fields[i].variablePrototype) {
+                    variablePrototypeIndex = i;
+                }
             }
         }
     }
@@ -95,4 +91,13 @@ public enum ClassPresentationType {
             throw new InternalApplicationException("Field '" + name + "' is not found in " + this);
         }
     }
+
+    public String getLocalizationKey() {
+        return localizationKey;
+    }
+
+    public int getVariablePrototypeIndex() {
+        return variablePrototypeIndex;
+    }
+
 }

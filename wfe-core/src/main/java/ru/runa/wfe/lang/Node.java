@@ -294,7 +294,9 @@ public abstract class Node extends GraphElement {
     public void endBoundaryEventTokens(ExecutionContext executionContext) {
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
-            for (Token token : executionContext.getToken().getActiveChildren()) {
+            List<Token> activeTokens = executionContext.getToken().getActiveChildren();
+            log.debug("Ending boundary event tokens " + activeTokens + " for " + boundaryEvents);
+            for (Token token : activeTokens) {
                 Node node = token.getNodeNotNull(executionContext.getProcessDefinition());
                 if (boundaryEvents.contains(node)) {
                     token.end(executionContext.getProcessDefinition(), null, null, false);
