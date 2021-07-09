@@ -68,6 +68,10 @@ public class ExecutorLogic extends CommonLogic {
         return executorDao.update(executor);
     }
 
+    public List<? extends Executor> getExecutors(User user, List<Long> ids) {
+        return executorDao.getExecutors(ids);
+    }
+
     public List<? extends Executor> getExecutors(User user, BatchPresentation batchPresentation) {
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createAllExecutorsCompiler(user, batchPresentation);
         return compiler.getBatch();

@@ -267,6 +267,10 @@ public class TaskLogic extends WfCommonLogic {
         return result;
     }
 
+    public void assignTask(User user, Long taskId, Long previousOwnerId, Long newExecutorId) throws TaskAlreadyAcceptedException {
+        assignTask(user, taskId, executorLogic.getExecutor(user, previousOwnerId), executorLogic.getExecutor(user, newExecutorId));
+    }
+
     public void assignTask(User user, Long taskId, Executor previousOwner, Executor newExecutor) throws TaskAlreadyAcceptedException {
         // check assigned executor for the task
         Task task = taskDao.getNotNull(taskId);
@@ -278,6 +282,10 @@ public class TaskLogic extends WfCommonLogic {
         }
         ParsedProcessDefinition parsedProcessDefinition = getDefinition(task);
         AssignmentHelper.reassignTask(new ExecutionContext(parsedProcessDefinition, task), task, newExecutor, false);
+    }
+
+    public void delegateTask(User user, Long taskId, Long currentOwnerId, boolean keepCurrentOwners, List<Long> executorIds) {
+        delegateTask(user, taskId, executorLogic.getExecutor(user, currentOwnerId), keepCurrentOwners, executorLogic.getExecutors(user, executorIds));
     }
 
     public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors) {
