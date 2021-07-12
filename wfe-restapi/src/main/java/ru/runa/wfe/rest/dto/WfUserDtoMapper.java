@@ -8,7 +8,7 @@ import java.util.List;
 public interface WfUserDtoMapper {
     WfUserDto map(Actor actor);
 
-    List<WfUserDto> map(List<Actor> actor);
+    List<WfUserDto> map(List<Actor> actors);
 
     default Actor map(WfUserDto dto) {
         return new Actor(dto.getName(), dto.getDescription(), dto.getFullName(), dto.getCode(),

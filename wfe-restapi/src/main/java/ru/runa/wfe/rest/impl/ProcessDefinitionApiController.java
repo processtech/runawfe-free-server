@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.ProcessDefinitionLogic;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.dto.WfNode;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
@@ -38,6 +40,8 @@ import ru.runa.wfe.rest.dto.WfDefinitionDto;
 import ru.runa.wfe.rest.dto.WfDefinitionMapper;
 import ru.runa.wfe.rest.dto.WfNodeDto;
 import ru.runa.wfe.rest.dto.WfNodeMapper;
+import ru.runa.wfe.var.UserType;
+import ru.runa.wfe.var.VariableDefinition;
 
 @RestController
 @RequestMapping("/definition/")
@@ -50,15 +54,15 @@ public class ProcessDefinitionApiController {
     @PutMapping()
     public WfDefinitionDto deploy(@AuthenticationPrincipal AuthUser authUser, @RequestBody byte[] par,
             @RequestParam List<String> categories, @RequestParam(required = false) Integer secondsBeforeArchiving) {
-        return Mappers.getMapper(WfDefinitionMapper.class).map(
-                processDefinitionLogic.deployProcessDefinition(authUser.getUser(), par, categories, secondsBeforeArchiving));
+        WfDefinition definition = processDefinitionLogic.deployProcessDefinition(authUser.getUser(), par, categories, secondsBeforeArchiving);
+        return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
     }
 
     @PatchMapping("{id}/redeploy")
     public WfDefinitionDto redeploy(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody byte[] par,
             @RequestParam List<String> categories, @RequestParam(required = false) Integer secondsBeforeArchiving) {
-        return Mappers.getMapper(WfDefinitionMapper.class).map(
-                processDefinitionLogic.redeployProcessDefinition(authUser.getUser(), id, par, categories, secondsBeforeArchiving));
+        WfDefinition definition = processDefinitionLogic.redeployProcessDefinition(authUser.getUser(), id, par, categories, secondsBeforeArchiving);
+        return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
     }
 
     @PatchMapping("{id}/update")
@@ -69,6 +73,15 @@ public class ProcessDefinitionApiController {
     @DeleteMapping()
     public void undeploy(@AuthenticationPrincipal AuthUser authUser, String name, Long version) {
         processDefinitionLogic.undeployProcessDefinition(authUser.getUser(), name, version);
+    }
+
+    @PostMapping("list")
+    public PagedList<WfDefinitionDto> getDefinitions(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
+        BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.DEFINITION);
+        List<WfDefinition> definitions = processDefinitionLogic.getProcessDefinitions(authUser.getUser(), batchPresentation, true);
+        WfDefinitionMapper mapper = Mappers.getMapper(WfDefinitionMapper.class);
+        int total = processDefinitionLogic.getProcessDefinitionsCount(authUser.getUser(), batchPresentation);
+        return new PagedList<>(total, mapper.map(definitions));
     }
 
     @GetMapping("{name}/latest")
@@ -82,8 +95,9 @@ public class ProcessDefinitionApiController {
     }
 
     @GetMapping("{name}/history")
-    public List<WfDefinitionDto> getHistory(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
-        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinitionHistory(authUser.getUser(), name));
+    public PagedList<WfDefinitionDto> getHistory(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
+        List<WfDefinition> history = processDefinitionLogic.getProcessDefinitionHistory(authUser.getUser(), name);
+        return new PagedList<>(history.size(), Mappers.getMapper(WfDefinitionMapper.class).map(history));
     }
 
     @GetMapping("{id}")
@@ -109,10 +123,10 @@ public class ProcessDefinitionApiController {
     }
 
     @GetMapping("{id}/graph/elements")
-    public List<NodeGraphElementDto> getGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<NodeGraphElementDto> getGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) String subprocessId) {
-        return Mappers.getMapper(NodeGraphElementMapper.class).map(
-                processDefinitionLogic.getProcessDefinitionGraphElements(authUser.getUser(), id, subprocessId));
+        List<NodeGraphElement> elements = processDefinitionLogic.getProcessDefinitionGraphElements(authUser.getUser(), id, subprocessId);
+        return new PagedList<>(elements.size(), Mappers.getMapper(NodeGraphElementMapper.class).map(elements));
     }
 
     @GetMapping("{id}/interaction")
@@ -126,13 +140,15 @@ public class ProcessDefinitionApiController {
     }
 
     @GetMapping("{id}/swimlanes")
-    public List<SwimlaneDefinitionDto> getSwimlanes(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        return Mappers.getMapper(SwimlaneDefinitionMapper.class).map(processDefinitionLogic.getSwimlanes(authUser.getUser(), id));
+    public PagedList<SwimlaneDefinitionDto> getSwimlanes(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        List<SwimlaneDefinition> swimlanes = processDefinitionLogic.getSwimlanes(authUser.getUser(), id);
+        return new PagedList<>(swimlanes.size(), Mappers.getMapper(SwimlaneDefinitionMapper.class).map(swimlanes));
     }
 
     @GetMapping("{id}/userTypes")
-    public List<UserTypeDto> getUserTypes(@PathVariable Long id) {
-        return Mappers.getMapper(UserTypeMapper.class).map(processDefinitionLogic.getDefinition(id).getUserTypes());
+    public PagedList<UserTypeDto> getUserTypes(@PathVariable Long id) {
+        List<UserType> userTypes = processDefinitionLogic.getDefinition(id).getUserTypes();
+        return new PagedList<>(userTypes.size(), Mappers.getMapper(UserTypeMapper.class).map(userTypes));
     }
 
     @GetMapping("{id}/userType")
@@ -141,23 +157,14 @@ public class ProcessDefinitionApiController {
     }
 
     @GetMapping("{id}/variables")
-    public List<VariableDefinitionDto> getVariableDefinitions(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        return Mappers.getMapper(VariableDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinitionVariables(authUser.getUser(), id));
+    public PagedList<VariableDefinitionDto> getVariableDefinitions(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        List<VariableDefinition> variableDefinitions = processDefinitionLogic.getProcessDefinitionVariables(authUser.getUser(), id);
+        return new PagedList<>(variableDefinitions.size(), Mappers.getMapper(VariableDefinitionMapper.class).map(variableDefinitions));
     }
 
     @GetMapping("{id}/variable")
     public VariableDefinitionDto getVariableDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String name) {
-        return Mappers.getMapper(VariableDefinitionMapper.class).map(
-                processDefinitionLogic.getProcessDefinitionVariable(authUser.getUser(), id, name));
+        VariableDefinition variableDefinition = processDefinitionLogic.getProcessDefinitionVariable(authUser.getUser(), id, name);
+        return Mappers.getMapper(VariableDefinitionMapper.class).map(variableDefinition);
     }
-
-    @PostMapping("list")
-    public PagedList<WfDefinitionDto> getDefinitions(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
-        BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.DEFINITION);
-        List<WfDefinition> definitions = processDefinitionLogic.getProcessDefinitions(authUser.getUser(), batchPresentation, true);
-        WfDefinitionMapper mapper = Mappers.getMapper(WfDefinitionMapper.class);
-        int total = processDefinitionLogic.getProcessDefinitionsCount(authUser.getUser(), batchPresentation);
-        return new PagedList<WfDefinitionDto>(total, mapper.map(definitions));
-    }
-    
 }

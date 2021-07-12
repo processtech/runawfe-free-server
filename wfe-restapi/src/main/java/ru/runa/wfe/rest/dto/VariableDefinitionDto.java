@@ -5,6 +5,7 @@ import ru.runa.wfe.var.VariableStoreType;
 
 @Data
 public class VariableDefinitionDto {
+    private String name;
     private String scriptingName;
     private String description;
     private String formatLabel;

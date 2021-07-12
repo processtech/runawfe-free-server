@@ -34,39 +34,34 @@ public class TaskApiController {
     @Autowired
     private TaskLogic taskLogic;
 
-    @PostMapping
-    public PagedList<WfTaskDto> getMyTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
-        BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.TASK);
-        List<WfTask> tasks = taskLogic.getMyTasks(authUser.getUser(), batchPresentation);
-        WfTaskMapper mapper = Mappers.getMapper(WfTaskMapper.class);
-        return new PagedList<WfTaskDto>(tasks.size(), mapper.map(tasks));
-    }
-
     @PostMapping("list")
-    public PagedList<WfTaskDto> get(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
+    public PagedList<WfTaskDto> getTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
         List<WfTask> tasks = taskLogic.getTasks(authUser.getUser(), request.toBatchPresentation(ClassPresentationType.TASK));
         return new PagedList<>(tasks.size(), Mappers.getMapper(WfTaskMapper.class).map(tasks));
     }
 
+    @PostMapping
+    public PagedList<WfTaskDto> getMyTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
+        List<WfTask> tasks = taskLogic.getMyTasks(authUser.getUser(), request.toBatchPresentation(ClassPresentationType.TASK));
+        return new PagedList<>(tasks.size(), Mappers.getMapper(WfTaskMapper.class).map(tasks));
+    }
+
     @GetMapping("process")
-    public PagedList<WfTaskDto> get(@AuthenticationPrincipal AuthUser authUser, Long processId,
+    public PagedList<WfTaskDto> getProcessTasks(@AuthenticationPrincipal AuthUser authUser, Long processId,
             @RequestParam(required = false) boolean includeSubprocesses) {
         List<WfTask> tasks = taskLogic.getTasks(authUser.getUser(), processId, includeSubprocesses);
         return new PagedList<>(tasks.size(), Mappers.getMapper(WfTaskMapper.class).map(tasks));
     }
 
     @GetMapping("unassigned")
-    public PagedList<WfTaskDto> get(@AuthenticationPrincipal AuthUser authUser) {
+    public PagedList<WfTaskDto> getUnassignedTasks(@AuthenticationPrincipal AuthUser authUser) {
         List<WfTask> tasks = taskLogic.getUnassignedTasks(authUser.getUser());
         return new PagedList<>(tasks.size(), Mappers.getMapper(WfTaskMapper.class).map(tasks));
     }
 
     @GetMapping("{id}")
-    public WfTaskDto getTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        WfTask task = taskLogic.getTask(authUser.getUser(), id);
-        WfTaskMapper mapper = Mappers.getMapper(WfTaskMapper.class);
-        WfTaskDto taskDto = mapper.map(task);
-        return taskDto;
+    public WfTaskDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        return Mappers.getMapper(WfTaskMapper.class).map(taskLogic.getTask(authUser.getUser(), id));
     }
 
     @PatchMapping("{id}/assign")
@@ -86,7 +81,7 @@ public class TaskApiController {
 
     @PostMapping("{id}/complete")
     @ResponseStatus(HttpStatus.OK)
-    public void completeTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
+    public void complete(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
         taskLogic.completeTask(authUser.getUser(), id, variables);
     }
 

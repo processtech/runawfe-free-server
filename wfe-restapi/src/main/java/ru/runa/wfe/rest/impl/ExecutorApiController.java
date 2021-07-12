@@ -20,11 +20,13 @@ import ru.runa.wfe.rest.auth.AuthUser;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest;
 import ru.runa.wfe.rest.dto.ExecutorDto;
 import ru.runa.wfe.rest.dto.ExecutorMapper;
+import ru.runa.wfe.rest.dto.PagedList;
 import ru.runa.wfe.rest.dto.WfGroupDto;
 import ru.runa.wfe.rest.dto.WfGroupDtoMapper;
 import ru.runa.wfe.rest.dto.WfUserDto;
 import ru.runa.wfe.rest.dto.WfUserDtoMapper;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import java.util.List;
 
@@ -36,16 +38,24 @@ public class ExecutorApiController {
     @Autowired
     private ExecutorLogic executorLogic;
 
-    @PutMapping
-    public void create(@AuthenticationPrincipal AuthUser authUser, @RequestBody ExecutorDto dto) {
-        executorLogic.create(authUser.getUser(), Mappers.getMapper(ExecutorMapper.class).map(dto));
+    @PutMapping("actor")
+    public WfUserDto createActor(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfUserDto dto) {
+        WfUserDtoMapper mapper = Mappers.getMapper(WfUserDtoMapper.class);
+        return mapper.map(executorLogic.create(authUser.getUser(), mapper.map(dto)));
+    }
+
+    @PutMapping("group")
+    public WfGroupDto createGroup(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfGroupDto dto) {
+        WfGroupDtoMapper mapper = Mappers.getMapper(WfGroupDtoMapper.class);
+        return mapper.map(executorLogic.create(authUser.getUser(), mapper.map(dto)));
     }
 
     @PatchMapping
     public ExecutorDto update(@AuthenticationPrincipal AuthUser authUser, @RequestBody ExecutorDto dto) {
         Executor executor = executorLogic.getExecutor(authUser.getUser(), dto.getId());
-        ExecutorMapper mapper = Mappers.getMapper(ExecutorMapper.class);
-        return mapper.map(executorLogic.update(authUser.getUser(), mapper.map(executor, dto)));
+        executor.setName(dto.getName());
+        executor.setFullName(dto.getFullName());
+        return Mappers.getMapper(ExecutorMapper.class).map(executorLogic.update(authUser.getUser(), executor));
     }
 
     @DeleteMapping
@@ -53,18 +63,18 @@ public class ExecutorApiController {
         executorLogic.remove(authUser.getUser(), ids);
     }
 
-    @GetMapping("{code}/byCode")
-    public WfUserDto getByCode(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long code) {
-        return Mappers.getMapper(WfUserDtoMapper.class).map(executorLogic.getActorByCode(authUser.getUser(), code));
-    }
-
     @GetMapping("{id}")
     public ExecutorDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return Mappers.getMapper(ExecutorMapper.class).map(executorLogic.getExecutor(authUser.getUser(), id));
     }
 
+    @GetMapping("{code}/byCode")
+    public WfUserDto getByCode(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long code) {
+        return Mappers.getMapper(WfUserDtoMapper.class).map(executorLogic.getActorByCode(authUser.getUser(), code));
+    }
+
     @GetMapping()
-    public ExecutorDto get(@AuthenticationPrincipal AuthUser authUser, String name) {
+    public ExecutorDto getByName(@AuthenticationPrincipal AuthUser authUser, String name) {
         return Mappers.getMapper(ExecutorMapper.class).map(executorLogic.getExecutor(authUser.getUser(), name));
     }
 
@@ -80,22 +90,24 @@ public class ExecutorApiController {
 
     @GetMapping("{id}/isInGroup")
     public boolean isInGroup(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, Long groupId) {
-        return executorLogic.isExecutorInGroup(authUser.getUser(),
-                executorLogic.getExecutor(authUser.getUser(), id), executorLogic.getGroup(authUser.getUser(), groupId));
+        Executor executor = executorLogic.getExecutor(authUser.getUser(), id);
+        return executorLogic.isExecutorInGroup(authUser.getUser(), executor, executorLogic.getGroup(authUser.getUser(), groupId));
     }
 
     @PostMapping("list")
-    public List<ExecutorDto> getExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
+    public PagedList<ExecutorDto> getExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
         BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.EXECUTOR);
-        return Mappers.getMapper(ExecutorMapper.class).map(executorLogic.getExecutors(authUser.getUser(), batchPresentation));
+        List<? extends Executor> executors = executorLogic.getExecutors(authUser.getUser(), batchPresentation);
+        return new PagedList<>(executors.size(), Mappers.getMapper(ExecutorMapper.class).map(executors));
     }
 
     @PostMapping("{id}/groups")
-    public List<WfGroupDto> getExecutorGroups(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<WfGroupDto> getExecutorGroups(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestBody BatchPresentationRequest request, @RequestParam(required = false) boolean isExclude) {
         BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.GROUP);
-        return Mappers.getMapper(WfGroupDtoMapper.class).map(executorLogic.getExecutorGroups(
-                authUser.getUser(), executorLogic.getExecutor(authUser.getUser(), id), batchPresentation, isExclude));
+        Executor executor = executorLogic.getExecutor(authUser.getUser(), id);
+        List<Group> groups = executorLogic.getExecutorGroups(authUser.getUser(), executor, batchPresentation, isExclude);
+        return new PagedList<>(groups.size(), Mappers.getMapper(WfGroupDtoMapper.class).map(groups));
     }
 
     @PutMapping("{id}/groups")
@@ -119,16 +131,18 @@ public class ExecutorApiController {
     }
 
     @PostMapping("{groupId}/children")
-    public List<ExecutorDto> getGroupChildren(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long groupId,
+    public PagedList<ExecutorDto> getGroupChildren(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long groupId,
             @RequestBody BatchPresentationRequest request, @RequestParam(required = false) boolean isExclude) {
         BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.EXECUTOR);
-        return Mappers.getMapper(ExecutorMapper.class).map(executorLogic.getGroupChildren(
-                authUser.getUser(), executorLogic.getGroup(authUser.getUser(), groupId), batchPresentation, isExclude));
+        Group group = executorLogic.getGroup(authUser.getUser(), groupId);
+        List<Executor> executors = executorLogic.getGroupChildren(authUser.getUser(), group, batchPresentation, isExclude);
+        return new PagedList<>(executors.size(), Mappers.getMapper(ExecutorMapper.class).map(executors));
     }
 
     @GetMapping("{groupId}/actors")
-    public List<WfUserDto> getGroupActors(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long groupId) {
-        return Mappers.getMapper(WfUserDtoMapper.class).map(
-                executorLogic.getGroupActors(authUser.getUser(), executorLogic.getGroup(authUser.getUser(), groupId)));
+    public PagedList<WfUserDto> getGroupActors(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long groupId) {
+        Group group = executorLogic.getGroup(authUser.getUser(), groupId);
+        List<WfUserDto> users = Mappers.getMapper(WfUserDtoMapper.class).map(executorLogic.getGroupActors(authUser.getUser(), group));
+        return new PagedList<>(users.size(), users);
     }
 }

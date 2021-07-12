@@ -16,6 +16,7 @@ import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.rest.auth.AuthUser;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest;
+import ru.runa.wfe.rest.dto.PagedList;
 import java.util.List;
 
 @RestController
@@ -26,13 +27,14 @@ public class AuditApiController {
     @Autowired
     private AuditLogic auditLogic;
 
-    @GetMapping("process/{id}")
+    @GetMapping("{id}")
     public ProcessLogs getProcessLogs(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return auditLogic.getProcessLogs(authUser.getUser(), new ProcessLogFilter(id));
     }
 
     @PostMapping("system")
-    public List<SystemLog> getSystemLogs(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
-        return auditLogic.getSystemLogs(authUser.getUser(), request.toBatchPresentation(ClassPresentationType.SYSTEM_LOG));
+    public PagedList<SystemLog> getSystemLogs(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
+        List<SystemLog> logs = auditLogic.getSystemLogs(authUser.getUser(), request.toBatchPresentation(ClassPresentationType.SYSTEM_LOG));
+        return new PagedList<>(logs.size(), logs);
     }
 }

@@ -23,7 +23,9 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
+import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
@@ -114,36 +116,32 @@ public class ProcessApiController {
     }
 
     @GetMapping("{id}")
-    public WfProcessDto getProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        WfProcess process = executionLogic.getProcess(authUser.getUser(), id);
-        WfProcessMapper mapper = Mappers.getMapper(WfProcessMapper.class);
-        WfProcessDto processDto = mapper.map(process);
-        return processDto;
+    public WfProcessDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        return Mappers.getMapper(WfProcessMapper.class).map(executionLogic.getProcess(authUser.getUser(), id));
     }
 
     @GetMapping("{id}/parent")
     public WfProcessDto getParentProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        WfProcess process = executionLogic.getParentProcess(authUser.getUser(), id);
-        return Mappers.getMapper(WfProcessMapper.class).map(process);
+        return Mappers.getMapper(WfProcessMapper.class).map(executionLogic.getParentProcess(authUser.getUser(), id));
     }
 
     @GetMapping("{id}/subprocesses")
-    public List<WfProcessDto> getSubprocesses(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<WfProcessDto> getSubprocesses(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) boolean recursive) {
         List<WfProcess> subprocesses = executionLogic.getSubprocesses(authUser.getUser(), id, recursive);
-        return Mappers.getMapper(WfProcessMapper.class).map(subprocesses);
+        return new PagedList<>(subprocesses.size(), Mappers.getMapper(WfProcessMapper.class).map(subprocesses));
     }
 
     @GetMapping("{id}/swimlanes")
-    public List<WfSwimlaneDto> getSwimlanes(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public PagedList<WfSwimlaneDto> getSwimlanes(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         List<WfSwimlane> swimlanes = executionLogic.getProcessSwimlanes(authUser.getUser(), id);
-        return Mappers.getMapper(WfSwimlaneMapper.class).map(swimlanes);
+        return new PagedList<>(swimlanes.size(), Mappers.getMapper(WfSwimlaneMapper.class).map(swimlanes));
     }
 
     @GetMapping("swimlanes")
-    public List<WfSwimlaneDto> getActiveProcessesSwimlanes(@AuthenticationPrincipal AuthUser authUser, String namePattern) {
+    public PagedList<WfSwimlaneDto> getActiveProcessesSwimlanes(@AuthenticationPrincipal AuthUser authUser, String namePattern) {
         List<WfSwimlane> swimlanes = executionLogic.getActiveProcessesSwimlanes(authUser.getUser(), namePattern);
-        return Mappers.getMapper(WfSwimlaneMapper.class).map(swimlanes);
+        return new PagedList<>(swimlanes.size(), Mappers.getMapper(WfSwimlaneMapper.class).map(swimlanes));
     }
 
     @PatchMapping("swimlane/{id}")
@@ -157,8 +155,9 @@ public class ProcessApiController {
     }
 
     @GetMapping("{id}/variables")
-    public List<WfVariableDto> getVariables(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        return Mappers.getMapper(WfVariableMapper.class).map(variableLogic.getVariables(authUser.getUser(), id));
+    public PagedList<WfVariableDto> getVariables(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+        List<WfVariable> variables = variableLogic.getVariables(authUser.getUser(), id);
+        return new PagedList<>(variables.size(), Mappers.getMapper(WfVariableMapper.class).map(variables));
     }
 
     @PatchMapping("{id}/variables")
@@ -180,8 +179,7 @@ public class ProcessApiController {
     public FileVariableImpl getFileVariableValue(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String name) {
         WfVariable variable = variableLogic.getVariable(authUser.getUser(), id, name);
         if (variable != null) {
-            FileVariable fileVariable = (FileVariable) variable.getValue();
-            return new FileVariableImpl(fileVariable);
+            return new FileVariableImpl((FileVariable) variable.getValue());
         }
         return null;
     }
@@ -198,7 +196,7 @@ public class ProcessApiController {
     }
 
     @PostMapping("{id}/graph")
-    public String getProcessGraph(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> request) {
+    public String getGraph(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> request) {
         Long taskId = (Long) request.get("taskId");
         Long childProcessId = (Long) request.get("childProcessId");
         String subprocessId = (String) request.get("subprocessId");
@@ -207,9 +205,10 @@ public class ProcessApiController {
     }
 
     @GetMapping("{id}/graph/elements")
-    public List<NodeGraphElementDto> getGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<NodeGraphElementDto> getGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) String subprocessId) {
-        return Mappers.getMapper(NodeGraphElementMapper.class).map(executionLogic.getProcessDiagramElements(authUser.getUser(), id, subprocessId));
+        List<NodeGraphElement> elements = executionLogic.getProcessDiagramElements(authUser.getUser(), id, subprocessId);
+        return new PagedList<>(elements.size(), Mappers.getMapper(NodeGraphElementMapper.class).map(elements));
     }
 
     @GetMapping("{id}/graph/element")
@@ -218,14 +217,17 @@ public class ProcessApiController {
     }
 
     @GetMapping("{id}/jobs")
-    public List<WfJob> getJobs(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestParam(required = false) boolean recursive) {
-        return executionLogic.getJobs(authUser.getUser(), id, recursive);
+    public PagedList<WfJob> getJobs(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+            @RequestParam(required = false) boolean recursive) {
+        List<WfJob> jobs = executionLogic.getJobs(authUser.getUser(), id, recursive);
+        return new PagedList<>(jobs.size(), jobs);
     }
 
     @GetMapping("{id}/tokens")
-    public List<WfTokenDto> getTokens(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<WfTokenDto> getTokens(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) boolean recursive) {
-        return Mappers.getMapper(WfTokenMapper.class).map(executionLogic.getTokens(authUser.getUser(), id, recursive, false));
+        List<WfToken> tokens = executionLogic.getTokens(authUser.getUser(), id, recursive, false);
+        return new PagedList<>(tokens.size(), Mappers.getMapper(WfTokenMapper.class).map(tokens));
     }
 
     @PostMapping("sendSignal")
