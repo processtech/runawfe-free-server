@@ -55,6 +55,23 @@ public class RelationLogic extends CommonLogic {
     }
 
     /**
+     * Add {@link RelationPair} to {@link Relation} with specified name.
+     *
+     * @param user
+     *            user, which perform operation.
+     * @param relationId
+     *            Relation id.
+     * @param leftId
+     *            Id of left part of relation pair.
+     * @param rightId
+     *            Id of right part of relation pair.
+     * @return Created relation pair.
+     */
+    public RelationPair addRelationPair(User user, Long relationId, Long leftId, Long rightId) {
+        return addRelationPair(user, relationId, executorDao.getExecutor(leftId), executorDao.getExecutor(rightId));
+    }
+
+    /**
      * Create {@link Relation} with specified name and description or throws {@link RelationAlreadyExistException} if relation with such name is
      * already exists.
      * 
