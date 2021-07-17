@@ -87,7 +87,6 @@
 				</executions>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
-					<!-- webXml>${basedir}/web.xml</webXml -->
 					<warSourceDirectory>${basedir}/dist</warSourceDirectory>
 				</configuration>
 			</plugin>
