@@ -1,15 +1,18 @@
-# После скачивания из репозитория нужно установить node_modules (nvm use lts/dubnium, node v8.11.4, v16.1.0 - не работает, lts/dubnium -> v10.24.1 - запустилось)
->>>npm install
+# Сборка приложения.
 
-# Запуск приложения в браузере в режиме отладки. 
-# Для режима отладки используется конфигурация webpack.dev.js.
-# URL: http://localhost:3000
->>>npm run debug
+runawfe-server/wfe-app> mvn clean package -P spa
+Подложить runawfe.ear в wildly и запустить:
+* http://localhost:8080/wfe/
+* http://localhost:8080/spa/
 
-# Сборка приложения. 
-# Результат сборки в папке /dist. Для запуска приложения в режиме production достаточно содержимое папки переместить в папку домена. 
-# Для режима production используется конфигурация webpack.prod.js.
->>>npm run build
+# Запуск приложения в браузере в режиме отладки.
+
+runawfe-server/wfe-app> mvn clean package
+Подложить runawfe.ear в wildly и запустить:
+* http://localhost:8080/wfe/
+
+runawfe-server/wfe-spa> npm install (nvm use lts/dubnium, если проблема с версиями)
+runawfe-server/wfe-spa> npm run debug
 
 # Альтернативный запуск приложения в режиме production с помощью встроенного http-server из NodeJS.
 # URL: http://localhost:8080 (порт может отличаться в зависимость от конфигурации)
