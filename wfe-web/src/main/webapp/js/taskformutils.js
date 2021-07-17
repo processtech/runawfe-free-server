@@ -41,13 +41,9 @@ function initFileInput(dropzone) {
 	var progressBarLine = progressBar.find(".line");
 	var fileInput = dropzone.find(".inputFile");
 	var inputId = fileInput.attr("name");
-	var jsessionid = "";
-	if (window.sessionId) {
-		jsessionid = ";jsessionid=" + window.sessionId;
-	}
 	dropzone.fileupload({
 		dataType: "json",
-		url: "/wfe/upload" + jsessionid + "?id=" + id,
+		url: "/wfe/upload?id=" + id,
 		fileInput: fileInput,
 		done: function (e, data) {
 			var statusText = progressBar.find(".statusText");
@@ -55,7 +51,7 @@ function initFileInput(dropzone) {
 			var label = data.result.name + "<span style='color: #888'> - " + data.result.size + "</span>";
 			statusImg.attr("src", "/wfe/images/delete.png");
 			statusImg.addClass("inputFileDelete");
-			statusText.html("<a href='/wfe/upload" + jsessionid + "?action=view&inputId=" + inputId + "&id=" + id + "'>" + label + "</a>");
+			statusText.html("<a href='/wfe/upload?action=view&inputId=" + inputId + "&id=" + id + "'>" + label + "</a>");
 		},
 		progressall: function (e, data) {
 			var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -82,13 +78,9 @@ function initFileInput(dropzone) {
 function deleteFile(inputId) {
 	var dropzone = $("input[name='" + inputId + "']").parent().parent();
 	dropzone.show();
-	var jsessionid = "";
-	if (window.sessionId) {
-		jsessionid = ";jsessionid=" + window.sessionId;
-	}
 	jQuery.ajax({
 		type: "GET",
-		url: "/wfe/upload" + jsessionid,
+		url: "/wfe/upload",
 		data: {
 			action: "delete", 
 			id: id,

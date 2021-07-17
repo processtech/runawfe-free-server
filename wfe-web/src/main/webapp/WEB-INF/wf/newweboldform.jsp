@@ -45,7 +45,6 @@
 		String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
 	%>
 	var id = <%= id %>;
-	var sessionId = "<%= request.getSession().getId() %>";
 	$(document).ready(function () {
 		$("<input />", { "type": "hidden", "name": "jwt", "value": "<%= jwt %>"}).appendTo($("#processForm"))
 		$("<input />", { "type": "hidden", "name": "startForm", "value": "<%= startForm %>"}).appendTo($("#processForm"))
