@@ -75,8 +75,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
-import { Options, Sorting } from '../ts/options';
-import { Task } from '../ts/task';
+import { Options, Sorting } from '../ts/Options';
 
 export default Vue.extend({
     name: "TaskList",

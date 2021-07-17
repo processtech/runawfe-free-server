@@ -5,6 +5,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
+<%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,11 +41,14 @@
 	<% 
 		String jwt = request.getParameter("jwt");
 		long id = Long.valueOf(request.getParameter("id"));
+		boolean startForm = Boolean.valueOf(request.getParameter("startForm"));
 		String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
 	%>
 	var id = <%= id %>;
+	var sessionId = "<%= request.getSession().getId() %>";
 	$(document).ready(function () {
 		$("<input />", { "type": "hidden", "name": "jwt", "value": "<%= jwt %>"}).appendTo($("#processForm"))
+		$("<input />", { "type": "hidden", "name": "startForm", "value": "<%= startForm %>"}).appendTo($("#processForm"))
 	});
 	</script>
 	<script type="text/javascript">$(function(){setFocusOnInvalidInputIfAny()});</script>
@@ -63,7 +67,12 @@
 		</center>
 	</div>
 	<div id="content">
-		<wf:taskForm title="<%= title %>" taskId="<%= id %>" action="/submitTaskForm" />
+		<logic:match parameter="startForm" value="true">
+			<wf:startForm title="<%= title %>" definitionVersionId="<%= id %>" action="/submitStartProcessForm" />
+		</logic:match>
+		<logic:notMatch parameter="startForm" value="true">
+			<wf:taskForm title="<%= title %>" taskId="<%= id %>" action="/submitTaskForm" />
+		</logic:notMatch>
 	</div>
 </body>
 </html>

@@ -51,7 +51,7 @@ public abstract class BaseProcessFormAction extends ActionBase {
                 log.warn(getLoggedUser(request) + " will be forwarded to tasklist due invalid token");
             }
             if (request.getParameter(NewWebJwtFilter.PARAMETER_NAME) != null) {
-                return new ActionForward("/newweboldform-completed.do");
+                return new ActionForward("/newweboldform-completed.do?startForm=" + request.getParameter("startForm"));
             }
             return forward;
         } catch (TaskDoesNotExistException e) {
@@ -78,7 +78,8 @@ public abstract class BaseProcessFormAction extends ActionBase {
             addError(request, e);
         }
         if (request.getParameter(NewWebJwtFilter.PARAMETER_NAME) != null) {
-            return new ActionForward("/newweboldform.do?id="+((CommonProcessForm)form).getId()+"&"+NewWebJwtFilter.PARAMETER_NAME+"="+request.getParameter(NewWebJwtFilter.PARAMETER_NAME));
+            return new ActionForward("/newweboldform.do?id=" + ((CommonProcessForm) form).getId() + "&" + NewWebJwtFilter.PARAMETER_NAME + "="
+                    + request.getParameter(NewWebJwtFilter.PARAMETER_NAME) + "&startForm=" + request.getParameter("startForm"));
         }
         return getErrorForward(mapping, form);
     }

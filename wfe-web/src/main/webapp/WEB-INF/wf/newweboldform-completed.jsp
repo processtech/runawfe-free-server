@@ -1,4 +1,6 @@
 <%@ page language="java" contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,8 +9,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-	<h2 style="text-align: center; padding: 47px; font-family: sans-serif; font-weight: 500;">
-		<%= ru.runa.common.web.Commons.getMessage("task.completed", pageContext) %>
-	</h2>
+	<html:messages id="message" message="true">
+		<h2 style="text-align: center; padding: 47px; font-family: sans-serif; font-weight: 500;"><bean:write name="message" /></h2>
+	</html:messages>
 </body>
 </html>

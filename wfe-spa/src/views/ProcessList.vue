@@ -72,7 +72,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
-import { Options, Sorting } from '../ts/options';
+import { Options, Sorting } from '../ts/Options';
 
 export default Vue.extend({
     name: "ProcessList",

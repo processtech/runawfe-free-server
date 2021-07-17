@@ -1,14 +1,14 @@
-import { Executor } from './executor';
+import { ExecutorDto } from './ExecutorDto';
 
-export class Task {
+export class WfTaskDto {
     id: number|null = null;
     name: string = '';
     category: string = '';
     nodeId: string = '';
     description: string = '';
     swimlaneName: string = '';
-    owner: Executor|null = null;
-    targetActor: Executor|null = null;
+    owner: ExecutorDto|null = null;
+    targetActor: ExecutorDto|null = null;
     definitionVersionId: number|null = null;
     definitionName: string = '';
     processId: number|null = null;
@@ -23,9 +23,9 @@ export class Task {
     acquiredBySubstitution: boolean|null = null;
     multitaskIndex: number|null = null;
     readOnly: boolean|null = null;
-    variables: Array<Variable>|null = null;
+    variables: Array<WfVariableDto>|null = null;
 
-    getTaskInfo(): object {
+    getInfo(): object {
         return {
             'Имя процесса': this.definitionName,
             'Имя': this.name,
@@ -39,7 +39,7 @@ export class Task {
     }
 }
 
-class Variable {
+class WfVariableDto {
     name: string = '';
     value: any;
 }
