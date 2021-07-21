@@ -84,24 +84,24 @@ public class ProcessDefinitionApiController {
         return new PagedList<>(total, mapper.map(definitions));
     }
 
-    @GetMapping("{name}/latest")
-    public WfDefinitionDto getLatest(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
-        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getLatestProcessDefinition(authUser.getUser(), name));
-    }
-
-    @GetMapping("{name}/version")
-    public WfDefinitionDto getVersion(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name, Long version) {
-        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinitionVersion(authUser.getUser(), name, version));
-    }
-
     @GetMapping("{name}/history")
     public PagedList<WfDefinitionDto> getHistory(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
         List<WfDefinition> history = processDefinitionLogic.getProcessDefinitionHistory(authUser.getUser(), name);
         return new PagedList<>(history.size(), Mappers.getMapper(WfDefinitionMapper.class).map(history));
     }
 
+    @GetMapping("{name}/latest")
+    public WfDefinitionDto getLatest(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
+        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getLatestProcessDefinition(authUser.getUser(), name));
+    }
+
+    @GetMapping("{name}/version")
+    public WfDefinitionDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name, Long version) {
+        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinitionVersion(authUser.getUser(), name, version));
+    }
+
     @GetMapping("{id}")
-    public WfDefinitionDto getDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public WfDefinitionDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinition(authUser.getUser(), id));
     }
 

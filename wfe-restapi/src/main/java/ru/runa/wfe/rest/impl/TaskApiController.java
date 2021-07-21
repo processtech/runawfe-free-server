@@ -40,14 +40,14 @@ public class TaskApiController {
         return new PagedList<>(tasks.size(), Mappers.getMapper(WfTaskMapper.class).map(tasks));
     }
 
-    @PostMapping
+    @PostMapping("my")
     public PagedList<WfTaskDto> getMyTasks(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
         List<WfTask> tasks = taskLogic.getMyTasks(authUser.getUser(), request.toBatchPresentation(ClassPresentationType.TASK));
         return new PagedList<>(tasks.size(), Mappers.getMapper(WfTaskMapper.class).map(tasks));
     }
 
-    @GetMapping("process")
-    public PagedList<WfTaskDto> getProcessTasks(@AuthenticationPrincipal AuthUser authUser, Long processId,
+    @GetMapping("process/{processId}")
+    public PagedList<WfTaskDto> getProcessTasks(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long processId,
             @RequestParam(required = false) boolean includeSubprocesses) {
         List<WfTask> tasks = taskLogic.getTasks(authUser.getUser(), processId, includeSubprocesses);
         return new PagedList<>(tasks.size(), Mappers.getMapper(WfTaskMapper.class).map(tasks));

@@ -73,6 +73,11 @@ public abstract class BaseProcessLog implements ProcessLog {
 
     protected abstract void setContent(String content);
 
+    @Transient
+    public HashMap<String, String> getAttributes() {
+        return attributes;
+    }
+
     @Override
     public String getAttribute(String name) {
         return attributes.get(name);

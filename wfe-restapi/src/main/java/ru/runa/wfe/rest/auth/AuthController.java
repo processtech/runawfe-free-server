@@ -7,7 +7,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
-import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import ru.runa.wfe.user.User;
 @RestController
 @RequestMapping("/auth")
 @Transactional
-@CommonsLog
 public class AuthController {
     @Autowired
     private AuthenticationLogic authenticationLogic;
@@ -45,26 +43,17 @@ public class AuthController {
 
     @PostMapping("/kerberos")
     public User authenticateByKerberos(@RequestParam byte[] token) {
-        log.debug("Authenticating (kerberos)");
-        User user = authenticationLogic.authenticate(token);
-        log.debug("Authenticated (kerberos): " + user);
-        return user;
+        return authenticationLogic.authenticate(token);
     }
 
     @PostMapping("/loginPassword")
     public User authenticateByLoginPassword(@RequestParam String login, @RequestParam String password) {
-        log.debug("Authenticating (login) " + login);
-        User user = authenticationLogic.authenticate(login, password);
-        log.debug("Authenticated (login): " + user);
-        return user;
+        return authenticationLogic.authenticate(login, password);
     }
 
     @PostMapping("/trustedPrincipal")
     public User authenticateByTrustedPrincipal(@AuthenticationPrincipal AuthUser authUser, @RequestParam String login) {
-        log.debug("Authenticating (trusted) " + login);
-        User user = authenticationLogic.authenticate(authUser.getUser(), login);
-        log.debug("Authenticated (trusted): " + user);
-        return user;
+        return authenticationLogic.authenticate(authUser.getUser(), login);
     }
 
     // Тестовый запрос для проверки авторизации по токену

@@ -46,7 +46,6 @@ import ru.runa.wfe.rest.dto.WfVariableHistoryStateMapper;
 import ru.runa.wfe.rest.dto.WfVariableMapper;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.logic.VariableLogic;
 
 @RestController
@@ -176,12 +175,9 @@ public class ProcessApiController {
     }
 
     @GetMapping("{id}/fileVariableValue")
-    public FileVariableImpl getFileVariableValue(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String name) {
+    public byte[] getFileVariableValue(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String name) {
         WfVariable variable = variableLogic.getVariable(authUser.getUser(), id, name);
-        if (variable != null) {
-            return new FileVariableImpl((FileVariable) variable.getValue());
-        }
-        return null;
+        return variable != null ? ((FileVariable) variable.getValue()).getData() : null;
     }
 
     @PostMapping("historicalVariables")
@@ -232,8 +228,6 @@ public class ProcessApiController {
 
     @PostMapping("sendSignal")
     public void sendSignal(@RequestBody Map<String, Map<String, ?>> request, Long ttlInSeconds) {
-        // TODO Redefine the need for the separate method for REST API
-        //  (Utils.sendBpmnMessage returns javax.jms.ObjectMessage, which is not in wfe-restapi's dependencies)
         Utils.sendBpmnMessageRest((Map<String, String>) request.get("routingData"), request.get("payloadData"), ttlInSeconds * 1000);
     }
 
