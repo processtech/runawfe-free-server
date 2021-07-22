@@ -36,8 +36,8 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
-import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.DropMessageNotNullConstraintPatch;
+import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.EnlargeMessageMaxSizePatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandChatColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
@@ -51,6 +51,7 @@ import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep4;
 import ru.runa.wfe.commons.dbmigration.impl.RemoveWfeConstants;
+import ru.runa.wfe.commons.dbmigration.impl.RenameColumnInChatMessageRecipientPatch;
 import ru.runa.wfe.commons.dbmigration.impl.RenameProcessesBatchPresentationCategories;
 import ru.runa.wfe.commons.dbmigration.impl.RenameProcessesBatchPresentationClassTypes;
 import ru.runa.wfe.commons.dbmigration.impl.RenameSequences;
@@ -164,6 +165,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddChatRoomViewPatch.class);
         dbMigrations.add(EnlargeMessageMaxSizePatch.class);
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
+        dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
         return dbMigrations;
     }
 }

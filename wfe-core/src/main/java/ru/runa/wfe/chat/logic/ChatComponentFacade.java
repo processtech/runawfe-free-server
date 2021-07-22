@@ -9,6 +9,7 @@ import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.ChatMessageFile;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatMessageDao;
+import ru.runa.wfe.chat.dao.ChatMessageRecipientDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.user.Actor;
 
@@ -25,6 +26,8 @@ public class ChatComponentFacade {
     private ChatFileDao fileDao;
     @Autowired
     private CurrentProcessDao processDao;
+    @Autowired
+    private ChatMessageRecipientDao recipientDao;
 
     public ChatMessage save(ChatMessage message, Set<Actor> recipients, List<ChatMessageFile> files, long processId) {
         final ChatMessage savedMessage = save(message, recipients, processId);
@@ -43,7 +46,8 @@ public class ChatComponentFacade {
     public void deleteByProcessId(long processId) {
         for (ChatMessage message : messageDao.getByProcessId(processId)) {
             fileDao.deleteByMessage(message);
-            messageDao.deleteMessageAndRecipient(message.getId());
+            recipientDao.deleteByMessageId(message.getId());
+            messageDao.delete(message.getId());
         }
     }
 }

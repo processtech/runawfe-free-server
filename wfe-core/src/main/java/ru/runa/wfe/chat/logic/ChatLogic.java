@@ -14,6 +14,7 @@ import ru.runa.wfe.chat.ChatRoom;
 import ru.runa.wfe.chat.ChatRoomClassPresentation;
 import ru.runa.wfe.chat.dao.ChatFileDao;
 import ru.runa.wfe.chat.dao.ChatFileIo;
+import ru.runa.wfe.chat.dao.ChatMessageRecipientDao;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
 import ru.runa.wfe.chat.dto.WfChatMessageBroadcast;
 import ru.runa.wfe.chat.dto.WfChatRoom;
@@ -62,6 +63,8 @@ public class ChatLogic extends WfCommonLogic {
     private ExecutorLogic executorLogic;
     @Autowired
     private ChatFileDao fileDao;
+    @Autowired
+    private ChatMessageRecipientDao recipientDao;
 
     public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
         final ChatMessage newMessage = messageRequestMapper.toEntity(request);
@@ -105,7 +108,8 @@ public class ChatLogic extends WfCommonLogic {
         final ChatMessage message = chatMessageDao.getNotNull(request.getMessageId());
         final Set<Actor> recipients = getRecipientsByMessageId(message.getId());
         fileDao.deleteByMessage(message);
-        chatMessageDao.deleteMessageAndRecipient(message.getId());
+        recipientDao.deleteByMessageId(message.getId());
+        chatMessageDao.delete(message.getId());
         return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()), recipients);
     }
 
@@ -124,7 +128,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public Long getNewMessagesCount(User user) {
-        return chatMessageDao.getNewMessagesCount(user.getActor());
+        return recipientDao.getNewMessagesCount(user.getActor());
     }
 
     public void deleteMessages(User user, Long processId) {
@@ -163,7 +167,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     private Set<Actor> getRecipientsByMessageId(Long messageId) {
-        return new HashSet<>(chatMessageDao.getRecipientsByMessageId(messageId));
+        return new HashSet<>(recipientDao.getRecipientsByMessageId(messageId));
     }
 
     @SuppressWarnings("rawtypes")
