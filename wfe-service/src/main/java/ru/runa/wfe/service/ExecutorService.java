@@ -18,7 +18,6 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.WeakPasswordException;
 import ru.runa.wfe.user.Actor;
@@ -48,9 +47,19 @@ public interface ExecutorService {
     List<? extends Executor> getExecutors(User user, BatchPresentation batchPresentation);
 
     /**
+     * Gets executors for {@link BatchPresentation} but without temporary ones.
+     */
+    List<? extends Executor> getNotTemporaryExecutors(User user, BatchPresentation batchPresentation);
+
+    /**
      * Gets executors count for {@link BatchPresentation}.
      */
     int getExecutorsCount(User user, BatchPresentation batchPresentation);
+
+    /**
+     * Gets executors count for {@link BatchPresentation} but without temporary ones.
+     */
+    int getNotTemporaryExecutorsCount(User user, BatchPresentation batchPresentation);
 
     /**
      * Gets actor by code.

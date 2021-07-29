@@ -18,7 +18,6 @@
 package ru.runa.wfe.service.delegate;
 
 import java.util.List;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.user.Actor;
@@ -76,9 +75,27 @@ public class ExecutorServiceDelegate extends Ejb3Delegate implements ExecutorSer
     }
 
     @Override
+    public List<? extends Executor> getNotTemporaryExecutors(User user, BatchPresentation batchPresentation) {
+        try {
+            return getExecutorService().getNotTemporaryExecutors(user, batchPresentation);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public int getExecutorsCount(User user, BatchPresentation batchPresentation) {
         try {
             return getExecutorService().getExecutorsCount(user, batchPresentation);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public int getNotTemporaryExecutorsCount(User user, BatchPresentation batchPresentation) {
+        try {
+            return getExecutorService().getNotTemporaryExecutorsCount(user, batchPresentation);
         } catch (Exception e) {
             throw handleException(e);
         }

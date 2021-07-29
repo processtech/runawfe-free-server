@@ -74,11 +74,31 @@ public class ExecutorServiceBean implements ExecutorServiceLocal, ExecutorServic
 
     @Override
     @WebResult(name = "result")
+    public List<? extends Executor> getNotTemporaryExecutors(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
+        }
+        return executorLogic.getNotTemporaryExecutors(user, batchPresentation);
+    }
+
+    @Override
+    @WebResult(name = "result")
     public int getExecutorsCount(@WebParam(name = "user") @NonNull User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
         }
         return executorLogic.getExecutorsCount(user, batchPresentation);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public int getNotTemporaryExecutorsCount(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
+        }
+        return executorLogic.getNotTemporaryExecutorsCount(user, batchPresentation);
     }
 
     @Override
