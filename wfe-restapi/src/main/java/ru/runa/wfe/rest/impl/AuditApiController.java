@@ -20,6 +20,8 @@ import ru.runa.wfe.rest.dto.BatchPresentationRequest;
 import ru.runa.wfe.rest.dto.PagedList;
 import ru.runa.wfe.rest.dto.ProcessLogDto;
 import ru.runa.wfe.rest.dto.ProcessLogMapper;
+import ru.runa.wfe.rest.dto.SystemLogDto;
+import ru.runa.wfe.rest.dto.SystemLogMapper;
 import java.util.List;
 
 @RestController
@@ -37,8 +39,8 @@ public class AuditApiController {
     }
 
     @PostMapping("system")
-    public PagedList<SystemLog> getSystemLogs(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
+    public PagedList<SystemLogDto> getSystemLogs(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
         List<SystemLog> logs = auditLogic.getSystemLogs(authUser.getUser(), request.toBatchPresentation(ClassPresentationType.SYSTEM_LOG));
-        return new PagedList<>(logs.size(), logs);
+        return new PagedList<>(logs.size(), Mappers.getMapper(SystemLogMapper.class).map(logs));
     }
 }

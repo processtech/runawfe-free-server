@@ -8,5 +8,5 @@ import java.util.List;
 public interface ProcessLogMapper {
     ProcessLogDto map(BaseProcessLog log);
 
-    List<ProcessLogDto> map(List<BaseProcessLog> log);
+    List<ProcessLogDto> map(List<BaseProcessLog> logs);
 }
