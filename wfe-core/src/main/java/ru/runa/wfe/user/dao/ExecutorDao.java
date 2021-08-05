@@ -714,9 +714,11 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         visited.add(executor);
         Set<Group> result = new HashSet<>();
         for (Group group : getExecutorGroups(executor)) {
-            if (!group.isTemporary() || group.isTemporary() && includeTemporaryGroups) {
+            if (!group.isTemporary()) {
                 result.add(group);
                 result.addAll(getExecutorGroupsAll(group, visited, includeTemporaryGroups));
+            } else if (includeTemporaryGroups) {
+                result.add(group);
             }
         }
         return result;
