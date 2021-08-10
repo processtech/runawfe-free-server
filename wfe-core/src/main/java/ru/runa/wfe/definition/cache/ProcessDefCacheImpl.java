@@ -17,15 +17,10 @@
  */
 package ru.runa.wfe.definition.cache;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
-
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
-import ru.runa.wfe.commons.cache.CacheImplementation;
-import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
@@ -41,44 +36,18 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     private final Cache<Long, ProcessDefinition> definitionIdToDefinition;
     private final Cache<String, Long> definitionNameToId;
 
-    private final AtomicBoolean isLocked = new AtomicBoolean(false);
-
     public ProcessDefCacheImpl() {
         definitionIdToDefinition = createCache(definitionIdToDefinitionName);
         definitionNameToId = createCache(definitionNameToLatestDefinitionName);
     }
 
-    private ProcessDefCacheImpl(ProcessDefCacheImpl source) {
-        definitionIdToDefinition = source.definitionIdToDefinition;
-        definitionNameToId = source.definitionNameToId;
-    }
-
-    public synchronized void onDeploymentChange(Deployment deployment, Change change) {
-        isLocked.set(true);
-        // TODO different calc depending on change
-        if (deployment.getId() != null) {
-            definitionIdToDefinition.remove(deployment.getId());
-        }
-        definitionNameToId.remove(deployment.getName());
-    }
-
-    /**
-     * This method can be used only in old cache implementation (Synchronization is guaranteed by cache logic). State machine implementation must
-     * return new cache instance and may not unlock current cache.
-     */
-    public void Unlock() {
-        isLocked.set(false);
-    }
-
     @Override
     public ProcessDefinition getDefinition(DeploymentDao deploymentDao, Long definitionId) throws DefinitionDoesNotExistException {
         ProcessDefinition processDefinition = null;
-        // synchronized (this) {
         processDefinition = definitionIdToDefinition.get(definitionId);
         if (processDefinition != null) {
             return processDefinition;
         }
-        // }
         Deployment deployment = deploymentDao.getNotNull(definitionId);
         Hibernate.initialize(deployment);
         if (deployment instanceof HibernateProxy) {
@@ -86,42 +55,24 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         }
         ProcessArchive archive = new ProcessArchive(deployment);
         processDefinition = archive.parseProcessDefinition();
-        // synchronized (this) {
         definitionIdToDefinition.put(definitionId, processDefinition);
-        // }
         return processDefinition;
     }
 
     @Override
     public ProcessDefinition getLatestDefinition(DeploymentDao deploymentDao, String definitionName) {
         Long definitionId = null;
-        // synchronized (this) {
         definitionId = definitionNameToId.get(definitionName);
         if (definitionId != null) {
             return getDefinition(deploymentDao, definitionId);
         }
-        // }
         definitionId = deploymentDao.findLatestDeployment(definitionName).getId();
-        synchronized (this) {
-            if (!isLocked.get()) {
-                definitionNameToId.put(definitionName, definitionId);
-            }
-        }
+        definitionNameToId.put(definitionName, definitionId);
         return getDefinition(deploymentDao, definitionId);
     }
 
     @Override
-    public CacheImplementation unlock() {
-        return new ProcessDefCacheImpl(this);
-    }
-
-    @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        if (changedObject.object instanceof Deployment) {
-            onDeploymentChange((Deployment) changedObject.object, changedObject.changeType);
-            return true;
-        }
-        log.error("Unexpected object " + changedObject.object);
         return false;
     }
 }

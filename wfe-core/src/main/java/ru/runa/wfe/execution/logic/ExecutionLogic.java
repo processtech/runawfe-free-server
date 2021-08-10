@@ -448,7 +448,7 @@ public class ExecutionLogic extends WfCommonLogic {
         boolean resetCaches = process.getExecutionStatus() == ExecutionStatus.SUSPENDED;
         activateProcessWithSubprocesses(user, process);
         if (resetCaches) {
-            TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+            TransactionListeners.addListener(new CacheResetTransactionListener(Task.class), true);
         }
         log.info("Process " + processId + " activated");
     }
@@ -461,7 +461,7 @@ public class ExecutionLogic extends WfCommonLogic {
             throw new AuthorizationException("Only administrator can suspend process");
         }
         suspendProcessWithSubprocesses(user, processDao.getNotNull(processId));
-        TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+        TransactionListeners.addListener(new CacheResetTransactionListener(Task.class), true);
         log.info("Process " + processId + " suspended");
     }
 

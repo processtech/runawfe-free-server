@@ -17,22 +17,18 @@
  */
 package ru.runa.wfe.ss.cache;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
-import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContextStub;
@@ -217,11 +213,6 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
             }
         }
         return result;
-    }
-
-    @Override
-    public CacheImplementation unlock() {
-        return null;
     }
 
     @Override

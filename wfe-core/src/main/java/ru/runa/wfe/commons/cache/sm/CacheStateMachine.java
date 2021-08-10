@@ -1,14 +1,10 @@
 package ru.runa.wfe.commons.cache.sm;
 
 import java.util.concurrent.atomic.AtomicReference;
-
 import javax.transaction.Transaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.type.Type;
-
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
@@ -17,7 +13,6 @@ import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
-import ru.runa.wfe.commons.cache.states.DefaultCacheStateFactory;
 import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
 import ru.runa.wfe.commons.cache.states.StateCommandResult;
@@ -174,7 +169,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
     }
 
     /**
-     * Called then object is changed and cache must be notified about changing transaction.
+     * Called when object is changed and cache must be notified about changing transaction.
      *
      * @param transaction
      *            Transaction, which change persistent object.
@@ -330,9 +325,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
     public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl, DefaultStateContext> createStateMachine(
             LazyInitializedCacheFactory<CacheImpl> factory, Object monitor) {
         DefaultCacheTransactionalExecutor transactionalExecutor = new DefaultCacheTransactionalExecutor();
-        boolean isIsolated = SystemProperties.useIsolatedCacheStateMachine();
-        CacheStateFactory<CacheImpl, DefaultStateContext> stateFactory =
-                isIsolated ? new IsolatedCacheStateFactory<CacheImpl>() : new DefaultCacheStateFactory<CacheImpl>();
+        CacheStateFactory<CacheImpl, DefaultStateContext> stateFactory = new IsolatedCacheStateFactory<CacheImpl>();
         LazyCacheFactoryImpl<CacheImpl> cacheFactory = new LazyCacheFactoryImpl<CacheImpl>(factory, transactionalExecutor);
         return new CacheStateMachine<CacheImpl, DefaultStateContext>(cacheFactory, stateFactory, monitor);
     }
@@ -348,9 +341,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
      */
     public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl, DefaultStateContext> createStateMachine(
             StaticCacheFactory<CacheImpl> factory, Object monitor) {
-        boolean isIsolated = SystemProperties.useIsolatedCacheStateMachine();
-        CacheStateFactory<CacheImpl, DefaultStateContext> stateFactory =
-                isIsolated ? new IsolatedCacheStateFactory<CacheImpl>() : new DefaultCacheStateFactory<CacheImpl>();
+        CacheStateFactory<CacheImpl, DefaultStateContext> stateFactory = new IsolatedCacheStateFactory<CacheImpl>();
         StaticCacheFactoryImpl<CacheImpl> cacheFactory = new StaticCacheFactoryImpl<CacheImpl>(factory);
         return new CacheStateMachine<CacheImpl, DefaultStateContext>(cacheFactory, stateFactory, monitor);
     }

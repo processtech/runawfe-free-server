@@ -17,10 +17,12 @@
  */
 package ru.runa.wfe.commons.cache.sm;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
@@ -28,15 +30,9 @@ import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.type.Type;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheImplementation;
@@ -264,6 +260,14 @@ public class CachingLogic {
     private static Transaction getTransactionToGetCache() {
         Transaction transaction = Utils.getTransaction();
         return transaction != null ? transaction : WrongAccessTransaction.getInstance();
+    }
+
+    public static void resetCaches(Class<?> clazz) {
+        if (objectTypeToListenersRegistered.containsKey(clazz)) {
+            for (ChangeListener listener : objectTypeToListenersRegistered.get(clazz)) {
+                listener.uninitialize(CachingLogic.class, Change.REFRESH);
+            }
+        }
     }
 
     public static void resetAllCaches() {

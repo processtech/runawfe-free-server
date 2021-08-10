@@ -2,8 +2,7 @@ package ru.runa.wfe.service.interceptors;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
-
-import ru.runa.wfe.commons.cache.CachingLogic;
+import ru.runa.wfe.commons.cache.sm.CachingLogic;
 
 public class CacheReloader {
 

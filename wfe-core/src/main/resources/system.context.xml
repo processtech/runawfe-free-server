@@ -275,6 +275,7 @@
 	<bean id="unassignedTaskAssigner" class="ru.runa.wfe.job.impl.UnassignedTaskAssigner" />
 	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
     <bean id="statisticReportExecutor" class="ru.runa.wfe.statistics.job.StatisticReportExecutor" init-method="init"/>
+	<bean id="cacheUsageStatisticLogger" class="ru.runa.wfe.job.impl.CacheUsageStatisticLogger" />
 	<bean id="asyncTaskChecker" class="ru.runa.wfe.job.impl.AsyncTaskChecker">
 		<property name="ttlInSeconds" value="${async.tasks.ttl.in.seconds}" />
 	</bean>
@@ -284,6 +285,7 @@
 		<task:scheduled ref="unassignedTaskAssigner" method="execute" fixed-delay="${timertask.period.millis.unassigned.tasks.execution}" />
 		<task:scheduled ref="unusedTemporaryGroupsCleaner" method="execute" fixed-delay="${timertask.period.millis.remove.temp.groups}" />
 		<task:scheduled ref="asyncTaskChecker" method="execute" fixed-delay="${timertask.period.millis.async.tasks.checker}" />
+		<task:scheduled ref="cacheUsageStatisticLogger" method="execute" cron="${timertask.cron.cache.usage.statistic.logger}" />
 	</task:scheduled-tasks>
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />

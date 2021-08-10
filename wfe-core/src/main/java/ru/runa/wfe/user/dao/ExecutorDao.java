@@ -559,11 +559,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     public Set<Actor> getGroupActors(Group group) {
-        Set<Actor> result = executorCacheCtrl.getGroupActorsAll(group);
-        if (result == null) {
-            result = getGroupActors(group, new HashSet<>());
-        }
-        return result;
+        return getGroupActors(group, new HashSet<>());
     }
 
     public Set<Group> getExecutorParentsAll(Executor executor, boolean includeTemporaryGroups) {
