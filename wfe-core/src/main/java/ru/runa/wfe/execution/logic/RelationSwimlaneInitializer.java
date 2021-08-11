@@ -76,7 +76,7 @@ public class RelationSwimlaneInitializer extends SwimlaneInitializer {
         }
         Set<Executor> parameters = Sets.newHashSet();
         parameters.add(parameter);
-        parameters.addAll(executorDao.getExecutorParentsAll(parameter, false));
+        parameters.addAll(executorDao.getExecutorParentsAll(parameter));
         Set<Executor> result = Sets.newHashSet();
         Relation relation = relationDao.getNotNull(relationName);
         if (inversed) {

@@ -193,9 +193,10 @@ public class CachingLogic {
             DirtyTransactionSynchronization.register(transaction);
         }
         if (notifyThis != null) {
-            toNotify.addAll(notifyThis);
             for (ChangeListener listener : notifyThis) {
-                listener.onChange(transaction, new ChangedObjectParameter(changed, change, currentState, previousState, propertyNames, types));
+                if (listener.onChange(transaction, new ChangedObjectParameter(changed, change, currentState, previousState, propertyNames, types))) {
+                    toNotify.add(listener);
+                }
             }
         }
     }

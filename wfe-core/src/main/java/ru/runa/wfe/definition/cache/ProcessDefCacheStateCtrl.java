@@ -2,9 +2,7 @@ package ru.runa.wfe.definition.cache;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
@@ -38,7 +36,7 @@ class ProcessDefCacheStateCtrl extends BaseCacheCtrl<ManageableProcessDefinition
 
     private static final List<ListenObjectDefinition> createListenObjectTypes() {
         ArrayList<ListenObjectDefinition> result = new ArrayList<ListenObjectDefinition>();
-        result.add(new ListenObjectDefinition(Deployment.class, ListenObjectLogType.ALL));
+        result.add(new ListenObjectDefinition(Deployment.class));
         return result;
     }
 

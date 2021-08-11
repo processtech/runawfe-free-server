@@ -313,8 +313,7 @@ public class ExecutionLogic extends WfCommonLogic {
             permissionDao.checkAllowed(user, Permission.READ, process);
             ProcessDefinition processDefinition = getDefinition(process);
             List<ProcessLog> logs = processLogDao.getAll(processId);
-            List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
-            return new GraphHistoryBuilder(executors, process, processDefinition, logs, subprocessId).createDiagram();
+            return new GraphHistoryBuilder(process, processDefinition, logs, subprocessId).createDiagram();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
@@ -327,8 +326,7 @@ public class ExecutionLogic extends WfCommonLogic {
             permissionDao.checkAllowed(user, Permission.READ, process);
             ProcessDefinition processDefinition = getDefinition(process);
             List<ProcessLog> logs = processLogDao.getAll(processId);
-            List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
-            return new GraphHistoryBuilder(executors, process, processDefinition, logs, subprocessId).getElements();
+            return new GraphHistoryBuilder(process, processDefinition, logs, subprocessId).getElements();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }

@@ -1,8 +1,7 @@
 package ru.runa.wfe.graph.history;
 
-import java.util.HashMap;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLog;
 import ru.runa.wfe.audit.ProcessLog;
@@ -13,19 +12,12 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
-import ru.runa.wfe.user.Executor;
-
-import com.google.common.collect.Lists;
 
 /**
  * Model to parse and store data, required to build history from logs.
  */
 public class GraphHistoryBuilderData {
 
-    /**
-     * Maps executor name to executor.
-     */
-    private final HashMap<String, Executor> executors = new HashMap<String, Executor>();
     /**
      * Model with process definition data.
      */
@@ -56,8 +48,6 @@ public class GraphHistoryBuilderData {
      * Creates model to parse and store data, required to build history from
      * logs.
      * 
-     * @param executors
-     *            Executors, defined in system.
      * @param processDefinition
      *            Process definition.
      * @param fullProcessLogs
@@ -66,13 +56,10 @@ public class GraphHistoryBuilderData {
      *            Subprocess name, if history for embedded subprocess is
      *            required.
      */
-    public GraphHistoryBuilderData(List<Executor> executors, Process processInstance, ProcessDefinition processDefinition,
+    public GraphHistoryBuilderData(Process processInstance, ProcessDefinition processDefinition,
             List<ProcessLog> fullProcessLogs, String subProcessId) {
         processInstanceData = new ProcessInstanceData(processInstance, processDefinition);
         transitions = new TransitionLogData(fullProcessLogs);
-        for (Executor executor : executors) {
-            this.executors.put(executor.getName(), executor);
-        }
         embeddedLogsParser = new EmbeddedSubprocessLogsData(fullProcessLogs, transitions, getProcessInstanceData());
         processLogs = prepareLogs(fullProcessLogs, subProcessId);
     }
@@ -112,18 +99,6 @@ public class GraphHistoryBuilderData {
      */
     public Node getNode(String nodeId) {
         return getProcessInstanceData().getNode(nodeId);
-    }
-
-    /**
-     * Get executor by it name. May return null if executor with such name is
-     * not exists.
-     * 
-     * @param executorName
-     *            Executor name.
-     * @return Returns executor with given name or null.
-     */
-    public Executor getExecutorByName(String executorName) {
-        return executors.get(executorName);
     }
 
     /**

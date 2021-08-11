@@ -460,7 +460,8 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     protected Set<Executor> getExecutorsToGetTasks(Actor actor, boolean addOnlyInactiveGroups) {
         Set<Executor> executors = new HashSet<>();
         executors.add(actor);
-        Set<Group> upperGroups = executorDao.getExecutorParentsAll(actor, true);
+        Set<Group> upperGroups = executorDao.getExecutorParentsAll(actor);
+        upperGroups.addAll(executorDao.getTemporaryGroupsByExecutor(actor));
         if (addOnlyInactiveGroups) {
             for (Group group : upperGroups) {
                 if (group instanceof EscalationGroup && isActorInInactiveEscalationGroup(actor, (EscalationGroup) group)) {

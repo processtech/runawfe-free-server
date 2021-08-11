@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.SerializationUtils;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
@@ -250,18 +248,15 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         return actorMembers;
     }
 
-    private <T> List<T> getAll(Class<?> clazz) {
-        Session session = ApplicationContextFactory.getCurrentSession();
-        Criteria criteria = session.createCriteria(clazz);
-        return criteria.list();
-    }
-
     private List<ExecutorGroupMembership> getAllMemberships() {
-        return getAll(ExecutorGroupMembership.class);
+        return ApplicationContextFactory.getCurrentSession()
+                .createSQLQuery("SELECT * FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N'))")
+                .addEntity(ExecutorGroupMembership.class).list();
     }
 
     private List<Executor> getAllExecutors() {
-        return getAll(Executor.class);
+        return ApplicationContextFactory.getCurrentSession().createSQLQuery("SELECT * FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')")
+                .addEntity(Executor.class).list();
     }
 
     private static class BatchPresentationFieldEquals {

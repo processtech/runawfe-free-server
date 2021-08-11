@@ -434,12 +434,12 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
                                 if (!context.isInitializationStillRequired()) {
                                     return;
                                 }
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Creating cache from " + factory);
+                                if (log.isTraceEnabled()) {
+                                    log.trace("Creating cache from " + factory);
                                 }
                                 cache.set(factory.buildCache(context));
                                 if (log.isDebugEnabled()) {
-                                    log.debug("Created cache from " + factory + ": " + cache.get());
+                                    log.debug("Created cache " + cache.get());
                                 }
                                 context.onComplete(cache.get());
                             }
@@ -504,12 +504,12 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
                                 if (!context.isInitializationStillRequired()) {
                                     return;
                                 }
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Creating cache from " + factory);
+                                if (log.isTraceEnabled()) {
+                                    log.trace("Creating cache from " + factory);
                                 }
                                 cache.set(factory.buildCache(context));
                                 if (log.isDebugEnabled()) {
-                                    log.debug("Created cache from " + factory + ": " + cache.get());
+                                    log.debug("Created cache " + cache.get());
                                 }
                                 context.onComplete(cache.get());
                             }
@@ -548,12 +548,12 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation, StateConte
 
         @Override
         public CacheImpl createCache() {
-            if (log.isDebugEnabled()) {
-                log.debug("Creating cache from " + factory);
+            if (log.isTraceEnabled()) {
+                log.trace("Creating cache from " + factory);
             }
             CacheImpl cache = factory.buildCache();
             if (log.isDebugEnabled()) {
-                log.debug("Created cache from " + factory + ": " + cache);
+                log.debug("Created cache " + cache);
             }
             return cache;
         }
