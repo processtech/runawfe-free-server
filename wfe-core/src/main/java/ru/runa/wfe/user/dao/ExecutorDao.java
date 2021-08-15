@@ -228,10 +228,13 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         return queryFactory.selectFrom(tg).where(tg.description.eq(processId.toString())).fetch();
     }
 
-    public List<Group> getTemporaryGroupsByExecutor(Executor executor) {
+    public List<Group> getExecutorsTemporaryGroups(Collection<? extends Executor> executors) {
+        if (executors.size() == 0) {
+            return new ArrayList<>();
+        }
         QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
         QTemporaryGroup tg = QTemporaryGroup.temporaryGroup;
-        return queryFactory.select(egm.group).from(egm, tg).where(egm.executor.eq(executor).and(egm.group.id.eq(tg.id))).fetch();
+        return queryFactory.select(egm.group).from(egm, tg).where(egm.executor.in(executors).and(egm.group.id.eq(tg.id))).fetch();
     }
 
     /**
