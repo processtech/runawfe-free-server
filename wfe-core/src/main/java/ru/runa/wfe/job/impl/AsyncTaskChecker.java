@@ -3,6 +3,7 @@ package ru.runa.wfe.job.impl;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.audit.CurrentTaskRemovedOnProcessEndLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
@@ -24,6 +25,7 @@ public class AsyncTaskChecker {
     }
 
     @Transactional
+    @Scheduled(fixedDelayString = "${timertask.period.millis.async.tasks.checker}")
     public void execute() {
         if (ttlInMillis <= 0) {
             return;
