@@ -39,8 +39,8 @@ public class BpmnFigureFactory extends AbstractFigureFactory {
             figure = new Rhomb("image/bpmn/decision.png");
             break;
         case BUSINESS_RULE:
-             figure = new RoundedRect("image/bpmn/businessRule.png");
-             break;
+            figure = new RoundedRect("image/bpmn/businessRule.png");
+            break;
         case PARALLEL_GATEWAY:
             figure = new Rhomb("image/bpmn/fork_join.png");
             break;
