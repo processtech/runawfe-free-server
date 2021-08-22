@@ -26,6 +26,11 @@ const state = {
       icon: 'mdi-graph-outline',
       to: '/process/list/',
     },
+    {
+      title: 'Отчеты',
+      icon: 'mdi-poll-box-outline',
+      to: '/report/list/',
+    },
   ],
   profile: [
     { 
