@@ -335,7 +335,7 @@ public class ExecutorLogic extends CommonLogic {
                     executorsToAdd.add(executor);
                 }
             }
-            executorDao.deleteExecutorsFromGroup(temporaryGroup, executorsToDelete);
+            executorDao.removeExecutorsFromGroup(executorsToDelete, temporaryGroup);
             addNewExecutorsToGroup(temporaryGroup, executorsToAdd);
         } else {
             temporaryGroup = executorDao.create(temporaryGroup);

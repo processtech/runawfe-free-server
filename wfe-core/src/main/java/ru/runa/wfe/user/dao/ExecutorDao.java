@@ -22,16 +22,17 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.hibernate.SQLQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.dao.CommonDao;
@@ -76,29 +77,6 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
      */
     public boolean isExecutorExist(String executorName) {
         return getExecutorByName(Executor.class, executorName) != null;
-    }
-
-    /**
-     * Check if {@linkplain Actor} with given code exists.
-     * 
-     * @param code
-     *            {@linkplain Actor} code to check.
-     * @return Returns true, if {@linkplain Actor} with given name exists; false otherwise.
-     */
-    public boolean isActorExist(Long code) {
-        return getActorByCodeInternal(code) != null;
-    }
-
-    public boolean isActorExist(Long code, boolean cacheVerify) {
-        if (cacheVerify) {
-            return getActorByCodeInternal(code) != null;
-        }
-        return getActorByCodeInternalWithoutCacheVerify(code) != null;
-    }
-
-    private Actor getActorByCodeInternalWithoutCacheVerify(Long code) {
-        QActor a = QActor.actor;
-        return queryFactory.selectFrom(a).where(a.code.eq(code)).fetchFirst();
     }
 
     /**
@@ -205,25 +183,6 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     /**
-     * Returns Actors by array of executor identities. If id element belongs to group it is replaced by all actors in group recursively.
-     * 
-     * @param executorIds
-     *            Executors identities, to load actors.
-     * @return Loaded actors, belongs to executor identities.
-     */
-    public List<Actor> getActorsByExecutorIds(List<Long> executorIds) {
-        Set<Actor> actorSet = new HashSet<>();
-        for (Executor executor : getExecutors(executorIds)) {
-            if (executor instanceof Actor) {
-                actorSet.add((Actor) executor);
-            } else {
-                actorSet.addAll(getGroupActors((Group) executor));
-            }
-        }
-        return Lists.newArrayList(actorSet);
-    }
-
-    /**
      * Load {@linkplain Actor}'s with given codes.
      * 
      * @param codes
@@ -244,7 +203,7 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
      * @return Returns identities of {@linkplain Actor} and all his groups recursively.
      */
     public List<Long> getActorAndNotTemporaryGroupsIds(Actor actor) {
-        Set<Group> groupSet = getExecutorParentsAll(actor, false);
+        Set<Group> groupSet = getExecutorParentsAll(actor);
         List<Long> ids = Lists.newArrayListWithExpectedSize(groupSet.size() + 1);
         ids.add(actor.getId());
         for (Group group : groupSet) {
@@ -269,15 +228,13 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         return queryFactory.selectFrom(tg).where(tg.description.eq(processId.toString())).fetch();
     }
 
-    public List<TemporaryGroup> getUnusedTemporaryGroups() {
-        String query = "select tg from TemporaryGroup tg where tg.processId not in (select process.id from Swimlane where executor=tg) and tg.processId not in (select process.id from Task where executor=tg)";
-        return sessionFactory.getCurrentSession().createQuery(query).list();
-    }
-
-    public List<Group> getTemporaryGroupsByExecutor(Executor executor) {
+    public List<Group> getExecutorsTemporaryGroups(Collection<? extends Executor> executors) {
+        if (executors.size() == 0) {
+            return new ArrayList<>();
+        }
         QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
         QTemporaryGroup tg = QTemporaryGroup.temporaryGroup;
-        return queryFactory.select(egm.group).from(egm, tg).where(egm.executor.eq(executor).and(egm.group.id.eq(tg.id))).fetch();
+        return queryFactory.select(egm.group).from(egm, tg).where(egm.executor.in(executors).and(egm.group.id.eq(tg.id))).fetch();
     }
 
     /**
@@ -294,7 +251,14 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
             throw new ExecutorAlreadyExistsException(executor.getName());
         }
         if (executor instanceof Actor) {
-            checkActorCode((Actor) executor);
+            Actor actor = (Actor) executor;
+            if (actor.getCode() == null) {
+                QActor a = QActor.actor;
+                Long minCode = queryFactory.select(a.code.min()).from(a).fetchFirst();
+                actor.setCode(minCode == null ? -1 : minCode - 1);
+            } else if (getActorByCodeInternal(actor.getCode()) != null) {
+                throw new ExecutorAlreadyExistsException(actor.getCode());
+            }
         }
         sessionFactory.getCurrentSession().save(executor);
         return executor;
@@ -384,31 +348,6 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     /**
-     * Remove children's from group.
-     * 
-     * @param group
-     *            Group from which removal will be executed.
-     * @param executors
-     *            List of executors which will be deleted from group
-     */
-    public void deleteExecutorsFromGroup(Group group, Collection<? extends Executor> executors) {
-        QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
-        queryFactory.delete(egm).where(egm.group.eq(group).and(egm.executor.in(executors))).execute();
-    }
-
-    /**
-     * Load all {@linkplain Executor}s according to {@linkplain BatchPresentation}.</br> <b>Paging is not enabled. Really ALL executors is
-     * loading.</b>
-     * 
-     * @param batchPresentation
-     *            {@linkplain BatchPresentation} to load executors.
-     * @return {@linkplain Executor}s, loaded according to {@linkplain BatchPresentation}.
-     */
-    public List<Executor> getAllExecutors(BatchPresentation batchPresentation) {
-        return getAll(Executor.class, batchPresentation);
-    }
-
-    /**
      * Load all {@linkplain Actor}s according to {@linkplain BatchPresentation} .</br> <b>Paging is not enabled. Really ALL actors is loading.</b>
      * 
      * @param batchPresentation
@@ -462,6 +401,9 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
      */
     public boolean addExecutorToGroup(Executor executor, Group group) {
         if (getMembership(group, executor) == null) {
+            if (executor instanceof TemporaryGroup) {
+                throw new InternalApplicationException("TemporaryGroup cannot be nested");
+            }
             sessionFactory.getCurrentSession().save(new ExecutorGroupMembership(group, executor));
             return true;
         }
@@ -519,7 +461,10 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
      * @return true if executor belongs to group recursively; false in any other case.
      */
     public boolean isExecutorInGroup(Executor executor, Group group) {
-        return getExecutorParentsAll(executor, true).contains(group);
+        if (group instanceof TemporaryGroup) {
+            return getMembership(group, executor) != null;
+        }
+        return getExecutorParentsAll(executor).contains(group);
     }
 
     /**
@@ -548,48 +493,17 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         return queryFactory.selectFrom(egm).where(egm.group.eq(group)).fetch();
     }
 
-    private List<ExecutorGroupMembership> getExecutorMemberships(Executor executor) {
-        QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
-        return queryFactory.selectFrom(egm).where(egm.executor.eq(executor)).fetch();
-    }
-
     private ExecutorGroupMembership getMembership(Group group, Executor executor) {
         QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
         return queryFactory.selectFrom(egm).where(egm.group.eq(group).and(egm.executor.eq(executor))).fetchFirst();
     }
 
     public Set<Actor> getGroupActors(Group group) {
-        Set<Actor> result = executorCacheCtrl.getGroupActorsAll(group);
-        if (result == null) {
-            result = getGroupActors(group, new HashSet<>());
-        }
-        return result;
+        return getGroupActors(group, new HashSet<>());
     }
 
-    public Set<Group> getExecutorParentsAll(Executor executor, boolean includeTemporaryGroups) {
-        Set<Group> executorGroupsAll = getExecutorGroupsAll(executor, new HashSet<>(), includeTemporaryGroups);
-        if (!includeTemporaryGroups) {
-            Set<Group> withoutTemporary = Sets.newHashSet();
-            for (Group group : executorGroupsAll) {
-                if (!group.isTemporary()) {
-                    withoutTemporary.add(group);
-                }
-            }
-            return withoutTemporary;
-        } else {
-            return executorGroupsAll;
-        }
-    }
-
-    /**
-     * @return direct executor parent {@linkplain Group}s skipping cache.
-     */
-    public Set<Group> getExecutorParents(Executor executor) {
-        HashSet<Group> result = new HashSet<>();
-        for (ExecutorGroupMembership membership : getExecutorMemberships(executor)) {
-            result.add(membership.getGroup());
-        }
-        return result;
+    public Set<Group> getExecutorParentsAll(Executor executor) {
+        return getExecutorGroupsAll(executor, new HashSet<>());
     }
 
     /**
@@ -638,28 +552,6 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
                 .fetchCount();
     }
 
-    /**
-     * Generates code for actor, if code not set (equals 0). If code is already set, when throws {@linkplain ExecutorAlreadyExistsException} if
-     * executor with what code exists in database.
-     * 
-     * @param actor
-     *            Actor to generate code if not set.
-     */
-    private void checkActorCode(Actor actor) {
-        checkActorCode(actor, true);
-    }
-
-    private void checkActorCode(Actor actor, boolean cacheVerify) {
-        if (actor.getCode() == null) {
-            QActor a = QActor.actor;
-            Long minCode = queryFactory.select(a.code.min()).from(a).fetchFirst();
-            actor.setCode(minCode == null ? -1 : minCode - 1);
-        }
-        if (isActorExist(actor.getCode(), cacheVerify)) {
-            throw new ExecutorAlreadyExistsException(actor.getCode());
-        }
-    }
-
     private <T extends Executor> List<T> getAll(Class<T> clazz, BatchPresentation batchPresentation) {
         VersionedCacheData<List<T>> cached = executorCacheCtrl.getAllExecutor(clazz, batchPresentation);
         if (cached != null && cached.getData() != null) {
@@ -697,13 +589,18 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
             return result;
         }
         result = new HashSet<>();
-        for (ExecutorGroupMembership membership : getExecutorMemberships(executor)) {
+        SQLQuery sqlQuery = sessionFactory.getCurrentSession().createSQLQuery(
+                "SELECT * FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')) AND EXECUTOR_ID = :executorId")
+                .addEntity(ExecutorGroupMembership.class);
+        sqlQuery.setParameter("executorId", executor.getId());
+        List<ExecutorGroupMembership> memberships = sqlQuery.list();
+        for (ExecutorGroupMembership membership : memberships) {
             result.add(membership.getGroup());
         }
         return result;
     }
 
-    private Set<Group> getExecutorGroupsAll(Executor executor, Set<Executor> visited, boolean includeTemporaryGroups) {
+    private Set<Group> getExecutorGroupsAll(Executor executor, Set<Executor> visited) {
         Set<Group> cached = executorCacheCtrl.getExecutorParentsAll(executor);
         if (cached != null) {
             return cached;
@@ -714,10 +611,8 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         visited.add(executor);
         Set<Group> result = new HashSet<>();
         for (Group group : getExecutorGroups(executor)) {
-            if (!group.isTemporary() || group.isTemporary() && includeTemporaryGroups) {
-                result.add(group);
-                result.addAll(getExecutorGroupsAll(group, visited, includeTemporaryGroups));
-            }
+            result.add(group);
+            result.addAll(getExecutorGroupsAll(group, visited));
         }
         return result;
     }
@@ -839,19 +734,6 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         if (executor == null) {
             throw new ExecutorDoesNotExistException(name, clazz);
         }
-        return executor;
-    }
-
-    public <T extends Executor> T createWithoutCacheVerify(T executor) {
-        QExecutor e = QExecutor.executor;
-        boolean exists = queryFactory.select(e.id).from(e).where(e.name.eq(executor.getName())).fetchFirst() != null;
-        if (exists) {
-            throw new ExecutorAlreadyExistsException(executor.getName());
-        }
-        if (executor instanceof Actor) {
-            checkActorCode((Actor) executor, false);
-        }
-        sessionFactory.getCurrentSession().save(executor);
         return executor;
     }
 

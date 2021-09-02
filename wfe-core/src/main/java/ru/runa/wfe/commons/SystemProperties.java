@@ -84,20 +84,6 @@ public class SystemProperties {
     }
 
     /**
-     * Using cache state machine or old cache implementation.
-     */
-    public static boolean useCacheStateMachine() {
-        return NO_DATABASE_RESOURCES.getBooleanProperty("use.cache.state.machine", true);
-    }
-
-    /**
-     * Using cache state machine with caches isolation between transactions.
-     */
-    public static boolean useIsolatedCacheStateMachine() {
-        return NO_DATABASE_RESOURCES.getBooleanProperty("isolated.cache.state.machine", true);
-    }
-
-    /**
      * Using non runtime substitution cache instead of static substitution cache.
      */
     public static boolean useNonRuntimeSubstitutionCache() {

@@ -1,13 +1,10 @@
 package ru.runa.wfe.commons.cache.isolated;
 
 import java.util.concurrent.Semaphore;
-
 import javax.transaction.Transaction;
-
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
 import ru.runa.wfe.commons.DaemonSafeThread;
 import ru.runa.wfe.commons.ManualResetEvent;
 import ru.runa.wfe.commons.TestUtils;
@@ -52,7 +49,7 @@ public class InitializeLazyCacheTest {
                 createCacheEvt.tryWaitEvent();
             }
         };
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback));
         GetCacheAudit<TestCacheIface, DefaultStateContext> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
             @Override
@@ -133,7 +130,7 @@ public class InitializeLazyCacheTest {
                 createCacheEvt.tryWaitEvent();
             }
         };
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback));
         GetCacheAudit<TestCacheIface, DefaultStateContext> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
             @Override
@@ -232,7 +229,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback));
         GetCacheAudit<TestCacheIface, DefaultStateContext> readThreadGetCacheAudit =
                 new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
@@ -308,7 +305,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback));
 
         CommitCacheAudit<TestCacheIface, DefaultStateContext> _commitCacheAudit =
                 new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
@@ -356,7 +353,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback));
 
         CommitCacheAudit<TestCacheIface, DefaultStateContext> _commitCacheAudit =
                 new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
@@ -416,7 +413,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback));
 
         CommitCacheAudit<TestCacheIface, DefaultStateContext> _commitCacheAudit =
                 new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {

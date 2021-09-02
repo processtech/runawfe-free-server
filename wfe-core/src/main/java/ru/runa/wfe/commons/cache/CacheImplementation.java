@@ -29,15 +29,7 @@ public interface CacheImplementation {
     void commitCache();
 
     /**
-     * All dirty transaction is completed. Cache instance may decide to create new cache for future use. Do not return current cache instance - create
-     * new.
-     * 
-     * @return Return cache implementation to be used in future or null, if cache must be dropped.
-     */
-    CacheImplementation unlock();
-
-    /**
-     * Called to notify about object change.
+     * Called to notify about object change (in rare cases, see usage).
      * 
      * @param changedObject
      *            Changed object

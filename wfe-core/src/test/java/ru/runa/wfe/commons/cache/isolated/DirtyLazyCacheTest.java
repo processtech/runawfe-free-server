@@ -2,7 +2,6 @@ package ru.runa.wfe.commons.cache.isolated;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
 import ru.runa.wfe.commons.ManualResetEvent;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
@@ -26,7 +25,7 @@ public class DirtyLazyCacheTest {
     public void simpleGetCacheTest() {
         final ManualResetEvent initializationCompleteEvent = new ManualResetEvent();
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback));
         ctrl.getAudit().set_commitCacheAudit(new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
             @Override
             protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from, CacheState<TestCacheIface, DefaultStateContext> to) {

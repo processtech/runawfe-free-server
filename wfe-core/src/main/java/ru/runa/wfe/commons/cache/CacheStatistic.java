@@ -20,7 +20,6 @@ package ru.runa.wfe.commons.cache;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -48,12 +47,10 @@ public class CacheStatistic {
      */
     public static StatisticCounter registerCacheCounter(String cacheName) {
         StatisticCounter counter = counters.get(cacheName);
-        if (counter != null) {
-            return counter;
+        if (counter == null) {
+            counter = new StatisticCounter();
+            counters.put(cacheName, counter);
         }
-        counter = new StatisticCounter();
-        StatisticCounter registeredCounter = counters.putIfAbsent(cacheName, counter);
-        counter = registeredCounter == null ? counter : registeredCounter;
         counter.registerCacheRebuild();
         return counter;
     }

@@ -18,9 +18,9 @@
 package ru.runa.wfe.commons.cache;
 
 import javax.transaction.UserTransaction;
-
 import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
+import ru.runa.wfe.commons.cache.sm.CachingLogic;
 
 /**
  * Resets caches on transaction commit if registered in {@link TransactionListeners}.
@@ -29,10 +29,15 @@ import ru.runa.wfe.commons.TransactionListeners;
  *
  */
 public class CacheResetTransactionListener implements TransactionListener {
+    private final Class<?> forClass;
+
+    public CacheResetTransactionListener(Class<?> forClass) {
+        this.forClass = forClass;
+    }
 
     @Override
     public void onTransactionComplete(UserTransaction transaction) {
-        CachingLogic.resetAllCaches();
+        CachingLogic.resetCaches(forClass);
     }
 
 }

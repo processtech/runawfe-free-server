@@ -18,7 +18,6 @@
 package ru.runa.wfe.graph.history;
 
 import java.util.List;
-
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -32,7 +31,6 @@ import ru.runa.wfe.history.layout.PushWidthDown;
 import ru.runa.wfe.history.layout.TransitionOrderer;
 import ru.runa.wfe.history.layout.TransitionOrdererContext;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.user.Executor;
 
 /**
  * History graph building and creating tooltip for elements.
@@ -44,9 +42,9 @@ public class GraphHistoryBuilder {
      */
     private final GraphHistoryBuilderData data;
 
-    public GraphHistoryBuilder(List<Executor> executors, Process processInstance, ProcessDefinition processDefinition,
+    public GraphHistoryBuilder(Process processInstance, ProcessDefinition processDefinition,
             List<ProcessLog> fullProcessLogs, String subProcessId) {
-        this.data = new GraphHistoryBuilderData(executors, processInstance, processDefinition, fullProcessLogs, subProcessId);
+        this.data = new GraphHistoryBuilderData(processInstance, processDefinition, fullProcessLogs, subProcessId);
     }
 
     /**

@@ -45,16 +45,16 @@ class TaskCacheStateCtrl extends BaseCacheCtrl<ManageableTaskCache, DefaultState
 
     private static final List<ListenObjectDefinition> createListenObjectTypes() {
         ArrayList<ListenObjectDefinition> result = new ArrayList<ListenObjectDefinition>();
-        result.add(new ListenObjectDefinition(Task.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Swimlane.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Variable.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Substitution.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Deployment.class, ListenObjectLogType.BECOME_DIRTY));
+        result.add(new ListenObjectDefinition(Task.class));
+        result.add(new ListenObjectDefinition(Swimlane.class));
+        result.add(new ListenObjectDefinition(Variable.class));
+        result.add(new ListenObjectDefinition(Substitution.class));
+        result.add(new ListenObjectDefinition(SubstitutionCriteria.class));
+        result.add(new ListenObjectDefinition(ExecutorGroupMembership.class));
+        result.add(new ListenObjectDefinition(Executor.class));
+        result.add(new ListenObjectDefinition(Deployment.class));
         // Must be invalidated in case of non runtime substitution cache update.
-        result.add(new ListenObjectDefinition(SubstitutionCacheStateImpl.class, ListenObjectLogType.BECOME_DIRTY));
+        result.add(new ListenObjectDefinition(SubstitutionCacheStateImpl.class));
         return result;
     }
 

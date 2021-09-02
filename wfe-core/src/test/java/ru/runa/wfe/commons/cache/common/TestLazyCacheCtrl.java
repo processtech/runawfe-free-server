@@ -2,15 +2,12 @@ package ru.runa.wfe.commons.cache.common;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javax.transaction.Transaction;
-
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
 import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
-import ru.runa.wfe.commons.cache.states.DefaultCacheStateFactory;
 import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
 
@@ -20,11 +17,11 @@ public final class TestLazyCacheCtrl {
     private final TestCacheStateMachineAudit<TestCacheIface> audit;
     private final ThreadLocal<TestTransaction> transactions = new ThreadLocal<TestTransaction>();
 
-    public TestLazyCacheCtrl(LazyInitializedCacheFactory<TestCacheIface> factory, boolean isolated) {
+    public TestLazyCacheCtrl(LazyInitializedCacheFactory<TestCacheIface> factory) {
         this.factory = factory;
         audit = new TestCacheStateMachineAudit<TestCacheIface>();
         CacheStateFactory<TestCacheIface, DefaultStateContext> stateFactory =
-                isolated ? new IsolatedCacheStateFactory<TestCacheIface>() : new DefaultCacheStateFactory<TestCacheIface>();
+                new IsolatedCacheStateFactory<TestCacheIface>();
         stateMachine =
                 CacheStateMachine.createStateMachine(factory, stateFactory, TestLazyCacheCtrl.class, new TestCacheTransactionalExecutor(), audit);
     }
