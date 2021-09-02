@@ -186,6 +186,7 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
             processLog.setNodeId(token.getNodeId());
         }
         processLog.setCreateDate(new Date());
+        processLog.serializeAttributes();
         this.create(processLog);
         registerInCustomizationDao(processLog, process, token);
     }
