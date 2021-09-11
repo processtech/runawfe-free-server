@@ -25,6 +25,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.InternalApplicationException;
@@ -181,6 +182,8 @@ public abstract class Node extends GraphElement {
         // update the runtime context information
         token.setNodeId(getNodeId());
         token.setNodeType(getNodeType());
+        token.setNodeName(getName());
+        token.setNodeEnterDate(new Date());
         // fire the leave-node event for this node
         fireEvent(executionContext, ActionEvent.NODE_ENTER);
         executionContext.addLog(new NodeEnterLog(this));
@@ -190,6 +193,8 @@ public abstract class Node extends GraphElement {
                 Token eventToken = new Token(executionContext.getToken(), boundaryNode.getNodeId());
                 eventToken.setNodeId(boundaryNode.getNodeId());
                 eventToken.setNodeType(boundaryNode.getNodeType());
+                eventToken.setNodeName(boundaryNode.getName());
+                eventToken.setNodeEnterDate(new Date());
                 ApplicationContextFactory.getTokenDAO().create(eventToken);
                 ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
                 ((Node) boundaryEvent).handle(eventExecutionContext);
@@ -263,6 +268,8 @@ public abstract class Node extends GraphElement {
         }
         token.setNodeId(null);
         token.setNodeType(null);
+        token.setNodeName(null);
+        token.setNodeEnterDate(null);
         // take the transition
         transition.take(executionContext);
     }

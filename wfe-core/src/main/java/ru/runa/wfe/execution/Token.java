@@ -86,6 +86,8 @@ public class Token implements Serializable {
     private boolean ableToReactivateParent;
     private String nodeId;
     private NodeType nodeType;
+    private String nodeName;
+    private Date nodeEnterDate;
     private String transitionId;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
     private Date errorDate;
@@ -174,6 +176,24 @@ public class Token implements Serializable {
 
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
+    }
+
+    @Column(name = "NODE_NAME")
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    @Column(name = "NODE_ENTER_DATE")
+    public Date getNodeEnterDate() {
+        return nodeEnterDate;
+    }
+
+    public void setNodeEnterDate(Date nodeEnterDate) {
+        this.nodeEnterDate = nodeEnterDate;
     }
 
     @Column(name = "TRANSITION_ID", length = 1024)
