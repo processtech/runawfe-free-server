@@ -300,4 +300,6 @@
 
 	<bean id="formHandlerExecutor" class="ru.runa.wfe.execution.FormHandlerExecutor" />
 
+	<bean id="tokenNodeNameExtractor" class="ru.runa.wfe.execution.logic.TokenNodeNameExtractorImpl" />
+
 </beans>

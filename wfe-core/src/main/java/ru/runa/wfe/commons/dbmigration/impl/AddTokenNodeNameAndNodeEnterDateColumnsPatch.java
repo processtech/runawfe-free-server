@@ -9,4 +9,5 @@ public class AddTokenNodeNameAndNodeEnterDateColumnsPatch extends DbMigration {
         executeUpdates(getDDLCreateColumn("BPM_TOKEN", new VarcharColumnDef("NODE_NAME", 1024)),
                 getDDLCreateColumn("BPM_TOKEN", new TimestampColumnDef("NODE_ENTER_DATE")));
     }
+
 }
