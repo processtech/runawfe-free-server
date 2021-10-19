@@ -112,8 +112,6 @@ public class NodeAsyncExecutionBean implements MessageListener {
             }
             TransactionListeners.reset();
         } catch (final Throwable th) {
-            // TODO does not work in case of timeout in handling transaction
-            // ARJUNA016051: thread is already associated with a transaction!
             boolean needReprocessing = Utils.failProcessExecution(context.getUserTransaction(), tokenId, th);
             if (needReprocessing) {
                 throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);

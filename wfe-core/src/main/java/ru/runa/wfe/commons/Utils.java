@@ -336,7 +336,7 @@ public class Utils {
         try {
             if (transaction != null) {
                 status = transaction.getStatus();
-                if (status != Status.STATUS_NO_TRANSACTION && status != Status.STATUS_ROLLEDBACK) {
+                if (status != Status.STATUS_NO_TRANSACTION) {
                     transaction.rollback();
                 } else {
                     LogFactory.getLog(Utils.class).warn("Unable to rollback, status: " + status);
