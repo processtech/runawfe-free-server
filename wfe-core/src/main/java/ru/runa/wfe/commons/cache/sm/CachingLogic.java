@@ -11,8 +11,8 @@ import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheImplementation;
@@ -152,9 +152,10 @@ public class CachingLogic {
         }
         Set<BaseCacheCtrl<?>> listeners = getChangeListeners(entity.getClass());
         if (listeners != null) {
-            toNotify.addAll(listeners);
             for (BaseCacheCtrl<?> listener : listeners) {
-                listener.onChange(transaction, new ChangedObjectParameter(entity, change, currentState, previousState, propertyNames));
+                if (listener.onChange(transaction, new ChangedObjectParameter(entity, change, currentState, previousState, propertyNames))) {
+                    toNotify.add(listener);
+                }
             }
         }
     }
@@ -222,6 +223,14 @@ public class CachingLogic {
     public static void dropAllCaches() {
         for (Set<BaseCacheCtrl<?>> listeners : objectTypeToListenersRegistered.values()) {
             for (BaseCacheCtrl<?> listener : listeners) {
+                listener.dropCache();
+            }
+        }
+    }
+
+    public static void resetCaches(Class<?> clazz) {
+        if (objectTypeToListenersRegistered.containsKey(clazz)) {
+            for (BaseCacheCtrl<?> listener : objectTypeToListenersRegistered.get(clazz)) {
                 listener.dropCache();
             }
         }

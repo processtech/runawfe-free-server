@@ -263,7 +263,7 @@
 	<bean id="processArchiver" class="ru.runa.wfe.job.impl.ProcessArchiver" />
 
     <bean id="statisticReportExecutor" class="ru.runa.wfe.statistics.job.StatisticReportExecutor" init-method="init"/>
-
+	<bean id="cacheUsageStatisticLogger" class="ru.runa.wfe.job.impl.CacheUsageStatisticLogger" />
 	<bean id="asyncTaskChecker" class="ru.runa.wfe.job.impl.AsyncTaskChecker">
 		<property name="ttlInSeconds" value="${async.tasks.ttl.in.seconds}" />
 	</bean>
@@ -279,5 +279,7 @@
 	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
 
 	<bean id="formHandlerExecutor" class="ru.runa.wfe.execution.FormHandlerExecutor" />
+
+	<bean id="tokenNodeNameExtractor" class="ru.runa.wfe.execution.logic.TokenNodeNameExtractorImpl" />
 
 </beans>

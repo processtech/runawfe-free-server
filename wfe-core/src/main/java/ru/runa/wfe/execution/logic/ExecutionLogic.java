@@ -585,8 +585,7 @@ public class ExecutionLogic extends WfCommonLogic {
             permissionDao.checkAllowed(user, Permission.READ, process);
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             List<? extends BaseProcessLog> logs = processLogDao.getAll(process);
-            List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
-            return new GraphHistoryBuilder(executors, process, parsedProcessDefinition, logs, subprocessId).createDiagram();
+            return new GraphHistoryBuilder(process, parsedProcessDefinition, logs, subprocessId).createDiagram();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
@@ -599,8 +598,7 @@ public class ExecutionLogic extends WfCommonLogic {
             permissionDao.checkAllowed(user, Permission.READ, process);
             ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             List<? extends BaseProcessLog> logs = processLogDao.getAll(process);
-            List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
-            return new GraphHistoryBuilder(executors, process, parsedProcessDefinition, logs, subprocessId).getElements();
+            return new GraphHistoryBuilder(process, parsedProcessDefinition, logs, subprocessId).getElements();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
@@ -725,7 +723,7 @@ public class ExecutionLogic extends WfCommonLogic {
         boolean resetCaches = process.getExecutionStatus() == ExecutionStatus.SUSPENDED;
         activateProcessWithSubprocesses(user, process);
         if (resetCaches) {
-            TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+            TransactionListeners.addListener(new CacheResetTransactionListener(Task.class), true);
         }
         log.info("Process " + processId + " activated");
     }
@@ -738,7 +736,7 @@ public class ExecutionLogic extends WfCommonLogic {
             throw new AuthorizationException("Only administrator can suspend process");
         }
         suspendProcessWithSubprocesses(user, currentProcessDao.getNotNull(processId));
-        TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+        TransactionListeners.addListener(new CacheResetTransactionListener(Task.class), true);
         log.info("Process " + processId + " suspended");
     }
 

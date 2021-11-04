@@ -120,4 +120,5 @@ public interface ProcessLog extends Attributes, Comparable<ProcessLog>, Serializ
      * @return formatted message
      */
     String toString(String pattern, Object... arguments);
+
 }

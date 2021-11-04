@@ -35,26 +35,20 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
         CachingLogic.registerChangeListener(this);
     }
 
-    public final void onChange(Transaction transaction, ChangedObjectParameter changedObject) {
-        try {
-            if (log.isDebugEnabled()) {
-                for (ListenObjectDefinition def : listenObjects) {
-                    if (def.listenClass.isAssignableFrom(changedObject.object.getClass())) {
-                        def.logType.logChange(stateMachine, transaction, changedObject, log);
-                        break;
-                    }
-                }
-            }
-            stateMachine.onChange(transaction, changedObject);
-        } catch (Exception e) {
-            log.error("onChange(transaction, changedObject) call failed on " + getClass().getName(), e);
+    public boolean onChange(Transaction transaction, ChangedObjectParameter changedObject) {
+        if (log.isTraceEnabled()) {
+            String cacheState = BaseCacheCtrl.getCacheStateDescription(stateMachine, transaction);
+            String message = cacheState + " On " + changedObject.changeType + " at transaction " + transaction + ": " + changedObject.object + ".";
+            log.trace(message);
         }
+        stateMachine.onChange(transaction, changedObject);
+        return true;
     }
 
     public final void onBeforeTransactionComplete(Transaction transaction) {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug(getCacheStateDescription(stateMachine, transaction) + " Preparing transaction " + transaction + " completition.");
+            if (log.isTraceEnabled()) {
+                log.trace(getCacheStateDescription(stateMachine, transaction) + " Preparing transaction " + transaction + " completition.");
             }
             stateMachine.onBeforeTransactionComplete(transaction);
         } catch (Exception e) {
@@ -64,8 +58,8 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
 
     public final void onAfterTransactionComplete(Transaction transaction) {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug(getCacheStateDescription(stateMachine, transaction) + " Transaction " + transaction + " is completed.");
+            if (log.isTraceEnabled()) {
+                log.trace(getCacheStateDescription(stateMachine, transaction) + " Transaction " + transaction + " is completed.");
             }
             stateMachine.onAfterTransactionComplete(transaction);
         } catch (Exception e) {
@@ -75,8 +69,8 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
 
     public final void dropCache() {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Dropping cache.");
+            if (log.isTraceEnabled()) {
+                log.trace("Dropping cache.");
             }
             stateMachine.dropCache();
         } catch (Exception e) {
@@ -112,77 +106,6 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
          */
         private final Class<?> listenClass;
 
-        /**
-         * Change event logging strategy.
-         */
-        private final ListenObjectLogType logType;
     }
 
-    protected enum ListenObjectLogType {
-        /**
-         * Cache invalidation logging is not required (trace logging).
-         */
-        NONE {
-            @Override
-            public void logChange(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log) {
-                if (log.isTraceEnabled()) {
-                    log.trace(getLogMessage(stateMachine, transaction, changedObject));
-                }
-            }
-        },
-
-        /**
-         * Cache invalidation logging is required (debug logging).
-         */
-        ALL {
-            @Override
-            public void logChange(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log) {
-                log.debug(getLogMessage(stateMachine, transaction, changedObject));
-            }
-        },
-
-        /**
-         * Cache invalidation logging is debug for first change and trace for other.
-         */
-        BECOME_DIRTY {
-            @Override
-            public void logChange(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log) {
-                if (!stateMachine.isDirtyTransaction(transaction)) {
-                    log.debug(getLogMessage(stateMachine, transaction, changedObject));
-                } else {
-                    if (log.isTraceEnabled()) {
-                        log.trace(getLogMessage(stateMachine, transaction, changedObject));
-                    }
-                }
-            }
-        };
-
-        /**
-         * Log cache invalidation event.
-         *
-         * @param stateMachine
-         *            Cache lifetime control state machine.
-         * @param transaction
-         *            Transaction, which change object and invalidating cache.
-         * @param changedObject
-         *            Changed object.
-         * @param log
-         *            Object for logging.
-         */
-        public abstract void logChange(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject, Log log);
-
-        /**
-         * Create message to log change. Cache lifetime control state machine.
-         * 
-         * @param transaction
-         *            Transaction, which change object and invalidating cache.
-         * @param changedObject
-         *            Changed object.
-         * @return Message to log change.
-         */
-        String getLogMessage(CacheStateMachine<?> stateMachine, Transaction transaction, ChangedObjectParameter changedObject) {
-            String cacheState = BaseCacheCtrl.getCacheStateDescription(stateMachine, transaction);
-            return cacheState + " On " + changedObject.changeType + " at transaction " + transaction + ": " + changedObject.object + ".";
-        }
-    }
 }

@@ -298,7 +298,7 @@ public class TaskLogic extends WfCommonLogic {
         if (executorDao.isExecutorExist(delegationGroup.getName())) {
             delegationGroup = (DelegationGroup) executorDao.getExecutor(delegationGroup.getName());
             Set<Executor> oldExecutors = executorDao.getGroupChildren(delegationGroup);
-            executorDao.deleteExecutorsFromGroup(delegationGroup, oldExecutors);
+            executorDao.removeExecutorsFromGroup(oldExecutors, delegationGroup);
         } else {
             executorDao.create(delegationGroup);
         }

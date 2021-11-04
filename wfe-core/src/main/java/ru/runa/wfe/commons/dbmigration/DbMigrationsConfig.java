@@ -28,6 +28,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddSubprocessRootIdColumn;
 import ru.runa.wfe.commons.dbmigration.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenMessageSelectorPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
@@ -146,6 +147,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(CreateStatisticReportTable.class);
         // 4.4.3
         dbMigrations.add(AddProcessLogCleanBeforeDateColumnPatch.class);
+        dbMigrations.add(AddTokenNodeNameAndNodeEnterDateColumnsPatch.class);
         // develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);

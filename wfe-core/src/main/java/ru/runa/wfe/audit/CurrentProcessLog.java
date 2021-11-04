@@ -20,7 +20,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.xml.XmlUtils;
 
 /**
  * Base class for logging process unit of work.
@@ -75,13 +74,8 @@ public abstract class CurrentProcessLog extends BaseProcessLog {
         this.severity = severity;
     }
 
-    @Override
-    public void setContent(String content) {
-        attributes = XmlUtils.deserialize(content);
-    }
-
     protected void addAttribute(String name, String value) {
-        attributes.put(name, value);
+        getAttributes().put(name, value);
     }
 
     protected void addAttributeWithTruncation(String name, String value) {
@@ -114,6 +108,6 @@ public abstract class CurrentProcessLog extends BaseProcessLog {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", id).add("nodeId", nodeId).add("tokenId", tokenId)
-                .add("date", CalendarUtil.formatDateTime(createDate)).add("attributes", attributes).toString();
+                .add("date", CalendarUtil.formatDateTime(createDate)).toString();
     }
 }

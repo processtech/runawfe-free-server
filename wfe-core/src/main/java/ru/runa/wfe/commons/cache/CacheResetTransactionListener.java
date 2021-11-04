@@ -11,9 +11,14 @@ import ru.runa.wfe.commons.cache.sm.CachingLogic;
  * @author dofs
  */
 public class CacheResetTransactionListener implements TransactionListener {
+    private final Class<?> forClass;
+
+    public CacheResetTransactionListener(Class<?> forClass) {
+        this.forClass = forClass;
+    }
 
     @Override
     public void onTransactionComplete(UserTransaction transaction) {
-        CachingLogic.dropAllCaches();
+        CachingLogic.resetCaches(forClass);
     }
 }

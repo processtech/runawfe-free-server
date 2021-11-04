@@ -1,14 +1,9 @@
 package ru.runa.wfe.definition.cache;
 
-import com.google.common.base.Preconditions;
-import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.NonNull;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
-import ru.runa.wfe.commons.cache.CacheImplementation;
-import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.hibernate.HibernateUtil;
 import ru.runa.wfe.definition.ProcessDefinition;
@@ -19,7 +14,6 @@ import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
-@CommonsLog
 class ProcessDefCacheImpl extends BaseCacheImpl {
 
     public static final String versionIdToParsedCacheName = "ru.runa.wfe.definition.cache.definitionIdToDefinition";
@@ -41,128 +35,63 @@ class ProcessDefCacheImpl extends BaseCacheImpl {
      */
     private final Cache<Long, Long> definitionIdToVersionId;
 
-    private final AtomicBoolean isLocked = new AtomicBoolean(false);
-
     public ProcessDefCacheImpl() {
         versionIdToParsed = createCache(versionIdToParsedCacheName);
         definitionNameToVersionId = createCache(definitionNameToVersionIdCacheName);
         definitionIdToVersionId = createCache(definitionIdToVersionIdCacheName);
     }
 
-    private ProcessDefCacheImpl(ProcessDefCacheImpl source) {
-        versionIdToParsed = source.versionIdToParsed;
-        definitionNameToVersionId = source.definitionNameToVersionId;
-        definitionIdToVersionId = source.definitionIdToVersionId;
-    }
-
     public ParsedProcessDefinition getDefinition(
             ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long processDefinitionVersionId
     ) {
         ParsedProcessDefinition parsed;
-        // synchronized (this) {
         parsed = versionIdToParsed.get(processDefinitionVersionId);
         if (parsed != null) {
             return parsed;
         }
-        // }
         ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
         ProcessDefinition d = dwv.processDefinition;
         ProcessDefinitionVersion dv = dwv.processDefinitionVersion;
 
-        // TODO Do we really need to unproxy? Maybe Hibernate.initialize(d), ...(dv) would be enoug? Cannot ParsedProcessDefinition hold detached proxies?
+        // TODO Do we really need to unproxy? Maybe Hibernate.initialize(d), ...(dv) would be enough? Cannot ParsedProcessDefinition hold detached
+        // proxies?
         dv = HibernateUtil.unproxy(dv);
         d = HibernateUtil.unproxy(d);
 
         val archive = new ProcessArchive(d, dv);
         parsed = archive.parseProcessDefinition();
-        // synchronized (this) {
         versionIdToParsed.put(processDefinitionVersionId, parsed);
-        // }
         return parsed;
     }
 
     public ParsedProcessDefinition getLatestDefinition(
             ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, @NonNull String definitionName
     ) {
-        Long definitionVersionId;
-        // synchronized (this) {
-        definitionVersionId = definitionNameToVersionId.get(definitionName);
+        Long definitionVersionId = definitionNameToVersionId.get(definitionName);
         if (definitionVersionId != null) {
             return getDefinition(processDefinitionDao, processDefinitionVersionDao, definitionVersionId);
         }
-        // }
-
         // TODO Suboptimal: can we use whole entities instead of just id?
         definitionVersionId = processDefinitionDao.findLatestDefinition(definitionName).processDefinitionVersion.getId();
-        synchronized (this) {
-            if (!isLocked.get()) {
-                definitionNameToVersionId.put(definitionName, definitionVersionId);
-            }
-        }
+        definitionNameToVersionId.put(definitionName, definitionVersionId);
         return getDefinition(processDefinitionDao, processDefinitionVersionDao, definitionVersionId);
     }
 
     public ParsedProcessDefinition getLatestDefinition(
             ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long definitionId
     ) {
-        Long processDefinitionVersionId;
-        // synchronized (this) {
-        processDefinitionVersionId = definitionIdToVersionId.get(definitionId);
+        Long processDefinitionVersionId = definitionIdToVersionId.get(definitionId);
         if (processDefinitionVersionId != null) {
             return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
         }
-        // }
-
         // TODO Suboptimal: can we use whole entities instead of just id?
         processDefinitionVersionId = processDefinitionDao.findLatestDefinition(definitionId).processDefinitionVersion.getId();
-        synchronized (this) {
-            if (!isLocked.get()) {
-                definitionIdToVersionId.put(definitionId, processDefinitionVersionId);
-            }
-        }
+        definitionIdToVersionId.put(definitionId, processDefinitionVersionId);
         return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
     }
 
     @Override
-    public CacheImplementation unlock() {
-        return new ProcessDefCacheImpl(this);
-    }
-
-    @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        if (changedObject.changeType == Change.CREATE) {
-            return true;
-        }
-
-        if (changedObject.object instanceof ProcessDefinition) {
-
-            val d = (ProcessDefinition) changedObject.object;
-            Preconditions.checkArgument(d.getId() != null);
-            isLocked.set(true);
-            onChangeImpl(d);
-            return true;
-
-        } else if (changedObject.object instanceof ProcessDefinitionVersion) {
-
-        	ProcessDefinitionVersion dv = (ProcessDefinitionVersion) changedObject.object;
-            Preconditions.checkArgument(dv.getId() != null);
-            isLocked.set(true);
-            versionIdToParsed.remove(dv.getId());
-            dv = HibernateUtil.unproxyWithoutInitialize(dv);
-            if (dv != null && dv.getDefinition() != null) {
-                onChangeImpl(dv.getDefinition());
-            }
-            return true;
-
-        } else {
-
-            log.error("Unexpected object " + changedObject.object);
-            return false;
-        }
-    }
-
-    private void onChangeImpl(ProcessDefinition d) {
-        versionIdToParsed.remove(definitionIdToVersionId.getAndRemove(d.getId()));
-        versionIdToParsed.remove(definitionNameToVersionId.getAndRemove(d.getName()));
+        return false;
     }
 }
