@@ -28,6 +28,14 @@
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/common.js?"+Version.getHash() %>' />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />">c=0;</script>
+	<script type="text/javascript">
+		var currentBrowserLanguage = "<%= Commons.getLocale(pageContext).getLanguage() %>";
+	</script>
+	<script type="text/javascript" src="<html:rewrite page="/js/trumbowyg.js" />" charset="utf-8">c=0;</script>
+<% if (!"en".equals(Commons.getLocale(pageContext).getLanguage())) { %>
+	<script type="text/javascript" src="/wfe/js/trumbowyg-langs/<%= Commons.getLocale(pageContext).getLanguage() %>.min.js"></script>
+<% } %>
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/trumbowyg.css" />">
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/taskformutils.js?"+Version.getHash() %>' />"></script>
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
 	<% 
