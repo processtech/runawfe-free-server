@@ -2,15 +2,12 @@ package ru.runa.wf.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdForm;
@@ -19,7 +16,6 @@ import ru.runa.wf.web.form.StartProcessForm;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.Profile;
 
 /**
  * Created on 18.08.2004
@@ -58,8 +54,7 @@ public class StartProcessAction extends ActionBase {
                 }
                 forward = mapping.findForward(Resources.FORWARD_SUCCESS);
                 if (WebResources.isAutoShowForm()) {
-                    Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
-                    ActionForward autoShowForward = AutoShowFormHelper.getNextActionForward(getLoggedUser(request), mapping, profile, processId);
+                    ActionForward autoShowForward = AutoShowFormHelper.getNextActionForward(getLoggedUser(request), mapping, processId);
                     if (autoShowForward != null) {
                         return autoShowForward;
                     }

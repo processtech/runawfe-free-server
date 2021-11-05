@@ -65,11 +65,15 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { Header } from '../ts/Options';
+import { PropOptions } from 'vue';
 
 export default Vue.extend({
     name: "ColumnsVisibility",
     props: {
-        initialHeaders: Object
+        initialHeaders: {
+            type: Array
+        } as PropOptions<Header[]>,
     },
     data() {
         return {

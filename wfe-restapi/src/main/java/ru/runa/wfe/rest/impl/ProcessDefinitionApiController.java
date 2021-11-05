@@ -5,6 +5,8 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,4 +38,12 @@ public class ProcessDefinitionApiController {
         return new PagedList<WfDefinitionDto>(total, mapper.map(definitions));
     }
     
+    @GetMapping("{versionId}")
+    public WfDefinitionDto getDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long versionId) {
+        WfDefinition definition = processDefinitionLogic.getProcessDefinition(authUser.getUser(), versionId);
+        WfDefinitionMapper mapper = Mappers.getMapper(WfDefinitionMapper.class);
+        WfDefinitionDto definitionDto = mapper.map(definition);
+        return definitionDto;
+    }
+
 }

@@ -17,7 +17,6 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateProcessVariableProvider;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
-import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 
 /**
@@ -32,7 +31,7 @@ import ru.runa.wfe.user.User;
 public class SubmitTaskFormAction extends BaseProcessFormAction {
 
     @Override
-    protected Long executeProcessFromAction(HttpServletRequest request, ActionForm actionForm, ActionMapping mapping, Profile profile) {
+    protected Long executeProcessFromAction(HttpServletRequest request, ActionForm actionForm, ActionMapping mapping) {
         User user = getLoggedUser(request);
         ProcessForm form = (ProcessForm) actionForm;
         Long taskId = form.getId();

@@ -33,8 +33,9 @@ public class BatchPresentationRequest {
 
     public BatchPresentation toBatchPresentation(ClassPresentationType classPresentationType) {
         BatchPresentation batchPresentation = new BatchPresentationFactory(classPresentationType).createDefault();
-        batchPresentation.setPageNumber(pageNumber);
+        // setRangeSize перед setPageNumber т.к. по дефолту сбрасывает значение pageNumber = 1
         batchPresentation.setRangeSize(pageSize);
+        batchPresentation.setPageNumber(pageNumber);  
         for (Map.Entry<String, String> entry : filters.entrySet()) {
             if (entry.getValue() == null || entry.getValue().isEmpty() || variables.contains(entry.getKey())) {
                 continue;

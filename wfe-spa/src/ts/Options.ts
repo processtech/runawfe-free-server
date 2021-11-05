@@ -35,3 +35,21 @@ export class Sorting {
         return listSortings;
     }
 }
+
+export class Header {
+    text: string;
+    align: string;
+    value: string;
+    visible: boolean;
+    width: string;
+    sortable: boolean;
+
+    constructor() {
+        this.text = '';
+        this.align = '';
+        this.value = '';
+        this.visible = true;
+        this.width = '';
+        this.sortable = false;
+    }
+}

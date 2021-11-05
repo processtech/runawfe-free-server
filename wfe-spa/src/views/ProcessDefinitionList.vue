@@ -33,9 +33,10 @@
             </template>
             <template v-slot:[`item.start`]="{ item }">
                 <v-icon
-                    color="rgba(0, 0, 0, 0.67)"
+                    color="green"
                     class="mr-2"
-                    @click="startProcess(item)"
+                    :disabled="!item.canBeStarted"
+                    @click="openStartForm(item)" 
                 >
                     mdi-play-circle
                 </v-icon>
@@ -63,14 +64,6 @@
             </template>
             <template v-slot:top>
                 <v-toolbar flat>
-                    <v-alert 
-                        v-model="hasWarnings" 
-                        dense 
-                        type="warning"
-                        dismissible
-                    >
-                        {{ warnings }}
-                    </v-alert>
                     <v-spacer/>
                     <v-btn 
                         text 
@@ -91,15 +84,14 @@
 <script lang="ts">
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
-import { Options, Sorting } from '../ts/options';
+import { Options, Sorting } from '../ts/Options';
 
 export default Vue.extend({
     name: "ProcessDefinitionList",
     
     data() {
         return {
-            warnings: '',
-            hasWarnings: false,
+            timeout: 10000,
             dialog: false,
             filterVisible: false,
             filter: {
@@ -133,7 +125,7 @@ export default Vue.extend({
                 { 
                     text: 'Описание', 
                     value:'description',
-                    visible: true,
+                    visible: false,
                     width: '20em',
                 },
                 { 
@@ -152,13 +144,13 @@ export default Vue.extend({
                 { 
                     text: 'Дата обновления', 
                     value: 'updateDate',
-                    visible: true,
+                    visible: false,
                     width: '12em',
                 },
                 { 
                     text: 'Автор обновления', 
                     value: 'updateActor',
-                    visible: true,
+                    visible: false,
                     sortable: false,
                     width: '12em',
                 }
@@ -187,22 +179,8 @@ export default Vue.extend({
         }
     },
     methods: {
-        startProcess (process: any) {
-            this.hasWarnings = false;
-            this.$apiClient().then((client: any) => {
-                const variables = {};
-                client['process-api-controller'].startUsingPOST(null, {
-                    parameters: {
-                        id: process.versionId
-                    },
-                    requestBody: variables 
-                }).then((data: any) => {
-                    if (data.status == 200 && data.body) {
-                        this.warnings = `Экземпляр процесса запущен ${data.body}`;
-                        this.hasWarnings = true;
-                    }
-                });
-            });
+        openStartForm (item) {
+            this.$router.push({ name: "ProcessDefinitionCard", params: { versionId: item.versionId.toString() } });
         },
         getDataFromApi () {
             this.loading = true;

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.runa.wfe.security.SecuredObjectUtil;
 import ru.runa.wfe.security.logic.AuthenticationLogic;
 import ru.runa.wfe.user.User;
 
@@ -32,12 +33,12 @@ public class AuthController {
                 .setId(UUID.randomUUID().toString())
                 .setSubject(login)
                 .claim(JwtAuthenticationFilter.USER_ACTOR_ID_ATTRIBUTE_NAME, user.getActor().getId())
-                .claim(JwtAuthenticationFilter.USER_SECURED_KEY_ATTRIBUTE_NAME, Base64.getEncoder().encode(user.getSecuredKey()))
+                .claim(JwtAuthenticationFilter.USER_SECURED_KEY_ATTRIBUTE_NAME, Base64.getEncoder().encodeToString(user.getSecuredKey()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(Date.from(expirationInstant))
-                .signWith(JwtAuthenticationFilter.JWT_SECRET_KEY, SignatureAlgorithm.HS512)
+                .signWith(SecuredObjectUtil.JWT_SECRET_KEY, SignatureAlgorithm.HS512)
                 .compact();
-        return JwtAuthenticationFilter.BEARER_PREFIX + token;
+        return SecuredObjectUtil.BEARER_PREFIX + token;
     }
 
     // Тестовый запрос для проверки авторизации по токену

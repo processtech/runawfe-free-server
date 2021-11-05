@@ -28,20 +28,20 @@
                                 link
                                 class="ml-2"
                                 color="grey"
-                                @click="showProcessInfo = !showProcessInfo"
-                                v-model="showProcessInfo"
+                                @click="showInfo = !showInfo"
+                                v-model="showInfo"
                             >
                                 <v-icon>mdi-information-outline</v-icon>
                             </v-btn>
                         </v-card-title>
                     </v-card>
                     <v-expand-transition>
-                        <v-card v-show="showProcessInfo" class="mt-4">
+                        <v-card v-show="showInfo" class="mt-4">
                             <v-card-title>
                                 Информация об экземпляре:
                             </v-card-title>
                             <v-card-text style="color: rgba(0, 0, 0, 1);">
-                                <template v-for="(value, name, index) in process.getProcessInfo()">
+                                <template v-for="(value, name, index) in process.getInfo()">
                                     <div :key="index" class="mb-1">
                                         <span class="d-inline-block" style="width: 20em">{{ $__ucfirst(name) }}: </span>
                                         <span class="d-inline-block">{{ value }}</span>
@@ -55,7 +55,8 @@
             <v-row justify="center" align="start">
                 <v-col cols="12">
                     <v-img 
-                        max-width="1000px"
+                        max-width="800px"
+                        max-height="100%"
                         :src="graphImage"
                     ></v-img>
                 </v-col>
@@ -66,7 +67,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Process } from '../ts/process';
+import { WfProcessDto } from '../ts/WfProcessDto';
 import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
@@ -74,8 +75,8 @@ export default Vue.extend({
     data() {
         return {
             graphImage: '',
-            process: new Process(),
-            showProcessInfo: false
+            process: new WfProcessDto(),
+            showInfo: false
         }
     },
     methods: {

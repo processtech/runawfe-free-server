@@ -39,11 +39,14 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { PropOptions } from 'vue';
 
 export default Vue.extend({
     name: "ColorDescription",
     props: {
-        colors: Object
+        colors: {
+            type: Array
+        } as PropOptions<{ value: string, desc: string }[]>,
     },
     data() {
         return {

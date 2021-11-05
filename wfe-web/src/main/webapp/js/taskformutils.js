@@ -40,7 +40,7 @@ function initFileInput(dropzone) {
 	var progressBar = dropzone.parent().find(".progressbar");
 	var progressBarLine = progressBar.find(".line");
 	var fileInput = dropzone.find(".inputFile");
-	var inputId = fileInput.attr("name");	
+	var inputId = fileInput.attr("name");
 	dropzone.fileupload({
 		dataType: "json",
 		url: "/wfe/upload?id=" + id,
@@ -80,7 +80,7 @@ function deleteFile(inputId) {
 	dropzone.show();
 	jQuery.ajax({
 		type: "GET",
-		url: "/wfe/upload",		
+		url: "/wfe/upload",
 		data: {
 			action: "delete", 
 			id: id,
