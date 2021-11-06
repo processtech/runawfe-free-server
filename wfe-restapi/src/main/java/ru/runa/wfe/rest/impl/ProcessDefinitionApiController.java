@@ -168,4 +168,13 @@ public class ProcessDefinitionApiController {
         return Mappers.getMapper(VariableDefinitionMapper.class).map(variableDefinition);
     }
 
+    // this method is temporarily required (see rm2273#note-23)
+    @GetMapping("/version/{versionId}")
+    public WfDefinitionDto getDefinitionByVersionId(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long versionId) {
+        WfDefinition definition = processDefinitionLogic.getProcessDefinition(authUser.getUser(), versionId);
+        WfDefinitionMapper mapper = Mappers.getMapper(WfDefinitionMapper.class);
+        WfDefinitionDto definitionDto = mapper.map(definition);
+        return definitionDto;
+    }
+
 }
