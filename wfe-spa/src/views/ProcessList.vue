@@ -72,7 +72,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
-import { Options, Sorting } from '../ts/options';
+import { Options, Sorting } from '../ts/Options';
 
 export default Vue.extend({
     name: "ProcessList",
@@ -163,7 +163,7 @@ export default Vue.extend({
         getClass (process: any) {
             let cl = '';
             const timestamp = new Date().getTime();
-            if (process.endDate != null && process.endDate < timestamp) {
+            if (process.endDate != null && process.endDate > timestamp) {
                 cl = 'process2';
             }
             return cl;
@@ -176,7 +176,7 @@ export default Vue.extend({
                 pageNumber: page,
                 pageSize: itemsPerPage,
                 sortings: Sorting.convert(sortBy, sortDesc),
-                variables: []
+                variables: Array
             };
             this.$apiClient().then((client: any) => {
                 client['process-api-controller'].getProcessesUsingPOST(null, { requestBody: query }).then((data: any) => {

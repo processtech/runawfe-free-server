@@ -14,17 +14,17 @@
         v-bind="attrs"
         v-on="on"
       >
-        <v-badge
+        <!-- v-badge
           bordered
           color="red"
           overlap
         >
           <template v-slot:badge>
-            <span>5</span>
+            <span>{{ notifications.length }}</span>
           </template>
 
           <v-icon>mdi-bell</v-icon>
-        </v-badge>
+        </v-badge -->
       </v-btn>
     </template>
 
@@ -53,11 +53,7 @@ export default Vue.extend({
     data: function() {
         return {
             notifications: [
-                'Mike John Responded to your email',
-                'You have 5 new tasks',
-                'You\'re now friends with Andrew',
-                'Another Notification',
-                'Another one',
+                'Welcome to newweb',
             ],
         }
     },

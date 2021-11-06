@@ -7,7 +7,7 @@ const state = {
     apiUrl: 'http://localhost:8080/restapi/v3/api-docs',
     token: '',
     dark: true, // TODO Сделать через геттеры возможность переключения темы
-    notifications: [],
+    notifications: Array,
 };
 
 const mutations = make.mutations(state);

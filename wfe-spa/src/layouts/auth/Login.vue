@@ -75,7 +75,7 @@ export default Vue.extend({
                 username: this.username,
                 password: this.password
             }).then(isAuthenticated => {
-                this.$router.push({ name: 'Рабочий стол' }).catch((error: any) => {
+                this.$router.push({ name: 'Мои задачи' }).catch((error: any) => {
                     console.log(error);
                 });
             }, error => {

@@ -18,7 +18,6 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateDefinitionVariableProvider;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 
 /**
@@ -33,7 +32,7 @@ import ru.runa.wfe.user.User;
 public class SubmitStartProcessFormAction extends BaseProcessFormAction {
 
     @Override
-    protected Long executeProcessFromAction(HttpServletRequest request, ActionForm actionForm, ActionMapping mapping, Profile profile) {
+    protected Long executeProcessFromAction(HttpServletRequest request, ActionForm actionForm, ActionMapping mapping) {
         User user = getLoggedUser(request);
         Long definitionId = ((CommonProcessForm) actionForm).getId();
         Interaction interaction = Delegates.getDefinitionService().getStartInteraction(user, definitionId);

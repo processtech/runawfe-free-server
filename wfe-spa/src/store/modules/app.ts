@@ -6,11 +6,11 @@ const state = {
   drawer: null,
   mini: false,
   items: [
-    {
-      title: 'Рабочий стол',
-      icon: 'mdi-view-dashboard',
-      to: '/',
-    },
+    // {
+    //   title: 'Рабочий стол',
+    //   icon: 'mdi-view-dashboard',
+    //   to: '/',
+    // },
     {
       title: 'Мои задачи',
       icon: 'mdi-calendar-check',

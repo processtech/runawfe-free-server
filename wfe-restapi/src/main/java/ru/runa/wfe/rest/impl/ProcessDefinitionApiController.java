@@ -167,4 +167,5 @@ public class ProcessDefinitionApiController {
         VariableDefinition variableDefinition = processDefinitionLogic.getProcessDefinitionVariable(authUser.getUser(), id, name);
         return Mappers.getMapper(VariableDefinitionMapper.class).map(variableDefinition);
     }
+
 }

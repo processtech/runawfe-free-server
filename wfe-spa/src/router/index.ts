@@ -4,6 +4,7 @@ import { layout } from './router-helpers';
 import Desktop from '../views/Desktop.vue';
 import TaskList from '../views/TaskList.vue';
 import ProcessDefinitionList from '../views/ProcessDefinitionList.vue';
+import ProcessDefinitionCard from '../views/ProcessDefinitionCard.vue';
 import ProcessList from '../views/ProcessList.vue';
 import TaskCard from '../views/TaskCard.vue';
 import ProcessCard from '../views/ProcessCard.vue';
@@ -16,11 +17,11 @@ const router = new VueRouter({
   routes: [
     layout('Auth'),
     layout('Default', [
-      {
-        name: 'Рабочий стол',
-        component: Desktop,
-        path: '',
-      },
+      // {
+      //   name: 'Рабочий стол',
+      //   component: Desktop,
+      //   path: '',
+      // },
       {
         name: 'Мои задачи',
         component: TaskList,
@@ -30,6 +31,11 @@ const router = new VueRouter({
         name: 'Определения процессов',
         component: ProcessDefinitionList,
         path: '/process/definition/list/',
+      },
+      {
+        name: 'ProcessDefinitionCard',
+        component: ProcessDefinitionCard,
+        path: '/process/definition/:versionId/card/',
       },
       {
         name: 'Запущенные процессы',

@@ -1,11 +1,11 @@
-export class Process {
+export class WfProcessDto {
     id: number|null = null;
     definitionName: string = '';
     executionStatus: string = '';
     startDate: Date|null = null;
     endDate: Date|null = null; 
 
-    getProcessInfo(): object {
+    getInfo(): object {
         return {
             'Номер': this.id,
             'Имя процесса': this.definitionName,

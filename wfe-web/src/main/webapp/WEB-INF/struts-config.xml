@@ -855,6 +855,12 @@
 			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 
+		<action path="/newweboldform" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/newweboldform.jsp" />
+
+		<action path="/newweboldform-completed" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/newweboldform-completed.jsp" />
+
 	</action-mappings>
 
 	<controller contentType="text/html; charset=UTF-8" nocache="true"

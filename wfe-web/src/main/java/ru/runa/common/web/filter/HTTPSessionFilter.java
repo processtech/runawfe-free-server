@@ -1,14 +1,14 @@
 package ru.runa.common.web.filter;
 
+import com.google.common.net.HttpHeaders;
 import java.io.IOException;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.InvalidSessionException;
+import ru.runa.wfe.security.SecuredObjectUtil;
 
 /**
  * This filter checks that the user session is active.
@@ -17,7 +17,7 @@ import ru.runa.common.web.InvalidSessionException;
  * @web.filter-mapping url-pattern = "/*"
  */
 public class HTTPSessionFilter extends HTTPFilterBase {
-
+    
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String query = request.getRequestURI();

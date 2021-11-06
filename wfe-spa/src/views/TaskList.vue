@@ -75,8 +75,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
-import { Options, Sorting } from '../ts/options';
-import { Task } from '../ts/task';
+import { Options, Sorting } from '../ts/Options';
 
 export default Vue.extend({
     name: "TaskList",
@@ -218,7 +217,7 @@ export default Vue.extend({
                 pageNumber: page,
                 pageSize: itemsPerPage,
                 sortings: Sorting.convert(sortBy, sortDesc),
-                variables: []
+                variables: Array
             };
             this.$apiClient().then((client: any) => {
                 client['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
