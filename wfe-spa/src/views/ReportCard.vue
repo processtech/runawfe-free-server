@@ -156,13 +156,45 @@ export default Vue.extend({
                         if(this.reportFormat.abbr != 'HTML_EMBEDDED') {
                             var repData =  this.buildResult.reportData;
                             var repName =  this.buildResult.reportFileName;
+
                             this.buildResult.reportData = '';
-                            const url = window.URL.createObjectURL(new Blob([repData], { type: 'application/pdf' }));                          
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.setAttribute('download', repName);
-                            document.body.appendChild(link);
-                            link.click();
+
+                            var sliceSize = 1024;
+                            var byteCharacters = atob(repData);
+                            var bytesLength = byteCharacters.length;
+                            var slicesCount = Math.ceil(bytesLength / sliceSize);
+                            var byteArrays = new Array(slicesCount);
+
+                            for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+                                var begin = sliceIndex * sliceSize;
+                                var end = Math.min(begin + sliceSize, bytesLength);
+                                var bytes = new Array(end - begin);
+                                for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
+                                    bytes[i] = byteCharacters[offset].charCodeAt(0);
+                                }
+                                byteArrays[sliceIndex] = new Uint8Array(bytes);
+                            }
+                            var blob = new Blob(byteArrays, { type: "application/octet-stream" });
+
+                            if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                                // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
+                                window.navigator.msSaveBlob(blob, repName);
+                            } else {
+                                var URL = window.URL || window.webkitURL;
+                                var downloadUrl = URL.createObjectURL(blob);
+                                // use HTML5 a[download] attribute to specify filename
+                                var a = document.createElement("a");
+                                // safari doesn't support this yet
+                                if (typeof a.download === 'undefined') {
+                                  window.location = downloadUrl;
+                                } else {
+                                    a.href = downloadUrl;
+                                    a.download = repName;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                }
+                            }
+                            setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100); // cleanup
                         }
                     }
                     else {
