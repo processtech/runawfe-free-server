@@ -8,6 +8,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +40,21 @@ public class AuthController {
                 .signWith(SecuredObjectUtil.JWT_SECRET_KEY, SignatureAlgorithm.HS512)
                 .compact();
         return SecuredObjectUtil.BEARER_PREFIX + token;
+    }
+
+    @PostMapping("/kerberos")
+    public User authenticateByKerberos(@RequestParam byte[] token) {
+        return authenticationLogic.authenticate(token);
+    }
+
+    @PostMapping("/loginPassword")
+    public User authenticateByLoginPassword(@RequestParam String login, @RequestParam String password) {
+        return authenticationLogic.authenticate(login, password);
+    }
+
+    @PostMapping("/trustedPrincipal")
+    public User authenticateByTrustedPrincipal(@AuthenticationPrincipal AuthUser authUser, @RequestParam String login) {
+        return authenticationLogic.authenticate(authUser.getUser(), login);
     }
 
     // Тестовый запрос для проверки авторизации по токену

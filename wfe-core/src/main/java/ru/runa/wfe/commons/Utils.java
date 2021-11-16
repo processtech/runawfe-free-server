@@ -170,6 +170,10 @@ public class Utils {
         }
     }
 
+    public static void sendBpmnMessageRest(Map<String, String> routingData, Map<String, ?> payloadData, long ttlInMilliSeconds) {
+        sendBpmnMessage(routingData, payloadData, ttlInMilliSeconds);
+    }
+
     public static void sendBpmnErrorMessage(Long processId, String nodeId, Throwable throwable) {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(BaseMessageNode.EVENT_TYPE, MessageEventType.error.name());

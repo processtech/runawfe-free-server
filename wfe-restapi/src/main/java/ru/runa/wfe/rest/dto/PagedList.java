@@ -1,10 +1,14 @@
 package ru.runa.wfe.rest.dto;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PagedList<T> {
-    private final Integer total;
-    private final List<T> data;
+    private Integer total;
+    private List<T> data;
 }

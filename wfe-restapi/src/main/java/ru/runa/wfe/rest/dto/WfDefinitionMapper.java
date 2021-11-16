@@ -6,7 +6,7 @@ import ru.runa.wfe.definition.dto.WfDefinition;
 
 @Mapper(uses = WfUserDtoMapper.class)
 public interface WfDefinitionMapper {
-    WfDefinitionDto map(WfDefinition task);
+    WfDefinitionDto map(WfDefinition definition);
 
-    List<WfDefinitionDto> map(List<WfDefinition> task);
+    List<WfDefinitionDto> map(List<WfDefinition> definitions);
 }

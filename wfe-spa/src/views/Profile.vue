@@ -19,9 +19,9 @@
         <v-tab class="justify-start">
           <v-icon left>mdi-lock</v-icon>Изменение пароля
         </v-tab>
-        <v-tab class="justify-start">
+        <!-- v-tab class="justify-start">
           <v-icon left>mdi-camera-outline</v-icon>Изменение аватара
-        </v-tab>
+        </v-tab -->
         <v-tab class="justify-start">
           <v-icon left>mdi-account-switch-outline</v-icon>Возможные заместители
         </v-tab>
@@ -41,7 +41,7 @@
         <v-tab-item>
           <profile-password-form />
         </v-tab-item>
-        <v-tab-item>
+        <!-- v-tab-item>
           <v-card flat width="500" class="mx-auto my-10">
             <v-file-input
               :rules="[rules.fileSize]"
@@ -52,7 +52,7 @@
             />
             <v-btn color="primary" class="mt-5">Применить</v-btn>
           </v-card>
-        </v-tab-item>
+        </v-tab-item -->
         <v-tab-item>
           <!-- Find out how to get users from substitutions, if it's possible -->
         </v-tab-item>
