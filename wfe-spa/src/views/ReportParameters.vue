@@ -60,20 +60,22 @@
                     ></v-date-picker>
                 </v-menu>
             </span>
-            <v-text-field v-else-if="parameter.type === 'PROCESS_NAME_OR_NULL'"
-                label="Имя процесса"
-                :key="parameter.internalName"
-                v-model="parameter.value"
-                outlined
-                dense
-            ></v-text-field>
-            <v-text-field v-else-if="parameter.type === 'SWIMLANE'"
-                label="Роль"
-                :key="parameter.internalName"
-                v-model="parameter.value"
-                outlined
-                dense
-            ></v-text-field>
+            <v-select v-else-if="parameter.type === 'PROCESS_NAME_OR_NULL'"
+                        :items="definitionNames"
+                        label="Имя процесса"
+                        v-model="parameter.value"
+                        persistent-hint
+                        single-line
+                        @click="getDefinitionsName"
+            ></v-select>
+            <v-select v-else-if="parameter.type === 'SWIMLANE'"
+                        :items="swimlanes"
+                        label="Роль"
+                        v-model="parameter.value"
+                        persistent-hint
+                        single-line
+                        @click="getSwimlanes"
+            ></v-select>
             <v-text-field v-else-if="parameter.type === 'ACTOR_ID'"
                 label="ID пользователя"
                 :key="parameter.internalName"
@@ -134,15 +136,65 @@ export default Vue.extend({
     data: function () {
         return {
             menu: false,
-            buf: ''
+            buf: '',
+            definitions: [],
+            definitionNames: [],
+            swimlanes:[]
         }
     },
 
     methods: {
         formatDate (date) {
-          if (!date) return null
-          const [year, month, day] = date.split('-')
-          return `${day}.${month}.${year}`
+            if (!date) return null
+            const [year, month, day] = date.split('-')
+            return `${day}.${month}.${year}`
+        },
+        getDefinitions () {
+            const query = {
+                filters: {},
+                pageNumber: '',
+                pageSize: '',
+                sortings: [],
+                variables: []
+            };
+            return new Promise((resolve, reject) => {
+                this.$apiClient().then((client: any) => {
+                    client['process-definition-api-controller'].getDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
+                        if (data.body) {
+                            this.definitions = data.body;
+                        }
+                    }).then(res => resolve(res))
+                      .catch(err => reject(err));
+                });
+            })
+        },
+        getDefinitionsName () {
+            this.getDefinitions().then(res => {
+                this.definitionNames.push('All BPs');
+                this.definitions.data.forEach(definition => {
+                    this.definitionNames.push(definition.name);
+                });
+            });
+        },
+        getSwimlanes () {
+            this.getDefinitions().then(res => {
+                this.swimlanes.push('All swimlanes');
+                this.definitions.data.forEach(definition => {
+                    this.$apiClient().then((client: any) => {
+                        client['process-definition-api-controller'].getSwimlanesUsingGET_1(null, {
+                            parameters: {
+                                id: definition.versionId
+                            }
+                        }).then((data: any) => {
+                            if (data) {
+                                data.body.data.forEach(swimlane => {
+                                    this.swimlanes.push(swimlane.scriptingName)
+                                });
+                            }
+                        });
+                    });
+                });
+            });
         }
     }
 });
