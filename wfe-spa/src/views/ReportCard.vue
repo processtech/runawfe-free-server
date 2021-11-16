@@ -61,7 +61,7 @@
                 </v-alert>
             </v-row>
             <v-row>
-                <v-col cols="3">
+                <v-col cols="4">
                     <v-select
                         v-model="reportFormat"
                         :items="reportFormats"

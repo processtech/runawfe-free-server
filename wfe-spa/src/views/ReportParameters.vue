@@ -3,7 +3,7 @@
         <v-col cols="2">
             {{ parameter.userName }}
             <span v-if="parameter.required" class="red--text"><strong> * </strong></span>
-            <v-tooltip bottom>
+            <v-tooltip bottom v-if="parameter.description !== ''">
                 <template v-slot:activator="{ on, attrs }">
                     <v-icon
                         color="primary"
