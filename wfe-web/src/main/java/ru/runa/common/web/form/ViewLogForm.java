@@ -1,9 +1,9 @@
 package ru.runa.common.web.form;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -13,28 +13,36 @@ import org.apache.struts.action.ActionMapping;
  */
 public class ViewLogForm extends ActionForm {
     private static final long serialVersionUID = 1L;
-    public static final int MODE_PAGING = 1;
-    public static final int MODE_SEARCH = 2;
-    public static final int MODE_END_LINES = 3;
-    public static final int MODE_ERRORS_AND_WARNS = 4;
-    public static final int MODE_DOWNLOAD = 5;
+    public static final int MODE_READBEGIN = 1;
+    public static final int MODE_READEND = 2;
+    public static final int MODE_DOWNLOAD = 3;
 
     private String fileName;
     private int allLinesCount;
-    private int mode = MODE_END_LINES;
+    private int mode = MODE_READEND;
     private int startLine = 1;
     private int endLine = 0;
     private int endLines = 500;
     private int limitLinesCount;
+    private int linesFound;
+    private int limitLineCharactersCount;
     private boolean autoReload;
     private String search;
     private boolean searchCaseSensitive;
+    private boolean searchContainsWord;
+    private boolean configureLineCharactersCount;
+    private boolean searchErrors;
+    private boolean searchWarns;
 
     @Override
     public void reset(ActionMapping mapping, HttpServletRequest request) {
         super.reset(mapping, request);
         autoReload = false;
         searchCaseSensitive = false;
+        configureLineCharactersCount = false;
+        searchContainsWord = false;
+        searchErrors = false;
+        searchWarns = false;
     }
 
     public String getFileName() {
@@ -51,16 +59,12 @@ public class ViewLogForm extends ActionForm {
 
     public void setAllLinesCount(int allLinesCount) {
         this.allLinesCount = allLinesCount;
-        if (mode == ViewLogForm.MODE_END_LINES) {
-            startLine = allLinesCount - endLines;
+        if (endLine == 0) {
             endLine = allLinesCount;
-        } else if (mode == ViewLogForm.MODE_PAGING) {
-            if (endLine == 0) {
-                endLine = allLinesCount;
-            }
-            if (endLine > allLinesCount) {
-                endLine = allLinesCount;
-            }
+        }
+
+        if (endLine > allLinesCount) {
+            endLine = allLinesCount;
         }
     }
 
@@ -126,5 +130,53 @@ public class ViewLogForm extends ActionForm {
 
     public void setSearchCaseSensitive(boolean searchCaseSensitive) {
         this.searchCaseSensitive = searchCaseSensitive;
+    }
+
+    public boolean isSearchContainsWord() {
+        return searchContainsWord;
+    }
+
+    public void setSearchContainsWord(boolean searchContainsWord) {
+        this.searchContainsWord = searchContainsWord;
+    }
+
+    public boolean isSearchErrors() {
+        return searchErrors;
+    }
+
+    public void setSearchErrors(boolean searchErrors) {
+        this.searchErrors = searchErrors;
+    }
+
+    public boolean isSearchWarns() {
+        return searchWarns;
+    }
+
+    public void setSearchWarns(boolean searchWarns) {
+        this.searchWarns = searchWarns;
+    }
+
+    public int getLinesFound() {
+        return linesFound;
+    }
+
+    public void setLinesFound(int linesFound) {
+        this.linesFound = linesFound;
+    }
+
+    public int getLimitLineCharactersCount() {
+        return limitLineCharactersCount;
+    }
+
+    public void setLimitLineCharactersCount(int limitLineCharactersCount) {
+        this.limitLineCharactersCount = limitLineCharactersCount;
+    }
+
+    public boolean isConfigureLineCharactersCount() {
+        return configureLineCharactersCount;
+    }
+
+    public void setConfigureLineCharactersCount(boolean configureLineCharactersCount) {
+        this.configureLineCharactersCount = configureLineCharactersCount;
     }
 }
