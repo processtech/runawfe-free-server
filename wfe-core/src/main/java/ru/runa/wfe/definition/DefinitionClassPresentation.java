@@ -68,7 +68,10 @@ public class DefinitionClassPresentation extends ClassPresentation {
                         FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTdBuilder", new Object[] {}),
                 new FieldDescriptor(SUBPROCESS_BINDING_DATE, Date.class.getName(), new DefaultDbSource(Deployment.class, "subprocessBindingDate"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionSubprocessBindingDateTdBuilder", new Object[] {})
-                        .setVisible(false) });
+                        .setVisible(false),
+                new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDbSource(Deployment.class, "version"), true,
+                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ,
+                        "version" }).setVisible(false) });
     }
 
     public static ClassPresentation getInstance() {
