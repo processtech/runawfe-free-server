@@ -40,6 +40,7 @@ import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.error.SystemError;
+import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfToken;
@@ -65,6 +66,8 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     private AuditLogic auditLogic;
     @Autowired
     private ExecutionLogic executionLogic;
+    @Autowired
+    private CommonLogic commonLogic;
 
     @Override
     public void initialize() {
@@ -140,6 +143,12 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @WebResult(name = "result")
     public List<SystemError> getSystemErrors(@WebParam(name = "user") @NonNull User user) {
         return Errors.getSystemErrors();
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public byte[] exportDataFile(User user) {
+        return commonLogic.exportDataFile(user);
     }
 
     private void populateExecutionErrors(User user, List<ProcessError> list, Long processId) {

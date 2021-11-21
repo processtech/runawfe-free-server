@@ -1,8 +1,10 @@
-package ru.runa.wf.web.datafile.builder;
+package ru.runa.wfe.datafile.builder;
 
+import java.io.IOException;
 import java.util.zip.ZipOutputStream;
-
 import org.dom4j.Document;
+import org.springframework.core.Ordered;
+import ru.runa.wfe.user.User;
 
 /**
  * Provide method creating the part of data file.
@@ -10,7 +12,7 @@ import org.dom4j.Document;
  * @author riven
  * 
  */
-public interface DataFileBuilder {
+public interface DataFileBuilder extends Ordered {
 
     String FILE_NAME = "archive";
     String FILE_EXT = ".datafile";
@@ -26,6 +28,8 @@ public interface DataFileBuilder {
      *            - zip archive
      * @param script
      *            - xml file contains action for invocation
+     * @param user
+     *            - current actor {@linkplain User}.
      */
-    void build(ZipOutputStream zos, Document script) throws Exception;
+    void build(ZipOutputStream zos, Document script, User user) throws IOException;
 }

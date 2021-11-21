@@ -133,4 +133,13 @@ public class SystemServiceDelegate extends Ejb3Delegate implements SystemService
         }
     }
 
+    @Override
+    public byte[] exportDataFile(User user) {
+        try {
+            return getSystemService().exportDataFile(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
 }
