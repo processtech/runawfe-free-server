@@ -1,21 +1,19 @@
-package ru.runa.wf.web.datafile.builder;
+package ru.runa.wfe.datafile.builder;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.service.DefinitionService;
-import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 /**
@@ -25,22 +23,19 @@ import ru.runa.wfe.user.User;
  * @author riven
  * 
  */
+@Component
 public class DefinitionDataFileBuilder implements DataFileBuilder {
-    protected final Log log = LogFactory.getLog(getClass());
-    private final User user;
 
-    public DefinitionDataFileBuilder(User user) {
-        this.user = user;
-    }
+    @Autowired
+    private DefinitionLogic definitionLogic;
 
     @Override
-    public void build(ZipOutputStream zos, Document script) throws Exception {
-        DefinitionService definitionService = Delegates.getDefinitionService();
+    public void build(ZipOutputStream zos, Document script, User user) throws IOException {
         BatchPresentation batchPresentation = BatchPresentationFactory.DEFINITIONS.createNonPaged();
-        List<WfDefinition> definitions = definitionService.getProcessDefinitions(user, batchPresentation, false);
+        List<WfDefinition> definitions = definitionLogic.getProcessDefinitions(user, batchPresentation, false);
         for (WfDefinition definition : definitions) {
             String fileName = definition.getName() + "." + FileDataProvider.PAR_FILE;
-            byte[] definitionPar = definitionService.getProcessDefinitionFile(user, definition.getId(), FileDataProvider.PAR_FILE);
+            byte[] definitionPar = definitionLogic.getFile(user, definition.getId(), FileDataProvider.PAR_FILE);
             ZipEntry zipEntry = new ZipEntry(PATH_TO_PROCESS_DEF + fileName);
             zos.putNextEntry(zipEntry);
             zos.write(definitionPar, 0, definitionPar.length);
@@ -49,5 +44,10 @@ public class DefinitionDataFileBuilder implements DataFileBuilder {
             element.addAttribute("file", PATH_TO_PROCESS_DEF + fileName);
             element.addAttribute("type", definition.getCategories()[0]);
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 2;
     }
 }

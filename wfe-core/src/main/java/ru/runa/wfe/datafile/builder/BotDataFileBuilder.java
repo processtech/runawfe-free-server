@@ -1,37 +1,37 @@
-package ru.runa.wf.web.datafile.builder;
+package ru.runa.wfe.datafile.builder;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
+import ru.runa.wfe.bot.logic.BotLogic;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.script.AdminScriptConstants;
-import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
+@Component
 public class BotDataFileBuilder implements DataFileBuilder {
-    private final User user;
 
-    public BotDataFileBuilder(User user) {
-        this.user = user;
-    }
+    @Autowired
+    private BotLogic botLogic;
 
     @Override
-    public void build(ZipOutputStream zos, Document script) throws Exception {
-        List<BotStation> botStations = Delegates.getBotService().getBotStations();
+    public void build(ZipOutputStream zos, Document script, User user) throws IOException {
+        List<BotStation> botStations = botLogic.getBotStations();
         for (BotStation botStation : botStations) {
             populateBotStation(script, botStation);
-            List<Bot> bots = Delegates.getBotService().getBots(user, botStation.getId());
+            List<Bot> bots = botLogic.getBots(user, botStation.getId());
             for (Bot bot : bots) {
                 populateBot(script, bot, botStation.getName());
-                List<BotTask> botTasks = Delegates.getBotService().getBotTasks(user, bot.getId());
+                List<BotTask> botTasks = botLogic.getBotTasks(user, bot.getId());
                 for (BotTask botTask : botTasks) {
                     populateBotTask(script, botTask, botStation.getName(), bot.getUsername());
                     byte[] conf = botTask.getConfiguration();
@@ -89,5 +89,10 @@ public class BotDataFileBuilder implements DataFileBuilder {
         if (botTask.getConfiguration() != null && botTask.getConfiguration().length > 0) {           
             subElement.addAttribute(AdminScriptConstants.CONFIGURATION_STRING_ATTRIBUTE_NAME, getConfigurationName(botTask) + ".conf");
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 3;
     }
 }

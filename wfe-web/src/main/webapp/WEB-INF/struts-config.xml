@@ -824,6 +824,7 @@
 			
 		<action path="/exportDataFileAction" type="ru.runa.wf.web.action.ExportDataFileAction"
 			scope="request" unknown="false" validate="false">
+			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		<action path="/importDataFileAction" type="ru.runa.wf.web.action.ImportDataFileAction"
 			name="fileForm" scope="request" unknown="false" validate="false">

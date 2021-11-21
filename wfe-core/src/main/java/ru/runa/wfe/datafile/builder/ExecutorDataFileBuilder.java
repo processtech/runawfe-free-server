@@ -1,4 +1,4 @@
-package ru.runa.wf.web.datafile.builder;
+package ru.runa.wfe.datafile.builder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,15 +6,17 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.script.AdminScriptConstants;
-import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.logic.ExecutorLogic;
 
 /**
  * Add action 'createActor' or 'createGroup' to xml file.
@@ -22,19 +24,18 @@ import ru.runa.wfe.user.User;
  * @author riven
  * 
  */
+@Component
 public class ExecutorDataFileBuilder implements DataFileBuilder {
-    private final User user;
 
-    public ExecutorDataFileBuilder(User user) {
-        this.user = user;
-    }
+    @Autowired
+    private ExecutorLogic executorLogic;
 
     @Override
-    public void build(ZipOutputStream zos, Document script) {
+    public void build(ZipOutputStream zos, Document script, User user) {
         List<Group> groupsForCreating = new ArrayList<>();
         List<Actor> actorOnPermissions = new ArrayList<>();
         List<Group> groupOnPermissions = new ArrayList<>();
-        List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user, BatchPresentationFactory.EXECUTORS.createNonPaged());
+        List<? extends Executor> executors = executorLogic.getExecutors(user, BatchPresentationFactory.EXECUTORS.createNonPaged());
         for (Executor executor : executors) {
             if (executor instanceof TemporaryGroup) {
                 continue;
@@ -53,7 +54,7 @@ public class ExecutorDataFileBuilder implements DataFileBuilder {
         }
 
         for (Group group : groupsForCreating) {
-            List<Actor> actors = Delegates.getExecutorService().getGroupActors(user, group);
+            List<Actor> actors = executorLogic.getGroupActors(user, group);
             populateExecutorsToGroup(script, group, actors);
         }
     }
@@ -103,5 +104,10 @@ public class ExecutorDataFileBuilder implements DataFileBuilder {
                 }
             }
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 1;
     }
 }

@@ -77,4 +77,9 @@ public interface SystemService {
      */
     List<SystemError> getSystemErrors(User user);
 
+    /**
+     * Export system data file
+     */
+    byte[] exportDataFile(User user) throws AuthorizationException;
+
 }
