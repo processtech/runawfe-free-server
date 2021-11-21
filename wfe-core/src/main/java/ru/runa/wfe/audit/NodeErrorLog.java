@@ -25,6 +25,11 @@ public class NodeErrorLog extends NodeLog {
         addAttributeWithTruncation(ATTR_MESSAGE, message);
     }
 
+    public NodeErrorLog(Node node, String message, byte[] bytes) {
+        this(node, message);
+        setBytes(bytes);
+    }
+
     @Transient
     public String getMessage() {
         return getAttributeNotNull(ATTR_MESSAGE);

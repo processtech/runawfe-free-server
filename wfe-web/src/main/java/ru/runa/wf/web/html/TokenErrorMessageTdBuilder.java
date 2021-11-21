@@ -3,9 +3,9 @@ package ru.runa.wf.web.html;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.ecs.html.TD;
 import ru.runa.common.web.html.TdBuilder;
-import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.commons.error.dto.WfTokenError;
 
-public class ProcessErrorsTdBuilder implements TdBuilder {
+public class TokenErrorMessageTdBuilder implements TdBuilder {
 
     @Override
     public TD build(Object object, Env env) {
@@ -17,8 +17,15 @@ public class ProcessErrorsTdBuilder implements TdBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        WfProcess process = (WfProcess) object;
-        return StringEscapeUtils.escapeHtml(process.getErrors());
+        WfTokenError tokenError = (WfTokenError) object;
+        if (env.isExcelExport()) {
+            return tokenError.getErrorMessage();
+        }
+        String message = StringEscapeUtils.escapeHtml(tokenError.getErrorMessage());
+        if (tokenError.getStackTrace() != null) {
+            return String.format("<a href=\"javascript:showTokenErrorStackTrace(%s)\">%s</a>", tokenError.getId(), message);
+        }
+        return message;
     }
 
     @Override

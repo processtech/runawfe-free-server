@@ -51,7 +51,6 @@ import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
@@ -230,7 +229,6 @@ public class Process extends SecuredObjectBase {
             executionContext.addLog(new ProcessEndLog());
         }
 
-        Errors.removeProcessErrors(id);
         TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
         // end the main path of execution
         rootToken.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);

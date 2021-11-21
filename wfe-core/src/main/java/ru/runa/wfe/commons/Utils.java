@@ -32,8 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
@@ -403,9 +401,6 @@ public class Utils {
                 boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
                 if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
-                    ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
-                    processError.setThrowable(throwable);
-                    Errors.sendEmailNotification(processError);
                     needReprocessing.set(true);
                 }
             }
@@ -418,6 +413,10 @@ public class Utils {
             return string.substring(0, limit);
         }
         return string;
+    }
+
+    public static String getErrorMessage(Throwable throwable) {
+        return getCuttedString(throwable.toString(), 1024 / 2);
     }
 
     public static Object getContainerCopy(Object object) {

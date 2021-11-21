@@ -9,12 +9,9 @@ import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.bc.BusinessDuration;
 import ru.runa.wfe.commons.bc.BusinessDurationParser;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
@@ -97,7 +94,6 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
     }
 
     public void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
-        ProcessError processError = new ProcessError(ProcessErrorType.system, timerJob.getProcess().getId(), getNodeId());
         try {
             if (actionDelegation != null) {
                 try {
@@ -131,15 +127,9 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
                 log.debug("Deleting " + timerJob + " after execution");
                 cancelBoundaryEvent(executionContext.getToken());
             }
-            Errors.removeProcessError(processError);
+            timerJob.getToken().removeError();
         } catch (Throwable th) {
-            String nodeName;
-            try {
-                nodeName = executionContext.getProcessDefinition().getNodeNotNull(getNodeId()).getName();
-            } catch (Exception e) {
-                nodeName = "Unknown due to " + e;
-            }
-            Errors.addProcessError(processError, nodeName, th);
+            timerJob.getToken().fail(th);
             throw Throwables.propagate(th);
         }
     }

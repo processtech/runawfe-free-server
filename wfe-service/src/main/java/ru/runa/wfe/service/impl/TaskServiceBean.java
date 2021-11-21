@@ -28,6 +28,7 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.service.jaxb.Variable;
 import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.service.utils.FileVariablesUtil;
+import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.logic.TaskLogic;
 import ru.runa.wfe.user.Executor;
@@ -86,8 +87,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @WebMethod(exclude = true)
     @Override
     public WfTask completeTask(@NonNull User user, @NonNull Long taskId, Map<String, Object> variables) {
-        Long processId = taskLogic.getProcessId(user, taskId);
-        FileVariablesUtil.unproxyFileVariables(user, processId, taskId, variables);
+        Task task = taskLogic.getTaskEntity(user, taskId);
+        FileVariablesUtil.unproxyFileVariables(user, task.getProcess().getId(), taskId, variables);
         return taskLogic.completeTask(user, taskId, variables);
     }
 
@@ -124,8 +125,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @WebResult(name = "result")
     public void completeTaskWS(@WebParam(name = "user") @NonNull User user, @WebParam(name = "taskId") @NonNull Long taskId,
             @WebParam(name = "variables") List<Variable> variables, @WebParam(name = "swimlaneActorId") Long swimlaneActorId) {
-        WfTask task = taskLogic.getTask(user, taskId);
-        ProcessDefinition processDefinition = executionLogic.getDefinition(task.getDefinitionId());
+        Task task = taskLogic.getTaskEntity(user, taskId);
+        ProcessDefinition processDefinition = executionLogic.getDefinition(task.getProcess());
         completeTask(user, taskId, VariableConverter.unmarshal(processDefinition, variables), swimlaneActorId);
     }
 
@@ -140,8 +141,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @Override
     public void delegateTasks(@NonNull User user, @NonNull Set<Long> taskIds, boolean keepCurrentOwners, List<? extends Executor> newOwners) {
         for (Long taskId : taskIds) {
-            WfTask task = taskLogic.getTask(user, taskId);
-            taskLogic.delegateTask(user, taskId, task.getOwner(), keepCurrentOwners, newOwners);
+            Task task = taskLogic.getTaskEntity(user, taskId);
+            taskLogic.delegateTask(user, taskId, task.getExecutor(), keepCurrentOwners, newOwners);
         }
     }
 

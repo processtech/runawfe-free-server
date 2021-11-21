@@ -57,6 +57,7 @@ public interface TdBuilder {
 
         boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionId);
 
+        boolean isExcelExport();
     }
 
     TD build(Object object, Env env);

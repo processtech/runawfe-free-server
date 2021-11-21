@@ -44,12 +44,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ReceiveMessageLog;
-import ru.runa.wfe.commons.Errors;
+import ru.runa.wfe.commons.SystemErrors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
@@ -151,7 +149,7 @@ public class ReceiveMessageBean implements MessageListener {
             if (errorEventData != null) {
                 String errorMessage = "Unexpected errorEvent in processId = " + errorEventData.processId + ", nodeId = " + errorEventData.nodeId;
                 log.error(errorMessage);
-                Errors.addSystemError(new InternalApplicationException(errorMessage));
+                SystemErrors.addError(new InternalApplicationException(errorMessage));
             } else {
                 Date expiryDate = null;
                 try {
@@ -190,7 +188,6 @@ public class ReceiveMessageBean implements MessageListener {
     }
 
     private void handleMessage(final ReceiveMessageData data, final ObjectMessage message) {
-        ProcessError processError = new ProcessError(ProcessErrorType.system, data.processId, data.node.getNodeId());
         try {
             new TransactionalExecutor(context.getUserTransaction()) {
 
@@ -207,11 +204,16 @@ public class ReceiveMessageBean implements MessageListener {
                     executionContext.addLog(new ReceiveMessageLog(data.node, Utils.toString(message, true)));
                     Map<String, Object> map = (Map<String, Object>) message.getObject();
                     data.node.leave(executionContext, map);
+                    executionLogic.removeTokenError(null, data.tokenId);
                 }
             }.executeInTransaction(true);
-            Errors.removeProcessError(processError);
         } catch (final Throwable th) {
-            Errors.addProcessError(processError, data.node.getName(), th);
+            new TransactionalExecutor(context.getUserTransaction()) {
+                @Override
+                protected void doExecuteInTransaction() {
+                    executionLogic.failToken(null, data.tokenId, th);
+                }
+            }.executeInTransaction(true);
             Throwables.propagate(th);
         }
     }

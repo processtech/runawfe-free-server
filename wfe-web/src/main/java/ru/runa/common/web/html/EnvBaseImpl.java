@@ -19,7 +19,6 @@ package ru.runa.common.web.html;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.html.TdBuilder.Env;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -54,6 +53,11 @@ public abstract class EnvBaseImpl implements Env {
             processDefPermissionCache.put(processDefinitionId, false);
             return false;
         }
+    }
+
+    @Override
+    public boolean isExcelExport() {
+        return false;
     }
 
     private final Map<Long, Boolean> processDefPermissionCache = new HashMap<>();
