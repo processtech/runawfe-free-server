@@ -123,13 +123,17 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
         }
 
         @Override
+        public boolean isExcelExport() {
+            return true;
+        }
+
+        @Override
         public User getUser() {
             return user;
         }
 
         @Override
         public PageContext getPageContext() {
-            // TODO no localization
             return null;
         }
 

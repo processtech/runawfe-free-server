@@ -1,11 +1,11 @@
 package ru.runa.wf.web.html;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.ecs.html.TD;
+import ru.runa.common.web.Messages;
 import ru.runa.common.web.html.TdBuilder;
-import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.commons.error.dto.WfTokenError;
 
-public class ProcessErrorsTdBuilder implements TdBuilder {
+public class TokenNodeTypeTdBuilder implements TdBuilder {
 
     @Override
     public TD build(Object object, Env env) {
@@ -13,12 +13,6 @@ public class ProcessErrorsTdBuilder implements TdBuilder {
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         td.addElement(getValue(object, env));
         return td;
-    }
-
-    @Override
-    public String getValue(Object object, Env env) {
-        WfProcess process = (WfProcess) object;
-        return StringEscapeUtils.escapeHtml(process.getErrors());
     }
 
     @Override
@@ -31,4 +25,15 @@ public class ProcessErrorsTdBuilder implements TdBuilder {
         return 1;
     }
 
+    @Override
+    public String getValue(Object object, Env env) {
+        WfTokenError error = (WfTokenError) object;
+        if (error.getNodeType() == null) {
+            return "";
+        }
+        if (env.getPageContext() != null) {
+            return Messages.getMessage(error.getNodeType().getLabelKey(), env.getPageContext());
+        }
+        return error.getNodeType().name();
+    }
 }

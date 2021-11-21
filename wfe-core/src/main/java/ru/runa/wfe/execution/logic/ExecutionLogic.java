@@ -32,6 +32,7 @@ import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.CreateTimerLog;
+import ru.runa.wfe.audit.NodeErrorLog;
 import ru.runa.wfe.audit.ProcessActivateLog;
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
@@ -44,6 +45,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
+import ru.runa.wfe.commons.error.dto.WfTokenError;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
@@ -52,7 +54,6 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -82,8 +83,6 @@ import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -463,12 +462,56 @@ public class ExecutionLogic extends WfCommonLogic {
         log.info("Process " + processId + " suspended");
     }
 
-    public List<WfProcess> getFailedProcesses(User user) {
-        BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
-        int index = batchPresentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_EXECUTION_STATUS);
-        batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
-        List<Process> processes = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, false);
-        return toWfProcesses(processes, null);
+    public void failToken(User user, Long tokenId, Throwable th) {
+        tokenDao.getNotNull(tokenId).fail(th);
+    }
+
+    public void failToken(User user, Long tokenId,String errorMessage, String stackTrace) {
+        tokenDao.getNotNull(tokenId).fail(errorMessage, stackTrace);
+    }
+
+    public void removeTokenError(User user, Long tokenId) {
+        tokenDao.getNotNull(tokenId).removeError();
+    }
+
+    public List<WfTokenError> getTokenErrors(User user, BatchPresentation batchPresentation) {
+        List<Token> tokens = getPersistentObjects(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES, true);
+        List<WfTokenError> errors = Lists.newArrayListWithExpectedSize(tokens.size());
+        for (Token token : tokens) {
+            errors.add(new WfTokenError(token, getStackTrace(token)));
+        }
+        return errors;
+    }
+
+    public List<WfTokenError> getTokenErrors(User user, Long processId) {
+        List<WfTokenError> errors = Lists.newArrayList();
+        Process process = processDao.get(processId);
+        for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
+            errors.add(new WfTokenError(token, getStackTrace(token)));
+        }
+        return errors;
+    }
+
+    public WfTokenError getTokenError(User user, Long tokenId) {
+        Token token = tokenDao.get(tokenId);
+        return new WfTokenError(token, getStackTrace(token));
+    }
+
+    private String getStackTrace(Token token) {
+        ProcessLogFilter filter = new ProcessLogFilter(token.getProcess().getId());
+        filter.setTokenId(token.getId());
+        filter.setNodeId(token.getNodeId());
+        filter.setRootClassName(NodeErrorLog.class.getName());
+        List<ProcessLog> nodeErrorLogs = processLogDao.getAll(filter);
+        if (!nodeErrorLogs.isEmpty()) {
+            ProcessLog lastLog = nodeErrorLogs.get(nodeErrorLogs.size() - 1);
+            return lastLog.getBytes() != null ? new String(lastLog.getBytes()) : null;
+        }
+        return null;
+    }
+
+    public int getTokenErrorsCount(User user, BatchPresentation batchPresentation) {
+        return getPersistentObjectCount(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES);
     }
 
     public RestoreProcessStatus restoreProcess(User user, Long processId) throws ProcessDoesNotExistException {
