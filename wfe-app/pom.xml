@@ -37,7 +37,7 @@
 		<maven.profile.javamelody.disabled>false</maven.profile.javamelody.disabled>
 		<maven.build.timestamp.format>dd.MM.yyyy</maven.build.timestamp.format>
 		<project.build.date>${maven.build.timestamp}</project.build.date>
-		<skipTests>true</skipTests>
+		<!-- skipTests>true</skipTests -->
 	</properties>
 
 	<profiles>

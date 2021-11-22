@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SystemLogClassPresentation;
+import ru.runa.wfe.commons.error.TokenErrorClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
 import ru.runa.wfe.execution.ArchivedProcessClassPresentation;
@@ -34,7 +35,8 @@ public enum ClassPresentationType {
     CURRENT_PROCESS_WITH_TASKS(CurrentProcessWithTasksClassPresentation.INSTANCE, "process"),
     TASK(TaskClassPresentation.INSTANCE, "task"),
     TASK_OBSERVABLE(TaskObservableClassPresentation.INSTANCE, "task"),
-    REPORTS(ReportClassPresentation.INSTANCE, "report");
+    REPORTS(ReportClassPresentation.INSTANCE, "report"),
+    TOKEN_ERRORS(TokenErrorClassPresentation.getInstance(), "error");
 
     private final Class<?> presentationClass;
     private final List<String> restrictions;

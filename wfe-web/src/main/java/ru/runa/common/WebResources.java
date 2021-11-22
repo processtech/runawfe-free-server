@@ -142,6 +142,10 @@ public class WebResources {
         return RESOURCES.getIntegerProperty("view.logs.limit.lines.count", 10000);
     }
 
+    public static int getViewLogsLimitLineCharactersCount() {
+        return RESOURCES.getIntegerProperty("view.logs.limit.line.characters.count", 100);
+    }
+
     public static int getViewLogsAutoReloadTimeout() {
         return RESOURCES.getIntegerProperty("view.logs.timeout.autoreload.seconds", 15);
     }

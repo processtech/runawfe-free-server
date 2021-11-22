@@ -13,7 +13,7 @@ import ru.runa.wfe.lang.Node;
  */
 @Entity
 @DiscriminatorValue(value = "H")
-public class CurrentNodeErrorLog extends CurrentNodeLog {
+public class CurrentNodeErrorLog extends CurrentNodeLog implements NodeErrorLog {
     private static final long serialVersionUID = 3940080812294087447L;
 
     public CurrentNodeErrorLog() {
@@ -23,6 +23,11 @@ public class CurrentNodeErrorLog extends CurrentNodeLog {
         super(node);
         setSeverity(Severity.ERROR);
         addAttributeWithTruncation(ATTR_MESSAGE, message);
+    }
+
+    public CurrentNodeErrorLog(Node node, String message, byte[] bytes) {
+        this(node, message);
+        setBytes(bytes);
     }
 
     @Transient

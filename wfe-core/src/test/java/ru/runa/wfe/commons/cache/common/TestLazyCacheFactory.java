@@ -14,8 +14,8 @@ public final class TestLazyCacheFactory extends SMCacheFactory<TestCacheIface> {
 
     private TestLazyCacheFactoryCallback callback;
 
-    public TestLazyCacheFactory(boolean isolated, TestLazyCacheFactoryCallback callback) {
-        super(Type.LAZY, isolated, new TestCacheTransactionalExecutor());
+    public TestLazyCacheFactory(TestLazyCacheFactoryCallback callback) {
+        super(Type.LAZY, new TestCacheTransactionalExecutor());
         this.setCallback(callback);
         for (long i = 1; i <= 10; ++i) {
             initialCachedData.put(i, i);

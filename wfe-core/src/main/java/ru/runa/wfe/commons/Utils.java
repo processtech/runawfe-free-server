@@ -331,7 +331,7 @@ public class Utils {
         try {
             if (transaction != null) {
                 status = transaction.getStatus();
-                if (status != Status.STATUS_NO_TRANSACTION && status != Status.STATUS_ROLLEDBACK) {
+                if (status != Status.STATUS_NO_TRANSACTION) {
                     transaction.rollback();
                 } else {
                     log.warn("Unable to rollback, status: " + status);
@@ -390,6 +390,10 @@ public class Utils {
             return string.substring(0, limit);
         }
         return string;
+    }
+
+    public static String getErrorMessage(Throwable throwable) {
+        return getCuttedString(throwable.toString(), 1024 / 2);
     }
 
     public static Object getContainerCopy(Object object) {

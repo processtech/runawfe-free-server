@@ -5,15 +5,13 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
-
 import javax.imageio.ImageIO;
-
+import lombok.SneakyThrows;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
@@ -21,21 +19,18 @@ import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
-import com.google.common.base.Throwables;
-
 public class GraphImage {
     private static final String FORMAT = "png";
-    private BufferedImage origImage = null;
+    private BufferedImage image;
     private final ParsedProcessDefinition parsedProcessDefinition;
     private final Map<TransitionFigure, RenderHits> transitions;
     private final Map<AbstractFigure, RenderHits> nodes;
     private final boolean useEdgingOnly = DrawProperties.useEdgingOnly();
 
+    @SneakyThrows
     public GraphImage(ParsedProcessDefinition parsedProcessDefinition, Map<TransitionFigure, RenderHits> transitions, Map<AbstractFigure, RenderHits> nodes) {
-        try {
-            origImage = ImageIO.read(new ByteArrayInputStream(parsedProcessDefinition.getGraphImageBytesNotNull()));
-        } catch (IOException e) {
-            Throwables.propagate(e);
+        if (useEdgingOnly) {
+            image = ImageIO.read(new ByteArrayInputStream(parsedProcessDefinition.getGraphImageBytesNotNull()));
         }
         this.parsedProcessDefinition = parsedProcessDefinition;
         this.transitions = transitions;
@@ -45,15 +40,15 @@ public class GraphImage {
     public byte[] getImageBytes() throws IOException {
         int width = parsedProcessDefinition.getGraphConstraints()[2];
         int height = parsedProcessDefinition.getGraphConstraints()[3];
-        BufferedImage resultImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = resultImage.createGraphics();
+        if (!useEdgingOnly) {
+            image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        }
+        Graphics2D graphics = image.createGraphics();
 
         graphics.setFont(new Font(DrawProperties.getFontFamily(), Font.PLAIN, DrawProperties.getFontSize()));
         graphics.setColor(DrawProperties.getBackgroundColor());
 
-        if (origImage != null && useEdgingOnly) {
-            graphics.drawRenderedImage(origImage, AffineTransform.getRotateInstance(0));
-        } else {
+        if (!useEdgingOnly) {
             graphics.fillRect(0, 0, width, height);
         }
 
@@ -77,7 +72,7 @@ public class GraphImage {
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(resultImage, FORMAT, outputStream);
+        ImageIO.write(image, FORMAT, outputStream);
         return outputStream.toByteArray();
     }
 

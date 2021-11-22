@@ -24,6 +24,7 @@ public class DefaultBatchPresentations {
         create(BatchPresentationConsts.ID_TASKS, BatchPresentationFactory.TASKS);
         create(BatchPresentationConsts.ID_OBSERVABLE_TASKS, BatchPresentationFactory.OBSERVABLE_TASKS);
         create(BatchPresentationConsts.ID_SYSTEM_LOGS, BatchPresentationFactory.SYSTEM_LOGS);
+        create(BatchPresentationConsts.ID_TOKEN_ERRORS, BatchPresentationFactory.TOKEN_ERRORS);
     }
 
     private static void create(String category, BatchPresentationFactory factory) {

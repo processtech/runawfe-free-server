@@ -21,6 +21,7 @@ public class BatchPresentationFactory {
     public static final BatchPresentationFactory TASKS = new BatchPresentationFactory(ClassPresentationType.TASK);
     public static final BatchPresentationFactory OBSERVABLE_TASKS = new BatchPresentationFactory(ClassPresentationType.TASK_OBSERVABLE);
     public static final BatchPresentationFactory REPORTS = new BatchPresentationFactory(ClassPresentationType.REPORTS);
+    public static final BatchPresentationFactory TOKEN_ERRORS = new BatchPresentationFactory(ClassPresentationType.TOKEN_ERRORS);
 
     private final ClassPresentationType type;
     private final int defaultPageRangeSize;

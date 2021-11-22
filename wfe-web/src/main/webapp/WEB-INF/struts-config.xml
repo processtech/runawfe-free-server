@@ -190,6 +190,8 @@
 		</action>
 		<action path="/exportExcelProcesses" type="ru.runa.wf.web.action.ExportExcelProcessesAction" name="batchPresentationForm" validate="false" scope="request">
 		</action>
+		<action path="/exportExcelTokenErrors" type="ru.runa.wf.web.action.ExportExcelTokenErrorsAction" name="batchPresentationForm" validate="false" scope="request">
+		</action>
 		<action path="/create_bot" type="ru.runa.af.web.action.CreateBotAction"
 			name="botForm" scope="request" input="/WEB-INF/wf/add_bot.jsp"
 			unknown="false" validate="false">
@@ -246,10 +248,20 @@
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
+		<action path="/cancelProcesses" type="ru.runa.wf.web.action.CancelProcessesAction"
+				name="idsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_errors.do" redirect="true" />
+			<forward name="failure" path="/manage_errors.do" redirect="true" />
+		</action>
 		<action path="/activateProcessExecution" type="ru.runa.wf.web.action.ActivateProcessExecutionAction" 
 			name="idForm" scope="request">
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/activateProcesses" type="ru.runa.wf.web.action.ActivateProcessesAction"
+				name="idsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_errors.do" redirect="true" />
+			<forward name="failure" path="/manage_errors.do" redirect="true" />
 		</action>
 		<action path="/activateFailedProcesses" type="ru.runa.wf.web.action.ActivateFailedProcessesAction" scope="request">
 			<forward name="success" path="/manage_errors.do" redirect="true" />
@@ -827,6 +839,7 @@
 			
 		<action path="/exportDataFileAction" type="ru.runa.wf.web.action.ExportDataFileAction"
 			scope="request" unknown="false" validate="false">
+			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		<action path="/importDataFileAction" type="ru.runa.wf.web.action.ImportDataFileAction"
 			name="fileForm" scope="request" unknown="false" validate="false">

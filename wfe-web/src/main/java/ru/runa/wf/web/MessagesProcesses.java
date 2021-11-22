@@ -5,6 +5,8 @@ import ru.runa.common.web.StrutsMessage;
 public final class MessagesProcesses {
 
     public static final StrutsMessage BUTTON_CANCEL_PROCESS = new StrutsMessage("button.cancel_process");
+    public static final StrutsMessage BUTTON_CANCEL_PROCESSES = new StrutsMessage("button.cancel_processes");
+    public static final StrutsMessage BUTTON_ACTIVATE_PROCESSES = new StrutsMessage("button.activate_processes");
     public static final StrutsMessage BUTTON_RESTORE_PROCESS = new StrutsMessage("button.restore_process");
     public static final StrutsMessage TITLE_PROCESS_DEFINITIONS = new StrutsMessage("title.process_definitions");
     public static final StrutsMessage TITLE_DEPLOY_DEFINITION = new StrutsMessage("title.deploy_definition");
@@ -40,6 +42,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage PROCESS_SUSPEND = new StrutsMessage("process.suspend");
     public static final StrutsMessage PROCESS_SUSPENDED = new StrutsMessage("process.suspended");
     public static final StrutsMessage PROCESS_CANCELED = new StrutsMessage("process.canceled");
+    public static final StrutsMessage PROCESSES_CANCELED = new StrutsMessage("processes.canceled");
     public static final StrutsMessage PROCESS_RESTORED = new StrutsMessage("process.restored");
     public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
     public static final StrutsMessage PROCESS_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("process.upgraded.to.definition.version");
