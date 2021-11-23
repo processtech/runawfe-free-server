@@ -725,17 +725,20 @@ public class ExecutionLogic extends WfCommonLogic {
         AssignmentHelper.assign(new ExecutionContext(parsedProcessDefinition, process), swimlane, executors);
     }
 
-    public void activateProcess(User user, Long processId) {
+    public boolean activateProcess(User user, Long processId) {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException("Only administrator can activate process");
         }
         CurrentProcess process = currentProcessDao.getNotNull(processId);
         boolean resetCaches = process.getExecutionStatus() == ExecutionStatus.SUSPENDED;
-        activateProcessWithSubprocesses(user, process);
+        boolean result = activateProcessWithSubprocesses(user, process);
         if (resetCaches) {
             TransactionListeners.addListener(new CacheResetTransactionListener(Task.class), true);
         }
-        log.info("Process " + processId + " activated");
+        if (result) {
+            log.info("Process " + processId + " activated");
+        }
+        return result;
     }
 
     public void suspendProcess(User user, Long processId) {
@@ -966,12 +969,14 @@ public class ExecutionLogic extends WfCommonLogic {
         return result;
     }
 
-    private void activateProcessWithSubprocesses(User user, CurrentProcess process) {
+    private boolean activateProcessWithSubprocesses(User user, CurrentProcess process) {
         if (process.getExecutionStatus() == ExecutionStatus.ENDED) {
-            return;
+            log.debug(process + "is already ended");
+            return false;
         }
         if (process.getExecutionStatus() == ExecutionStatus.ACTIVE) {
-            throw new InternalApplicationException(process + " already activated");
+            log.debug(process + "is already activated");
+            return false;
         }
         for (CurrentToken token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
             nodeAsyncExecutor.execute(token, false);
@@ -989,6 +994,7 @@ public class ExecutionLogic extends WfCommonLogic {
                 activateProcessWithSubprocesses(user, subprocess);
             }
         }
+        return true;
     }
 
     private void suspendProcessWithSubprocesses(User user, CurrentProcess process) {

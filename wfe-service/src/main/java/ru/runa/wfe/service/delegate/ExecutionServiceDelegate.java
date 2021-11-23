@@ -286,9 +286,9 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public void activateProcess(User user, Long processId) {
+    public boolean activateProcess(User user, Long processId) {
         try {
-            getExecutionService().activateProcess(user, processId);
+            return getExecutionService().activateProcess(user, processId);
         } catch (Exception e) {
             throw handleException(e);
         }

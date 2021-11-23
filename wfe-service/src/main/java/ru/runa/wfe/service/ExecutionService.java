@@ -372,7 +372,7 @@ public interface ExecutionService {
      * @param user
      *            authorized user
      */
-    void activateProcess(User user, Long processId);
+    boolean activateProcess(User user, Long processId);
 
     /**
      * Suspends active process by id.
