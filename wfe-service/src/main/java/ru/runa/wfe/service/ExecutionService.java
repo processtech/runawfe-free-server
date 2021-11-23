@@ -417,7 +417,7 @@ public interface ExecutionService {
      * @param id
      *            process id
      */
-    public void activateProcess(User user, Long processId);
+    public boolean activateProcess(User user, Long processId);
 
     /**
      * Suspends active process by id.
