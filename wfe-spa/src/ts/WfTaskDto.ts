@@ -31,8 +31,8 @@ export class WfTaskDto {
             'Имя': this.name,
             'Описание': this.description,
             'Номер экземпляра процесса': this.processId,
-            'Владелец': this.owner ? this.owner.fullName : '',
-            'Роль': this.targetActor ? this.targetActor.fullName : '',
+            'Исполнитель': this.targetActor ? this.targetActor.fullName : '',
+            'Роль': this.swimlaneName ? this.swimlaneName : '',
             'Создана': this.createDate ? new Date(this.createDate).toLocaleString() : '',
             'Время окончания': this.deadlineDate ? new Date(this.deadlineDate).toLocaleString() : ''
         };
