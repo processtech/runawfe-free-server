@@ -101,7 +101,7 @@ export default Vue.extend({
                 }).then((data: any) => {
                     if (data) {
                         this.task = Object.assign(this.task, data.body);
-                        this.oldFormUrl = `http://localhost:8080/wfe/newweboldform.do?id=${this.task.id}&jwt=${this.token}&startForm=false`;
+                        this.oldFormUrl = `/wfe/newweboldform.do?id=${this.task.id}&jwt=${this.token}&startForm=false`;
                     }
                 });
             });

@@ -95,7 +95,7 @@ export default Vue.extend({
                 }).then((data: any) => {
                     if (data) {
                         this.definition = Object.assign(this.definition, data.body);
-                        this.oldFormUrl = `http://localhost:8080/wfe/newweboldform.do?id=${this.definition.versionId}&jwt=${this.token}&startForm=true`;
+                        this.oldFormUrl = `/wfe/newweboldform.do?id=${this.definition.versionId}&jwt=${this.token}&startForm=true`;
                     }
                 });
             });
