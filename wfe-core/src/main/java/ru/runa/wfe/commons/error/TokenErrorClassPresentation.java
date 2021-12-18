@@ -1,6 +1,7 @@
 package ru.runa.wfe.commons.error;
 
 import java.util.Date;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.presentation.ClassPresentation;
@@ -26,27 +27,27 @@ public class TokenErrorClassPresentation extends ClassPresentation {
 
     private TokenErrorClassPresentation() {
         super(
-                Token.class,
+                CurrentToken.class,
                 classNameSQL + ".errorDate is not null and " + classNameSQL + ".executionStatus = '" + ExecutionStatus.FAILED + "'",
                 true,
                 new FieldDescriptor[] {
-                new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(Token.class, "process.id"), true, 1, DESC,
+                new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(CurrentToken.class, "process.id"), true, 1, DESC,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "processId"}),
-                new FieldDescriptor(PROCESS_NAME, String.class.getName(), new DefaultDbSource(Token.class, "process.deployment.name"), true,
+                new FieldDescriptor(PROCESS_NAME, String.class.getName(), new DefaultDbSource(CurrentToken.class, "process.definitionVersion.definition.name"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "processName"}),
-                new FieldDescriptor(PROCESS_VERSION, Integer.class.getName(), new DefaultDbSource(Token.class, "process.deployment.version"), true,
+                new FieldDescriptor(PROCESS_VERSION, Integer.class.getName(), new DefaultDbSource(CurrentToken.class, "process.definitionVersion.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "processVersion"}),
-                new FieldDescriptor(NODE_ID, String.class.getName(), new DefaultDbSource(Token.class, "nodeId"), true,
+                new FieldDescriptor(NODE_ID, String.class.getName(), new DefaultDbSource(CurrentToken.class, "nodeId"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "nodeId"}).setVisible(false),
-                new FieldDescriptor(NODE_NAME, String.class.getName(), new DefaultDbSource(Token.class, "nodeName"), true,
+                new FieldDescriptor(NODE_NAME, String.class.getName(), new DefaultDbSource(CurrentToken.class, "nodeName"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "nodeName"}),
-                new FieldDescriptor(NODE_TYPE, String.class.getName(), new DefaultDbSource(Token.class, "nodeType"), true,
+                new FieldDescriptor(NODE_TYPE, String.class.getName(), new DefaultDbSource(CurrentToken.class, "nodeType"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TokenNodeTypeTdBuilder", new Object[]{}),
-                new FieldDescriptor(NODE_ENTER_DATE, Date.class.getName(), new DefaultDbSource(Token.class, "nodeEnterDate"), true,
+                new FieldDescriptor(NODE_ENTER_DATE, Date.class.getName(), new DefaultDbSource(CurrentToken.class, "nodeEnterDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TokenNodeEnterDateTdBuilder", new Object[]{}),
-                new FieldDescriptor(ERROR_DATE, Date.class.getName(), new DefaultDbSource(Token.class, "errorDate"), true,
+                new FieldDescriptor(ERROR_DATE, Date.class.getName(), new DefaultDbSource(CurrentToken.class, "errorDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TokenErrorDateTdBuilder", new Object[]{}),
-                new FieldDescriptor(ERROR_MESSAGE, String.class.getName(), new DefaultDbSource(Token.class, "errorMessage"), true,
+                new FieldDescriptor(ERROR_MESSAGE, String.class.getName(), new DefaultDbSource(CurrentToken.class, "errorMessage"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TokenErrorMessageTdBuilder", new Object[] {})
         });
     }
