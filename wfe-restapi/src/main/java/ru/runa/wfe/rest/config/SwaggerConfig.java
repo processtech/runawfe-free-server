@@ -30,6 +30,11 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class SwaggerConfig {
 
     @Bean
+    public SwaggerConfigServerUrlConfigurer configurer() {
+        return new SwaggerConfigServerUrlConfigurer();
+    }
+
+    @Bean
     public Docket customImplementation() {
         return new Docket(DocumentationType.OAS_30)
                 .select()

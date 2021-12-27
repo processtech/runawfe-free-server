@@ -10,6 +10,7 @@ import ru.runa.wfe.rest.converter.StringToSortOrderConverter;
 
 @Component
 public class SpringWebMvcConfigurer implements WebMvcConfigurer {
+    public static final String DEV_URL = "http://127.0.0.1:3000";
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -30,8 +31,7 @@ public class SpringWebMvcConfigurer implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
           registry
               .addMapping("/**")
-              //TODO Вынести настройку в properties с белым списком для кроссдоменных запросов
-              .allowedOrigins("http://127.0.0.1:3000")
+              .allowedOrigins(DEV_URL)
               .allowCredentials(true)
               .allowedMethods("HEAD", "GET", "PUT", "POST", "OPTIONS", "DELETE", "PATCH")
               .allowedHeaders("*")
