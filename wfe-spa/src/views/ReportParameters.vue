@@ -76,54 +76,101 @@
                         single-line
                         @click="getSwimlanes"
             ></v-select>
-            <v-text-field v-else-if="parameter.type === 'ACTOR_ID'"
-                label="ID пользователя"
-                :key="parameter.internalName"
-                v-model="parameter.value"
-                outlined
-                dense
-            ></v-text-field>
-            <v-text-field v-else-if="parameter.type === 'ACTOR_NAME'"
-                label="Имя пользователя"
-                :key="parameter.internalName"
-                v-model="parameter.value"
-                outlined
-                dense
-            ></v-text-field>
-            <v-text-field v-else-if="parameter.type === 'GROUP_ID'"
-                label="ID группы"
-                :key="parameter.internalName"
-                v-model="parameter.value"
-                outlined
-                dense
-            ></v-text-field>
-            <v-text-field v-else-if="parameter.type === 'GROUP_NAME'"
-                label="Имя группы"
-                :key="parameter.internalName"
-                v-model="parameter.value"
-                outlined
-                dense
-            ></v-text-field>
-            <v-text-field v-else-if="parameter.type === 'EXECUTOR_ID'"
-                label="ID исполнителя"
-                :key="parameter.internalName"
-                v-model="parameter.value"
-                outlined
-                dense
-            ></v-text-field>
-            <v-text-field v-else-if="parameter.type==='EXECUTOR_NAME'"
-                label="Имя исполнителя"
-                :key="parameter.internalName"
-                v-model="parameter.value"
-                outlined
-                dense
-            ></v-text-field>
+            <v-select v-else-if="parameter.type === 'ACTOR_ID'"
+                        :items="executors"
+                        item-text="name"
+                        item-value="id"
+                        label="ID пользователя"
+                        v-model="parameter.value"
+                        persistent-hint
+                        single-line
+                        @click="getActors"
+            >
+                <template v-slot:selection="{ item }">
+                    {{item.name}} ({{item.fullName}})
+                </template>
+                <template v-slot:item="{ item }">
+                    {{item.name}} ({{item.fullName}})
+                </template>
+            </v-select>
+            <v-select v-else-if="parameter.type === 'ACTOR_NAME'"
+                        :items="executors"
+                        item-text="name"
+                        item-value="name"
+                        label="Имя пользователя"
+                        v-model="parameter.value"
+                        persistent-hint
+                        single-line
+                        @click="getActors"
+            >
+                <template v-slot:selection="{ item }">
+                    {{item.name}} ({{item.fullName}})
+                </template>
+                <template v-slot:item="{ item }">
+                    {{item.name}} ({{item.fullName}})
+                </template>
+            </v-select>
+            <v-select v-else-if="parameter.type === 'GROUP_ID'"
+                        :items="executors"
+                        item-text="name"
+                        item-value="id"
+                        label="ID группы"
+                        v-model="parameter.value"
+                        persistent-hint
+                        single-line
+                        @click="getGroups"
+            ></v-select>
+            <v-select v-else-if="parameter.type === 'GROUP_NAME'"
+                        :items="executors"
+                        item-text="name"
+                        item-value="name"
+                        label="Имя группы"
+                        v-model="parameter.value"
+                        persistent-hint
+                        single-line
+                        @click="getGroups"
+            ></v-select>
+            <v-select v-else-if="parameter.type === 'EXECUTOR_ID'"
+                        :items="executors"
+                        item-text="name"
+                        item-value="id"
+                        label="ID исполнителя"
+                        v-model="parameter.value"
+                        persistent-hint
+                        single-line
+                        @click="getExecutors()"
+            >
+                <template v-slot:selection="{ item }">
+                    {{item.name}} ({{item.fullName}})
+                </template>
+                <template v-slot:item="{ item }">
+                    {{item.name}} ({{item.fullName}})
+                </template>
+            </v-select>
+            <v-select v-else-if="parameter.type === 'EXECUTOR_NAME'"
+                        :items="executors"
+                        item-text="name"
+                        item-value="name"
+                        label="Имя исполнителя"
+                        v-model="parameter.value"
+                        persistent-hint
+                        single-line
+                        @click="getExecutors()"
+            >
+                <template v-slot:selection="{ item }">
+                    {{item.name}} ({{item.fullName}})
+                </template>
+                <template v-slot:item="{ item }">
+                    {{item.name}} ({{item.fullName}})
+                </template>
+            </v-select>
         </v-col>
     </v-row>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import { ExecutorDto } from '../ts/ExecutorDto';
 
 export default Vue.extend({
     props:{
@@ -139,7 +186,14 @@ export default Vue.extend({
             buf: '',
             definitions: [],
             definitionNames: [],
-            swimlanes:[]
+            swimlanes:[],
+            executors: new Array<ExecutorDto>(),
+            executorFilter: {
+                name: null,
+                fullName: null,
+                description: null,
+                type: null
+            },
         }
     },
 
@@ -170,7 +224,7 @@ export default Vue.extend({
         },
         getDefinitionsName () {
             this.getDefinitions().then(res => {
-                this.definitionNames.push('All BPs');
+                //this.definitionNames.push('All BPs');
                 this.definitions.data.forEach(definition => {
                     this.definitionNames.push(definition.name);
                 });
@@ -178,7 +232,7 @@ export default Vue.extend({
         },
         getSwimlanes () {
             this.getDefinitions().then(res => {
-                this.swimlanes.push('All swimlanes');
+                //this.swimlanes.push('All swimlanes');
                 this.definitions.data.forEach(definition => {
                     this.$apiClient().then((client: any) => {
                         client['process-definition-api-controller'].getSwimlanesUsingGET_1(null, {
@@ -195,6 +249,32 @@ export default Vue.extend({
                     });
                 });
             });
+        },
+        getExecutors (type) {
+            const query = {
+                filters: this.executorFilter,
+                pageNumber: '',
+                pageSize: '',
+                sortings: [],
+                variables: []
+            };
+            if (type != null) {
+                this.executorFilter.type = type;
+            }
+            this.$apiClient().then((client: any) => {
+                client['executor-api-controller'].getExecutorsUsingPOST(null, { requestBody: query }).then((data: any) => {
+                    const body = data.body;
+                    if (body) {
+                        this.executors = body.data;
+                    }
+                });
+            });
+        },
+        getActors () {
+            this.getExecutors('N');
+        },
+        getGroups () {
+            this.getExecutors('Y');
         }
     }
 });
