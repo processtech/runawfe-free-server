@@ -54,6 +54,13 @@
                     <v-spacer/>
                     <v-btn 
                         text 
+                        icon                         
+                        color="rgba(0, 0, 0, 0.67)"
+                    >
+                        <v-icon>mdi-reload</v-icon>
+                    </v-btn>
+                    <v-btn 
+                        text 
                         icon 
                         @click="filterVisible = !filterVisible" 
                         v-model="filterVisible" 

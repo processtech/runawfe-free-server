@@ -18,7 +18,7 @@
                 <v-btn
                     icon
                     color="rgba(0, 0, 0, 0.67)"
-                    @click="dialog = false"
+                    @click="dialog = false; showVarField = false"
                 >
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
@@ -28,6 +28,13 @@
                 <v-container>
                     <v-row>
                         <v-col cols="12" class="d-flex justify-end">
+                            <v-btn 
+                                class="d-inline-block" 
+                                text
+                                @click = "toggleVarField"
+                            >
+                                Добавить переменную
+                            </v-btn>
                             <v-btn 
                                 class="d-inline-block" 
                                 text
@@ -45,6 +52,20 @@
                         </v-col>
                     </v-row>
                     <v-row>
+                        <v-col cols="12" class="d-flex justify-end">
+                            <v-text-field
+                                outlined
+                                dense
+                                required
+                                clearable
+                                v-model="variableName"
+                                v-if="showVarField"
+                                label="Введите имя переменной и нажмите Enter"
+                                @keydown.enter="addVariableToHeader"
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
+                    <v-row>
                         <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4"> 
                             <v-checkbox 
                                 dense
@@ -53,7 +74,6 @@
                                 hide-details
                                 v-model="header.visible" 
                                 :label="header.text"
-                                @change="initialHeaders" 
                             />
                         </v-col>
                     </v-row>
@@ -78,12 +98,30 @@ export default Vue.extend({
     data() {
         return {
             dialog: false,
+            showVarField: false,
+            variableName: '',
         }
     },
     methods: {
         selectAll () {
             for (let header of this.initialHeaders) {
                 header.visible = true;
+            }
+        },
+        toggleVarField () {
+            this.showVarField = !this.showVarField; 
+            this.variableName = '';
+        },
+        addVariableToHeader () {
+            if (this.variableName) {
+                let header = new Header();
+                header.text = this.variableName;
+                header.align = '';
+                header.value = 'var' + this.initialHeaders.length + 1;
+                header.visible = true;
+                header.width = '10em';
+                header.sortable = true;
+                this.initialHeaders.push(header);
             }
         },
         unSelectAll () {
