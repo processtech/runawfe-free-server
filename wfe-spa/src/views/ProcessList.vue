@@ -20,17 +20,16 @@
                 itemsPerPageText: 'Строк на странице',
             }"
             >
-            <template v-slot:[`item.startDate`]="{ item }">
-                {{ new Date(item.startDate).toLocaleString() }}
-            </template>
-            <template v-slot:[`item.endDate`]="{ item }">
-                {{ new Date(item.endDate).toLocaleString() }}
-            </template>
-            <template v-slot:[`footer.page-text`]="items">
-                {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
+            <template v-for="header in headers" v-slot:[`item.${header.value}`]="{ item }">
+                <div>
+                    {{getItemData(header, item)}}
+                </div>
             </template>
             <template v-slot:[`item.definitionName`]="{ item }">
                 <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
+            </template>
+            <template v-slot:[`footer.page-text`]="items">
+                {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
             </template>
             <template v-slot:no-data>
                 Данные отсутствуют
@@ -54,8 +53,9 @@
                     <v-spacer/>
                     <v-btn 
                         text 
-                        icon                         
+                        icon
                         color="rgba(0, 0, 0, 0.67)"
+                         @click="getDataFromApi()"
                     >
                         <v-icon>mdi-reload</v-icon>
                     </v-btn>
@@ -68,7 +68,7 @@
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <columns-visibility :initialHeaders="initialHeaders" />
+                    <columns-visibility :initialHeaders="initialHeaders" :variables="variables" />
                     <color-description :colors="colors" />
                 </v-toolbar>
             </template>
@@ -93,8 +93,9 @@ export default Vue.extend({
                 definitionName: null,
                 executionStatus: null,
                 startDate: null,
-                endDate: null,
+                endDate: null
             },
+            variables: [],
             total: 0,
             processes: [],
             loading: true,
@@ -167,6 +168,26 @@ export default Vue.extend({
         }
     },
     methods: {
+        getItemData(header, data) {
+            if (header.value === 'startDate') {
+                return new Date(data.startDate).toLocaleString()
+            } else if (header.value === 'endDate') {
+                return new Date(data.endDate).toLocaleString();
+            } else if (header.value === 'id') {
+                return data.id;
+            } else if (header.value === 'executionStatus') {
+                return data.executionStatus;
+            } else if (header.value.startsWith('var')) {
+                return this.getVariableValue(header.text, data);
+            }
+        },
+        getVariableValue (variableName, item) {
+            for (let variable of item.variables) {
+                if (variableName == variable.name ) {
+                    return `${variable.value}`
+                }
+            }
+        },
         getClass (process: any) {
             let cl = '';
             const timestamp = new Date().getTime();
@@ -183,7 +204,7 @@ export default Vue.extend({
                 pageNumber: page,
                 pageSize: itemsPerPage,
                 sortings: Sorting.convert(sortBy, sortDesc),
-                variables: Array
+                variables: this.variables
             };
             this.$apiClient().then((client: any) => {
                 client['process-api-controller'].getProcessesUsingPOST(null, { requestBody: query }).then((data: any) => {

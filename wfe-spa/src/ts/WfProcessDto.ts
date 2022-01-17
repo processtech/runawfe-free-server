@@ -1,9 +1,12 @@
+import { WfVariableDto } from './WfVariableDto';
+
 export class WfProcessDto {
     id: number|null = null;
     definitionName: string = '';
     executionStatus: string = '';
     startDate: Date|null = null;
     endDate: Date|null = null; 
+    variables: Array<WfVariableDto>|null = null;
 
     getInfo(): object {
         return {

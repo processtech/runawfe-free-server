@@ -6,10 +6,10 @@ import org.mapstruct.Mapping;
 import ru.runa.wfe.execution.dto.WfProcess;
 
 @Mapper(uses = WfVariableMapper.class)
-public interface WfProcessMapper {
+public abstract class WfProcessMapper {
 
     @Mapping(source = "name", target = "definitionName")
-    WfProcessDto map(WfProcess process);
+    public abstract WfProcessDto map(WfProcess process);
 
-    List<WfProcessDto> map(List<WfProcess> process);
+    public abstract List<WfProcessDto> map(List<WfProcess> process);
 }

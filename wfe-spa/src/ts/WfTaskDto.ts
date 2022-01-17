@@ -1,4 +1,5 @@
 import { ExecutorDto } from './ExecutorDto';
+import { WfVariableDto } from './WfVariableDto';
 
 export class WfTaskDto {
     id: number|null = null;
@@ -37,9 +38,4 @@ export class WfTaskDto {
             'Время окончания': this.deadlineDate ? new Date(this.deadlineDate).toLocaleString() : ''
         };
     }
-}
-
-class WfVariableDto {
-    name: string = '';
-    value: any;
 }
