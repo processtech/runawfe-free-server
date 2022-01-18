@@ -9,6 +9,7 @@ import ru.runa.wfe.var.dto.WfVariable;
 public abstract class WfVariableMapper {
 
     @Mapping(source = "definition.name", target = "name")
+    @Mapping(source = "definition.format", target = "format")
     public abstract WfVariableDto map(WfVariable variable);
 
     public abstract List<WfVariableDto> map(List<WfVariable> variables);

@@ -21,13 +21,20 @@
             }"
             >
             <template v-for="header in headers" v-slot:[`item.${header.value}`]="{ item }">
-                <div>
-                    {{getItemData(header, item)}}
+                <div v-if="header.value.startsWith('var')">
+                    {{ getVariableValue(header.text, item) }}
                 </div>
-            </template>
-            <template v-slot:[`item.definitionName`]="{ item }">
-                <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
-            </template>
+                <div v-else-if="header.value==='startDate' || header.value==='endDate'">
+                    {{ new Date(item[header.value]).toLocaleString() }}
+                </div>
+                <div v-else-if="header.value==='definitionName'">
+                    <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
+                </div>
+                <div v-else>
+                    {{ item[header.value] }}
+                </div>
+            </template> 
+
             <template v-slot:[`footer.page-text`]="items">
                 {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
             </template>
@@ -168,23 +175,15 @@ export default Vue.extend({
         }
     },
     methods: {
-        getItemData(header, data) {
-            if (header.value === 'startDate') {
-                return new Date(data.startDate).toLocaleString()
-            } else if (header.value === 'endDate') {
-                return new Date(data.endDate).toLocaleString();
-            } else if (header.value === 'id') {
-                return data.id;
-            } else if (header.value === 'executionStatus') {
-                return data.executionStatus;
-            } else if (header.value.startsWith('var')) {
-                return this.getVariableValue(header.text, data);
-            }
-        },
-        getVariableValue (variableName, item) {
-            for (let variable of item.variables) {
+        getVariableValue(variableName, data) {
+            for (let variable of data.variables) {
                 if (variableName == variable.name ) {
-                    return `${variable.value}`
+                    const format = variable.format.replace('ru.runa.wfe.var.format.','');
+                    if (format === 'DateFormat') {
+                        return new Date(variable.value).toLocaleString();
+                    } else {
+                        return variable.value;
+                    }                    
                 }
             }
         },
