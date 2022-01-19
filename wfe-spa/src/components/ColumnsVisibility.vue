@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-dialog v-model="dialog" max-width="500px" @click:outside="updateData" @keydown.esc="updateData">
         <template v-slot:activator="{ on, attrs }">
             <v-btn
                 text 
@@ -18,7 +18,7 @@
                 <v-btn
                     icon
                     color="rgba(0, 0, 0, 0.67)"
-                    @click="dialog = false; showVarField = false"
+                    @click="dialog = false; showVarField = false; updateData()"
                 >
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
@@ -105,6 +105,9 @@ export default Vue.extend({
         }
     },
     methods: {
+        updateData () {
+            this.$emit('update-data-event');
+        },
         selectAll () {
             for (let header of this.initialHeaders) {
                 header.visible = true;

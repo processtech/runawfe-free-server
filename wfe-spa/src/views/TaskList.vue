@@ -19,11 +19,22 @@
                 itemsPerPageText: 'Строк на странице',
             }"
             >
-            <template v-slot:[`item.createDate`]="{ item }">
-                {{ new Date(item.createDate).toLocaleString() }}
-            </template>
-            <template v-slot:[`item.deadlineDate`]="{ item }">
-                {{ new Date(item.deadlineDate).toLocaleString() }}
+            <template v-for="header in headers" v-slot:[`item.${header.value}`]="{ item }">
+                <div v-if="header.value.startsWith('var')">
+                    {{ getVariableValue(header.text, item) }}
+                </div>
+                <div v-else-if="header.value==='createDate' || header.value==='deadlineDate'">
+                    {{ new Date(item[header.value]).toLocaleString() }}
+                </div>
+                <div v-else-if="header.value==='name'">
+                    <card-link :routeName="`Карточка задачи`" :id="item.id" :text="item.name" />
+                </div>
+                <div v-else-if="header.value==='definitionName'">
+                    <card-link :routeName="`Карточка процесса`" :id="item.processId" :text="item.definitionName" />
+                </div>
+                <div v-else>
+                    {{ item[header.value] }}
+                </div>
             </template>
             <template v-slot:[`footer.page-text`]="items">
                 {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
@@ -45,15 +56,17 @@
                     </td>
                 </tr>
             </template>
-            <template v-slot:[`item.name`]="{ item }">
-                <card-link :routeName="`Карточка задачи`" :id="item.id" :text="item.name" />
-            </template>
-            <template v-slot:[`item.definitionName`]="{ item }">
-                <card-link :routeName="`Карточка процесса`" :id="item.processId" :text="item.definitionName" />
-            </template>
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-spacer/>
+                    <v-btn 
+                        text 
+                        icon
+                        color="rgba(0, 0, 0, 0.67)"
+                         @click="getDataFromApi()"
+                    >
+                        <v-icon>mdi-reload</v-icon>
+                    </v-btn>
                     <v-btn 
                         text 
                         icon 
@@ -63,7 +76,7 @@
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <columns-visibility :initialHeaders="initialHeaders" />
+                    <columns-visibility :initialHeaders="initialHeaders" :variables="variables" @update-data-event="updateData"/>
                     <color-description :colors="colors" />
                 </v-toolbar>
             </template>
@@ -88,8 +101,9 @@ export default Vue.extend({
                 processId: '',
                 definitionName: '',
                 createDate: '',
-                deadlineDate: '',
+                deadlineDate: ''
             },
+            variables: [],
             tasks: [],
             loading: true,
             options: new Options(),
@@ -152,6 +166,22 @@ export default Vue.extend({
             ]
         }
     },
+    mounted() {
+        if (localStorage.getItem('runawfe@task-list-variables')) {
+            try {
+                this.variables = JSON.parse(localStorage.getItem('runawfe@task-list-variables'));
+            } catch(e) {
+                localStorage.removeItem('runawfe@task-list-variables');
+            }
+        }
+        if (localStorage.getItem('runawfe@task-list-initialHeaders')) {
+            try {
+                this.initialHeaders = JSON.parse(localStorage.getItem('runawfe@task-list-initialHeaders'));
+            } catch(e) {
+                localStorage.removeItem('runawfe@task-list-initialHeaders');
+            }
+        }
+    },
     computed: {
         headers(): any {
             this.initialHeaders.forEach((h: any) => {
@@ -195,6 +225,23 @@ export default Vue.extend({
         },
     },
     methods: {
+        updateData () {
+            this.getDataFromApi();
+            localStorage.setItem('runawfe@task-list-variables', JSON.stringify(this.variables));
+            localStorage.setItem('runawfe@task-list-initialHeaders', JSON.stringify(this.initialHeaders));
+        },
+        getVariableValue(variableName, data) {
+            for (let variable of data.variables) {
+                if (variableName == variable.name ) {
+                    const format = variable.format.replace('ru.runa.wfe.var.format.','');
+                    if (format === 'DateFormat') {
+                        return new Date(variable.value).toLocaleString();
+                    } else {
+                        return variable.value;
+                    }
+                }
+            }
+        },
         getClass (task: any) {
             let cl = '';
             const timestamp = new Date().getTime();
@@ -217,7 +264,7 @@ export default Vue.extend({
                 pageNumber: page,
                 pageSize: itemsPerPage,
                 sortings: Sorting.convert(sortBy, sortDesc),
-                variables: Array
+                 variables: this.variables
             };
             this.$apiClient().then((client: any) => {
                 client['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {

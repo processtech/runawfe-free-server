@@ -33,8 +33,7 @@
                 <div v-else>
                     {{ item[header.value] }}
                 </div>
-            </template> 
-
+            </template>
             <template v-slot:[`footer.page-text`]="items">
                 {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
             </template>
@@ -75,7 +74,7 @@
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <columns-visibility :initialHeaders="initialHeaders" :variables="variables" />
+                    <columns-visibility :initialHeaders="initialHeaders" :variables="variables" @update-data-event="updateData"/>
                     <color-description :colors="colors" />
                 </v-toolbar>
             </template>
@@ -153,6 +152,22 @@ export default Vue.extend({
             ]
         }
     },
+    mounted() {
+        if (localStorage.getItem('runawfe@process-list-variables')) {
+            try {
+                this.variables = JSON.parse(localStorage.getItem('runawfe@process-list-variables'));
+            } catch(e) {
+                localStorage.removeItem('runawfe@process-list-variables');
+            }
+        }
+        if (localStorage.getItem('runawfe@process-list-initialHeaders')) {
+            try {
+                this.initialHeaders = JSON.parse(localStorage.getItem('runawfe@process-list-initialHeaders'));
+            } catch(e) {
+                localStorage.removeItem('runawfe@process-list-initialHeaders');
+            }
+        }
+    },
     computed: {
         headers(): any {
             return this.initialHeaders.filter((h: any) => {
@@ -175,6 +190,11 @@ export default Vue.extend({
         }
     },
     methods: {
+        updateData () {
+            this.getDataFromApi();
+            localStorage.setItem('runawfe@process-list-variables', JSON.stringify(this.variables));
+            localStorage.setItem('runawfe@process-list-initialHeaders', JSON.stringify(this.initialHeaders));
+        },
         getVariableValue(variableName, data) {
             for (let variable of data.variables) {
                 if (variableName == variable.name ) {
@@ -183,7 +203,7 @@ export default Vue.extend({
                         return new Date(variable.value).toLocaleString();
                     } else {
                         return variable.value;
-                    }                    
+                    }
                 }
             }
         },
