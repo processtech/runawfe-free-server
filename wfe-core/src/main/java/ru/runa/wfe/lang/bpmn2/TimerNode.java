@@ -142,7 +142,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
         timerJob.setRepeatDurationString(repeatDurationString);
         jobDao.create(timerJob);
         log.debug("Created " + timerJob);
-        executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
+        executionContext.addLog(new CreateTimerLog(executionContext.getNode(), timerJob.getDueDate()));
     }
 
 }

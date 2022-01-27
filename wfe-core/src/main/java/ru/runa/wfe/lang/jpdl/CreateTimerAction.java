@@ -21,13 +21,10 @@
  */
 package ru.runa.wfe.lang.jpdl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
-
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -56,7 +53,7 @@ public class CreateTimerAction extends Action {
         timerJob.setOutTransitionName(transitionName);
         jobDao.create(timerJob);
         log.debug("Created " + timerJob + " for duration '" + dueDate + "'");
-        executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
+        executionContext.addLog(new CreateTimerLog(executionContext.getNode(), timerJob.getDueDate()));
     }
 
     public String getDueDate() {

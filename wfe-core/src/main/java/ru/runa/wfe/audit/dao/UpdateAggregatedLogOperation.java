@@ -34,13 +34,19 @@ import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableUpdateLog;
 import ru.runa.wfe.audit.aggregated.ProcessInstanceAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QProcessInstanceAggregatedLog;
+import ru.runa.wfe.audit.aggregated.QSignalListenerAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
+import ru.runa.wfe.audit.aggregated.QTimerAggregatedLog;
+import ru.runa.wfe.audit.aggregated.SignalListenerAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog.EndReason;
+import ru.runa.wfe.audit.aggregated.TimerAggregatedLog;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.lang.BaseReceiveMessageNode;
+import ru.runa.wfe.lang.NodeType;
 
 public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
@@ -98,19 +104,41 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
     @Override
     public void onNodeEnterLog(NodeEnterLog nodeEnterLog) {
+        if (nodeEnterLog.getNode() instanceof BaseReceiveMessageNode) {
+            sessionFactory.getCurrentSession().save(
+                    new SignalListenerAggregatedLog(nodeEnterLog, ((BaseReceiveMessageNode) nodeEnterLog.getNode()).getEventType()));
+        }
     }
 
     @Override
     public void onNodeLeaveLog(NodeLeaveLog nodeLeaveLog) {
+        if (nodeLeaveLog.getNodeType() == NodeType.TIMER) {
+            QTimerAggregatedLog l = QTimerAggregatedLog.timerAggregatedLog;
+            TimerAggregatedLog logEntry = queryFactory.selectFrom(l)
+                    .where(l.processId.eq(nodeLeaveLog.getProcessId()).and(l.nodeId.eq(nodeLeaveLog.getNodeId()))).orderBy(l.id.desc()).fetchFirst();
+            if (logEntry == null) {
+                return;
+            }
+            logEntry.setEndDate(nodeLeaveLog.getCreateDate());
+            sessionFactory.getCurrentSession().merge(logEntry);
+        }
     }
 
     @Override
     public void onNodeErrorLog(NodeErrorLog nodeErrorLog) {
-
     }
 
     @Override
     public void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog) {
+        QSignalListenerAggregatedLog l = QSignalListenerAggregatedLog.signalListenerAggregatedLog;
+        SignalListenerAggregatedLog logEntry = queryFactory.selectFrom(l)
+                .where(l.processId.eq(receiveMessageLog.getProcessId()).and(l.nodeId.eq(receiveMessageLog.getNodeId()))).orderBy(l.id.desc())
+                .fetchFirst();
+        if (logEntry == null) {
+            return;
+        }
+        logEntry.setExecuteDate(receiveMessageLog.getCreateDate());
+        sessionFactory.getCurrentSession().merge(logEntry);
     }
 
     @Override
@@ -131,6 +159,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
     @Override
     public void onCreateTimerLog(CreateTimerLog createTimerLog) {
+        sessionFactory.getCurrentSession().save(new TimerAggregatedLog(createTimerLog));
     }
 
     @Override

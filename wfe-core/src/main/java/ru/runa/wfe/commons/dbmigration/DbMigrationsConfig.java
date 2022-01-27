@@ -33,7 +33,9 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
+import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
+import ru.runa.wfe.commons.dbmigration.impl.CreateTimerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
 import ru.runa.wfe.commons.dbmigration.impl.JbpmRefactoringPatch;
@@ -140,6 +142,8 @@ public class DbMigrationsConfig {
         // 4.4.3
         dbMigrations.add(AddProcessLogCleanBeforeDateColumnPatch.class);
         dbMigrations.add(AddTokenNodeNameAndNodeEnterDateColumnsPatch.class);
+        dbMigrations.add(CreateTimerAggregatedLogTable.class);
+        dbMigrations.add(CreateSignalListenerAggregatedLogTable.class);
         return dbMigrations;
     }
 }
