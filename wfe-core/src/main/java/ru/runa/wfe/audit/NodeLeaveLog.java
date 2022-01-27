@@ -23,7 +23,6 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-
 import ru.runa.wfe.lang.Node;
 
 /**
@@ -41,7 +40,6 @@ public class NodeLeaveLog extends NodeLog {
 
     public NodeLeaveLog(Node node) {
         super(node);
-        setSeverity(Severity.INFO);
     }
 
     @Override

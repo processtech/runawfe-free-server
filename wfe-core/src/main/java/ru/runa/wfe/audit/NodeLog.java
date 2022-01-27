@@ -24,7 +24,6 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 
@@ -37,14 +36,25 @@ import ru.runa.wfe.lang.NodeType;
 @DiscriminatorValue(value = "0")
 public abstract class NodeLog extends ProcessLog {
     private static final long serialVersionUID = 1L;
+    private transient Node node;
 
     public NodeLog() {
     }
 
     public NodeLog(Node node) {
+        this.node = node;
         setNodeId(node.getNodeId());
         addAttribute(ATTR_NODE_NAME, node.getName());
         addAttribute(ATTR_NODE_TYPE, node.getNodeType().name());
+        setSeverity(Severity.INFO);
+    }
+
+    /**
+     * Available only out of persistence context
+     */
+    @Transient
+    public Node getNode() {
+        return node;
     }
 
     @Transient

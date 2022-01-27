@@ -5,6 +5,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.lang.Node;
 
 /**
  * Logging timer creation.
@@ -13,13 +14,14 @@ import ru.runa.wfe.commons.CalendarUtil;
  */
 @Entity
 @DiscriminatorValue(value = "C")
-public class CreateTimerLog extends ProcessLog {
+public class CreateTimerLog extends NodeLog {
     private static final long serialVersionUID = 1L;
 
     public CreateTimerLog() {
     }
 
-    public CreateTimerLog(Date dueDate) {
+    public CreateTimerLog(Node node, Date dueDate) {
+        super(node);
         addAttribute(ATTR_DUE_DATE, CalendarUtil.formatDateTime(dueDate));
     }
 

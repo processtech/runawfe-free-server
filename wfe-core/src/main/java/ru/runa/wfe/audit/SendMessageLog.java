@@ -23,12 +23,8 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
 
-import ru.runa.wfe.audit.presentation.HtmlValue;
-import ru.runa.wfe.lang.Node;
-
-import com.google.common.base.Charsets;
+import ru.runa.wfe.lang.BaseMessageNode;
 
 /**
  * Logging message nodes execution.
@@ -37,26 +33,15 @@ import com.google.common.base.Charsets;
  */
 @Entity
 @DiscriminatorValue(value = "7")
-public class SendMessageLog extends NodeEnterLog {
-    private static final long serialVersionUID = 1L;
+public class SendMessageLog extends MessageNodeLog {
+
+    private static final long serialVersionUID = 4292688410689421023L;
 
     public SendMessageLog() {
     }
 
-    public SendMessageLog(Node node, String message) {
-        super(node);
-        if (message.length() < 1000) {
-            addAttribute(ATTR_MESSAGE, message);
-        } else {
-            setBytes(message.getBytes(Charsets.UTF_8));
-        }
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        String message = getBytes() != null ? new String(getBytes(), Charsets.UTF_8) : getAttribute(ATTR_MESSAGE);
-        return new Object[] { new HtmlValue(message) };
+    public SendMessageLog(BaseMessageNode node, String message) {
+        super(node, message);
     }
 
     @Override
