@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -259,7 +260,12 @@ public class ExecutionLogic extends WfCommonLogic {
             processLogs.addLogs(processLogDao.get(processId, processDefinition), false);
             GraphImageBuilder builder = new GraphImageBuilder(processDefinition);
             builder.setHighlightedToken(highlightedToken);
-            return builder.createDiagram(process, processLogs);
+            List<Token> activeTokens = tokenDao.findByProcessAndExecutionStatusIsNotEnded(process);
+            Set<String> activeNodeIds = new HashSet<>();
+            for (Token token : activeTokens) {
+                activeNodeIds.add(token.getNodeId());
+            }
+            return builder.createDiagram(process, processLogs, activeNodeIds);
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
