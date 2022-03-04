@@ -436,4 +436,9 @@ public class SystemProperties {
     public static int getDefinitionCompatibilityCheckProcessesLimit() {
         return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
     }
+
+    public static boolean isGlobalObjectsEnabled() {
+        return RESOURCES.getBooleanProperty("global.objects.enabled", true);
+    }
+
 }

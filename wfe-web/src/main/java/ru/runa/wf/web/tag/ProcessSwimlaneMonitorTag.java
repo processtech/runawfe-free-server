@@ -35,6 +35,7 @@ import ru.runa.common.web.html.StringsHeaderBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessSwimlaneRowBuilder;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.security.Permission;
@@ -68,7 +69,9 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
         List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(getUser(), getIdentifiableId());
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_SWIMLANE_NAME.message(pageContext));
-        headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));
+        if (SystemProperties.isGlobalObjectsEnabled()) {
+            headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));
+        }
         headerNames.add(MessagesProcesses.LABEL_SWIMLANE_ASSIGNMENT.message(pageContext));
         headerNames.add(MessagesExecutor.LABEL_SWIMLANE_ORGFUNCTION.message(pageContext));
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);
