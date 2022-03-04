@@ -36,6 +36,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String USER_TYPE = "usertype";
     private static final String DESCRIPTION = "description";
     private static final String STORE_TYPE = "storeType";
+    private static final String GLOBAL = "global";
 
     @Autowired
     private LocalizationDao localizationDao;
@@ -90,7 +91,9 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private VariableDefinition parse(ProcessDefinition processDefinition, Element element) {
         String name = element.attributeValue(NAME);
         String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
+        String global = element.attributeValue(GLOBAL);
         VariableDefinition variableDefinition = new VariableDefinition(name, scriptingName);
+        variableDefinition.setGlobal("true".equals(global));
         variableDefinition.setDescription(element.attributeValue(DESCRIPTION));
         String userTypeName = element.attributeValue(USER_TYPE);
         if (userTypeName != null) {

@@ -40,6 +40,7 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessVariablesRowBuilder;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -104,6 +105,9 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
+        if (SystemProperties.isGlobalObjectsEnabled()) {
+            headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));
+        }
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
         if (WebResources.isDisplayVariablesJavaType()) {
             headerNames.add("Java " + MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
