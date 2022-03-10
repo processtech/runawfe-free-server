@@ -45,7 +45,6 @@ public class EmbeddedSubprocessEndNode extends Node implements BoundaryEventCont
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getToken().end(executionContext.getProcessDefinition(), null, null, false);
         Token enterToken = executionContext.getToken();
         while (!enterToken.getNodeId().equals(subprocessNode.getNodeId())) {
             enterToken = enterToken.getParent();
@@ -58,6 +57,7 @@ public class EmbeddedSubprocessEndNode extends Node implements BoundaryEventCont
             }
         }
         // continue in token from EmbeddedSubprocessStartNode
+        executionContext.getToken().end(executionContext.getProcessDefinition(), null, null, false);
         leave(new ExecutionContext(executionContext.getProcessDefinition(), enterToken));
     }
 
