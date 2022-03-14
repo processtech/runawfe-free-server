@@ -11,6 +11,7 @@
             :items="tasks"
             item-key="id"
             :options.sync="options"
+            :server-items-length="total"
             :loading="loading"
             :footer-props="{
                 disablePagination: false,
@@ -20,7 +21,7 @@
             }"
             >
             <template v-for="header in headers" v-slot:[`item.${header.value}`]="{ item }">
-                <div v-if="header.value.startsWith('var')">
+                <div v-if="header.isVariable">
                     {{ getVariableValue(header.text, item) }}
                 </div>
                 <div v-else-if="header.value==='createDate' || header.value==='deadlineDate'">
@@ -43,7 +44,7 @@
                 Данные отсутствуют
             </template>
             <template v-slot:[`body.prepend`]>
-                <tr v-if="filter.visible" class="filter-row">
+                <tr v-if="filterVisible" class="filter-row">
                     <td v-for="header in headers" :key="header.value">
                         <v-text-field 
                             color="primary"
@@ -70,8 +71,8 @@
                     <v-btn 
                         text 
                         icon 
-                        @click="filter.visible = !filter.visible" 
-                        v-model="filter.visible" 
+                        @click="filterVisible = !filterVisible" 
+                        v-model="filterVisible" 
                         color="rgba(0, 0, 0, 0.67)"
                     >
                         <v-icon>mdi-filter</v-icon>
@@ -94,16 +95,17 @@ export default Vue.extend({
     name: "TaskList",
     data() {
         return {
+            filterVisible: false,
             filter: {
-                visible: false,
-                name: '',
-                description: '',
-                processId: '',
-                definitionName: '',
-                createDate: '',
-                deadlineDate: ''
+                name: null,
+                description: null,
+                processId: null,
+                definitionName: null,
+                createDate: null,
+                deadlineDate: null
             },
             variables: [],
+            total: 0,
             tasks: [],
             loading: true,
             options: new Options(),
@@ -184,33 +186,6 @@ export default Vue.extend({
     },
     computed: {
         headers(): any {
-            this.initialHeaders.forEach((h: any) => {
-                if (h.value === 'name') {
-                    h.filter = (value: string): boolean => {
-                        if (!this.filter.name) return true;
-                        return value.toLowerCase().indexOf(this.filter.name.toLowerCase()) !== -1;
-                    };
-                } else if (h.value === 'description') {
-                    h.filter = (value: string): boolean => {
-                        if (!this.filter.description) return true;
-                        return value.toLowerCase().indexOf(this.filter.description.toLowerCase()) !== -1;
-                    };
-                } else if (h.value === 'processId') {
-                    h.filter = (value: number): boolean => {
-                        if (!this.filter.processId) return true;
-                        return value == parseInt(this.filter.processId);
-                    };
-                } else if (h.value === 'definitionName') {
-                    h.filter = (value: string): boolean => {
-                        if (!this.filter.definitionName) return true;
-                        return value.toLowerCase().indexOf(this.filter.definitionName.toLowerCase()) !== -1;
-                    };
-                } else if (h.value === 'createDate') {
-
-                } else if (h.value === 'deadlineDate') {
-
-                }
-            });
             return this.initialHeaders.filter((h: any) => {
                 return h.visible;
             });
@@ -223,6 +198,12 @@ export default Vue.extend({
             },
             deep: true,
         },
+        filter: {
+            handler () {
+                this.getDataFromApi()
+            },
+            deep: true,
+        }
     },
     methods: {
         updateData () {
@@ -260,20 +241,25 @@ export default Vue.extend({
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = this.options;
             const query = {
-                filters: {},
+                filters: this.filter,
                 pageNumber: page,
                 pageSize: itemsPerPage,
                 sortings: Sorting.convert(sortBy, sortDesc),
-                 variables: this.variables
+                variables: this.variables
             };
             this.$apiClient().then((client: any) => {
                 client['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
                         this.tasks = body.data;
+                        this.total = body.total;
                     }
                     this.loading = false;
-                });
+                }).catch((error: any) => {
+                    this.loading = false;
+                    this.tasks = [];
+                    this.total = 0;
+                });;
             });
         },
     }

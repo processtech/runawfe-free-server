@@ -43,6 +43,7 @@ export class Header {
     visible: boolean;
     width: string;
     sortable: boolean;
+    isVariable: boolean;
 
     constructor() {
         this.text = '';
@@ -51,5 +52,6 @@ export class Header {
         this.visible = true;
         this.width = '';
         this.sortable = false;
+        this.isVariable = false;
     }
 }

@@ -9,7 +9,7 @@
         >
             <v-icon>mdi-link</v-icon>
         </v-btn>
-        <span>{{ $__ucfirst(text) }}</span>
+        <span>{{ text }}</span>
     </div>
 </template>
 

@@ -131,7 +131,8 @@ export default Vue.extend({
                 const index = this.variables.length + 1;
                 header.text = this.variableName;
                 header.align = '';
-                header.value = 'var' + index;
+                header.value = this.variableName;
+                header.isVariable = true;
                 header.visible = true;
                 header.width = '10em';
                 header.sortable = false;

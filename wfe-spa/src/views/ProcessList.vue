@@ -21,7 +21,7 @@
             }"
             >
             <template v-for="header in headers" v-slot:[`item.${header.value}`]="{ item }">
-                <div v-if="header.value.startsWith('var')">
+                <div v-if="header.isVariable">
                     {{ getVariableValue(header.text, item) }}
                 </div>
                 <div v-else-if="header.value==='startDate' || header.value==='endDate'">
@@ -233,6 +233,10 @@ export default Vue.extend({
                         this.total = body.total;
                     }
                     this.loading = false;
+                }).catch((error: any) => {
+                    this.loading = false;
+                    this.processes = [];
+                    this.total = 0;
                 });
             });
         },
