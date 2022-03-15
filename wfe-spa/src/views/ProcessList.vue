@@ -21,7 +21,7 @@
             }"
             >
             <template v-for="header in headers" v-slot:[`item.${header.value}`]="{ item }">
-                <div v-if="header.isVariable">
+                <div v-if="header.dynamic">
                     {{ getVariableValue(header.text, item) }}
                 </div>
                 <div v-else-if="header.value==='startDate' || header.value==='endDate'">
@@ -74,7 +74,7 @@
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <columns-visibility :initialHeaders="initialHeaders" :variables="variables" @update-data-event="updateData"/>
+                    <columns-visibility :initialHeaders="initialHeaders" :variables="variables" :filter="filter" @update-data-event="updateData"/>
                     <color-description :colors="colors" />
                 </v-toolbar>
             </template>

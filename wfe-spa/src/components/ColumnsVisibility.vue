@@ -53,7 +53,7 @@
                         </v-col>
                     </v-row>
                     <v-row>
-                        <v-col cols="12" class="d-flex justify-end">
+                        <v-col cols="12">
                             <v-text-field
                                 outlined
                                 dense
@@ -62,20 +62,29 @@
                                 v-model="variableName"
                                 v-if="showVarField"
                                 label="Введите имя переменной и нажмите Enter"
-                                @keydown.enter="addVariableToHeader"
+                                @keydown.enter="addVariable"
                             ></v-text-field>
                         </v-col>
                     </v-row>
                     <v-row>
-                        <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4"> 
-                            <v-checkbox 
+                        <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4" class="d-flex">
+                            <v-checkbox
                                 dense
                                 class="mt-0"
                                 color="success"
                                 hide-details
                                 v-model="header.visible" 
                                 :label="header.text"
+                                @change = "changeVisible($event, header.value)"
                             />
+                            <v-btn  v-if="header.dynamic"
+                                icon
+                                x-small
+                                color="red"
+                                @click = "removeVariable(header.value)"
+                            >
+                                <v-icon>mdi-close</v-icon>
+                            </v-btn>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -96,6 +105,7 @@ export default Vue.extend({
         initialHeaders: {
             type: Array
         } as PropOptions<Header[]>,
+        filter: Object,
     },
     data() {
         return {
@@ -117,27 +127,39 @@ export default Vue.extend({
             this.showVarField = !this.showVarField; 
             this.variableName = '';
         },
-        isVariableExists (variableName) {
-            for (let header of this.initialHeaders) {
-                if (header.text === this.variableName) {
-                    return true;
-                }
-            }
-            return false;
+        findVariableIndex (variableName) {
+            return this.initialHeaders.findIndex(h => h.text === variableName);
         },
-        addVariableToHeader () {
-            if (this.variableName && !this.isVariableExists(this.variableName)) {
+        changeVisible(check, name) {
+            if (!check) {
+                delete this.filter[name];
+                console.log(this.filter);
+            }
+        },
+        addVariable () {
+            if (this.variableName &&  this.findVariableIndex(this.variableName) === -1) {
                 let header = new Header();
                 const index = this.variables.length + 1;
                 header.text = this.variableName;
                 header.align = '';
                 header.value = this.variableName;
-                header.isVariable = true;
+                header.dynamic = true;
                 header.visible = true;
                 header.width = '10em';
                 header.sortable = false;
                 this.initialHeaders.push(header);
                 this.variables.push(this.variableName);
+            }
+        },
+        removeVariable (variableName) {
+            if (variableName) {
+                const headerIndx = this.findVariableIndex(variableName);
+                if (headerIndx > 0){
+                    this.initialHeaders.splice(headerIndx, 1);
+                    const varIndx = this.variables.indexOf(variableName);
+                    this.variables.splice(varIndx, 1);
+                    delete this.filter[variableName];
+                }
             }
         },
         unSelectAll () {
