@@ -56,8 +56,9 @@ public class BatchPresentationRequest {
             for (int i = 0; i < variables.size(); i++) {
                 fieldsToDisplayIds[i] = i;
                 String variable = variables.get(i);
+                String value = filters.get(variable);
                 batchPresentation.addDynamicField(variablePrototypeIndex + i, variable);
-                if (filters.containsKey(variable)) {
+                if (filters.containsKey(variable) && value != null) {
                     addFilteredField(batchPresentation, 0, filters.get(variable));
                 }
             }
