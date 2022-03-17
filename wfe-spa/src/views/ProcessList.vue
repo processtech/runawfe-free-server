@@ -42,14 +42,15 @@
             </template>
             <template v-slot:[`body.prepend`]>
                 <tr v-if="filterVisible" class="filter-row">
-                    <td v-for="header in headers" :key="header.value">
-                        <v-text-field 
+                    <td v-for="(header, index) in headers" :key="header.value" ref="tdheaders" bgcolor=''>
+                        <v-text-field
                             color="primary"
-                            v-model="filter[header.value]" 
+                            v-model="filter[header.value]"
                             dense 
                             outlined 
                             clearable 
                             hide-details
+                            @blur = "applyFilter($event, index)"
                         />
                     </td>
                 </tr>
@@ -184,7 +185,7 @@ export default Vue.extend({
         },
         filter: {
             handler () {
-                this.getDataFromApi()
+                //this.getDataFromApi()
             },
             deep: true,
         }
@@ -214,6 +215,13 @@ export default Vue.extend({
                 cl = 'process2';
             }
             return cl;
+        },
+        applyFilter (event, index) {
+            if(event.target.value) {
+                this.$refs.tdheaders[index].setAttribute('bgcolor', '#FFFFE0');
+            } else {
+                this.$refs.tdheaders[index].setAttribute('bgcolor', '');
+            }
         },
         getDataFromApi () {
             this.loading = true;

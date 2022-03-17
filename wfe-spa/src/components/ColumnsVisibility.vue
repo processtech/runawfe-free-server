@@ -133,7 +133,6 @@ export default Vue.extend({
         changeVisible(check, name) {
             if (!check) {
                 delete this.filter[name];
-                console.log(this.filter);
             }
         },
         addVariable () {
