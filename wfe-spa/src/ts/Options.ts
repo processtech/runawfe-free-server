@@ -44,6 +44,7 @@ export class Header {
     width: string;
     sortable: boolean;
     dynamic: boolean;
+    format: string;
 
     constructor() {
         this.text = '';
@@ -53,5 +54,6 @@ export class Header {
         this.width = '';
         this.sortable = false;
         this.dynamic = false;
+        this.format = 'String';
     }
 }

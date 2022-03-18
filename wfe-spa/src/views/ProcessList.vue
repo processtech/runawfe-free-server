@@ -25,7 +25,7 @@
                     {{ getVariableValue(header.text, item) }}
                 </div>
                 <div v-else-if="header.value==='startDate' || header.value==='endDate'">
-                    {{ new Date(item[header.value]).toLocaleString() }}
+                    {{ getDate(item[header.value]) }}
                 </div>
                 <div v-else-if="header.value==='definitionName'">
                     <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
@@ -124,18 +124,21 @@ export default Vue.extend({
                     value: 'id',
                     visible: true,
                     width: '3em',
+                    format: 'Long',
                 },
                 { 
                     text: 'Процесс', 
                     value: 'definitionName',
                     visible: true,
                     width: '20em',
+                    format: 'String',
                 },
                 { 
                     text: 'Статус', 
                     value: 'executionStatus',
                     visible: true,
                     width: '20em',
+                    format: 'String',
                 },
                 { 
                     text: 'Запущен', 
@@ -143,12 +146,14 @@ export default Vue.extend({
                     visible: true,
                     sortable: false,
                     width: '10em',
+                    format: 'DateTime',
                 },
                 { 
                     text: 'Окончен', 
                     value: 'endDate',
                     visible: true,
                     width: '10em',
+                    format: 'DateTime',
                 },
             ]
         }
@@ -196,12 +201,61 @@ export default Vue.extend({
             localStorage.setItem('runawfe@process-list-variables', JSON.stringify(this.variables));
             localStorage.setItem('runawfe@process-list-initialHeaders', JSON.stringify(this.initialHeaders));
         },
-        getVariableValue(variableName, data) {
+        getDateTime (value: string) {
+            // TODO date.format.pattern, default dd.MM.yyyy HH:mm
+            if (!value) return '';
+            return new Date(value).toLocaleString("ru", {day: "numeric", month: "numeric", year: "numeric", hour: "numeric", minute: "numeric"}).replace(',','');
+        },
+        getDate (value: string) {
+            // TODO date.format.pattern, default dd.MM.yyyy
+            if (!value) return '';
+            return new Date(value).toLocaleDateString("ru", {day: "numeric", month: "numeric", year: "numeric"});
+        },
+        getTime (value: string) {
+            if (!value) return '';
+            // Time format is always HH:mm
+            return new Date(value).toLocaleTimeString("ru", {hour: "numeric", minute: "numeric"});
+        },
+        getVariableValue (variableName, data) {
             for (let variable of data.variables) {
                 if (variableName == variable.name ) {
-                    const format = variable.format.replace('ru.runa.wfe.var.format.','');
-                    if (format === 'DateFormat') {
-                        return new Date(variable.value).toLocaleString();
+                    const prefix = 'ru.runa.wfe.var.format.';
+                    if (!variable.format.includes(prefix)) {
+                        let obj = {};
+                        obj = Object.assign(obj, variable.value);
+                        if (obj && Object.keys(obj).length !== 0) {
+                            return variable.value;
+                        }
+                        return '';
+                    }
+                    const format = variable.format.replace(prefix,'').replace('Format','');
+                    if (format === 'Date') {
+                        return this.getDate(variable.value);
+                    } else if (format === 'Time') {
+                        return this.getTime(variable.value);
+                    } else if (format === 'DateTime') {
+                        return this.getDateTime(variable.value);
+                    } else if (format === 'Actor' || format === 'Executor' || format === 'Group') {
+                        let executor = {};
+                        executor = Object.assign(executor, variable.value);
+                        return executor.name;
+                    } else if (format === 'File') {
+                        // not support
+                        return '';
+                    } else if (format.includes('List')) {
+                        let arr = [];
+                        arr = Object.assign(arr, variable.value); 
+                        if (arr.length) {
+                            return variable.value;
+                        }
+                        return '';
+                    } else if (format.includes('Map')) {
+                        let obj = {};
+                        obj = Object.assign(obj, variable.value); 
+                        if (obj && Object.keys(obj).length !== 0) {
+                            return variable.value;
+                        }
+                        return '';
                     } else {
                         return variable.value;
                     }
