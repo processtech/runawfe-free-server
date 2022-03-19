@@ -25,7 +25,7 @@
                     {{ getVariableValue(header.text, item) }}
                 </div>
                 <div v-else-if="header.value==='startDate' || header.value==='endDate'">
-                    {{ getDate(item[header.value]) }}
+                    {{ getDateTime(item[header.value]) }}
                 </div>
                 <div v-else-if="header.value==='definitionName'">
                     <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
@@ -43,15 +43,32 @@
             <template v-slot:[`body.prepend`]>
                 <tr v-if="filterVisible" class="filter-row">
                     <td v-for="(header, index) in headers" :key="header.value" ref="tdheaders" bgcolor=''>
-                        <v-text-field
-                            color="primary"
-                            v-model="filter[header.value]"
-                            dense 
-                            outlined 
-                            clearable 
-                            hide-details
-                            @blur = "applyFilter($event, index)"
-                        />
+                        <span v-if="header.format === 'String'">
+                            <v-text-field
+                                color="primary"
+                                v-model="filter[header.value]"
+                                dense 
+                                outlined 
+                                clearable 
+                                hide-details
+                                @blur = "colorHeader($event.target.value, index)"
+                            />
+                        </span>
+                        <span v-else-if="header.format === 'Long'">
+                            <v-text-field
+                                color="primary"
+                                v-model="filter[header.value]"
+                                dense 
+                                outlined 
+                                clearable 
+                                hide-details
+                                @input = "numberRule($event, header.value)"
+                                @blur = "colorHeader($event.target.value, index)"
+                            />
+                        </span>
+                        <span v-else-if="header.format === 'DateTime'">
+                            <date-time-filter-cell @update-filter-event="filter[header.value]=$event;colorHeader($event, index)"/>
+                        </span>
                     </td>
                 </tr>
             </template>
@@ -201,6 +218,13 @@ export default Vue.extend({
             localStorage.setItem('runawfe@process-list-variables', JSON.stringify(this.variables));
             localStorage.setItem('runawfe@process-list-initialHeaders', JSON.stringify(this.initialHeaders));
         },
+        numberRule (val, h) {
+            this.$nextTick(() => {
+                if (val) {
+                    this.filter[h] = val.replace(/\D/g, '');
+                }
+            });
+        },
         getDateTime (value: string) {
             // TODO date.format.pattern, default dd.MM.yyyy HH:mm
             if (!value) return '';
@@ -270,8 +294,8 @@ export default Vue.extend({
             }
             return cl;
         },
-        applyFilter (event, index) {
-            if(event.target.value) {
+        colorHeader (value, index) {
+            if(value) {
                 this.$refs.tdheaders[index].setAttribute('bgcolor', '#FFFFE0');
             } else {
                 this.$refs.tdheaders[index].setAttribute('bgcolor', '');
