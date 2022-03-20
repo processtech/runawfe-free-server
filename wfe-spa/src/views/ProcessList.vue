@@ -42,34 +42,12 @@
             </template>
             <template v-slot:[`body.prepend`]>
                 <tr v-if="filterVisible" class="filter-row">
-                    <td v-for="(header, index) in headers" :key="header.value" ref="tdheaders" bgcolor=''>
-                        <span v-if="header.format === 'String'">
-                            <v-text-field
-                                color="primary"
-                                v-model="filter[header.value]"
-                                dense 
-                                outlined 
-                                clearable 
-                                hide-details
-                                @blur = "colorHeader($event.target.value, index)"
-                            />
-                        </span>
-                        <span v-else-if="header.format === 'Long'">
-                            <v-text-field
-                                color="primary"
-                                v-model="filter[header.value]"
-                                dense 
-                                outlined 
-                                clearable 
-                                hide-details
-                                @input = "numberRule($event, header.value)"
-                                @blur = "colorHeader($event.target.value, index)"
-                            />
-                        </span>
-                        <span v-else-if="header.format === 'DateTime'">
-                            <date-time-filter-cell @update-filter-event="filter[header.value]=$event;colorHeader($event, index)"/>
-                        </span>
-                    </td>
+                    <filter-cell v-for="header in headers"
+                        :header="header"
+                        :key="header.value"
+                        v-model="filter[header.value]"
+                        @update-filter-event="checkFilter()"
+                    />
                 </tr>
             </template>
             <template v-slot:top>
@@ -79,18 +57,28 @@
                         text 
                         icon
                         color="rgba(0, 0, 0, 0.67)"
-                         @click="getDataFromApi()"
+                        @click="reloadBtnIcon = 'mdi-reload'; getDataFromApi()"
                     >
-                        <v-icon>mdi-reload</v-icon>
+                        <v-icon>{{reloadBtnIcon}}</v-icon>
                     </v-btn>
                     <v-btn 
                         text 
-                        icon 
-                        @click="filterVisible = !filterVisible" 
+                        icon
+                        @click="toggleFilterVisible()"
                         v-model="filterVisible" 
                         color="rgba(0, 0, 0, 0.67)"
                     >
                         <v-icon>mdi-filter</v-icon>
+                    </v-btn>
+                    <v-btn 
+                        text 
+                        icon
+                        :depressed="!filterNow"
+                        :disabled="!filterNow"
+                        color="rgba(0, 0, 0, 0.67)"
+                        @click="clearFilters(); getDataFromApi()"
+                    >
+                        <v-icon>{{cancelBtnIcon}}</v-icon>
                     </v-btn>
                     <columns-visibility :initialHeaders="initialHeaders" :variables="variables" :filter="filter" @update-data-event="updateData"/>
                     <color-description :colors="colors" />
@@ -124,6 +112,9 @@ export default Vue.extend({
             processes: [],
             loading: true,
             options: new Options(),
+            reloadBtnIcon: 'mdi-reload',
+            cancelBtnIcon: 'mdi-close',
+            filterNow: false,
             colors: [
                 {
                     value: 'process1',
@@ -213,17 +204,46 @@ export default Vue.extend({
         }
     },
     methods: {
+        toggleFilterVisible () {
+            if (!this.filterNow) {
+                this.filterVisible = !this.filterVisible;
+            }
+        },
+        isAnyFilter () {
+            for (let prop in this.filter) { 
+                if (this.filter.hasOwnProperty(prop)) {
+                    if (this.filter[prop] !== null && this.filter[prop] !== '') {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        },
+        checkFilter () {
+            if (!this.isAnyFilter()) {
+                this.filterNow = false;
+                this.reloadBtnIcon = 'mdi-reload';
+                this.getDataFromApi();
+            } else {
+                this.reloadBtnIcon = 'mdi-check-all';
+                this.filterNow = true;
+            }
+        },
+        clearFilters () {
+            this.filterNow = false;
+            this.cancelBtnIcon = 'mdi-close';
+            this.reloadBtnIcon = 'mdi-reload';
+            for (let prop in this.filter) {
+                if (this.filter.hasOwnProperty(prop)) {
+                    this.filter[prop] = null;
+                }
+            }
+            this.filterVisible = false;
+        },
         updateData () {
             this.getDataFromApi();
             localStorage.setItem('runawfe@process-list-variables', JSON.stringify(this.variables));
             localStorage.setItem('runawfe@process-list-initialHeaders', JSON.stringify(this.initialHeaders));
-        },
-        numberRule (val, h) {
-            this.$nextTick(() => {
-                if (val) {
-                    this.filter[h] = val.replace(/\D/g, '');
-                }
-            });
         },
         getDateTime (value: string) {
             // TODO date.format.pattern, default dd.MM.yyyy HH:mm
@@ -293,13 +313,6 @@ export default Vue.extend({
                 cl = 'process2';
             }
             return cl;
-        },
-        colorHeader (value, index) {
-            if(value) {
-                this.$refs.tdheaders[index].setAttribute('bgcolor', '#FFFFE0');
-            } else {
-                this.$refs.tdheaders[index].setAttribute('bgcolor', '');
-            }
         },
         getDataFromApi () {
             this.loading = true;
