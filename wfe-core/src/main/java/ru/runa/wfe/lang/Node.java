@@ -240,6 +240,12 @@ public abstract class Node extends GraphElement {
     protected abstract void execute(ExecutionContext executionContext) throws Exception;
 
     /**
+     * override this method to customize the node behavior.
+     */
+    public void cancel(ExecutionContext executionContext) {
+    }
+
+    /**
      * called by the implementation of this node to continue execution over the default transition.
      */
     public final void leave(ExecutionContext executionContext) {

@@ -688,7 +688,11 @@ public class ExecutionLogic extends WfCommonLogic {
             log.debug(process + "is already activated");
             return false;
         }
+        ProcessDefinition processDefinition = getDefinition(process);
         for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
+            Node node = processDefinition.getNode(token.getNodeId());
+            // may be this behaviour should be changed to non-marking task as FAILED (see rm2464#note-11)
+            node.cancel(new ExecutionContext(processDefinition, token));
             nodeAsyncExecutor.execute(token, false);
         }
         for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
