@@ -2,7 +2,7 @@
     <v-dialog v-model="dialog" max-width="500px" @click:outside="updateData" @keydown.esc="updateData">
         <template v-slot:activator="{ on, attrs }">
             <v-btn
-                text 
+                text
                 icon
                 v-bind="attrs"
                 v-on="on"
@@ -28,23 +28,23 @@
                 <v-container>
                     <v-row>
                         <v-col cols="12" class="d-flex justify-end">
-                            <v-btn 
-                                class="d-inline-block" 
+                            <v-btn
+                                class="d-inline-block"
                                 text
                                 v-if="variables"
                                 @click = "toggleVarField"
                             >
                                 Добавить переменную
                             </v-btn>
-                            <v-btn 
-                                class="d-inline-block" 
+                            <v-btn
+                                class="d-inline-block"
                                 text
                                 @click = "selectAll"
                             >
                                 Выбрать всё
                             </v-btn>
-                            <v-btn 
-                                class="d-inline-block" 
+                            <v-btn
+                                class="d-inline-block"
                                 text
                                 @click = "unSelectAll"
                             >
@@ -73,7 +73,7 @@
                                 class="mt-0"
                                 color="success"
                                 hide-details
-                                v-model="header.visible" 
+                                v-model="header.visible"
                                 :label="header.text"
                                 @change = "changeVisible($event, header.value)"
                             />
@@ -124,7 +124,7 @@ export default Vue.extend({
             }
         },
         toggleVarField () {
-            this.showVarField = !this.showVarField; 
+            this.showVarField = !this.showVarField;
             this.variableName = '';
         },
         findVariableIndex (variableName) {

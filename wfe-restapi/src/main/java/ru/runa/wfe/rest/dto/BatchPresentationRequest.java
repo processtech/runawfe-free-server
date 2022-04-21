@@ -10,6 +10,7 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
+import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest.Sorting.Order;
 
 @Data
@@ -35,7 +36,7 @@ public class BatchPresentationRequest {
         BatchPresentation batchPresentation = new BatchPresentationFactory(classPresentationType).createDefault();
         // setRangeSize перед setPageNumber т.к. по дефолту сбрасывает значение pageNumber = 1
         batchPresentation.setRangeSize(pageSize);
-        batchPresentation.setPageNumber(pageNumber);  
+        batchPresentation.setPageNumber(pageNumber);
         for (Map.Entry<String, String> entry : filters.entrySet()) {
             if (entry.getValue() == null || entry.getValue().isEmpty() || variables.contains(entry.getKey())) {
                 continue;
@@ -69,6 +70,11 @@ public class BatchPresentationRequest {
 
     private void addFilteredField(BatchPresentation batchPresentation, int fieldIndex, String value) {
         FilterCriteria filterCriteria = FilterCriteriaFactory.createFilterCriteria(batchPresentation, fieldIndex);
+        // TODO
+        if (value.endsWith("/i") && filterCriteria instanceof StringFilterCriteria) {
+            ((StringFilterCriteria) (filterCriteria)).applyCaseSensitive(true);
+            value = value.substring(0, value.length() - 2);
+        }
         // TODO #2261
         String[] templates = filterCriteria.getTemplatesCount() > 1 ? value.split("\\|", -1) : new String[] { value };
         filterCriteria.applyFilterTemplates(templates);

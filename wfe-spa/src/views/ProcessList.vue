@@ -53,25 +53,25 @@
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-spacer/>
-                    <v-btn 
-                        text 
+                    <v-btn
+                        text
                         icon
                         color="rgba(0, 0, 0, 0.67)"
                         @click="reloadBtnIcon = 'mdi-reload'; getDataFromApi()"
                     >
                         <v-icon>{{reloadBtnIcon}}</v-icon>
                     </v-btn>
-                    <v-btn 
-                        text 
+                    <v-btn
+                        text
                         icon
                         @click="toggleFilterVisible()"
-                        v-model="filterVisible" 
+                        v-model="filterVisible"
                         color="rgba(0, 0, 0, 0.67)"
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <v-btn 
-                        text 
+                    <v-btn
+                        text
                         icon
                         :depressed="!filterNow"
                         :disabled="!filterNow"
@@ -128,36 +128,36 @@ export default Vue.extend({
             initialHeaders: [
                 {
                     text: '№ экз.',
-                    align: 'start', 
+                    align: 'start',
                     value: 'id',
                     visible: true,
                     width: '3em',
                     format: 'Long',
                 },
-                { 
-                    text: 'Процесс', 
+                {
+                    text: 'Процесс',
                     value: 'definitionName',
                     visible: true,
                     width: '20em',
                     format: 'String',
                 },
-                { 
-                    text: 'Статус', 
+                {
+                    text: 'Статус',
                     value: 'executionStatus',
                     visible: true,
                     width: '20em',
                     format: 'String',
                 },
-                { 
-                    text: 'Запущен', 
+                {
+                    text: 'Запущен',
                     value: 'startDate',
                     visible: true,
                     sortable: false,
                     width: '10em',
                     format: 'DateTime',
                 },
-                { 
-                    text: 'Окончен', 
+                {
+                    text: 'Окончен',
                     value: 'endDate',
                     visible: true,
                     width: '10em',
@@ -210,7 +210,7 @@ export default Vue.extend({
             }
         },
         isAnyFilter () {
-            for (let prop in this.filter) { 
+            for (let prop in this.filter) {
                 if (this.filter.hasOwnProperty(prop)) {
                     if (this.filter[prop] !== null && this.filter[prop] !== '') {
                         return true;
@@ -218,6 +218,20 @@ export default Vue.extend({
                 }
             }
             return false;
+        },
+        getFilters (filter) {
+            let result = Object.assign({}, filter);
+            for (let prop in filter) {
+                if (filter.hasOwnProperty(prop)) {
+                    if (filter[prop] !== null && filter[prop] !== '') {
+                        let header = this.initialHeaders.find(h => h.value === prop);
+                        if(!header || (header.format !== 'DateTime' && header.format !== 'Long')) {
+                            result[prop] = '*' + filter[prop].trim() + '*/i';
+                        }
+                    }
+                }
+            }
+            return result;
         },
         checkFilter () {
             if (!this.isAnyFilter()) {
@@ -288,14 +302,14 @@ export default Vue.extend({
                         return '';
                     } else if (format.includes('List')) {
                         let arr = [];
-                        arr = Object.assign(arr, variable.value); 
+                        arr = Object.assign(arr, variable.value);
                         if (arr.length) {
                             return variable.value;
                         }
                         return '';
                     } else if (format.includes('Map')) {
                         let obj = {};
-                        obj = Object.assign(obj, variable.value); 
+                        obj = Object.assign(obj, variable.value);
                         if (obj && Object.keys(obj).length !== 0) {
                             return variable.value;
                         }
@@ -318,7 +332,7 @@ export default Vue.extend({
             this.loading = true;
             const { page, itemsPerPage, sortBy, sortDesc } = this.options;
             const query = {
-                filters: this.filter,
+                filters: this.getFilters(this.filter),
                 pageNumber: page,
                 pageSize: itemsPerPage,
                 sortings: Sorting.convert(sortBy, sortDesc),

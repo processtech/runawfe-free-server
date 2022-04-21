@@ -31,14 +31,26 @@
                 </td>
             </tr>
         </span>
+        <span v-else-if="header.format === 'Long'">
+            <v-text-field ref="input"
+                color="primary"
+                v-bind:value="value"
+                dense
+                outlined
+                clearable
+                hide-details
+                @blur="applyHeaderValue($event.target.value, header.format)"
+            />
+        </span>
         <span v-else>
             <v-text-field ref="input"
                 color="primary"
                 v-bind:value="value"
-                dense 
-                outlined 
-                clearable 
+                dense
+                outlined
+                clearable
                 hide-details
+                label="Содержит"
                 @blur="applyHeaderValue($event.target.value, header.format)"
             />
         </span>
