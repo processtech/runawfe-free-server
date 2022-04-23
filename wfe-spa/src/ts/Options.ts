@@ -45,6 +45,7 @@ export class Header {
     sortable: boolean;
     dynamic: boolean;
     format: string;
+    bcolor: string;
 
     constructor() {
         this.text = '';
@@ -55,5 +56,6 @@ export class Header {
         this.sortable = false;
         this.dynamic = false;
         this.format = 'String';
+        this.bcolor = '';
     }
 }

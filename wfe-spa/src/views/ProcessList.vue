@@ -46,7 +46,8 @@
                         :header="header"
                         :key="header.value"
                         v-model="filter[header.value]"
-                        @update-filter-event="checkFilter()"
+                        @update-filter-event="checkFilter(header)"
+                        @update-filter-and-reload-event="checkFilterAndReload(header);"
                     />
                 </tr>
             </template>
@@ -57,9 +58,9 @@
                         text
                         icon
                         color="rgba(0, 0, 0, 0.67)"
-                        @click="reloadBtnIcon = 'mdi-reload'; getDataFromApi()"
+                        @click="reloadData()"
                     >
-                        <v-icon>{{reloadBtnIcon}}</v-icon>
+                        <v-icon>{{applyAll ? 'mdi-check-all':'mdi-reload'}}</v-icon>
                     </v-btn>
                     <v-btn
                         text
@@ -73,12 +74,12 @@
                     <v-btn
                         text
                         icon
-                        :depressed="!filterNow"
-                        :disabled="!filterNow"
+                        :depressed="!filterNow && !applyAll"
+                        :disabled="!filterNow && !applyAll"
                         color="rgba(0, 0, 0, 0.67)"
                         @click="clearFilters(); getDataFromApi()"
                     >
-                        <v-icon>{{cancelBtnIcon}}</v-icon>
+                        <v-icon>mdi-close</v-icon>
                     </v-btn>
                     <columns-visibility :initialHeaders="initialHeaders" :variables="variables" :filter="filter" @update-data-event="updateData"/>
                     <color-description :colors="colors" />
@@ -112,9 +113,9 @@ export default Vue.extend({
             processes: [],
             loading: true,
             options: new Options(),
-            reloadBtnIcon: 'mdi-reload',
-            cancelBtnIcon: 'mdi-close',
             filterNow: false,
+            applyAll: false,
+            activeFilterColor: '#FFFFE0',
             colors: [
                 {
                     value: 'process1',
@@ -132,6 +133,7 @@ export default Vue.extend({
                     value: 'id',
                     visible: true,
                     width: '3em',
+                    bcolor: '',
                     format: 'Long',
                 },
                 {
@@ -139,6 +141,7 @@ export default Vue.extend({
                     value: 'definitionName',
                     visible: true,
                     width: '20em',
+                    bcolor: '',
                     format: 'String',
                 },
                 {
@@ -146,6 +149,7 @@ export default Vue.extend({
                     value: 'executionStatus',
                     visible: true,
                     width: '20em',
+                    bcolor: '',
                     format: 'String',
                 },
                 {
@@ -154,6 +158,7 @@ export default Vue.extend({
                     visible: true,
                     sortable: false,
                     width: '10em',
+                    bcolor: '',
                     format: 'DateTime',
                 },
                 {
@@ -161,6 +166,7 @@ export default Vue.extend({
                     value: 'endDate',
                     visible: true,
                     width: '10em',
+                    bcolor: '',
                     format: 'DateTime',
                 },
             ]
@@ -181,6 +187,15 @@ export default Vue.extend({
                 localStorage.removeItem('runawfe@process-list-initialHeaders');
             }
         }
+        if (localStorage.getItem('runawfe@process-list-filters')) {
+            try {
+                this.filter = JSON.parse(localStorage.getItem('runawfe@process-list-filters'));
+                this.filterNow = true;
+                this.filterVisible = true;
+            } catch(e) {
+                localStorage.removeItem('runawfe@process-list-filters');
+            }
+        }
     },
     computed: {
         headers(): any {
@@ -196,16 +211,10 @@ export default Vue.extend({
             },
             deep: true,
         },
-        filter: {
-            handler () {
-                //this.getDataFromApi()
-            },
-            deep: true,
-        }
     },
     methods: {
         toggleFilterVisible () {
-            if (!this.filterNow) {
+            if (!this.filterNow && !this.applyAll) {
                 this.filterVisible = !this.filterVisible;
             }
         },
@@ -233,26 +242,57 @@ export default Vue.extend({
             }
             return result;
         },
-        checkFilter () {
-            if (!this.isAnyFilter()) {
-                this.filterNow = false;
-                this.reloadBtnIcon = 'mdi-reload';
-                this.getDataFromApi();
+        updateFiltersInLocalStorage() {
+            localStorage.setItem('runawfe@process-list-filters', JSON.stringify(this.filter));
+        },
+        clearFiltersInLocalStorage() {
+            localStorage.removeItem('runawfe@process-list-filters');
+        },
+        clearHeadersColor () {
+            this.headers.forEach(header => {
+                    header.bcolor = '';
+            });
+        },
+        checkFilterAndReload (header) {
+            this.checkFilter(header);
+            this.reloadData();
+        },
+        checkFilter (header) {
+            const l = JSON.stringify(this.filter);
+            const s = localStorage.getItem('runawfe@process-list-filters');
+            const storageFilter = JSON.parse(s);
+            if((!s && this.isAnyFilter()) || (s && s!==l)) {
+                this.applyAll = true;
             } else {
-                this.reloadBtnIcon = 'mdi-check-all';
-                this.filterNow = true;
+                this.applyAll = false;
+            }
+            if((!storageFilter && this.filter[header.value])
+                || (storageFilter && storageFilter[header.value]!==this.filter[header.value])) {
+                header.bcolor = this.activeFilterColor;
+            } else {
+                header.bcolor = '';
             }
         },
-        clearFilters () {
-            this.filterNow = false;
-            this.cancelBtnIcon = 'mdi-close';
-            this.reloadBtnIcon = 'mdi-reload';
-            for (let prop in this.filter) {
-                if (this.filter.hasOwnProperty(prop)) {
-                    this.filter[prop] = null;
-                }
+        reloadData () {
+            if(this.isAnyFilter()) {
+                this.clearHeadersColor();
+                this.filterNow = true;
+                this.updateFiltersInLocalStorage();
+            } else {
+                this.clearFilters();
             }
+            this.applyAll = false;
+            this.getDataFromApi();
+        },
+        clearFilters () {
+            this.applyAll = false;
             this.filterVisible = false;
+            this.filterNow = false;
+            Object.keys(this.filter).forEach(key => {
+                this.filter[key] = null;
+            });
+            this.clearHeadersColor();
+            this.clearFiltersInLocalStorage();
         },
         updateData () {
             this.getDataFromApi();

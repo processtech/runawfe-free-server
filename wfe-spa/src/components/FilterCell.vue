@@ -1,5 +1,5 @@
 <template>
-    <td ref="tdheader" bgcolor=''>
+    <td :bgcolor="header.bcolor">
         <span v-if="header.format === 'DateTime'">
             <tr>
                 <td>
@@ -11,7 +11,8 @@
                         clearable
                         hide-details
                         @input="start = $event"
-                        @blur="applyHeaderValue(dateTimeValue(), header.format)"
+                        @blur="applyHeaderValue(dateTimeValue(), header.format, false)"
+                        @keydown.enter="applyHeaderValue(dateTimeValue(), header.format, true)"
                     />
                 </td>
             </tr>
@@ -26,7 +27,8 @@
                         clearable
                         hide-details
                         @input="end = $event"
-                        @blur="applyHeaderValue(dateTimeValue(), header.format)"
+                        @blur="applyHeaderValue(dateTimeValue(), header.format, false)"
+                        @keydown.enter="applyHeaderValue(dateTimeValue(), header.format, true)"
                     />
                 </td>
             </tr>
@@ -39,7 +41,8 @@
                 outlined
                 clearable
                 hide-details
-                @blur="applyHeaderValue($event.target.value, header.format)"
+                @blur="applyHeaderValue($event.target.value, header.format, false)"
+                @keydown.enter="applyHeaderValue($event.target.value, header.format, true)"
             />
         </span>
         <span v-else>
@@ -51,7 +54,8 @@
                 clearable
                 hide-details
                 label="Содержит"
-                @blur="applyHeaderValue($event.target.value, header.format)"
+                @blur="applyHeaderValue($event.target.value, header.format, false)"
+                @keydown.enter="applyHeaderValue($event.target.value, header.format, true)"
             />
         </span>
     </td>
@@ -73,11 +77,32 @@ export default Vue.extend({
         return {
             start: '',
             end: '',
+            activeColor: 'blue',
         }
     },
     mounted: function () {
+        if(this.header.format === 'DateTime') {
+            if(this.value) {
+                const [startDate, endDate] = this.value.split('|');
+                if(startDate) {
+                    this.start = this.getDateTimeFromValue(startDate);
+                }
+                if(endDate) {
+                    this.end = this.getDateTimeFromValue(endDate);
+                }
+            }
+        }
     },
     methods: {
+        getDateTimeFromValue (val) {
+            //local date to yyyy-MM-ddThh:mm
+            if (val) {
+                const [date, time] =  val.split(' ');
+                const [day, month, year] = date.split('.');
+                return `${year}-${month}-${day}T${time}`
+            }
+            return '';
+        },
         formatDate (val) {
             //val always: yyyy-MM-ddThh:mm
             if (val) {
@@ -96,23 +121,25 @@ export default Vue.extend({
                 return '';
             }
         },
-        applyHeaderValue (val, format) {
+        applyHeaderValue (val, format, reload: boolean) {
             let value = val;
             if (format === 'Long') {
                 if (value) {
                     value = val.replace(/\D/g, '');
                 }
             }
-            if (value) {
-                this.$refs.tdheader.setAttribute('bgcolor', '#FFFFE0');
-            } else {
-                this.$refs.tdheader.setAttribute('bgcolor', '');
+            if (!value) {
                 if (format !== 'DateTime') {
                     this.$refs.input.reset();
                 }
+                value = null;
             }
             this.$emit('input', value);
-            this.$emit('update-filter-event');
+            if(reload) {
+                this.$emit('update-filter-and-reload-event');
+            } else {
+                this.$emit('update-filter-event');
+            }
         }
     },
 });
