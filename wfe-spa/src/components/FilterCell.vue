@@ -4,29 +4,28 @@
             <tr>
                 <td>
                     <v-text-field
-                        v-bind:value="start"
+                        v-bind:value="startDate"
                         type="datetime-local"
                         dense
                         outlined
                         clearable
                         hide-details
-                        @input="start = $event"
+                        @input="startDate = $event"
                         @blur="applyHeaderValue(dateTimeValue(), header.format, false)"
                         @keydown.enter="applyHeaderValue(dateTimeValue(), header.format, true)"
                     />
                 </td>
             </tr>
-            <tr/>
             <tr>
                 <td>
                     <v-text-field
-                        v-bind:value="end"
+                        v-bind:value="endDate"
                         type="datetime-local"
                         dense
                         outlined
                         clearable
                         hide-details
-                        @input="end = $event"
+                        @input="endDate = $event"
                         @blur="applyHeaderValue(dateTimeValue(), header.format, false)"
                         @keydown.enter="applyHeaderValue(dateTimeValue(), header.format, true)"
                     />
@@ -34,16 +33,38 @@
             </tr>
         </span>
         <span v-else-if="header.format === 'Long'">
-            <v-text-field ref="input"
-                color="primary"
-                v-bind:value="value"
-                dense
-                outlined
-                clearable
-                hide-details
-                @blur="applyHeaderValue($event.target.value, header.format, false)"
-                @keydown.enter="applyHeaderValue($event.target.value, header.format, true)"
-            />
+            <tr>
+                <td>
+                    <v-text-field ref="input"
+                        color="primary"
+                        label="от"
+                        v-bind:value="startNumber"
+                        dense
+                        outlined
+                        clearable
+                        hide-details
+                        @input="startNumber = $event"
+                        @blur="applyHeaderValue(numberRangeValue(), header.format, false)"
+                        @keydown.enter="applyHeaderValue(numberRangeValue(), header.format, true)"
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <v-text-field ref="input"
+                        color="primary"
+                        label="до"
+                        v-bind:value="endNumber"
+                        dense
+                        outlined
+                        clearable
+                        hide-details
+                        @input="endNumber = $event"
+                        @blur="applyHeaderValue(numberRangeValue(), header.format, false)"
+                        @keydown.enter="applyHeaderValue(numberRangeValue(), header.format, true)"
+                    />
+                </td>
+            </tr>
         </span>
         <span v-else>
             <v-text-field ref="input"
@@ -75,9 +96,10 @@ export default Vue.extend({
     },
     data() {
         return {
-            start: '',
-            end: '',
-            activeColor: 'blue',
+            startDate: '',
+            endDate: '',
+            startNumber: '',
+            endNumber: '',
         }
     },
     mounted: function () {
@@ -85,10 +107,20 @@ export default Vue.extend({
             if(this.value) {
                 const [startDate, endDate] = this.value.split('|');
                 if(startDate) {
-                    this.start = this.getDateTimeFromValue(startDate);
+                    this.startDate = this.getDateTimeFromValue(startDate);
                 }
                 if(endDate) {
-                    this.end = this.getDateTimeFromValue(endDate);
+                    this.endDate = this.getDateTimeFromValue(endDate);
+                }
+            }
+        } else if(this.header.format === 'Long') {
+            if(this.value) {
+                const [startNumber, endNumber] = this.value.split('-');
+                if(startNumber) {
+                    this.startNumber = startNumber;
+                }
+                if(endNumber) {
+                    this.endNumber = endNumber;
                 }
             }
         }
@@ -113,28 +145,29 @@ export default Vue.extend({
             return '';
         },
         dateTimeValue () {
-            const startDate = this.formatDate(this.start);
-            const endDate = this.formatDate(this.end);
+            const startDate = this.formatDate(this.startDate);
+            const endDate = this.formatDate(this.endDate);
             if (startDate || endDate) {
                 return [startDate, endDate].join('|');
             } else {
                 return '';
             }
         },
+        numberRangeValue () {
+            if(this.startNumber) {
+                this.startNumber = this.startNumber.replace(/\D/g, '');
+            }
+            if(this.endNumber) {
+                this.endNumber = this.endNumber.replace(/\D/g, '');
+            }
+            if (this.startNumber || this.endNumber) {
+                return [this.startNumber, this.endNumber].join('-');
+            } else {
+                return '';
+            }
+        },
         applyHeaderValue (val, format, reload: boolean) {
-            let value = val;
-            if (format === 'Long') {
-                if (value) {
-                    value = val.replace(/\D/g, '');
-                }
-            }
-            if (!value) {
-                if (format !== 'DateTime') {
-                    this.$refs.input.reset();
-                }
-                value = null;
-            }
-            this.$emit('input', value);
+            this.$emit('input', val);
             if(reload) {
                 this.$emit('update-filter-and-reload-event');
             } else {
