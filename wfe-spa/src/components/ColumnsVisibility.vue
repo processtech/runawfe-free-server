@@ -146,6 +146,7 @@ export default Vue.extend({
                 header.visible = true;
                 header.width = '10em';
                 header.sortable = false;
+                header.selectOptions = '';
                 this.initialHeaders.push(header);
                 this.variables.push(this.variableName);
             }

@@ -24,11 +24,14 @@
                 <div v-if="header.dynamic">
                     {{ getVariableValue(header.text, item) }}
                 </div>
-                <div v-else-if="header.value==='startDate' || header.value==='endDate'">
+                <div v-else-if="header.format==='DateTime'">
                     {{ getDateTime(item[header.value]) }}
                 </div>
-                <div v-else-if="header.value==='definitionName'">
-                    <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item.definitionName" />
+                <div v-else-if="header.format==='String' && header.link">
+                    <card-link :routeName="`Карточка процесса`" :id="item.id" :text="item[header.value]" />
+                </div>
+                <div v-else-if="header.format==='String' && header.selectOptions">
+                    {{ getValueFromOptions(header.selectOptions, item[header.value]) }}
                 </div>
                 <div v-else>
                     {{ item[header.value] }}
@@ -92,7 +95,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
-import { Options, Sorting } from '../ts/Options';
+import { Options, Sorting, Select } from '../ts/Options';
 
 export default Vue.extend({
     name: "ProcessList",
@@ -143,6 +146,7 @@ export default Vue.extend({
                     width: '20em',
                     bcolor: '',
                     format: 'String',
+                    link: true,
                 },
                 {
                     text: 'Статус',
@@ -151,6 +155,8 @@ export default Vue.extend({
                     width: '20em',
                     bcolor: '',
                     format: 'String',
+                    selectOptions:[new Select('Активен','ACTIVE'), new Select('Завершен','ENDED'),
+                                   new Select('Приостановлен','SUSPENDED'), new Select('Имеет ошибки выполнения','FAILED')],
                 },
                 {
                     text: 'Запущен',
@@ -234,7 +240,7 @@ export default Vue.extend({
                 if (filter.hasOwnProperty(prop)) {
                     if (filter[prop] !== null && filter[prop] !== '') {
                         let header = this.initialHeaders.find(h => h.value === prop);
-                        if(!header || (header.format !== 'DateTime' && header.format !== 'Long')) {
+                        if(!header || (header.format !== 'DateTime' && header.format !== 'Long' && !header.selectOptions)) {
                             result[prop] = '*' + filter[prop].trim() + '*/i';
                         }
                     }
@@ -313,6 +319,14 @@ export default Vue.extend({
             if (!value) return '';
             // Time format is always HH:mm
             return new Date(value).toLocaleTimeString("ru", {hour: "numeric", minute: "numeric"});
+        },
+        getValueFromOptions(options:Select[], value: string) {
+            const result = options.find(o => o.value === value);
+            if(result) {
+                return result.text;
+            } else {
+                return '';
+            }
         },
         getVariableValue (variableName, data) {
             for (let variable of data.variables) {

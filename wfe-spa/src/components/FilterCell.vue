@@ -4,30 +4,28 @@
             <tr>
                 <td>
                     <v-text-field
-                        v-bind:value="startDate"
+                        v-model="startDate"
                         type="datetime-local"
                         dense
                         outlined
                         clearable
                         hide-details
-                        @input="startDate = $event"
-                        @blur="applyHeaderValue(dateTimeValue(), header.format, false)"
-                        @keydown.enter="applyHeaderValue(dateTimeValue(), header.format, true)"
+                        @blur="applyHeaderValue(dateTimeValue(), false)"
+                        @keydown.enter="applyHeaderValue(dateTimeValue(), true)"
                     />
                 </td>
             </tr>
             <tr>
                 <td>
                     <v-text-field
-                        v-bind:value="endDate"
+                        v-model="endDate"
                         type="datetime-local"
                         dense
                         outlined
                         clearable
                         hide-details
-                        @input="endDate = $event"
-                        @blur="applyHeaderValue(dateTimeValue(), header.format, false)"
-                        @keydown.enter="applyHeaderValue(dateTimeValue(), header.format, true)"
+                        @blur="applyHeaderValue(dateTimeValue(), false)"
+                        @keydown.enter="applyHeaderValue(dateTimeValue(), true)"
                     />
                 </td>
             </tr>
@@ -35,39 +33,47 @@
         <span v-else-if="header.format === 'Long'">
             <tr>
                 <td>
-                    <v-text-field ref="input"
+                    <v-text-field
                         color="primary"
                         label="от"
-                        v-bind:value="startNumber"
+                        v-model="startNumber"
                         dense
                         outlined
                         clearable
                         hide-details
-                        @input="startNumber = $event"
-                        @blur="applyHeaderValue(numberRangeValue(), header.format, false)"
-                        @keydown.enter="applyHeaderValue(numberRangeValue(), header.format, true)"
+                        @blur="applyHeaderValue(numberRangeValue(), false)"
+                        @keydown.enter="applyHeaderValue(numberRangeValue(), true)"
                     />
                 </td>
             </tr>
             <tr>
                 <td>
-                    <v-text-field ref="input"
+                    <v-text-field
                         color="primary"
                         label="до"
-                        v-bind:value="endNumber"
+                        v-model="endNumber"
                         dense
                         outlined
                         clearable
                         hide-details
-                        @input="endNumber = $event"
-                        @blur="applyHeaderValue(numberRangeValue(), header.format, false)"
-                        @keydown.enter="applyHeaderValue(numberRangeValue(), header.format, true)"
+                        @blur="applyHeaderValue(numberRangeValue(), false)"
+                        @keydown.enter="applyHeaderValue(numberRangeValue(), true)"
                     />
                 </td>
             </tr>
         </span>
+        <span v-else-if="header.format === 'String' && header.selectOptions">
+            <v-select
+                v-model="selectedValue"
+                :items="header.selectOptions"
+                dense
+                clearable
+                @blur="applyHeaderValue(selectedValue, false)"
+                @keydown.enter="applyHeaderValue(selectedValue, true)"
+            />
+        </span>
         <span v-else>
-            <v-text-field ref="input"
+            <v-text-field
                 color="primary"
                 v-bind:value="value"
                 dense
@@ -75,8 +81,8 @@
                 clearable
                 hide-details
                 label="Содержит"
-                @blur="applyHeaderValue($event.target.value, header.format, false)"
-                @keydown.enter="applyHeaderValue($event.target.value, header.format, true)"
+                @blur="applyHeaderValue($event.target.value, false)"
+                @keydown.enter="applyHeaderValue($event.target.value, true)"
             />
         </span>
     </td>
@@ -100,6 +106,7 @@ export default Vue.extend({
             endDate: '',
             startNumber: '',
             endNumber: '',
+            selectedValue: '',
         }
     },
     mounted: function () {
@@ -122,6 +129,10 @@ export default Vue.extend({
                 if(endNumber) {
                     this.endNumber = endNumber;
                 }
+            }
+        } else if(this.header.format === 'String' && this.header.selectOptions) {
+            if(this.value) {
+                this.selectedValue = this.value;
             }
         }
     },
@@ -166,7 +177,7 @@ export default Vue.extend({
                 return '';
             }
         },
-        applyHeaderValue (val, format, reload: boolean) {
+        applyHeaderValue (val, reload: boolean) {
             this.$emit('input', val);
             if(reload) {
                 this.$emit('update-filter-and-reload-event');
