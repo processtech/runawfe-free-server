@@ -46,12 +46,12 @@
             <template v-slot:[`body.prepend`]>
                 <tr v-if="filterVisible" class="filter-row">
                     <td v-for="header in headers" :key="header.value">
-                        <v-text-field 
+                        <v-text-field
                             color="primary"
-                            v-model="filter[header.value]" 
-                            dense 
-                            outlined 
-                            clearable 
+                            v-model="filter[header.value]"
+                            dense
+                            outlined
+                            clearable
                             hide-details
                         />
                     </td>
@@ -60,24 +60,24 @@
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-spacer/>
-                    <v-btn 
-                        text 
+                    <v-btn
+                        text
                         icon
                         color="rgba(0, 0, 0, 0.67)"
                          @click="getDataFromApi()"
                     >
                         <v-icon>mdi-reload</v-icon>
                     </v-btn>
-                    <v-btn 
-                        text 
-                        icon 
-                        @click="filterVisible = !filterVisible" 
-                        v-model="filterVisible" 
+                    <v-btn
+                        text
+                        icon
+                        @click="filterVisible = !filterVisible"
+                        v-model="filterVisible"
                         color="rgba(0, 0, 0, 0.67)"
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <columns-visibility :initialHeaders="initialHeaders" :variables="variables" :filter="filter" @update-data-event="updateData"/>
+                    <columns-visibility :initialHeaders="initialHeaders" :dynamic="false" @update-data-event="updateData"/>
                     <color-description :colors="colors" />
                 </v-toolbar>
             </template>
@@ -130,37 +130,37 @@ export default Vue.extend({
             initialHeaders: [
                 {
                     text: 'Задача',
-                    align: 'start', 
+                    align: 'start',
                     value: 'name',
                     visible: true,
                     width: '20em',
                 },
-                { 
-                    text: 'Описание', 
+                {
+                    text: 'Описание',
                     value: 'description',
                     visible: false,
                     width: '20em',
                 },
-                { 
-                    text: '№ экз.', 
+                {
+                    text: '№ экз.',
                     value: 'processId',
                     visible: true,
                     width: '7em',
                 },
                 {
-                    text: 'Процесс', 
+                    text: 'Процесс',
                     value: 'definitionName',
                     visible: true,
                     width: '20em',
                 },
-                { 
-                    text: 'Создана', 
+                {
+                    text: 'Создана',
                     value: 'createDate',
                     visible: true,
                     width: '12em',
                 },
-                { 
-                    text: 'Время окончания', 
+                {
+                    text: 'Время окончания',
                     value: 'deadlineDate',
                     visible: true,
                     width: '12em',

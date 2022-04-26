@@ -84,7 +84,12 @@
                     >
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
-                    <columns-visibility :initialHeaders="initialHeaders" :variables="variables" :filter="filter" @update-data-event="updateData"/>
+                    <columns-visibility :initialHeaders="initialHeaders" :dynamic="true"
+                        @update-data-event="updateData"
+                        @toggle-head-visible-event="onToggleHeadVisible"
+                        @delete-variable-event="onDeleteVariable"
+                        @add-variable-event="onAddVariable"
+                    />
                     <color-description :colors="colors" />
                 </v-toolbar>
             </template>
@@ -95,7 +100,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { get, sync } from 'vuex-pathify';
-import { Options, Sorting, Select } from '../ts/Options';
+import { Options, Sorting, Select, Header } from '../ts/Options';
 
 export default Vue.extend({
     name: "ProcessList",
@@ -219,6 +224,60 @@ export default Vue.extend({
         },
     },
     methods: {
+//---------------------------------------------------//
+        getHeadByValue (value) {
+            return this.initialHeaders.find(h => h.value === value);
+        },
+        onToggleHeadVisible (id) {
+            const h = this.getHeadByValue(id);
+            if (!h.visible) {
+                this.filter[id] = null;
+                if (this.isAnyFilter()) {
+                    this.updateFiltersInLocalStorage();
+                } else {
+                    this.clearFilters();
+                }
+            }
+        },
+        onDeleteVariable (variableName) {
+            if (variableName) {
+                const headerIndx = this.initialHeaders.findIndex(h => h.text === variableName);
+                if (headerIndx > 0){
+                    this.initialHeaders.splice(headerIndx, 1);
+                    const varIndx = this.variables.indexOf(variableName);
+                    this.variables.splice(varIndx, 1);
+                    this.filter[variableName] = null;
+                    if (this.isAnyFilter()) {
+                        this.updateFiltersInLocalStorage();
+                    } else {
+                        this.clearFilters();
+                    }
+                }
+            }
+        },
+        onAddVariable (variableName) {
+            if (variableName) {
+                const headerIndx = this.initialHeaders.findIndex(h => h.text === variableName);
+                if (headerIndx === -1){
+                    let header = new Header();
+                    const index = this.variables.length + 1;
+                    header.text = variableName;
+                    header.align = '';
+                    header.value = variableName;
+                    header.dynamic = true;
+                    header.visible = true;
+                    header.width = '10em';
+                    header.sortable = false;
+                    header.selectOptions = '';
+                    this.initialHeaders.push(header);
+                    this.variables.push(variableName);
+                    if (this.isAnyFilter()) {
+                        this.updateFiltersInLocalStorage();
+                    }
+                }
+            }
+        },
+//---------------------------------------------------//
         toggleFilterVisible () {
             if (!this.filterNow && !this.applyAll) {
                 this.filterVisible = !this.filterVisible;

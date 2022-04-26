@@ -36,7 +36,7 @@
                     color="green"
                     class="mr-2"
                     :disabled="!item.canBeStarted"
-                    @click="openStartForm(item)" 
+                    @click="openStartForm(item)"
                 >
                     mdi-play-circle
                 </v-icon>
@@ -50,13 +50,13 @@
             <template v-slot:[`body.prepend`]>
                 <tr v-if="filterVisible" class="filter-row">
                     <td v-for="header in headers" :key="header.value">
-                        <v-text-field 
+                        <v-text-field
                             v-if="header.value != 'start'"
                             color="primary"
-                            v-model="filter[header.value]" 
-                            dense 
-                            outlined 
-                            clearable 
+                            v-model="filter[header.value]"
+                            dense
+                            outlined
+                            clearable
                             hide-details
                         />
                     </td>
@@ -65,16 +65,16 @@
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-spacer/>
-                    <v-btn 
-                        text 
-                        icon 
-                        @click="filterVisible = !filterVisible" 
-                        v-model="filterVisible" 
+                    <v-btn
+                        text
+                        icon
+                        @click="filterVisible = !filterVisible"
+                        v-model="filterVisible"
                         color="rgba(0, 0, 0, 0.67)"
                     >
                         <v-icon>mdi-filter</v-icon>
                     </v-btn>
-                    <columns-visibility :initialHeaders="initialHeaders" />
+                    <columns-visibility :initialHeaders="initialHeaders" :dynamic="false" />
                 </v-toolbar>
             </template>
         </v-data-table>
@@ -88,7 +88,7 @@ import { Options, Sorting } from '../ts/Options';
 
 export default Vue.extend({
     name: "ProcessDefinitionList",
-    
+
     data() {
         return {
             timeout: 10000,
@@ -107,8 +107,8 @@ export default Vue.extend({
             loading: true,
             options: new Options(),
             initialHeaders: [
-                {   
-                    text: 'Запустить', 
+                {
+                    text: 'Запустить',
                     value: 'start',
                     align: 'center',
                     visible: true,
@@ -117,38 +117,38 @@ export default Vue.extend({
                 },
                 {
                     text: 'Имя',
-                    align: 'start', 
+                    align: 'start',
                     value: 'name',
                     visible: true,
                     width: '20em',
                 },
-                { 
-                    text: 'Описание', 
+                {
+                    text: 'Описание',
                     value:'description',
                     visible: false,
                     width: '20em',
                 },
-                { 
-                    text: 'Дата загрузки', 
+                {
+                    text: 'Дата загрузки',
                     value: 'createDate',
                     visible: true,
                     width: '12em',
                 },
-                { 
-                    text: 'Автор загрузки', 
+                {
+                    text: 'Автор загрузки',
                     value: 'createActor',
                     visible: true,
                     sortable: false,
                     width: '12em',
                 },
-                { 
-                    text: 'Дата обновления', 
+                {
+                    text: 'Дата обновления',
                     value: 'updateDate',
                     visible: false,
                     width: '12em',
                 },
-                { 
-                    text: 'Автор обновления', 
+                {
+                    text: 'Автор обновления',
                     value: 'updateActor',
                     visible: false,
                     sortable: false,
