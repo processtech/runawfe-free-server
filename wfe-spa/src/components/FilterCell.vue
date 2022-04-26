@@ -1,5 +1,5 @@
 <template>
-    <td :bgcolor="header.bcolor">
+    <td :bgcolor="header.bcolor" v-if="header.filterable">
         <span v-if="header.format === 'DateTime'">
             <tr>
                 <td>
@@ -85,6 +85,8 @@
                 @keydown.enter="applyHeaderValue($event.target.value, true)"
             />
         </span>
+    </td>
+    <td v-else>
     </td>
 </template>
 

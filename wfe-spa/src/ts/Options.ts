@@ -58,6 +58,7 @@ export class Header {
     link: boolean;
     selectOptions: Select[];
     value: string;
+    filterable: boolean;
 
     constructor() {
         this.text = '';
@@ -71,5 +72,6 @@ export class Header {
         this.link = false;
         this.bcolor = '';
         this.selectOptions = [];
+        this.filterable = true;
     }
 }

@@ -67,7 +67,7 @@
                         </v-col>
                     </v-row>
                     <v-row>
-                        <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4" class="d-flex">
+                        <v-col v-for="header in headers" :key="header.value" cols="12" sm="6" md="4" class="d-flex">
                             <v-checkbox
                                 dense
                                 class="mt-0"
@@ -101,10 +101,10 @@ import { PropOptions } from 'vue';
 export default Vue.extend({
     name: "ColumnsVisibility",
     props: {
-        dynamic: Boolean,
-        initialHeaders: {
+        headers: {
             type: Array
         } as PropOptions<Header[]>,
+        dynamic: Boolean,
     },
     data() {
         return {
@@ -118,12 +118,12 @@ export default Vue.extend({
             this.$emit('update-data-event');
         },
         selectAll () {
-            for (let header of this.initialHeaders) {
+            for (let header of this.headers) {
                 header.visible = true;
             }
         },
         unSelectAll () {
-            for (let header of this.initialHeaders) {
+            for (let header of this.headers) {
                 header.visible = false;
             }
         },

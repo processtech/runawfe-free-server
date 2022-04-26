@@ -4,80 +4,15 @@
         fluid
         tag="section"
     >
-        <v-data-table
-            class="elevation-1 wfe-process-table"
-            :headers="headers"
-            :items="definitions"
-            item-key="id"
-            :options.sync="options"
-            :server-items-length="total"
+        <wfe-tables
+            :initialHeaders="initialHeaders"
+            :records="definitions"
             :loading="loading"
-            :footer-props="{
-                disablePagination: false,
-                disableItemsPerPage: false,
-                itemsPerPageAllText: 'Все',
-                itemsPerPageText: 'Строк на странице',
-            }"
-            >
-            <template v-slot:[`item.createActor`]="{ item }">
-                {{ item.createActor ? item.createActor.name : '' }}
-            </template>
-            <template v-slot:[`item.updateActor`]="{ item }">
-                {{ item.updateActor ? item.updateActor.name : '' }}
-            </template>
-            <template v-slot:[`item.createDate`]="{ item }">
-                {{ new Date(item.createDate).toLocaleString() }}
-            </template>
-            <template v-slot:[`item.updateDate`]="{ item }">
-                {{ item.updateDate ? new Date(item.updateDate).toLocaleString() : '' }}
-            </template>
-            <template v-slot:[`item.start`]="{ item }">
-                <v-icon
-                    color="green"
-                    class="mr-2"
-                    :disabled="!item.canBeStarted"
-                    @click="openStartForm(item)"
-                >
-                    mdi-play-circle
-                </v-icon>
-            </template>
-            <template v-slot:[`footer.page-text`]="items">
-                {{ items.pageStart }} - {{ items.pageStop }} из {{ items.itemsLength }}
-            </template>
-            <template v-slot:no-data>
-                Данные отсутствуют
-            </template>
-            <template v-slot:[`body.prepend`]>
-                <tr v-if="filterVisible" class="filter-row">
-                    <td v-for="header in headers" :key="header.value">
-                        <v-text-field
-                            v-if="header.value != 'start'"
-                            color="primary"
-                            v-model="filter[header.value]"
-                            dense
-                            outlined
-                            clearable
-                            hide-details
-                        />
-                    </td>
-                </tr>
-            </template>
-            <template v-slot:top>
-                <v-toolbar flat>
-                    <v-spacer/>
-                    <v-btn
-                        text
-                        icon
-                        @click="filterVisible = !filterVisible"
-                        v-model="filterVisible"
-                        color="rgba(0, 0, 0, 0.67)"
-                    >
-                        <v-icon>mdi-filter</v-icon>
-                    </v-btn>
-                    <columns-visibility :initialHeaders="initialHeaders" :dynamic="false" />
-                </v-toolbar>
-            </template>
-        </v-data-table>
+            :routeName="`ProcessDefinitionCard`"
+            :prefixLocalStorageName="`runawfe@definition-list`"
+            :dynamic="false"
+            @get-data-event="onGetData"
+        />
     </v-container>
 </template>
 
@@ -91,21 +26,9 @@ export default Vue.extend({
 
     data() {
         return {
-            timeout: 10000,
-            dialog: false,
-            filterVisible: false,
-            filter: {
-                name: null,
-                description: null,
-                createDate: null,
-                createActor: null,
-                updateDate: null,
-                updateActor: null,
-            },
             total: 0,
             definitions: [],
             loading: true,
-            options: new Options(),
             initialHeaders: [
                 {
                     text: 'Запустить',
@@ -113,7 +36,8 @@ export default Vue.extend({
                     align: 'center',
                     visible: true,
                     sortable: false,
-                    width: '1px'
+                    width: '1px',
+                    filterable: false,
                 },
                 {
                     text: 'Имя',
@@ -121,18 +45,27 @@ export default Vue.extend({
                     value: 'name',
                     visible: true,
                     width: '20em',
+                    bcolor: '',
+                    format: 'String',
+                    filterable: true,
                 },
                 {
                     text: 'Описание',
                     value:'description',
                     visible: false,
                     width: '20em',
+                    bcolor: '',
+                    format: 'String',
+                    filterable: true,
                 },
                 {
                     text: 'Дата загрузки',
                     value: 'createDate',
                     visible: true,
                     width: '12em',
+                    bcolor: '',
+                    format: 'DateTime',
+                    filterable: true,
                 },
                 {
                     text: 'Автор загрузки',
@@ -140,12 +73,18 @@ export default Vue.extend({
                     visible: true,
                     sortable: false,
                     width: '12em',
+                    bcolor: '',
+                    format: 'Actor',
+                    filterable: true,
                 },
                 {
                     text: 'Дата обновления',
                     value: 'updateDate',
                     visible: false,
                     width: '12em',
+                    bcolor: '',
+                    format: 'DateTime',
+                    filterable: true,
                 },
                 {
                     text: 'Автор обновления',
@@ -153,44 +92,40 @@ export default Vue.extend({
                     visible: false,
                     sortable: false,
                     width: '12em',
+                    bcolor: '',
+                    format: 'Actor',
+                    filterable: true,
                 }
             ]
         }
     },
     computed: {
-        headers(): any {
-            return this.initialHeaders.filter((h: any) => {
-                return h.visible;
-            });
-        },
     },
     watch: {
-        options: {
-            handler () {
-                this.getDataFromApi()
-            },
-            deep: true,
-        },
-        filter: {
-            handler () {
-                this.getDataFromApi()
-            },
-            deep: true,
-        }
     },
     methods: {
-        openStartForm (item) {
-            this.$router.push({ name: "ProcessDefinitionCard", params: { versionId: item.versionId.toString() } });
+        getFilters (filter) {
+            let result = Object.assign({}, filter);
+            for (let prop in filter) {
+                if (filter.hasOwnProperty(prop)) {
+                    if (filter[prop] !== null && filter[prop] !== '') {
+                        let header = this.initialHeaders.find(h => h.value === prop);
+                        if(!header || (header.format !== 'DateTime' && header.format !== 'Long' && !header.selectOptions)) {
+                            result[prop] = '*' + filter[prop].trim() + '*/i';
+                        }
+                    }
+                }
+            }
+            return result;
         },
-        getDataFromApi () {
+        onGetData (options, filter) {
             this.loading = true;
-            const { page, itemsPerPage, sortBy, sortDesc } = this.options;
+            const { page, itemsPerPage, sortBy, sortDesc } = options;
             const query = {
-                filters: this.filter,
+                filters: this.getFilters(filter),
                 pageNumber: page,
                 pageSize: itemsPerPage,
                 sortings: Sorting.convert(sortBy, sortDesc),
-                variables: []
             };
             this.$apiClient().then((client: any) => {
                 client['process-definition-api-controller'].getDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
@@ -200,6 +135,10 @@ export default Vue.extend({
                         this.total = body.total;
                     }
                     this.loading = false;
+                }).catch((error: any) => {
+                    this.loading = false;
+                    this.definitions = [];
+                    this.total = 0;
                 });
             });
         },
