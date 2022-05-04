@@ -181,6 +181,9 @@ public abstract class Node extends GraphElement {
      * called by a transition to pass execution to this node.
      */
     public void enter(ExecutionContext executionContext) {
+        if (executionContext.getToken().hasEnded()) {
+            throw new IllegalStateException("Execution in ended token does not allowed");
+        }
         log.debug("Entering " + this + " with " + executionContext);
         Token token = executionContext.getToken();
         // update the runtime context information
@@ -191,12 +194,6 @@ public abstract class Node extends GraphElement {
         // fire the leave-node event for this node
         fireEvent(executionContext, ActionEvent.NODE_ENTER);
         executionContext.addLog(new NodeEnterLog(this));
-        boolean async = getAsyncExecution(executionContext);
-        if (async) {
-            ApplicationContextFactory.getNodeAsyncExecutor().execute(token, true);
-        } else {
-            handle(executionContext);
-        }
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessEndNode)) {
             for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
                 Node boundaryNode = (Node) boundaryEvent;
@@ -210,6 +207,16 @@ public abstract class Node extends GraphElement {
                 eventExecutionContext.addLog(new NodeEnterLog((Node) boundaryEvent));
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
+            if (executionContext.getToken().hasEnded()) {
+                log.debug("Execution has been interrupted by boundary event");
+                return;
+            }
+        }
+        boolean async = getAsyncExecution(executionContext);
+        if (async) {
+            ApplicationContextFactory.getNodeAsyncExecutor().execute(token, true);
+        } else {
+            handle(executionContext);
         }
     }
 

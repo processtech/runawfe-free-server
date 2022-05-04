@@ -126,7 +126,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
             protected void doExecuteInTransaction() throws Exception {
                 Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
                 if (token.hasEnded()) {
-                    log.debug("Ignored fail processs execution in ended " + token.getProcess());
+                    log.debug("Ignored fail processs execution in ended " + token);
                     return;
                 }
                 if (!Objects.equals(nodeId, token.getNodeId())) {
