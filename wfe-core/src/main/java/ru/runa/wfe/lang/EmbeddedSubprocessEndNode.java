@@ -45,7 +45,20 @@ public class EmbeddedSubprocessEndNode extends Node implements BoundaryEventCont
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        leave(executionContext);
+        Token enterToken = executionContext.getToken();
+        while (!enterToken.getNodeId().equals(subprocessNode.getNodeId())) {
+            enterToken = enterToken.getParent();
+            if (enterToken == null) {
+                // uncomment in future version
+                // throw new InternalApplicationException("No corresponding token found for embedded subprocess end");
+                log.warn("No corresponding token found for embedded subprocess end; providing backwards compatibility behavior");
+                leave(executionContext);
+                return;
+            }
+        }
+        // continue in token from EmbeddedSubprocessStartNode
+        executionContext.getToken().end(executionContext.getProcessDefinition(), null, null, false);
+        leave(new ExecutionContext(executionContext.getProcessDefinition(), enterToken));
     }
 
     @Override

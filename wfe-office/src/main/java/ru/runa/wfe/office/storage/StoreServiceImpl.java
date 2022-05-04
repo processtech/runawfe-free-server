@@ -5,17 +5,17 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -33,6 +33,9 @@ import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.excel.OnSheetConstraints;
 import ru.runa.wfe.office.excel.utils.ExcelHelper;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
+import ru.runa.wfe.office.storage.projection.ProjectionModel;
+import ru.runa.wfe.office.storage.projection.Sort;
+import ru.runa.wfe.office.storage.projection.UserTypeMapFieldBasedComparator;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
@@ -45,18 +48,18 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+@CommonsLog
 public class StoreServiceImpl implements StoreService {
 
     private static final int START_ROW_INDEX = 0;
 
-    private static final Log log = LogFactory.getLog(StoreServiceImpl.class);
     private static final String DEFAULT_TABLE_NAME_PREFIX = "SHEET";
     private static final String XLSX_SUFFIX = ".xlsx";
 
     private ExcelConstraints constraints;
     private VariableFormat format;
     private String fullPath;
-    VariableProvider variableProvider;
+    private VariableProvider variableProvider;
 
     public StoreServiceImpl(VariableProvider variableProvider) {
         this.variableProvider = variableProvider;
@@ -80,7 +83,7 @@ public class StoreServiceImpl implements StoreService {
         }
 
         try (Workbook workbook = path.endsWith(XLSX_SUFFIX) ? new XSSFWorkbook() : new HSSFWorkbook(); OutputStream os = new FileOutputStream(path)) {
-            workbook.createSheet(tableName());
+            workbook.createSheet();
             workbook.write(os);
         } catch (Exception e) {
             log.error("", e);
@@ -90,12 +93,38 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public ExecutionResult findByFilter(Properties properties, UserType userType, String condition) throws Exception {
+        return findByFilter(properties, userType, condition, Collections.emptyList());
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public ExecutionResult findByFilter(Properties properties, UserType userType, String condition, Iterable<ProjectionModel> projections) throws Exception {
         if (!isConditionValid(condition)) {
             throw new WrongOperatorException(condition);
         }
         initParams(properties);
         Workbook wb = getWorkbook(fullPath);
-        return new ExecutionResult(find(wb, constraints, format, condition));
+        final List result = find(wb, constraints, format, condition);
+
+        if (!result.isEmpty() && result.get(0) instanceof UserTypeMap) {
+            Comparator<UserTypeMap> comparator = null;
+            for (ProjectionModel projection : projections) {
+                if (projection.getSort() == Sort.NONE) {
+                    continue;
+                }
+                final UserTypeMapFieldBasedComparator newComparator = new UserTypeMapFieldBasedComparator(
+                        projection.getFieldName(),
+                        projection.getSort()
+                );
+                comparator = comparator == null ? newComparator : comparator.thenComparing(newComparator);
+            }
+
+            if (comparator != null) {
+                ((List<UserTypeMap>) result).sort(comparator);
+            }
+        }
+
+        return new ExecutionResult(result);
     }
 
     @Override
@@ -233,7 +262,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @SuppressWarnings("resource")
-    private Workbook getWorkbook(String fullPath) throws IOException, FileNotFoundException {
+    private Workbook getWorkbook(String fullPath) throws IOException {
         Workbook wb = null;
         InputStream is = new FileInputStream(fullPath);
         if (fullPath.endsWith(".xls")) {
@@ -433,13 +462,9 @@ public class StoreServiceImpl implements StoreService {
     }
 
     private VariableFormat getVariableFormat(VariableFormat variableFormat) {
-        VariableFormat format = null;
-        if (variableFormat instanceof ListFormat) {
-            format = FormatCommons.createComponent((VariableFormatContainer) variableFormat, 0);
-        } else {
-            format = variableFormat;
-        }
-        return format;
+        return variableFormat instanceof ListFormat
+                ? FormatCommons.createComponent((VariableFormatContainer) variableFormat, 0)
+                : variableFormat;
     }
 
     private boolean existOutputParamByVariableName(WfVariable variable) {

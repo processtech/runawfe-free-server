@@ -21,4 +21,8 @@ public enum NodeType {
     EXCLUSIVE_GATEWAY,
     PARALLEL_GATEWAY,
     TEXT_ANNOTATION;
+
+    public String getLabelKey() {
+        return "node.type." + name();
+    }
 }

@@ -1,20 +1,16 @@
 package ru.runa.wfe.audit.dao;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
 import org.hibernate.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.audit.NodeEnterLog;
-import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.audit.QNodeEnterLog;
 import ru.runa.wfe.audit.QProcessLog;
-import ru.runa.wfe.audit.QTransitionLog;
 import ru.runa.wfe.audit.Severity;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.dao.GenericDao;
@@ -22,6 +18,7 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.user.User;
 
 /**
  * DAO for {@link ProcessLog}.
@@ -35,65 +32,15 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
     @Autowired
     private ProcessLogAwareDao customizationDao;
 
-    @SuppressWarnings("unchecked")
+    @Autowired
+    protected SystemLogDao systemLogDao;
+
     public List<ProcessLog> getAll(Long processId) {
         QProcessLog pl = QProcessLog.processLog;
         return queryFactory.selectFrom(pl).where(pl.processId.eq(processId)).orderBy(pl.id.asc()).fetch();
     }
 
-    @SuppressWarnings("unchecked")
     public List<ProcessLog> get(Long processId, ProcessDefinition definition) {
-        QTransitionLog tl = QTransitionLog.transitionLog;
-        boolean haveOldLogs = queryFactory.select(tl.id).from(tl).where(tl.processId.eq(processId).and(tl.nodeId.isNull())).fetchFirst() != null;
-
-        if (haveOldLogs) {
-            // TODO Pre 01.02.2014, remove when obsolete.
-            log.debug("fallbackToOldAlgorithm in " + processId);
-            List<ProcessLog> logs = getAll(processId);
-            if (definition instanceof SubprocessDefinition) {
-                SubprocessDefinition subprocessDefinition = (SubprocessDefinition) definition;
-                String subprocessNodeId = subprocessDefinition.getParentProcessDefinition().getEmbeddedSubprocessNodeIdNotNull(
-                        subprocessDefinition.getName());
-                boolean embeddedSubprocessLogs = false;
-                boolean childSubprocessLogs = false;
-                List<String> childSubprocessNodeIds = subprocessDefinition.getEmbeddedSubprocessNodeIds();
-                for (ProcessLog log : Lists.newArrayList(logs)) {
-                    if (log instanceof NodeLeaveLog && Objects.equal(subprocessNodeId, log.getNodeId())) {
-                        embeddedSubprocessLogs = false;
-                    }
-                    if (log instanceof NodeLeaveLog && childSubprocessNodeIds.contains(log.getNodeId())) {
-                        childSubprocessLogs = false;
-                    }
-                    if (!embeddedSubprocessLogs || childSubprocessLogs) {
-                        logs.remove(log);
-                    }
-                    if (log instanceof NodeEnterLog && childSubprocessNodeIds.contains(log.getNodeId())) {
-                        childSubprocessLogs = true;
-                    }
-                    if (log instanceof NodeEnterLog && Objects.equal(subprocessNodeId, log.getNodeId())) {
-                        embeddedSubprocessLogs = true;
-                    }
-                }
-            } else {
-                List<String> embeddedSubprocessNodeIds = definition.getEmbeddedSubprocessNodeIds();
-                if (embeddedSubprocessNodeIds.size() > 0) {
-                    boolean embeddedSubprocessLogs = false;
-                    for (ProcessLog log : Lists.newArrayList(logs)) {
-                        if (log instanceof NodeLeaveLog && embeddedSubprocessNodeIds.contains(log.getNodeId())) {
-                            embeddedSubprocessLogs = false;
-                        }
-                        if (embeddedSubprocessLogs) {
-                            logs.remove(log);
-                        }
-                        if (log instanceof NodeEnterLog && embeddedSubprocessNodeIds.contains(log.getNodeId())) {
-                            embeddedSubprocessLogs = true;
-                        }
-                    }
-                }
-            }
-            return logs;
-        }
-
         QProcessLog pl = QProcessLog.processLog;
         return queryFactory.selectFrom(pl)
                 .where(pl.processId.eq(processId))
@@ -181,6 +128,7 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
             processLog.setNodeId(token.getNodeId());
         }
         processLog.setCreateDate(new Date());
+        processLog.serializeAttributes();
         this.create(processLog);
         registerInCustomizationDao(processLog, process, token);
     }
@@ -193,4 +141,9 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
         }
     }
 
+    public void deleteBeforeDate(User user, Date date) {
+        QProcessLog pl = QProcessLog.processLog;
+        queryFactory.delete(pl).where(pl.createDate.before(date)).execute();
+        systemLogDao.create(new ProcessLogsCleanLog(user.getActor().getId(), date));
+    }
 }

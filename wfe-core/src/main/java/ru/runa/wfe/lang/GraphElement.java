@@ -134,7 +134,6 @@ public abstract class GraphElement implements Serializable, Cloneable {
     }
 
     public void fireEvent(ExecutionContext executionContext, String eventType) {
-        log.debug("event '" + eventType + "' on '" + this + "' for '" + executionContext.getToken() + "'");
         // execute static actions
         ActionEvent actionEvent = getEventNotNull(eventType);
         // execute the static actions specified in the process definition

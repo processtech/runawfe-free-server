@@ -18,15 +18,11 @@
 package ru.runa.wfe.commons.hibernate;
 
 import java.io.Serializable;
-
 import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.cache.CachingLogic;
 import ru.runa.wfe.commons.cache.Change;
 
 public class CacheInterceptor extends EmptyInterceptor {
@@ -48,11 +44,7 @@ public class CacheInterceptor extends EmptyInterceptor {
                 }
             }
         }
-        if (SystemProperties.useCacheStateMachine()) {
-            ru.runa.wfe.commons.cache.sm.CachingLogic.onChange(entity, change, state, previousState, propertyNames, types);
-        } else {
-            CachingLogic.onChange(entity, change, state, previousState, propertyNames, types);
-        }
+        ru.runa.wfe.commons.cache.sm.CachingLogic.onChange(entity, change, state, previousState, propertyNames, types);
         return modified;
     }
 

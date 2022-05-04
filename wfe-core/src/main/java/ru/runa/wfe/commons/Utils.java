@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -32,10 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
@@ -336,7 +332,7 @@ public class Utils {
         try {
             if (transaction != null) {
                 status = transaction.getStatus();
-                if (status != Status.STATUS_NO_TRANSACTION && status != Status.STATUS_ROLLEDBACK) {
+                if (status != Status.STATUS_NO_TRANSACTION) {
                     transaction.rollback();
                 } else {
                     LogFactory.getLog(Utils.class).warn("Unable to rollback, status: " + status);
@@ -390,34 +386,15 @@ public class Utils {
         return string1.trim().equals(string2.trim());
     }
 
-    public static boolean failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
-        final AtomicBoolean needReprocessing = new AtomicBoolean(false);
-        new TransactionalExecutor(transaction) {
-
-            @Override
-            protected void doExecuteInTransaction() throws Exception {
-                Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
-                if (token.hasEnded()) {
-                    return;
-                }
-                boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
-                if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
-                    token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
-                    ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
-                    processError.setThrowable(throwable);
-                    Errors.sendEmailNotification(processError);
-                    needReprocessing.set(true);
-                }
-            }
-        }.executeInTransaction(true);
-        return needReprocessing.get();
-    }
-
     public static String getCuttedString(String string, int limit) {
         if (string != null && string.length() > limit) {
             return string.substring(0, limit);
         }
         return string;
+    }
+
+    public static String getErrorMessage(Throwable throwable) {
+        return getCuttedString(throwable.toString(), 1024 / 2);
     }
 
     public static Object getContainerCopy(Object object) {

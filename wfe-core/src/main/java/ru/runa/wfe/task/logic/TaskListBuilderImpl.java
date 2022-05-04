@@ -58,7 +58,6 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDao;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDao;
 
@@ -99,8 +98,6 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     private VariableDao variableDao;
     @Autowired
     private PermissionDao permissionDao;
-    @Autowired
-    private ExecutorLogic executorLogic;
 
     public TaskListBuilderImpl(TaskCache taskCache) {
         this.taskCache = taskCache;
@@ -194,29 +191,28 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
         Set<Executor> executorsToGetTasks = Sets.newHashSet();
         if (executorDao.isAdministrator(actor)) {
             executorsToGetTasks.addAll(observableExecutors);
-            for (Executor taskOwner : observableExecutors) {
-                executorsToGetTasks.addAll(executorDao.getTemporaryGroupsByExecutor(taskOwner));
-            }
+            executorsToGetTasks.addAll(executorDao.getExecutorsTemporaryGroups(observableExecutors));
         } else {
+            Set<Executor> executorsToLoadTemporaryGroups = new HashSet<>();
             for (Executor executor : getExecutorsToGetTasks(actor, false)) {
                 for (Executor taskOwner : observableExecutors) {
                     boolean taskOwnerIsActor = taskOwner instanceof Actor;
                     if (permissionDao.permissionExists(executor, Permission.VIEW_TASKS, taskOwner)) {
                         executorsToGetTasks.add(taskOwner);
+                        executorsToLoadTemporaryGroups.add(taskOwner);
                     } else if (!taskOwnerIsActor && permissionDao.permissionExists(executor, Permission.READ, taskOwner)) {
                         Set<Actor> children = executorDao.getGroupActors((Group) taskOwner);
                         for (Actor child : children) {
                             if (permissionDao.permissionExists(executor, Permission.VIEW_TASKS, child)) {
                                 executorsToGetTasks.add(taskOwner);
+                                executorsToLoadTemporaryGroups.add(taskOwner);
                                 break;
                             }
                         }
                     }
-                    if (executorsToGetTasks.contains(taskOwner)) {
-                        executorsToGetTasks.addAll(executorDao.getTemporaryGroupsByExecutor(taskOwner));
-                    }
                 }
             }
+            executorsToGetTasks.addAll(executorDao.getExecutorsTemporaryGroups(executorsToLoadTemporaryGroups));
         }
         return executorsToGetTasks;
     }
@@ -343,7 +339,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     private String getObservableExecutorNameTemplate(BatchPresentation batchPresentation) {
         for (Map.Entry<Integer, FilterCriteria> entry : batchPresentation.getFilteredFields().entrySet()) {
             FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
-            if (field.displayName.equals(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
+            if (field.name.equals(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
                 return entry.getValue().getFilterTemplates()[0];
             }
         }
@@ -460,7 +456,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     protected Set<Executor> getExecutorsToGetTasks(Actor actor, boolean addOnlyInactiveGroups) {
         Set<Executor> executors = new HashSet<>();
         executors.add(actor);
-        Set<Group> upperGroups = executorDao.getExecutorParentsAll(actor, true);
+        Set<Group> upperGroups = executorDao.getExecutorParentsAll(actor);
         if (addOnlyInactiveGroups) {
             for (Group group : upperGroups) {
                 if (group instanceof EscalationGroup && isActorInInactiveEscalationGroup(actor, (EscalationGroup) group)) {
@@ -474,6 +470,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
         } else {
             executors.addAll(upperGroups);
         }
+        executors.addAll(executorDao.getExecutorsTemporaryGroups(executors));
         return executors;
     }
 

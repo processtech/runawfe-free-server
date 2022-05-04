@@ -34,8 +34,8 @@ import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.SecuredObjectCheckboxTdBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
@@ -59,8 +59,15 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        int executorsCount = Delegates.getExecutorService().getExecutorsCount(getUser(), getBatchPresentation());
-        List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(getUser(), getBatchPresentation());
+        int executorsCount;
+        List<Executor> executors;
+        if (WebResources.getResources().getBooleanProperty("hide.temporary.executors", true)) {
+            executorsCount = Delegates.getExecutorService().getNotTemporaryExecutorsCount(getUser(), getBatchPresentation());
+            executors = (List<Executor>) Delegates.getExecutorService().getNotTemporaryExecutors(getUser(), getBatchPresentation());
+        } else {
+            executorsCount = Delegates.getExecutorService().getExecutorsCount(getUser(), getBatchPresentation());
+            executors = (List<Executor>) Delegates.getExecutorService().getExecutors(getUser(), getBatchPresentation());
+        }
         BatchPresentation batchPresentation = getBatchPresentation();
         buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, batchPresentation, Permission.UPDATE);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
@@ -109,7 +116,6 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
     public String getAction() {
         return RemoveExecutorsAction.ACTION_PATH;
     }
-
     @Override
     public String getConfirmationPopupParameter() {
         return ConfirmationPopupHelper.REMOVE_EXECUTORS_PARAMETER;

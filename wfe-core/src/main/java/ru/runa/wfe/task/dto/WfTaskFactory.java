@@ -25,6 +25,8 @@ import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.ProcessHierarchyUtils;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
@@ -44,6 +46,8 @@ public class WfTaskFactory {
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private ExecutorDao executorDao;
+    @Autowired
+    private ProcessDao processDao;
 
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude) {
         return create(task, targetActor, acquiredBySubstitution, variableNamesToInclude, !task.getOpenedByExecutorIds().contains(targetActor.getId()));
@@ -51,6 +55,10 @@ public class WfTaskFactory {
 
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude, boolean firstOpen) {
         Process process = task.getProcess();
+        Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(process.getHierarchyIds());
+        Process rootProcess = rootProcessId.equals(process.getId()) ? process : processDao.get(rootProcessId);
+        Long rootDefinitionId = rootProcess.getDeployment().getId();
+        String rootDefinitionName = rootProcess.getDeployment().getName();
         Deployment deployment = process.getDeployment();
         boolean escalated = false;
         if (task.getExecutor() instanceof EscalationGroup) {
@@ -62,7 +70,8 @@ public class WfTaskFactory {
                 escalated = !Objects.equal(originalExecutor, targetActor);
             }
         }
-        WfTask wfTask = new WfTask(task, targetActor, escalated, acquiredBySubstitution, firstOpen);
+        WfTask wfTask = new WfTask(task, rootProcessId, rootDefinitionId, rootDefinitionName,
+                targetActor, escalated, acquiredBySubstitution, firstOpen);
         if (variableNamesToInclude != null && !variableNamesToInclude.isEmpty()) {
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(deployment.getId());
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);

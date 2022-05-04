@@ -40,6 +40,7 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessVariablesRowBuilder;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -91,7 +92,6 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         if (WebResources.isUpdateProcessVariablesEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
             Table table = new Table();
             tdFormElement.addElement(table);
-            table.addAttribute("width", "100%");
 
             TR updateVariableTR = new TR();
             table.addElement(updateVariableTR);
@@ -100,11 +100,14 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
             params.put("id", identifiableId);
             String updateVariableUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_VARIABLES, params, pageContext, PortletUrlType.Render);
             A a = new A(updateVariableUrl, MessagesProcesses.LINK_UPDATE_VARIABLE.message(pageContext));
-            updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
+            updateVariableTR.addElement(new TD(a));
         }
 
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
+        if (SystemProperties.isGlobalObjectsEnabled()) {
+            headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));
+        }
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
         if (WebResources.isDisplayVariablesJavaType()) {
             headerNames.add("Java " + MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));

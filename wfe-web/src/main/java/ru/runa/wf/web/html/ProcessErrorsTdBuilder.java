@@ -1,5 +1,6 @@
 package ru.runa.wf.web.html;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.ecs.html.TD;
 import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -17,7 +18,7 @@ public class ProcessErrorsTdBuilder implements TdBuilder {
     @Override
     public String getValue(Object object, Env env) {
         WfProcess process = (WfProcess) object;
-        return process.getErrors();
+        return StringEscapeUtils.escapeHtml(process.getErrors());
     }
 
     @Override

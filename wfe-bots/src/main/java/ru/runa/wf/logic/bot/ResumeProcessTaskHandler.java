@@ -1,7 +1,7 @@
 package ru.runa.wf.logic.bot;
 
 import java.util.Map;
-
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -26,7 +26,10 @@ public class ResumeProcessTaskHandler extends TaskHandlerBase {
     @Override
     public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         Long processId = paramsDef.getInputParamValueNotNull("processId", variableProvider);
-        Delegates.getExecutionService().activateProcess(user, processId);
+        boolean activationResult = Delegates.getExecutionService().activateProcess(user, processId);
+        if (!activationResult) {
+            throw new InternalApplicationException("Process with the id " + processId + " is already activated");
+        }
         return null;
     }
 

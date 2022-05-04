@@ -17,22 +17,19 @@
  */
 package ru.runa.wfe.extension.orgfunction;
 
+import com.google.common.base.Objects;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.extension.OrgFunctionException;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.dao.ExecutorDao;
-
-import com.google.common.base.Objects;
 
 /**
  * <p>
@@ -56,19 +53,16 @@ public class DemoSubordinateRecursive {
             LinkedList<Actor> list = new LinkedList<Actor>();
             LinkedList<Actor> subordinatesList = new LinkedList<Actor>();
             Actor actor = executorDao.getActorByCode(Long.parseLong((String) parameters[0]));
-            List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
+            List<Actor> actors = executorDao.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged());
             DemoChiefFunction demoChiefFunction = new DemoChiefFunction();
-            for (Executor executor : executors) {
-                if (executor instanceof Actor) {
-                    try {
-                        Actor currentActor = (Actor) executor;
-                        Object[] currentActorCode = new Object[] { currentActor.getCode() };
-                        if (demoChiefFunction.getExecutors(currentActorCode).size() > 0) {
-                            list.add(currentActor);
-                        }
-                    } catch (OrgFunctionException e) {
-                        log.warn("DemoSubordinateRecursive getSubordinateActors. Chief is not proper defined forActor", e);
+            for (Actor currentActor : actors) {
+                try {
+                    Object[] currentActorCode = new Object[] { currentActor.getCode() };
+                    if (demoChiefFunction.getExecutors(currentActorCode).size() > 0) {
+                        list.add(currentActor);
                     }
+                } catch (OrgFunctionException e) {
+                    log.warn("DemoSubordinateRecursive getSubordinateActors. Chief is not proper defined forActor", e);
                 }
             }
 

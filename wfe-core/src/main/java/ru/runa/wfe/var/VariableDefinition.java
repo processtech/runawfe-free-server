@@ -42,6 +42,7 @@ public class VariableDefinition implements Serializable {
     private String description;
     private String format;
     private String formatLabel;
+    private boolean global;
     private UserType userType;
     // web-service serialization limitation
     private UserType[] formatComponentUserTypes;
@@ -285,4 +286,11 @@ public class VariableDefinition implements Serializable {
         this.storeType = storeType;
     }
 
+    public boolean isGlobal() {
+        return global;
+    }
+
+    public void setGlobal(boolean global) {
+        this.global = global;
+    }
 }

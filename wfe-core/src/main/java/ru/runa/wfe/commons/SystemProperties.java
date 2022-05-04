@@ -32,10 +32,10 @@ public class SystemProperties {
     public static PropertyResources getResources() {
         return RESOURCES;
     }
-    
+
     public static boolean isTaskDelegationEnabled() {
         return RESOURCES.getBooleanProperty("task.delegation.enabled", true);
-    }       
+    }
 
     /**
      * Production or development mode?
@@ -81,20 +81,6 @@ public class SystemProperties {
      */
     public static boolean isMultiSubprocessDataCompatibilityMode() {
         return RESOURCES.getBooleanProperty("v4.2.multi.subprocess.data.compatibility", true);
-    }
-
-    /**
-     * Using cache state machine or old cache implementation.
-     */
-    public static boolean useCacheStateMachine() {
-        return NO_DATABASE_RESOURCES.getBooleanProperty("use.cache.state.machine", true);
-    }
-
-    /**
-     * Using cache state machine with caches isolation between transactions.
-     */
-    public static boolean useIsolatedCacheStateMachine() {
-        return NO_DATABASE_RESOURCES.getBooleanProperty("isolated.cache.state.machine", true);
     }
 
     /**
@@ -234,6 +220,10 @@ public class SystemProperties {
 
     public static boolean isDefinitionDeploymentWithEmptyCommentsAllowed() {
         return RESOURCES.getBooleanProperty("definition.comments.empty.allowed", true);
+    }
+
+    public static boolean isDefinitionCompatibilityCheckEnabled() {
+        return RESOURCES.getBooleanProperty("definition.compatibility.check.enabled", true);
     }
 
     public static boolean isCheckProcessStartPermissions() {
@@ -423,4 +413,32 @@ public class SystemProperties {
     public static String getPreferredMessagesLanguage() {
         return RESOURCES.getStringProperty("preferred.messages.language");
     }
+
+    /**
+     * System statistic report enabled
+     */
+    public static boolean isReportStatisticEnabled() {
+        return RESOURCES.getBooleanProperty("statistic.report.enabled", false);
+    }
+
+    public static boolean isReassignSwimlaneToInitializer() {
+        return RESOURCES.getBooleanProperty("reassign.swimlane.to.initializer", false);
+    }
+
+    public static boolean isReassignSwimlaneToTaskPerformer() {
+        return RESOURCES.getBooleanProperty("reassign.swimlane.to.task.performer", true);
+    }
+
+    public static boolean isProcessLogCleanButtonEnabled() {
+        return RESOURCES.getBooleanProperty("processLog.cleanButton.enabled", false);
+    }
+
+    public static int getDefinitionCompatibilityCheckProcessesLimit() {
+        return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
+    }
+
+    public static boolean isGlobalObjectsEnabled() {
+        return RESOURCES.getBooleanProperty("global.objects.enabled", true);
+    }
+
 }

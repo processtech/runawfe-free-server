@@ -51,6 +51,11 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
         this.asyncCompletionMode = completionMode;
     }
 
+    @Override
+    public void cancel(ExecutionContext executionContext) {
+        endTokenTasks(executionContext, TaskCompletionInfo.createForHandler("process activation"));
+    }
+
     public void endTokenTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo) {
         List<Task> tasks = taskDao.findByToken(executionContext.getToken());
         log.debug("Ending " + executionContext.getToken() + " tasks " + tasks + " with " + taskCompletionInfo);
@@ -64,7 +69,7 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     }
 
     protected Swimlane getInitializedSwimlaneNotNull(ExecutionContext executionContext, TaskDefinition taskDefinition) {
-        return swimlaneDao.findOrCreateInitialized(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlane());
+        return swimlaneDao.findOrCreateInitialized(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlaneToInitializer());
     }
 
     @Override

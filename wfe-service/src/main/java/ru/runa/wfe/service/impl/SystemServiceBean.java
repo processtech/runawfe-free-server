@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -30,20 +28,17 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.audit.logic.AuditLogic;
-import ru.runa.wfe.commons.Errors;
+import ru.runa.wfe.commons.SystemErrors;
 import ru.runa.wfe.commons.dao.Localization;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.error.SystemError;
-import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.execution.dto.WfToken;
+import ru.runa.wfe.commons.error.dto.WfTokenError;
+import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
+import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.SystemServiceLocal;
 import ru.runa.wfe.service.decl.SystemServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -60,11 +55,12 @@ import ru.runa.wfe.user.User;
 @WebService(name = "SystemAPI", serviceName = "SystemWebService")
 @SOAPBinding
 public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemote {
-    private static final Log log = LogFactory.getLog(SystemServiceBean.class);
     @Autowired
     private AuditLogic auditLogic;
     @Autowired
     private ExecutionLogic executionLogic;
+    @Autowired
+    private CommonLogic commonLogic;
 
     @Override
     public void initialize() {
@@ -117,52 +113,55 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
 
     @Override
     @WebMethod(exclude = true)
-    public List<ProcessError> getAllProcessErrors(@NonNull User user) {
-        List<ProcessError> result = new ArrayList<>(Errors.getAllProcessErrors());
-        List<WfProcess> processes = executionLogic.getFailedProcesses(user);
-        for (WfProcess process : processes) {
-            populateExecutionErrors(user, result, process.getId());
+    public void failToken(User user, Long tokenId, String errorMessage, String stackTrace) {
+        executionLogic.failToken(user, tokenId, errorMessage, stackTrace);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public void removeTokenError(User user, Long tokenId) {
+        executionLogic.removeTokenError(user, tokenId);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public List<WfTokenError> getTokenErrors(@NonNull User user, BatchPresentation batchPresentation) {
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.TOKEN_ERRORS.createDefault();
         }
-        Collections.sort(result);
-        return result;
+        return executionLogic.getTokenErrors(user, batchPresentation);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public int getTokenErrorsCount(User user, BatchPresentation batchPresentation) {
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.TOKEN_ERRORS.createDefault();
+        }
+        return executionLogic.getTokenErrorsCount(user, batchPresentation);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<ProcessError> getProcessErrors(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
-        List<ProcessError> list = new ArrayList<>(Errors.getProcessErrors(processId));
-        populateExecutionErrors(user, list, processId);
-        Collections.sort(list);
-        return list;
+    public List<WfTokenError> getTokenErrorsByProcessId(@NonNull User user, @NonNull Long processId) {
+        return executionLogic.getTokenErrors(user, processId);
+    }
+
+    @Override
+    public WfTokenError getTokenError(User user, Long tokenId) {
+        return executionLogic.getTokenError(user, tokenId);
     }
 
     @Override
     @WebResult(name = "result")
     public List<SystemError> getSystemErrors(@WebParam(name = "user") @NonNull User user) {
-        return Errors.getSystemErrors();
+        return SystemErrors.getErrors();
     }
 
-    private void populateExecutionErrors(User user, List<ProcessError> list, Long processId) {
-        try {
-            for (WfToken token : executionLogic.getTokens(user, processId, false)) {
-                if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
-                    continue;
-                }
-                if (token.getErrorMessage() == null) {
-                    // during feature integration
-                    continue;
-                }
-                ProcessError processError = new ProcessError(ProcessErrorType.execution, processId, token.getNode().getId());
-                processError.setNodeName(token.getNode().getName());
-                processError.setMessage(token.getErrorMessage());
-                processError.setOccurredDate(token.getErrorDate());
-                list.add(processError);
-            }
-        } catch (Exception e) {
-            log.warn("Unable to populate errors in process " + processId, e);
-            ProcessError processError = new ProcessError(ProcessErrorType.execution, processId, "");
-            processError.setMessage("Unable to populate errors in this process");
-            list.add(processError);
-        }
+    @Override
+    @WebResult(name = "result")
+    public byte[] exportDataFile(User user) {
+        return commonLogic.exportDataFile(user);
     }
+
 }

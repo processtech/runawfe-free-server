@@ -39,13 +39,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.cache.CacheFreezingExecutor;
 import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
 import ru.runa.wfe.script.AdminScriptRunner;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.logic.AdminScriptLogic;
 import ru.runa.wfe.service.ScriptingService;
-import ru.runa.wfe.service.interceptors.CacheReloader;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
@@ -55,7 +55,7 @@ import ru.runa.wfe.user.User;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors({ EjbExceptionSupport.class, CacheReloader.class, PerformanceObserver.class, EjbTransactionSupport.class,
+@Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class,
         SpringBeanAutowiringInterceptor.class })
 @WebService(name = "ScriptingAPI", serviceName = "ScriptingWebService")
 @SOAPBinding
@@ -75,18 +75,25 @@ public class ScriptingServiceBean implements ScriptingService {
     @Override
     @WebMethod(exclude = true)
     public void executeAdminScript(@NonNull User user, @NonNull byte[] configData, @NonNull Map<String, byte[]> externalResources) {
-        ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, null);
-        runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
+        new CacheFreezingExecutor() {
+
             @Override
-            public void handle(Throwable th) {
-                if (th instanceof ExecutorAlreadyExistsException) {
-                    if (SYSTEM_EXECUTOR_NAMES.contains(((ExecutorAlreadyExistsException) th).getExecutorName())) {
-                        return;
+            protected void doExecute() {
+                ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, null);
+                runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
+                    @Override
+                    public void handle(Throwable th) {
+                        if (th instanceof ExecutorAlreadyExistsException) {
+                            if (SYSTEM_EXECUTOR_NAMES.contains(((ExecutorAlreadyExistsException) th).getExecutorName())) {
+                                return;
+                            }
+                        }
+                        Throwables.propagate(th);
                     }
-                }
-                Throwables.propagate(th);
+                });
             }
-        });
+
+        }.execute();
     }
 
     @Override
@@ -103,19 +110,27 @@ public class ScriptingServiceBean implements ScriptingService {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(configData != null, "configData");
         Preconditions.checkArgument(externalResources != null, "externalResources");
-        ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, defaultPasswordValue, dataSourceDefaultPasswordValue);
         final List<String> errors = new ArrayList<String>();
-        runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
+        new CacheFreezingExecutor() {
+
             @Override
-            public void handle(Throwable th) {
-                if (th instanceof ExecutorAlreadyExistsException) {
-                    if (SYSTEM_EXECUTOR_NAMES.contains(((ExecutorAlreadyExistsException) th).getExecutorName())) {
-                        return;
+            protected void doExecute() {
+                ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, defaultPasswordValue,
+                        dataSourceDefaultPasswordValue);
+                runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
+                    @Override
+                    public void handle(Throwable th) {
+                        if (th instanceof ExecutorAlreadyExistsException) {
+                            if (SYSTEM_EXECUTOR_NAMES.contains(((ExecutorAlreadyExistsException) th).getExecutorName())) {
+                                return;
+                            }
+                        }
+                        errors.add(th.getMessage());
                     }
-                }
-                errors.add(th.getMessage());
+                });
             }
-        });
+
+        }.execute();
         return errors;
     }
 

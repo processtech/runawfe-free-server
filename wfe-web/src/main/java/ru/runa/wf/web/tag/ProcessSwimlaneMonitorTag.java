@@ -35,6 +35,7 @@ import ru.runa.common.web.html.StringsHeaderBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessSwimlaneRowBuilder;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.security.Permission;
@@ -55,7 +56,6 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
         if (WebResources.isUpdateProcessSwimlanesEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
             Table table = new Table();
             tdFormElement.addElement(table);
-            table.addAttribute("width", "100%");
 
             TR updateVariableTR = new TR();
             table.addElement(updateVariableTR);
@@ -64,12 +64,14 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
             params.put("id", getIdentifiableId());
             String updateSwimlaneUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_SWIMLANES, params, pageContext, PortletUrlType.Render);
             A a = new A(updateSwimlaneUrl, MessagesProcesses.LINK_UPDATE_SWIMLANE.message(pageContext));
-            updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
+            updateVariableTR.addElement(new TD(a));
         }
         List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(getUser(), getIdentifiableId());
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_SWIMLANE_NAME.message(pageContext));
-        headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));
+        if (SystemProperties.isGlobalObjectsEnabled()) {
+            headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));
+        }
         headerNames.add(MessagesProcesses.LABEL_SWIMLANE_ASSIGNMENT.message(pageContext));
         headerNames.add(MessagesExecutor.LABEL_SWIMLANE_ORGFUNCTION.message(pageContext));
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);

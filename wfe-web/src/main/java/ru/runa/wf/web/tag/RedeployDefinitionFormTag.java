@@ -44,6 +44,7 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -64,7 +65,8 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         table.addElement(HTMLUtils.createRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), fileInput));
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
         TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, definitionTypes, pageContext);
-        table.addElement(HTMLUtils.createRow(Messages.getMessage(DefinitionClassPresentation.TYPE, pageContext), hierarchyType));
+        table.addElement(HTMLUtils.createRow(Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.TYPE, pageContext),
+                hierarchyType));
         tdFormElement.addElement(table);
         table.addElement(HTMLUtils.createCheckboxRow(MessagesProcesses.LABEL_UPDATE_CURRENT_VERSION.message(pageContext),
                 TYPE_UPDATE_CURRENT_VERSION, false, true, false));

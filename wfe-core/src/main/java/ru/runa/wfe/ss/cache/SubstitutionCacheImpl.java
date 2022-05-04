@@ -17,20 +17,18 @@
  */
 package ru.runa.wfe.ss.cache;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
-import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
@@ -43,8 +41,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDao;
-
-import com.google.common.collect.Maps;
 
 class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
     private static final Log log = LogFactory.getLog(SubstitutionCacheImpl.class);
@@ -219,11 +215,6 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
             }
         }
         return result;
-    }
-
-    @Override
-    public CacheImplementation unlock() {
-        return null;
     }
 
     @Override

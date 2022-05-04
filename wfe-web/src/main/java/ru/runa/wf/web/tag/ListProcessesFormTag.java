@@ -18,10 +18,8 @@
 package ru.runa.wf.web.tag;
 
 import java.util.List;
-
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.Resources;
@@ -30,15 +28,14 @@ import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ProcessRowBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -73,23 +70,23 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
         TdBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, new String[0], new String[0], getReturnAction(), pageContext);
 
-        boolean isFilterable = false;
+        boolean isGroupable = false;
         int idx = 0;
         FieldDescriptor[] fields = batchPresentation.getAllFields();
         for (FieldDescriptor field : fields) {
-            if (field.displayName.startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx)) {
-                isFilterable = true;
+            if (field.groupableByProcessId && batchPresentation.isFieldGroupped(idx)) {
+                isGroupable = true;
                 break;
             }
             idx++;
         }
 
-        ReflectionRowBuilder rowBuilder = isFilterable ? new ProcessRowBuilder(processes, batchPresentation, pageContext,
+        ReflectionRowBuilder rowBuilder = isGroupable ? new ProcessRowBuilder(processes, batchPresentation, pageContext,
                 ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders) : new ReflectionRowBuilder(processes,
                 batchPresentation, pageContext, ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders);
         rowBuilder.setCssClassStrategy(new ProcessCssClassStrategy());
 
-        tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder, isFilterable ? true : false));
+        tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder, isGroupable ? true : false));
 
         navigation.addPagingNavigationTable(tdFormElement);
     }

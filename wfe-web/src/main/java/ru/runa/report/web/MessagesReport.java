@@ -1,15 +1,10 @@
 package ru.runa.report.web;
 
 import ru.runa.common.web.StrutsMessage;
-import ru.runa.wfe.report.ReportClassPresentation;
 
 public final class MessagesReport {
 
     public static final StrutsMessage DEPLOY_PERMISSION_NAME = new StrutsMessage("permission.deploy_report");
-
-    public static final StrutsMessage PRESENTATION_NAME = new StrutsMessage(ReportClassPresentation.NAME);
-    public static final StrutsMessage PRESENTATION_DESCRIPTION = new StrutsMessage(ReportClassPresentation.DESCRIPTION);
-    public static final StrutsMessage PRESENTATION_TYPE = new StrutsMessage(ReportClassPresentation.TYPE);
 
     public static final StrutsMessage TITLE_DEPLOY_REPORT = new StrutsMessage("reports.deploy");
     public static final StrutsMessage TITLE_BUILD_REPORT = new StrutsMessage("reports.build");

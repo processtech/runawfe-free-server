@@ -18,6 +18,7 @@
 package ru.runa.wfe.var.format;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 public class DoubleFormat extends VariableFormat {
 
@@ -40,6 +41,9 @@ public class DoubleFormat extends VariableFormat {
     protected String convertToStringValue(Object obj) {
         DecimalFormat format = new DecimalFormat("0.#");
         format.setMaximumFractionDigits(340);
+        DecimalFormatSymbols dfs = format.getDecimalFormatSymbols();
+        dfs.setDecimalSeparator('.');
+        format.setDecimalFormatSymbols(dfs);
         return format.format(obj);
     }
 

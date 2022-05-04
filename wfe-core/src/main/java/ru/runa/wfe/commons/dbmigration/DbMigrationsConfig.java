@@ -18,6 +18,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddNodeIdToProcessLogPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddParentProcessIdPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessExternalData;
+import ru.runa.wfe.commons.dbmigration.impl.AddProcessLogCleanBeforeDateColumnPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbmigration.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
@@ -25,13 +26,17 @@ import ru.runa.wfe.commons.dbmigration.impl.AddSubprocessBindingDatePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenMessageSelectorPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
+import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalTable;
+import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
+import ru.runa.wfe.commons.dbmigration.impl.CreateTimerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
 import ru.runa.wfe.commons.dbmigration.impl.JbpmRefactoringPatch;
@@ -134,6 +139,12 @@ public class DbMigrationsConfig {
         dbMigrations.add(CreateChatDbPatch.class);
         dbMigrations.add(RefactorPermissionsBack.class);
         dbMigrations.add(RemoveWfeConstants.class);
+        dbMigrations.add(CreateStatisticReportTable.class);
+        // 4.4.3
+        dbMigrations.add(AddProcessLogCleanBeforeDateColumnPatch.class);
+        dbMigrations.add(AddTokenNodeNameAndNodeEnterDateColumnsPatch.class);
+        dbMigrations.add(CreateTimerAggregatedLogTable.class);
+        dbMigrations.add(CreateSignalListenerAggregatedLogTable.class);
         return dbMigrations;
     }
 }

@@ -56,7 +56,8 @@ public class DocxFileChanger {
             if (bodyElement instanceof XWPFTable) {
                 XWPFTable table = (XWPFTable) bodyElement;
                 List<XWPFTableRow> rows = table.getRows();
-                for (XWPFTableRow row : Lists.newArrayList(rows)) {
+                for (int i = 0; i < rows.size(); i++) {
+                    XWPFTableRow row = rows.get(i);
                     List<XWPFTableCell> cells = row.getTableCells();
                     // try to expand cells by column
                     TableExpansionOperation tableExpansionOperation = new TableExpansionOperation(row);

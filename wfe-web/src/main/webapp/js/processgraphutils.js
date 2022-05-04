@@ -1,23 +1,5 @@
 $(document).ready(function() {
-	// http://jqueryui.com/tooltip/	
-	$(document).tooltip({ 
-		track: true
-	});
-	$("area").tooltip({ 
-		track: true,
-		close: function(event, ui) {
-			ui.tooltip.hover(
-				function () {
-					$(this).stop(true).fadeTo(400, 1); 
-				},
-				function () {
-					$(this).fadeOut("400", function(){
-						$(this).remove(); 
-					})
-				}
-			);
-		}
-	});
+	initTooltipOnArea();
 	$(document).delegate(".multiInstanceBox", "mouseover", function() {
 		var attr = $(this).attr("bgcolor");
 		if (typeof attr === "undefined" || attr !== false) {
@@ -42,6 +24,20 @@ $(document).ready(function() {
 		});
 	});
 });
+
+function initTooltipOnArea() {
+	$("area").tooltip({ 
+		track: true,
+		content: function () {
+			var re = /<error>([^]*?)<\/error>/g;
+			var str = $(this).prop("title");
+			var escaped = str.replace(re, function(match, p1) {
+				return "<b class='fontRed'>" + $("<div />").text(p1).html() + "</b>";
+			});
+			return escaped;
+		}
+	});
+}
 
 function showEmbeddedSubprocessDefinition(definitionId, subprocessId, width, height) {
 	var jsId = getJsessionidValue();
@@ -93,7 +89,9 @@ function showImageDialog(src, w, h) {
     });
    	$("#" + graphDialogDivId).html("<br/><br/>&nbsp;&nbsp;&nbsp;<img src='/wfe/images/loading.gif' align='absmiddle' />");
 	$.graphDialog.dialog("open");
-	$("#" + graphDialogDivId).load(unify(src));
+	$("#" + graphDialogDivId).load(unify(src), function() {
+		initTooltipOnArea();
+	});
 }
 
 function getJsessionidValue() {

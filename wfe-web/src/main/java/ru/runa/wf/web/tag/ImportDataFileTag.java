@@ -17,8 +17,8 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.action.ImportDataFileAction;
-import ru.runa.wf.web.datafile.builder.DataFileBuilder;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.datafile.builder.DataFileBuilder;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "importDataFile")
 public class ImportDataFileTag extends TitledFormTag {

@@ -13,7 +13,7 @@ var temporaryGroupLabel = "<bean:message key="batch_presentation.executor.tempor
 var escalationGroupLabel = "<bean:message key="batch_presentation.executor.escalation_group" />";
 var delegationGroupLabel = "<bean:message key="batch_presentation.executor.delegation_group" />";
 $(document).ready(function() {
-	var input = $("table.view-setup tr[field='batch_presentation.executor.type'] input[name='fieldsToFilterCriterias']");
+	var input = $("table.view-setup tr[field='type'] input[name='fieldsToFilterCriterias']");
 	var select = $("<select />", { name: input.attr("name") });
 	$("<option />", {val: "", text: ""}).appendTo(select);
 	$("<option />", {val: "Y", text: groupLabel}).appendTo(select);
@@ -23,7 +23,7 @@ $(document).ready(function() {
 	$("<option />", {val: "D", text: delegationGroupLabel}).appendTo(select);
 	select.val(input.val());
 	input.replaceWith(select);
-	$("table.view-setup tr[field='batch_presentation.executor.type'] img[class='button-more']").remove();
+	$("table.view-setup tr[field='type'] img[class='button-more']").remove();
 });
 </script>
 </tiles:put>

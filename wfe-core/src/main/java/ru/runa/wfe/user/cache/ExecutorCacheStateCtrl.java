@@ -3,7 +3,8 @@ package ru.runa.wfe.user.cache;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
+import javax.transaction.Transaction;
+import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
@@ -15,6 +16,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.TemporaryGroup;
 
 class ExecutorCacheStateCtrl extends BaseCacheCtrl<ManageableExecutorCache, DefaultStateContext> implements ExecutorCache {
 
@@ -105,10 +107,23 @@ class ExecutorCacheStateCtrl extends BaseCacheCtrl<ManageableExecutorCache, Defa
         cache.addAllExecutor(oldCachedData, clazz, batch, executors);
     }
 
+    @Override
+    public boolean onChange(Transaction transaction, ChangedObjectParameter changedObject) {
+        if (changedObject.object instanceof TemporaryGroup) {
+            return false;
+        }
+        if (changedObject.object instanceof ExecutorGroupMembership
+                && ((ExecutorGroupMembership) changedObject.object).getGroup() instanceof TemporaryGroup) {
+            return false;
+        }
+        return super.onChange(transaction, changedObject);
+    }
+
     private static final List<ListenObjectDefinition> createListenObjectTypes() {
         ArrayList<ListenObjectDefinition> result = new ArrayList<ListenObjectDefinition>();
-        result.add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.ALL));
-        result.add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
+        result.add(new ListenObjectDefinition(Actor.class));
+        result.add(new ListenObjectDefinition(Group.class));
+        result.add(new ListenObjectDefinition(ExecutorGroupMembership.class));
         return result;
     }
 

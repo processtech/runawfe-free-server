@@ -44,7 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ReceiveMessageLog;
-import ru.runa.wfe.commons.Errors;
+import ru.runa.wfe.commons.SystemErrors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
@@ -153,7 +153,7 @@ public class ReceiveMessageBean implements MessageListener {
             if (errorEventData != null) {
                 String errorMessage = "Unexpected errorEvent in processId = " + errorEventData.processId + ", nodeId = " + errorEventData.nodeId;
                 log.error(errorMessage);
-                Errors.addSystemError(new InternalApplicationException(errorMessage));
+                SystemErrors.addError(new InternalApplicationException(errorMessage));
             } else {
                 try {
                     transaction.begin();
@@ -214,13 +214,17 @@ public class ReceiveMessageBean implements MessageListener {
                     executionContext.addLog(new ReceiveMessageLog(data.node, Utils.toString(message, true)));
                     Map<String, Object> map = (Map<String, Object>) message.getObject();
                     data.node.leave(executionContext, map);
+                    executionLogic.removeTokenError(null, data.tokenId);
                 }
             }.executeInTransaction(true);
         } catch (final Throwable th) {
-            boolean needReprocessing = Utils.failProcessExecution(context.getUserTransaction(), data.tokenId, th);
-            if (needReprocessing) {
-                Throwables.propagate(th);
-            }
+            new TransactionalExecutor(context.getUserTransaction()) {
+                @Override
+                protected void doExecuteInTransaction() {
+                    executionLogic.failToken(null, data.tokenId, th);
+                }
+            }.executeInTransaction(true);
+            Throwables.propagate(th);
         }
     }
 

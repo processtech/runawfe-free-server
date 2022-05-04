@@ -15,6 +15,9 @@ public class MessagesOther {
     public static final StrutsMessage HISTORY_SYSTEM_PH_PI = new StrutsMessage("history.system.placeholders.process");
     public static final StrutsMessage HISTORY_SYSTEM_PH_PD = new StrutsMessage("history.system.placeholders.process_definition");
     public static final StrutsMessage HISTORY_SYSTEM_PH_VERSION = new StrutsMessage("history.system.placeholders.version");
+    
+    public static final StrutsMessage PROCESS_LOG_CLEAN_DESCRIPTION = new StrutsMessage("process_log_clean.description");
+    public static final StrutsMessage PROCESS_LOG_CLEAN_BEFORE_DATE = new StrutsMessage("process_log_clean.placeholders.date");
 
     public static final StrutsMessage LABEL_SHOW_HISTORY = new StrutsMessage("label.manage_history");
     public static final StrutsMessage LABEL_HISTORY_DATE = new StrutsMessage("label.history.date");

@@ -18,12 +18,9 @@
 package ru.runa.wfe.commons.cache.sm;
 
 import java.util.List;
-
 import javax.transaction.Transaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 
@@ -74,12 +71,8 @@ public class ChangeListenerGuard implements ChangeListener {
     }
 
     @Override
-    public void onChange(Transaction transaction, ChangedObjectParameter changedObject) {
-        try {
-            delegated.onChange(transaction, changedObject);
-        } catch (Exception e) {
-            log.error("onChange(transaction, changedObject) call failed on " + delegated.getClass().getName(), e);
-        }
+    public boolean onChange(Transaction transaction, ChangedObjectParameter changedObject) {
+        return delegated.onChange(transaction, changedObject);
     }
 
     @Override

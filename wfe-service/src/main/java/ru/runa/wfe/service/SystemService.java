@@ -1,26 +1,10 @@
-/*
- * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.wfe.service;
 
 import java.util.List;
 import ru.runa.wfe.commons.dao.Localization;
-import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.SystemError;
+import ru.runa.wfe.commons.error.dto.WfTokenError;
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.User;
@@ -35,7 +19,7 @@ public interface SystemService {
     /**
      * Performs application context startup.
      */
-    public void initialize();
+    void initialize();
 
     /**
      * Logins to the system. Acquires {@link Permission#LOGIN_TO_SYSTEM} permission.
@@ -80,18 +64,43 @@ public interface SystemService {
     void clearSettings();
 
     /**
-     * Get all process errors.
+     * Change token's execution status and set error.
      */
-    List<ProcessError> getAllProcessErrors(User user);
+    void failToken(User user, Long tokenId, String errorMessage, String stackTrace);
 
     /**
-     * Get process errors.
+     * Remove token error without changing its execution status.
      */
-    List<ProcessError> getProcessErrors(User user, Long processId);
+    void removeTokenError(User user, Long tokenId);
+
+    /**
+     * Get token errors.
+     */
+    List<WfTokenError> getTokenErrors(User user, BatchPresentation batchPresentation);
+
+    /**
+     * Get token errors count.
+     */
+    int getTokenErrorsCount(User user, BatchPresentation batchPresentation);
+
+    /**
+     * Get token errors by processId.
+     */
+    List<WfTokenError> getTokenErrorsByProcessId(User user, Long processId);
+
+    /**
+     * Get token error by tokenId.
+     */
+    WfTokenError getTokenError(User user, Long tokenId);
 
     /**
      * Get system errors.
      */
     List<SystemError> getSystemErrors(User user);
+
+    /**
+     * Export system data file
+     */
+    byte[] exportDataFile(User user) throws AuthorizationException;
 
 }

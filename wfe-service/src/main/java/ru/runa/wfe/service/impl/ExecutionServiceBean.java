@@ -81,14 +81,14 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @WebMethod(exclude = true)
     @Override
     public Long startProcess(@NonNull User user, @NonNull String definitionName, Map<String, Object> variables) {
-        FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
+        FileVariablesUtil.unproxyFileVariables(user, definitionLogic.getLatestProcessDefinition(user, definitionName).getId(), variables);
         return executionLogic.startProcess(user, definitionName, variables);
     }
 
     @WebMethod(exclude = true)
     @Override
     public Long startProcessById(@NonNull User user, @NonNull Long definitionId, Map<String, Object> variables) {
-        FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
+        FileVariablesUtil.unproxyFileVariables(user, definitionId, variables);
         return executionLogic.startProcess(user, definitionId, variables);
     }
 
@@ -341,8 +341,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public void activateProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
-        executionLogic.activateProcess(user, processId);
+    public boolean activateProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
+        return executionLogic.activateProcess(user, processId);
     }
 
     @Override

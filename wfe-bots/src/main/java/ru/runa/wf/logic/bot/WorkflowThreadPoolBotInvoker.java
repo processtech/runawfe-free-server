@@ -38,7 +38,7 @@ import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.invoker.BotInvoker;
 import ru.runa.wfe.commons.CoreErrorProperties;
-import ru.runa.wfe.commons.Errors;
+import ru.runa.wfe.commons.SystemErrors;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
@@ -150,10 +150,10 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
                         } else {
                             botExecutors.put(bot, new WorkflowBotExecutor(user, bot, tasks));
                         }
-                        Errors.removeSystemError(botErrorMessage);
+                        SystemErrors.removeError(botErrorMessage);
                     } catch (Throwable th) {
                         log.error("Unable to configure " + bot, th);
-                        Errors.addSystemError(new ConfigurationException(botErrorMessage, th));
+                        SystemErrors.addError(new ConfigurationException(botErrorMessage, th));
                     }
                 }
                 configurationVersion = botStation.getVersion();
@@ -161,10 +161,10 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
             } else {
                 log.debug("bots configuration is up to date, version = " + botStation.getVersion());
             }
-            Errors.removeSystemError(botStationErrorMessage);
+            SystemErrors.removeError(botStationErrorMessage);
         } catch (Throwable th) {
             log.error("Botstation configuration error", th);
-            Errors.addSystemError(new ConfigurationException(botStationErrorMessage, th));
+            SystemErrors.addError(new ConfigurationException(botStationErrorMessage, th));
         }
     }
 
