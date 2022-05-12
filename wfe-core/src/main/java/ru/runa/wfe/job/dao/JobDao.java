@@ -20,12 +20,20 @@ import ru.runa.wfe.job.QTimerJob;
 @Component
 public class JobDao extends GenericDao<Job> {
 
-    public List<Job> getExpiredJobs() {
+    public List<Job> getExpiredJobs(Long limit) {
         QJob j = QJob.job;
         return queryFactory.selectFrom(j)
                 .where(j.dueDate.loe(new Date()).and(j.token.executionStatus.eq(ExecutionStatus.ACTIVE)))
                 .orderBy(j.dueDate.asc())
+                .limit(limit)
                 .fetch();
+    }
+
+    public Long getExpiredJobsCount() {
+        QJob j = QJob.job;
+        return queryFactory.selectFrom(j)
+                .where(j.dueDate.loe(new Date()).and(j.token.executionStatus.eq(ExecutionStatus.ACTIVE)))
+                .fetchCount();
     }
 
     public List<Job> findByProcess(Process process) {
