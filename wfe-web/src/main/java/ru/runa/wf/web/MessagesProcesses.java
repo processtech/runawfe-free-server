@@ -114,4 +114,6 @@ public final class MessagesProcesses {
 
     public static final StrutsMessage PROCESS_LOG_CLEAN_SUCCESS = new StrutsMessage("process_log_clean.success");
     public static final StrutsMessage PROCESS_LOG_CLEAN_FAIL = new StrutsMessage("process_log_clean.fail");
+
+    public static final StrutsMessage TITLE_CHAT_ROOMS = new StrutsMessage("title.chat_rooms");
 }

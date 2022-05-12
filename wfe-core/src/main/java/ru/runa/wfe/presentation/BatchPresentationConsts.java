@@ -87,6 +87,8 @@ public class BatchPresentationConsts {
 
     public static final String ID_TOKEN_ERRORS = "listTokenErrorsForm";
 
+    public static final String ID_CHAT_ROOMS = "listChatRoomsForm";
+
     /**
      * Allowed sizes for paged {@link BatchPresentation}. This sizes will be available in web interface.
      * 
