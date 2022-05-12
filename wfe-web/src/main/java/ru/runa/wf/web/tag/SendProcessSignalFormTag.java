@@ -1,11 +1,12 @@
 package ru.runa.wf.web.tag;
 
-import org.apache.ecs.html.A;
+import org.apache.ecs.html.Button;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.tag.TitledFormTag;
@@ -18,7 +19,12 @@ public class SendProcessSignalFormTag extends TitledFormTag {
 
     @Override
     protected String getTitle() {
-        return MessagesProcesses.LABEL_SEND_PROCESS_SIGNAL.message(pageContext);
+        return MessagesCommon.MAIN_MENU_ITEM_SEND_SIGNAL.message(pageContext);
+    }
+
+    @Override
+    protected String getSubmitButtonName() {
+        return MessagesCommon.MAIN_MENU_ITEM_SEND_SIGNAL.message(pageContext);
     }
 
     @Override
@@ -26,10 +32,9 @@ public class SendProcessSignalFormTag extends TitledFormTag {
         fillFormData(tdFormElement);
     }
 
-
     protected void fillFormData(TD tdFormElement) {
-        addTable(tdFormElement, "routing", MessagesProcesses.ROUTING_PARAMETER_NAME, MessagesProcesses.ROUTING_PARAMETER_VALUE, "addRoutingRow()");
-        addTable(tdFormElement, "payload", MessagesProcesses.PAYLOAD_PARAMETER_NAME, MessagesProcesses.PAYLOAD_PARAMETER_VALUE, "addPayloadRow()");
+        addTable(tdFormElement, "routing", MessagesProcesses.ROUTING_PARAMETER_NAME, MessagesProcesses.ROUTING_PARAMETER_VALUE, "addRow('routing')");
+        addTable(tdFormElement, "payload", MessagesProcesses.PAYLOAD_PARAMETER_NAME, MessagesProcesses.PAYLOAD_PARAMETER_VALUE, "addRow('payload')");
     }
 
     private void addTable(TD tdFormElement, String tableId, StrutsMessage paramName, StrutsMessage paramValue, String onclick) {
@@ -43,7 +48,11 @@ public class SendProcessSignalFormTag extends TitledFormTag {
         tr.addElement(new TH(paramValue.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
 
         TR addTr = new TR();
-        TD addTd = new TD(new A("javascript:" + onclick, "+"));
+        Button button = new Button();
+        button.setOnClick("javascript:" + onclick);
+        button.setType("button");
+        button.addElement("+");
+        TD addTd = new TD(button);
         addTd.setClass("list");
         addTr.addElement(addTd);
         table.addElement(addTr);
