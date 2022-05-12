@@ -36,6 +36,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDao;
+import ru.runa.wfe.security.SecurityCheckProperties;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
@@ -182,6 +183,10 @@ public class CommonLogic {
             throw new AuthorizationException("User has no permission for exporting files");
         }
         return dataFileCreator.create(user);
+    }
+
+    public boolean isPasswordCheckRequired(){
+        return SecurityCheckProperties.isPermissionCheckRequired(SecuredObjectType.SYSTEM);
     }
 
 }
