@@ -12,7 +12,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Actor;
 
 @Entity
 @Table(name = "CHAT_MESSAGE_RECIPIENT")
@@ -20,17 +20,16 @@ public class ChatMessageRecipient {
 
     private Long id;
     private ChatMessage message;
-    private Executor executor;
+    private Actor actor;
     private Date readDate;
     private boolean mentioned;
 
     public ChatMessageRecipient() {
     }
 
-    public ChatMessageRecipient(ChatMessage message, Executor executor, boolean mentioned) {
+    public ChatMessageRecipient(ChatMessage message, Actor actor) {
         this.message = message;
-        this.executor = executor;
-        this.mentioned = mentioned;
+        this.actor = actor;
     }
 
     @Id
@@ -58,15 +57,15 @@ public class ChatMessageRecipient {
     }
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "EXECUTOR_ID")
+    @JoinColumn(name = "ACTOR_ID")
     @ForeignKey(name = "FK_CHAT_MESSAGE_RECIPIENT_E_ID")
-    @Index(name = "IX_CHAT_MESSAGE_RECIPIENT_E_R", columnNames = { "EXECUTOR_ID", "READ_DATE" })
-    public Executor getExecutor() {
-        return executor;
+    @Index(name = "IX_CHAT_MESSAGE_RECIPIENT_E_R", columnNames = { "ACTOR_ID", "READ_DATE" })
+    public Actor getActor() {
+        return actor;
     }
 
-    public void setExecutor(Executor executor) {
-        this.executor = executor;
+    public void setActor(Actor actor) {
+        this.actor = actor;
     }
 
     @Column(name = "READ_DATE")

@@ -19,6 +19,7 @@ package ru.runa.wfe.service.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -341,8 +342,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public void activateProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
-        executionLogic.activateProcess(user, processId);
+    public boolean activateProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
+        return executionLogic.activateProcess(user, processId);
     }
 
     @Override
@@ -378,4 +379,9 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return signalReceiverIsActive(user, StringKeyValueConverter.unmarshal(routingData));
     }
 
+    @Override
+    @WebResult(name = "result")
+    public Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
+        return executionLogic.getAllExecutorsByProcessId(user, processId, expandGroups);
+    }
 }

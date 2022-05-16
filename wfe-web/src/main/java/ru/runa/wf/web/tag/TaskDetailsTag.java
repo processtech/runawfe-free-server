@@ -81,6 +81,10 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
     protected boolean isSubmitButtonEnabled() {
         return buttonEnabled;
     }
+    @Override
+    protected boolean isSubmitButtonVisible() {
+        return buttonEnabled;
+    }
 
     @Override
     protected String getSubmitButtonName() {

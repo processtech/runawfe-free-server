@@ -20,16 +20,10 @@ package ru.runa.wfe.graph.image;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import java.awt.Color;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
@@ -50,7 +44,6 @@ import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskDeadlineUtils;
@@ -64,20 +57,18 @@ public class GraphImageBuilder {
     private final Map<String, AbstractFigure> allNodeFigures = Maps.newHashMap();
     private final Map<TransitionFigure, RenderHits> transitionFigures = Maps.newHashMap();
     private final Map<AbstractFigure, RenderHits> nodeFigures = Maps.newLinkedHashMap();
-    private final Map<String, Set<String>> allSubprocessNameNodeIds = Maps.newHashMap();
     private final boolean smoothTransitions;
 
     public GraphImageBuilder(ProcessDefinition processDefinition) {
         this.processDefinition = processDefinition;
         this.smoothTransitions = DrawProperties.isSmoothLinesEnabled() && processDefinition.getDeployment().getLanguage() == Language.BPMN2;
-        fillAllSubprocessNameNodeIds();
     }
 
     public void setHighlightedToken(Token highlightedToken) {
         this.highlightedToken = highlightedToken;
     }
 
-    public byte[] createDiagram(Process process, ProcessLogs logs) throws Exception {
+    public byte[] createDiagram(Process process, ProcessLogs logs, Set<String> activeNodeIds) throws Exception {
         AbstractFigureFactory factory;
         if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
             factory = new BpmnFigureFactory();
@@ -114,19 +105,21 @@ public class GraphImageBuilder {
                 }
             }
         }
-        final Set<String> activeNodeIds = getActiveNodeIds(process.getRootToken(), new HashSet<String>());
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(processDefinition);
             if (transition != null) {
                 RenderHits renderHits = new RenderHits(DrawProperties.getHighlightColor(), true);
                 // Mark 'from' block as PASSED
                 AbstractFigure nodeModelFrom = allNodeFigures.get(transition.getFrom().getTransitionNodeId(false));
-                nodeFigures.put(nodeModelFrom, renderHits);
+                if (!nodeFigures.containsKey(nodeModelFrom) || !nodeFigures.get(nodeModelFrom).isPassed()) {
+                    // do not override RenderHits for subprocesses
+                    nodeFigures.put(nodeModelFrom, renderHits);
+                }
                 // Mark 'to' block as PASSED
                 AbstractFigure nodeModelTo = allNodeFigures.get(transition.getTo().getTransitionNodeId(true));
                 nodeFigures.put(nodeModelTo, renderHits);
                 if (nodeModelTo.getNode() instanceof SubprocessNode) {
-                    fillActiveSubprocess(nodeModelTo, activeNodeIds);
+                    fillSubprocess(nodeModelTo, activeNodeIds);
                 }
                 if (nodeModelTo.getNode() instanceof BoundaryEventContainer) {
                     for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) nodeModelTo.getNode()).getBoundaryEvents()) {
@@ -149,42 +142,28 @@ public class GraphImageBuilder {
         return graphImage.getImageBytes();
     }
 
-    private Set<String> getActiveNodeIds(Token token, Set<String> activeNodeIds) {
-        if (token == null) {
-            return Collections.emptySet();
-        }
-        activeNodeIds.add(token.getNodeId());
-        for (Token childToken : token.getActiveChildren()) {
-            activeNodeIds = getActiveNodeIds(childToken, activeNodeIds);
-        }
-        return activeNodeIds;
-    }
-
-    private void fillActiveSubprocess(AbstractFigure nodeModelTo, Set<String> activeNodeIds) {
+    private void fillSubprocess(AbstractFigure nodeModelTo, Set<String> activeNodeIds) {
         SubprocessNode subprocessNode = (SubprocessNode) nodeModelTo.getNode();
-        Color color = DrawProperties.getHighlightColor();
-        boolean isBold = false;
-        if (!subprocessNode.isEmbedded()) {
-            String subprocessNodeId = subprocessNode.getNodeId();
-            if (activeNodeIds.contains(subprocessNodeId)) {
-                if (highlightedToken == null || !highlightedToken.getNodeId().equals(subprocessNodeId)) {
-                    color = DrawProperties.getBaseColor();
-                }
-                isBold = true;
-            }
-        } else {
-            if (allSubprocessNameNodeIds.containsKey(subprocessNode.getSubProcessName())) {
-                Set<String> intersection = allSubprocessNameNodeIds.get(subprocessNode.getSubProcessName());
-                intersection.retainAll(activeNodeIds);
-                if (!intersection.isEmpty()) {
-                    if (highlightedToken == null || !intersection.contains(highlightedToken.getNodeId())) {
-                        color = DrawProperties.getBaseColor();
+        String subprocessNodeId = subprocessNode.getNodeId();
+        boolean active = activeNodeIds.contains(subprocessNodeId);
+        boolean highlighted;
+        if (subprocessNode.isEmbedded()) {
+            String prefix = processDefinition.getEmbeddedSubprocessByNameNotNull(subprocessNode.getSubProcessName()).getNodeId() + ".";
+            if (!active) {
+                // correct behavior for in complex case when one of token already leaved out of subprocess
+                for (String nodeId : activeNodeIds) {
+                    if (nodeId.startsWith(prefix)) {
+                        active = true;
+                        break;
                     }
-                    isBold = true;
                 }
             }
+            highlighted = highlightedToken != null && highlightedToken.getNodeId().startsWith(prefix);
+        } else {
+            highlighted = highlightedToken != null && highlightedToken.getNodeId().equals(subprocessNodeId);
         }
-        nodeFigures.put(nodeModelTo, new RenderHits(color, true, isBold));
+        nodeFigures.put(nodeModelTo, new RenderHits(highlighted || !active ? DrawProperties.getHighlightColor() : DrawProperties.getBaseColor(),
+                true, active));
     }
 
     private void fillTasks(ProcessLogs logs) {
@@ -214,29 +193,6 @@ public class GraphImageBuilder {
             if (color != null) {
                 nodeFigures.put(figure, new RenderHits(color, true, activeTask));
             }
-        }
-    }
-
-    private void fillAllSubprocessNameNodeIds() {
-        for (SubprocessDefinition subprocessDefinition : processDefinition.getEmbeddedSubprocesses().values()) {
-            allSubprocessNameNodeIds.computeIfAbsent(subprocessDefinition.getName(), new ComputeEmbeddedProcessNodeIds(subprocessDefinition));
-        }
-    }
-
-    static class ComputeEmbeddedProcessNodeIds implements Function<String, Set<String>> {
-        SubprocessDefinition subprocessDefinition;
-
-        ComputeEmbeddedProcessNodeIds(SubprocessDefinition subprocessDefinition) {
-            this.subprocessDefinition = subprocessDefinition;
-        }
-
-        @Override
-        public Set<String> apply(String t) {
-            Set<String> nodeIds = Sets.newHashSet();
-            for (Node innerNode : subprocessDefinition.getNodes(false)) {
-                nodeIds.add(innerNode.getNodeId());
-            }
-            return nodeIds;
         }
     }
 

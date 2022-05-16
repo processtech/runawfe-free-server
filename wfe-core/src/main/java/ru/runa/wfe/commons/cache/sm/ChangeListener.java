@@ -18,9 +18,7 @@
 package ru.runa.wfe.commons.cache.sm;
 
 import java.util.List;
-
 import javax.transaction.Transaction;
-
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 
@@ -33,14 +31,15 @@ import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 public interface ChangeListener {
 
     /**
-     * Called, then changed one of listened object type.
+     * Called, when changed one of listened object type.
      *
      * @param transaction
      *            Transaction, changed object belongs to.
      * @param changedObject
      *            Changed object data.
+     * @return has been changed
      */
-    public void onChange(Transaction transaction, ChangedObjectParameter changedObject);
+    public boolean onChange(Transaction transaction, ChangedObjectParameter changedObject);
 
     /**
      * Called, before transaction in current thread will be completed (commit or rollback). This method called only if this listener was notified

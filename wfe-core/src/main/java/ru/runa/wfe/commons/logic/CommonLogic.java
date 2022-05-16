@@ -28,6 +28,7 @@ import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
+import ru.runa.wfe.datafile.DataFileCreator;
 import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
@@ -35,6 +36,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDao;
+import ru.runa.wfe.security.SecurityCheckProperties;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
@@ -57,6 +59,8 @@ public class CommonLogic {
     protected ProcessDao processDao;
     @Autowired
     protected SettingDao settingDao;
+    @Autowired
+    private DataFileCreator dataFileCreator;
 
     // For the sake of mering DAO and logic layers:
     @Autowired
@@ -172,6 +176,17 @@ public class CommonLogic {
     public void clearSettings() {
         settingDao.clear();
         PropertyResources.clearPropertiesCache();
+    }
+
+    public byte[] exportDataFile(User user) {
+        if (!executorDao.isAdministrator(user.getActor())) {
+            throw new AuthorizationException("User has no permission for exporting files");
+        }
+        return dataFileCreator.create(user);
+    }
+
+    public boolean isPasswordCheckRequired(){
+        return SecurityCheckProperties.isPermissionCheckRequired(SecuredObjectType.SYSTEM);
     }
 
 }

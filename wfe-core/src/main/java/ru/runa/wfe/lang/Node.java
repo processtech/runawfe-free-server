@@ -25,8 +25,10 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -35,6 +37,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.ProcessExecutionListener;
+import ru.runa.wfe.execution.logic.TokenNodeNameExtractor;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
@@ -49,6 +52,8 @@ public abstract class Node extends GraphElement {
      * Graph constraints on SetMinimized(true) moment call;
      */
     private int[] originalConstraints;
+    @Autowired
+    protected transient TokenNodeNameExtractor tokenNodeNameExtractor;
 
     public abstract NodeType getNodeType();
 
@@ -181,6 +186,8 @@ public abstract class Node extends GraphElement {
         // update the runtime context information
         token.setNodeId(getNodeId());
         token.setNodeType(getNodeType());
+        token.setNodeName(tokenNodeNameExtractor.extract(this));
+        token.setNodeEnterDate(new Date());
         // fire the leave-node event for this node
         fireEvent(executionContext, ActionEvent.NODE_ENTER);
         executionContext.addLog(new NodeEnterLog(this));
@@ -190,8 +197,11 @@ public abstract class Node extends GraphElement {
                 Token eventToken = new Token(executionContext.getToken(), boundaryNode.getNodeId());
                 eventToken.setNodeId(boundaryNode.getNodeId());
                 eventToken.setNodeType(boundaryNode.getNodeType());
+                eventToken.setNodeName(tokenNodeNameExtractor.extract(boundaryNode));
+                eventToken.setNodeEnterDate(new Date());
                 ApplicationContextFactory.getTokenDAO().create(eventToken);
                 ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
+                eventExecutionContext.addLog(new NodeEnterLog((Node) boundaryEvent));
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
         }
@@ -230,6 +240,12 @@ public abstract class Node extends GraphElement {
     protected abstract void execute(ExecutionContext executionContext) throws Exception;
 
     /**
+     * override this method to customize the node behavior.
+     */
+    public void cancel(ExecutionContext executionContext) {
+    }
+
+    /**
      * called by the implementation of this node to continue execution over the default transition.
      */
     public final void leave(ExecutionContext executionContext) {
@@ -263,6 +279,8 @@ public abstract class Node extends GraphElement {
         }
         token.setNodeId(null);
         token.setNodeType(null);
+        token.setNodeName(null);
+        token.setNodeEnterDate(null);
         // take the transition
         transition.take(executionContext);
     }

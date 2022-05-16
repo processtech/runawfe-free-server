@@ -124,32 +124,8 @@ public abstract class Ejb3Delegate {
         String providerUrl = MoreObjects.firstNonNull(getCustomProviderUrl(), EJB_LOCAL);
         if (!initialContexts.containsKey(providerUrl)) {
             try {
-                Properties properties;
-                if (!Objects.equal(EJB_LOCAL, providerUrl) || EjbProperties.isJbossEjbClientStaticEnabled()) {
-                    properties = ClassLoaderUtil.getProperties("jndi.properties", false);
-                    if (EjbProperties.useJbossEjbClientForRemoting()) {
-                        String port = EjbProperties.getJbossEjbClientPort();
-                        String hostname;
-                        if (providerUrl.contains(":")) {
-                            int colonIndex = providerUrl.indexOf(":");
-                            port = providerUrl.substring(colonIndex + 1);
-                            hostname = providerUrl.substring(0, colonIndex);
-                        } else {
-                            hostname = providerUrl;
-                        }
-                        String name = "n_" + hostname;
-                        properties.put("remote.connections", name);
-                        properties.put("remote.connection." + name + ".host", hostname);
-                        properties.put("remote.connection." + name + ".port", port);
-                        properties.put("remote.connection." + name + ".username", EjbProperties.getJbossEjbClientUsername());
-                        properties.put("remote.connection." + name + ".password", EjbProperties.getJbossEjbClientPassword());
-                    } else {
-                        properties.put(Context.PROVIDER_URL, providerUrl);
-                    }
-                    log.debug("Trying to obtain remote connection for '" + providerUrl + "' using " + properties);
-                } else {
-                    properties = new Properties();
-                }
+                Properties properties = ClassLoaderUtil.getProperties("runawfe.jndi.properties", false);
+                log.debug("Trying to obtain remote connection for '" + providerUrl + "' using " + properties);
                 initialContexts.put(providerUrl, new InitialContext(properties));
             } catch (Exception e) {
                 throw Throwables.propagate(e);
@@ -161,6 +137,10 @@ public abstract class Ejb3Delegate {
     protected RuntimeException handleException(Exception e) {
         if (e instanceof EJBException && e.getCause() != null) {
             return Throwables.propagate(e.getCause());
+        }
+        if (e instanceof IllegalStateException && e.getMessage() != null && e.getMessage().startsWith("EJBCLIENT000025")) {
+            log.info("Seems that wfe connection lost. There will be a reconnection at the next request");
+            services.clear();
         }
         return Throwables.propagate(e);
     }

@@ -41,6 +41,10 @@ public class WebResources {
     /* Validation rules */
     public static final int VALIDATOR_STRING_255 = 255;
 
+    // Base64 encoding causes an overhead of 33–36%
+    // (33% by the encoding itself; up to 3% more by the inserted line breaks).
+    private static final int DEFAULT_CHAT_MAX_MESSAGE_SIZE = (int) (1024 * 1024 * 10 * 1.33);
+
     public static final String ACTION_MAPPING_MANAGE_DEFINITION = "/manage_process_definition";
     public static final String ACTION_MAPPING_MANAGE_PROCESS = "/manage_process";
     public static final String ACTION_SHOW_PROCESS_HISTORY = "/show_history";
@@ -61,6 +65,8 @@ public class WebResources {
 
     public static final String ACTION_MAPPING_MANAGE_REPORT = "/manage_report";
     public static final String ACTION_MAPPING_BUILD_REPORT = "/build_report";
+
+    public static final String ACTION_MAPPING_CHAT_PAGE = "/chat_page";
 
     public static PropertyResources getResources() {
         return RESOURCES;
@@ -158,6 +164,10 @@ public class WebResources {
         return RESOURCES.getIntegerProperty("view.logs.limit.lines.count", 10000);
     }
 
+    public static int getViewLogsLimitLineCharactersCount() {
+        return RESOURCES.getIntegerProperty("view.logs.limit.line.characters.count", 100);
+    }
+
     public static int getViewLogsAutoReloadTimeout() {
         return RESOURCES.getIntegerProperty("view.logs.timeout.autoreload.seconds", 15);
     }
@@ -209,4 +219,7 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }
 
+    public static int getChatMaxMessageSize() {
+        return RESOURCES.getIntegerProperty("chat.max.message.size.bytes", DEFAULT_CHAT_MAX_MESSAGE_SIZE);
+    }
 }

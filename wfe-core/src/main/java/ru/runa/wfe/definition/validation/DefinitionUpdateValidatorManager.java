@@ -28,6 +28,7 @@ public class DefinitionUpdateValidatorManager {
         if (!SystemProperties.isDefinitionCompatibilityCheckEnabled()) {
             return;
         }
+
         TimeMeasurer timeMeasurer = new TimeMeasurer(log);
         timeMeasurer.jobStarted();
         ProcessFilter filter = new ProcessFilter();
@@ -37,7 +38,14 @@ public class DefinitionUpdateValidatorManager {
         List<Process> processes = processDao.getProcesses(filter);
         timeMeasurer.jobEnded("Loading " + processes.size() + " active processes");
         timeMeasurer.jobStarted();
-        validate(oldDefinition, newDefinition, processes);
+
+        int processesLimit = SystemProperties.getDefinitionCompatibilityCheckProcessesLimit();
+        if (processesLimit == -1 || processesLimit >= processes.size()) {
+            validate(oldDefinition, newDefinition, processes);
+        } else {
+            validate(oldDefinition, newDefinition, processes.subList(0, processesLimit));
+        }
+
         timeMeasurer.jobEnded("Validation of " + oldDefinition);
     }
 

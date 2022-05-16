@@ -23,6 +23,7 @@ package ru.runa.wfe.execution;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Date;
@@ -56,6 +57,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.NodeErrorLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.commons.email.EmailErrorNotifier;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.Node;
@@ -86,6 +88,8 @@ public class Token implements Serializable {
     private boolean ableToReactivateParent;
     private String nodeId;
     private NodeType nodeType;
+    private String nodeName;
+    private Date nodeEnterDate;
     private String transitionId;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
     private Date errorDate;
@@ -174,6 +178,24 @@ public class Token implements Serializable {
 
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
+    }
+
+    @Column(name = "NODE_NAME")
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    @Column(name = "NODE_ENTER_DATE")
+    public Date getNodeEnterDate() {
+        return nodeEnterDate;
+    }
+
+    public void setNodeEnterDate(Date nodeEnterDate) {
+        this.nodeEnterDate = nodeEnterDate;
     }
 
     @Column(name = "TRANSITION_ID", length = 1024)
@@ -285,23 +307,34 @@ public class Token implements Serializable {
         this.messageSelector = messageSelector;
     }
 
+    public void removeError() {
+        setErrorDate(null);
+        setErrorMessage(null);
+    }
+
     public boolean fail(Throwable throwable) {
+        return fail(Utils.getErrorMessage(throwable), Throwables.getStackTraceAsString(throwable));
+    }
+
+    public boolean fail(String errorMessage, String stackTrace) {
         boolean stateChanged = getExecutionStatus() != ExecutionStatus.FAILED;
         setExecutionStatus(ExecutionStatus.FAILED);
         setErrorDate(new Date());
-        // safe for unicode
-        String errorMessage = Utils.getCuttedString(throwable.toString(), 1024 / 2);
         stateChanged |= !Objects.equal(errorMessage, getErrorMessage());
         setErrorMessage(errorMessage);
 
-        // Log error
         if (stateChanged) {
-            final Node node = getNodeNotNull(ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process));
-            final NodeErrorLog errorLog = new NodeErrorLog(node, errorMessage);
-            ApplicationContextFactory.getProcessLogDAO().addLog(errorLog, process, this);
+            logError(errorMessage, stackTrace);
+            EmailErrorNotifier.sendNotification(process.getId(), nodeId, errorMessage, stackTrace);
         }
-
         return stateChanged;
+    }
+
+    private void logError(String errorMessage, String stackTrace) {
+        final Node node = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process).getNode(nodeId);
+        if (node != null) {
+            ApplicationContextFactory.getProcessLogDAO().addLog(new NodeErrorLog(node, errorMessage, stackTrace.getBytes()), process, this);
+        }
     }
 
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
@@ -337,6 +370,7 @@ public class Token implements Serializable {
             log.info("Ending " + this + " by " + canceller);
             setEndDate(new Date());
             setExecutionStatus(ExecutionStatus.ENDED);
+            removeError();
             Node node = processDefinition.getNode(getNodeId());
             if (node instanceof SubprocessNode) {
                 for (Process subProcess : executionContext.getTokenSubprocesses()) {

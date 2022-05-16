@@ -17,16 +17,16 @@
  */
 package ru.runa.wfe.ss.cache;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
-import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
@@ -38,9 +38,6 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDao;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 class AltSubstitutionCacheImpl extends BaseCacheImpl implements SubstitutionCache {
     public static final String substitutorsName = "ru.runa.wfe.ss.cache.substitutors";
@@ -158,11 +155,6 @@ class AltSubstitutionCacheImpl extends BaseCacheImpl implements SubstitutionCach
                 actorToSubstitutorsCache.remove(actor.getId());
             }
         }
-    }
-
-    @Override
-    public CacheImplementation unlock() {
-        return null;
     }
 
     @Override

@@ -1,10 +1,14 @@
 package ru.runa.wfe.presentation;
 
+import com.google.common.collect.Lists;
 import java.util.HashMap;
+import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SystemLogClassPresentation;
+import ru.runa.wfe.commons.error.TokenErrorClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
+import ru.runa.wfe.chat.ChatRoomClassPresentation;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessWithTasksClassPresentation;
 import ru.runa.wfe.relation.RelationClassPresentation;
@@ -25,15 +29,17 @@ public enum ClassPresentationType {
     RELATION(RelationClassPresentation.getInstance(), "relation"),
     RELATIONPAIR(RelationPairClassPresentation.getInstance(), "relationpair"),
     DEFINITION(DefinitionClassPresentation.getInstance(), "process_definition"),
-    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.getInstance(), ""),
+    DEFINITION_HISTORY(DefinitionHistoryClassPresentation.getInstance(), "process_definition"),
     PROCESS(ProcessClassPresentation.getInstance(), "process"),
     PROCESS_WITH_TASKS(ProcessWithTasksClassPresentation.getInstance(), "process"),
     TASK(TaskClassPresentation.getInstance(), "task"),
     TASK_OBSERVABLE(TaskObservableClassPresentation.getInstance(), "task"),
-    REPORTS(ReportClassPresentation.getInstance(), "report");
+    REPORTS(ReportClassPresentation.getInstance(), "report"),
+    TOKEN_ERRORS(TokenErrorClassPresentation.getInstance(), "error"),
+    CHAT_ROOM(ChatRoomClassPresentation.getInstance(), "process");
 
     private final Class<?> presentationClass;
-    private final String restrictions;
+    private final List<String> restrictions;
     private final boolean withPaging;
     private final FieldDescriptor[] fields;
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
@@ -43,7 +49,7 @@ public enum ClassPresentationType {
     ClassPresentationType(ClassPresentation cp, String localizationKey) {
         if (cp != null) {
             presentationClass = cp.getPresentationClass();
-            restrictions = cp.getRestrictions();
+            restrictions = Lists.newArrayList(cp.getRestrictions());
             withPaging = cp.isWithPaging();
             fields = cp.getFields();
             populateFieldIndexesByName();
@@ -71,7 +77,7 @@ public enum ClassPresentationType {
         return presentationClass;
     }
 
-    public String getRestrictions() {
+    public List<String> getRestrictions() {
         return restrictions;
     }
 

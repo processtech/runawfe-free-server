@@ -1,5 +1,12 @@
 package ru.runa.common.web.action;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.html.HtmlEscapers;
+import com.google.common.io.Files;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -12,10 +19,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.struts.action.ActionForm;
@@ -23,36 +29,26 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdNameForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.IoCommons;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
+import ru.runa.wfe.commons.SystemErrors;
 import ru.runa.wfe.commons.error.SystemError;
+import ru.runa.wfe.commons.error.dto.WfTokenError;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.html.HtmlEscapers;
-import com.google.common.io.Files;
 
 @SuppressWarnings("unchecked")
 public class ErrorDetailsAction extends ActionBase {
@@ -71,29 +67,16 @@ public class ErrorDetailsAction extends ActionBase {
                         break;
                     }
                 }
+            } else if ("getTokenErrorStackTrace".equals(action)) {
+                Long tokenId = Long.valueOf(request.getParameter("tokenId"));
+                WfTokenError tokenError = Delegates.getSystemService().getTokenError(getLoggedUser(request), tokenId);
+                String html = "<form id='supportForm'>";
+                html += "<input type='hidden' name='processId' value='" + tokenError.getProcessId() + "' />";
+                html += "</form>";
+                html += StringEscapeUtils.escapeHtml(tokenError.getStackTrace());
+                rootObject.put(HTML, html);
             } else if ("deleteSystemError".equals(action)) {
-                Errors.removeSystemError(form.getName());
-            } else if ("getProcessError".equals(action)) {
-                List<ProcessError> processErrors = Delegates.getSystemService().getProcessErrors(getLoggedUser(request), form.getId());
-                ProcessErrorType type = ProcessErrorType.valueOf(request.getParameter("type"));
-                ProcessError patternError = new ProcessError(type, form.getId(), form.getName());
-                for (ProcessError processError : processErrors) {
-                    if (Objects.equal(processError, patternError)) {
-                        String html = "<form id='supportForm'>";
-                        html += "<input type='hidden' name='processId' value='" + form.getId() + "' />";
-                        html += "</form>";
-                        if (processError.getStackTrace() != null) {
-                            html += processError.getStackTrace();
-                        } else {
-                            html += HtmlEscapers.htmlEscaper().escape(processError.getMessage());
-                        }
-                        rootObject.put(HTML, html);
-                    }
-                }
-            } else if ("deleteProcessError".equals(action)) {
-                ProcessErrorType type = ProcessErrorType.valueOf(request.getParameter("type"));
-                ProcessError patternError = new ProcessError(type, form.getId(), form.getName());
-                Errors.removeProcessError(patternError);
+                SystemErrors.removeError(form.getName());
             } else if ("showSupportFiles".equals(action)) {
                 boolean fileIncluded = false;
                 request.getParameter("botId");
@@ -107,8 +90,8 @@ public class ErrorDetailsAction extends ActionBase {
                     initProcessHierarchy(user, processHierarchies, processId);
                 } else {
                     Set<Long> processIds = Sets.newHashSet();
-                    for (ProcessError processError : Delegates.getSystemService().getAllProcessErrors(getLoggedUser(request))) {
-                        processIds.add(processError.getProcessId());
+                    for (WfTokenError error : Delegates.getSystemService().getTokenErrors(getLoggedUser(request), null)) {
+                        processIds.add(error.getProcessId());
                     }
                     for (Long processId : processIds) {
                         initProcessHierarchy(user, processHierarchies, processId);
@@ -129,13 +112,12 @@ public class ErrorDetailsAction extends ActionBase {
                     JSONArray files = new JSONArray();
                     for (Long processId : processesEntry.getValue()) {
                         StringBuilder exceptions = new StringBuilder();
-                        List<ProcessError> processErrors = Delegates.getSystemService().getProcessErrors(getLoggedUser(request), processId);
-                        for (ProcessError processError : processErrors) {
+                        for (WfTokenError error : Delegates.getSystemService().getTokenErrorsByProcessId(getLoggedUser(request), processId)) {
                             exceptions.append("\r\n---------------------------------------------------------------");
-                            exceptions.append("\r\n").append(CalendarUtil.formatDateTime(processError.getOccurredDate())).append(" ");
-                            exceptions.append(processError.getNodeId()).append("/").append(processError.getNodeName()).append("\r\n");
-                            exceptions.append(HtmlEscapers.htmlEscaper().escape(processError.getMessage())).append("\r\n");
-                            exceptions.append(processError.getStackTrace());
+                            exceptions.append("\r\n").append(CalendarUtil.formatDateTime(error.getErrorDate())).append(" ");
+                            exceptions.append(error.getNodeId()).append("/").append(error.getNodeName()).append("\r\n");
+                            exceptions.append(HtmlEscapers.htmlEscaper().escape(error.getErrorMessage())).append("\r\n");
+                            exceptions.append(error.getStackTrace());
                         }
                         processFiles.put("exceptions." + processId + ".txt", exceptions.toString().getBytes(Charsets.UTF_8));
                     }

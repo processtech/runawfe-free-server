@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
-
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.SubprocessStartLog;
-import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskEndLog;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -28,7 +27,6 @@ import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
 
 /**
  * Creates graph element presentations for tooltips.
@@ -140,20 +138,13 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
             StringBuffer str = new StringBuffer();
             TaskEndLog taskEndLog = historyNode.getNodeLog(TaskEndLog.class);
             if (taskEndLog != null) {
-                String actor = taskEndLog.getActorName();
-                TaskAssignLog prev = historyNode.getNodeLog(TaskAssignLog.class);
-                if (prev != null) {
-                    if (prev.getOldExecutorName() != null && !prev.getOldExecutorName().equals(actor)) {
-                        actor = prev.getOldExecutorName();
+                String actorName = taskEndLog.getActorName();
+                Actor actor = ApplicationContextFactory.getExecutorDAO().getActor(actorName);
+                if (actor != null) {
+                    if (actor.getFullName() != null) {
+                        str.append("Full Name is " + actor.getFullName() + ".</br>");
                     }
-                }
-
-                Executor performedTaskExecutor = data.getExecutorByName(actor);
-                if (performedTaskExecutor != null) {
-                    if (performedTaskExecutor instanceof Actor && ((Actor) performedTaskExecutor).getFullName() != null) {
-                        str.append("Full Name is " + ((Actor) performedTaskExecutor).getFullName() + ".</br>");
-                    }
-                    str.append("Login is " + performedTaskExecutor.getName() + ".</br>");
+                    str.append("Login is " + actor.getName() + ".</br>");
                 }
             }
 

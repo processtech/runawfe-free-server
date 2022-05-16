@@ -10,8 +10,7 @@ final class CacheFactory {
 
     static {
         boolean useNonRuntime = SystemProperties.useNonRuntimeSubstitutionCache();
-        SUBSTITUTION_CACHE = !SystemProperties.useCacheStateMachine() ? new SubstitutionCacheCtrl()
-                : useNonRuntime ? new SubstitutionCacheStateCtrl() : new SubstitutionCacheStateCtrl(true);
+        SUBSTITUTION_CACHE = useNonRuntime ? new SubstitutionCacheStateCtrl() : new SubstitutionCacheStateCtrl(true);
     }
 
     public static SubstitutionCache getInstance() {

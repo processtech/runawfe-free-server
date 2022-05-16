@@ -199,6 +199,7 @@ public class DefinitionLogic extends WfCommonLogic {
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(deployment.getName());
         filter.setDefinitionVersion(deployment.getVersion());
+        filter.setFinished(false);
         List<Process> processes = processDao.getProcesses(filter);
         for (Process process : processes) {
             processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION), process, null);

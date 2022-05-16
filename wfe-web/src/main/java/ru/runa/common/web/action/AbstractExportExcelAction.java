@@ -108,11 +108,9 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
             int i = 0;
             for (TdBuilder builder : builders) {
                 String string = builder.getValue(object, env);
-                // TODO strings instead of native types
                 CellUtil.createCell(row, i++, string);
             }
         }
-
     }
 
     private static class EnvImpl extends EnvBaseImpl {
@@ -125,13 +123,17 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
         }
 
         @Override
+        public boolean isExcelExport() {
+            return true;
+        }
+
+        @Override
         public User getUser() {
             return user;
         }
 
         @Override
         public PageContext getPageContext() {
-            // TODO no localization
             return null;
         }
 

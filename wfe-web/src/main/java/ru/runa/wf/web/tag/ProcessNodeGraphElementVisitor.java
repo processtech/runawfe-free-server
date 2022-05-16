@@ -20,7 +20,6 @@ package ru.runa.wf.web.tag;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.jsp.PageContext;
-import org.apache.commons.lang.StringUtils;
 import org.apache.ecs.html.Area;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
@@ -31,8 +30,8 @@ import ru.runa.common.web.Resources;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.audit.ActionLog;
-import ru.runa.wfe.audit.NodeErrorLog;
 import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.Severity;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -48,7 +47,6 @@ import ru.runa.wfe.user.User;
  */
 public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
     private static final Pattern ACTION_LOG_PATTERN = Pattern.compile(".*?class=(.*?), configuration.*?", Pattern.DOTALL);
-    private static final String ERROR_CLASS_APPENDIX = " " + Resources.CLASS_FONT_RED;
 
     /**
      * Helper to create links to subprocesses.
@@ -114,9 +112,11 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
                 TR tr = new TR();
                 String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
                 tr.addElement(new TD().addElement(eventDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
-
-                final String errorClass = log instanceof NodeErrorLog ? ERROR_CLASS_APPENDIX : StringUtils.EMPTY;
-                tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD.concat(errorClass)));
+                if (log.getSeverity() == Severity.ERROR) {
+                    // to be escaped in js
+                    description = "<error>" + description + "</error>";
+                }
+                tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD));
                 table.addElement(tr);
             }
 

@@ -72,6 +72,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SEND_SIGNAL, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_CHATS));
     }
 
@@ -149,7 +150,7 @@ public class TabHeaderTag extends TagSupport {
                 }
                 return true;
             }
-            if (menuForward.menuMessage.getKey().equals("swich_chats")) {
+            if (menuForward.menuMessage.getKey().equals("chat_rooms")) {
                 return WebResources.isChatEnabled();
             }
             if (menuForward.menuMessage.getKey().equals("view_logs")) {

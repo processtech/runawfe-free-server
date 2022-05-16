@@ -38,8 +38,8 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.HistoryHeaderBuilder;
@@ -133,11 +133,10 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
             } else {
                 mergedRowsCount++;
             }
-            String tdClass = Resources.CLASS_LIST_TABLE_TD;
             if (log.getSeverity() == Severity.ERROR) {
-                tdClass = tdClass + " " + Resources.CLASS_FONT_RED;
+                description = "<b class='" + Resources.CLASS_FONT_RED + "'>" + description + "</b>";
             }
-            tr.addElement(new TD().addElement(description).setClass(tdClass));
+            tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD));
             rows.add(tr);
         }
         if (mergedEventDateTD != null) {

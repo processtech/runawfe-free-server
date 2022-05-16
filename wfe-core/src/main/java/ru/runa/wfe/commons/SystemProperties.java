@@ -84,20 +84,6 @@ public class SystemProperties {
     }
 
     /**
-     * Using cache state machine or old cache implementation.
-     */
-    public static boolean useCacheStateMachine() {
-        return NO_DATABASE_RESOURCES.getBooleanProperty("use.cache.state.machine", true);
-    }
-
-    /**
-     * Using cache state machine with caches isolation between transactions.
-     */
-    public static boolean useIsolatedCacheStateMachine() {
-        return NO_DATABASE_RESOURCES.getBooleanProperty("isolated.cache.state.machine", true);
-    }
-
-    /**
      * Using non runtime substitution cache instead of static substitution cache.
      */
     public static boolean useNonRuntimeSubstitutionCache() {
@@ -446,4 +432,21 @@ public class SystemProperties {
     public static boolean isProcessLogCleanButtonEnabled() {
         return RESOURCES.getBooleanProperty("processLog.cleanButton.enabled", false);
     }
+
+    public static int getDefinitionCompatibilityCheckProcessesLimit() {
+        return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
+    }
+
+    public static boolean isGlobalObjectsEnabled() {
+        return RESOURCES.getBooleanProperty("global.objects.enabled", true);
+    }
+
+    public static long getJobExecutorBatchSize() {
+        return RESOURCES.getLongProperty("job.executor.batch.size", 50L);
+    }
+
+    public static String getChatFileStoragePath() {
+        return RESOURCES.getStringProperty("chat.files.storage.path", IoCommons.getAppServerDirPath() + "/wfe.chat-files-storage");
+    }
+
 }

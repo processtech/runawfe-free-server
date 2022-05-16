@@ -1,13 +1,15 @@
 package ru.runa.wfe.service.delegate;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatRoom;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.chat.dto.request.AddMessageRequest;
+import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
+import ru.runa.wfe.chat.dto.request.EditMessageRequest;
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.ChatService;
-import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
@@ -21,109 +23,93 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public List<Long> getMentionedExecutorIds(User user, Long messageId) {
-        return getChatService().getMentionedExecutorIds(user, messageId);
+    public Long saveMessage(User user, AddMessageRequest request) {
+        try {
+            return getChatService().saveMessage(user, request);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
-    public void deleteFile(User user, Long id) {
-        getChatService().deleteFile(user, id);
+    public void editMessage(User user, EditMessageRequest request) {
+        try {
+            getChatService().editMessage(user, request);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
-    public ChatMessageDto saveMessageAndBindFiles(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors,
-            Boolean isPrivate, ArrayList<ChatMessageFile> files) {
-        return getChatService().saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, files);
+    public void deleteMessage(User user, DeleteMessageRequest request) {
+        try {
+            getChatService().deleteMessage(user, request);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
-    public void readMessage(User user, Long messageId) {
-        getChatService().readMessage(user, messageId);
+    public ChatMessage getMessage(User user, Long id) {
+        try {
+            return getChatService().getMessage(user, id);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
-    public Long getLastReadMessage(User user, Long processId) {
-        return getChatService().getLastReadMessage(user, processId);
+    public List<MessageAddedBroadcast> getMessages(User user, Long processId) {
+        try {
+            return getChatService().getMessages(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
-    public List<Long> getActiveChatIds(User user) {
-        return getChatService().getActiveChatIds(user);
+    public Long getNewMessagesCount(User user) {
+        try {
+            return getChatService().getNewMessagesCount(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
-    public Set<Executor> getAllUsers(User user, Long processId) {
-        return getChatService().getAllUsers(user, processId);
+    public int getChatRoomsCount(User user, BatchPresentation batchPresentation) {
+        try {
+            return getChatService().getChatRoomsCount(user, batchPresentation);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
-    public List<Long> getNewMessagesCounts(User user, List<Long> processIds, List<Boolean> isMentions) {
-        return getChatService().getNewMessagesCounts(user, processIds, isMentions);
-    }
-	
-    @Override
-    public void updateChatMessage(User user, ChatMessage message) {
-        getChatService().updateChatMessage(user, message);
-    }
-
-    @Override
-    public List<ChatMessageFile> getChatMessageFiles(User user, ChatMessage message) {
-        return getChatService().getChatMessageFiles(user, message);
+    public List<WfChatRoom> getChatRooms(User user, BatchPresentation batchPresentation) {
+        try {
+            return getChatService().getChatRooms(user, batchPresentation);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
-    public ChatMessageFile getChatMessageFile(User user, Long fileId) {
-        return getChatService().getChatMessageFile(user, fileId);
+    public ChatMessageFileDto getChatMessageFile(User user, Long fileId) {
+        try {
+            return getChatService().getChatMessageFile(user, fileId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
-    public ChatMessageFile saveChatMessageFile(User user, ChatMessageFile file) {
-        return getChatService().saveChatMessageFile(user, file);
-    }
-
-    @Override
-    public List<ChatMessageDto> getNewChatMessages(User user, Long processId) {
-        return getChatService().getNewChatMessages(user, processId);
-    }
-
-    @Override
-    public ChatMessage getChatMessage(User user, Long messageId) {
-        return getChatService().getChatMessage(user, messageId);
-    }
-
-    @Override
-    public ChatMessageDto getChatMessageDto(User user, Long messageId) {
-        return getChatService().getChatMessageDto(user, messageId);
-    }
-
-    @Override
-    public List<ChatMessageDto> getChatMessages(User user, Long processId, Long firstId, int count) {
-        return getChatService().getChatMessages(user, processId, firstId, count);
-    }
-
-    @Override
-    public List<ChatMessageDto> getFirstChatMessages(User user, Long processId, int count) {
-        return getChatService().getFirstChatMessages(user, processId, count);
-    }
-
-    @Override
-    public void deleteChatMessage(User user, Long messId) {
-        getChatService().deleteChatMessage(user, messId);
-    }
-
-    @Override
-    public Long getNewChatMessagesCount(User user, Long processId) {
-        return getChatService().getNewChatMessagesCount(user, processId);
-    }
-
-    @Override
-    public Long saveChatMessage(User user, Long processId, ChatMessage message, Set<Executor> mentionedExecutors, Boolean isPrivate) {
-        return getChatService().saveChatMessage(user, processId, message, mentionedExecutors, isPrivate);
-    }
-
-    @Override
-    public Long getLastMessage(User user, Long processId) {
-        return getChatService().getLastMessage(user, processId);
+    public void deleteChatMessages(User user, Long processId) {
+        try {
+            getChatService().deleteChatMessages(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
 }

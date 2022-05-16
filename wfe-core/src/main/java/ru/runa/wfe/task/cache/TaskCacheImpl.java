@@ -21,10 +21,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
-import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -92,11 +90,6 @@ class TaskCacheImpl extends BaseCacheImpl implements ManageableTaskCache {
         public int hashCode() {
             return batchPresentation.hashCode();
         }
-    }
-
-    @Override
-    public CacheImplementation unlock() {
-        return null;
     }
 
     @Override

@@ -42,10 +42,12 @@ public class VariableDefinition implements Serializable {
     private String description;
     private String format;
     private String formatLabel;
+    private boolean global;
     private UserType userType;
     // web-service serialization limitation
     private UserType[] formatComponentUserTypes;
     private boolean publicAccess;
+    private boolean editableInChat;
     private Object defaultValue;
     private VariableStoreType storeType = VariableStoreType.DEFAULT;
     private transient VariableFormat variableFormat;
@@ -161,6 +163,14 @@ public class VariableDefinition implements Serializable {
 
     public void setPublicAccess(boolean publicAccess) {
         this.publicAccess = publicAccess;
+    }
+
+    public boolean isEditableInChat() {
+        return editableInChat;
+    }
+
+    public void setEditableInChat(boolean editableInChat) {
+        this.editableInChat = editableInChat;
     }
 
     public Object getDefaultValue() {
@@ -284,4 +294,13 @@ public class VariableDefinition implements Serializable {
     public void setStoreType(VariableStoreType storeType) {
         this.storeType = storeType;
     }
+
+    public boolean isGlobal() {
+        return global;
+    }
+
+    public void setGlobal(boolean global) {
+        this.global = global;
+    }
+
 }

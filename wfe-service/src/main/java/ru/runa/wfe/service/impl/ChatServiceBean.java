@@ -1,8 +1,6 @@
 package ru.runa.wfe.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -16,15 +14,26 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.chat.ChatMessage;
-import ru.runa.wfe.chat.ChatMessageFile;
-import ru.runa.wfe.chat.dto.ChatMessageDto;
+import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatMessageBroadcast;
+import ru.runa.wfe.chat.dto.WfChatRoom;
+import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageEditedBroadcast;
+import ru.runa.wfe.chat.dto.request.AddMessageRequest;
+import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
+import ru.runa.wfe.chat.dto.request.EditMessageRequest;
+import ru.runa.wfe.chat.logic.ChatFileLogic;
 import ru.runa.wfe.chat.logic.ChatLogic;
+import ru.runa.wfe.chat.socket.BroadcastMessageTransactionListenerFactory;
+import ru.runa.wfe.commons.TransactionListeners;
+import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
 import ru.runa.wfe.service.decl.ChatServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
-import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 @Stateless(name = "ChatServiceBean")
@@ -36,161 +45,98 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
 
     @Autowired
     private ChatLogic chatLogic;
+    @Autowired
+    private ChatFileLogic chatFileLogic;
+    @Autowired
+    private BroadcastMessageTransactionListenerFactory transactionListenerFactory;
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<Long> getMentionedExecutorIds(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") Long messageId) {
-        return chatLogic.getMentionedExecutorIds(messageId);
+    public Long saveMessage(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "request") @NonNull AddMessageRequest request
+    ) {
+        final WfChatMessageBroadcast<MessageAddedBroadcast> wfChatMessageBroadcast = chatLogic.saveMessage(user, request);
+        TransactionListeners.addListener(transactionListenerFactory.createListener(wfChatMessageBroadcast), false);
+        return wfChatMessageBroadcast.getBroadcast().getId();
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public void deleteFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "id") @NonNull Long id) {
-        chatLogic.deleteFile(user, id);
+    public void editMessage(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "request") @NonNull EditMessageRequest request
+    ) {
+        final WfChatMessageBroadcast<MessageEditedBroadcast> wfChatMessageBroadcast = chatLogic.editMessage(user, request);
+        TransactionListeners.addListener(transactionListenerFactory.createListener(wfChatMessageBroadcast), false);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public ChatMessageDto saveMessageAndBindFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
-            @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
-            Boolean isPrivate, ArrayList<ChatMessageFile> files) {
-        return chatLogic.saveMessageAndBindFiles(user, processId, message, mentionedExecutors, isPrivate, files);
+    public void deleteMessage(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "request") @NonNull DeleteMessageRequest request) {
+        final WfChatMessageBroadcast<MessageDeletedBroadcast> wfChatMessageBroadcast = chatLogic.deleteMessage(user, request);
+        TransactionListeners.addListener(transactionListenerFactory.createListener(wfChatMessageBroadcast), false);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public void readMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long messageId) {
-        chatLogic.readMessage(user.getActor(), messageId);
+    public ChatMessage getMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long id) {
+        return chatLogic.getMessageById(user, id);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public Long getLastReadMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getLastReadMessage(user.getActor(), processId);
+    public List<MessageAddedBroadcast> getMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
+        return chatLogic.getMessages(user, processId);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public Long getLastMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getLastMessage(user.getActor(), processId);
+    public Long getNewMessagesCount(@WebParam(name = "user") @NonNull User user) {
+        return chatLogic.getNewMessagesCount(user);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<Long> getActiveChatIds(@WebParam(name = "user") @NonNull User user) {
-        return chatLogic.getActiveChatIds(user.getActor());
-    }
-
-    @WebMethod(exclude = false)
-    @WebResult(name = "result")
-    @Override
-    public Set<Executor> getAllUsers(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getAllUsers(processId, user.getActor());
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public List<Long> getNewMessagesCounts(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processIds") List<Long> processIds,
-            @WebParam(name = "isMentions") List<Boolean> isMentions) {
-        return chatLogic.getNewMessagesCounts(processIds, isMentions, user.getActor());
+    public int getChatRoomsCount(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.CHAT_ROOMS.createNonPaged();
+        }
+        return chatLogic.getChatRoomsCount(user, batchPresentation);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public void updateChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") ChatMessage message) {
-        chatLogic.updateMessage(message);
+    public List<WfChatRoom> getChatRooms(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.CHAT_ROOMS.createNonPaged();
+        }
+        return chatLogic.getChatRooms(user, batchPresentation);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public List<ChatMessageFile> getChatMessageFiles(@WebParam(name = "user") @NonNull User user, @WebParam(name = "message") ChatMessage message) {
-        return chatLogic.getMessageFiles(user.getActor(), message);
+    public ChatMessageFileDto getChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "fileId") Long fileId) {
+        return chatFileLogic.getById(user, fileId);
     }
 
     @WebMethod(exclude = false)
     @Override
     @WebResult(name = "result")
-    public ChatMessageFile getChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "fileId") Long fileId) {
-        return chatLogic.getFile(user.getActor(), fileId);
+    public void deleteChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
+        chatLogic.deleteMessages(user, processId);
     }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public ChatMessageFile saveChatMessageFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "file") ChatMessageFile file) {
-        return chatLogic.saveFile(file);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public List<ChatMessageDto> getNewChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getNewMessages(user.getActor(), processId);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public ChatMessage getChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long messageId) {
-        return chatLogic.getMessage(messageId);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public ChatMessageDto getChatMessageDto(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messageId") Long messageId) {
-        return chatLogic.getMessageDto(messageId);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public List<ChatMessageDto> getChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "firstIndex") Long firstIndex, @WebParam(name = "count") int count) {
-        return chatLogic.getMessages(user.getActor(), processId, firstIndex, count);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public List<ChatMessageDto> getFirstChatMessages(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "count") int count) {
-        return chatLogic.getFirstMessages(user.getActor(), processId, count);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public void deleteChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "messId") Long messId) {
-        chatLogic.deleteMessage(messId);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public Long getNewChatMessagesCount(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId) {
-        return chatLogic.getNewMessagesCount(user.getActor(), processId);
-    }
-
-    @WebMethod(exclude = false)
-    @Override
-    @WebResult(name = "result")
-    public Long saveChatMessage(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "message") ChatMessage message, @WebParam(name = "mentionedExecutors") Set<Executor> mentionedExecutors,
-            @WebParam(name = "isPrivate") Boolean isPrivate) {
-        Long id = chatLogic.saveMessage(processId, message, mentionedExecutors, isPrivate);
-        chatLogic.sendNotifications(message, mentionedExecutors);
-        return id;
-    }
-
 }

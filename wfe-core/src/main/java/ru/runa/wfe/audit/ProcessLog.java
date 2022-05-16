@@ -21,11 +21,13 @@
  */
 package ru.runa.wfe.audit;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
-
+import java.util.Map;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -47,15 +49,9 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
-
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
@@ -84,8 +80,9 @@ public abstract class ProcessLog implements Attributes, Serializable, Comparable
     private Long tokenId;
     private Date createDate;
     private Severity severity = Severity.DEBUG;
+    private String serializedAttributes;
     @XmlTransient
-    private HashMap<String, String> attributes = Maps.newHashMap();
+    private Map<String, String> attributes;
     private byte[] bytes;
     private String nodeId;
 
@@ -153,11 +150,17 @@ public abstract class ProcessLog implements Attributes, Serializable, Comparable
 
     @Column(name = "CONTENT", length = 4000)
     public String getContent() {
-        return XmlUtils.serialize(attributes);
+        return serializedAttributes;
     }
 
-    public void setContent(String content) {
-        attributes = XmlUtils.deserialize(content);
+    public void setContent(String serializedAttributes) {
+        this.serializedAttributes = serializedAttributes;
+    }
+
+    public void serializeAttributes() {
+        if (attributes != null) {
+            serializedAttributes = XmlUtils.serialize(attributes);
+        }
     }
 
     @Lob
@@ -180,7 +183,7 @@ public abstract class ProcessLog implements Attributes, Serializable, Comparable
     }
 
     protected void addAttribute(String name, String value) {
-        attributes.put(name, value);
+        getAttributes().put(name, value);
     }
 
     protected void addAttributeWithTruncation(String name, String value) {
@@ -191,7 +194,7 @@ public abstract class ProcessLog implements Attributes, Serializable, Comparable
     }
 
     protected String getAttribute(String name) {
-        return attributes.get(name);
+        return getAttributes().get(name);
     }
 
     protected String getAttributeNotNull(String name) {
@@ -242,6 +245,19 @@ public abstract class ProcessLog implements Attributes, Serializable, Comparable
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("id", id).add("nodeId", nodeId).add("tokenId", tokenId)
-                .add("date", CalendarUtil.formatDateTime(createDate)).add("attributes", attributes).toString();
+                .add("date", CalendarUtil.formatDateTime(createDate)).toString();
     }
+
+    @Transient
+    private Map<String, String> getAttributes() {
+        if (attributes == null) {
+            if (serializedAttributes == null) {
+                attributes = new HashMap<>();
+            } else {
+                attributes = XmlUtils.deserialize(serializedAttributes);
+            }
+        }
+        return attributes;
+    }
+
 }

@@ -3,7 +3,6 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.audit.presentation.ProcessIdValue;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.execution.Process;
@@ -17,7 +16,7 @@ import ru.runa.wfe.lang.Node;
  */
 @Entity
 @DiscriminatorValue(value = "Z")
-public class SubprocessEndLog extends NodeLeaveLog {
+public class SubprocessEndLog extends NodeLog {
     private static final long serialVersionUID = 1L;
 
     public SubprocessEndLog() {
