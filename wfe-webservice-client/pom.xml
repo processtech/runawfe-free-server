@@ -96,6 +96,10 @@
 					<groupId>com.sun.istack</groupId>
 					<artifactId>istack-commons-runtime</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>woodstox</groupId>
+					<artifactId>wstx-asl</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
