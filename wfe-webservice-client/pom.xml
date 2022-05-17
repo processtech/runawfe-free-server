@@ -93,8 +93,8 @@
 			<version>3.4.1.GA</version>
 			<exclusions>
 				<exclusion>
-					<artifactId>com.sun.istack</artifactId>
-					<groupId>istack-commons-runtime</groupId>
+					<groupId>com.sun.istack</groupId>
+					<artifactId>istack-commons-runtime</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
