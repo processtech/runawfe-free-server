@@ -91,6 +91,12 @@
 			<groupId>org.jboss.ws.native</groupId>
 			<artifactId>jbossws-native-client</artifactId>
 			<version>3.4.1.GA</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>com.sun.istack</artifactId>
+					<groupId>istack-commons-runtime</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss</groupId>
