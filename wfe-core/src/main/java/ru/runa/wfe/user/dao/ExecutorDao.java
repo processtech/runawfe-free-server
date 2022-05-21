@@ -349,13 +349,28 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
 
     /**
      * Load all {@linkplain Actor}s according to {@linkplain BatchPresentation} .</br> <b>Paging is not enabled. Really ALL actors is loading.</b>
-     * 
+     *
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load actors.
      * @return {@linkplain Actor}s, loaded according to {@linkplain BatchPresentation}.
      */
     public List<Actor> getAllActors(BatchPresentation batchPresentation) {
         return getAll(Actor.class, batchPresentation);
+    }
+
+    /**
+     * Load all {@linkplain Actor}s who have eMail with pagination.
+     *
+     * @param pageIndex
+     *            page number (first page = 0)
+     * @param pageSize
+     *            number of items for a page
+     * @return {@linkplain Actor}s who have eMail, loaded according to page namber and item count.
+     */
+    public List<Actor> getAllActorsHaveEmailWithPagination(int pageIndex, int pageSize) {
+        QActor a = QActor.actor;
+        return queryFactory.selectFrom(a).where(a.active.isTrue().and(a.email.isNotNull().and(a.email.isNotEmpty())))
+                .orderBy(a.id.asc()).offset(pageIndex * pageSize).limit(pageSize).fetch();
     }
 
     /**

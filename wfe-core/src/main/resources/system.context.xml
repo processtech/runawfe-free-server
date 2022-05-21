@@ -253,6 +253,7 @@
 			</list>
 		</property>
 	</bean>
+
 	<bean id="profileLogic" class="ru.runa.wfe.user.logic.ProfileLogic" />
 	<bean id="relationLogic" class="ru.runa.wfe.relation.logic.RelationLogic" />
 	<bean id="substitutionLogic" class="ru.runa.wfe.ss.logic.SubstitutionLogic" />
@@ -262,11 +263,12 @@
 	<bean id="executionLogic" class="ru.runa.wfe.execution.logic.ExecutionLogic" />
 	<bean id="taskLogic" class="ru.runa.wfe.task.logic.TaskLogic" />
 	<bean id="variableLogic" class="ru.runa.wfe.var.logic.VariableLogic" />
+	<bean id="chatLogic" class="ru.runa.wfe.chat.logic.ChatLogic" />
+	<bean id="chatFileLogic" class="ru.runa.wfe.chat.logic.ChatFileLogic" />
 	<bean id="assignmentHelper" class="ru.runa.wfe.extension.assign.AssignmentHelper" />
 	<bean id="adminScriptRunner" class="ru.runa.wfe.script.AdminScriptRunner" />
 	<bean id="reportLogic" class="ru.runa.wfe.report.logic.ReportLogic" />
 	<bean id="adminScriptLogic" class="ru.runa.wfe.script.logic.AdminScriptLogic" />
-
 	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
 
 	<task:scheduler id="baseScheduler" />
@@ -279,6 +281,8 @@
 	<bean id="asyncTaskChecker" class="ru.runa.wfe.job.impl.AsyncTaskChecker">
 		<property name="ttlInSeconds" value="${async.tasks.ttl.in.seconds}" />
 	</bean>
+	<bean id="pingSessionsJob" class="ru.runa.wfe.chat.socket.PingSessionsJob" />
+	<bean id="chatUnusedFilesCleanerJob" class="ru.runa.wfe.chat.ChatUnusedFilesCleanerJob" />
 	<bean id="expiredSignalsCleaner" class="ru.runa.wfe.job.impl.ExpiredSignalsCleaner" />
 
 	<task:scheduled-tasks scheduler="baseScheduler">
@@ -287,6 +291,8 @@
 		<task:scheduled ref="unusedTemporaryGroupsCleaner" method="execute" fixed-delay="${timertask.period.millis.remove.temp.groups}" />
 		<task:scheduled ref="asyncTaskChecker" method="execute" fixed-delay="${timertask.period.millis.async.tasks.checker}" />
 		<task:scheduled ref="cacheUsageStatisticLogger" method="execute" cron="${timertask.cron.cache.usage.statistic.logger}" />
+		<task:scheduled ref="pingSessionsJob" method="execute" fixed-delay="${timertask.period.millis.ping.chat.sessions}" />
+		<task:scheduled ref="chatUnusedFilesCleanerJob" method="execute" fixed-delay="${timertask.period.millis.clean.unused.chat.files}" />
 		<task:scheduled ref="expiredSignalsCleaner" method="execute" fixed-delay="${timertask.period.millis.expired.signals.execution}" />
 	</task:scheduled-tasks>
 

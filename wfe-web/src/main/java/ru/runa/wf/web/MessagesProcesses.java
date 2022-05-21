@@ -108,11 +108,12 @@ public final class MessagesProcesses {
     public static final StrutsMessage ROUTING_PARAMETER_VALUE = new StrutsMessage("label.routing_parameter_value");
     public static final StrutsMessage PAYLOAD_PARAMETER_NAME = new StrutsMessage("label.payload_parameter_name");
     public static final StrutsMessage PAYLOAD_PARAMETER_VALUE = new StrutsMessage("label.payload_parameter_value");
-    public static final StrutsMessage SIGNAL_MESSAGE_IS_SENT = new StrutsMessage("signal.message_is_sent");
     public static final StrutsMessage BUTTON_VIEW_DIFFERENCES = new StrutsMessage("button.view_differences");
     public static final StrutsMessage FAILED_VIEW_DIFFERENCES = new StrutsMessage("failed.view_differences");
     public static final StrutsMessage LABEL_NO_DIFFERENCES_FOUND = new StrutsMessage("label.no_differences_found");
 
     public static final StrutsMessage PROCESS_LOG_CLEAN_SUCCESS = new StrutsMessage("process_log_clean.success");
     public static final StrutsMessage PROCESS_LOG_CLEAN_FAIL = new StrutsMessage("process_log_clean.fail");
+
+    public static final StrutsMessage TITLE_CHAT_ROOMS = new StrutsMessage("title.chat_rooms");
 }

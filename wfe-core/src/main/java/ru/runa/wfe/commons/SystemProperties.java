@@ -441,4 +441,12 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("global.objects.enabled", true);
     }
 
+    public static long getJobExecutorBatchSize() {
+        return RESOURCES.getLongProperty("job.executor.batch.size", 50L);
+    }
+
+    public static String getChatFileStoragePath() {
+        return RESOURCES.getStringProperty("chat.files.storage.path", IoCommons.getAppServerDirPath() + "/wfe.chat-files-storage");
+    }
+
 }

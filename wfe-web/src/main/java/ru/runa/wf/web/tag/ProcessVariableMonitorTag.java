@@ -72,35 +72,14 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        User user = getUser();
-        List<WfVariable> variables;
-        String date = pageContext.getRequest().getParameter("date");
-        if (Strings.isNullOrEmpty(date)) {
-            variables = Delegates.getExecutionService().getVariables(user, getIdentifiableId());
-        } else {
-            Date historicalDateTo = CalendarUtil.convertToDate(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
-            Calendar dateToCalendar = CalendarUtil.dateToCalendar(historicalDateTo);
-            dateToCalendar.add(Calendar.SECOND, 5);
-            historicalDateTo = dateToCalendar.getTime();
-            dateToCalendar.add(Calendar.SECOND, -10);
-            Date historicalDateFrom = dateToCalendar.getTime();
-            ProcessLogFilter historyFilter = new ProcessLogFilter(getIdentifiableId());
-            historyFilter.setCreateDateTo(historicalDateTo);
-            historyFilter.setCreateDateFrom(historicalDateFrom);
-            variables = Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
-        }
-        if (WebResources.isUpdateProcessVariablesEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
+        List<WfVariable> variables = getVariables(getUser());
+        if (WebResources.isUpdateProcessVariablesEnabled() && isAvailable()) {
             Table table = new Table();
             tdFormElement.addElement(table);
 
             TR updateVariableTR = new TR();
             table.addElement(updateVariableTR);
-
-            Map<String, Object> params = Maps.newHashMap();
-            params.put("id", identifiableId);
-            String updateVariableUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_VARIABLES, params, pageContext, PortletUrlType.Render);
-            A a = new A(updateVariableUrl, MessagesProcesses.LINK_UPDATE_VARIABLE.message(pageContext));
-            updateVariableTR.addElement(new TD(a));
+            addOptionalElements(updateVariableTR);
         }
 
         List<String> headerNames = Lists.newArrayList();
@@ -117,6 +96,38 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
         RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
+    }
+
+    protected List<WfVariable> getVariables(User user) {
+        List<WfVariable> variables;
+        String date = pageContext.getRequest().getParameter("date");
+        if (Strings.isNullOrEmpty(date)) {
+            variables = Delegates.getExecutionService().getVariables(user, getIdentifiableId());
+        } else {
+            Date historicalDateTo = CalendarUtil.convertToDate(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
+            Calendar dateToCalendar = CalendarUtil.dateToCalendar(historicalDateTo);
+            dateToCalendar.add(Calendar.SECOND, 5);
+            historicalDateTo = dateToCalendar.getTime();
+            dateToCalendar.add(Calendar.SECOND, -10);
+            Date historicalDateFrom = dateToCalendar.getTime();
+            ProcessLogFilter historyFilter = new ProcessLogFilter(getIdentifiableId());
+            historyFilter.setCreateDateTo(historicalDateTo);
+            historyFilter.setCreateDateFrom(historicalDateFrom);
+            variables = Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
+        }
+        return variables;
+    }
+
+    protected boolean isAvailable() {
+        return Delegates.getExecutorService().isAdministrator(getUser());
+    }
+
+    protected void addOptionalElements(TR updateVariableTR) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("id", identifiableId);
+        String updateVariableUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_VARIABLES, params, pageContext, PortletUrlType.Render);
+        A a = new A(updateVariableUrl, MessagesProcesses.LINK_UPDATE_VARIABLE.message(pageContext));
+        updateVariableTR.addElement(new TD(a));
     }
 
     @Override

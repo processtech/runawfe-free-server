@@ -164,4 +164,10 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
         return commonLogic.exportDataFile(user);
     }
 
+    @Override
+    @WebResult(name = "result")
+    public boolean isPasswordCheckRequired(){
+        return commonLogic.isPasswordCheckRequired();
+    }
+
 }

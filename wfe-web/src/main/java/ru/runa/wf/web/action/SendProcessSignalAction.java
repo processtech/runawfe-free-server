@@ -1,22 +1,19 @@
 package ru.runa.wf.web.action;
 
+import com.google.common.base.Charsets;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.struts.Globals;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessage;
-import org.apache.struts.action.ActionMessages;
-import ru.runa.common.web.Commons;
-import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.FormSubmissionUtils;
-import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.SignalUtils;
 import ru.runa.wf.web.VariablesFormatException;
 import ru.runa.wf.web.form.SendProcessSignalForm;
@@ -28,9 +25,7 @@ import ru.runa.wfe.var.format.VariableFormat;
 /**
  * Created on 10.04.2019
  *
- * @struts:action path="/sendProcessSignal" name="sendProcessSignalForm" validate="true" input = "/WEB-INF/wf/send_process_signal.jsp"
- * @struts.action-forward name="success" path="/manage_processes.do" redirect = "true"
- * @struts.action-forward name="failure" path="/manage_processes.do" redirect = "true"
+ * @struts:action path="/sendProcessSignal" name="sendProcessSignalForm" validate="false"
  */
 public class SendProcessSignalAction extends ActionBase {
 
@@ -39,36 +34,30 @@ public class SendProcessSignalAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         SendProcessSignalForm sendForm = (SendProcessSignalForm) form;
-        Map<String, String> routingData = initRoutingMap(sendForm.getRoutingParam(), sendForm.getRoutingValue());
-        Map<String, Object> payloadData = initPayloadMap(sendForm, request);
-
-        ActionMessages errors = getActionMessages(request, Globals.ERROR_KEY);
-
-        if (!errors.isEmpty()) {
-            return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), new HashMap<>());
-        }
         try {
+            Map<String, String> routingData = initRoutingMap(sendForm.getRoutingParam(), sendForm.getRoutingValue());
+            Map<String, Object> payloadData = initPayloadMap(sendForm, request);
             Delegates.getExecutionService().sendSignal(getLoggedUser(request), routingData, payloadData, 1);
         } catch (Exception e) {
-            addError(request, e);
-            return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), new HashMap<>());
+            writeResponse(response, e.getMessage());
         }
-        addMessage(request, new ActionMessage(MessagesProcesses.SIGNAL_MESSAGE_IS_SENT.getKey()));
-        return mapping.findForward(Resources.FORWARD_SUCCESS);
+        return null;
     }
 
-    private ActionMessages getActionMessages(HttpServletRequest request, String key) {
-        ActionMessages errors = (ActionMessages) request.getAttribute(key);
-        if (errors == null) {
-            errors = (ActionMessages) request.getSession().getAttribute(key);
+    private void writeResponse(HttpServletResponse response, String data) {
+        try {
+            response.setContentType("text/html");
+            response.setHeader("Pragma", "public");
+            response.setHeader("Cache-Control", "max-age=0");
+            OutputStream os = response.getOutputStream();
+            os.write(data.getBytes(Charsets.UTF_8));
+            os.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        if (errors == null) {
-            errors = new ActionMessages();
-        }
-        return errors;
     }
 
-    private Map<String, Object> initPayloadMap(SendProcessSignalForm form, HttpServletRequest request) {
+    private Map<String, Object> initPayloadMap(SendProcessSignalForm form, HttpServletRequest request) throws Exception {
         Map<Integer, String[]> paramMap = form.getPayloadParam();
         Map<Integer, String[]> valueMap = form.getPayloadValue();
         Map<Integer, String[]> payloadType = form.getPayloadType();
@@ -92,21 +81,17 @@ public class SendProcessSignalAction extends ActionBase {
         Map<String, Object> payloadResult = new HashMap<>();
 
         for (Map.Entry<String, String> entry : payloadData.entrySet()) {
-            try {
-                Map<String, String> errors = new HashMap<>();
-                String variableName = entry.getKey();
-                VariableDefinition variableDefinition = new VariableDefinition(variableName, null, varToFormatMap.get(variableName));
-                Object value = FormSubmissionUtils.extractVariable(request, payloadData, variableDefinition, errors);
-                payloadResult.put(variableName, value);
-                if (errors.size() > 0) {
-                    List<String> errorValues = new ArrayList<>();
-                    for (Map.Entry<String, String> errorEntry : errors.entrySet()) {
-                        errorValues.add(errorEntry.getKey() + " ->" + errorEntry.getValue());
-                    }
-                    throw new VariablesFormatException(errorValues);
+            Map<String, String> errors = new HashMap<>();
+            String variableName = entry.getKey();
+            VariableDefinition variableDefinition = new VariableDefinition(variableName, null, varToFormatMap.get(variableName));
+            Object value = FormSubmissionUtils.extractVariable(request, payloadData, variableDefinition, errors);
+            payloadResult.put(variableName, value);
+            if (errors.size() > 0) {
+                List<String> errorValues = new ArrayList<>();
+                for (Map.Entry<String, String> errorEntry : errors.entrySet()) {
+                    errorValues.add(errorEntry.getKey() + " ->" + errorEntry.getValue());
                 }
-            } catch (Exception e) {
-                addError(request, e);
+                throw new VariablesFormatException(errorValues);
             }
         }
         return payloadResult;

@@ -34,4 +34,5 @@
 	<component name="SingleSelectFromUserTypeList" class="ru.runa.wf.web.ftl.component.SingleSelectFromUserTypeList" />
     <component name="EditUserTypeList" class="ru.runa.wf.web.ftl.component.EditUserTypeList" />
     <component name="SelectFromInternalStorage" class="ru.runa.wf.web.ftl.component.SelectFromInternalStorage" />
+	<component name="EdsInteraction" class="ru.runa.wf.web.ftl.component.EdsInteraction" />
 </configuration>

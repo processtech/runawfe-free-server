@@ -103,4 +103,6 @@ public interface SystemService {
      */
     byte[] exportDataFile(User user) throws AuthorizationException;
 
+    boolean isPasswordCheckRequired();
+
 }
