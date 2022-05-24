@@ -98,4 +98,6 @@ public interface SystemService {
      */
     byte[] exportDataFile(User user);
 
+    boolean isPasswordCheckRequired();
+
 }

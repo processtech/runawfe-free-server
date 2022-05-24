@@ -36,5 +36,11 @@
 		<B style="color: blue;"><bean:write name="message" /></B>
 	</html:messages>
 </span>
+
+<%--Used for chat alerts displaying --%>
+	<div class="chatAlert">
+		<b id="chatErrorAlert" style="color: red;"></b>
+		<b id="chatNotificationAlert" style="color: blue;"></b>
+	</div>
 </center>
 </div>

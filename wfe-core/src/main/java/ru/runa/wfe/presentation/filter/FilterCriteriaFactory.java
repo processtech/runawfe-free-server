@@ -21,6 +21,7 @@ public class FilterCriteriaFactory {
     static {
         filterCriterias.put(String.class, StringFilterCriteria.class);
         filterCriterias.put(Integer.class, LongFilterCriteria.class);
+        filterCriterias.put(Long.class, LongFilterCriteria.class);
         filterCriterias.put(Date.class, DateFilterCriteria.class);
         filterCriterias.put(CurrentVariable.class, StringFilterCriteria.class);
         filterCriterias.put(ArchivedVariable.class, StringFilterCriteria.class);

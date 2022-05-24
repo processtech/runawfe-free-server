@@ -23,6 +23,7 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessVariablesRowBuilder;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -54,7 +55,33 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        User user = getUser();
+        List<WfVariable> variables = getVariables(getUser());
+        if (WebResources.isUpdateProcessVariablesEnabled() && isAvailable()) {
+            Table table = new Table();
+            tdFormElement.addElement(table);
+
+            TR updateVariableTR = new TR();
+            table.addElement(updateVariableTR);
+            addOptionalElements(updateVariableTR);
+        }
+
+        List<String> headerNames = Lists.newArrayList();
+        headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
+        if (SystemProperties.isGlobalObjectsEnabled()) {
+            headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));
+        }
+        headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
+        if (WebResources.isDisplayVariablesJavaType()) {
+            headerNames.add("Java " + MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
+        }
+        headerNames.add(MessagesProcesses.LABEL_VARIABLE_VALUE.message(pageContext));
+        HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);
+
+        RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext);
+        tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
+    }
+
+    protected List<WfVariable> getVariables(User user) {
         List<WfVariable> variables;
         String date = pageContext.getRequest().getParameter("date");
         if (Strings.isNullOrEmpty(date)) {
@@ -71,31 +98,19 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
             historyFilter.setCreateDateFrom(historicalDateFrom);
             variables = Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
         }
-        if (WebResources.isUpdateProcessVariablesEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
-            Table table = new Table();
-            tdFormElement.addElement(table);
+        return variables;
+    }
 
-            TR updateVariableTR = new TR();
-            table.addElement(updateVariableTR);
+    protected boolean isAvailable() {
+        return Delegates.getExecutorService().isAdministrator(getUser());
+    }
 
-            Map<String, Object> params = Maps.newHashMap();
-            params.put("id", identifiableId);
-            String updateVariableUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_VARIABLES, params, pageContext, PortletUrlType.Render);
-            A a = new A(updateVariableUrl, MessagesProcesses.LINK_UPDATE_VARIABLE.message(pageContext));
-            updateVariableTR.addElement(new TD(a));
-        }
-
-        List<String> headerNames = Lists.newArrayList();
-        headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
-        headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
-        if (WebResources.isDisplayVariablesJavaType()) {
-            headerNames.add("Java " + MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
-        }
-        headerNames.add(MessagesProcesses.LABEL_VARIABLE_VALUE.message(pageContext));
-        HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);
-
-        RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext);
-        tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
+    protected void addOptionalElements(TR updateVariableTR) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("id", identifiableId);
+        String updateVariableUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_VARIABLES, params, pageContext, PortletUrlType.Render);
+        A a = new A(updateVariableUrl, MessagesProcesses.LINK_UPDATE_VARIABLE.message(pageContext));
+        updateVariableTR.addElement(new TD(a));
     }
 
     @Override

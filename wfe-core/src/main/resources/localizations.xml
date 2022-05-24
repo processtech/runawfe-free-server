@@ -24,6 +24,7 @@
   <artifact enabled="true" name="ru.runa.wfe.office.excel.handler.ExcelSaveHandler" label="Excel: Save data to"/>
   <artifact enabled="false" name="ru.runa.wfe.extension.handler.BSHActionHandler" label="Execute BeanShell script"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.GroovyActionHandler" label="Execute Groovy script"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.BusinessRuleHandler" label="Business rule"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.JavaScriptActionHandler" label="Execute JavaScript"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.RhinoJSActionHandler" label="Execute JavaScript (rhino)"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.SQLActionHandler" label="Execute SQL"/>

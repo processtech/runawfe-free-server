@@ -181,6 +181,7 @@ public abstract class Node extends GraphElement {
                 eventToken.setNodeEnterDate(new Date());
                 ApplicationContextFactory.getCurrentTokenDao().create(eventToken);
                 ExecutionContext eventExecutionContext = new ExecutionContext(getParsedProcessDefinition(), eventToken);
+                eventExecutionContext.addLog(new CurrentNodeEnterLog((Node) boundaryEvent));
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
         }
@@ -217,6 +218,12 @@ public abstract class Node extends GraphElement {
      * override this method to customize the node behavior.
      */
     protected abstract void execute(ExecutionContext executionContext) throws Exception;
+
+    /**
+     * override this method to customize the node behavior.
+     */
+    public void cancel(ExecutionContext executionContext) {
+    }
 
     /**
      * called by the implementation of this node to continue execution over the default transition.

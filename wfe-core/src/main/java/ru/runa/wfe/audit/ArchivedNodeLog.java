@@ -2,6 +2,7 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 
 @MappedSuperclass
@@ -23,6 +24,12 @@ public abstract class ArchivedNodeLog extends ArchivedProcessLog implements Node
     @Transient
     public NodeType getNodeType() {
         return NodeType.valueOf(getAttributeNotNull(ATTR_NODE_TYPE));
+    }
+
+    @Override
+    @Transient
+    public Node getNode() {
+        return null;
     }
 
     @Override

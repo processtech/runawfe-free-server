@@ -2,6 +2,7 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
@@ -394,4 +395,11 @@ public interface ExecutionService {
      */
     boolean signalReceiverIsActive(User user, Map<String, String> routingData);
 
+    /**
+     * @param user authorized user
+     * @param processId process id
+     * @param expandGroups extract actors from groups if true, otherwise return groups
+     * @return Actors if expandGroups, otherwise Actors and Groups
+     */
+    Set<Executor> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups);
 }

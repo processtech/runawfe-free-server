@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -49,11 +50,18 @@ public class ViewLogsAction extends ActionBase {
             String logDirPath = IoCommons.getLogDirPath();
             request.setAttribute("logDirPath", logDirPath);
             ViewLogForm form = (ViewLogForm) actionForm;
-            if (form.getFileName() != null) {
-                File file = new File(logDirPath, form.getFileName());
+            String fileName = form.getFileName();
+            if (fileName != null) {
+                File file = new File(logDirPath, fileName);
+                String canonicalPath = file.getCanonicalPath();
+                if (!canonicalPath.contains(logDirPath)) {
+                    FileNotFoundException fnf = new FileNotFoundException("File not found " + file);
+                    addError(request, fnf);
+                    return mapping.findForward(Resources.FORWARD_FAILURE);
+                }
 
                 if (form.getMode() == ViewLogForm.MODE_DOWNLOAD) {
-                    String encodedFileName = HTMLUtils.encodeFileName(request, form.getFileName());
+                    String encodedFileName = HTMLUtils.encodeFileName(request, fileName);
                     response.setHeader("Content-disposition", "attachment; filename=\"" + encodedFileName + "\"");
                     OutputStream os = response.getOutputStream();
                     Files.copy(file, os);

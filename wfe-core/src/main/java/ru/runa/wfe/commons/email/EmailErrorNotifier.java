@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.util.Map;
-import lombok.Data;
+import lombok.Getter;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
@@ -70,10 +70,12 @@ public class EmailErrorNotifier {
         sendNotification(new ProcessError(processId, nodeId, errorMessage, stackTrace));
     }
 
-    @Data
-    private static class ProcessError extends SystemError {
-        private Long processId;
-        private String nodeId;
+    // this class must be public to be accessible inside error.email.notification.configuration
+    @Getter
+    public static class ProcessError extends SystemError {
+        private static final long serialVersionUID = 1L;
+        private final Long processId;
+        private final String nodeId;
 
         public ProcessError(Long processId, String nodeId, String errorMessage, String stackTrace) {
             super(errorMessage, stackTrace);

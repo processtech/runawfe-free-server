@@ -162,4 +162,13 @@ public class SystemServiceDelegate extends Ejb3Delegate implements SystemService
         }
     }
 
+    @Override
+    public boolean isPasswordCheckRequired() {
+        try {
+            return getSystemService().isPasswordCheckRequired();
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
 }

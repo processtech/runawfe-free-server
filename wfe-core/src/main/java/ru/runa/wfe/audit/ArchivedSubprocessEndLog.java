@@ -8,7 +8,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 
 @Entity
 @DiscriminatorValue(value = "Z")
-public class ArchivedSubprocessEndLog extends ArchivedNodeLeaveLog implements SubprocessEndLog {
+public class ArchivedSubprocessEndLog extends ArchivedNodeLog implements SubprocessEndLog {
 
     @Override
     @Transient

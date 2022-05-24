@@ -2,8 +2,11 @@ package ru.runa.wfe.lang;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.CurrentNodeEnterLog;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
 
 /**
  * Used for embedded subprocess merging.
@@ -14,6 +17,8 @@ import ru.runa.wfe.execution.ExecutionContext;
 public class EmbeddedSubprocessStartNode extends StartNode implements BoundaryEventContainer {
     private static final long serialVersionUID = 1L;
     private SubprocessNode subprocessNode;
+    @Autowired
+    private transient CurrentTokenDao currentTokenDao;
 
     public void setSubprocessNode(SubprocessNode subprocessNode) {
         this.subprocessNode = subprocessNode;
@@ -42,7 +47,14 @@ public class EmbeddedSubprocessStartNode extends StartNode implements BoundaryEv
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        leave(executionContext);
+        // leave this token point to declared subprocessNode
+        executionContext.getCurrentToken().setNodeId(subprocessNode.getNodeId());
+        executionContext.getCurrentToken().setNodeType(subprocessNode.getNodeType());
+        executionContext.getCurrentToken().setNodeName(tokenNodeNameExtractor.extract(subprocessNode));
+        // run in child token to prevent boundary event cancellation from embedded subprocess
+        CurrentToken token = new CurrentToken(executionContext.getCurrentToken(), getNodeId());
+        currentTokenDao.flushPendingChanges();
+        leave(new ExecutionContext(executionContext.getParsedProcessDefinition(), token));
     }
 
 }
