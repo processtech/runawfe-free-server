@@ -172,6 +172,7 @@ public class ChatLogic extends WfCommonLogic {
         return new HashSet<>(recipientDao.getRecipientsByMessageId(messageId));
     }
 
+    @SuppressWarnings("rawtypes")
     private List<WfChatRoom> toWfChatRooms(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
         Map<Process, Map<String, Variable>> variables = getVariables(chatRooms, variableNamesToInclude);
         List<WfChatRoom> wfChatRooms = Lists.newArrayListWithExpectedSize(chatRooms.size());
@@ -184,6 +185,7 @@ public class ChatLogic extends WfCommonLogic {
         return wfChatRooms;
     }
 
+    @SuppressWarnings("rawtypes")
     private Map<Process, Map<String, Variable>> getVariables(List<ChatRoom> chatRooms, List<String> variableNamesToInclude) {
         List<CurrentProcess> processes = new ArrayList<>(chatRooms.size());
         for (ChatRoom room : chatRooms) {

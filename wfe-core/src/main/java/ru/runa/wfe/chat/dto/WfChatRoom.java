@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -25,7 +25,7 @@ public class WfChatRoom extends SecuredObject {
     private WfProcess process;
     private Long newMessagesCount;
 
-    public WfChatRoom(Process process, String errors, Long newMessagesCount) {
+    public WfChatRoom(CurrentProcess process, String errors, Long newMessagesCount) {
         this.process = new WfProcess(process, errors);
         this.newMessagesCount = newMessagesCount;
     }

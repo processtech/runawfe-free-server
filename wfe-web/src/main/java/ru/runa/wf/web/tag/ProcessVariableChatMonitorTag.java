@@ -29,4 +29,5 @@ public class ProcessVariableChatMonitorTag extends ProcessVariableMonitorTag {
     @Override
     protected void addOptionalElements(TR updateVariableTR) {
     }
+
 }

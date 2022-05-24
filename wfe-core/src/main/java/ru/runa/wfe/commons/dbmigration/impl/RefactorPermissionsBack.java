@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -156,21 +157,19 @@ public class RefactorPermissionsBack extends DbMigration {
             }};
 
             Map<MapKey, MapKey> mapSourceToTarget = new HashMap<>(mapTargetToSources.size());
-            // TODO TMP
-            // for (val kv : mapTargetToSources.entrySet()) {
-            // MapKey k = kv.getKey();
-            // for (String p : kv.getValue().sourcePermissions) {
-            // mapSourceToTarget.put(new MapKey(k.objectType, p), k);
-            // }
-            // }
+            for (val kv : mapTargetToSources.entrySet()) {
+                MapKey k = kv.getKey();
+                for (String p : kv.getValue().sourcePermissions) {
+                    mapSourceToTarget.put(new MapKey(k.objectType, p), k);
+                }
+            }
 
             val filterObjectTypes = new ArrayList<String>(mapTargetToSources.size());
             val filterPermissions = new ArrayList<String>(mapTargetToSources.size() * 10);
-            // TODO TMP
-            // for (val kv : mapTargetToSources.entrySet()) {
-            // filterObjectTypes.add(kv.getKey().objectType);
-            // filterPermissions.addAll(Arrays.asList(kv.getValue().sourcePermissions));
-            // }
+            for (val kv : mapTargetToSources.entrySet()) {
+                filterObjectTypes.add(kv.getKey().objectType);
+                filterPermissions.addAll(Arrays.asList(kv.getValue().sourcePermissions));
+            }
 
             try (
                     Statement q = conn.createStatement();

@@ -1,8 +1,7 @@
 package ru.runa.wfe.presentation;
 
-import java.util.Map;
-
 import com.google.common.collect.Maps;
+import java.util.Map;
 
 public class DefaultBatchPresentations {
     private static Map<String, BatchPresentation> map = Maps.newHashMap();

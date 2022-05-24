@@ -167,8 +167,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(EnlargeMessageMaxSizePatch.class);
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
-        dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
-        // develop patches
+        // start develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);
         dbMigrations.add(SupportProcessArchivingBefore.class);
@@ -177,6 +176,8 @@ public class DbMigrationsConfig {
         dbMigrations.add(RenameProcessesBatchPresentationClassTypes.class);
         dbMigrations.add(RenameSequences.class);
         dbMigrations.add(AddArchivedProcessExternalData.class);
+        // end develop patches
+        dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
         return dbMigrations;
     }
 }

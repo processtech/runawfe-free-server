@@ -34,4 +34,5 @@ public class ChatSessionUtils {
         }
         return Locale.lookup(ranges, ChatLocalizationService.SUPPORTED_CHAT_LOCALES);
     }
+
 }

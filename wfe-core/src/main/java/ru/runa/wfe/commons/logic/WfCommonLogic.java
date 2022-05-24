@@ -215,7 +215,7 @@ public class WfCommonLogic extends CommonLogic {
 
     /**
      * Loads graph presentation elements for process definition.
-     * 
+     *
      * @param visitor
      *            Operation, which must be applied to loaded graph elements, or null, if nothing to apply.
      * @return List of graph presentation elements.

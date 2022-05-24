@@ -6,10 +6,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import jdk.nashorn.internal.ir.annotations.Immutable;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.execution.CurrentProcess;
@@ -34,7 +34,7 @@ public class ChatRoom {
     private CurrentProcess process;
 
     @ManyToOne(targetEntity = ProcessDefinitionVersion.class)
-    @JoinColumn(name = "DEFINITION_ID", nullable = false)
+    @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION")
     @Index(name = "IX_PROCESS_DEFINITION")
     private ProcessDefinitionVersion definitionVersion;

@@ -30,13 +30,14 @@ import ru.runa.wfe.audit.CurrentProcessActivateLog;
 import ru.runa.wfe.audit.CurrentProcessCancelLog;
 import ru.runa.wfe.audit.CurrentProcessEndLog;
 import ru.runa.wfe.audit.CurrentProcessSuspendLog;
+import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLog.Type;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.TaskEndLog;
+import ru.runa.wfe.audit.dao.CurrentProcessLogDao;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
@@ -139,7 +140,8 @@ public class ExecutionLogic extends WfCommonLogic {
     private JobDao jobDao;
     @Autowired
     private DefinitionUpdateValidatorManager definitionVersionValidatorManager;
-
+    @Autowired
+    private CurrentProcessLogDao currentProcessLogDao;
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -865,6 +867,7 @@ public class ExecutionLogic extends WfCommonLogic {
         return RestoreProcessStatus.OK;
     }
 
+    @SuppressWarnings("unchecked")
     @MonitoredWithSpring
     public <T extends Executor> Set<T> getAllExecutorsByProcessId(User user, Long processId, boolean expandGroups) {
         Set<T> result = new HashSet<>();
@@ -885,13 +888,13 @@ public class ExecutionLogic extends WfCommonLogic {
         // select user from completed tasks
         ProcessLogFilter filter = new ProcessLogFilter(processId);
         filter.setType(ProcessLog.Type.TASK_END);
-        List<ProcessLog> processLogs = new ArrayList<>(processLogDao.getAll(filter));
-        for (Process subProcess : subProcesses) {
+        List<BaseProcessLog> processLogs = new ArrayList<>(currentProcessLogDao.getAll(filter));
+        for (CurrentProcess subProcess : subProcesses) {
             filter.setProcessId(subProcess.getId());
-            processLogs.addAll(processLogDao.getAll(filter));
+            processLogs.addAll(currentProcessLogDao.getAll(filter));
         }
         for (ProcessLog processLog : processLogs) {
-            String actorName = ((TaskEndLog) processLog).getActorName();
+            String actorName = ((CurrentTaskEndLog) processLog).getActorName();
             try {
                 if (!Strings.isNullOrEmpty(actorName)) {
                     result.add((T) executorDao.getActor(actorName));
@@ -912,6 +915,7 @@ public class ExecutionLogic extends WfCommonLogic {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Executor> void expandGroup(Executor executor, Set<T> result) {
         if (executor instanceof Group) {
             result.addAll((Set<T>) executorDao.getGroupActors((Group) executor));
@@ -1031,6 +1035,7 @@ public class ExecutionLogic extends WfCommonLogic {
         return processes;
     }
 
+    @SuppressWarnings("rawtypes")
     private List<WfProcess> toWfProcesses(List<? extends Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
         Map<Process, Map<String, Variable>> variables = variableDao.getVariables(processes, variableNamesToInclude);
