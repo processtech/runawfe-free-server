@@ -24,12 +24,10 @@ import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.format.UserTypeFormat;
 
 @SuppressWarnings("unchecked")
 public class TypeConversionUtil {
-    public static ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public static <T> T convertTo(Class<T> classConvertTo, Object object) {
         return convertTo(classConvertTo, object, null, null);
@@ -127,7 +125,8 @@ public class TypeConversionUtil {
                 }
             }
             if (classConvertTo == FileVariable.class && Map.class.isAssignableFrom(object.getClass())) {
-                return (T) objectMapper.convertValue(object, FileVariableImpl.class);
+                // something like ru.runa.wfe.var.format.FileFormat.convertFromJSONValue(Object)?
+                throw new InternalApplicationException("TODO rm2650");
             }
             if (classConvertTo.isArray()) {
                 List<?> list = convertTo(List.class, object, preConvertor, postConvertor);
