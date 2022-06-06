@@ -4,7 +4,7 @@ import { make } from 'vuex-pathify';
 import SwaggerClient from 'swagger-client';
 
 const state = {
-    apiUrl: 'http://localhost:8080/restapi/v3/api-docs',
+    apiUrl: '/restapi/v3/api-docs',
     token: '',
     dark: true, // TODO Сделать через геттеры возможность переключения темы
     notifications: Array,

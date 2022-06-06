@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.rest.auth.AuthUser;
 import ru.runa.wfe.rest.dto.BatchPresentationRequest;

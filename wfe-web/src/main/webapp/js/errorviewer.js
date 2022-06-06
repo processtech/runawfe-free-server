@@ -48,38 +48,20 @@ function deleteSystemError(element, message) {
     });
 }
 
-function showProcessError(type, processId, nodeId) {
+function showTokenErrorStackTrace(tokenId) {
 	$.ajax({
 		dataType: "json",
-	    url: "/wfe/error_details.do",
-	    data: {
-	    	action: "getProcessError",
-	    	type: type,
-	    	id: processId, 
-	    	name: nodeId
-	    },
-	    success: function(data) {
-			$("#errorDetailsDiv").html("<pre>"+data.html+"</pre>");
+		url: "/wfe/error_details.do",
+		data: {
+			action: "getTokenErrorStackTrace",
+			tokenId: tokenId
+		},
+		success: function(data) {
+			$("#errorDetailsDiv").html("<pre>" + data.html + "</pre>");
 			$.errorDetailsDialog.dialog("open");
 			$(".ui-button:contains('" + buttonSupportMessage + "')").show();
-	    }
-    });
-}
-
-function deleteProcessError(element, type, processId, nodeId) {
-	$.ajax({
-		dataType: "json",
-	    url: "/wfe/error_details.do",
-	    data: {
-	    	action: "deleteProcessError",
-	    	type: type,
-	    	id: processId, 
-	    	name: nodeId
-	    },
-	    success: function(data) {
-			$(element).closest("tr").hide();
-	    }
-    });
+		}
+	});
 }
 
 function showSupportFiles() {

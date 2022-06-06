@@ -1,10 +1,10 @@
 package ru.runa.wfe.audit;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -36,7 +36,8 @@ public abstract class BaseProcessLog implements ProcessLog {
     protected Date createDate;
     protected Severity severity = Severity.DEBUG;
     @XmlTransient
-    protected HashMap<String, String> attributes = Maps.newHashMap();
+    private Map<String, String> attributes;
+    private String serializedAttributes;
     protected byte[] bytes;
     protected String nodeId;
 
@@ -68,19 +69,34 @@ public abstract class BaseProcessLog implements ProcessLog {
     @Override
     @Column(name = "CONTENT", length = 4000)
     public String getContent() {
-        return XmlUtils.serialize(attributes);
+        return serializedAttributes;
     }
 
-    protected abstract void setContent(String content);
+    protected void setContent(String serializedAttributes) {
+        this.serializedAttributes = serializedAttributes;
+    }
+
+    public void serializeAttributes() {
+        if (attributes != null) {
+            serializedAttributes = XmlUtils.serialize(attributes);
+        }
+    }
 
     @Transient
-    public HashMap<String, String> getAttributes() {
+    protected Map<String, String> getAttributes() {
+        if (attributes == null) {
+            if (serializedAttributes == null) {
+                attributes = new HashMap<>();
+            } else {
+                attributes = XmlUtils.deserialize(serializedAttributes);
+            }
+        }
         return attributes;
     }
 
     @Override
     public String getAttribute(String name) {
-        return attributes.get(name);
+        return getAttributes().get(name);
     }
 
     @Override

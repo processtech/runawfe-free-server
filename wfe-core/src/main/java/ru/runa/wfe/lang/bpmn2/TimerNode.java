@@ -9,12 +9,9 @@ import ru.runa.wfe.audit.CurrentActionLog;
 import ru.runa.wfe.audit.CurrentCreateTimerLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.bc.BusinessDuration;
 import ru.runa.wfe.commons.bc.BusinessDurationParser;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -99,7 +96,6 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
     }
 
     public void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
-        ProcessError processError = new ProcessError(ProcessErrorType.system, timerJob.getProcess().getId(), getNodeId());
         try {
             if (actionDelegation != null) {
                 try {
@@ -133,15 +129,9 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
                 log.debug("Deleting " + timerJob + " after execution");
                 cancelBoundaryEvent(executionContext.getCurrentToken());
             }
-            Errors.removeProcessError(processError);
+            ApplicationContextFactory.getExecutionLogic().removeTokenError(timerJob.getToken());
         } catch (Throwable th) {
-            String nodeName;
-            try {
-                nodeName = executionContext.getParsedProcessDefinition().getNodeNotNull(getNodeId()).getName();
-            } catch (Exception e) {
-                nodeName = "Unknown due to " + e;
-            }
-            Errors.addProcessError(processError, nodeName, th);
+            ApplicationContextFactory.getExecutionLogic().failToken(timerJob.getToken(), th);
             throw Throwables.propagate(th);
         }
     }
@@ -154,7 +144,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
         timerJob.setRepeatDurationString(repeatDurationString);
         jobDao.create(timerJob);
         log.debug("Created " + timerJob);
-        executionContext.addLog(new CurrentCreateTimerLog(timerJob.getDueDate()));
+        executionContext.addLog(new CurrentCreateTimerLog(executionContext.getNode(), timerJob.getDueDate()));
     }
 
 }

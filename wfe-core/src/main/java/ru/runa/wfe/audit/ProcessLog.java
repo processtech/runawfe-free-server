@@ -29,6 +29,7 @@ public interface ProcessLog extends Attributes, Comparable<ProcessLog>, Serializ
         ADMIN_ACTION(CurrentAdminActionLog.class, ArchivedAdminActionLog.class),
         CREATE_TIMER(CurrentCreateTimerLog.class, ArchivedCreateTimerLog.class),
         NODE(CurrentNodeLog.class, ArchivedNodeLog.class),
+        NODE_ERROR(CurrentNodeErrorLog.class, ArchivedNodeErrorLog.class),
         NODE_ENTER(CurrentNodeEnterLog.class, ArchivedNodeEnterLog.class),
         NODE_LEAVE(CurrentNodeLeaveLog.class, ArchivedNodeLeaveLog.class),
         PROCESS_ACTIVATE(CurrentProcessActivateLog.class, ArchivedProcessActivateLog.class),
@@ -120,4 +121,5 @@ public interface ProcessLog extends Attributes, Comparable<ProcessLog>, Serializ
      * @return formatted message
      */
     String toString(String pattern, Object... arguments);
+
 }

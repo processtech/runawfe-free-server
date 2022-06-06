@@ -9,6 +9,7 @@ import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.wfe.execution.dto.WfSwimlane;
+import ru.runa.wfe.commons.SystemProperties;
 
 public class ProcessSwimlaneRowBuilder implements RowBuilder {
     private final PageContext pageContext;
@@ -34,10 +35,11 @@ public class ProcessSwimlaneRowBuilder implements RowBuilder {
         tr.addElement(nameTD);
         nameTD.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
 
-        TD globalTD = new TD(swimlane.getDefinition().isGlobal() ? /*√*/"&#x221A;" : "");
-        tr.addElement(globalTD);
-        globalTD.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
-
+        if (SystemProperties.isGlobalObjectsEnabled()) {
+            TD globalTD = new TD(swimlane.getDefinition().isGlobal() ? /*√*/"&#x221A;" : "");
+            tr.addElement(globalTD);
+            globalTD.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
+        }
         TD assignedToActorTD = new TD();
         tr.addElement(assignedToActorTD);
         assignedToActorTD.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);

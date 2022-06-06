@@ -527,6 +527,12 @@ public abstract class DbMigration {
         }
     }
 
+    public class ClobColumnDef extends ColumnDef {
+        public ClobColumnDef(String name) {
+            super(name, dialect.getTypeName(Types.CLOB));
+        }
+    }
+
     @SuppressWarnings({ "unused", "WeakerAccess" })
     public class BlobColumnDef extends ColumnDef {
         public BlobColumnDef(String name) {

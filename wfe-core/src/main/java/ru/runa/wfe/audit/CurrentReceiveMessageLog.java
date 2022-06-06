@@ -1,11 +1,9 @@
 package ru.runa.wfe.audit;
 
-import com.google.common.base.Charsets;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-import ru.runa.wfe.audit.presentation.HtmlValue;
-import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.BaseMessageNode;
 
 /**
  * Logging message nodes execution.
@@ -14,32 +12,20 @@ import ru.runa.wfe.lang.Node;
  */
 @Entity
 @DiscriminatorValue(value = "8")
-public class CurrentReceiveMessageLog extends CurrentNodeEnterLog implements ReceiveMessageLog {
+public class CurrentReceiveMessageLog extends CurrentMessageNodeLog implements ReceiveMessageLog {
     private static final long serialVersionUID = 1L;
 
     public CurrentReceiveMessageLog() {
     }
 
-    public CurrentReceiveMessageLog(Node node, String message) {
-        super(node);
-        if (message.length() < 1000) {
-            addAttribute(ATTR_MESSAGE, message);
-        } else {
-            setBytes(message.getBytes(Charsets.UTF_8));
-        }
+    public CurrentReceiveMessageLog(BaseMessageNode node, String message) {
+        super(node, message);
     }
 
     @Override
     @Transient
     public Type getType() {
         return Type.RECEIVED_MESSAGE;
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        String message = getBytes() != null ? new String(getBytes(), Charsets.UTF_8) : getAttribute(ATTR_MESSAGE);
-        return new Object[] { new HtmlValue(message) };
     }
 
     @Override

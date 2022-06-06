@@ -25,16 +25,24 @@ public class JobDao extends GenericDao<Job> {
         super(Job.class);
     }
 
-    public List<Job> getExpiredJobs() {
-        val j = QJob.job;
+    public List<Job> getExpiredJobs(Long limit) {
+        QJob j = QJob.job;
         return queryFactory.selectFrom(j)
                 .where(j.dueDate.loe(new Date()).and(j.token.executionStatus.eq(ExecutionStatus.ACTIVE)))
                 .orderBy(j.dueDate.asc())
+                .limit(limit)
                 .fetch();
     }
 
+    public Long getExpiredJobsCount() {
+        QJob j = QJob.job;
+        return queryFactory.selectFrom(j)
+                .where(j.dueDate.loe(new Date()).and(j.token.executionStatus.eq(ExecutionStatus.ACTIVE)))
+                .fetchCount();
+    }
+
     public List<Job> findByProcess(CurrentProcess process) {
-        val j = QJob.job;
+        QJob j = QJob.job;
         return queryFactory.selectFrom(j).where(j.process.eq(process)).orderBy(j.dueDate.asc()).fetch();
     }
 

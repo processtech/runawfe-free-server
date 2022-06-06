@@ -24,11 +24,6 @@ public final class TestLazyCache implements TestCacheIface {
     }
 
     @Override
-    public CacheImplementation unlock() {
-        return null;
-    }
-
-    @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
         if (cachedData.containsKey(changedObject.object)) {
             cachedData.remove(changedObject.object);

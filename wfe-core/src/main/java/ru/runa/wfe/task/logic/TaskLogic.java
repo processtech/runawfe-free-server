@@ -15,11 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.CurrentTaskDelegationLog;
-import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
@@ -57,7 +54,6 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableMapping;
@@ -92,7 +88,6 @@ public class TaskLogic extends WfCommonLogic {
         if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new ProcessSuspendedException(task.getProcess().getId());
         }
-        ProcessError processError = new ProcessError(ProcessErrorType.system, task.getProcess().getId(), task.getNodeId());
         try {
             if (variables == null) {
                 variables = new HashMap<>();
@@ -145,7 +140,6 @@ public class TaskLogic extends WfCommonLogic {
                 pushToken(executionContext, task, transition);
             }
             log.info("Task '" + task.getName() + "' was done by " + user + " in process " + task.getProcess());
-            Errors.removeProcessError(processError);
             List<Task> tokenTasks = taskDao.findByToken(executionContext.getCurrentToken());
             if (tokenTasks.size() == 1) {
                 Task nextTask = tokenTasks.get(0);
@@ -155,11 +149,8 @@ public class TaskLogic extends WfCommonLogic {
                 }
             }
             return null;
-        } catch (ValidationException ex) {
+        } catch (Throwable ex) {
             throw Throwables.propagate(ex);
-        } catch (Throwable th) {
-            Errors.addProcessError(processError, task.getName(), th);
-            throw Throwables.propagate(th);
         }
     }
 
@@ -215,8 +206,8 @@ public class TaskLogic extends WfCommonLogic {
         return wfTask;
     }
 
-    public Long getProcessId(User user, Long taskId) {
-        return taskDao.getNotNull(taskId).getProcess().getId();
+    public Task getTaskEntity(User user, Long taskId) {
+        return taskDao.getNotNull(taskId);
     }
 
     public List<WfTask> getMyTasks(User user, BatchPresentation batchPresentation) {
@@ -306,7 +297,7 @@ public class TaskLogic extends WfCommonLogic {
         if (executorDao.isExecutorExist(delegationGroup.getName())) {
             delegationGroup = (DelegationGroup) executorDao.getExecutor(delegationGroup.getName());
             Set<Executor> oldExecutors = executorDao.getGroupChildren(delegationGroup);
-            executorDao.deleteExecutorsFromGroup(delegationGroup, oldExecutors);
+            executorDao.removeExecutorsFromGroup(oldExecutors, delegationGroup);
         } else {
             executorDao.create(delegationGroup);
         }

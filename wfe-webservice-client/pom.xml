@@ -70,6 +70,7 @@
 										<wsdl>http://localhost:8080/wfe-service-${project.version}/ScriptingWebService/ScriptingAPI?wsdl</wsdl>
 										<wsdl>http://localhost:8080/wfe-service-${project.version}/SystemWebService/SystemAPI?wsdl</wsdl>
 										<wsdl>http://localhost:8080/wfe-service-${project.version}/SubstitutionWebService/SubstitutionAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/ChatWebService/ChatAPI?wsdl</wsdl>
 									</wsdls>
 									<targetPackage>ru.runa.wfe.webservice</targetPackage>
 									<sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
@@ -90,6 +91,16 @@
 			<groupId>org.jboss.ws.native</groupId>
 			<artifactId>jbossws-native-client</artifactId>
 			<version>3.4.1.GA</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.istack</groupId>
+					<artifactId>istack-commons-runtime</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>woodstox</groupId>
+					<artifactId>wstx-asl</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss</groupId>

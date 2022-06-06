@@ -14,7 +14,6 @@ import ru.runa.wfe.history.layout.PushWidthDown;
 import ru.runa.wfe.history.layout.TransitionOrderer;
 import ru.runa.wfe.history.layout.TransitionOrdererContext;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
-import ru.runa.wfe.user.Executor;
 
 /**
  * History graph building and creating tooltip for elements.
@@ -26,9 +25,9 @@ public class GraphHistoryBuilder {
      */
     private final GraphHistoryBuilderData data;
 
-    public GraphHistoryBuilder(List<Executor> executors, Process process, ParsedProcessDefinition parsedProcessDefinition,
+    public GraphHistoryBuilder(Process process, ParsedProcessDefinition parsedProcessDefinition,
             List<? extends BaseProcessLog> fullProcessLogs, String subProcessId) {
-        this.data = new GraphHistoryBuilderData(executors, process, parsedProcessDefinition, fullProcessLogs, subProcessId);
+        this.data = new GraphHistoryBuilderData(process, parsedProcessDefinition, fullProcessLogs, subProcessId);
     }
 
     /**

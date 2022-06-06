@@ -23,7 +23,7 @@ public class DirtyLazyCacheTest {
     @Test()
     public void simpleGetCacheTest() {
         val initializationCompleteEvent = new ManualResetEvent();
-        val ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactoryCallback(), true);
+        val ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactoryCallback());
         ctrl.getAudit().set_commitCacheAudit(new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
             @Override
             protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {

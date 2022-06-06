@@ -1,6 +1,7 @@
 package ru.runa.wfe.graph.view;
 
 import com.google.common.collect.Lists;
+import java.util.Comparator;
 import java.util.List;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
@@ -14,7 +15,9 @@ public class NodeGraphElementBuilder {
      */
     public static List<NodeGraphElement> createElements(ParsedProcessDefinition definition) {
         List<NodeGraphElement> result = Lists.newArrayList();
-        for (Node node : definition.getNodes(false)) {
+        List<Node> nodes = definition.getNodes(false);
+        nodes.sort(new NodeChidrenFirstComparator());
+        for (Node node : nodes) {
             result.add(createElement(node));
         }
         return result;
@@ -48,5 +51,16 @@ public class NodeGraphElementBuilder {
                 node.getGraphConstraints()[0] + node.getGraphConstraints()[2], node.getGraphConstraints()[1] + node.getGraphConstraints()[3] };
         element.initialize(node, graphConstraints);
         return element;
+    }
+
+    private static class NodeChidrenFirstComparator implements Comparator<Node> {
+
+        @Override
+        public int compare(Node o1, Node o2) {
+            int p1 = o1.getParentElement() instanceof ParsedProcessDefinition ? 1 : 0;
+            int p2 = o2.getParentElement() instanceof ParsedProcessDefinition ? 1 : 0;
+            return Integer.compare(p1, p2);
+        }
+
     }
 }

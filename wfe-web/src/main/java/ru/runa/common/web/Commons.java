@@ -257,4 +257,8 @@ public class Commons {
 
         return uri;
     }
+
+    public static boolean isPasswordCheckRequired(){
+        return Delegates.getSystemService().isPasswordCheckRequired();
+    }
 }

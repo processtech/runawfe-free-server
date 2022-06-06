@@ -45,27 +45,38 @@ $().ready(function() {
 			clearInterval(autoReloadTimer);
 		}
 	});
-	$("input[name='mode']").click(function() {
+
+	$("input[name='searchContainsWord']").click(function() {
 		syncModeInputs();
 	});
+
+	$("input[name='configureLineCharactersCount']").click(function() {
+		syncConfigureLineInput();
+	});
+
 	if ($("input[name='autoReload']").is(':checked')) {
 		initReloadLogTimer();
 	}
+
 	syncModeInputs();
+	syncConfigureLineInput();
 });
 
 function syncModeInputs() {
-	if ($("#endMode").is(':checked')) {
-		$("input[name='endLines']").removeAttr("disabled");
-	} else {
-		$("input[name='endLines']").attr("disabled", "true");
-	}
-	if ($("#searchMode").is(':checked')) {
+	if ($("input[name='searchContainsWord']").is(':checked')) {
 		$("input[name='search']").removeAttr("disabled");
 		$("input[name='searchCaseSensitive']").removeAttr("disabled");
 	} else {
 		$("input[name='search']").attr("disabled", "true");
 		$("input[name='searchCaseSensitive']").attr("disabled", "true");
+	}
+}
+
+function syncConfigureLineInput() {
+	if ($("input[name='configureLineCharactersCount']").is(':checked')) {
+		$("input[name='limitLineCharactersCount']").removeAttr("disabled");
+	} else {
+		$("input[name='limitLineCharactersCount']").attr("disabled", "true");
 	}
 }
 
@@ -86,33 +97,51 @@ function reloadLogFile() {
 	<% if (logFileContent != null) { %>
 		<html:form styleId="downloadForm" action="/viewLogs" method="get">
 			<html:hidden property="fileName" />
-			<input type="hidden" name="mode" value="5" />
+			<input type="hidden" name="mode" value="3" />
 			<table class="box"><tr><th class="box">
-				<a href="javascript:$('#downloadForm').submit();" style="color: white;"><bean:write name="viewLogForm" property="fileName" /></a> 
+				<a href="javascript:$('#downloadForm').submit();" style="color: white;"><bean:write name="viewLogForm" property="fileName" /></a>
 				(<bean:message key="label.logs.allLinesCount"/>: <bean:write name="viewLogForm" property="allLinesCount" />)
 			</th></tr></table>
 		</html:form>
 		<html:form action="/viewLogs" method="get">
 			<html:hidden property="fileName" />
-			<table><tr><td style="width: 400px;">
-				<html:radio property="mode" value="1" styleId="pagingMode" />
-					<bean:message key="label.logs.listLines"/> (<html:text property="limitLinesCount" disabled="true" size="5" /> <bean:message key="label.logs.lines"/>)
-					<br />
-				<html:radio property="mode" value="2" styleId="searchMode" />
-					<bean:message key="label.logs.search"/> <html:text property="search" />
-					<html:checkbox property="searchCaseSensitive" value="true" /><bean:message key="label.logs.searchCaseSensitive"/>
-					<br />
-				<html:radio property="mode" value="3" styleId="endMode" />
-					<bean:message key="label.logs.showLast"/> <html:text property="endLines" size="5" /> <bean:message key="label.logs.lines"/>
-					<br />
-			</td><td>
-				<html:radio property="mode" value="4" styleId="searchErrorsMode" />
-				<bean:message key="label.logs.searchErrors"/>
-				<br />
-				<html:checkbox property="autoReload" value="true" /><bean:message key="label.logs.autoReload"/> <%= autoReloadTimeoutSec %> <bean:message key="label.logs.seconds"/>
-				<br />
-				<html:submit><bean:message key="button.form"/></html:submit>
-			</td></tr></table>
+			<table>
+				<tr>
+					<td style="width: 1000px;">
+						<html:radio property="mode" value="1" styleId="readBeginMode" />
+						<bean:message key="label.logs.read_begin"/>
+
+						<html:radio property="mode" value="2" styleId="readEndMode"/>
+						<bean:message key="label.logs.read_end"/>
+
+						<html:checkbox property="searchContainsWord" value="true" />
+						<bean:message key="label.logs.search"/> <html:text property="search" />
+						<html:checkbox property="searchCaseSensitive" value="true" /><bean:message key="label.logs.searchCaseSensitive"/>
+
+						<html:checkbox property="searchErrors" value="true"/>
+						<bean:message key="label.logs.search_errors"/>
+
+						<html:checkbox property="searchWarns" value="true"/>
+						<bean:message key="label.logs.search_warns"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<bean:message key="label.logs.count_viewlines_for_page"/>
+						<html:text property="limitLinesCount" disabled="false" size="5" />
+						<bean:message key="label.logs.lines"/>.
+						<html:checkbox property="configureLineCharactersCount" value="true" />
+						<bean:message key="label.logs.count_symbols_for_line"/>
+						<html:text property="limitLineCharactersCount" disabled="false" size="5" />.
+						<html:checkbox property="autoReload" value="true" /><bean:message key="label.logs.autoReload" /> <%= autoReloadTimeoutSec %> <bean:message key="label.logs.seconds" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<html:submit><bean:message key="button.form"/></html:submit>
+					</td>
+				</tr>
+			</table>
 		</html:form>
 		<% if (pagingToolbar != null) {out.println(pagingToolbar);} %>
 		<div class="logView">
@@ -121,7 +150,7 @@ function reloadLogFile() {
 		<% if (pagingToolbar != null) {out.println(pagingToolbar);} %>
 	<% } %>
  </tiles:put>
- 
+
 <tiles:put name="messages" value="../common/messages.jsp" />
 
 </tiles:insert>

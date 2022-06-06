@@ -63,6 +63,11 @@
 			<artifactId>commons-beanutils</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
 			<exclusions>
@@ -90,13 +95,31 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
-			<artifactId>jasperreports</artifactId>
-			<version>6.0.3</version>
+			<artifactId>jasperreports-fonts</artifactId>
+			<version>6.18.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
-			<artifactId>jasperreports-html-component.runawfe</artifactId>
-			<version>6.0.3</version>
+			<artifactId>jasperreports</artifactId>
+			<version>6.18.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.olap4j</groupId>
+					<artifactId>olap4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>3.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>3.0</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
