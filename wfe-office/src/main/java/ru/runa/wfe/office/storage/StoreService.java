@@ -17,7 +17,7 @@ public interface StoreService {
     String PROP_PATH = "path";
     String PROP_FORMAT = "format";
 
-    void createFileIfNotExist(String path) throws Exception;
+    void createFileIfNotExist(String path, String tableName) throws Exception;
 
     ExecutionResult findByFilter(Properties properties, UserType userType, String condition) throws Exception;
 
