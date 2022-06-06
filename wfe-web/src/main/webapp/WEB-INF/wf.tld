@@ -709,6 +709,56 @@
         </attribute>
     </tag>
     <tag>
+        <name>chatForm</name>
+        <tag-class>ru.runa.wf.web.tag.ChatFormTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>processId</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Long</type>
+        </attribute>
+        <attribute>
+            <name>action</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>align</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>buttonAlignment</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>height</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>method</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>title</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>valign</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>width</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>createActorLink</name>
         <tag-class>ru.runa.af.web.tag.CreateActorLinkTag</tag-class>
         <body-content>empty</body-content>
@@ -1644,6 +1694,62 @@
         <description>Created on 18.08.2004</description>
         <name>listAllExecutorsForm</name>
         <tag-class>ru.runa.af.web.tag.ListAllExecutorsFormTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>batchPresentationId</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>action</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>align</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>buttonAlignment</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>height</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>method</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>returnAction</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>title</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>valign</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>width</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
+        <description>Created on 18.02.2021</description>
+        <name>listChatRoomsForm</name>
+        <tag-class>ru.runa.wf.web.tag.ListChatRoomsFormTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>batchPresentationId</name>
@@ -3155,6 +3261,55 @@
         </attribute>
     </tag>
     <tag>
+        <name>processVariableChatMonitor</name>
+        <tag-class>ru.runa.wf.web.tag.ProcessVariableChatMonitorTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>action</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>align</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>buttonAlignment</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>height</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>identifiableId</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Long</type>
+        </attribute>
+        <attribute>
+            <name>method</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>title</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>valign</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>width</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>processVariableMonitor</name>
         <tag-class>ru.runa.wf.web.tag.ProcessVariableMonitorTag</tag-class>
         <body-content>JSP</body-content>
@@ -3389,26 +3544,6 @@
         </attribute>
         <attribute>
             <name>width</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-    </tag>
-    <tag>
-        <name>sendProcessSignalLink</name>
-        <tag-class>ru.runa.wf.web.tag.SendProcessSignalLinkTag</tag-class>
-        <body-content>empty</body-content>
-        <attribute>
-            <name>forward</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>href</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
-        <attribute>
-            <name>linkText</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.String</type>
         </attribute>
@@ -4398,6 +4533,55 @@
         </attribute>
     </tag>
     <tag>
+        <name>updateProcessVariablesInChat</name>
+        <tag-class>ru.runa.wf.web.tag.UpdateProcessVariablesInChatFormTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>action</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>align</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>buttonAlignment</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>height</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>method</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>processId</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Long</type>
+        </attribute>
+        <attribute>
+            <name>title</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>valign</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>width</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
         <name>updateStatusForm</name>
         <tag-class>ru.runa.af.web.tag.UpdateStatusFormTag</tag-class>
         <body-content>empty</body-content>
@@ -4601,6 +4785,56 @@
         <name>viewProcessErrors</name>
         <tag-class>ru.runa.wf.web.tag.ShowProcessErrorsTag</tag-class>
         <body-content>JSP</body-content>
+        <attribute>
+            <name>batchPresentationId</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>action</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>align</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>buttonAlignment</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>height</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>method</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>returnAction</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>title</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>valign</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>width</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
     <tag>
         <name>viewSystemErrors</name>

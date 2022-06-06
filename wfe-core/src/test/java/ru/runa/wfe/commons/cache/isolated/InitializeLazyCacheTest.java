@@ -48,7 +48,7 @@ public class InitializeLazyCacheTest {
                 createCacheEvt.tryWaitEvent();
             }
         };
-        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback);
         GetCacheAudit<TestCacheIface> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
             @Override
@@ -128,7 +128,7 @@ public class InitializeLazyCacheTest {
                 createCacheEvt.tryWaitEvent();
             }
         };
-        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback);
         GetCacheAudit<TestCacheIface> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
             @Override
@@ -227,7 +227,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback);
         GetCacheAudit<TestCacheIface> readThreadGetCacheAudit =
                 new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
@@ -301,7 +301,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback);
 
         CommitCacheAudit<TestCacheIface> _commitCacheAudit =
                 new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
@@ -347,7 +347,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback);
 
         CommitCacheAudit<TestCacheIface> _commitCacheAudit =
                 new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
@@ -404,7 +404,7 @@ public class InitializeLazyCacheTest {
     @Test(dataProvider = "getCacheMethodType")
     public void cacheProxyCreatedOnDirty(final boolean getCacheIfNoLocked) {
         val commitedEvt = new ManualResetEvent();
-        val ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactoryCallback(), true);
+        val ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactoryCallback());
 
         CommitCacheAudit<TestCacheIface> _commitCacheAudit =
                 new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {

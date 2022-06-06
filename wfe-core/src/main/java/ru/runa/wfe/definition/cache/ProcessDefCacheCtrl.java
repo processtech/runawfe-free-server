@@ -26,8 +26,8 @@ public class ProcessDefCacheCtrl extends BaseCacheCtrl<ProcessDefCacheImpl> {
         super(
                 new ProcessDefinitionCacheFactory(),
                 new ArrayList<ListenObjectDefinition>() {{
-                    add(new ListenObjectDefinition(ProcessDefinition.class, ListenObjectLogType.ALL));
-                    add(new ListenObjectDefinition(ProcessDefinitionVersion.class, ListenObjectLogType.ALL));
+                    add(new ListenObjectDefinition(ProcessDefinition.class));
+                    add(new ListenObjectDefinition(ProcessDefinitionVersion.class));
                 }}
         );
     }

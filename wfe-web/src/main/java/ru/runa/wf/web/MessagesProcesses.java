@@ -5,6 +5,8 @@ import ru.runa.common.web.StrutsMessage;
 public final class MessagesProcesses {
 
     public static final StrutsMessage BUTTON_CANCEL_PROCESS = new StrutsMessage("button.cancel_process");
+    public static final StrutsMessage BUTTON_CANCEL_PROCESSES = new StrutsMessage("button.cancel_processes");
+    public static final StrutsMessage BUTTON_ACTIVATE_PROCESSES = new StrutsMessage("button.activate_processes");
     public static final StrutsMessage BUTTON_RESTORE_PROCESS = new StrutsMessage("button.restore_process");
     public static final StrutsMessage TITLE_PROCESS_DEFINITIONS = new StrutsMessage("title.process_definitions");
     public static final StrutsMessage TITLE_DEPLOY_DEFINITION = new StrutsMessage("title.deploy_definition");
@@ -40,6 +42,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage PROCESS_SUSPEND = new StrutsMessage("process.suspend");
     public static final StrutsMessage PROCESS_SUSPENDED = new StrutsMessage("process.suspended");
     public static final StrutsMessage PROCESS_CANCELED = new StrutsMessage("process.canceled");
+    public static final StrutsMessage PROCESSES_CANCELED = new StrutsMessage("processes.canceled");
     public static final StrutsMessage PROCESS_RESTORED = new StrutsMessage("process.restored");
     public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
     public static final StrutsMessage PROCESS_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("process.upgraded.to.definition.version");
@@ -106,11 +109,12 @@ public final class MessagesProcesses {
     public static final StrutsMessage ROUTING_PARAMETER_VALUE = new StrutsMessage("label.routing_parameter_value");
     public static final StrutsMessage PAYLOAD_PARAMETER_NAME = new StrutsMessage("label.payload_parameter_name");
     public static final StrutsMessage PAYLOAD_PARAMETER_VALUE = new StrutsMessage("label.payload_parameter_value");
-    public static final StrutsMessage SIGNAL_MESSAGE_IS_SENT = new StrutsMessage("signal.message_is_sent");
     public static final StrutsMessage BUTTON_VIEW_DIFFERENCES = new StrutsMessage("button.view_differences");
     public static final StrutsMessage FAILED_VIEW_DIFFERENCES = new StrutsMessage("failed.view_differences");
     public static final StrutsMessage LABEL_NO_DIFFERENCES_FOUND = new StrutsMessage("label.no_differences_found");
 
     public static final StrutsMessage PROCESS_LOG_CLEAN_SUCCESS = new StrutsMessage("process_log_clean.success");
     public static final StrutsMessage PROCESS_LOG_CLEAN_FAIL = new StrutsMessage("process_log_clean.fail");
+
+    public static final StrutsMessage TITLE_CHAT_ROOMS = new StrutsMessage("title.chat_rooms");
 }

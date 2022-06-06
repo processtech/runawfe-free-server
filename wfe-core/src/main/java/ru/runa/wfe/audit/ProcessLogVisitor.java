@@ -19,7 +19,7 @@ public abstract class ProcessLogVisitor {
 
     public void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog) {}
 
-    public void onNodeErrorLog(CurrentNodeErrorLog currentNodeErrorLog) {}
+    public void onNodeErrorLog(NodeErrorLog nodeErrorLog) {}
 
     public void onSendMessageLog(SendMessageLog sendMessageLog) {}
 

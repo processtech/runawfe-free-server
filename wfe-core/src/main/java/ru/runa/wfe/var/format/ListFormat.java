@@ -1,6 +1,7 @@
 package ru.runa.wfe.var.format;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.json.simple.JSONArray;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -87,6 +88,20 @@ public class ListFormat extends VariableFormat implements VariableFormatContaine
             array.add(componentFormat.formatJSON(o));
         }
         return array;
+    }
+
+    @Override
+    protected Object convertToExcelCellValue(Object value) {
+        List<?> list = (List<?>) value;
+        List<Object> result = new ArrayList<>();
+        VariableFormat componentFormat = FormatCommons.createComponent(this, 0);
+        for (Object o : list) {
+            if (o != null) {
+                o = TypeConversionUtil.convertTo(componentFormat.getJavaClass(), o);
+                result.add(componentFormat.convertToExcelCellValue(o));
+            }
+        }
+        return result;
     }
 
     @Override

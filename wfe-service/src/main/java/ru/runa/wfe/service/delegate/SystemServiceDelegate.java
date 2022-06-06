@@ -2,8 +2,9 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.List;
 import ru.runa.wfe.commons.dao.Localization;
-import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.SystemError;
+import ru.runa.wfe.commons.error.dto.WfTokenError;
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.SystemService;
 import ru.runa.wfe.user.User;
 
@@ -90,18 +91,54 @@ public class SystemServiceDelegate extends Ejb3Delegate implements SystemService
     }
 
     @Override
-    public List<ProcessError> getAllProcessErrors(User user) {
+    public void failToken(User user, Long tokenId, String errorMessage, String stackTrace) {
         try {
-            return getSystemService().getAllProcessErrors(user);
+            getSystemService().failToken(user, tokenId, errorMessage, stackTrace);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<ProcessError> getProcessErrors(User user, Long processId) {
+    public void removeTokenError(User user, Long tokenId) {
         try {
-            return getSystemService().getProcessErrors(user, processId);
+            getSystemService().removeTokenError(user, tokenId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<WfTokenError> getTokenErrors(User user, BatchPresentation batchPresentation) {
+        try {
+            return getSystemService().getTokenErrors(user, batchPresentation);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public int getTokenErrorsCount(User user, BatchPresentation batchPresentation) {
+        try {
+            return getSystemService().getTokenErrorsCount(user, batchPresentation);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<WfTokenError> getTokenErrorsByProcessId(User user, Long processId) {
+        try {
+            return getSystemService().getTokenErrorsByProcessId(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public WfTokenError getTokenError(User user, Long tokenId) {
+        try {
+            return getSystemService().getTokenError(user, tokenId);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -111,6 +148,24 @@ public class SystemServiceDelegate extends Ejb3Delegate implements SystemService
     public List<SystemError> getSystemErrors(User user) {
         try {
             return getSystemService().getSystemErrors(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public byte[] exportDataFile(User user) {
+        try {
+            return getSystemService().exportDataFile(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public boolean isPasswordCheckRequired() {
+        try {
+            return getSystemService().isPasswordCheckRequired();
         } catch (Exception e) {
             throw handleException(e);
         }

@@ -24,14 +24,14 @@ public class StoreServiceFactory {
         Preconditions.checkNotNull(dataSource, "Can't obtain StoreService: dataSource must not be null");
         if (dataSource instanceof JdbcDataSource) {
             switch (((JdbcDataSource) dataSource).getDbType()) {
-                case SqlServer:
-                    return new SqlServerStoreService(variableProvider);
-                case Oracle:
-                    return new OracleStoreService(variableProvider);
-                case PostgreSql:
-                    return new PostgreSqlStoreService(variableProvider);
-                default:
-                    throw new InternalApplicationException("Database type " + ((JdbcDataSource) dataSource).getDbType().name() + " not supported.");
+            case SqlServer:
+                return new SqlServerStoreService(variableProvider);
+            case Oracle:
+                return new OracleStoreService(variableProvider);
+            case PostgreSql:
+                return new PostgreSqlStoreService(variableProvider);
+            default:
+                throw new InternalApplicationException("Database type " + ((JdbcDataSource) dataSource).getDbType().name() + " not supported.");
             }
         } else if (dataSource instanceof ExcelDataSource) {
             return new StoreServiceImpl(variableProvider);

@@ -40,9 +40,9 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getProcessId());
-        List<VariableDefinition> variables = Delegates.getDefinitionService().getVariableDefinitions(getUser(), process.getDefinitionVersionId());
+        List<VariableDefinition> variables = getVariableDefinitions(process.getDefinitionVersionId());
         if (!variables.isEmpty()) {
-            if (WebResources.isUpdateProcessVariablesEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
+            if (WebResources.isUpdateProcessVariablesEnabled() && isAvailable()) {
                 getForm().setEncType(Form.ENC_UPLOAD);
                 String labelTDWidth = "150px";
 
@@ -137,6 +137,14 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
             variablesExist.addElement(MessagesProcesses.LABEL_NO_VARIABLES.message(pageContext) + "&nbsp;");
             tdFormElement.addElement(variablesExist);
         }
+    }
+
+    protected List<VariableDefinition> getVariableDefinitions(Long processDefinitionVersionId) {
+        return Delegates.getDefinitionService().getVariableDefinitions(getUser(), processDefinitionVersionId);
+    }
+
+    protected boolean isAvailable() {
+        return Delegates.getExecutorService().isAdministrator(getUser());
     }
 
     @Override

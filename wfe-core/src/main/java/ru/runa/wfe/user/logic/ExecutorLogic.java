@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.persistence.DiscriminatorValue;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -17,6 +18,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.relation.dao.RelationPairDao;
 import ru.runa.wfe.security.ApplicablePermissions;
@@ -27,10 +29,13 @@ import ru.runa.wfe.security.WeakPasswordException;
 import ru.runa.wfe.security.logic.AuthorizationLogic;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.DelegationGroup;
+import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorParticipatesInProcessesException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDao;
 
@@ -73,9 +78,29 @@ public class ExecutorLogic extends CommonLogic {
         return compiler.getBatch();
     }
 
+    public List<? extends Executor> getNotTemporaryExecutors(User user, BatchPresentation batchPresentation) {
+        List<String> restrictions = batchPresentation.getType().getRestrictions();
+        String temporaryExecutorsExclusionQuery = buildTemporaryExecutorsExclusionQuery();
+        restrictions.add(temporaryExecutorsExclusionQuery);
+        PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createAllExecutorsCompiler(user, batchPresentation);
+        List<? extends Executor> executors = compiler.getBatch();
+        restrictions.remove(temporaryExecutorsExclusionQuery);
+        return executors;
+    }
+
     public int getExecutorsCount(User user, BatchPresentation batchPresentation) {
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createAllExecutorsCompiler(user, batchPresentation);
         return compiler.getCount();
+    }
+
+    public int getNotTemporaryExecutorsCount(User user, BatchPresentation batchPresentation) {
+        List<String> restrictions = batchPresentation.getType().getRestrictions();
+        String temporaryExecutorsExclusionQuery = buildTemporaryExecutorsExclusionQuery();
+        restrictions.add(temporaryExecutorsExclusionQuery);
+        PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createAllExecutorsCompiler(user, batchPresentation);
+        int executorsCount = compiler.getCount();
+        restrictions.remove(temporaryExecutorsExclusionQuery);
+        return executorsCount;
     }
 
     public Actor getActor(User user, String name) {
@@ -293,7 +318,7 @@ public class ExecutorLogic extends CommonLogic {
                     executorsToAdd.add(executor);
                 }
             }
-            executorDao.deleteExecutorsFromGroup(temporaryGroup, executorsToDelete);
+            executorDao.removeExecutorsFromGroup(executorsToDelete, temporaryGroup);
             addNewExecutorsToGroup(temporaryGroup, executorsToAdd);
         } else {
             temporaryGroup = executorDao.create(temporaryGroup);
@@ -314,5 +339,14 @@ public class ExecutorLogic extends CommonLogic {
                 permissionDao.setPermissions(executor, Lists.newArrayList(Permission.READ), temporaryGroup);
             }
         }
+    }
+
+    private String buildTemporaryExecutorsExclusionQuery() {
+        String temporaryGroupDiscriminatorValue = TemporaryGroup.class.getAnnotation(DiscriminatorValue.class).value();
+        String delegationGroupDiscriminatorValue = DelegationGroup.class.getAnnotation(DiscriminatorValue.class).value();
+        String escalationGroupDiscriminatorValue = EscalationGroup.class.getAnnotation(DiscriminatorValue.class).value();
+        String restrictionQuery = ClassPresentation.classNameSQL + ".class not in ('" + temporaryGroupDiscriminatorValue + "', '"
+                + delegationGroupDiscriminatorValue + "', '" + escalationGroupDiscriminatorValue + "')";
+        return restrictionQuery;
     }
 }

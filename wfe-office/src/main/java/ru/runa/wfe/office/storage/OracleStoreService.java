@@ -1,9 +1,10 @@
 package ru.runa.wfe.office.storage;
 
 import com.google.common.base.Charsets;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import ru.runa.wfe.office.storage.convert.ConverterContext;
+import ru.runa.wfe.office.storage.convert.OracleSqlValueConverter;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
@@ -21,6 +22,7 @@ import ru.runa.wfe.var.format.StringFormat;
 import ru.runa.wfe.var.format.TextFormat;
 import ru.runa.wfe.var.format.TimeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
+import ru.runa.wfe.var.format.VariableFormatVisitor;
 
 public class OracleStoreService extends JdbcStoreService {
 
@@ -34,7 +36,7 @@ public class OracleStoreService extends JdbcStoreService {
             put(FormattedTextFormat.class, "nvarchar2(2000)");
             put(LongFormat.class, "number(19)");
             put(DoubleFormat.class, "number(19, 4)");
-            put(BooleanFormat.class, "nvarchar2(5)");
+            put(BooleanFormat.class, "number(1, 0)");
             put(BigDecimalFormat.class, "number(38)");
             put(DateTimeFormat.class, "timestamp");
             put(DateFormat.class, "date");
@@ -50,21 +52,6 @@ public class OracleStoreService extends JdbcStoreService {
     public OracleStoreService(VariableProvider variableProvider) {
         super(variableProvider);
         System.getProperties().setProperty("oracle.jdbc.J2EE13Compliant", "true");
-    }
-
-    @Override
-    protected String sqlValue(Object value, VariableFormat format) {
-        if (value == null) {
-            return SQL_VALUE_NULL;
-        } else {
-            if (format instanceof DateFormat) {
-                return MessageFormat.format("DATE" + SQL_VALUE_VARCHAR, FORMAT_DATE.format(value));
-            } else if (format instanceof DateTimeFormat) {
-                return MessageFormat.format("TIMESTAMP" + SQL_VALUE_VARCHAR, FORMAT_DATETIME.format(value));
-            } else {
-                return super.sqlValue(value, format);
-            }
-        }
     }
 
     @Override
@@ -94,4 +81,10 @@ public class OracleStoreService extends JdbcStoreService {
             }
         }
     }
+
+    @Override
+    protected VariableFormatVisitor<String, ConverterContext> sqlValueConverter() {
+        return new OracleSqlValueConverter();
+    }
+
 }

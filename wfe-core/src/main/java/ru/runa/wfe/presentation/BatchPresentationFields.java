@@ -238,7 +238,7 @@ public class BatchPresentationFields implements Serializable {
         }
         BatchPresentationFields f = (BatchPresentationFields) obj;
         return Objects.equal(filters, f.filters) && Arrays.equals(groupIds, f.groupIds) && Arrays.equals(sortIds, f.sortIds)
-                && Arrays.equals(sortModes, f.sortModes) && Arrays.equals(displayIds, f.displayIds);
+                && Arrays.equals(sortModes, f.sortModes) && Arrays.equals(displayIds, f.displayIds) && dynamics.equals(f.dynamics);
     }
 
     @Override

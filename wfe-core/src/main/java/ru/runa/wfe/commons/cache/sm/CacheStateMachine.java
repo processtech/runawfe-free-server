@@ -181,7 +181,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     }
 
     /**
-     * Called then object is changed and cache must be notified about changing transaction.
+     * Called when object is changed and cache must be notified about changing transaction.
      *
      * @param transaction
      *            Transaction, which change persistent object.
@@ -324,4 +324,5 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
         nextState.discard();
         return false;
     }
+
 }

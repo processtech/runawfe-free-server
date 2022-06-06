@@ -1,5 +1,8 @@
 package ru.runa.wfe.commons.xml;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,13 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
-
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -23,12 +26,7 @@ import org.dom4j.Node;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 
 /**
  * Unifies XML operations (Dom4j).
@@ -155,5 +153,15 @@ public class XmlUtils {
             result.put(element.getName(), element.getText());
         }
         return result;
+    }
+
+    public static String unwrapCdata(String xml) {
+        if (StringUtils.isNotBlank(xml)) {
+            while (xml.startsWith("&")) {
+                xml = StringEscapeUtils.unescapeXml(xml);
+            }
+            return xml.replace("<![CDATA[", "").replace("]]>", "");
+        }
+        return "";
     }
 }

@@ -37,6 +37,12 @@ public abstract class Token {
     @Column(name = "NODE_ID", length = 1024)
     protected String nodeId;
 
+    @Column(name = "NODE_NAME")
+    protected String nodeName;
+
+    @Column(name = "NODE_ENTER_DATE")
+    protected Date nodeEnterDate;
+
     @Column(name = "TRANSITION_ID", length = 1024)
     protected String transitionId;
 
@@ -78,6 +84,14 @@ public abstract class Token {
 
     public String getNodeId() {
         return nodeId;
+    }
+
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public Date getNodeEnterDate() {
+        return nodeEnterDate;
     }
 
     public Node getNodeNotNull(ParsedProcessDefinition parsedProcessDefinition) {

@@ -116,11 +116,10 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
             } else {
                 mergedRowsCount++;
             }
-            String tdClass = Resources.CLASS_LIST_TABLE_TD;
             if (log.getSeverity() == Severity.ERROR) {
-                tdClass = tdClass + " " + Resources.CLASS_FONT_RED;
+                description = "<b class='" + Resources.CLASS_FONT_RED + "'>" + description + "</b>";
             }
-            tr.addElement(new TD().addElement(description).setClass(tdClass));
+            tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD));
             rows.add(tr);
         }
         if (mergedEventDateTD != null) {
