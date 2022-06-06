@@ -66,7 +66,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public void createFileIfNotExist(String path) throws InternalApplicationException {
+    public void createFileIfNotExist(String path, String tableName) throws InternalApplicationException {
         final File f = new File(path);
         if (f.exists() && f.isFile()) {
             return;
@@ -83,7 +83,11 @@ public class StoreServiceImpl implements StoreService {
         }
 
         try (Workbook workbook = path.endsWith(XLSX_SUFFIX) ? new XSSFWorkbook() : new HSSFWorkbook(); OutputStream os = new FileOutputStream(path)) {
-            workbook.createSheet();
+            if (tableName == null) {
+                workbook.createSheet();
+            } else {
+                workbook.createSheet(tableName);
+            }
             workbook.write(os);
         } catch (Exception e) {
             log.error("", e);
@@ -176,7 +180,7 @@ public class StoreServiceImpl implements StoreService {
             final ExcelDataSource eds = (ExcelDataSource) dataSource;
             fullPath = eds.getFilePath() + "/" + tableName() + XLSX_SUFFIX;
         }
-        createFileIfNotExist(fullPath);
+        createFileIfNotExist(fullPath, tableName());
     }
 
     @SuppressWarnings("unchecked")

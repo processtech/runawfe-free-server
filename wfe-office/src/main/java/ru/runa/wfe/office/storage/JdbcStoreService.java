@@ -67,7 +67,7 @@ public abstract class JdbcStoreService implements StoreService {
     }
 
     @Override
-    public void createFileIfNotExist(String path) throws Exception {
+    public void createFileIfNotExist(String path, String tableName) throws Exception {
         // Do nothing
     }
 
