@@ -88,7 +88,7 @@ export default Vue.extend({
         },
         loadDefinition() {
             this.$apiClient().then((client: any) => {
-                client['process-definition-api-controller'].getDefinitionByVersionIdUsingGET(null, { 
+                client['process-definition-api-controller'].getProcessDefinitionByVersionIdUsingGET(null, { 
                     parameters: {
                         versionId: this.$route.params.versionId
                     }

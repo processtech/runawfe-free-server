@@ -1,5 +1,6 @@
 package ru.runa.wfe.rest.impl;
 
+import java.util.List;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +29,6 @@ import ru.runa.wfe.rest.dto.WfUserDtoMapper;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-import java.util.List;
 
 @RestController
 @RequestMapping("/executor/")
@@ -51,7 +51,7 @@ public class ExecutorApiController {
     }
 
     @PatchMapping
-    public ExecutorDto update(@AuthenticationPrincipal AuthUser authUser, @RequestBody ExecutorDto dto) {
+    public ExecutorDto updateExecutor(@AuthenticationPrincipal AuthUser authUser, @RequestBody ExecutorDto dto) {
         Executor executor = executorLogic.getExecutor(authUser.getUser(), dto.getId());
         executor.setName(dto.getName());
         executor.setFullName(dto.getFullName());
@@ -59,17 +59,17 @@ public class ExecutorApiController {
     }
 
     @DeleteMapping
-    public void remove(@AuthenticationPrincipal AuthUser authUser, @RequestBody List<Long> ids) {
+    public void removeExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestBody List<Long> ids) {
         executorLogic.remove(authUser.getUser(), ids);
     }
 
     @GetMapping("{id}")
-    public ExecutorDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public ExecutorDto getExecutor(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return Mappers.getMapper(ExecutorMapper.class).map(executorLogic.getExecutor(authUser.getUser(), id));
     }
 
     @GetMapping("{code}/byCode")
-    public WfUserDto getByCode(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long code) {
+    public WfUserDto getActorByCode(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long code) {
         return Mappers.getMapper(WfUserDtoMapper.class).map(executorLogic.getActorByCode(authUser.getUser(), code));
     }
 
@@ -79,7 +79,7 @@ public class ExecutorApiController {
     }
 
     @GetMapping("isExist")
-    public boolean isExist(@AuthenticationPrincipal AuthUser authUser, String name) {
+    public boolean isExecutorExist(@AuthenticationPrincipal AuthUser authUser, String name) {
         return executorLogic.isExecutorExist(authUser.getUser(), name);
     }
 
@@ -89,7 +89,7 @@ public class ExecutorApiController {
     }
 
     @GetMapping("{id}/isInGroup")
-    public boolean isInGroup(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, Long groupId) {
+    public boolean isExecutorInGroup(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, Long groupId) {
         Executor executor = executorLogic.getExecutor(authUser.getUser(), id);
         return executorLogic.isExecutorInGroup(authUser.getUser(), executor, executorLogic.getGroup(authUser.getUser(), groupId));
     }

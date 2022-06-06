@@ -59,12 +59,12 @@ public class TaskApiController {
     }
 
     @GetMapping("{id}")
-    public WfTaskDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public WfTaskDto getTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return Mappers.getMapper(WfTaskMapper.class).map(taskLogic.getTask(authUser.getUser(), id));
     }
 
     @PatchMapping("{id}/assign")
-    public void assign(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, Long previousOwnerId, Long newExecutorId) {
+    public void assignTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, Long previousOwnerId, Long newExecutorId) {
         taskLogic.assignTask(authUser.getUser(), id, previousOwnerId, newExecutorId);
     }
 
@@ -74,29 +74,29 @@ public class TaskApiController {
     }
 
     @PatchMapping("{id}/reassign")
-    public boolean reassign(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public boolean reassignTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return taskLogic.reassignTask(authUser.getUser(), id);
     }
 
     @PostMapping("{id}/complete")
     @ResponseStatus(HttpStatus.OK)
-    public void complete(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
+    public void completeTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
         taskLogic.completeTask(authUser.getUser(), id, variables);
     }
 
     @PatchMapping("{id}/markOpened")
-    public void markOpened(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public void markTaskOpened(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         taskLogic.markTaskOpened(authUser.getUser(), id);
     }
 
     @PatchMapping("{id}/delegate")
-    public void delegate(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, Long currentOwnerId,
+    public void delegateTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, Long currentOwnerId,
             @RequestParam(required = false) boolean keepCurrentOwners, @RequestBody List<Long> executorIds) {
         taskLogic.delegateTask(authUser.getUser(), id, currentOwnerId, keepCurrentOwners, executorIds);
     }
 
     @PatchMapping("delegate")
-    public void delegate(@AuthenticationPrincipal AuthUser authUser, @RequestParam List<Long> ids, Long currentOwnerId,
+    public void delegateTasks(@AuthenticationPrincipal AuthUser authUser, @RequestParam List<Long> ids, Long currentOwnerId,
             @RequestParam(required = false) boolean keepCurrentOwners, @RequestBody List<Long> executorIds) {
         for (Long id : ids) {
             taskLogic.delegateTask(authUser.getUser(), id, currentOwnerId, keepCurrentOwners, executorIds);

@@ -1,5 +1,6 @@
 package ru.runa.wfe.rest.impl;
 
+import java.util.List;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +25,6 @@ import ru.runa.wfe.rest.dto.RelationPairDto;
 import ru.runa.wfe.rest.dto.RelationPairMapper;
 import ru.runa.wfe.rest.dto.WfRelationDto;
 import ru.runa.wfe.rest.dto.WfRelationDtoMapper;
-import java.util.List;
 
 @RestController
 @RequestMapping("/relation/")
@@ -35,48 +35,48 @@ public class RelationApiController {
     private RelationLogic relationLogic;
 
     @PutMapping
-    public WfRelationDto create(@AuthenticationPrincipal AuthUser authUser, @RequestBody Relation relation) {
+    public WfRelationDto createRelation(@AuthenticationPrincipal AuthUser authUser, @RequestBody Relation relation) {
         return Mappers.getMapper(WfRelationDtoMapper.class).map(relationLogic.createRelation(authUser.getUser(), relation));
     }
 
     @PatchMapping
-    public WfRelationDto update(@AuthenticationPrincipal AuthUser authUser, @RequestBody Relation relation) {
+    public WfRelationDto updateRelation(@AuthenticationPrincipal AuthUser authUser, @RequestBody Relation relation) {
         return Mappers.getMapper(WfRelationDtoMapper.class).map(relationLogic.updateRelation(authUser.getUser(), relation));
     }
 
     @DeleteMapping("{id}")
-    public void remove(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public void removeRelation(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         relationLogic.removeRelation(authUser.getUser(), id);
     }
 
     @GetMapping("{id}")
-    public WfRelationDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public WfRelationDto getRelationById(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return Mappers.getMapper(WfRelationDtoMapper.class).map(relationLogic.getRelation(authUser.getUser(), id));
     }
 
     @GetMapping("byName")
-    public WfRelationDto get(@AuthenticationPrincipal AuthUser authUser, String name) {
+    public WfRelationDto getRelationByName(@AuthenticationPrincipal AuthUser authUser, String name) {
         return Mappers.getMapper(WfRelationDtoMapper.class).map(relationLogic.getRelation(authUser.getUser(), name));
     }
 
     @PostMapping("list")
-    public PagedList<WfRelationDto> get(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
+    public PagedList<WfRelationDto> getRelations(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
         List<Relation> relations = relationLogic.getRelations(authUser.getUser(), request.toBatchPresentation(ClassPresentationType.RELATION));
         return new PagedList<>(relations.size(), Mappers.getMapper(WfRelationDtoMapper.class).map(relations));
     }
 
     @PutMapping("pair")
-    public RelationPairDto createPair(@AuthenticationPrincipal AuthUser authUser, Long id, Long leftId, Long rightId) {
+    public RelationPairDto createRelationPair(@AuthenticationPrincipal AuthUser authUser, Long id, Long leftId, Long rightId) {
         return Mappers.getMapper(RelationPairMapper.class).map(relationLogic.addRelationPair(authUser.getUser(), id, leftId, rightId));
     }
 
     @DeleteMapping("pair")
-    public void removePair(@AuthenticationPrincipal AuthUser authUser, Long pairId) {
+    public void removeRelationPair(@AuthenticationPrincipal AuthUser authUser, Long pairId) {
         relationLogic.removeRelationPair(authUser.getUser(), pairId);
     }
 
     @PostMapping("pair/list")
-    public PagedList<RelationPairDto> getPairs(@AuthenticationPrincipal AuthUser authUser, String name,
+    public PagedList<RelationPairDto> getRelationPairs(@AuthenticationPrincipal AuthUser authUser, String name,
             @RequestBody BatchPresentationRequest request) {
         List<RelationPair> relations = relationLogic.getRelations(authUser.getUser(), name,
                 request.toBatchPresentation(ClassPresentationType.RELATIONPAIR));

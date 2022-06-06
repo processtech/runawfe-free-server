@@ -52,31 +52,31 @@ public class ProcessDefinitionApiController {
     private ProcessDefinitionLogic processDefinitionLogic;
 
     @PutMapping()
-    public WfDefinitionDto deploy(@AuthenticationPrincipal AuthUser authUser, @RequestBody byte[] par,
+    public WfDefinitionDto deployProcessDefinition(@AuthenticationPrincipal AuthUser authUser, @RequestBody byte[] par,
             @RequestParam List<String> categories, @RequestParam(required = false) Integer secondsBeforeArchiving) {
         WfDefinition definition = processDefinitionLogic.deployProcessDefinition(authUser.getUser(), par, categories, secondsBeforeArchiving);
         return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
     }
 
     @PatchMapping("{id}/redeploy")
-    public WfDefinitionDto redeploy(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody byte[] par,
+    public WfDefinitionDto redeployProcessDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody byte[] par,
             @RequestParam List<String> categories, @RequestParam(required = false) Integer secondsBeforeArchiving) {
         WfDefinition definition = processDefinitionLogic.redeployProcessDefinition(authUser.getUser(), id, par, categories, secondsBeforeArchiving);
         return Mappers.getMapper(WfDefinitionMapper.class).map(definition);
     }
 
     @PatchMapping("{id}/update")
-    public WfDefinitionDto update(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody byte[] par) {
+    public WfDefinitionDto updateProcessDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody byte[] par) {
         return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.updateProcessDefinition(authUser.getUser(), id, par));
     }
 
     @DeleteMapping()
-    public void undeploy(@AuthenticationPrincipal AuthUser authUser, String name, Long version) {
+    public void undeployProcessDefinition(@AuthenticationPrincipal AuthUser authUser, String name, Long version) {
         processDefinitionLogic.undeployProcessDefinition(authUser.getUser(), name, version);
     }
 
     @PostMapping("list")
-    public PagedList<WfDefinitionDto> getDefinitions(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
+    public PagedList<WfDefinitionDto> getProcessDefinitions(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
         BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.DEFINITION);
         List<WfDefinition> definitions = processDefinitionLogic.getProcessDefinitions(authUser.getUser(), batchPresentation, true);
         WfDefinitionMapper mapper = Mappers.getMapper(WfDefinitionMapper.class);
@@ -85,96 +85,87 @@ public class ProcessDefinitionApiController {
     }
 
     @GetMapping("{name}/history")
-    public PagedList<WfDefinitionDto> getHistory(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
+    public PagedList<WfDefinitionDto> getProcessDefinitionHistory(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
         List<WfDefinition> history = processDefinitionLogic.getProcessDefinitionHistory(authUser.getUser(), name);
         return new PagedList<>(history.size(), Mappers.getMapper(WfDefinitionMapper.class).map(history));
     }
 
     @GetMapping("{name}/latest")
-    public WfDefinitionDto getLatest(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
+    public WfDefinitionDto getLatestProcessDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name) {
         return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getLatestProcessDefinition(authUser.getUser(), name));
     }
 
     @GetMapping("{name}/version")
-    public WfDefinitionDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name, Long version) {
+    public WfDefinitionDto getProcessDefinitionByNameAndVersion(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name, Long version) {
         return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinitionVersion(authUser.getUser(), name, version));
     }
 
-    @GetMapping("{id}")
-    public WfDefinitionDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinition(authUser.getUser(), id));
+    @GetMapping("{versionId}")
+    public WfDefinitionDto getProcessDefinitionByVersionId(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long versionId) {
+        return Mappers.getMapper(WfDefinitionMapper.class).map(processDefinitionLogic.getProcessDefinition(authUser.getUser(), versionId));
     }
 
     @GetMapping("{id}/node")
-    public WfNodeDto getNode(@PathVariable Long id, String nodeId) {
+    public WfNodeDto getProcessDefinitionNode(@PathVariable Long id, String nodeId) {
         Node node = processDefinitionLogic.getDefinition(id).getNode(nodeId);
         return (node != null) ? Mappers.getMapper(WfNodeMapper.class).map(new WfNode(node)) : null;
     }
 
     @GetMapping("{id}/file")
-    public byte[] getFile(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String fileName) {
+    public byte[] getProcessDefinitionFile(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String fileName) {
         return processDefinitionLogic.getFile(authUser.getUser(), id, fileName);
     }
 
     @GetMapping("{id}/graph")
-    public byte[] getGraph(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public byte[] getProcessDefinitionGraph(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) String subprocessId) {
         return processDefinitionLogic.getGraph(authUser.getUser(), id, subprocessId);
     }
 
     @GetMapping("{id}/graph/elements")
-    public PagedList<NodeGraphElementDto> getGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<NodeGraphElementDto> getProcessDefinitionGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) String subprocessId) {
         List<NodeGraphElement> elements = processDefinitionLogic.getProcessDefinitionGraphElements(authUser.getUser(), id, subprocessId);
         return new PagedList<>(elements.size(), Mappers.getMapper(NodeGraphElementMapper.class).map(elements));
     }
 
     @GetMapping("{id}/interaction")
-    public InteractionDto getStartInteraction(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public InteractionDto getProcessDefinitionStartInteraction(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return Mappers.getMapper(InteractionMapper.class).map(processDefinitionLogic.getStartInteraction(authUser.getUser(), id));
     }
 
     @GetMapping("{id}/interaction/{nodeId}")
-    public InteractionDto getTaskNodeInteraction(@PathVariable Long id, @PathVariable String nodeId) {
+    public InteractionDto getProcessDefinitionTaskNodeInteraction(@PathVariable Long id, @PathVariable String nodeId) {
         return Mappers.getMapper(InteractionMapper.class).map(processDefinitionLogic.getDefinition(id).getInteractionNotNull(nodeId));
     }
 
     @GetMapping("{id}/swimlanes")
-    public PagedList<SwimlaneDefinitionDto> getSwimlanes(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public PagedList<SwimlaneDefinitionDto> getProcessDefinitionSwimlanes(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         List<SwimlaneDefinition> swimlanes = processDefinitionLogic.getSwimlanes(authUser.getUser(), id);
         return new PagedList<>(swimlanes.size(), Mappers.getMapper(SwimlaneDefinitionMapper.class).map(swimlanes));
     }
 
     @GetMapping("{id}/userTypes")
-    public PagedList<UserTypeDto> getUserTypes(@PathVariable Long id) {
+    public PagedList<UserTypeDto> getProcessDefinitionUserTypes(@PathVariable Long id) {
         List<UserType> userTypes = processDefinitionLogic.getDefinition(id).getUserTypes();
         return new PagedList<>(userTypes.size(), Mappers.getMapper(UserTypeMapper.class).map(userTypes));
     }
 
     @GetMapping("{id}/userType")
-    public UserTypeDto getUserType(@PathVariable Long id, String name) {
+    public UserTypeDto getProcessDefinitionUserType(@PathVariable Long id, String name) {
         return Mappers.getMapper(UserTypeMapper.class).map(processDefinitionLogic.getDefinition(id).getUserType(name));
     }
 
     @GetMapping("{id}/variables")
-    public PagedList<VariableDefinitionDto> getVariableDefinitions(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public PagedList<VariableDefinitionDto> getProcessDefinitionVariableDefinitions(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         List<VariableDefinition> variableDefinitions = processDefinitionLogic.getProcessDefinitionVariables(authUser.getUser(), id);
         return new PagedList<>(variableDefinitions.size(), Mappers.getMapper(VariableDefinitionMapper.class).map(variableDefinitions));
     }
 
     @GetMapping("{id}/variable")
-    public VariableDefinitionDto getVariableDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String name) {
+    public VariableDefinitionDto getProcessDefinitionVariableDefinition(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String name) {
         VariableDefinition variableDefinition = processDefinitionLogic.getProcessDefinitionVariable(authUser.getUser(), id, name);
         return Mappers.getMapper(VariableDefinitionMapper.class).map(variableDefinition);
-    }
-
-    // this method is temporarily required (see rm2273#note-23)
-    @GetMapping("/version/{versionId}")
-    public WfDefinitionDto getDefinitionByVersionId(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long versionId) {
-        WfDefinition definition = processDefinitionLogic.getProcessDefinition(authUser.getUser(), versionId);
-        WfDefinitionMapper mapper = Mappers.getMapper(WfDefinitionMapper.class);
-        WfDefinitionDto definitionDto = mapper.map(definition);
-        return definitionDto;
     }
 
 }

@@ -59,29 +59,29 @@ public class ProcessApiController {
     private VariableLogic variableLogic;
 
     @PutMapping("{name}")
-    public Long start(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name,
+    public Long startProcessByName(@AuthenticationPrincipal AuthUser authUser, @PathVariable String name,
             @RequestBody(required = false) Map<String, Object> variables) {
         return executionLogic.startProcess(authUser.getUser(), name, variables);
     }
 
     @PostMapping("{definitionId}/start")
-    public Long start(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long definitionId,
+    public Long startProcessById(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long definitionId,
             @RequestBody(required = false) Map<String, Object> variables) {
         return executionLogic.startProcess(authUser.getUser(), definitionId, variables);
     }
 
     @PatchMapping("{id}/activate")
-    public void activate(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public void activateProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         executionLogic.activateProcess(authUser.getUser(), id);
     }
 
     @PatchMapping("{id}/suspend")
-    public void suspend(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public void suspendProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         executionLogic.suspendProcess(authUser.getUser(), id);
     }
 
     @PatchMapping("{id}/restore")
-    public RestoreProcessStatus restore(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public RestoreProcessStatus restoreProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return executionLogic.restoreProcess(authUser.getUser(), id);
     }
 
@@ -96,12 +96,12 @@ public class ProcessApiController {
     }
 
     @PatchMapping("{id}/cancel")
-    public void cancel(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public void cancelProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         executionLogic.cancelProcess(authUser.getUser(), id);
     }
 
     @DeleteMapping
-    public void delete(@AuthenticationPrincipal AuthUser authUser, @RequestBody ProcessFilter filter) {
+    public void deleteProcess(@AuthenticationPrincipal AuthUser authUser, @RequestBody ProcessFilter filter) {
         executionLogic.deleteProcesses(authUser.getUser(), filter);
     }
 
@@ -115,7 +115,7 @@ public class ProcessApiController {
     }
 
     @GetMapping("{id}")
-    public WfProcessDto get(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public WfProcessDto getProcess(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         return Mappers.getMapper(WfProcessMapper.class).map(executionLogic.getProcess(authUser.getUser(), id));
     }
 
@@ -125,14 +125,14 @@ public class ProcessApiController {
     }
 
     @GetMapping("{id}/subprocesses")
-    public PagedList<WfProcessDto> getSubprocesses(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<WfProcessDto> getProcessSubprocesses(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) boolean recursive) {
         List<WfProcess> subprocesses = executionLogic.getSubprocesses(authUser.getUser(), id, recursive);
         return new PagedList<>(subprocesses.size(), Mappers.getMapper(WfProcessMapper.class).map(subprocesses));
     }
 
     @GetMapping("{id}/swimlanes")
-    public PagedList<WfSwimlaneDto> getSwimlanes(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public PagedList<WfSwimlaneDto> getProcessSwimlanes(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         List<WfSwimlane> swimlanes = executionLogic.getProcessSwimlanes(authUser.getUser(), id);
         return new PagedList<>(swimlanes.size(), Mappers.getMapper(WfSwimlaneMapper.class).map(swimlanes));
     }
@@ -154,13 +154,13 @@ public class ProcessApiController {
     }
 
     @GetMapping("{id}/variables")
-    public PagedList<WfVariableDto> getVariables(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public PagedList<WfVariableDto> getProcessVariables(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         List<WfVariable> variables = variableLogic.getVariables(authUser.getUser(), id);
         return new PagedList<>(variables.size(), Mappers.getMapper(WfVariableMapper.class).map(variables));
     }
 
     @PatchMapping("{id}/variables")
-    public void updateVariables(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
+    public void updateProcessVariables(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
         variableLogic.updateVariables(authUser.getUser(), id, variables);
     }
 
@@ -192,7 +192,7 @@ public class ProcessApiController {
     }
 
     @PostMapping("{id}/graph")
-    public String getGraph(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> request) {
+    public String getProcessGraph(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> request) {
         Long taskId = (Long) request.get("taskId");
         Long childProcessId = (Long) request.get("childProcessId");
         String subprocessId = (String) request.get("subprocessId");
@@ -201,26 +201,26 @@ public class ProcessApiController {
     }
 
     @GetMapping("{id}/graph/elements")
-    public PagedList<NodeGraphElementDto> getGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<NodeGraphElementDto> getProcessGraphElements(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) String subprocessId) {
         List<NodeGraphElement> elements = executionLogic.getProcessDiagramElements(authUser.getUser(), id, subprocessId);
         return new PagedList<>(elements.size(), Mappers.getMapper(NodeGraphElementMapper.class).map(elements));
     }
 
     @GetMapping("{id}/graph/element")
-    public NodeGraphElementDto getGraphElement(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String nodeId) {
+    public NodeGraphElementDto getProcessGraphElement(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, String nodeId) {
         return Mappers.getMapper(NodeGraphElementMapper.class).map(executionLogic.getProcessDiagramElement(authUser.getUser(), id, nodeId));
     }
 
     @GetMapping("{id}/jobs")
-    public PagedList<WfJob> getJobs(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<WfJob> getProcessJobs(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) boolean recursive) {
         List<WfJob> jobs = executionLogic.getJobs(authUser.getUser(), id, recursive);
         return new PagedList<>(jobs.size(), jobs);
     }
 
     @GetMapping("{id}/tokens")
-    public PagedList<WfTokenDto> getTokens(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+    public PagedList<WfTokenDto> getProcessTokens(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestParam(required = false) boolean recursive) {
         List<WfToken> tokens = executionLogic.getTokens(authUser.getUser(), id, recursive, false);
         return new PagedList<>(tokens.size(), Mappers.getMapper(WfTokenMapper.class).map(tokens));
@@ -231,7 +231,7 @@ public class ProcessApiController {
         Utils.sendBpmnMessageRest((Map<String, String>) request.get("routingData"), request.get("payloadData"), ttlInSeconds * 1000);
     }
 
-    @PostMapping("signalReceiverIsActive")
+    @GetMapping("signalReceiverIsActive")
     public boolean signalReceiverIsActive(@RequestBody Map<String, String> routingData) {
         return !executionLogic.findTokensForMessageSelector(routingData).isEmpty();
     }
