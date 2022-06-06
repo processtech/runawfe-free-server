@@ -799,8 +799,10 @@ public class ExecutionLogic extends WfCommonLogic {
     public List<WfTokenError> getTokenErrors(User user, Long processId) {
         List<WfTokenError> errors = Lists.newArrayList();
         CurrentProcess process = currentProcessDao.get(processId);
-        for (Token token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
-            errors.add(new WfTokenError(token, getStackTrace(token)));
+        if (process != null) {
+            for (Token token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
+                errors.add(new WfTokenError(token, getStackTrace(token)));
+            }
         }
         return errors;
     }
@@ -827,12 +829,16 @@ public class ExecutionLogic extends WfCommonLogic {
         return getPersistentObjectCount(user, batchPresentation, Permission.READ, PROCESS_EXECUTION_CLASSES);
     }
 
+    @SuppressWarnings("rawtypes")
     public RestoreProcessStatus restoreProcess(User user, Long processId) throws ProcessDoesNotExistException {
         log.info("Restoring process " + processId + " by " + user.getActor());
         if (!executorDao.isAdministrator(user.getActor())) {
             throw new AuthorizationException("Only administrator can restore process");
         }
-        CurrentProcess process = currentProcessDao.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
+        if (process.isArchived()) {
+            throw new InternalApplicationException("Archived processes cannot be restored");
+        }
         ProcessLogs processLogs = new ProcessLogs();
         processLogs.addLogs(processLogDao.getAll(process.getId()), false);
         ProcessEndLog lastProcessEndLog = processLogs.getLastOrNull(ProcessEndLog.class);
@@ -859,10 +865,10 @@ public class ExecutionLogic extends WfCommonLogic {
                 processEndDate = lastProcessCancelLog.getCreateDate();
             }
         }
-        if (currentTokenDao.findByProcessAndEndDateGreaterThanOrEquals(process, processEndDate).isEmpty()) {
+        if (currentTokenDao.findByProcessAndEndDateGreaterThanOrEquals((CurrentProcess) process, processEndDate).isEmpty()) {
             return RestoreProcessStatus.UNABLE_TO_FIND_ACTIVE_TOKENS_BY_PROCESS_END_DATE;
         }
-        restoreProcessWithSubProcesses(user, process, processEndDate);
+        restoreProcessWithSubProcesses(user, (CurrentProcess) process, processEndDate);
         log.info(process + " was restored by " + user);
         return RestoreProcessStatus.OK;
     }

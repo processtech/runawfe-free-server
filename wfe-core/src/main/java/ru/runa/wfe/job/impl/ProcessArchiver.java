@@ -16,6 +16,7 @@ import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.hibernate.HibernateUtil;
 import ru.runa.wfe.execution.NodeProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.extension.ProcessArchiverStepHandler;

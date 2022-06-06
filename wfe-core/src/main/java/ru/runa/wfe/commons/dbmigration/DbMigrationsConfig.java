@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.runa.wfe.commons.dbmigration.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddArchivedProcessExternalData;
+import ru.runa.wfe.commons.dbmigration.impl.AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddAssignDateColumnPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddBatchPresentationIsSharedPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddChatRoomViewPatch;
@@ -176,6 +177,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(RenameProcessesBatchPresentationClassTypes.class);
         dbMigrations.add(RenameSequences.class);
         dbMigrations.add(AddArchivedProcessExternalData.class);
+        dbMigrations.add(AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch.class);
         // end develop patches
         dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
         return dbMigrations;
