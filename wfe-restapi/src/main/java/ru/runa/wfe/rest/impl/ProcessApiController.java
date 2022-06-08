@@ -231,7 +231,7 @@ public class ProcessApiController {
         Utils.sendBpmnMessageRest((Map<String, String>) request.get("routingData"), request.get("payloadData"), ttlInSeconds * 1000);
     }
 
-    @GetMapping("signalReceiverIsActive")
+    @PostMapping("signalReceiverIsActive")
     public boolean signalReceiverIsActive(@RequestBody Map<String, String> routingData) {
         return !executionLogic.findTokensForMessageSelector(routingData).isEmpty();
     }
