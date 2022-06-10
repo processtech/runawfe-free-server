@@ -15,7 +15,7 @@ public class DeployDefinition {
             User user = authenticationAPI.authenticateByLoginPassword("Administrator", "wf");
             DefinitionAPI definitionAPI = new DefinitionWebService().getDefinitionAPIPort();
             byte[] file = Files.toByteArray(new File("C:/Users/Dofs/Desktop/PARs/calendarTest.par"));
-            definitionAPI.deployProcessDefinition(user, file, Lists.newArrayList("type"));
+            definitionAPI.deployProcessDefinition(user, file, Lists.newArrayList("type"), null);
         } catch (Exception e) {
             e.printStackTrace();
         }
