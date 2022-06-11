@@ -193,7 +193,7 @@ export default Vue.extend({
                 variables: []
             };
             this.$apiClient().then((client: any) => {
-                client['process-definition-api-controller'].getProcessDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
+                client['process-definition-controller'].getProcessDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
                         this.definitions = body.data;

@@ -29,7 +29,7 @@ import ru.runa.wfe.rest.dto.WfRelationDtoMapper;
 @RestController
 @RequestMapping("/relation/")
 @Transactional
-public class RelationApiController {
+public class RelationController {
 
     @Autowired
     private RelationLogic relationLogic;

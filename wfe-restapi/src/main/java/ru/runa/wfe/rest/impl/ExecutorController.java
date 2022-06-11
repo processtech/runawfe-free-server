@@ -33,7 +33,7 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 @RestController
 @RequestMapping("/executor/")
 @Transactional
-public class ExecutorApiController {
+public class ExecutorController {
 
     @Autowired
     private ExecutorLogic executorLogic;

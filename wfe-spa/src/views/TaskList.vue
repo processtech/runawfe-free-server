@@ -220,7 +220,7 @@ export default Vue.extend({
                 variables: Array
             };
             this.$apiClient().then((client: any) => {
-                client['task-api-controller'].getTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
+                client['task-controller'].getMyTasksUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
                         this.tasks = body.data;

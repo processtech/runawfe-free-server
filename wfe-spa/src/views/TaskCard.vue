@@ -94,7 +94,7 @@ export default Vue.extend({
         },
         loadTask() {
             this.$apiClient().then((client: any) => {
-                client['task-api-controller'].getTaskUsingGET(null, { 
+                client['task-controller'].getTaskUsingGET(null, { 
                     parameters: {
                         id: this.$route.params.id
                     }

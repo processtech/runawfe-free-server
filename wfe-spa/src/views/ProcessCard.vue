@@ -85,7 +85,7 @@ export default Vue.extend({
         },
         loadProcess(): void {
             this.$apiClient().then((client: any) => {
-                client['process-api-controller'].getProcessUsingGET(null, { 
+                client['process-controller'].getProcessUsingGET(null, { 
                     parameters: {
                         id: this.$route.params.id
                     }
@@ -99,7 +99,7 @@ export default Vue.extend({
         },
         getGraph() {
             this.$apiClient().then((client: any) => {
-                client['process-api-controller'].getProcessGraphUsingPOST(null, { 
+                client['process-controller'].getProcessGraphUsingPOST(null, { 
                     parameters: {
                         id: this.process.id
                     },

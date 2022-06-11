@@ -51,7 +51,7 @@ import ru.runa.wfe.var.logic.VariableLogic;
 @RestController
 @RequestMapping("/process/")
 @Transactional
-public class ProcessApiController {
+public class ProcessController {
     
     @Autowired
     private ExecutionLogic executionLogic;

@@ -46,7 +46,7 @@ import ru.runa.wfe.var.VariableDefinition;
 @RestController
 @RequestMapping("/definition/")
 @Transactional
-public class ProcessDefinitionApiController {
+public class ProcessDefinitionController {
     
     @Autowired
     private ProcessDefinitionLogic processDefinitionLogic;

@@ -21,7 +21,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterAfter(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.authorizeRequests()
                 .antMatchers(
-                        "/auth/token",
+                        "/auth/basic",
+                        "/auth/kerberos",
                         "/swagger-ui/**",
                         "/swagger-resources/**",
                         "/v3/api-docs/**",

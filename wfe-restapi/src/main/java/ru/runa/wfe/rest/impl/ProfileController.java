@@ -28,7 +28,7 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 @RestController
 @RequestMapping("/profile")
 @Transactional
-public class ProfileApiController {
+public class ProfileController {
 
     @Autowired
     private RelationLogic relationLogic;

@@ -28,7 +28,7 @@ import ru.runa.wfe.task.logic.TaskLogic;
 @RestController
 @RequestMapping("/task/")
 @Transactional
-public class TaskApiController {
+public class TaskController {
     
     @Autowired
     private TaskLogic taskLogic;

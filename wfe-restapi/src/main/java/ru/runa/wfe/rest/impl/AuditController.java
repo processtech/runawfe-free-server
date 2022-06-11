@@ -27,7 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/audit/")
 @Transactional
-public class AuditApiController {
+public class AuditController {
 
     @Autowired
     private AuditLogic auditLogic;

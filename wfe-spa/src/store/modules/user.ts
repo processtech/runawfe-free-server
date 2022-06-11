@@ -43,12 +43,11 @@ const actions = {
             new SwaggerClient({
                 url: context.getters.apiUrl,
             }).then((client: any) => {
-                client.apis['auth-controller'].tokenUsingPOST({
+                client.apis['auth-controller'].basicUsingPOST({
                     login,
                     password
                 }).then((data: any) => {
-                    let token = data.body;
-                    token = token.split(' ')[1];
+                    const token = data.body;
                     context.dispatch('makeSwaggerClient', { token, resolve, reject });
                 }, (reason: string) => reject('Неверный логин или пароль!')).catch((error: any) => {
                     console.log(error);
