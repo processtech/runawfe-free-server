@@ -81,7 +81,8 @@ public class TaskDao extends GenericDao<Task> {
      */
     public List<Task> findUnassignedTasksInActiveProcesses() {
         QTask t = QTask.task;
-        return queryFactory.selectFrom(t).where(t.executor.isNull().and(t.token.executionStatus.ne(ExecutionStatus.SUSPENDED))).fetch();
+        return queryFactory.selectFrom(t)
+                .where(t.executor.isNull().and(t.token.executionStatus.ne(ExecutionStatus.SUSPENDED)).and(t.token.endDate.isNull())).fetch();
     }
 
     public List<Task> findUnassignedTasks() {
