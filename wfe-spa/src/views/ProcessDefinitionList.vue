@@ -180,7 +180,7 @@ export default Vue.extend({
     },
     methods: {
         openStartForm (item) {
-            this.$router.push({ name: "ProcessDefinitionCard", params: { versionId: item.versionId.toString() } });
+            this.$router.push({ name: "ProcessDefinitionCard", params: { id: item.id.toString() } });
         },
         getDataFromApi () {
             this.loading = true;
@@ -193,7 +193,7 @@ export default Vue.extend({
                 variables: []
             };
             this.$apiClient().then((client: any) => {
-                client['process-definition-controller'].getProcessDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
+                client['definition-controller'].getProcessDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
                         this.definitions = body.data;

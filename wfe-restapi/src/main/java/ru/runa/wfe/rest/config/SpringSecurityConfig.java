@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.runa.wfe.rest.auth.JwtAuthenticationFilter;
+import ru.runa.wfe.rest.impl.ApiExceptionHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +30,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/test/**"
                 ).permitAll()
                 .antMatchers("/**").hasRole(ROLE);
+        http.exceptionHandling().authenticationEntryPoint(new ApiExceptionHandler.RestAuthenticationEntryPoint());
     }
 
 }

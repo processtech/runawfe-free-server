@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,12 +16,12 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.logic.RelationLogic;
 import ru.runa.wfe.rest.auth.AuthUser;
-import ru.runa.wfe.rest.dto.WfGroupDto;
-import ru.runa.wfe.rest.dto.WfGroupDtoMapper;
-import ru.runa.wfe.rest.dto.WfProfileDto;
-import ru.runa.wfe.rest.dto.WfRelationDto;
-import ru.runa.wfe.rest.dto.WfRelationDtoMapper;
-import ru.runa.wfe.rest.dto.WfUserDtoMapper;
+import ru.runa.wfe.rest.converter.WfeGroupMapper;
+import ru.runa.wfe.rest.converter.WfeRelationMapper;
+import ru.runa.wfe.rest.converter.WfeUserMapper;
+import ru.runa.wfe.rest.dto.WfeGroup;
+import ru.runa.wfe.rest.dto.WfeProfile;
+import ru.runa.wfe.rest.dto.WfeRelation;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
@@ -35,11 +36,11 @@ public class ProfileController {
     @Autowired
     private ExecutorLogic executorLogic;
 
-    @PostMapping
-    public WfProfileDto getProfile(@AuthenticationPrincipal AuthUser authUser) {
+    @GetMapping
+    public WfeProfile getProfile(@AuthenticationPrincipal AuthUser authUser) {
         User user = authUser.getUser();
-        WfProfileDto profileDto = new WfProfileDto();
-        WfUserDtoMapper userDtoMapper = Mappers.getMapper(WfUserDtoMapper.class);
+        WfeProfile profileDto = new WfeProfile();
+        WfeUserMapper userDtoMapper = Mappers.getMapper(WfeUserMapper.class);
         profileDto.setUser(userDtoMapper.map(user.getActor()));
         profileDto.setRelations(getRelations(user));
         profileDto.setGroups(getGroupsDto(user));
@@ -53,15 +54,15 @@ public class ProfileController {
         executorLogic.setPassword(user, user.getActor(), password);
     }
 
-    private List<WfGroupDto> getGroupsDto(User user) {
-        WfGroupDtoMapper groupDtoMapper = Mappers.getMapper(WfGroupDtoMapper.class);
+    private List<WfeGroup> getGroupsDto(User user) {
+        WfeGroupMapper groupDtoMapper = Mappers.getMapper(WfeGroupMapper.class);
         List<Group> groups = executorLogic.getExecutorGroups(
 user, user.getActor(), BatchPresentationFactory.GROUPS.createNonPaged(), false);
         return groupDtoMapper.map(groups);
     }
 
-    private List<WfRelationDto> getRelations(User user) {
-        WfRelationDtoMapper relationDtoMapper = Mappers.getMapper(WfRelationDtoMapper.class);
+    private List<WfeRelation> getRelations(User user) {
+        WfeRelationMapper relationDtoMapper = Mappers.getMapper(WfeRelationMapper.class);
         List<Relation> relations = relationLogic.getRelations(user, BatchPresentationFactory.RELATIONS.createNonPaged());
         return relationDtoMapper.map(relations);
     }

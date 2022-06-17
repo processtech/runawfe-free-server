@@ -2,7 +2,6 @@ import { ExecutorDto } from './ExecutorDto';
 
 export class WfDefinitionDto {
     id: number|null = null;
-    versionId: number|null = null;
     name: string = '';
     description: string = '';
     categories: Array<string>|null = '';
@@ -15,7 +14,7 @@ export class WfDefinitionDto {
 
     getInfo(): object {
         return {
-            'ID': this.versionId,
+            'ID': this.id,
             'Имя': this.name,
             'Описание': this.description,
             'Создана': this.createDate ? new Date(this.createDate).toLocaleString() : '',

@@ -715,9 +715,18 @@ public class ExecutionLogic extends WfCommonLogic {
         return listSwimlanes;
     }
 
+    public boolean reassignSwimlane(User user, Long processId, String name) {
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
+        CurrentSwimlane swimlane = currentSwimlaneDao.findByProcessAndName(process, name);
+        if (swimlane == null) {
+            return false;
+        }
+        return reassignSwimlane(user, swimlane.getId());
+    }
+
     public boolean reassignSwimlane(User user, Long id) {
         CurrentSwimlane swimlane = currentSwimlaneDao.get(id);
-        Process process = swimlane.getProcess();
+        CurrentProcess process = swimlane.getProcess();
         ParsedProcessDefinition processDefinition = getDefinition(process);
         Delegation delegation = processDefinition.getSwimlaneNotNull(swimlane.getName()).getDelegation();
         Executor oldExecutor = swimlane.getExecutor();

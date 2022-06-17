@@ -18,14 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.rest.auth.AuthUser;
-import ru.runa.wfe.rest.dto.BatchPresentationRequest;
-import ru.runa.wfe.rest.dto.ExecutorDto;
-import ru.runa.wfe.rest.dto.ExecutorMapper;
-import ru.runa.wfe.rest.dto.PagedList;
-import ru.runa.wfe.rest.dto.WfGroupDto;
-import ru.runa.wfe.rest.dto.WfGroupDtoMapper;
-import ru.runa.wfe.rest.dto.WfUserDto;
-import ru.runa.wfe.rest.dto.WfUserDtoMapper;
+import ru.runa.wfe.rest.converter.WfeExecutorMapper;
+import ru.runa.wfe.rest.converter.WfeGroupMapper;
+import ru.runa.wfe.rest.converter.WfeUserMapper;
+import ru.runa.wfe.rest.dto.WfeExecutor;
+import ru.runa.wfe.rest.dto.WfeGroup;
+import ru.runa.wfe.rest.dto.WfePagedList;
+import ru.runa.wfe.rest.dto.WfePagedListFilter;
+import ru.runa.wfe.rest.dto.WfeUser;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.logic.ExecutorLogic;
@@ -38,24 +39,46 @@ public class ExecutorController {
     @Autowired
     private ExecutorLogic executorLogic;
 
-    @PutMapping("actor")
-    public WfUserDto createActor(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfUserDto dto) {
-        WfUserDtoMapper mapper = Mappers.getMapper(WfUserDtoMapper.class);
+    @PutMapping("user")
+    public WfeUser createUser(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfeUser dto) {
+        WfeUserMapper mapper = Mappers.getMapper(WfeUserMapper.class);
         return mapper.map(executorLogic.create(authUser.getUser(), mapper.map(dto)));
     }
 
     @PutMapping("group")
-    public WfGroupDto createGroup(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfGroupDto dto) {
-        WfGroupDtoMapper mapper = Mappers.getMapper(WfGroupDtoMapper.class);
+    public WfeGroup createGroup(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfeGroup dto) {
+        WfeGroupMapper mapper = Mappers.getMapper(WfeGroupMapper.class);
         return mapper.map(executorLogic.create(authUser.getUser(), mapper.map(dto)));
     }
 
-    @PatchMapping
-    public ExecutorDto updateExecutor(@AuthenticationPrincipal AuthUser authUser, @RequestBody ExecutorDto dto) {
-        Executor executor = executorLogic.getExecutor(authUser.getUser(), dto.getId());
-        executor.setName(dto.getName());
-        executor.setFullName(dto.getFullName());
-        return Mappers.getMapper(ExecutorMapper.class).map(executorLogic.update(authUser.getUser(), executor));
+    @GetMapping("user")
+    public WfeUser getUser(@AuthenticationPrincipal AuthUser authUser, @RequestParam String name) {
+        return Mappers.getMapper(WfeUserMapper.class).map(executorLogic.getActor(authUser.getUser(), name));
+    }
+
+    @GetMapping("group")
+    public WfeGroup getGroup(@AuthenticationPrincipal AuthUser authUser, @RequestParam String name) {
+        return Mappers.getMapper(WfeGroupMapper.class).map(executorLogic.getGroup(authUser.getUser(), name));
+    }
+
+    @PatchMapping("user")
+    public void updateUser(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfeUser dto) {
+        Actor actor = executorLogic.getActor(authUser.getUser(), dto.getId());
+        Mappers.getMapper(WfeUserMapper.class).fill(actor, dto);
+        executorLogic.update(authUser.getUser(), actor);
+    }
+
+    @PatchMapping("group")
+    public void updateGroup(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfeGroup dto) {
+        Group group = executorLogic.getGroup(authUser.getUser(), dto.getId());
+        Mappers.getMapper(WfeGroupMapper.class).fill(group, dto);
+        executorLogic.update(authUser.getUser(), group);
+    }
+
+    @PatchMapping("user/status")
+    public void updateUserStatus(@AuthenticationPrincipal AuthUser authUser, @RequestParam String name, @RequestParam boolean active) {
+        Actor actor = executorLogic.getActor(authUser.getUser(), name);
+        executorLogic.setStatus(authUser.getUser(), actor, active, true);
     }
 
     @DeleteMapping
@@ -63,23 +86,18 @@ public class ExecutorController {
         executorLogic.remove(authUser.getUser(), ids);
     }
 
-    @GetMapping("{id}")
-    public ExecutorDto getExecutor(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
-        return Mappers.getMapper(ExecutorMapper.class).map(executorLogic.getExecutor(authUser.getUser(), id));
-    }
-
     @GetMapping("{code}/byCode")
-    public WfUserDto getActorByCode(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long code) {
-        return Mappers.getMapper(WfUserDtoMapper.class).map(executorLogic.getActorByCode(authUser.getUser(), code));
+    public WfeUser getUserByCode(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long code) {
+        return Mappers.getMapper(WfeUserMapper.class).map(executorLogic.getActorByCode(authUser.getUser(), code));
     }
 
     @GetMapping()
-    public ExecutorDto getByName(@AuthenticationPrincipal AuthUser authUser, String name) {
-        return Mappers.getMapper(ExecutorMapper.class).map(executorLogic.getExecutor(authUser.getUser(), name));
+    public WfeExecutor getByName(@AuthenticationPrincipal AuthUser authUser, @RequestParam String name) {
+        return Mappers.getMapper(WfeExecutorMapper.class).map(executorLogic.getExecutor(authUser.getUser(), name));
     }
 
     @GetMapping("isExist")
-    public boolean isExecutorExist(@AuthenticationPrincipal AuthUser authUser, String name) {
+    public boolean isExecutorExist(@AuthenticationPrincipal AuthUser authUser, @RequestParam String name) {
         return executorLogic.isExecutorExist(authUser.getUser(), name);
     }
 
@@ -89,25 +107,25 @@ public class ExecutorController {
     }
 
     @GetMapping("{id}/isInGroup")
-    public boolean isExecutorInGroup(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, Long groupId) {
+    public boolean isExecutorInGroup(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestParam Long groupId) {
         Executor executor = executorLogic.getExecutor(authUser.getUser(), id);
         return executorLogic.isExecutorInGroup(authUser.getUser(), executor, executorLogic.getGroup(authUser.getUser(), groupId));
     }
 
     @PostMapping("list")
-    public PagedList<ExecutorDto> getExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestBody BatchPresentationRequest request) {
-        BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.EXECUTOR);
+    public WfePagedList<WfeExecutor> getExecutors(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfePagedListFilter filter) {
+        BatchPresentation batchPresentation = filter.toBatchPresentation(ClassPresentationType.EXECUTOR);
         List<? extends Executor> executors = executorLogic.getExecutors(authUser.getUser(), batchPresentation);
-        return new PagedList<>(executors.size(), Mappers.getMapper(ExecutorMapper.class).map(executors));
+        return new WfePagedList<>(executors.size(), Mappers.getMapper(WfeExecutorMapper.class).map(executors));
     }
 
     @PostMapping("{id}/groups")
-    public PagedList<WfGroupDto> getExecutorGroups(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
-            @RequestBody BatchPresentationRequest request, @RequestParam(required = false) boolean isExclude) {
-        BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.GROUP);
+    public WfePagedList<WfeGroup> getExecutorGroups(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+            @RequestBody WfePagedListFilter filter, @RequestParam(required = false) boolean isExclude) {
+        BatchPresentation batchPresentation = filter.toBatchPresentation(ClassPresentationType.GROUP);
         Executor executor = executorLogic.getExecutor(authUser.getUser(), id);
         List<Group> groups = executorLogic.getExecutorGroups(authUser.getUser(), executor, batchPresentation, isExclude);
-        return new PagedList<>(groups.size(), Mappers.getMapper(WfGroupDtoMapper.class).map(groups));
+        return new WfePagedList<>(groups.size(), Mappers.getMapper(WfeGroupMapper.class).map(groups));
     }
 
     @PutMapping("{id}/groups")
@@ -131,18 +149,17 @@ public class ExecutorController {
     }
 
     @PostMapping("{groupId}/children")
-    public PagedList<ExecutorDto> getGroupChildren(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long groupId,
-            @RequestBody BatchPresentationRequest request, @RequestParam(required = false) boolean isExclude) {
-        BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.EXECUTOR);
+    public WfePagedList<WfeExecutor> getGroupChildren(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long groupId,
+            @RequestBody WfePagedListFilter filter, @RequestParam(required = false) boolean isExclude) {
+        BatchPresentation batchPresentation = filter.toBatchPresentation(ClassPresentationType.EXECUTOR);
         Group group = executorLogic.getGroup(authUser.getUser(), groupId);
         List<Executor> executors = executorLogic.getGroupChildren(authUser.getUser(), group, batchPresentation, isExclude);
-        return new PagedList<>(executors.size(), Mappers.getMapper(ExecutorMapper.class).map(executors));
+        return new WfePagedList<>(executors.size(), Mappers.getMapper(WfeExecutorMapper.class).map(executors));
     }
 
-    @GetMapping("{groupId}/actors")
-    public PagedList<WfUserDto> getGroupActors(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long groupId) {
-        Group group = executorLogic.getGroup(authUser.getUser(), groupId);
-        List<WfUserDto> users = Mappers.getMapper(WfUserDtoMapper.class).map(executorLogic.getGroupActors(authUser.getUser(), group));
-        return new PagedList<>(users.size(), users);
+    @GetMapping("group/users")
+    public List<WfeUser> getGroupUsers(@AuthenticationPrincipal AuthUser authUser, @RequestParam String name) {
+        Group group = executorLogic.getGroup(authUser.getUser(), name);
+        return Mappers.getMapper(WfeUserMapper.class).map(executorLogic.getGroupActors(authUser.getUser(), group));
     }
 }

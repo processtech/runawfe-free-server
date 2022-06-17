@@ -82,8 +82,9 @@ public abstract class BaseProcessLog implements ProcessLog {
         }
     }
 
+    // protected does not work due to https://github.com/mapstruct/mapstruct/issues/1689
     @Transient
-    protected Map<String, String> getAttributes() {
+    public Map<String, String> getAttributes() {
         if (attributes == null) {
             if (serializedAttributes == null) {
                 attributes = new HashMap<>();

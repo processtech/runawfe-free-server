@@ -99,17 +99,13 @@ export default Vue.extend({
         },
         getGraph() {
             this.$apiClient().then((client: any) => {
-                client['process-controller'].getProcessGraphUsingPOST(null, { 
+                client['process-controller'].getProcessGraphUsingGET(null, { 
                     parameters: {
                         id: this.process.id
-                    },
-                    requestBody: { 
-                        childProcessId: null,
-                        subprocessId: null,
                     }
                 }).then((data: any) => {
                     if (data && data.status == 200) {
-                        this.graphImage = 'data:image/jpeg;base64,' + data.body;
+                        this.graphImage = this.graphImage = window.URL ? window.URL.createObjectURL(data.data) : window.webkitURL.createObjectURL(data.data);
                     }
                 });
             });
