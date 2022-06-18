@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
@@ -17,11 +19,13 @@ public class WfePagedListFilter {
     private int pageSize;
     private int pageNumber;
     // null in value means missed (posted from web), empty string means 'no parameters'
-    private Map<String, String> filters;
-    private List<Sorting> sortings;
-    private List<String> variables;
+    private Map<String, String> filters = new HashMap<>();
+    private List<Sorting> sortings = new ArrayList<>();
+    private List<String> variables = new ArrayList<>();
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Sorting {
         private String name;
         private Order order;
