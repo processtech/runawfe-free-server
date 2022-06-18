@@ -182,7 +182,7 @@ public class EditSettingsTag extends TitledFormTag {
             }
             Input resetValue = null;
             if (properties.isSettingStoredInDatabase(p.title)) {
-                resetValue = new Input(Input.SUBMIT, SettingsFileForm.newValueInputName(p.title), MessagesCommon.BUTTON_RESTORE.message(pageContext));
+                resetValue = new Input(Input.BUTTON, SettingsFileForm.newValueInputName(p.title), MessagesCommon.BUTTON_RESTORE.message(pageContext));
                 resetValue.addAttribute("onclick", "restoreDefaultSettingValue('" + p.title + "', '" + resource + "')");
             }
             table.addElement("<tr><td class='list'>" + p.title + "</td>" + "<td class='list'>" + description + "</td>" + "<td class='list'>"

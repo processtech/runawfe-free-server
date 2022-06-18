@@ -3,7 +3,9 @@ package ru.runa.wfe.user.cache;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import javax.transaction.Transaction;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
@@ -15,20 +17,32 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.TemporaryGroup;
 
 @Component
 public class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> {
 
     ExecutorCacheCtrl() {
-        super(
-                new ExecutorCacheFactory(),
-                new ArrayList<ListenObjectDefinition>() {{
-                    add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.ALL));
-                    add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
-                }}
-        );
+        super(new ExecutorCacheFactory(), new ArrayList<ListenObjectDefinition>() {
+            {
+                add(new ListenObjectDefinition(Actor.class));
+                add(new ListenObjectDefinition(Group.class));
+                add(new ListenObjectDefinition(ExecutorGroupMembership.class));
+            }
+        });
     }
 
+    @Override
+    public boolean onChange(Transaction transaction, ChangedObjectParameter changedObject) {
+        if (changedObject.object instanceof TemporaryGroup) {
+            return false;
+        }
+        if (changedObject.object instanceof ExecutorGroupMembership
+                && ((ExecutorGroupMembership) changedObject.object).getGroup() instanceof TemporaryGroup) {
+            return false;
+        }
+        return super.onChange(transaction, changedObject);
+    }
     /**
      * Return {@link Actor} with specified code, or null, if such actor not exists or cache is not valid.
      *

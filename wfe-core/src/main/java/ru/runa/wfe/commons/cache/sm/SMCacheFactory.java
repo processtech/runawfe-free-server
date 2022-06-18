@@ -6,10 +6,8 @@ import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
-import ru.runa.wfe.commons.cache.states.DefaultCacheStateFactory;
 import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
 import ru.runa.wfe.commons.cache.states.staleable.StaleableCacheStateFactory;
 
@@ -43,24 +41,15 @@ public abstract class SMCacheFactory<CacheImpl extends CacheImplementation> {
     public final CacheStateFactory<CacheImpl> stateFactory;
     private final CacheTransactionalExecutor transactionalExecutor;
 
-    /**
-     * @param isolated  Used by tests; other callers should use another constructor overload.
-     */
-    protected SMCacheFactory(Type type, boolean isolated, CacheTransactionalExecutor transactionalExecutor) {
+    protected SMCacheFactory(Type type, CacheTransactionalExecutor transactionalExecutor) {
         Preconditions.checkArgument(type == Type.EAGER || transactionalExecutor != null);
         this.type = type;
         if (type == Type.LAZY_STALEABLE) {
             stateFactory = new StaleableCacheStateFactory<>();
-        } else if (isolated) {
-            stateFactory = new IsolatedCacheStateFactory<>();
         } else {
-            stateFactory = new DefaultCacheStateFactory<>();
+            stateFactory = new IsolatedCacheStateFactory<>();
         }
         this.transactionalExecutor = transactionalExecutor;
-    }
-
-    protected SMCacheFactory(Type type, CacheTransactionalExecutor transactionalExecutor) {
-        this(type, SystemProperties.useIsolatedCacheStateMachine(), transactionalExecutor);
     }
 
     public final boolean isLazy() {
@@ -88,12 +77,12 @@ public abstract class SMCacheFactory<CacheImpl extends CacheImplementation> {
                             if (!context.isInitializationStillRequired()) {
                                 return;
                             }
-                            if (log.isDebugEnabled()) {
-                                log.debug("Creating cache from " + this);
+                            if (log.isTraceEnabled()) {
+                                log.trace("Creating cache from " + this);
                             }
                             cache.set(createCacheImpl(context));
                             if (log.isDebugEnabled()) {
-                                log.debug("Created cache from " + this + ": " + cache.get());
+                                log.debug("Created cache " + cache.get());
                             }
                             context.onComplete(cache.get());
                         }

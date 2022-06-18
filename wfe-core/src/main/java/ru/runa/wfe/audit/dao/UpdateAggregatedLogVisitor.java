@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Objects;
 import lombok.val;
 import org.hibernate.SessionFactory;
+import ru.runa.wfe.audit.CreateTimerLog;
+import ru.runa.wfe.audit.NodeEnterLog;
+import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLogVisitor;
+import ru.runa.wfe.audit.ReceiveMessageLog;
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskCancelledLog;
 import ru.runa.wfe.audit.TaskCreateLog;
@@ -16,16 +20,22 @@ import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.TaskExpiredLog;
 import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
+import ru.runa.wfe.audit.aggregated.QSignalListenerAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAssignmentAggregatedLog;
+import ru.runa.wfe.audit.aggregated.QTimerAggregatedLog;
+import ru.runa.wfe.audit.aggregated.SignalListenerAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAssignmentAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskEndReason;
+import ru.runa.wfe.audit.aggregated.TimerAggregatedLog;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.lang.BaseReceiveMessageNode;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.TaskDefinition;
 
 public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
@@ -45,6 +55,46 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
         this.queryFactory = queryFactory;
         this.processDefinitionLoader = processDefinitionLoader;
         this.process = process;
+    }
+
+    @Override
+    public void onNodeEnterLog(NodeEnterLog nodeEnterLog) {
+        if (nodeEnterLog.getNode() instanceof BaseReceiveMessageNode) {
+            sessionFactory.getCurrentSession().save(
+                    new SignalListenerAggregatedLog(nodeEnterLog, ((BaseReceiveMessageNode) nodeEnterLog.getNode()).getEventType()));
+        }
+    }
+    
+    @Override
+    public void onNodeLeaveLog(NodeLeaveLog nodeLeaveLog) {
+        if (nodeLeaveLog.getNodeType() == NodeType.TIMER) {
+            QTimerAggregatedLog l = QTimerAggregatedLog.timerAggregatedLog;
+            TimerAggregatedLog logEntry = queryFactory.selectFrom(l)
+                    .where(l.processId.eq(nodeLeaveLog.getProcessId()).and(l.nodeId.eq(nodeLeaveLog.getNodeId()))).orderBy(l.id.desc()).fetchFirst();
+            if (logEntry == null) {
+                return;
+            }
+            logEntry.setEndDate(nodeLeaveLog.getCreateDate());
+            sessionFactory.getCurrentSession().merge(logEntry);
+        }
+    }
+    
+    @Override
+    public void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog) {
+        QSignalListenerAggregatedLog l = QSignalListenerAggregatedLog.signalListenerAggregatedLog;
+        SignalListenerAggregatedLog logEntry = queryFactory.selectFrom(l)
+                .where(l.processId.eq(receiveMessageLog.getProcessId()).and(l.nodeId.eq(receiveMessageLog.getNodeId()))).orderBy(l.id.desc())
+                .fetchFirst();
+        if (logEntry == null) {
+            return;
+        }
+        logEntry.setExecuteDate(receiveMessageLog.getCreateDate());
+        sessionFactory.getCurrentSession().merge(logEntry);
+    }
+
+    @Override
+    public void onCreateTimerLog(CreateTimerLog createTimerLog) {
+        sessionFactory.getCurrentSession().save(new TimerAggregatedLog(createTimerLog));
     }
 
     @Override

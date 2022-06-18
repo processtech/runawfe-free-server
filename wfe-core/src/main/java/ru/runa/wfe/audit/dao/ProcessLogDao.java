@@ -111,6 +111,7 @@ public class ProcessLogDao extends ArchiveAwareGenericDao<BaseProcessLog, Curren
             processLog.setNodeId(token.getNodeId());
         }
         processLog.setCreateDate(new Date());
+        processLog.serializeAttributes();
 
         currentDao.create(processLog);
 

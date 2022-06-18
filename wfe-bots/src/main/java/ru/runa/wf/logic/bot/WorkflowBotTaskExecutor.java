@@ -17,11 +17,8 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarInterval;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.CoreErrorProperties;
-import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.extension.TaskHandler;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
@@ -194,14 +191,13 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
 
     @Override
     public void run() {
-        ProcessError processError = new ProcessError(ProcessErrorType.bottask, task.getProcessId(), task.getNodeId());
         try {
             started = Calendar.getInstance();
             executionThread.set(Thread.currentThread());
             executionStatus = WorkflowBotTaskExecutionStatus.STARTED;
             doHandle();
             executionStatus = WorkflowBotTaskExecutionStatus.COMPLETED;
-            Errors.removeProcessError(processError);
+            Delegates.getSystemService().removeTokenError(botExecutor.getUser(), task.getTokenId());
         } catch (final Throwable th) {
             log.error("Error execution " + this, th);
             logBotError(task, th);
@@ -216,9 +212,9 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                     }
                 }.executeInTransaction(false);
             } else {
-                if (!Errors.addProcessError(processError, task.getName(), th)) {
-                    Errors.updateProcessError(processError, th);
-                }
+                String errorMessage = Utils.getErrorMessage(th);
+                String stackTrace = Throwables.getStackTraceAsString(th);
+                Delegates.getSystemService().failToken(botExecutor.getUser(), task.getTokenId(), errorMessage, stackTrace);
             }
             // Double delay if exists
             failedDelaySeconds *= 2;

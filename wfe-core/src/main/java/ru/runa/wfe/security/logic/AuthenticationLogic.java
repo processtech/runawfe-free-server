@@ -44,15 +44,7 @@ public class AuthenticationLogic extends CommonLogic {
 
     public User authenticate(String name, String password) throws AuthenticationException {
         if (!SecurityCheckProperties.isPermissionCheckRequired(SecuredObjectType.SYSTEM)) {
-            Actor curActor = this.executorDao.getActor(name);
-            if (curActor != null) {
-                if (this.executorDao.hasPassword(curActor)) {
-                    return authenticate(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
-                } else {
-                    return authenticateByName(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
-                }
-            }
-            return authenticateByName(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
+                return authenticateByName(new PasswordLoginModuleCallbackHandler(name, null), AuthType.DB);
         }
         return authenticate(new PasswordLoginModuleCallbackHandler(name, password), AuthType.DB);
     }

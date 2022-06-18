@@ -5,8 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.runa.wfe.commons.dbmigration.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddArchivedProcessExternalData;
+import ru.runa.wfe.commons.dbmigration.impl.AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddAssignDateColumnPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddBatchPresentationIsSharedPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddChatRoomViewPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddColumnForEmbeddedBotTaskFileName;
 import ru.runa.wfe.commons.dbmigration.impl.AddColumnsToSubstituteEscalatedTasksPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddCreateDateColumns;
@@ -28,13 +30,22 @@ import ru.runa.wfe.commons.dbmigration.impl.AddSubprocessRootIdColumn;
 import ru.runa.wfe.commons.dbmigration.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenMessageSelectorPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
+import ru.runa.wfe.commons.dbmigration.impl.AddUuidAndDropBytesChatMessageFilePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
+import ru.runa.wfe.commons.dbmigration.impl.CorrectChatRoomViewRenameColumn;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
+import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
+import ru.runa.wfe.commons.dbmigration.impl.CreateTimerAggregatedLogTable;
+import ru.runa.wfe.commons.dbmigration.impl.DropMessageNotNullConstraintPatch;
+import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
+import ru.runa.wfe.commons.dbmigration.impl.EnlargeMessageMaxSizePatch;
+import ru.runa.wfe.commons.dbmigration.impl.ExpandChatColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.ExpandVarcharPatch;
 import ru.runa.wfe.commons.dbmigration.impl.JbpmRefactoringPatch;
@@ -46,6 +57,7 @@ import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep4;
 import ru.runa.wfe.commons.dbmigration.impl.RemoveWfeConstants;
+import ru.runa.wfe.commons.dbmigration.impl.RenameColumnInChatMessageRecipientPatch;
 import ru.runa.wfe.commons.dbmigration.impl.RenameProcessesBatchPresentationCategories;
 import ru.runa.wfe.commons.dbmigration.impl.RenameProcessesBatchPresentationClassTypes;
 import ru.runa.wfe.commons.dbmigration.impl.RenameSequences;
@@ -65,7 +77,7 @@ import ru.runa.wfe.commons.dbmigration.impl.TransitionLogPatch;
 public class DbMigrationsConfig {
     @Bean
     public ArrayList<Class<? extends DbMigration>> dbMigrations() {
-        final ArrayList<Class<? extends DbMigration>> dbMigrations = new ArrayList<>(75); // update initial capacity on add/remove patch
+        final ArrayList<Class<? extends DbMigration>> dbMigrations = new ArrayList<>(100); // update initial capacity on add/remove patch
         dbMigrations.add(UnsupportedPatch.class);
         dbMigrations.add(UnsupportedPatch.class);
         dbMigrations.add(UnsupportedPatch.class);
@@ -146,7 +158,17 @@ public class DbMigrationsConfig {
         dbMigrations.add(CreateStatisticReportTable.class);
         // 4.4.3
         dbMigrations.add(AddProcessLogCleanBeforeDateColumnPatch.class);
-        // develop patches
+        dbMigrations.add(AddTokenNodeNameAndNodeEnterDateColumnsPatch.class);
+        dbMigrations.add(CreateTimerAggregatedLogTable.class);
+        dbMigrations.add(CreateSignalListenerAggregatedLogTable.class);
+        dbMigrations.add(AddUuidAndDropBytesChatMessageFilePatch.class);
+        dbMigrations.add(DropQuotedMessageIdsPatch.class);
+        dbMigrations.add(ExpandChatColumnsPatch.class);
+        dbMigrations.add(AddChatRoomViewPatch.class);
+        dbMigrations.add(EnlargeMessageMaxSizePatch.class);
+        dbMigrations.add(DropMessageNotNullConstraintPatch.class);
+        dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
+        // start develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);
         dbMigrations.add(SupportProcessArchivingBefore.class);
@@ -155,6 +177,9 @@ public class DbMigrationsConfig {
         dbMigrations.add(RenameProcessesBatchPresentationClassTypes.class);
         dbMigrations.add(RenameSequences.class);
         dbMigrations.add(AddArchivedProcessExternalData.class);
+        dbMigrations.add(AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch.class);
+        // end develop patches
+        dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
         return dbMigrations;
     }
 }

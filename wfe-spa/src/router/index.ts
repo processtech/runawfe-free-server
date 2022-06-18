@@ -37,7 +37,7 @@ const router = new VueRouter({
       {
         name: 'ProcessDefinitionCard',
         component: ProcessDefinitionCard,
-        path: '/process/definition/:versionId/card/',
+        path: '/process/definition/:id/card/',
       },
       {
         name: 'Запущенные процессы',

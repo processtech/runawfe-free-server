@@ -7,6 +7,7 @@ import ru.runa.wfe.service.AuditService;
 import ru.runa.wfe.service.AuthenticationService;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.BotService;
+import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.service.DataSourceService;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.ExecutionService;
@@ -39,6 +40,10 @@ public class Delegates {
 
     public static <T extends Ejb3Delegate> T createDelegate(Class<T> delegateClass) {
         return ClassLoaderUtil.instantiate(delegateClass);
+    }
+    
+    public static ChatService getChatService() {
+        return getDelegate(ChatServiceDelegate.class);
     }
 
     public static AuditService getAuditService() {

@@ -1,6 +1,7 @@
 package ru.runa.wfe.task;
 
 import java.util.Date;
+import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDbSource;
@@ -30,6 +31,18 @@ public class TaskClassPresentation extends ClassPresentation {
 
     public static final ClassPresentation INSTANCE = new TaskClassPresentation();
 
+    private static class SwimlaneDbSource extends DefaultDbSource {
+
+        public SwimlaneDbSource() {
+            super(Swimlane.class, "name");
+        }
+
+        @Override
+        public String getJoinExpression(String alias) {
+            return "instance.swimlane.id = " + alias + ".id";
+        }
+    }
+
     private TaskClassPresentation() {
         super(Task.class, "", false, new FieldDescriptor[] {
                 // display name field type DB source isSort filter mode
@@ -49,7 +62,7 @@ public class TaskClassPresentation extends ClassPresentation {
                 new FieldDescriptor(OWNER, String.class.getName(), new DefaultDbSource(Task.class, "executor.name"), true,
                         FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskOwnerTdBuilder", new Object[] {}),
-                new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDbSource(Task.class, "swimlane.name"), false,
+                new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new SwimlaneDbSource(), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTdBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_VARIABLE, CurrentVariable.class.getName(), VariableDbSources.get("process"), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskVariableTdBuilder", new Object[] {}).setVariablePrototype(true),

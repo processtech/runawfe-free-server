@@ -29,17 +29,17 @@ public class TaskCacheCtrl extends BaseCacheCtrl<TaskCacheImpl> {
         super(
                 new TaskCacheFactory(),
                 new ArrayList<ListenObjectDefinition>() {{
-                    add(new ListenObjectDefinition(Task.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(CurrentSwimlane.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(CurrentVariable.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(Substitution.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(ProcessDefinition.class, ListenObjectLogType.BECOME_DIRTY));
-                    add(new ListenObjectDefinition(ProcessDefinitionVersion.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(Task.class));
+                    add(new ListenObjectDefinition(CurrentSwimlane.class));
+                    add(new ListenObjectDefinition(CurrentVariable.class));
+                    add(new ListenObjectDefinition(Substitution.class));
+                    add(new ListenObjectDefinition(SubstitutionCriteria.class));
+                    add(new ListenObjectDefinition(ExecutorGroupMembership.class));
+                    add(new ListenObjectDefinition(Executor.class));
+                    add(new ListenObjectDefinition(ProcessDefinition.class));
+                    add(new ListenObjectDefinition(ProcessDefinitionVersion.class));
                     // Must be invalidated in case of non runtime substitution cache update.
-                    add(new ListenObjectDefinition(SubstitutionCacheImpl.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(SubstitutionCacheImpl.class));
                 }}
         );
     }

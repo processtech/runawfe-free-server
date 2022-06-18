@@ -32,7 +32,7 @@ public class CreateTimerAction extends Action {
         timerJob.setOutTransitionName(transitionName);
         jobDao.create(timerJob);
         log.debug("Created " + timerJob + " for duration '" + dueDate + "'");
-        executionContext.addLog(new CurrentCreateTimerLog(timerJob.getDueDate()));
+        executionContext.addLog(new CurrentCreateTimerLog(executionContext.getNode(), timerJob.getDueDate()));
     }
 
     public String getDueDate() {

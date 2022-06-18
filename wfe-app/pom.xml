@@ -29,7 +29,7 @@
 		<hibernate.version>5.1.17.Final</hibernate.version>
 		<!-- <hibernate.version>5.4.3.Final</hibernate.version> -->
 		<querydsl.version>4.2.1</querydsl.version>
-		<jackson.version>2.5.5</jackson.version>
+		<jackson.version>2.9.9</jackson.version>
 		<project.build.cactus>false</project.build.cactus>
 		<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
 		<maven.profile.hibernate.datasource>java:jboss/datasources/ExampleDS</maven.profile.hibernate.datasource>
@@ -38,7 +38,7 @@
 		<maven.profile.javamelody.disabled>false</maven.profile.javamelody.disabled>
 		<maven.build.timestamp.format>dd.MM.yyyy</maven.build.timestamp.format>
 		<project.build.date>${maven.build.timestamp}</project.build.date>
-		<skipTests>true</skipTests>
+		<!-- skipTests>true</skipTests -->
 	</properties>
 
 	<profiles>
@@ -189,6 +189,11 @@
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-ehcache</artifactId>
 				<version>${hibernate.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.25</version>
 			</dependency>
 			<dependency>
 				<groupId>jcifs</groupId>

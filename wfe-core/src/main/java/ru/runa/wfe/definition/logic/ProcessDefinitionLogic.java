@@ -202,6 +202,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(dwv.processDefinition.getName());
         filter.setDefinitionVersion(dwv.processDefinitionVersion.getVersion());
+        filter.setFinished(false);
         List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
         for (CurrentProcess process : processes) {
             processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION), process, null);

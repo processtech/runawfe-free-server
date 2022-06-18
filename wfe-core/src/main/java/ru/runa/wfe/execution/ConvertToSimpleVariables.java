@@ -7,7 +7,6 @@ import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.UserType;
-import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.BigDecimalFormat;
@@ -181,8 +180,7 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onUserType(UserTypeFormat userTypeFormat, ConvertToSimpleVariablesContext context) {
-        UserTypeMap userTypeMap = (UserTypeMap) context.getValue();
-        UserType userType = userTypeMap == null ? null : userTypeMap.getUserType();
+        Map<String, Object> userTypeMap = (Map<String, Object>) context.getValue();
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
         if (context.isVirtualVariablesRequired()) {
             results.add(new ConvertToSimpleVariablesResult(context, true));
@@ -190,10 +188,6 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         String namePrefix = context.getVariableDefinition().getName() + UserType.DELIM;
         String scriptingNamePrefix = context.getVariableDefinition().getScriptingName() + UserType.DELIM;
         for (VariableDefinition attribute : userTypeFormat.getUserType().getAttributes()) {
-            if (userType != null && userType.getAttribute(attribute.getName()) == null) {
-                // If stored value has less attributes, then do not set null to attributes, which does't contained in stored value type.
-                continue;
-            }
             if (userTypeMap != null && !userTypeMap.containsKey(attribute.getName())) {
                 // Do not remove absent attributes. To reset attribute value set it to null, do not remove it.
                 continue;

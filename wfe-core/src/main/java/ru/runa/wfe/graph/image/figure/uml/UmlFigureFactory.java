@@ -19,6 +19,7 @@ public class UmlFigureFactory extends AbstractFigureFactory {
             figure = new MultiTaskNodeFigure();
             break;
         case EXCLUSIVE_GATEWAY:
+        case BUSINESS_RULE:
         case DECISION:
             figure = new DecisionFigure();
             break;

@@ -7,9 +7,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.runa.wfe.rest.auth.JwtAuthenticationFilter;
+import ru.runa.wfe.rest.impl.ApiExceptionHandler;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String ROLE = "USER";
 
@@ -21,13 +22,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterAfter(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.authorizeRequests()
                 .antMatchers(
-                        "/auth/token",
+                        "/auth/basic",
+                        "/auth/kerberos",
                         "/swagger-ui/**",
                         "/swagger-resources/**",
                         "/v3/api-docs/**",
                         "/test/**"
                 ).permitAll()
                 .antMatchers("/**").hasRole(ROLE);
+        http.exceptionHandling().authenticationEntryPoint(new ApiExceptionHandler.RestAuthenticationEntryPoint());
     }
 
 }

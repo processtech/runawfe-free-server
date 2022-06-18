@@ -67,7 +67,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { WfProcessDto } from '../ts/WfProcessDto';
+import { WfeProcess } from '../ts/WfeProcess';
 import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
@@ -75,7 +75,7 @@ export default Vue.extend({
     data() {
         return {
             graphImage: '',
-            process: new WfProcessDto(),
+            process: new WfeProcess(),
             showInfo: false
         }
     },
@@ -85,7 +85,7 @@ export default Vue.extend({
         },
         loadProcess(): void {
             this.$apiClient().then((client: any) => {
-                client['process-api-controller'].getProcessUsingGET(null, { 
+                client['process-controller'].getProcessUsingGET(null, { 
                     parameters: {
                         id: this.$route.params.id
                     }
@@ -99,17 +99,13 @@ export default Vue.extend({
         },
         getGraph() {
             this.$apiClient().then((client: any) => {
-                client['process-api-controller'].getProcessGraphUsingPOST(null, { 
+                client['process-controller'].getProcessGraphUsingGET(null, { 
                     parameters: {
                         id: this.process.id
-                    },
-                    requestBody: { 
-                        childProcessId: null,
-                        subprocessId: null,
                     }
                 }).then((data: any) => {
                     if (data && data.status == 200) {
-                        this.graphImage = 'data:image/jpeg;base64,' + data.body;
+                        this.graphImage = this.graphImage = window.URL ? window.URL.createObjectURL(data.data) : window.webkitURL.createObjectURL(data.data);
                     }
                 });
             });

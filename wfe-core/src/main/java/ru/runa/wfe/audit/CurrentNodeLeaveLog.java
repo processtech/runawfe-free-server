@@ -20,7 +20,6 @@ public class CurrentNodeLeaveLog extends CurrentNodeLog implements NodeLeaveLog 
 
     public CurrentNodeLeaveLog(Node node) {
         super(node);
-        setSeverity(Severity.INFO);
     }
 
     @Override

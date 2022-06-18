@@ -11,7 +11,6 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import ru.runa.wfe.commons.xml.XmlUtils;
 
 @Entity
 @Table(name = "ARCHIVED_LOG")
@@ -56,11 +55,6 @@ public abstract class ArchivedProcessLog extends BaseProcessLog {
     @Override
     protected void setSeverity(Severity severity) {
         this.severity = severity;
-    }
-
-    @Override
-    protected void setContent(String content) {
-        attributes = XmlUtils.deserialize(content);
     }
 
     @Override

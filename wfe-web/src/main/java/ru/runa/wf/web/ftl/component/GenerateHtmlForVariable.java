@@ -380,7 +380,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         html.append("<option value=\"\"> ------------------------- </option>");
         for (Executor executor : executors) {
             html.append("<option value=\"ID").append(executor.getId()).append("\"");
-            if (Objects.equal(executor, value)) {
+            // TODO #1394 Fields of type Executor mapped as executor.name in JdbcStoreService. Need full entity mapping
+            if (Objects.equal(executor, value) || value instanceof String && value.equals(executor.getName())) {
                 html.append(" selected");
             }
             html.append(">").append(executor.getLabel()).append("</option>");

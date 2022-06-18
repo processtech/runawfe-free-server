@@ -1,8 +1,7 @@
 package ru.runa.wfe.graph.view;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
+import java.util.List;
 
 /**
  * Represents multiple instance graph element.

@@ -127,6 +127,14 @@ public class CurrentToken extends Token implements Serializable {
         this.nodeId = nodeId;
     }
 
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    public void setNodeEnterDate(Date nodeEnterDate) {
+        this.nodeEnterDate = nodeEnterDate;
+    }
+
     public void setTransitionId(String transitionId) {
         this.transitionId = transitionId;
     }

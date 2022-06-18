@@ -95,7 +95,7 @@ public class FileVariablesUtil {
             } else {
                 WfVariable variable;
                 if (taskId != null) {
-                    variable = variableLogic.getTaskVariable(user, processId, taskId, proxy.getVariableName());
+                    variable = variableLogic.getTaskVariable(user, taskId, proxy.getVariableName());
                 } else if (processId != null) {
                     variable = variableLogic.getVariable(user, processId, proxy.getVariableName());
                 } else {

@@ -20,5 +20,10 @@ public enum NodeType {
     MERGE,
     EXCLUSIVE_GATEWAY,
     PARALLEL_GATEWAY,
+    BUSINESS_RULE,
     TEXT_ANNOTATION;
+
+    public String getLabelKey() {
+        return "node.type." + name();
+    }
 }

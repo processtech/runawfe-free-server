@@ -33,6 +33,10 @@ public final class MessagesCommon {
     public static final StrutsMessage MAIN_MENU_ITEM_LOGS = new StrutsMessage("view_logs");
     // Forward menu (left main menu items) -> Internal storage.
     public static final StrutsMessage MAIN_MENU_ITEM_INTERNAL_STORAGE = new StrutsMessage("view_internal_storage");
+    // Forward menu (left main menu items) -> Send signal.
+    public static final StrutsMessage MAIN_MENU_ITEM_SEND_SIGNAL = new StrutsMessage("send_process_signal");
+    // Forward menu (left main menu items) -> Chats.
+    public static final StrutsMessage MAIN_MENU_ITEM_CHATS = new StrutsMessage("chat_rooms");
 
     // Common buttons
 
