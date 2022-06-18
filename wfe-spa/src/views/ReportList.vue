@@ -139,7 +139,7 @@ export default Vue.extend({
                 variables: []
             };
             this.$apiClient().then((client: any) => {
-                client['report-api-controller'].getReportsUsingPOST(null, { requestBody: query }).then((data: any) => {
+                client['report-controller'].getReportsUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
                         this.reports = body.data;

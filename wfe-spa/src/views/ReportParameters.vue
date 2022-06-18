@@ -228,7 +228,7 @@ export default Vue.extend({
             };
             return new Promise((resolve, reject) => {
                 this.$apiClient().then((client: any) => {
-                    client['process-definition-api-controller'].getDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
+                    client['definition-controller'].getProcessDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
                         if (data.body) {
                             this.definitions = data.body;
                         }
@@ -248,7 +248,7 @@ export default Vue.extend({
             this.getDefinitions().then(res => {
                 this.definitions.data.forEach(definition => {
                     this.$apiClient().then((client: any) => {
-                        client['process-definition-api-controller'].getSwimlanesUsingGET_1(null, {
+                        client['definition-controller'].getProcessDefinitionSwimlanesUsingGET(null, {
                             parameters: {
                                 id: definition.versionId
                             }
@@ -273,7 +273,7 @@ export default Vue.extend({
                 variables: []
             };
             this.$apiClient().then((client: any) => {
-                client['executor-api-controller'].getExecutorsUsingPOST(null, { requestBody: query }).then((data: any) => {
+                client['executor-controller'].getExecutorsUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
                         this.executors = body.data;

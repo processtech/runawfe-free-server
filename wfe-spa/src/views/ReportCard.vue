@@ -97,10 +97,10 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { WfReportDto } from '../ts/WfReportDto';
+import { WfeReport } from '../ts/WfeReport';
 import ReportParameters from './ReportParameters.vue';
-import { WfReportBuildResultDto } from '../ts/WfReportBuildResultDto';
-import { WfReportDataParameter } from '../ts/WfReportDataParameter';
+import { WfeReportBuildResult } from '../ts/WfeReportBuildResult';
+import { WfeReportParameter } from '../ts/WfeReportParameter';
 import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
@@ -111,8 +111,8 @@ export default Vue.extend({
     data() {
         return {
             showInfo: false,
-            report: new WfReportDto(),
-            buildResult: new WfReportBuildResultDto(),
+            report: new WfeReport(),
+            buildResult: new WfeReportBuildResult(),
             messageAlert: false,
             reportFormat: { str: 'Показать отчет на странице', abbr: 'HTML_EMBEDDED' },
             reportFormats: [
@@ -129,15 +129,15 @@ export default Vue.extend({
             this.$router.push({ name: 'Отчеты' });
         },
         build(){
-            let parametersData = new Array<WfReportDataParameter>();
+            let parametersData = new Array<WfeReportParameter>();
             this.report.parameters.forEach(param => {
-                const data = new WfReportDataParameter();
+                const data = new WfeReportParameter();
                 data.internalName = param.internalName;
                 data.value = param.value;
                 parametersData.push(data);
             });
             this.$apiClient().then((client: any) => {
-                client['report-api-controller'].buildReportUsingPOST(null, {
+                client['report-controller'].buildReportUsingPOST(null, {
                     parameters: {
                         id: this.$route.params.id
                     },
@@ -205,7 +205,7 @@ export default Vue.extend({
         },
         loadReport() {
             this.$apiClient().then((client: any) => {
-                client['report-api-controller'].getReportUsingGET(null, {
+                client['report-controller'].getReportUsingGET(null, {
                     parameters: {
                         id: this.$route.params.id
                     }

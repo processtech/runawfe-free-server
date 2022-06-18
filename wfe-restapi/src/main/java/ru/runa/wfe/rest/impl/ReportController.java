@@ -1,5 +1,6 @@
 package ru.runa.wfe.rest.impl;
 
+import com.google.common.base.Strings;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -7,9 +8,6 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import lombok.val;
 import net.sf.jasperreports.engine.JRAbstractExporter;
 import net.sf.jasperreports.engine.JRException;
@@ -27,12 +25,8 @@ import net.sf.jasperreports.export.SimpleHtmlExporterConfiguration;
 import net.sf.jasperreports.export.SimpleHtmlExporterOutput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimpleWriterExporterOutput;
-
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,9 +36,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.google.common.base.Strings;
-
+import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.report.ReportFormatterImpl;
 import ru.runa.wfe.report.ReportParameterType;
 import ru.runa.wfe.report.dto.WfReport;
@@ -52,55 +47,50 @@ import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.impl.ReportBuildResult;
 import ru.runa.wfe.report.impl.ReportParameterParseOperation;
 import ru.runa.wfe.report.logic.ReportLogic;
-import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.rest.auth.AuthUser;
-import ru.runa.wfe.rest.dto.BatchPresentationRequest;
-import ru.runa.wfe.rest.dto.PagedList;
-import ru.runa.wfe.rest.dto.WfReportDto;
-import ru.runa.wfe.rest.dto.WfReportDtoMapper;
-import ru.runa.wfe.rest.dto.WfReportRequest;
-import ru.runa.wfe.rest.dto.WfReportRequest.WfReportParameterData;
+import ru.runa.wfe.rest.converter.WfeReportMapper;
+import ru.runa.wfe.rest.converter.WfeReportResultMapper;
+import ru.runa.wfe.rest.dto.WfePagedList;
+import ru.runa.wfe.rest.dto.WfePagedListFilter;
+import ru.runa.wfe.rest.dto.WfeReport;
+import ru.runa.wfe.rest.dto.WfeReportRequest;
+import ru.runa.wfe.rest.dto.WfeReportRequest.WfeReportParameter;
+import ru.runa.wfe.rest.dto.WfeReportResult;
 
 @RestController
 @RequestMapping("/report/")
 @Transactional
-public class ReportApiController {
+public class ReportController {
 
     @Autowired
     private ReportLogic reportLogic;
 
     @PostMapping("list")
-    public PagedList<WfReportDto> getReports(@AuthenticationPrincipal AuthUser authUser,
-            @RequestBody BatchPresentationRequest request) {
-        BatchPresentation batchPresentation = request.toBatchPresentation(ClassPresentationType.REPORTS);
+    public WfePagedList<WfeReport> getReports(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfePagedListFilter filter) {
+        BatchPresentation batchPresentation = filter.toBatchPresentation(ClassPresentationType.REPORTS);
         List<WfReport> reports = reportLogic.getReportDefinitions(authUser.getUser(), batchPresentation, true);
-        WfReportDtoMapper mapper = Mappers.getMapper(WfReportDtoMapper.class);
-        return new PagedList<WfReportDto>(reports.size(), mapper.map(reports));
+        WfeReportMapper mapper = Mappers.getMapper(WfeReportMapper.class);
+        return new WfePagedList<WfeReport>(reports.size(), mapper.map(reports));
     }
 
     @GetMapping("{id}")
-    public WfReportDto getReport(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
+    public WfeReport getReport(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id) {
         WfReport report = reportLogic.getReportDefinition(authUser.getUser(), id);
-        WfReportDtoMapper mapper = Mappers.getMapper(WfReportDtoMapper.class);
-        WfReportDto reportDto = mapper.map(report);
-        return reportDto;
+        return Mappers.getMapper(WfeReportMapper.class).map(report);
     }
 
     @PostMapping("{id}/build")
-    public ReportBuildResult buildReport(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
-            @RequestBody WfReportRequest request) throws Exception {
+    public WfeReportResult buildReport(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
+            @RequestBody WfeReportRequest request) throws Exception {
 
         ReportBuildResult result = new ReportBuildResult();
         if (request.getParameters() == null) {
-            return result;
+            return Mappers.getMapper(WfeReportResultMapper.class).map(result);
         }
 
         WfReport report = reportLogic.getReportDefinition(authUser.getUser(), id);
         val params = new HashMap<String, Object>();
-        for (WfReportParameterData item : request.getParameters()) {
+        for (WfeReportParameter item : request.getParameters()) {
             params.put(item.getInternalName(), item.getValue());
         }
 
@@ -137,7 +127,7 @@ public class ReportApiController {
         }
 
         if (!Strings.isNullOrEmpty(result.getMessage())) {
-            return result;
+            return Mappers.getMapper(WfeReportResultMapper.class).map(result);
         }
 
         ReportGenerationType reportGenerationType = ReportGenerationType.valueOf(request.getFormat());
@@ -146,7 +136,8 @@ public class ReportApiController {
             isHtml = false;
         }
 
-        return reportGenerationType.exportReport(report.getName(), fillReport(params, reportGenerationType, report), isHtml);
+        result = reportGenerationType.exportReport(report.getName(), fillReport(params, reportGenerationType, report), isHtml);
+        return Mappers.getMapper(WfeReportResultMapper.class).map(result);
     }
 
     private JasperPrint fillReport(Map<String, Object> params, ReportGenerationType reportGenerationType,

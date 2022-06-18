@@ -1,16 +1,15 @@
 package ru.runa.wfe.rest.dto;
 
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 
 @Data
-public class WfReportRequest {
+public class WfeReportRequest {
     private String format = "HTML_EMBEDDED";
-    private List<WfReportParameterData> parameters = new ArrayList<WfReportParameterData>();
+    private List<WfeReportParameter> parameters;
     
     @Data
-    public static class WfReportParameterData {
+    public static class WfeReportParameter {
         private String internalName;
         private Object value;
     }

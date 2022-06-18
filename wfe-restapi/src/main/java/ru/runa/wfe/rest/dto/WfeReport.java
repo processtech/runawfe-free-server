@@ -6,11 +6,11 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class WfReportDto {
+public class WfeReport {
     private Long id;
     private Long version;
     private String name;
     private String description;
     private String category;
-    private List<WfReportParameterDto> parameters = new ArrayList<>();
+    private List<WfeReportParameter> parameters = new ArrayList<>();
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 import ru.runa.wfe.report.ReportParameterType;
 
 @Data
-public class WfReportParameterDto {
+public class WfeReportParameter {
     private String userName;
     private String description;
     private String internalName;
