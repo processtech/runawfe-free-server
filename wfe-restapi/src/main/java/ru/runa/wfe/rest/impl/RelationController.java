@@ -1,5 +1,6 @@
 package ru.runa.wfe.rest.impl;
 
+import java.util.Date;
 import java.util.List;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +37,16 @@ public class RelationController {
     private RelationLogic relationLogic;
 
     @PutMapping
-    public WfeRelation createRelation(@AuthenticationPrincipal AuthUser authUser, @RequestBody Relation relation) {
-        return Mappers.getMapper(WfeRelationMapper.class).map(relationLogic.createRelation(authUser.getUser(), relation));
+    public WfeRelation createRelation(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfeRelation relation) {
+        WfeRelationMapper mapper = Mappers.getMapper(WfeRelationMapper.class);
+        relation.setCreateDate(new Date());
+        return mapper.map(relationLogic.createRelation(authUser.getUser(), mapper.map(relation)));
     }
 
     @PatchMapping
-    public WfeRelation updateRelation(@AuthenticationPrincipal AuthUser authUser, @RequestBody Relation relation) {
-        return Mappers.getMapper(WfeRelationMapper.class).map(relationLogic.updateRelation(authUser.getUser(), relation));
+    public WfeRelation updateRelation(@AuthenticationPrincipal AuthUser authUser, @RequestBody WfeRelation relation) {
+        WfeRelationMapper mapper = Mappers.getMapper(WfeRelationMapper.class);
+        return mapper.map(relationLogic.updateRelation(authUser.getUser(), mapper.map(relation)));
     }
 
     @DeleteMapping("{id}")

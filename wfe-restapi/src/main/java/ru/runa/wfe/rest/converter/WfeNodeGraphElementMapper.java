@@ -22,29 +22,29 @@ public interface WfeNodeGraphElementMapper {
 
     @AfterMapping
     public default void additionalProperties(NodeGraphElement element, @MappingTarget WfeNodeGraphElement target) {
-        Map<String, String> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         if (element instanceof StartNodeGraphElement) {
             result.put("swimlaneName", ((StartNodeGraphElement) element).getSwimlaneName());
         }
         if (element instanceof TaskNodeGraphElement) {
             result.put("swimlaneName", ((TaskNodeGraphElement) element).getSwimlaneName());
-            result.put("minimized", String.valueOf(((TaskNodeGraphElement) element).isMinimized()));
+            result.put("minimized", ((TaskNodeGraphElement) element).isMinimized());
         }
         if (element instanceof SubprocessNodeGraphElement) {
             SubprocessNodeGraphElement e = (SubprocessNodeGraphElement) element;
-            result.put("subprocessId", String.valueOf(e.getSubprocessId()));
-            result.put("subprocessAccessible", String.valueOf(e.isSubprocessAccessible()));
+            result.put("subprocessId", e.getSubprocessId());
+            result.put("subprocessAccessible", e.isSubprocessAccessible());
             result.put("subprocessName", e.getSubprocessName());
-            result.put("embeddedSubprocess", String.valueOf(e.isEmbedded()));
+            result.put("embeddedSubprocess", e.isEmbedded());
             result.put("embeddedSubprocessId", e.getEmbeddedSubprocessId());
-            result.put("embeddedSubprocessGraphWidth", String.valueOf(e.getEmbeddedSubprocessGraphWidth()));
-            result.put("embeddedSubprocessGraphHeight", String.valueOf(e.getEmbeddedSubprocessGraphHeight()));
+            result.put("embeddedSubprocessGraphWidth", e.getEmbeddedSubprocessGraphWidth());
+            result.put("embeddedSubprocessGraphHeight", e.getEmbeddedSubprocessGraphHeight());
         }
         if (element instanceof MultiSubprocessNodeGraphElement) {
             MultiSubprocessNodeGraphElement e = (MultiSubprocessNodeGraphElement) element;
-            // result.put("subprocessIds", subprocessIds);
-            // result.put("accessibleSubprocessIds", accessibleSubprocessIds);
-            // result.put("completedSubprocessIds", completedSubprocessIds);
+            result.put("subprocessIds", e.getSubprocessIds());
+            result.put("accessibleSubprocessIds", e.getAccessibleSubprocessIds());
+            result.put("completedSubprocessIds", e.getCompletedSubprocessIds());
         }
         target.setAdditionalProperties(result);
     }

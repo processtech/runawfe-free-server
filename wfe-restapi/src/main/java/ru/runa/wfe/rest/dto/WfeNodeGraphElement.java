@@ -13,6 +13,6 @@ public class WfeNodeGraphElement {
     private int[] graphConstraints;
     private String label;
     private List<WfeProcessLog> data;
-    private Map<String, String> additionalProperties;
+    private Map<String, Object> additionalProperties;
 
 }

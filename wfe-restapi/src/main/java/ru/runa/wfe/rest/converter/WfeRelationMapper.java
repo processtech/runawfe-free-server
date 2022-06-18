@@ -11,4 +11,7 @@ public interface WfeRelationMapper {
     WfeRelation map(Relation relation);
 
     List<WfeRelation> map(List<Relation> relations);
+
+    Relation map(WfeRelation relation);
+
 }
