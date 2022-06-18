@@ -1,4 +1,4 @@
-export class WfProcessDto {
+export class WfeProcess {
     id: number|null = null;
     definitionName: string = '';
     executionStatus: string = '';

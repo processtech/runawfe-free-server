@@ -1,6 +1,6 @@
-import { ExecutorDto } from './ExecutorDto';
+import { WfeExecutor } from './WfeExecutor';
 
-export class WfDefinitionDto {
+export class WfeProcessDefinition {
     id: number|null = null;
     name: string = '';
     description: string = '';
@@ -8,9 +8,9 @@ export class WfDefinitionDto {
     version: number|null = null;
     canBeStarted: boolean = false;
     createDate: Date|null = null;
-    createActor: ExecutorDto|null = null;
+    createActor: WfeExecutor|null = null;
     updateDate: Date|null = null;
-    updateActor: ExecutorDto|null = null;
+    updateActor: WfeExecutor|null = null;
 
     getInfo(): object {
         return {

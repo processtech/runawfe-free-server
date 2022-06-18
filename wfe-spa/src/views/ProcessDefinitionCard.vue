@@ -67,7 +67,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { WfDefinitionDto } from '../ts/WfDefinitionDto';
+import { WfeProcessDefinition } from '../ts/WfeProcessDefinition';
 import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
@@ -75,7 +75,7 @@ export default Vue.extend({
     data() {
         return {
             showInfo: false,
-            definition: new WfDefinitionDto(),
+            definition: new WfeProcessDefinition(),
             oldFormUrl: 'about:blank',
         }
     },

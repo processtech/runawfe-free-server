@@ -73,7 +73,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { WfTaskDto } from '../ts/WfTaskDto';
+import { WfeTask } from '../ts/WfeTask';
 import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
@@ -81,7 +81,7 @@ export default Vue.extend({
     data() {
         return {
             showInfo: false,
-            task: new WfTaskDto(),
+            task: new WfeTask(),
             oldFormUrl: 'about:blank',
         }
     },

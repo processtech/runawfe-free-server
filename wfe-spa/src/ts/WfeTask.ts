@@ -1,14 +1,14 @@
-import { ExecutorDto } from './ExecutorDto';
+import { WfeExecutor } from './WfeExecutor';
 
-export class WfTaskDto {
+export class WfeTask {
     id: number|null = null;
     name: string = '';
     category: string = '';
     nodeId: string = '';
     description: string = '';
     swimlaneName: string = '';
-    owner: ExecutorDto|null = null;
-    targetActor: ExecutorDto|null = null;
+    owner: WfeExecutor|null = null;
+    targetActor: WfeExecutor|null = null;
     definitionVersionId: number|null = null;
     definitionName: string = '';
     processId: number|null = null;

@@ -67,7 +67,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { WfProcessDto } from '../ts/WfProcessDto';
+import { WfeProcess } from '../ts/WfeProcess';
 import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
@@ -75,7 +75,7 @@ export default Vue.extend({
     data() {
         return {
             graphImage: '',
-            process: new WfProcessDto(),
+            process: new WfeProcess(),
             showInfo: false
         }
     },
