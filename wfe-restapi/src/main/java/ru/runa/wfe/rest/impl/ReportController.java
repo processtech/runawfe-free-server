@@ -1,6 +1,5 @@
 package ru.runa.wfe.rest.impl;
 
-import com.google.common.base.Strings;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -82,18 +81,12 @@ public class ReportController {
     @PostMapping("{id}/build")
     public WfeReportResult buildReport(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id,
             @RequestBody WfeReportRequest request) throws Exception {
-
-        ReportBuildResult result = new ReportBuildResult();
-        if (request.getParameters() == null) {
-            return Mappers.getMapper(WfeReportResultMapper.class).map(result);
-        }
-
+        WfeReportResult result = new WfeReportResult();
         WfReport report = reportLogic.getReportDefinition(authUser.getUser(), id);
         val params = new HashMap<String, Object>();
         for (WfeReportParameter item : request.getParameters()) {
             params.put(item.getInternalName(), item.getValue());
         }
-
         for (WfReportParameter parameter : report.getParameters()) {
             Object val = params.get(parameter.getInternalName());
             if (val != null && val.toString() != "") {
@@ -104,7 +97,7 @@ public class ReportController {
                     try {
                         Long.parseLong(params.get(parameter.getInternalName()).toString());
                     } catch (NumberFormatException e) {
-                        result.appendMessage("Значение параметра \"" + parameter.getUserName() + "\" не является числовым");
+                        result.getErrorParameterNames().add(parameter.getUserName());
                         continue;
                     }
                 } else if (parameter.getType() == ReportParameterType.DATE) {
@@ -112,8 +105,7 @@ public class ReportController {
                         CalendarUtil.convertToDate(params.get(parameter.getInternalName()).toString(),
                                 CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
                     } catch (Exception e) {
-                        result.appendMessage(parameter.getUserName(), "Значение "
-                                + params.get(parameter.getInternalName()).toString() + " не является корректной датой");
+                        result.getErrorParameterNames().add(parameter.getUserName());
                         continue;
                     }
                 }
@@ -121,23 +113,18 @@ public class ReportController {
                 params.put(parameter.getInternalName(), value);
             } else {
                 if (parameter.isRequired()) {
-                    result.appendMessage("Параметр \"" + parameter.getUserName() + "\" не задан");
+                    result.getErrorParameterNames().add(parameter.getUserName());
                 }
             }
         }
-
-        if (!Strings.isNullOrEmpty(result.getMessage())) {
-            return Mappers.getMapper(WfeReportResultMapper.class).map(result);
+        if (!result.getErrorParameterNames().isEmpty()) {
+            return result;
         }
-
         ReportGenerationType reportGenerationType = ReportGenerationType.valueOf(request.getFormat());
-        boolean isHtml = true;
-        if (reportGenerationType != ReportGenerationType.HTML_EMBEDDED) {
-            isHtml = false;
-        }
-
-        result = reportGenerationType.exportReport(report.getName(), fillReport(params, reportGenerationType, report), isHtml);
-        return Mappers.getMapper(WfeReportResultMapper.class).map(result);
+        boolean isHtml = reportGenerationType == ReportGenerationType.HTML_EMBEDDED;
+        JasperPrint jasperPrint = fillReport(params, reportGenerationType, report);
+        ReportBuildResult reportBuildResult = reportGenerationType.exportReport(report.getName(), jasperPrint, isHtml);
+        return Mappers.getMapper(WfeReportResultMapper.class).map(reportBuildResult);
     }
 
     private JasperPrint fillReport(Map<String, Object> params, ReportGenerationType reportGenerationType,
@@ -247,7 +234,6 @@ public class ReportController {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             exporter.setExporterOutput(output(outputStream));
             exporter.exportReport();
-
             return new ReportBuildResult(reportName + reportFileSuffix(),
                     isHtml ? outputStream.toString() : outputStream.toByteArray());
         }

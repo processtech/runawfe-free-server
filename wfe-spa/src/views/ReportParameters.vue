@@ -1,6 +1,6 @@
 <template>
     <v-row>
-        <v-col cols="2">
+        <v-col cols="4">
             {{ parameter.userName }}
             <span v-if="parameter.required" class="red--text"><strong> * </strong></span>
             <v-tooltip bottom v-if="parameter.description !== ''">
@@ -18,7 +18,7 @@
                 <span>{{ parameter.description }}</span>
             </v-tooltip>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="8">
             <v-text-field v-if="parameter.type === 'STRING' || parameter.type === 'NUMBER'"
                 :key="parameter.internalName"
                 v-model="parameter.value"
@@ -67,7 +67,7 @@
                         persistent-hint
                         single-line
                         clearable
-                        @click="getDefinitionsName"
+                        @click="getProcessDefinitionNames"
             ></v-select>
             <v-select v-else-if="parameter.type === 'SWIMLANE'"
                         :items="swimlanes"
@@ -181,10 +181,10 @@ import Vue from 'vue';
 import { ExecutorDto } from '../ts/ExecutorDto';
 
 export default Vue.extend({
-    props:{
-        parameter:{
-            type:Object,
-            required:true
+    props: {
+        parameter: {
+            type: Object,
+            required: true
         }
     },
 
@@ -194,14 +194,8 @@ export default Vue.extend({
             buf: '',
             definitions: [],
             definitionNames: [],
-            swimlanes:[],
+            swimlanes: [],
             executors: new Array<ExecutorDto>(),
-            executorFilter: {
-                name: null,
-                fullName: null,
-                description: null,
-                type: null
-            },
         }
     },
 
@@ -218,66 +212,51 @@ export default Vue.extend({
                 return `${item.name}`
             }
         },
-        getDefinitions () {
+        getProcessDefinitions () {
             const query = {
-                filters: {},
-                pageNumber: '',
-                pageSize: '',
-                sortings: [],
-                variables: []
+                sortings: [{'name': 'name', 'order': 'asc'}]
             };
             return new Promise((resolve, reject) => {
                 this.$apiClient().then((client: any) => {
                     client['definition-controller'].getProcessDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
-                        if (data.body) {
-                            this.definitions = data.body;
-                        }
+                        this.definitions = data.body;
                     }).then(res => resolve(res))
                       .catch(err => reject(err));
                 });
             })
         },
-        getDefinitionsName () {
-            this.getDefinitions().then(res => {
+        getProcessDefinitionNames () {
+            this.getProcessDefinitions().then(res => {
                 this.definitions.data.forEach(definition => {
                     this.definitionNames.push(definition.name);
                 });
             });
         },
         getSwimlanes () {
-            this.getDefinitions().then(res => {
+            this.getProcessDefinitions().then(res => {
                 this.definitions.data.forEach(definition => {
                     this.$apiClient().then((client: any) => {
                         client['definition-controller'].getProcessDefinitionSwimlanesUsingGET(null, {
                             parameters: {
-                                id: definition.versionId
+                                id: definition.id
                             }
                         }).then((data: any) => {
-                            if (data) {
-                                data.body.data.forEach(swimlane => {
-                                    this.swimlanes.push(swimlane.scriptingName)
-                                });
-                            }
+                            data.body.forEach(swimlane => {
+                                this.swimlanes.push(swimlane.scriptingName)
+                            });
                         });
                     });
                 });
             });
         },
         getExecutors (type) {
-            this.executorFilter.type = type;
             const query = {
-                filters: this.executorFilter,
-                pageNumber: '',
-                pageSize: '',
-                sortings: [],
-                variables: []
+                filters: {'type': type},
+                sortings: [{'name': 'name', 'order': 'asc'}]
             };
             this.$apiClient().then((client: any) => {
                 client['executor-controller'].getExecutorsUsingPOST(null, { requestBody: query }).then((data: any) => {
-                    const body = data.body;
-                    if (body) {
-                        this.executors = body.data;
-                    }
+                    this.executors = data.body.data;
                 });
             });
         },

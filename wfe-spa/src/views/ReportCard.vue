@@ -51,17 +51,17 @@
             </v-row>
             <v-row>
                 <v-alert
-                    v-model="messageAlert"
+                    v-if="errorMessage"
                     dense
                     outlined
                     type="error"
                     dismissible
                 >
-                    <span>{{ buildResult.message }}</span>
+                    <span>{{ errorMessage }}</span>
                 </v-alert>
             </v-row>
             <v-row>
-                <v-col cols="4">
+                <v-col cols="12">
                     <v-select
                         v-model="reportFormat"
                         :items="reportFormats"
@@ -113,7 +113,7 @@ export default Vue.extend({
             showInfo: false,
             report: new WfeReport(),
             buildResult: new WfeReportBuildResult(),
-            messageAlert: false,
+            errorMessage: '',
             reportFormat: { str: 'Показать отчет на странице', abbr: 'HTML_EMBEDDED' },
             reportFormats: [
                 { str: 'Показать отчет на странице', abbr: 'HTML_EMBEDDED' },
@@ -128,14 +128,7 @@ export default Vue.extend({
         goBack() {
             this.$router.push({ name: 'Отчеты' });
         },
-        build(){
-            let parametersData = new Array<WfeReportParameter>();
-            this.report.parameters.forEach(param => {
-                const data = new WfeReportParameter();
-                data.internalName = param.internalName;
-                data.value = param.value;
-                parametersData.push(data);
-            });
+        build() {
             this.$apiClient().then((client: any) => {
                 client['report-controller'].buildReportUsingPOST(null, {
                     parameters: {
@@ -143,63 +136,56 @@ export default Vue.extend({
                     },
                     requestBody: {
                         format: this.reportFormat.abbr,
-                        parameters: parametersData
+                        parameters: this.report.parameters
                     }
                 }).then((data: any) => {
-                    if (data && data.status == 200) {
-                        this.buildResult = Object.assign(this.buildResult, data.body);
-                        if( this.buildResult.message != null){
-                            this.messageAlert = true;
-                        } else {
-                            this.messageAlert = false;
-                        }
-                        if(this.reportFormat.abbr != 'HTML_EMBEDDED') {
-                            var repData =  this.buildResult.reportData;
-                            var repName =  this.buildResult.reportFileName;
-
-                            this.buildResult.reportData = '';
-
-                            var sliceSize = 1024;
-                            var byteCharacters = atob(repData);
-                            var bytesLength = byteCharacters.length;
-                            var slicesCount = Math.ceil(bytesLength / sliceSize);
-                            var byteArrays = new Array(slicesCount);
-
-                            for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
-                                var begin = sliceIndex * sliceSize;
-                                var end = Math.min(begin + sliceSize, bytesLength);
-                                var bytes = new Array(end - begin);
-                                for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
-                                    bytes[i] = byteCharacters[offset].charCodeAt(0);
-                                }
-                                byteArrays[sliceIndex] = new Uint8Array(bytes);
-                            }
-                            var blob = new Blob(byteArrays, { type: "application/octet-stream" });
-
-                            if (typeof window.navigator.msSaveBlob !== 'undefined') {
-                                // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
-                                window.navigator.msSaveBlob(blob, repName);
-                            } else {
-                                var URL = window.URL || window.webkitURL;
-                                var downloadUrl = URL.createObjectURL(blob);
-                                // use HTML5 a[download] attribute to specify filename
-                                var a = document.createElement("a");
-                                // safari doesn't support this yet
-                                if (typeof a.download === 'undefined') {
-                                  window.location = downloadUrl;
-                                } else {
-                                    a.href = downloadUrl;
-                                    a.download = repName;
-                                    document.body.appendChild(a);
-                                    a.click();
-                                }
-                            }
-                            setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100); // cleanup
-                        }
+                    this.buildResult = Object.assign(this.buildResult, data.body);
+                    if (this.buildResult.errorParameterNames.length) {
+                        this.errorMessage = 'Заполните обязательные параметры либо проверьте их формат: ' + this.buildResult.errorParameterNames;
+                    } else {
+                        this.errorMessage = '';
                     }
-                    else {
+                    if (this.reportFormat.abbr != 'HTML_EMBEDDED') {
+                        var repData = this.buildResult.reportData;
+                        var repName = this.buildResult.reportFileName;
                         this.buildResult.reportData = '';
+                        var sliceSize = 1024;
+                        var byteCharacters = atob(repData);
+                        var bytesLength = byteCharacters.length;
+                        var slicesCount = Math.ceil(bytesLength / sliceSize);
+                        var byteArrays = new Array(slicesCount);
+                        for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+                            var begin = sliceIndex * sliceSize;
+                            var end = Math.min(begin + sliceSize, bytesLength);
+                            var bytes = new Array(end - begin);
+                            for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
+                                bytes[i] = byteCharacters[offset].charCodeAt(0);
+                            }
+                            byteArrays[sliceIndex] = new Uint8Array(bytes);
+                        }
+                        var blob = new Blob(byteArrays, { type: "application/octet-stream" });
+                        if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                            // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
+                            window.navigator.msSaveBlob(blob, repName);
+                        } else {
+                            var URL = window.URL || window.webkitURL;
+                            var downloadUrl = URL.createObjectURL(blob);
+                            // use HTML5 a[download] attribute to specify filename
+                            var a = document.createElement("a");
+                            // safari doesn't support this yet
+                            if (typeof a.download === 'undefined') {
+                                window.location = downloadUrl;
+                            } else {
+                                a.href = downloadUrl;
+                                a.download = repName;
+                                document.body.appendChild(a);
+                                a.click();
+                            }
+                        }
+                        setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100); // cleanup
                     }
+                }, (reason: string) => {
+                    this.errorMessage = "Произошла ошибка во время выполнения отчёта";
                 });
             });
         },
@@ -213,10 +199,9 @@ export default Vue.extend({
                     if (data) {
                         this.report = Object.assign(this.report, data.body);
                         this.report.parameters.forEach(param => {
-                            if(param.type==='BOOLEAN_UNCHECKED') {
+                            if (param.type === 'BOOLEAN_UNCHECKED') {
                                 param.value = false;
-                            }
-                            else if(param.type==='BOOLEAN_CHECKED') {
+                            } else if (param.type === 'BOOLEAN_CHECKED') {
                                 param.value = true;
                             }
                         });
