@@ -4,7 +4,7 @@ const common = require('./webpack.common.js');
 
 module.exports = merge(common, {
   mode: 'development',
-  devtool: 'inline-source-map', // For debuging source code
+  devtool: 'inline-source-map', // For debugging source code
   devServer: {
     open: true,
     index: 'index.html',

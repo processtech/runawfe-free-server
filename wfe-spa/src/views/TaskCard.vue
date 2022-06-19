@@ -87,6 +87,7 @@ export default Vue.extend({
     },
     computed: {
         token: get('user/token'),
+        serverUrl: get('app/serverUrl'),
     },
     methods: {
         goBack() {
@@ -101,7 +102,7 @@ export default Vue.extend({
                 }).then((data: any) => {
                     if (data) {
                         this.task = Object.assign(this.task, data.body);
-                        this.oldFormUrl = `/wfe/newweboldform.do?id=${this.task.id}&jwt=${this.token}&startForm=false`;
+                        this.oldFormUrl = `${this.serverUrl}/wfe/newweboldform.do?id=${this.task.id}&jwt=${this.token}&startForm=false`;
                     }
                 });
             });
