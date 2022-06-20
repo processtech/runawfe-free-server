@@ -178,7 +178,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { ExecutorDto } from '../ts/ExecutorDto';
+import { WfeExecutor } from '../ts/WfeExecutor';
 
 export default Vue.extend({
     props: {
@@ -195,7 +195,7 @@ export default Vue.extend({
             definitions: [],
             definitionNames: [],
             swimlanes: [],
-            executors: new Array<ExecutorDto>(),
+            executors: new Array<WfeExecutor>(),
         }
     },
 
