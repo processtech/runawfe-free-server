@@ -2,9 +2,9 @@
 // В LocalStorage записываются такие настройки как выбранная тема оформления, оповещения и др.
 import { make } from 'vuex-pathify';
 import SwaggerClient from 'swagger-client';
+import app from './app';
 
 const state = {
-    apiUrl: '/restapi/v3/api-docs',
     token: '',
     dark: true, // TODO Сделать через геттеры возможность переключения темы
     notifications: Array,
@@ -41,14 +41,13 @@ const actions = {
         return new Promise((resolve, reject) => {
             const { username: login, password } = params;
             new SwaggerClient({
-                url: context.getters.apiUrl,
+                url: context.rootGetters['app/serverUrl'] + '/restapi/v3/api-docs',
             }).then((client: any) => {
-                client.apis['auth-controller'].tokenUsingPOST({
+                client.apis['auth-controller'].basicUsingPOST({
                     login,
                     password
                 }).then((data: any) => {
-                    let token = data.body;
-                    token = token.split(' ')[1];
+                    const token = data.body;
                     context.dispatch('makeSwaggerClient', { token, resolve, reject });
                 }, (reason: string) => reject('Неверный логин или пароль!')).catch((error: any) => {
                     console.log(error);
@@ -59,7 +58,7 @@ const actions = {
     makeSwaggerClient: (context: any, params: any) => {
         const { token, resolve, reject } = params;
         new SwaggerClient({ 
-            url: context.getters.apiUrl,
+            url: context.rootGetters['app/serverUrl'] + '/restapi/v3/api-docs',
             authorizations: {
                 token: {
                     value: token,

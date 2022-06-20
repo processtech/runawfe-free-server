@@ -61,7 +61,7 @@ export default Vue.extend({
         parameters: { password: this.password }
       };
       this.$apiClient().then(client => {
-        client['profile-api-controller'].changePasswordUsingPOST(null, request)
+        client['profile-controller'].changePasswordUsingPOST(null, request)
           .then(data => {
             if (data.ok) {
               this.success = true;

@@ -67,7 +67,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { WfDefinitionDto } from '../ts/WfDefinitionDto';
+import { WfeProcessDefinition } from '../ts/WfeProcessDefinition';
 import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
@@ -75,12 +75,13 @@ export default Vue.extend({
     data() {
         return {
             showInfo: false,
-            definition: new WfDefinitionDto(),
+            definition: new WfeProcessDefinition(),
             oldFormUrl: 'about:blank',
         }
     },
     computed: {
         token: get('user/token'),
+        serverUrl: get('app/serverUrl'),
     },
     methods: {
         goBack() {
@@ -88,14 +89,14 @@ export default Vue.extend({
         },
         loadDefinition() {
             this.$apiClient().then((client: any) => {
-                client['process-definition-api-controller'].getDefinitionUsingGET(null, { 
+                client['definition-controller'].getProcessDefinitionByIdUsingGET(null, { 
                     parameters: {
-                        versionId: this.$route.params.versionId
+                        id: this.$route.params.id
                     }
                 }).then((data: any) => {
                     if (data) {
                         this.definition = Object.assign(this.definition, data.body);
-                        this.oldFormUrl = `/wfe/newweboldform.do?id=${this.definition.versionId}&jwt=${this.token}&startForm=true`;
+                        this.oldFormUrl = `${this.serverUrl}/wfe/newweboldform.do?id=${this.definition.id}&jwt=${this.token}&startForm=true`;
                     }
                 });
             });

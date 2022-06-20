@@ -2,6 +2,7 @@
 import { make } from 'vuex-pathify';
 
 const state = {
+  serverUrl: '',
   swagger: null,
   drawer: null,
   mini: false,
@@ -48,8 +49,10 @@ const mutations = make.mutations(state);
 
 const actions = {
   ...make.actions(state),
-  init: async (dispatch: any) => {
-    //
+  init: async (context: any) => {
+    if (process.env.NODE_ENV === 'development') {
+      context.commit('serverUrl', 'http://localhost:8080');
+    }
   },
 };
 

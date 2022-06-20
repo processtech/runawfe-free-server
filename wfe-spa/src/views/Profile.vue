@@ -124,7 +124,7 @@ export default Vue.extend({
   methods: {
     getUserData() {
       this.$apiClient().then((client: any) => {
-        client['profile-api-controller'].getProfileUsingPOST().then((data: any) => {
+        client['profile-controller'].getProfileUsingGET().then((data: any) => {
           const body = data.body;
           if (body) {
             this.user = body.user;

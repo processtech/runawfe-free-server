@@ -198,7 +198,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @WebMethod(exclude = true)
     @Override
     public WfVariable getTaskVariable(@NonNull User user, @NonNull Long processId, @NonNull Long taskId, @NonNull String variableName) {
-        WfVariable variable = variableLogic.getTaskVariable(user, processId, taskId, variableName);
+        WfVariable variable = variableLogic.getTaskVariable(user, taskId, variableName);
         FileVariablesUtil.proxyFileVariables(user, processId, variable);
         return variable;
     }

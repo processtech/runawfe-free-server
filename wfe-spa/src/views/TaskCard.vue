@@ -73,7 +73,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { WfTaskDto } from '../ts/WfTaskDto';
+import { WfeTask } from '../ts/WfeTask';
 import { get, sync } from 'vuex-pathify';
 
 export default Vue.extend({
@@ -81,12 +81,13 @@ export default Vue.extend({
     data() {
         return {
             showInfo: false,
-            task: new WfTaskDto(),
+            task: new WfeTask(),
             oldFormUrl: 'about:blank',
         }
     },
     computed: {
         token: get('user/token'),
+        serverUrl: get('app/serverUrl'),
     },
     methods: {
         goBack() {
@@ -94,14 +95,14 @@ export default Vue.extend({
         },
         loadTask() {
             this.$apiClient().then((client: any) => {
-                client['task-api-controller'].getTaskUsingGET(null, { 
+                client['task-controller'].getTaskUsingGET(null, { 
                     parameters: {
                         id: this.$route.params.id
                     }
                 }).then((data: any) => {
                     if (data) {
                         this.task = Object.assign(this.task, data.body);
-                        this.oldFormUrl = `/wfe/newweboldform.do?id=${this.task.id}&jwt=${this.token}&startForm=false`;
+                        this.oldFormUrl = `${this.serverUrl}/wfe/newweboldform.do?id=${this.task.id}&jwt=${this.token}&startForm=false`;
                     }
                 });
             });
