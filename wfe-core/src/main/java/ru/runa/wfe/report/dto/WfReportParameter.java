@@ -1,10 +1,11 @@
 package ru.runa.wfe.report.dto;
 
 import com.google.common.base.Strings;
-
+import java.io.Serializable;
 import ru.runa.wfe.report.ReportParameterType;
 
-public class WfReportParameter {
+public class WfReportParameter implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String userName;
     private String description;
     private String internalName;

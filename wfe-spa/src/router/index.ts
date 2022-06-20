@@ -6,6 +6,8 @@ import TaskList from '../views/TaskList.vue';
 import ProcessDefinitionList from '../views/ProcessDefinitionList.vue';
 import ProcessDefinitionCard from '../views/ProcessDefinitionCard.vue';
 import ProcessList from '../views/ProcessList.vue';
+import ReportList from '../views/ReportList.vue';
+import ReportCard from '../views/ReportCard.vue';
 import TaskCard from '../views/TaskCard.vue';
 import ProcessCard from '../views/ProcessCard.vue';
 import Profile from '../views/Profile.vue';
@@ -56,7 +58,17 @@ const router = new VueRouter({
         name: 'Профиль',
         component: Profile,
         path: '/profile/'
-      }
+      },
+      {
+        name: 'Отчеты',
+        component: ReportList,
+        path: '/report/list/'
+      },
+      {
+        name: 'Карточка отчета',
+        component: ReportCard,
+        path: '/report/:id/card/',
+      },
     ]),
   ],
 });
