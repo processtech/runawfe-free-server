@@ -24,14 +24,17 @@
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/main.css?"+Version.getHash() %>' />">
   </head>
 	<body>
+	<script type="text/javascript">
+		window.localStorage.removeItem('runawfe@user');
+	</script>
 	<center>
-			<table height = "100%">
-				<tr height = "5%">
-					<td></td>
-				</tr>
-				<tr height = "65%">
-					<td align="center">
-					   <html:form action="/login">
+		<table height="100%">
+			<tr height="5%">
+				<td></td>
+			</tr>
+			<tr height="65%">
+				<td align="center">
+					<html:form action="/login">
 						<table>
 							<tr>
 								<td  align="left" colspan="2" target="new">

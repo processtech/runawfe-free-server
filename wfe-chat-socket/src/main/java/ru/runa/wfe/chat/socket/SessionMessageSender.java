@@ -1,27 +1,20 @@
-package ru.runa.wfe.chat.sender;
+package ru.runa.wfe.chat.socket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Set;
-import javax.websocket.Session;
 import lombok.extern.apachecommons.CommonsLog;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.chat.config.ChatQualifier;
+import org.springframework.web.socket.WebSocketSession;
 import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
-import ru.runa.wfe.chat.socket.SessionInfo;
 
 @CommonsLog
 @Component
 @MonitoredWithSpring
 public class SessionMessageSender implements MessageSender {
-
     @Autowired
-    @ChatQualifier
-    private ObjectMapper chatObjectMapper;
+    private MessageRequestBinaryConverter converter;
 
     @Override
     public void handleMessage(MessageBroadcast dto, Set<SessionInfo> sessions) {
@@ -31,11 +24,10 @@ public class SessionMessageSender implements MessageSender {
 
         for (SessionInfo sessionInfo : sessions) {
             try {
-                Session session = sessionInfo.getSession();
-                session.getBasicRemote().sendText(chatObjectMapper.writeValueAsString(dto));
+                final WebSocketSession session = sessionInfo.getSession();
+                session.sendMessage(converter.encode(dto));
             } catch (IOException e) {
-                log.error("An error occurred while sending a message on session " +
-                        sessionInfo.getId(), e);
+                log.error("An error occurred while sending a message on session " + sessionInfo.getId(), e);
             }
         }
     }

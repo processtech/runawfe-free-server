@@ -1,12 +1,11 @@
 package ru.runa.wfe.chat.dto.broadcast;
 
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MessageEditedBroadcast extends MessageBroadcast implements Serializable {
+public class MessageEditedBroadcast extends MessageBroadcast {
     private static final long serialVersionUID = -1506143159564256233L;
 
     private Long id;

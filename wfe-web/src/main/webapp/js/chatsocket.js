@@ -6,6 +6,17 @@ function initChatSocket(socket) {
 }
 
 function establishWebSocketConnection(handlers, username) {
+    if (!window.localStorage.getItem('runawfe@user')) {
+        token().done(function (result) {
+            if (!result.token) {
+                return;
+            }
+            window.localStorage.setItem('runawfe@user', JSON.stringify(result));
+            initChatSocket(establishWebSocketConnection(handlers, username));
+        });
+        return;
+    }
+
     currentUser = username;
     let socketProtocol = (document.location.protocol === "https:") ? "wss:" : "ws:";
     let socketUrl = socketProtocol + "//" + document.location.host + "/wfe/chatSocket";
@@ -30,11 +41,13 @@ function establishWebSocketConnection(handlers, username) {
                 handler(message);
             }
         }
+
         function socketCloseHandler(event) {
             if (event.code === 1009 || event.code === 1006) {
                 errorMessageAlerter({message: "Превышен максимально допустимый лимит сообщения. Обновите страницу"});
-            } 
+            }
         }
+
         socket.onmessage = socketMessageDispatcher;
         socket.onclose = socketCloseHandler;
     }
@@ -78,7 +91,9 @@ function notifyAboutNewMessage(message) {
         title: "Новое сообщение в чате процесса " + message.processId,
         position: ['left', 'bottom'],
         open: function () {
-            setTimeout(function () {$('#' + notificationId).dialog("close")}, 10000);
+            setTimeout(function () {
+                $('#' + notificationId).dialog("close")
+            }, 10000);
         }
     });
 }
@@ -114,6 +129,35 @@ function errorMessageAlerter(message) {
     setError("Ошибка при отправке сообщения: " + message.message);
 }
 
+function tokenRespondent(message) {
+    if (message.expired) {
+        token().done(function (result) {
+            if (!result.token) {
+                chatSocket.close();
+                return;
+            }
+            window.localStorage.setItem('runawfe@user', JSON.stringify(result));
+            sendToken(result.token)
+        });
+        return;
+    }
+
+    var user = JSON.parse(window.localStorage.getItem('runawfe@user'));
+    if (!user || !user.token) {
+        chatSocket.close();
+        return;
+    }
+
+    sendToken(user.token)
+}
+
+function sendToken(token) {
+    var response = {};
+    response.payload = token;
+    response.messageType = 'tokenMessage';
+    sendBinaryMessage(chatSocket, response)
+}
+
 function setNotification(message) {
     $("#chatNotificationAlert").text(message);
     $("#chatErrorAlert").empty();
@@ -122,4 +166,12 @@ function setNotification(message) {
 function setError(message) {
     $("#chatErrorAlert").text(message);
     $("#chatNotificationAlert").empty();
+}
+
+function token() {
+    return jQuery.ajax({
+        type: "POST",
+        url: "/wfe/chatJwtAuth",
+        dataType: "json"
+    });
 }

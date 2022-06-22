@@ -6,6 +6,7 @@
 <%@ page import="ru.runa.wf.web.action.ShowGraphModeHelper" %>
 <%@ page import="ru.runa.common.WebResources" %>
 <%@ page import="ru.runa.wfe.service.delegate.Delegates" %>
+<%@ page import="ru.runa.wfe.commons.SystemProperties" %>
 
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -85,7 +86,7 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
-		<% if (WebResources.isChatEnabled() && isRoot) {%>
+		<% if (SystemProperties.isChatEnabled() && isRoot) {%>
 		<td align="right">
 			<% String href = "/wfe/chat_page.do?processId=" + id;%>
 			<a href="<%= href %>"><bean:message key="chat.open" /></a>
