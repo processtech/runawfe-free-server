@@ -7,6 +7,7 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
@@ -16,6 +17,7 @@ import ru.runa.wfe.rest.dto.WfePagedListFilter.Sorting.Order;
 
 @Data
 public class WfePagedListFilter {
+    public static final String FILTER_IS_EMPTY = "FILTER_IS_EMPTY";
     private int pageSize;
     private int pageNumber;
     // null in value means missed (posted from web), empty string means 'no parameters'
@@ -43,7 +45,7 @@ public class WfePagedListFilter {
         batchPresentation.setRangeSize(pageSize);
         batchPresentation.setPageNumber(pageNumber);  
         for (Map.Entry<String, String> entry : filters.entrySet()) {
-            if (entry.getValue() == null || variables.contains(entry.getKey())) {
+            if (Utils.isNullOrEmpty(entry.getValue()) || variables.contains(entry.getKey())) {
                 continue;
             }
             addFilteredField(batchPresentation, classPresentationType.getFieldIndex(entry.getKey()), entry.getValue());
@@ -92,7 +94,7 @@ public class WfePagedListFilter {
 
     private void addFilteredField(BatchPresentation batchPresentation, int fieldIndex, String value) {
         FilterCriteria filterCriteria = FilterCriteriaFactory.createFilterCriteria(batchPresentation, fieldIndex);
-        if (!value.isEmpty()) {
+        if (!FILTER_IS_EMPTY.equals(value.isEmpty())) {
             // TODO #2261
             String[] templates = filterCriteria.getTemplatesCount() > 1 ? value.split("\\|", -1) : new String[] { value };
             filterCriteria.applyFilterTemplates(templates);

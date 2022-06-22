@@ -1,5 +1,8 @@
 package ru.runa.wfe.rest.impl;
 
+import lombok.SneakyThrows;
+
+import com.google.common.base.Charsets;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -227,15 +230,15 @@ public class ReportController {
 
         };
 
-        protected ReportBuildResult exportReport(String reportName, JasperPrint report, boolean isHtml)
-                throws JRException {
+        @SneakyThrows
+        protected ReportBuildResult exportReport(String reportName, JasperPrint report, boolean isHtml) {
             JRAbstractExporter exporter = exporter();
             exporter.setExporterInput(new SimpleExporterInput(report));
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             exporter.setExporterOutput(output(outputStream));
             exporter.exportReport();
             return new ReportBuildResult(reportName + reportFileSuffix(),
-                    isHtml ? outputStream.toString() : outputStream.toByteArray());
+                    isHtml ? outputStream.toString(Charsets.UTF_8.name()) : outputStream.toByteArray());
         }
 
         protected ExporterOutput output(OutputStream os) {
