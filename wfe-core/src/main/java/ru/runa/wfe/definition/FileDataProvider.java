@@ -2,6 +2,7 @@ package ru.runa.wfe.definition;
 
 public interface FileDataProvider {
     String PAR_FILE = "par";
+    String REPORT_FILE = "jasper";
     String PROCESSDEFINITION_XML_FILE_NAME = "processdefinition.xml";
     String FORMS_XML_FILE_NAME = "forms.xml";
     String GPD_XML_FILE_NAME = "gpd.xml";

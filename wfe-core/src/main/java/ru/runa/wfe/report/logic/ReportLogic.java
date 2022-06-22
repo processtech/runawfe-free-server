@@ -18,7 +18,6 @@ import ru.runa.wfe.report.dao.ReportDao;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.impl.GetCompiledReportParametersDescription;
-import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -113,5 +112,10 @@ public class ReportLogic extends WfCommonLogic {
             throw new ReportParameterMissingException(reportParameters.keySet().iterator().next());
         }
         return reportDefinition;
+    }
+
+    public byte[] getFile(User user, Long definitionId, String fileName) {
+        WfReport definition = getReportDefinition(user, definitionId);
+        return definition.getCompiledReport();
     }
 }
