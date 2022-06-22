@@ -1,15 +1,15 @@
 package ru.runa.wfe.chat.socket;
 
-import lombok.Getter;
-import javax.websocket.Session;
 import java.util.Objects;
+import lombok.Getter;
+import org.springframework.web.socket.WebSocketSession;
 
 @Getter
 public class SessionInfo {
     private final String id;
-    private final Session session;
+    private final WebSocketSession session;
 
-    public SessionInfo(Session session) {
+    public SessionInfo(WebSocketSession session) {
         this.session = session;
         this.id = this.session.getId();
     }

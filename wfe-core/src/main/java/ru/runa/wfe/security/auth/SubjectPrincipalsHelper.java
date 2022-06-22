@@ -5,7 +5,6 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Set;
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.security.auth.Subject;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.security.AuthenticationException;
@@ -20,13 +19,13 @@ import ru.runa.wfe.user.User;
 public class SubjectPrincipalsHelper {
 
     private static Key securedKey = null;
-    private static String encryptionType = "DES";
+    final static String encryptionType = "DES";
 
     static {
         try {
-            securedKey = KeyGenerator.getInstance(encryptionType).generateKey();
+            securedKey = new SecuredKeyProvider().getKey();
         } catch (Exception e) {
-            log.error("Unable to get instance of KeyGenerator", e);
+            log.error("Unable to get secured key", e);
         }
     }
 

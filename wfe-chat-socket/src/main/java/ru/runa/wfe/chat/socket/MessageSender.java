@@ -1,9 +1,9 @@
-package ru.runa.wfe.chat.sender;
+package ru.runa.wfe.chat.socket;
 
 import ru.runa.wfe.chat.dto.broadcast.MessageBroadcast;
-import ru.runa.wfe.chat.socket.SessionInfo;
 
 import java.util.Set;
+import ru.runa.wfe.chat.socket.SessionInfo;
 
 public interface MessageSender {
     void handleMessage(MessageBroadcast dto, Set<SessionInfo> sessions);

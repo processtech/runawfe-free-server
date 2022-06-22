@@ -24,8 +24,6 @@ import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
 import ru.runa.wfe.chat.logic.ChatFileLogic;
 import ru.runa.wfe.chat.logic.ChatLogic;
-import ru.runa.wfe.chat.socket.BroadcastMessageTransactionListenerFactory;
-import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.ChatServiceLocal;
@@ -47,40 +45,23 @@ public class ChatServiceBean implements ChatServiceLocal, ChatServiceRemote {
     private ChatLogic chatLogic;
     @Autowired
     private ChatFileLogic chatFileLogic;
-    @Autowired
-    private BroadcastMessageTransactionListenerFactory transactionListenerFactory;
 
-    @WebMethod(exclude = false)
+    @WebMethod(exclude = true)
     @Override
-    @WebResult(name = "result")
-    public Long saveMessage(
-            @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "request") @NonNull AddMessageRequest request
-    ) {
-        final WfChatMessageBroadcast<MessageAddedBroadcast> wfChatMessageBroadcast = chatLogic.saveMessage(user, request);
-        TransactionListeners.addListener(transactionListenerFactory.createListener(wfChatMessageBroadcast), false);
-        return wfChatMessageBroadcast.getBroadcast().getId();
+    public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(@NonNull User user, @NonNull AddMessageRequest request) {
+        return chatLogic.saveMessage(user, request);
     }
 
-    @WebMethod(exclude = false)
+    @WebMethod(exclude = true)
     @Override
-    @WebResult(name = "result")
-    public void editMessage(
-            @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "request") @NonNull EditMessageRequest request
-    ) {
-        final WfChatMessageBroadcast<MessageEditedBroadcast> wfChatMessageBroadcast = chatLogic.editMessage(user, request);
-        TransactionListeners.addListener(transactionListenerFactory.createListener(wfChatMessageBroadcast), false);
+    public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(@NonNull User user, @NonNull EditMessageRequest request) {
+        return chatLogic.editMessage(user, request);
     }
 
-    @WebMethod(exclude = false)
+    @WebMethod(exclude = true)
     @Override
-    @WebResult(name = "result")
-    public void deleteMessage(
-            @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "request") @NonNull DeleteMessageRequest request) {
-        final WfChatMessageBroadcast<MessageDeletedBroadcast> wfChatMessageBroadcast = chatLogic.deleteMessage(user, request);
-        TransactionListeners.addListener(transactionListenerFactory.createListener(wfChatMessageBroadcast), false);
+    public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(@NonNull User user, @NonNull DeleteMessageRequest request) {
+        return chatLogic.deleteMessage(user, request);
     }
 
     @WebMethod(exclude = false)

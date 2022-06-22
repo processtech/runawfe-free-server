@@ -70,7 +70,7 @@ public class ChatLogic extends WfCommonLogic {
 
     public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
         final ChatMessage newMessage = messageRequestMapper.toEntity(request);
-        newMessage.setCreateActor(user.getActor());
+        newMessage.setCreateActor(executorLogic.getActor(user, user.getActor().getName()));
         final long processId = request.getProcessId();
         final Set<Actor> recipients = recipientCalculator.calculateRecipients(user, request.getIsPrivate(), request.getMessage(), processId);
 

@@ -3,8 +3,11 @@ package ru.runa.wfe.service.delegate;
 import java.util.List;
 import ru.runa.wfe.chat.ChatMessage;
 import ru.runa.wfe.chat.dto.ChatMessageFileDto;
+import ru.runa.wfe.chat.dto.WfChatMessageBroadcast;
 import ru.runa.wfe.chat.dto.WfChatRoom;
 import ru.runa.wfe.chat.dto.broadcast.MessageAddedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageDeletedBroadcast;
+import ru.runa.wfe.chat.dto.broadcast.MessageEditedBroadcast;
 import ru.runa.wfe.chat.dto.request.AddMessageRequest;
 import ru.runa.wfe.chat.dto.request.DeleteMessageRequest;
 import ru.runa.wfe.chat.dto.request.EditMessageRequest;
@@ -23,7 +26,7 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public Long saveMessage(User user, AddMessageRequest request) {
+    public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request) {
         try {
             return getChatService().saveMessage(user, request);
         } catch (Exception e) {
@@ -32,18 +35,18 @@ public class ChatServiceDelegate extends Ejb3Delegate implements ChatService {
     }
 
     @Override
-    public void editMessage(User user, EditMessageRequest request) {
+    public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request) {
         try {
-            getChatService().editMessage(user, request);
+            return getChatService().editMessage(user, request);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void deleteMessage(User user, DeleteMessageRequest request) {
+    public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request) {
         try {
-            getChatService().deleteMessage(user, request);
+            return getChatService().deleteMessage(user, request);
         } catch (Exception e) {
             throw handleException(e);
         }
