@@ -52,6 +52,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.error.dto.WfTokenError;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
@@ -502,6 +503,8 @@ public class ExecutionLogic extends WfCommonLogic {
     public List<WfTokenError> getTokenErrors(User user, Long processId) {
         List<WfTokenError> errors = Lists.newArrayList();
         Process process = processDao.get(processId);
+        if(process == null)
+            throw new DefinitionDoesNotExistException(processId.toString());
         for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
             errors.add(new WfTokenError(token, getStackTrace(token)));
         }
