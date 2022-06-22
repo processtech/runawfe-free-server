@@ -8,6 +8,7 @@
 
 <%@ page import="ru.runa.common.web.form.IdForm" %>
 <%@ page import="ru.runa.wf.web.form.ProcessForm" %>
+<%@ page import="ru.runa.wfe.commons.SystemProperties" %>
 <%@ page import="ru.runa.common.web.Commons" %>
 <%@ page import="ru.runa.common.WebResources" %>
 <%@ page import="ru.runa.wfe.task.dto.WfTask" %>
@@ -19,7 +20,7 @@
 <% if (WebResources.isAjaxFileInputEnabled()) { %>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />">c=0;</script>
-<% 
+<%
 	}
 %>
 	<script type="text/javascript" src="<html:rewrite page="/js/trumbowyg.js" />" charset="utf-8">c=0;</script>
@@ -34,11 +35,11 @@
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/trumbowyg.css" />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/delegate.dialog.css?"+Version.getHash() %>' />">
-<% 
+<%
 	for (String url : WebResources.getTaskFormExternalJsLibs()) {
 %>
 	<script type="text/javascript" src="<%= url %>"></script>
-<% 
+<%
 	}
 %>
 </tiles:put>
@@ -49,7 +50,7 @@
 	String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
 %>
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
-<% if(WebResources.isChatEnabled()){%>
+<% if(SystemProperties.isChatEnabled()){%>
 <div style="float:left; max-width: 150px;">
 	<%
 		WfTask task = Delegates.getTaskService().getTask(Commons.getUser(request.getSession()), taskId);

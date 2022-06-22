@@ -1,0 +1,75 @@
+.text-mono
+  font-family: monospace
+
+// Helpers
+.flex-1-1-auto
+  flex: 1 1 auto !important
+
+.flex-1-0-auto
+  flex: 1 0 auto !important
+
+.flex-0-1-auto
+  flex: 0 1 auto !important
+
+.flex-0-0-auto
+  flex: 0 0 auto !important
+
+.position-relative
+  position: relative !important
+
+.overflow-y-scroll
+  overflow-y: scroll
+
+@mixin wfe-tables
+  & 
+    table
+      > thead > tr > th
+        padding: 0px 16px !important
+        font-size: small !important
+      > tbody > tr > td 
+        font-weight: 300 !important
+        font-size: small !important
+        border: none !important
+      > tbody tr:not(.task1, .task2, .task3, .task4, .process1, .process2):nth-of-type(even)
+        background-color: #f8f8f8 !important
+      > tbody tr:hover,
+      > tbody tr:nth-of-type(even):hover
+        background-color: #bcbdc4 !important
+      > tbody tr.filter-row:hover
+        background-color: inherit !important
+    .v-input__slot
+      min-height: 32px !important
+      padding-right: 4px !important
+      > .v-text-field__slot > input
+        font-size: small !important
+      > .v-input__append-inner
+        margin-top: 4px !important
+        .v-icon
+          font-size: medium !important
+
+.wfe-task-table
+  @include wfe-tables
+
+.wfe-process-table
+  @include wfe-tables
+
+.v-list-item__icon
+  margin-right: 16px !important
+ 
+.task1
+  background-color: #fbf0ee !important
+
+.task2
+  background-color: #f9d0cc !important
+
+.task3
+  background-color: #ebf7ed !important
+
+.task4
+  background-color: #fffcd7 !important
+
+.process1
+  background-color: #fbf0ee !important
+
+.process2
+  background-color: #f9d0cc !important

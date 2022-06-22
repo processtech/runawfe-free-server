@@ -1,0 +1,13 @@
+# VSCode
+.vscode
+node_modules
+workspace.code-workspace
+
+# Eclipse
+.classpath
+.project
+.settings
+
+# IDEA
+.idea
+*.iml

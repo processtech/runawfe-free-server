@@ -184,8 +184,9 @@ public class VariableLogic extends WfCommonLogic {
         return new WfVariable(definition.getVariableNotNull(variableName, false), null);
     }
 
-    public WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) {
+    public WfVariable getTaskVariable(User user, Long taskId, String variableName) {
         Task task = taskDao.getNotNull(taskId);
+        Long processId = task.getProcess().getId();
         if (task.getIndex() == null) {
             return getVariable(user, processId, variableName);
         }

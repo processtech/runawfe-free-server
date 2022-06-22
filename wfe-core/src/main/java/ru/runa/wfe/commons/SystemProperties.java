@@ -485,4 +485,12 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("chat.files.storage.path", IoCommons.getAppServerDirPath() + "/wfe.chat-files-storage");
     }
 
+    public static boolean isChatEnabled() {
+        return RESOURCES.getBooleanProperty("chat.enabled", true);
+    }
+
+    public static String getJwtSecret() {
+        return NO_DATABASE_RESOURCES.getStringProperty("jwt.secret");
+    }
+
 }

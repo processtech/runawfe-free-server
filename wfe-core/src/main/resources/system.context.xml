@@ -267,7 +267,6 @@
 	<bean id="asyncTaskChecker" class="ru.runa.wfe.job.impl.AsyncTaskChecker">
 		<property name="ttlInSeconds" value="${async.tasks.ttl.in.seconds}" />
 	</bean>
-	<bean id="pingSessionsJob" class="ru.runa.wfe.chat.socket.PingSessionsJob" />
 	<bean id="chatUnusedFilesCleanerJob" class="ru.runa.wfe.chat.ChatUnusedFilesCleanerJob" />
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />

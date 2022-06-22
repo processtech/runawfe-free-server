@@ -194,6 +194,10 @@ public class VariableDefinition implements Serializable {
         return formatComponentUserTypes;
     }
 
+    public void setFormatComponentUserTypes(UserType[] formatComponentUserTypes) {
+        this.formatComponentUserTypes = formatComponentUserTypes;
+    }
+
     public List<VariableDefinition> expandUserType(boolean preserveComplex) {
         return expandUserType(this, this, preserveComplex);
     }

@@ -73,6 +73,10 @@ public class ExecutorLogic extends CommonLogic {
         return executorDao.update(executor);
     }
 
+    public List<? extends Executor> getExecutors(User user, List<Long> ids) {
+        return executorDao.getExecutors(ids);
+    }
+
     public List<? extends Executor> getExecutors(User user, BatchPresentation batchPresentation) {
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createAllExecutorsCompiler(user, batchPresentation);
         return compiler.getBatch();
@@ -107,6 +111,10 @@ public class ExecutorLogic extends CommonLogic {
         return checkPermissionsOnExecutor(user, executorDao.getActor(name), Permission.READ);
     }
 
+    public Actor getActor(User user, Long id) {
+        return checkPermissionsOnExecutor(user, executorDao.getActor(id), Permission.READ);
+    }
+
     public Actor getActorCaseInsensitive(String login) {
         return executorDao.getActorCaseInsensitive(login);
     }
@@ -115,12 +123,20 @@ public class ExecutorLogic extends CommonLogic {
         return checkPermissionsOnExecutor(user, executorDao.getGroup(name), Permission.READ);
     }
 
+    public Group getGroup(User user, Long id) {
+        return checkPermissionsOnExecutor(user, executorDao.getGroup(id), Permission.READ);
+    }
+
     public Executor getExecutor(User user, String name) {
         return checkPermissionsOnExecutor(user, executorDao.getExecutor(name), Permission.READ);
     }
 
     public boolean isAdministrator(User user) {
         return executorDao.isAdministrator(user.getActor());
+    }
+
+    public boolean isAdministrator(Actor actor) {
+        return executorDao.isAdministrator(actor);
     }
 
     public void remove(User user, List<Long> ids) {

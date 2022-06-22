@@ -16,3 +16,5 @@ wfe-webservice-client/src/main/
 
 # For those who don't like `mvn package` deploying to server:
 wfe-ear/${jboss.home.dir}
+
+wfe-spa/dist/

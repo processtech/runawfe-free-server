@@ -1,6 +1,5 @@
 package ru.runa.wfe.chat.dto.request;
 
-import java.io.Serializable;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class AddMessageRequest extends MessageRequest implements Serializable {
+public class AddMessageRequest extends MessageRequest {
     private static final long serialVersionUID = -2343987208864174162L;
 
     private String message;

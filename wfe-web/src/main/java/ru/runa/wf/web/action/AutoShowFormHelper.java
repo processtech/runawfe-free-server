@@ -20,7 +20,7 @@ public class AutoShowFormHelper {
     private static final String LOCAL_FORWARD_TASKS_LIST = "tasksList";
     private static final String LOCAL_FORWARD_SUBMIT_TASK = "submitTask";
 
-    public static ActionForward getNextActionForward(User user, ActionMapping mapping, Profile profile, Long processId) {
+    public static ActionForward getNextActionForward(User user, ActionMapping mapping, Long processId) {
         BatchPresentation batchPresentation = BatchPresentationFactory.TASKS.createDefault("getNextActionForward");
         int fieldIndex = batchPresentation.getType().getFieldIndex(TaskClassPresentation.PROCESS_ID);
         batchPresentation.getFilteredFields().put(fieldIndex, new LongFilterCriteria(processId));

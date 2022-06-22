@@ -31,21 +31,21 @@ public interface ChatService {
      *              request to add a new message
      * @return id of created message
      */
-    public Long saveMessage(User user, AddMessageRequest request);
+    public WfChatMessageBroadcast<MessageAddedBroadcast> saveMessage(User user, AddMessageRequest request);
 
     /**
      * Edit message according to provided request
      * @param user authorized user
      * @param request request to edit message
      */
-    public void editMessage(User user, EditMessageRequest request);
+    public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request);
 
     /**
      * Delete message according to provided request
      * @param user authorized user
      * @param request request to edit message
      */
-    public void deleteMessage(User user, DeleteMessageRequest request);
+    public WfChatMessageBroadcast<MessageDeletedBroadcast> deleteMessage(User user, DeleteMessageRequest request);
 
     /**
      * Gets ChatMessage.

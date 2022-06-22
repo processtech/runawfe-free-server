@@ -1,5 +1,7 @@
 package ru.runa.wfe.commons;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Defaults;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -15,8 +17,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -144,8 +144,8 @@ public class TypeConversionUtil {
             if (object instanceof Calendar && classConvertTo == Date.class) {
                 return (T) ((Calendar) object).getTime();
             }
-            if (object instanceof Long && classConvertTo == Date.class) {
-                return (T) new Date((long) object);
+            if (object instanceof Number && classConvertTo == Date.class) {
+                return (T) new Date(((Number) object).longValue());
             }
             if (object instanceof String && (classConvertTo == Calendar.class || classConvertTo == Date.class)) {
                 Date date;

@@ -1,13 +1,19 @@
 package ru.runa.wfe.security;
 
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.util.Pair;
 
 public class SecuredObjectUtil {
-
+    public static final String BEARER_PREFIX = "Bearer ";
+    public static final Key JWT_SECRET_KEY = Keys.hmacShaKeyFor(SystemProperties.getJwtSecret().getBytes(StandardCharsets.UTF_8));
     /**
      * All objects must be of the same SecuredObjectType.
      * If "objects" is null or empty, then returned "type" is null and returned "ids" is empty list.

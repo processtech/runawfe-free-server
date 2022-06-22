@@ -111,6 +111,10 @@ public class WfTask implements Serializable {
         return null;
     }
 
+    public List<WfVariable> getVariables() {
+        return variables;
+    }
+
     public Object getVariableValue(String name) {
         WfVariable variable = getVariable(name);
         if (variable != null) {
