@@ -21,9 +21,6 @@
                                 <div class="mb-2 mt-2">
                                     Экземпляр процесса № {{ task.processId }}
                                 </div>
-                                <div class="mb-2 mt-2 grey--text">
-                                    <h2>{{ $__ucfirst(task.name) }}</h2>
-                                </div>
                             </div>
                             <v-btn 
                                 text
@@ -102,7 +99,7 @@ export default Vue.extend({
                 }).then((data: any) => {
                     if (data) {
                         this.task = Object.assign(this.task, data.body);
-                        this.oldFormUrl = `${this.serverUrl}/wfe/newweboldform.do?id=${this.task.id}&jwt=${this.token}&startForm=false`;
+                        this.oldFormUrl = `${this.serverUrl}/wfe/newweboldform.do?id=${this.task.id}&title=${this.task.name}&jwt=${this.token}&startForm=false`;
                     }
                 });
             });
