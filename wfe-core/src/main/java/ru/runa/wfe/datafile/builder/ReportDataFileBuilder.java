@@ -42,7 +42,6 @@ public class ReportDataFileBuilder implements DataFileBuilder {
                 parameterElement.addAttribute("name", parameter.getUserName());
                 parameterElement.addAttribute("innerName", parameter.getInternalName());
                 parameterElement.addAttribute("type", parameter.getType().getDescription());
-                //parameterElement.addAttribute("required", String.valueOf(parameter.isRequired()));
             }
         }
     }
