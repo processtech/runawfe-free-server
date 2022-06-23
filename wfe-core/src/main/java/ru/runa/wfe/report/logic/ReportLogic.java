@@ -114,7 +114,7 @@ public class ReportLogic extends WfCommonLogic {
         return reportDefinition;
     }
 
-    public byte[] getFile(User user, Long definitionId, String fileName) {
+    public byte[] getFile(User user, Long definitionId) {
         WfReport definition = getReportDefinition(user, definitionId);
         return definition.getCompiledReport();
     }

@@ -26,8 +26,8 @@ public class ReportDataFileBuilder implements DataFileBuilder {
         BatchPresentation batchPresentation = BatchPresentationFactory.REPORTS.createNonPaged();
         List<WfReport> reports = reportLogic.getReportDefinitions(user, batchPresentation, false);
         for (WfReport report : reports) {
-            String fileName = report.getName() + "." + FileDataProvider.REPORT_FILE;
-            byte[] reportLogicFile = reportLogic.getFile(user, report.getId(), ru.runa.wfe.definition.FileDataProvider.REPORT_FILE);
+            String fileName = report.getName() + ".jasper";
+            byte[] reportLogicFile = reportLogic.getFile(user, report.getId());
             ZipEntry zipEntry = new ZipEntry(PATH_TO_REPORTS + fileName);
             zos.putNextEntry(zipEntry);
             zos.write(reportLogicFile, 0, reportLogicFile.length);
