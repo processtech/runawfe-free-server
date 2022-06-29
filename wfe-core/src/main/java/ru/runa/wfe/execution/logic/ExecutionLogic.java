@@ -690,10 +690,10 @@ public class ExecutionLogic extends WfCommonLogic {
         if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
             if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
                 String messageSelector = Utils.getObjectMessageStrictSelector(routingData);
-                return tokenDao.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
+                return tokenDao.findByMessageSelectorInActiveProcesses(messageSelector);
             } else {
                 Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(routingData);
-                return tokenDao.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
+                return tokenDao.findByMessageSelectorInActiveProcesses(messageSelectors);
             }
         } else {
             throw new InternalApplicationException("Method not implemented for process.execution.message.predefined.selector.enabled = false");
