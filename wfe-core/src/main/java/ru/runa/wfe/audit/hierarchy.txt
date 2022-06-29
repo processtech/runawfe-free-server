@@ -7,6 +7,7 @@
     <!-- F : ru.runa.bpm.log.TaskDelegationLog -->
     <!-- H : ru.runa.bpm.log.NodeErrorLog -->
     <!-- I : ru.runa.bpm.log.ProcessCreateLog -->
+    <!-- J : ru.runa.wfe.audit.NodeInfoLog -->
     <!-- K : ru.runa.bpm.log.TaskEndByAdminLog -->
     <!-- L : ru.runa.bpm.log.NodeLeaveLog -->
     <!-- M : ru.runa.bpm.log.TaskRemovedOnProcessEndLog -->

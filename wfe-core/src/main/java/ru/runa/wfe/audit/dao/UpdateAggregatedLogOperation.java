@@ -6,6 +6,7 @@ import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeErrorLog;
+import ru.runa.wfe.audit.NodeInfoLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessActivateLog;
 import ru.runa.wfe.audit.ProcessCancelLog;
@@ -240,6 +241,10 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
     @Override
     public void onAdminActionLog(AdminActionLog adminActionLog) {
+    }
+
+    @Override
+    public void onNodeInfoLog(NodeInfoLog nodeInfoLog) {
     }
 
     private ProcessInstanceAggregatedLog getProcessInstanceLog(long processId) {
