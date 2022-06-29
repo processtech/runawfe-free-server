@@ -21,24 +21,32 @@
  */
 package ru.runa.wfe.lang;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.execution.ConvertToSimpleVariables;
+import ru.runa.wfe.execution.ConvertToSimpleVariablesContext;
+import ru.runa.wfe.execution.ConvertToSimpleVariablesResult;
+import ru.runa.wfe.execution.ConvertToSimpleVariablesUnrollContext;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.UserType;
+import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.UserTypeFormat;
+import ru.runa.wfe.var.format.VariableFormatContainer;
 
 /**
  * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
@@ -149,7 +157,7 @@ public class MultiTaskNode extends BaseTaskNode {
                 log.debug("Executor is null for identity " + executorIdentity);
                 continue;
             }
-            taskFactory.create(executionContext, taskDefinition, null, executor, tasksCounter, async);
+            taskFactory.create(executionContext, executionContext.getVariableProvider(), taskDefinition, null, executor, tasksCounter, async);
             tasksCounter++;
         }
         return tasksCounter > 0;
@@ -177,7 +185,31 @@ public class MultiTaskNode extends BaseTaskNode {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
-            taskFactory.create(executionContext, taskDefinition, swimlane, executor, index, async);
+            MapDelegableVariableProvider variableProvider = new MapDelegableVariableProvider(new HashMap<>(), executionContext.getVariableProvider());
+            variableProvider.add("index", index);
+            for (VariableMapping m : getVariableMappings()) {
+                WfVariable listVariable = executionContext.getVariableProvider().getVariableNotNull(m.getName());
+                List<?> list = (List<?>) listVariable.getValue();
+                if (list != null && list.size() > index) {
+                    VariableDefinition variableDefinition;
+                    UserType userType = ((VariableFormatContainer) listVariable.getDefinition().getFormatNotNull()).getComponentUserType(0);
+                    if (userType != null) {
+                        variableDefinition = new VariableDefinition(m.getMappedName(), null, UserTypeFormat.class.getName(), userType);
+                    } else {
+                        String formatClassName = ((VariableFormatContainer) listVariable.getDefinition().getFormatNotNull()).getComponentClassName(0);
+                        variableDefinition = new VariableDefinition(m.getMappedName(), null, formatClassName, null);
+                    }
+                    WfVariable variable = new WfVariable(variableDefinition, list.get(index));
+                    variableProvider.add(variable);
+                    if (variableDefinition.getUserType() != null) {
+                        ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(variableDefinition, variable.getValueNoDefault());
+                        for (ConvertToSimpleVariablesResult unrolled : variableDefinition.getFormatNotNull().processBy(new ConvertToSimpleVariables(), context)) {
+                            variableProvider.add(new WfVariable(unrolled.variableDefinition, unrolled.value));
+                        }
+                    }
+                }
+            }
+            taskFactory.create(executionContext, variableProvider, taskDefinition, swimlane, executor, index, async);
             tasksCounter++;
         }
         return tasksCounter > 0;
@@ -185,12 +217,12 @@ public class MultiTaskNode extends BaseTaskNode {
 
     public boolean isCompletionTriggersSignal(Task task) {
         switch (synchronizationMode) {
-        case FIRST:
-            return true;
-        case LAST:
-            return isLastTaskToComplete(task);
-        default:
-            return false;
+            case FIRST:
+                return true;
+            case LAST:
+                return isLastTaskToComplete(task);
+            default:
+                return false;
         }
     }
 
