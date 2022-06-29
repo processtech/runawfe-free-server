@@ -149,7 +149,7 @@ public class MultiTaskNode extends BaseTaskNode {
                 log.debug("Executor is null for identity " + executorIdentity);
                 continue;
             }
-            taskFactory.create(executionContext, taskDefinition, null, executor, tasksCounter);
+            taskFactory.create(executionContext, taskDefinition, null, executor, tasksCounter, async);
             tasksCounter++;
         }
         return tasksCounter > 0;
@@ -177,7 +177,7 @@ public class MultiTaskNode extends BaseTaskNode {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
-            taskFactory.create(executionContext, taskDefinition, swimlane, executor, index);
+            taskFactory.create(executionContext, taskDefinition, swimlane, executor, index, async);
             tasksCounter++;
         }
         return tasksCounter > 0;

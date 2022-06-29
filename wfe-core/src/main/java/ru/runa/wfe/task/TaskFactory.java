@@ -24,7 +24,7 @@ public class TaskFactory {
     /**
      * creates a new task on the given task, in the given execution context.
      */
-    public Task create(ExecutionContext executionContext, TaskDefinition taskDefinition, Swimlane swimlane, Executor executor, Integer index) {
+    public Task create(ExecutionContext executionContext, TaskDefinition taskDefinition, Swimlane swimlane, Executor executor, Integer index, Boolean isAsync) {
         Task task = new Task(executionContext.getToken(), taskDefinition);
         task.setName(ExpressionEvaluator.substitute(taskDefinition.getName(), executionContext.getVariableProvider()));
         task.setDescription(ExpressionEvaluator.substitute(taskDefinition.getDescription(), executionContext.getVariableProvider()));
@@ -37,6 +37,7 @@ public class TaskFactory {
         taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
         task.setSwimlane(swimlane);
         task.assignExecutor(executionContext, executor != null ? executor : swimlane.getExecutor(), false);
+        task.setAsync(isAsync);
         return task;
     }
 

@@ -22,6 +22,7 @@ import ru.runa.wfe.lang.Node;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import ru.runa.wfe.lang.SubprocessNode;
 
 @Entity
 @Table(name = "BPM_SUBPROCESS")
@@ -35,17 +36,19 @@ public class NodeProcess {
     // TODO why = 0 for subprocess?
     private Integer index;
     private Date createDate;
+    private Boolean async;
 
     protected NodeProcess() {
     }
 
-    public NodeProcess(Node processStateNode, Token parentToken, Process subProcess, Integer index) {
+    public NodeProcess(SubprocessNode processStateNode, Token parentToken, Process subProcess, Integer index) {
         this.process = parentToken.getProcess();
         this.parentToken = parentToken;
         this.nodeId = processStateNode.getNodeId();
         this.subProcess = subProcess;
         this.index = index;
         this.createDate = new Date();
+        this.async = processStateNode.isAsync();
     }
 
     @Id
@@ -120,6 +123,15 @@ public class NodeProcess {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    @Column(name = "ASYNC")
+    public Boolean isAsync() {
+        return async;
+    }
+
+    public void setAsync(Boolean async) {
+        this.async = async;
     }
 
     @Override
