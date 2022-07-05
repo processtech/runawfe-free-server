@@ -1,6 +1,7 @@
 package ru.runa.wf.web.action;
 
 import com.google.common.base.Strings;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,6 +19,7 @@ import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wf.web.form.CommonProcessForm;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.task.TaskDoesNotExistException;
+import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.var.VariableProvider;
@@ -33,6 +35,20 @@ public abstract class BaseProcessFormAction extends ActionBase {
         try {
             ActionForward forward = null;
             User user = getLoggedUser(request);
+            if (request.getParameter(NewWebJwtFilter.PARAMETER_NAME) != null) {
+                Long processId = executeProcessFromAction(request, form, mapping);
+                if (WebResources.isAutoShowForm()) {
+                    List<WfTask> tasks = AutoShowFormHelper.getTasks(user, processId);
+                    if (tasks.size() == 1) {
+                        FormSubmissionUtils.removePreviousUserInputVariables(request);
+                        WfTask nextTask = tasks.get(0);
+                        return new ActionForward("/newweboldform.do?id=" + nextTask.getId() + "&" + NewWebJwtFilter.PARAMETER_NAME + "="
+                                + request.getParameter(NewWebJwtFilter.PARAMETER_NAME) + "&startForm=false&title=" + nextTask.getName());
+                    }
+                }
+                addMessage(request, getMessage(processId));
+                return new ActionForward("/newweboldform-completed.do?startForm=" + request.getParameter("startForm"));
+            }
             // TODO fix bug when working from 2 browser tabs (token saved in
             // user session!)
             if (request.getSession().getAttribute(Globals.TRANSACTION_TOKEN_KEY) == null || isTokenValid(request, true)) {
@@ -49,9 +65,6 @@ public abstract class BaseProcessFormAction extends ActionBase {
             } else {
                 forward = new ActionForward("/manage_tasks.do", true);
                 log.warn(getLoggedUser(request) + " will be forwarded to tasklist due invalid token");
-            }
-            if (request.getParameter(NewWebJwtFilter.PARAMETER_NAME) != null) {
-                return new ActionForward("/newweboldform-completed.do?startForm=" + request.getParameter("startForm"));
             }
             return forward;
         } catch (TaskDoesNotExistException e) {
@@ -79,7 +92,8 @@ public abstract class BaseProcessFormAction extends ActionBase {
         }
         if (request.getParameter(NewWebJwtFilter.PARAMETER_NAME) != null) {
             return new ActionForward("/newweboldform.do?id=" + ((CommonProcessForm) form).getId() + "&" + NewWebJwtFilter.PARAMETER_NAME + "="
-                    + request.getParameter(NewWebJwtFilter.PARAMETER_NAME) + "&startForm=" + request.getParameter("startForm"));
+                    + request.getParameter(NewWebJwtFilter.PARAMETER_NAME) + "&startForm=" + request.getParameter("startForm") + "&title="
+                    + request.getParameter("title"));
         }
         return getErrorForward(mapping, form);
     }

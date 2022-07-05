@@ -50,7 +50,10 @@
 		String jwt = request.getParameter("jwt");
 		long id = Long.valueOf(request.getParameter("id"));
 		boolean startForm = Boolean.valueOf(request.getParameter("startForm"));
-		String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
+		String title = request.getParameter("title");
+		if (title == null) {
+			title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
+		}
 	%>
 	var id = <%= id %>;
 	$(document).ready(function () {
