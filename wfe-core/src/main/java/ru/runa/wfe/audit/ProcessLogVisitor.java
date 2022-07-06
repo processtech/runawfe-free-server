@@ -61,4 +61,6 @@ public interface ProcessLogVisitor {
     void onVariableUpdateLog(VariableUpdateLog variableUpdateLog);
 
     void onAdminActionLog(AdminActionLog adminActionLog);
+
+    void onNodeInfoLog(NodeInfoLog nodeInfoLog);
 }
