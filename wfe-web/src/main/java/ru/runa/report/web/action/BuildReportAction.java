@@ -78,10 +78,14 @@ public class BuildReportAction extends ActionBase {
             ReportGenerationType reportGenerationType = ReportGenerationType.valueOf(request.getParameter(BuildReportFormTag.BUILD_TYPE));
             JasperPrint jasperPrint = fillReport(params, reportGenerationType, report);
             ReportBuildResult result = reportGenerationType.exportReport(report.getName(), request, response, jasperPrint);
-
-            response.setContentType("application/pdf");
             String encodedFileName = HTMLUtils.encodeFileName(request, result.getReportFileName());
-            response.setHeader("Content-disposition", "attachment; filename=\"" + encodedFileName + "\"");
+            if (reportGenerationType.equals(ReportGenerationType.PDF)) {
+                response.setContentType("application/pdf");
+                response.setHeader("Content-disposition", "attachment; filename=\"" + encodedFileName + "\"");
+            } else if (!reportGenerationType.equals(ReportGenerationType.HTML_EMBEDDED)) {
+                response.setContentType("application/octet-stream");
+                response.setHeader("Content-disposition", "attachment; filename=\"" + encodedFileName + "\"");
+            }
             OutputStream os = response.getOutputStream();
             os.write((byte[]) result.getReportData());
             os.flush();
