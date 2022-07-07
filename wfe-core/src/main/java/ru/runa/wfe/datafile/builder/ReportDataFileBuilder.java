@@ -8,12 +8,11 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.definition.FileDataProvider;
-import ru.runa.wfe.report.logic.ReportLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
+import ru.runa.wfe.report.logic.ReportLogic;
 
 @Component
 public class ReportDataFileBuilder implements DataFileBuilder {
@@ -41,7 +40,7 @@ public class ReportDataFileBuilder implements DataFileBuilder {
                 Element parameterElement = element.addElement("parameter");
                 parameterElement.addAttribute("name", parameter.getUserName());
                 parameterElement.addAttribute("innerName", parameter.getInternalName());
-                parameterElement.addAttribute("type", parameter.getType().getDescription());
+                parameterElement.addAttribute("type", parameter.getType().name());
             }
         }
     }
