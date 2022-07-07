@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.2.0.final using JasperReports Library version 6.2.0  -->
-<!-- 2016-02-14T23:49:54 -->
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="userTasks" pageWidth="595" pageHeight="842" whenNoDataType="BlankPage" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Key" uuid="94d20e09-7b2a-43d7-a028-685e2019045b">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DataAdapter-pgsql-develop.xml"/>
 	<style name="PropertyList" mode="Opaque" hTextAlign="Center" vTextAlign="Middle" isBlankWhenNull="true" fontName="Arial" fontSize="14">
 		<box>
 			<topPen lineWidth="1.0" lineColor="#969696"/>
@@ -20,13 +20,13 @@
 		<parameter name="UserName" class="java.lang.String"/>
 		<queryString>
 			<![CDATA[SELECT 
-	"EXECUTOR"."NAME" ,
-	"EXECUTOR"."FULL_NAME" ,
-	"EXECUTOR"."CODE" ,
-	"EXECUTOR"."PHONE",
-	"EXECUTOR"."E_MAIL" 
+	EXECUTOR.NAME,
+	EXECUTOR.FULL_NAME,
+	EXECUTOR.CODE,
+	EXECUTOR.PHONE,
+	EXECUTOR.E_MAIL 
 FROM  
-	"EXECUTOR" 
+	EXECUTOR
 WHERE
 	NAME= $P{UserName}]]>
 		</queryString>
@@ -39,9 +39,7 @@ WHERE
 	<subDataset name="userTasksStatisticDataset" uuid="064c11fe-3c76-4953-b257-6766dd7fc4f0">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="RunaWFE HSQL"/>
-		<parameter name="UserName" class="java.lang.String">
-			<parameterDescription><![CDATA[User name (login).]]></parameterDescription>
-		</parameter>
+		<parameter name="UserName" class="java.lang.String"/>
 		<parameter name="ReportDateFrom" class="java.util.Date">
 			<defaultValueExpression><![CDATA[new java.util.Date()]]></defaultValueExpression>
 		</parameter>
@@ -53,53 +51,18 @@ WHERE
 		</parameter>
 		<queryString>
 			<![CDATA[SELECT 
-		SUM(CompletedByCurrentUser) as CompletedByCurrentUser, 
-		MIN(WorkWithTaskTime) AS MinWorkWithTaskTime, AVG(WorkWithTaskTime) AS AvgWorkWithTaskTime, MAX(WorkWithTaskTime) AS MaxWorkWithTaskTime,
-		SUM(CASE WHEN WorkAfterDeadlineTime IS NOT NULL THEN 1 ELSE 0 END) as TasksWithDeadline, 
-		MIN(WorkAfterDeadlineTime) AS MinWorkAfterDeadlineTime, Avg(WorkAfterDeadlineTime) AS AvgWorkAfterDeadlineTime, MAX(WorkAfterDeadlineTime) AS MaxWorkAfterDeadlineTime
-FROM (
-				SELECT 
-						TASKS.TASK_ID, TASKS.INITIAL_ACTOR_NAME, TASKS.COMPLETE_ACTOR_NAME, TASKS.DEADLINE_DATE, TASKS.END_DATE, TASKS.TASK_NAME, TASKS.SWIMLANE_NAME, 
-						ASSIGN_ME.ASSIGNMENT_DATE AS ME_DATE, ASSIGN_AFTER.ASSIGNMENT_DATE AS AFTER_DATE,  ASSIGN_ME.OLD_EXECUTOR_NAME AS MY_OLDEX, 
-						CASE 
-								WHEN ASSIGN_AFTER.ASSIGNMENT_DATE IS NOT NULL THEN ABS(DATEDIFF(SECOND, ASSIGN_AFTER.ASSIGNMENT_DATE, ASSIGN_ME.ASSIGNMENT_DATE))
-								WHEN TASKS.END_DATE IS NOT NULL AND ASSIGN_BEFORE.ASSIGNMENT_DATE IS NOT NULL THEN ABS(DATEDIFF(SECOND, TASKS.END_DATE, ASSIGN_BEFORE.ASSIGNMENT_DATE))
-								WHEN TASKS.END_DATE IS NOT NULL AND ASSIGN_BEFORE.ASSIGNMENT_DATE IS NULL THEN ABS(DATEDIFF(SECOND, TASKS.END_DATE, TASKS.CREATE_DATE))
-								ELSE NULL
-						END as WorkWithTaskTime,
-						CASE 
-								WHEN TASKS.DEADLINE_DATE IS NULL THEN NULL
-								WHEN ASSIGN_AFTER.ASSIGNMENT_DATE IS NOT NULL AND TASKS.DEADLINE_DATE BETWEEN ASSIGN_ME.ASSIGNMENT_DATE AND ASSIGN_AFTER.ASSIGNMENT_DATE
-										THEN  ABS(DATEDIFF(SECOND, ASSIGN_AFTER.ASSIGNMENT_DATE, TASKS.DEADLINE_DATE))
-								WHEN TASKS.END_DATE IS NOT NULL AND ASSIGN_BEFORE.ASSIGNMENT_DATE IS NOT NULL AND TASKS.DEADLINE_DATE BETWEEN ASSIGN_BEFORE.ASSIGNMENT_DATE AND TASKS.END_DATE
-										THEN ABS(DATEDIFF(SECOND, TASKS.END_DATE, TASKS.DEADLINE_DATE))
-								WHEN TASKS.END_DATE IS NOT NULL AND ASSIGN_BEFORE.ASSIGNMENT_DATE IS NULL AND TASKS.DEADLINE_DATE BETWEEN TASKS.CREATE_DATE AND TASKS.END_DATE
-										THEN ABS(DATEDIFF(SECOND, TASKS.END_DATE, TASKS.DEADLINE_DATE))
-								ELSE NULL
-						END as WorkAfterDeadlineTime,
-						CASE 
-								WHEN ASSIGN_AFTER.ASSIGNMENT_DATE IS NULL AND TASKS.END_DATE IS NOT NULL THEN 1
-								ELSE 0
-						END CompletedByCurrentUser
-				FROM BPM_AGGLOG_TASKS TASKS
-				JOIN BPM_AGGLOG_ASSIGNMENTS ASSIGN_ME ON (TASKS.ID=ASSIGN_ME.ASSIGNMENT_OBJECT_ID AND ASSIGN_ME.DISCRIMINATOR='T')
-				LEFT JOIN BPM_AGGLOG_ASSIGNMENTS ASSIGN_AFTER ON (TASKS.ID=ASSIGN_AFTER.ASSIGNMENT_OBJECT_ID AND ASSIGN_AFTER.DISCRIMINATOR='T' AND ASSIGN_ME.IDX=ASSIGN_AFTER.IDX-1)
-				LEFT JOIN BPM_AGGLOG_ASSIGNMENTS ASSIGN_BEFORE ON (TASKS.ID=ASSIGN_BEFORE.ASSIGNMENT_OBJECT_ID AND ASSIGN_BEFORE.DISCRIMINATOR='T' AND ASSIGN_ME.IDX=ASSIGN_BEFORE.IDX+1)
-				WHERE 
-				(ASSIGN_ME.ASSIGNMENT_DATE>= $P{ReportDateFrom} AND ASSIGN_ME.ASSIGNMENT_DATE<= $P{ReportDateTo} OR
-				ASSIGN_AFTER.ASSIGNMENT_DATE IS NOT NULL AND ASSIGN_AFTER.ASSIGNMENT_DATE>= $P{ReportDateFrom} AND ASSIGN_AFTER.ASSIGNMENT_DATE<= $P{ReportDateTo}
-				) AND 
-				ASSIGN_ME.NEW_EXECUTOR_NAME=$P{UserName} 
-)]]>
+		COUNT(*) AS CompletedByCurrentUser, 
+		SUM(CASE WHEN TASK.DEADLINE_DATE IS NOT NULL AND TASK.END_DATE IS NOT NULL AND TASK.END_DATE > TASK.DEADLINE_DATE THEN 1 ELSE 0 END) AS TasksWithDeadline 
+		FROM BPM_AGGLOG_TASK TASK
+			JOIN BPM_PROCESS PROCESS ON (PROCESS.ID=TASK.PROCESS_ID)
+			JOIN BPM_PROCESS_DEFINITION_VER DEFINITION_VER ON (DEFINITION_VER.ID=PROCESS.DEFINITION_VERSION_ID)
+			JOIN BPM_PROCESS_DEFINITION DEFINITION ON (DEFINITION.ID=DEFINITION_VER.DEFINITION_ID)
+		WHERE (TASK.CREATE_DATE >= $P{ReportDateFrom} AND TASK.CREATE_DATE <= $P{ReportDateTo} OR
+			TASK.END_DATE IS NOT NULL AND TASK.END_DATE >= $P{ReportDateFrom} AND TASK.END_DATE <= $P{ReportDateTo}) 
+			AND TASK.COMPLETE_ACTOR_NAME = $P{UserName}]]>
 		</queryString>
 		<field name="COMPLETEDBYCURRENTUSER" class="java.lang.Long"/>
-		<field name="MINWORKWITHTASKTIME" class="java.lang.Long"/>
-		<field name="AVGWORKWITHTASKTIME" class="java.lang.Long"/>
-		<field name="MAXWORKWITHTASKTIME" class="java.lang.Long"/>
 		<field name="TASKSWITHDEADLINE" class="java.lang.Long"/>
-		<field name="MINWORKAFTERDEADLINETIME" class="java.lang.Long"/>
-		<field name="AVGWORKAFTERDEADLINETIME" class="java.lang.Long"/>
-		<field name="MAXWORKAFTERDEADLINETIME" class="java.lang.Long"/>
 	</subDataset>
 	<subDataset name="userTasksDataset" uuid="3103afeb-a7c4-4e8b-9df7-27e1ddc2ab60">
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="OracleRunaWFE"/>
@@ -115,42 +78,27 @@ FROM (
 			<defaultValueExpression><![CDATA[new java.util.Date(2015, 05, 01)]]></defaultValueExpression>
 		</parameter>
 		<parameter name="DataFormatter" class="ru.runa.wfe.report.ReportFormatter" isForPrompting="false"/>
-		<parameter name="OnlyDeadlined" class="java.lang.Boolean">
-			<defaultValueExpression><![CDATA[false]]></defaultValueExpression>
+		<parameter name="OnlyDeadlined" class="java.lang.Integer">
+			<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
 		</parameter>
 		<queryString language="SQL">
-			<![CDATA[SELECT * 
-FROM (
-		SELECT 
+			<![CDATA[SELECT 
 				PROCESS.ID AS PROCESS_ID,
 				DEFINITION.NAME AS PROCESS_NAME,
-				TASKS.TASK_NAME AS TASK_NAME,
-				CASE 
-						WHEN ASSIGN_AFTER.ASSIGNMENT_DATE IS NOT NULL THEN ASSIGN_ME.ASSIGNMENT_DATE
-						WHEN TASKS.END_DATE IS NOT NULL AND ASSIGN_BEFORE.ASSIGNMENT_DATE IS NOT NULL THEN ASSIGN_BEFORE.ASSIGNMENT_DATE
-						ELSE TASKS.CREATE_DATE
-				END as START_DATE,
-				CASE 
-						WHEN ASSIGN_AFTER.ASSIGNMENT_DATE IS NOT NULL THEN ASSIGN_AFTER.ASSIGNMENT_DATE
-						WHEN TASKS.END_DATE IS NOT NULL AND ASSIGN_BEFORE.ASSIGNMENT_DATE IS NOT NULL THEN TASKS.END_DATE
-						WHEN TASKS.END_DATE IS NOT NULL AND ASSIGN_BEFORE.ASSIGNMENT_DATE IS NULL THEN TASKS.END_DATE
-						ELSE NULL
-				END as END_DATE,
-				TASKS.DEADLINE_DATE AS DEADLINE_DATE
-		FROM BPM_AGGLOG_TASKS TASKS
-		JOIN BPM_AGGLOG_ASSIGNMENTS ASSIGN_ME ON (TASKS.ID=ASSIGN_ME.ASSIGNMENT_OBJECT_ID AND ASSIGN_ME.DISCRIMINATOR='T')
-		LEFT JOIN BPM_AGGLOG_ASSIGNMENTS ASSIGN_AFTER ON (TASKS.ID=ASSIGN_AFTER.ASSIGNMENT_OBJECT_ID AND ASSIGN_AFTER.DISCRIMINATOR='T' AND ASSIGN_ME.IDX=ASSIGN_AFTER.IDX-1)
-		LEFT JOIN BPM_AGGLOG_ASSIGNMENTS ASSIGN_BEFORE ON (TASKS.ID=ASSIGN_BEFORE.ASSIGNMENT_OBJECT_ID AND ASSIGN_BEFORE.DISCRIMINATOR='T' AND ASSIGN_ME.IDX=ASSIGN_BEFORE.IDX+1)
-		JOIN BPM_PROCESS PROCESS ON (PROCESS.ID=TASKS.PROCESS_ID)
-		JOIN BPM_PROCESS_DEFINITION DEFINITION ON (DEFINITION.ID=PROCESS.DEFINITION_ID)
+				TASK.TASK_NAME AS TASK_NAME,
+				TASK.CREATE_DATE AS START_DATE,
+				TASK.END_DATE AS END_DATE,
+				TASK.DEADLINE_DATE AS DEADLINE_DATE
+		FROM BPM_AGGLOG_TASK TASK
+			JOIN BPM_PROCESS PROCESS ON (PROCESS.ID=TASK.PROCESS_ID)
+			JOIN BPM_PROCESS_DEFINITION_VER DEFINITION_VER ON (DEFINITION_VER.ID=PROCESS.DEFINITION_VERSION_ID)
+			JOIN BPM_PROCESS_DEFINITION DEFINITION ON (DEFINITION.ID=DEFINITION_VER.DEFINITION_ID)
 		WHERE 
-		(ASSIGN_ME.ASSIGNMENT_DATE>= $P{ReportDateFrom} AND ASSIGN_ME.ASSIGNMENT_DATE<= $P{ReportDateTo} OR
-		ASSIGN_AFTER.ASSIGNMENT_DATE IS NOT NULL AND ASSIGN_AFTER.ASSIGNMENT_DATE>= $P{ReportDateFrom} AND ASSIGN_AFTER.ASSIGNMENT_DATE<= $P{ReportDateTo}
-		) AND 
-		ASSIGN_ME.NEW_EXECUTOR_NAME=$P{UserLogin} 
-)
-WHERE $P{OnlyDeadlined} = 0 OR (DEADLINE_DATE IS NOT NULL AND END_DATE IS NOT NULL AND END_DATE > DEADLINE_DATE)
-ORDER BY PROCESS_ID, START_DATE ASC]]>
+			(TASK.CREATE_DATE >= $P{ReportDateFrom} AND TASK.CREATE_DATE <= $P{ReportDateTo} OR
+			TASK.END_DATE IS NOT NULL AND TASK.END_DATE >= $P{ReportDateFrom} AND TASK.END_DATE <= $P{ReportDateTo}) 
+			AND TASK.COMPLETE_ACTOR_NAME = $P{UserLogin}
+			AND ($P{OnlyDeadlined} = 0 OR (TASK.DEADLINE_DATE IS NOT NULL AND TASK.END_DATE IS NOT NULL AND TASK.END_DATE > TASK.DEADLINE_DATE)) 
+		ORDER BY PROCESS.ID, TASK.CREATE_DATE ASC]]>
 		</queryString>
 		<field name="PROCESS_ID" class="java.math.BigDecimal"/>
 		<field name="PROCESS_NAME" class="java.lang.String"/>
@@ -175,13 +123,13 @@ ORDER BY PROCESS_ID, START_DATE ASC]]>
 	</parameter>
 	<queryString>
 		<![CDATA[SELECT 
-	"EXECUTOR"."NAME" ,
-	"EXECUTOR"."FULL_NAME" ,
-	"EXECUTOR"."CODE" ,
-	"EXECUTOR"."PHONE",
-	"EXECUTOR"."E_MAIL" 
-FROM  
-	"EXECUTOR" 
+	EXECUTOR.NAME,
+	EXECUTOR.FULL_NAME,
+	EXECUTOR.CODE,
+	EXECUTOR.PHONE,
+	EXECUTOR.E_MAIL 
+FROM 
+	EXECUTOR 
 WHERE
 	NAME= $P{UserName}]]>
 	</queryString>
@@ -305,30 +253,6 @@ WHERE
 								<reportElement style="PropertyName" positionType="Float" x="0" y="33" width="200" height="31" uuid="4eac3d02-0d15-4879-82ff-88bf47e1c389"/>
 								<text><![CDATA[Tasks with overtime]]></text>
 							</staticText>
-							<staticText>
-								<reportElement style="PropertyName" positionType="Float" x="0" y="64" width="200" height="31" uuid="9d74b716-8897-4112-a303-1f604fa70324"/>
-								<text><![CDATA[Minimum task execution time]]></text>
-							</staticText>
-							<staticText>
-								<reportElement style="PropertyName" positionType="Float" x="0" y="95" width="200" height="31" uuid="7495f079-6eaf-4d94-9eef-bbf9001bab64"/>
-								<text><![CDATA[Average task execution time]]></text>
-							</staticText>
-							<staticText>
-								<reportElement style="PropertyName" positionType="Float" x="0" y="126" width="200" height="31" uuid="d1633088-553e-4825-aac0-a77783b770aa"/>
-								<text><![CDATA[Maximum task execution time]]></text>
-							</staticText>
-							<staticText>
-								<reportElement style="PropertyName" positionType="Float" x="0" y="157" width="200" height="31" uuid="89e51104-cf82-4cc7-b8c6-cf245435fcfe"/>
-								<text><![CDATA[Minimum overtime time]]></text>
-							</staticText>
-							<staticText>
-								<reportElement style="PropertyName" positionType="Float" x="0" y="188" width="200" height="31" uuid="571a0c07-9edf-4302-98ba-02a3fada433c"/>
-								<text><![CDATA[Average overtime time]]></text>
-							</staticText>
-							<staticText>
-								<reportElement style="PropertyName" positionType="Float" x="0" y="219" width="200" height="31" uuid="f41f8c9c-f46b-44c8-943f-3e08cb0de437"/>
-								<text><![CDATA[Maximum overtime time]]></text>
-							</staticText>
 						</frame>
 						<frame>
 							<reportElement x="200" y="0" width="355" height="250" uuid="7647a466-3a1e-4eac-86ae-4fb071cac890">
@@ -341,30 +265,6 @@ WHERE
 							<textField>
 								<reportElement style="PropertyValue" x="0" y="33" width="355" height="31" uuid="698df839-6b21-4b68-9898-21ec2badaddb"/>
 								<textFieldExpression><![CDATA[$F{TASKSWITHDEADLINE} == null ? 0 : $F{TASKSWITHDEADLINE}]]></textFieldExpression>
-							</textField>
-							<textField>
-								<reportElement style="PropertyValue" x="0" y="64" width="355" height="31" uuid="1e3b8d64-d431-4ec1-9763-0d81a2b184d0"/>
-								<textFieldExpression><![CDATA[$P{DataFormatter}.timeFormat().intervalInSeconds($F{MINWORKWITHTASKTIME})]]></textFieldExpression>
-							</textField>
-							<textField>
-								<reportElement style="PropertyValue" x="0" y="95" width="355" height="31" uuid="fdd66a59-559e-4155-9bfb-39fbb896fc98"/>
-								<textFieldExpression><![CDATA[$P{DataFormatter}.timeFormat().intervalInSeconds($F{AVGWORKWITHTASKTIME})]]></textFieldExpression>
-							</textField>
-							<textField>
-								<reportElement style="PropertyValue" x="0" y="126" width="355" height="31" uuid="36f2d998-5a50-4beb-9f0b-f326ecff435f"/>
-								<textFieldExpression><![CDATA[$P{DataFormatter}.timeFormat().intervalInSeconds($F{MAXWORKWITHTASKTIME})]]></textFieldExpression>
-							</textField>
-							<textField>
-								<reportElement style="PropertyValue" x="0" y="157" width="355" height="31" uuid="058ce3a8-3cf8-4749-856d-944dce274686"/>
-								<textFieldExpression><![CDATA[$P{DataFormatter}.timeFormat().intervalInSeconds($F{MINWORKAFTERDEADLINETIME})]]></textFieldExpression>
-							</textField>
-							<textField>
-								<reportElement style="PropertyValue" x="0" y="188" width="355" height="31" uuid="153389b3-95c4-4243-90bc-3449ff5102af"/>
-								<textFieldExpression><![CDATA[$P{DataFormatter}.timeFormat().intervalInSeconds($F{AVGWORKAFTERDEADLINETIME})]]></textFieldExpression>
-							</textField>
-							<textField>
-								<reportElement style="PropertyValue" x="0" y="219" width="355" height="31" uuid="0d87f32a-90d9-4ec8-8511-322a00ce3b0a"/>
-								<textFieldExpression><![CDATA[$P{DataFormatter}.timeFormat().intervalInSeconds($F{MAXWORKAFTERDEADLINETIME})]]></textFieldExpression>
 							</textField>
 						</frame>
 					</jr:listContents>
@@ -382,7 +282,7 @@ WHERE
 							<datasetParameterExpression><![CDATA[$P{DataFormatter}]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="OnlyDeadlined">
-							<datasetParameterExpression><![CDATA[false]]></datasetParameterExpression>
+							<datasetParameterExpression><![CDATA[0]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="UserLogin">
 							<datasetParameterExpression><![CDATA[$P{UserName}]]></datasetParameterExpression>
@@ -511,7 +411,7 @@ WHERE
 							<datasetParameterExpression><![CDATA[$P{DataFormatter}]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="OnlyDeadlined">
-							<datasetParameterExpression><![CDATA[true]]></datasetParameterExpression>
+							<datasetParameterExpression><![CDATA[1]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="UserLogin">
 							<datasetParameterExpression><![CDATA[$P{UserName}]]></datasetParameterExpression>
@@ -529,7 +429,7 @@ WHERE
 						<jr:tableHeader height="30" rowSpan="1">
 							<staticText>
 								<reportElement style="TableHeader" x="0" y="0" width="555" height="30" uuid="2cf25649-f193-483c-a1ff-565ac8424de5"/>
-								<text><![CDATA[User tasks with owhvertime]]></text>
+								<text><![CDATA[User tasks with overtime]]></text>
 							</staticText>
 						</jr:tableHeader>
 						<jr:column width="60" uuid="ae98484b-c526-48d0-a788-9da13e43a883">
