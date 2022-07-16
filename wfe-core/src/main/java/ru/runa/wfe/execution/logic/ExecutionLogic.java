@@ -502,6 +502,9 @@ public class ExecutionLogic extends WfCommonLogic {
     public List<WfTokenError> getTokenErrors(User user, Long processId) {
         List<WfTokenError> errors = Lists.newArrayList();
         Process process = processDao.get(processId);
+        if (process == null) {
+            throw new ProcessDoesNotExistException(processId);
+        }
         for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
             errors.add(new WfTokenError(token, getStackTrace(token)));
         }
