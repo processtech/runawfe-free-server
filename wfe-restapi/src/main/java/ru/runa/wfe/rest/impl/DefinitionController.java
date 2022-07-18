@@ -119,7 +119,7 @@ public class DefinitionController {
     @GetMapping("{id}/nodes")
     public List<WfeNode> getProcessDefinitionNodes(@PathVariable Long id, @RequestParam boolean withEmbeddedSubprocesses) {
         List<Node> nodes = processDefinitionLogic.getDefinition(id).getNodes(withEmbeddedSubprocesses);
-        return nodes.stream().map(node -> new WfNode(node)).map(c -> Mappers.getMapper(WfeNodeMapper.class).map(c)).collect(Collectors.toList());
+        return nodes.stream().map(WfNode::new).map(c -> Mappers.getMapper(WfeNodeMapper.class).map(c)).collect(Collectors.toList());
     }
 
     @GetMapping("{id}/file")
