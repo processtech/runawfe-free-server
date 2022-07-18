@@ -207,10 +207,10 @@ public class ExecutionLogic extends WfCommonLogic {
      */
     public void endProcess(CurrentProcess process, ExecutionContext executionContext, Actor canceller) {
         if (process.hasEnded()) {
-            log.debug(this + " already ended");
+            log.debug(process + " already ended");
             return;
         }
-        log.info("Ending " + this + " by " + canceller);
+        log.info("Ending " + process + " by " + canceller);
         if (canceller != null) {
             executionContext.addLog(new CurrentProcessCancelLog(canceller));
         } else {
@@ -374,9 +374,9 @@ public class ExecutionLogic extends WfCommonLogic {
 
         ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
         if (token.hasEnded()) {
-            log.debug(this + " already ended");
+            log.debug(token + " already ended");
         } else {
-            log.info("Ending " + this + " by " + canceller);
+            log.info("Ending " + token + " by " + canceller);
             token.setEndDate(new Date());
             token.setExecutionStatus(ExecutionStatus.ENDED);
             removeTokenError(token);
@@ -389,7 +389,7 @@ public class ExecutionLogic extends WfCommonLogic {
             } else if (node instanceof BaseTaskNode) {
                 ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
             } else if (node instanceof BoundaryEvent) {
-                log.info("Cancelling " + node + " with " + this);
+                log.info("Cancelling " + node + " with " + token);
                 ((BoundaryEvent) node).cancelBoundaryEvent(token);
             } else if (node == null) {
                 log.warn("Node is null");
