@@ -61,14 +61,18 @@ public class ProcessController {
     @PutMapping("start")
     public Long startProcessByName(@AuthenticationPrincipal AuthUser authUser, @RequestParam String name,
             @RequestBody(required = false) Map<String, Object> variables) {
-        Map<String, Object> converted = new VariableValueUnwrapper().process(processDefinitionLoader.getLatestDefinition(name), variables);
+        Map<String, Object> converted = variables != null
+                ? new VariableValueUnwrapper().process(processDefinitionLoader.getLatestDefinition(name), variables)
+                : null;
         return executionLogic.startProcess(authUser.getUser(), name, converted);
     }
 
     @PostMapping("{definitionId}/start")
     public Long startProcessById(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long definitionId,
             @RequestBody(required = false) Map<String, Object> variables) {
-        Map<String, Object> converted = new VariableValueUnwrapper().process(processDefinitionLoader.getDefinition(definitionId), variables);
+        Map<String, Object> converted = variables != null
+                ? new VariableValueUnwrapper().process(processDefinitionLoader.getDefinition(definitionId), variables)
+                : null;
         return executionLogic.startProcess(authUser.getUser(), definitionId, converted);
     }
 

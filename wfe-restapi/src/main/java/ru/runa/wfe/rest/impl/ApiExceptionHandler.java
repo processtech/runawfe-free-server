@@ -48,20 +48,20 @@ public class ApiExceptionHandler {
     @ExceptionHandler({ AuthenticationException.class })
     protected ResponseEntity<Object> onError(AuthenticationException exception, HttpServletResponse response) {
         log.warn(exception.toString());
-        return new ResponseEntity<Object>(HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler({ ValidationException.class })
     protected ResponseEntity<ValidationExceptionResponse> onError(ValidationException exception, HttpServletResponse response) {
         log.warn(exception.toString());
-        return new ResponseEntity<ValidationExceptionResponse>(new ValidationExceptionResponse(exception), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ValidationExceptionResponse(exception), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({ Throwable.class })
     protected ResponseEntity<ExceptionResponse> onError(Throwable throwable, HttpServletRequest request, HttpServletResponse response) {
         throwable = Throwables.getRootCause(throwable);
         logException(request, throwable);
-        return new ResponseEntity<ExceptionResponse>(new ExceptionResponse(throwable), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ExceptionResponse(throwable), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private void logException(HttpServletRequest request, Throwable throwable) {
