@@ -16,14 +16,14 @@ import ru.runa.wfe.validation.ValidatorException;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
 
-public class GroovyScriptExecutor implements ScriptExecutor {
+public class GroovyScriptExecutor {
     protected static final Log log = LogFactory.getLog(GroovyScriptExecutor.class);
 
-    @Override
-    public Map<String, Object> executeScript(VariableProvider variableProvider, String script) {
+    public Map<String, Object> executeScript(VariableProvider variableProvider, String script, GroovyNodeInfoLogExecutor nodeInfoLogExecutor) {
         try {
             GroovyScriptBinding binding = createBinding(variableProvider);
             binding.setVariable(GroovyScriptBinding.VARIABLE_PROVIDER_VARIABLE_NAME, variableProvider);
+            binding.setVariable(GroovyScriptBinding.NODE_LOG_VARIABLE_NAME, nodeInfoLogExecutor);
             GroovyShell shell = new GroovyShell(ClassLoaderUtil.getExtensionClassLoader(), binding);
             shell.evaluate(script);
             return binding.getAdjustedVariables();
@@ -36,7 +36,6 @@ public class GroovyScriptExecutor implements ScriptExecutor {
         }
     }
 
-    @Override
     public Object evaluateScript(VariableProvider variableProvider, String script) {
         try {
             GroovyScriptBinding binding = createBinding(variableProvider);
@@ -61,6 +60,7 @@ public class GroovyScriptExecutor implements ScriptExecutor {
     public static class GroovyScriptBinding extends Binding {
         private final static String EXECUTION_CONTEXT_VARIABLE_NAME = "executionContext";
         private final static String VARIABLE_PROVIDER_VARIABLE_NAME = "variableProvider";
+        private final static String NODE_LOG_VARIABLE_NAME = "nodeLog";
         private final VariableProvider variableProvider;
         private final Map<String, String> variableScriptingNameToNameMap = Maps.newHashMap();
 
@@ -117,6 +117,9 @@ public class GroovyScriptExecutor implements ScriptExecutor {
             Map<String, Object> result = Maps.newHashMapWithExpectedSize(scriptingVariables.size());
             for (Map.Entry<String, Object> entry : scriptingVariables.entrySet()) {
                 if (Objects.equal(entry.getKey(), VARIABLE_PROVIDER_VARIABLE_NAME)) {
+                    continue;
+                }
+                if (Objects.equal(entry.getKey(), NODE_LOG_VARIABLE_NAME)) {
                     continue;
                 }
                 Object oldValue = getVariableFromProcess(entry.getKey());

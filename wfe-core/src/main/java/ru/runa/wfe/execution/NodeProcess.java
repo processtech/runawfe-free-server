@@ -25,6 +25,9 @@ public abstract class NodeProcess<P extends Process, T extends Token> {
     @Column(name = "CREATE_DATE", nullable = false)
     protected Date createDate;
 
+    @Column(name = "ASYNC")
+    protected Boolean async;
+
     public abstract boolean isArchived();
     public abstract Long getId();
     public abstract P getProcess();
@@ -44,6 +47,11 @@ public abstract class NodeProcess<P extends Process, T extends Token> {
         return createDate;
     }
 
+
+    public Boolean getAsync() {
+        return async;
+    }
+    
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)

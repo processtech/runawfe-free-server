@@ -71,6 +71,7 @@ public class Task implements Assignable {
     private CurrentProcess process;
     private Set<Long> openedByExecutorIds;
     private Integer index;
+    private Boolean async;
 
     public Task() {
     }
@@ -228,6 +229,15 @@ public class Task implements Assignable {
 
     public void setIndex(Integer index) {
         this.index = index;
+    }
+
+    @Column(name = "ASYNC")
+    public Boolean isAsync() {
+        return async;
+    }
+
+    public void setAsync(Boolean async) {
+        this.async = async;
     }
 
     @Transient

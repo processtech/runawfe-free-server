@@ -1,23 +1,21 @@
 package ru.runa.wfe.script.report;
 
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-
+import ru.runa.wfe.report.ReportParameterType;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.ScriptValidation;
-
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @XmlType(name = DeployReportOperation.SCRIPT_NAME + "Type", namespace = AdminScriptConstants.NAMESPACE)
 public class DeployReportOperation extends ScriptOperation {
@@ -48,9 +46,9 @@ public class DeployReportOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         String category = Strings.isNullOrEmpty(reportType) ? "Script" : reportType;
-        WfReport reportDto = new WfReport(null, reportName, reportDescription, category, null);
+        WfReport report = new WfReport(null, reportName, reportDescription, category, null);
         final Map<String, WfReportParameter> reportFileParameters = Maps.newHashMap();
-        for (WfReportParameter p : context.getReportLogic().analyzeReportFile(reportDto, context.getExternalResource(reportFile))) {
+        for (WfReportParameter p : context.getReportLogic().analyzeReportFile(report, context.getExternalResource(reportFile))) {
             reportFileParameters.put(p.getInternalName(), p);
         }
 
@@ -59,12 +57,19 @@ public class DeployReportOperation extends ScriptOperation {
 
             @Override
             public WfReportParameter apply(XmlReportParameter input) {
-                return new WfReportParameter(input.name, reportFileParameters.get(input.innerName).getDescription(), input.innerName, ++position,
-                        input.type.getType(), input.required);
+                WfReportParameter parameter = reportFileParameters.get(input.innerName);
+                if (parameter == null) {
+                    throw new IllegalArgumentException("No parameter found by name " + input.innerName);
+                }
+                ReportParameterType type = ReportParameterType.valueOf(input.type);
+                if (type == null) {
+                    throw new IllegalArgumentException("No parameter type found by name " + input.type);
+                }
+                return new WfReportParameter(input.name, parameter.getDescription(), input.innerName, ++position, type, input.required);
             }
         });
-        reportDto = new WfReport(null, reportName, reportDescription, category, reportParameters);
-        context.getReportLogic().deployReport(context.getUser(), reportDto, context.getExternalResource(reportFile));
+        report = new WfReport(null, reportName, reportDescription, category, reportParameters);
+        context.getReportLogic().deployReport(context.getUser(), report, context.getExternalResource(reportFile));
     }
 
     @Override

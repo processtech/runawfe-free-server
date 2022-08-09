@@ -20,6 +20,7 @@ public interface DataFileBuilder extends Ordered {
     String PATH_TO_BOTTASK = "scripts/";
     String PATH_TO_PROCESS_DEF = "processes/";
     String PATH_TO_DATA_SOURCE = "data-sources/";
+    String PATH_TO_REPORTS = "reports/";
 
     /**
      * put data to zip archive and populate script file xml elements

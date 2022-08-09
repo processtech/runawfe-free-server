@@ -238,8 +238,8 @@ public class ProcessArchiver {
 
                     // References process, also has parent_token_id field.
                     stmt.executeUpdate("insert into archived_subprocess "
-                            + "      (id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id) "
-                            + "select id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id "
+                            + "      (id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id, async) "
+                            + "select id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id, async "
                             + "from bpm_subprocess " + "where process_id in " + pidsCsv + " or parent_process_id in " + pidsCsv);
 
                     // References process.

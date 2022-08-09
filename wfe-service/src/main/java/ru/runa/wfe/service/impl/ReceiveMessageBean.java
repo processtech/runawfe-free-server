@@ -80,7 +80,7 @@ public class ReceiveMessageBean implements MessageListener {
                 tokens = executionLogic.findTokensForMessageSelector(routingData);
                 log.debug("Checking " + tokens.size() + " tokens by routingData = " + routingData);
             } else {
-                tokens = currentTokenDao.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
+                tokens = currentTokenDao.findByNodeTypeInActiveProcesses(NodeType.RECEIVE_MESSAGE);
                 log.debug("Checking " + tokens.size() + " tokens");
             }
             for (CurrentToken token : tokens) {

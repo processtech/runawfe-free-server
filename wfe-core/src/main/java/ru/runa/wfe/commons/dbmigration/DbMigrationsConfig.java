@@ -7,6 +7,8 @@ import ru.runa.wfe.commons.dbmigration.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddArchivedProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddAssignDateColumnPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddAsyncForArchivedTaskAndSubprocess;
+import ru.runa.wfe.commons.dbmigration.impl.AddAsyncForTaskAndSubprocess;
 import ru.runa.wfe.commons.dbmigration.impl.AddBatchPresentationIsSharedPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddChatRoomViewPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddColumnForEmbeddedBotTaskFileName;
@@ -180,6 +182,8 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch.class);
         // end develop patches
         dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
+        dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
+        dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);
         return dbMigrations;
     }
 }

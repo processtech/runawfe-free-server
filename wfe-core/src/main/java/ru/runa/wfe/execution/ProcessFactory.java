@@ -19,9 +19,9 @@ import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.security.Permission;
@@ -104,7 +104,7 @@ public class ProcessFactory {
             Map<String, Object> variables, int index, boolean validate) {
         CurrentProcess parentProcess = parentExecutionContext.getCurrentProcess();
         CurrentProcess rootProcess = currentNodeProcessDao.getRootProcessByParentProcess(parentProcess);
-        Node subProcessNode = parentExecutionContext.getNode();
+        SubprocessNode subProcessNode = (SubprocessNode) parentExecutionContext.getNode();
         ExecutionContext subExecutionContext = createProcessInternal(parsedProcessDefinition, variables, null, parentProcess, null);
         currentNodeProcessDao.create(new CurrentNodeProcess(subProcessNode, parentExecutionContext.getCurrentToken(), rootProcess,
                 subExecutionContext.getCurrentProcess(), index));

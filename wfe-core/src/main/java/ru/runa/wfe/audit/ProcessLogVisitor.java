@@ -61,5 +61,7 @@ public abstract class ProcessLogVisitor {
 
     public void onVariableUpdateLog(VariableUpdateLog variableUpdateLog) {}
 
-    public void onAdminActionLog(AdminActionLog adminActionLog) {}
+    public void onAdminActionLog(AdminActionLog adminActionLog) {};
+
+    public void onNodeInfoLog(NodeInfoLog nodeInfoLog) {};
 }
