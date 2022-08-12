@@ -19,7 +19,6 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.Date;
 import java.util.List;
-
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -259,24 +258,6 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     public List<WfDefinition> getProcessDefinitionHistory(User user, String name) {
         try {
             return getDefinitionService().getProcessDefinitionHistory(user, name);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
-        try {
-            return getDefinitionService().getChanges(definitionId);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
-        try {
-            return getDefinitionService().getLastChanges(definitionId, n);
         } catch (Exception e) {
             throw handleException(e);
         }

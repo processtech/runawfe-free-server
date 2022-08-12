@@ -21,7 +21,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -294,23 +293,6 @@ public class DefinitionLogic extends WfCommonLogic {
         }
         deploymentDao.delete(deployment);
         systemLogDao.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), deployment.getName(), deployment.getVersion()));
-    }
-
-    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
-        String definitionName = getDefinition(definitionId).getName();
-        List<Long> deploymentIds = deploymentDao.findAllDeploymentVersionIds(definitionName, true);
-        return getChanges(deploymentIds);
-    }
-
-    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
-        Preconditions.checkArgument(n > 0);
-        String definitionName = getDefinition(definitionId).getName();
-        List<Long> deploymentIds = deploymentDao.findAllDeploymentVersionIds(definitionName, false);
-        if (n < deploymentIds.size()) {
-            deploymentIds = new ArrayList<>(deploymentIds.subList(0, n.intValue()));
-        }
-        Collections.reverse(deploymentIds);
-        return getChanges(deploymentIds);
     }
 
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
