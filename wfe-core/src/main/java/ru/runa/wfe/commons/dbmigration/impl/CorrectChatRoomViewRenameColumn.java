@@ -7,7 +7,7 @@ public class CorrectChatRoomViewRenameColumn extends DbMigration {
     @Override
     protected void executeDDLAfter() throws Exception {
         executeUpdates("DROP view V_CHAT_ROOM");
-        executeUpdates("CREATE OR REPLACE VIEW V_CHAT_ROOM AS " +
+        executeUpdates("CREATE VIEW V_CHAT_ROOM AS " +
                 "SELECT DISTINCT process.*, cmr.actor_id, " +
                     "(SELECT COUNT(*) FROM CHAT_MESSAGE_RECIPIENT cr " +
                     "INNER JOIN CHAT_MESSAGE cm ON cm.id = cr.message_id " +
