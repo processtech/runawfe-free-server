@@ -1,25 +1,22 @@
 package ru.runa.wf.web.servlet;
 
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.ecs.html.TD;
-import org.apache.ecs.html.TR;
-
-import ru.runa.common.web.Resources;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import ru.runa.common.web.Commons;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
+import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.base.Charsets;
+import ru.runa.wfe.user.User;
 
 public class ProcessDefinitionChangesServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -31,44 +28,26 @@ public class ProcessDefinitionChangesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        Long id = Long.valueOf(request.getParameter("id"));
-        if ("loadAllChanges".equals(action)) {
-            List<ProcessDefinitionChange> changes = Delegates.getDefinitionService().getChanges(id);
+        if ("load".equals(action)) {
+            Long id = Long.valueOf(request.getParameter("id"));
+            Long version1 = Long.valueOf(request.getParameter("version1"));
+            Long version2 = Long.valueOf(request.getParameter("version2"));
+            User user = Commons.getUser(request.getSession());
+            WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(user, id);
+            String definitionName = definition.getName();
+            List<ProcessDefinitionChange> changes = Delegates.getDefinitionService().findChanges(definitionName, version1, version2);
             Collections.reverse(changes);
-            long currentVersion = 0;
-            StringBuilder output = new StringBuilder();
+            JSONArray data = new JSONArray();
             for (ProcessDefinitionChange change : changes) {
-                if (Utils.isNullOrEmpty(change.getComment())) {
-                    continue;
-                }
-                TR row = new TR();
-                TD versionTD = new TD();
-                versionTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-                if (currentVersion == change.getVersion()) {
-                    versionTD.setStyle("border-top-style:hidden;");
-                } else {
-                    versionTD.setTagText(change.getVersion().toString());
-                }
-                row.addElement(versionTD);
-
-                TD dateTimeTD = new TD(CalendarUtil.formatDateTime(change.getDate()));
-                dateTimeTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-
-                TD authorTD = new TD(change.getAuthor());
-                authorTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-
-                TD commentTD = new TD(change.getComment());
-                commentTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-
-                row.addElement(dateTimeTD);
-                row.addElement(authorTD);
-                row.addElement(commentTD);
-                output.append(row.toString());
-
-                currentVersion = change.getVersion();
+                JSONObject changeObject = new JSONObject();
+                changeObject.put("author", change.getAuthor());
+                changeObject.put("comment", change.getComment());
+                changeObject.put("createDateString", CalendarUtil.formatDateTime(change.getDate()));
+                changeObject.put("version", change.getVersion());
+                data.add(changeObject);
             }
-            response.setContentType("text/html");
-            response.getOutputStream().write(output.toString().getBytes(Charsets.UTF_8));
+            response.setContentType("application/json");
+            response.getOutputStream().write(data.toString().getBytes(Charsets.UTF_8));
             response.getOutputStream().flush();
         } else {
             throw new InternalApplicationException("Unknown action " + action);
