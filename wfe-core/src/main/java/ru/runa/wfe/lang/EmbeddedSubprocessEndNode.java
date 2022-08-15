@@ -1,13 +1,9 @@
 package ru.runa.wfe.lang;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDao;
-import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 
 /**
  * Used for embedded subprocess merging.
@@ -18,8 +14,6 @@ import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 public class EmbeddedSubprocessEndNode extends Node implements BoundaryEventContainer {
     private static final long serialVersionUID = 1L;
     private SubprocessNode subprocessNode;
-    @Autowired
-    private transient TokenDao tokenDao;
 
     public void setSubprocessNode(SubprocessNode subprocessNode) {
         this.subprocessNode = subprocessNode;
@@ -67,24 +61,6 @@ public class EmbeddedSubprocessEndNode extends Node implements BoundaryEventCont
         executionContext.getToken().setNodeId(subprocessNode.getNodeId());
         executionContext.addLog(new NodeLeaveLog(subprocessNode));
         executionContext.getToken().setNodeId(getNodeId());
-    }
-
-    /**
-     * This implementation has a pitfall: in case of multiple active embedded subprocesses all will be cancelled by single event
-     */
-    @Override
-    public void endBoundaryEventTokens(ExecutionContext executionContext) {
-        List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
-        for (BoundaryEvent boundaryEvent : boundaryEvents) {
-            if (boundaryEvent instanceof CatchEventNode) {
-                String boundaryEventNodeId = ((CatchEventNode) boundaryEvent).getNodeId();
-                List<Token> activeTokens = tokenDao.findByProcessAndNodeIdAndExecutionStatus(executionContext.getProcess(), boundaryEventNodeId,
-                        ExecutionStatus.ACTIVE);
-                for (Token token : activeTokens) {
-                    token.end(executionContext.getProcessDefinition(), null, null, false);
-                }
-            }
-        }
     }
 
 }
