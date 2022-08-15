@@ -6,20 +6,15 @@ import javax.persistence.Transient;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
-/**
- * Logging task completion by timer.
- * 
- * @author Dofs
- */
 @Entity
-@DiscriminatorValue(value = "9")
-public class TaskExpiredLog extends TaskCancelledLog {
+@DiscriminatorValue(value = "P")
+public class TaskRemovedOnEmbeddedSubprocessEndLog extends TaskCancelledLog {
     private static final long serialVersionUID = 1L;
 
-    public TaskExpiredLog() {
+    public TaskRemovedOnEmbeddedSubprocessEndLog() {
     }
 
-    public TaskExpiredLog(Task task, TaskCompletionInfo completionInfo) {
+    public TaskRemovedOnEmbeddedSubprocessEndLog(Task task, TaskCompletionInfo completionInfo) {
         super(task, completionInfo);
     }
 
@@ -31,6 +26,6 @@ public class TaskExpiredLog extends TaskCancelledLog {
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskExpiredLog(this);
+        visitor.onTaskRemovedOnEmbeddedSubprocessEndLog(this);
     }
 }

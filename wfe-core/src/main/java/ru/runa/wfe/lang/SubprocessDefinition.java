@@ -13,6 +13,7 @@ import ru.runa.wfe.var.VariableDefinition;
 public class SubprocessDefinition extends ProcessDefinition {
     private static final long serialVersionUID = 1L;
     private ProcessDefinition parentProcessDefinition;
+    private boolean behaviorLikeGraphPart = true;
 
     protected SubprocessDefinition() {
     }
@@ -34,6 +35,14 @@ public class SubprocessDefinition extends ProcessDefinition {
     @Override
     public Map<String, SubprocessDefinition> getEmbeddedSubprocesses() {
         return parentProcessDefinition.getEmbeddedSubprocesses();
+    }
+
+    public boolean isBehaviorLikeGraphPart() {
+        return behaviorLikeGraphPart;
+    }
+
+    public void setBehaviorLikeGraphPart(boolean behaviorLikeGraphPart) {
+        this.behaviorLikeGraphPart = behaviorLikeGraphPart;
     }
 
     @Override

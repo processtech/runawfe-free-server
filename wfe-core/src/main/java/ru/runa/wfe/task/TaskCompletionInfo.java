@@ -36,6 +36,10 @@ public class TaskCompletionInfo {
         return new TaskCompletionInfo(TaskCompletionBy.PROCESS_END, null, null, processId);
     }
 
+    public static TaskCompletionInfo createForEmbeddedSubprocessEnd() {
+        return new TaskCompletionInfo(TaskCompletionBy.EMBEDDED_SUBPROCESS_END, null, null, null);
+    }
+
     public static TaskCompletionInfo createForHandler(String handlerInfo) {
         return new TaskCompletionInfo(TaskCompletionBy.HANDLER, null, handlerInfo, null);
     }
