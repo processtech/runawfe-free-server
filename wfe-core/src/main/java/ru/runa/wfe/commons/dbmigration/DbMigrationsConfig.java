@@ -21,6 +21,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddParentProcessIdPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessLogCleanBeforeDateColumnPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddTransitionNameForTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbmigration.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
@@ -162,6 +163,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
         dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
         dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
+        dbMigrations.add(AddTransitionNameForTaskPatch.class);
         return dbMigrations;
     }
 }

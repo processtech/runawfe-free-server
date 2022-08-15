@@ -74,7 +74,7 @@ public class ProcessFactory {
     public Process startProcess(ProcessDefinition processDefinition, Map<String, Object> variables, Actor actor, String transitionName,
             Map<String, Object> transientVariables) {
         Preconditions.checkNotNull(actor, "can't start a process when actor is null");
-        ExecutionContext executionContext = createProcessInternal(processDefinition, variables, actor, null, transientVariables);
+        ExecutionContext executionContext = createProcessInternal(processDefinition, variables, actor, null, transientVariables, transitionName);
         grantProcessPermissions(processDefinition, executionContext.getProcess(), actor);
         startProcessInternal(executionContext, transitionName);
         return executionContext.getProcess();
@@ -103,7 +103,7 @@ public class ProcessFactory {
             int index, boolean validate) {
         Process parentProcess = parentExecutionContext.getProcess();
         SubprocessNode subProcessNode = (SubprocessNode) parentExecutionContext.getNode();
-        ExecutionContext subExecutionContext = createProcessInternal(processDefinition, variables, null, parentProcess, null);
+        ExecutionContext subExecutionContext = createProcessInternal(processDefinition, variables, null, parentProcess, null, null);
         nodeProcessDao.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index));
         if (validate) {
             validateVariables(subExecutionContext, new ExecutionVariableProvider(subExecutionContext), processDefinition,
@@ -119,12 +119,12 @@ public class ProcessFactory {
         startProcessInternal(executionContext, null);
     }
 
-    protected void validateVariables(ExecutionContext executionContext, VariableProvider variableProvider,
-            ProcessDefinition processDefinition, String nodeId, Map<String, Object> variables) throws ValidationException {
+    protected void validateVariables(ExecutionContext executionContext, VariableProvider variableProvider, ProcessDefinition processDefinition,
+            String nodeId, Map<String, Object> variables) throws ValidationException {
         Interaction interaction = processDefinition.getInteractionNotNull(nodeId);
         if (interaction.getValidationData() != null) {
-            ValidatorContext context = ValidatorManager.getInstance().validate(executionContext, variableProvider,
-                    interaction.getValidationData(), variables);
+            ValidatorContext context = ValidatorManager.getInstance().validate(executionContext, variableProvider, interaction.getValidationData(),
+                    variables);
             if (context.hasGlobalErrors() || context.hasFieldErrors()) {
                 throw new ValidationException(context.getFieldErrors(), context.getGlobalErrors());
             }
@@ -146,7 +146,7 @@ public class ProcessFactory {
     }
 
     private ExecutionContext createProcessInternal(ProcessDefinition processDefinition, Map<String, Object> variables, Actor actor,
-            Process parentProcess, Map<String, Object> transientVariables) {
+            Process parentProcess, Map<String, Object> transientVariables, String transitionName) {
         Preconditions.checkNotNull(processDefinition, "can't create a process when processDefinition is null");
         Process process = new Process(processDefinition.getDeployment());
         Token rootToken = new Token(processDefinition, process);
@@ -178,7 +178,7 @@ public class ProcessFactory {
                 Swimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
                 swimlane.assignExecutor(executionContext, actor, false);
             }
-            executionContext.addLog(new TaskEndLog(process, processDefinition.getStartStateNotNull(), actor));
+            executionContext.addLog(new TaskEndLog(process, processDefinition.getStartStateNotNull(), actor, transitionName));
         }
         return executionContext;
     }
