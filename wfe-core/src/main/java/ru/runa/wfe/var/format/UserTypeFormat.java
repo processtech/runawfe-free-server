@@ -161,4 +161,8 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
         return operation.onUserType(this, context);
     }
 
+    @Override
+    public boolean canBePersistedAsComplexVariable() {
+        return true;
+    }
 }

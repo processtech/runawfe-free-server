@@ -129,4 +129,11 @@ public abstract class VariableFormat {
     public String toString() {
         return getClass().getName();
     }
+
+    /**
+     * @see ru.runa.wfe.var.dao.LoadVariableOfType.
+     */
+    public boolean canBePersistedAsComplexVariable() {
+        return false;
+    }
 }

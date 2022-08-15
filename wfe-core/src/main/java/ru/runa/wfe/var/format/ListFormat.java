@@ -138,4 +138,9 @@ public class ListFormat extends VariableFormat implements VariableFormatContaine
         return operation.onList(this, context);
     }
 
+    @Override
+    public boolean canBePersistedAsComplexVariable() {
+        return true;
+    }
+
 }

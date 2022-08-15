@@ -1,7 +1,9 @@
 package ru.runa.wfe.var.dao;
 
+import java.util.Map;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 
 /**
@@ -16,17 +18,22 @@ public class LoadVariableOfTypeContext {
     /**
      * Process instance loading variable from.
      */
-    public final Process process;
+    private final Process process;
 
     /**
      * Variable loader to get variables from database.
      */
-    public final VariableLoader variableLoader;
+    private final VariableLoader variableLoader;
 
     /**
      * Loading variable definition.
      */
     public final VariableDefinition variableDefinition;
+
+    /**
+     * If this map is not null then we use do not load data from DB.
+     */
+    private Map<String, Variable<?>> preloadedVariables;
 
     /**
      * Creates operation context for {@link LoadVariableOfType}.
@@ -41,7 +48,7 @@ public class LoadVariableOfTypeContext {
      *            Loading variable definition.
      */
     public LoadVariableOfTypeContext(ProcessDefinition processDefinition, Process process, VariableLoader variableLoader,
-            VariableDefinition variableDefinition) {
+            Map<String, Variable<?>> preloadedVariables, VariableDefinition variableDefinition) {
         this.processDefinition = processDefinition;
         this.process = process;
         this.variableLoader = variableLoader;
@@ -56,7 +63,13 @@ public class LoadVariableOfTypeContext {
      * @return Returns context copy for loading variable.
      */
     public LoadVariableOfTypeContext createFor(VariableDefinition variableDefinition) {
-        return new LoadVariableOfTypeContext(processDefinition, process, variableLoader, variableDefinition);
+        return new LoadVariableOfTypeContext(processDefinition, process, variableLoader, preloadedVariables, variableDefinition);
+    }
 
+    public Variable<?> getVariable() {
+        if (preloadedVariables != null) {
+            return preloadedVariables.get(variableDefinition.getName());
+        }
+        return variableLoader.get(process, variableDefinition.getName());
     }
 }
