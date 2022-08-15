@@ -1,24 +1,25 @@
 package ru.runa.wfe.commons;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
-
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.codehaus.groovy.GroovyExceptionInterface;
-
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.lang.SwimlaneDefinition;
-import ru.runa.wfe.validation.ValidatorException;
-import ru.runa.wfe.var.VariableProvider;
-import ru.runa.wfe.var.VariableDefinition;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.codehaus.groovy.GroovyExceptionInterface;
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.ClassLoaderUtil.ExtensionObjectInputStream;
+import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.validation.ValidatorException;
+import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 
 public class GroovyScriptExecutor {
     protected static final Log log = LogFactory.getLog(GroovyScriptExecutor.class);
@@ -67,6 +68,7 @@ public class GroovyScriptExecutor {
         private final static String NODE_LOG_VARIABLE_NAME = "nodeLog";
         private final VariableProvider variableProvider;
         private final Map<String, String> variableScriptingNameToNameMap = Maps.newHashMap();
+        private final Map<String, Object> startValues = new HashMap<>();
 
         public GroovyScriptBinding(VariableProvider variableProvider) {
             this.variableProvider = variableProvider;
@@ -102,6 +104,9 @@ public class GroovyScriptExecutor {
             Object value = getVariableFromProcess(scriptingName);
             log.debug("Passing to script '" + scriptingName + "' as '" + value + "'" + (value != null ? " of " + value.getClass() : ""));
             setVariable(scriptingName, value);
+            if (value instanceof Serializable) {
+                startValues.put(scriptingName, clone((Serializable) value));
+            }
             return value;
         }
 
@@ -120,20 +125,48 @@ public class GroovyScriptExecutor {
             Map<String, Object> scriptingVariables = getVariables();
             Map<String, Object> result = Maps.newHashMapWithExpectedSize(scriptingVariables.size());
             for (Map.Entry<String, Object> entry : scriptingVariables.entrySet()) {
-                if (Objects.equal(entry.getKey(), VARIABLE_PROVIDER_VARIABLE_NAME)) {
+                String scriptingName = entry.getKey();
+                if (Objects.equal(scriptingName, VARIABLE_PROVIDER_VARIABLE_NAME)) {
                     continue;
                 }
                 if (Objects.equal(entry.getKey(), NODE_LOG_VARIABLE_NAME)) {
                     continue;
                 }
-                Object oldValue = getVariableFromProcess(entry.getKey());
-                if (Objects.equal(oldValue, entry.getValue())) {
-                    continue;
+                if (startValues.containsKey(scriptingName)) {
+                    // this block prevents concurrent modification between tokens in the same process
+                    // block can be removed after implementation of single thread execution per process (rm676)
+                    // this solution is based also on cached values comparison in ExecutionContext.setSimpleVariableValue(..)
+                    Object startValue = startValues.get(scriptingName);
+                    if (!(entry.getValue() instanceof Serializable)) {
+                        continue;
+                    }
+                    if (Objects.equal(startValue, entry.getValue())) {
+                        continue;
+                    }
+                    Object oldValue = getVariableFromProcess(scriptingName);
+                    if (!Objects.equal(oldValue, startValue)) {
+                        throw new InternalApplicationException("Variable concurrent modification prevented for variable " + scriptingName);
+                    }
                 }
-                String variableName = getVariableNameByScriptingName(entry.getKey());
+                String variableName = getVariableNameByScriptingName(scriptingName);
                 result.put(variableName, entry.getValue());
             }
             return result;
+        }
+
+        private Object clone(Serializable object) {
+            try {
+                ByteArrayOutputStream memoryStream = new ByteArrayOutputStream();
+                ObjectOutputStream objectStream = new ObjectOutputStream(memoryStream);
+                objectStream.writeObject(object);
+                objectStream.flush();
+                try (ExtensionObjectInputStream objectInputStream = new ExtensionObjectInputStream(memoryStream.toByteArray())) {
+                    return objectInputStream.readObject();
+                }
+            } catch (Exception e) {
+                throw new InternalApplicationException("couldn't clone '" + object + "'", e);
+            }
+
         }
     }
 
