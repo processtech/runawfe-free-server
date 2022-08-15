@@ -262,7 +262,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
         if (logEntry == null) {
             return;
         }
-        logEntry.updateOnEnd(taskEndLog.getCreateDate(), taskEndLog.getActorName(), endReason);
+        logEntry.updateOnEnd(taskEndLog.getCreateDate(), taskEndLog.getActorName(), endReason, taskEndLog.getTransitionName());
         sessionFactory.getCurrentSession().merge(logEntry);
     }
 }

@@ -8,6 +8,7 @@ public class TaskCompletionInfo {
     private final Executor executor;
     private final String handlerInfo;
     private final Long processId;
+    private String transitionName;
 
     private TaskCompletionInfo(TaskCompletionBy completionBy, Executor executor, String handlerInfo, Long processId) {
         this.completionBy = completionBy;
@@ -15,21 +16,29 @@ public class TaskCompletionInfo {
         this.handlerInfo = handlerInfo;
         this.processId = processId;
     }
+	
+    private TaskCompletionInfo(TaskCompletionBy completionBy, Executor executor, String handlerInfo, Long processId, String transitionName) {
+        this.completionBy = completionBy;
+        this.executor = executor;
+        this.handlerInfo = handlerInfo;
+        this.processId = processId;
+        this.transitionName = transitionName;
+    }
 
-    private TaskCompletionInfo(TaskCompletionBy completionBy, Executor executor) {
-        this(completionBy, executor, null, null);
+    private TaskCompletionInfo(TaskCompletionBy completionBy, Executor executor, String transitionName) {
+        this(completionBy, executor, null, null, transitionName);
     }
 
     private TaskCompletionInfo(TaskCompletionBy completionBy, String handlerInfo) {
         this(completionBy, null, handlerInfo, null);
     }
 
-    public static TaskCompletionInfo createForUser(TaskCompletionBy completionBy, Executor executor) {
-        return new TaskCompletionInfo(completionBy, executor, null, null);
+    public static TaskCompletionInfo createForUser(TaskCompletionBy completionBy, Executor executor, String transitionName) {
+        return new TaskCompletionInfo(completionBy, executor, null, null, transitionName);
     }
 
-    public static TaskCompletionInfo createForTimer() {
-        return new TaskCompletionInfo(TaskCompletionBy.TIMER, null, null, null);
+    public static TaskCompletionInfo createForTimer(String transitionName) {
+        return new TaskCompletionInfo(TaskCompletionBy.TIMER, null, null, null, transitionName);
     }
 
     public static TaskCompletionInfo createForProcessEnd(Long processId) {
@@ -40,8 +49,8 @@ public class TaskCompletionInfo {
         return new TaskCompletionInfo(TaskCompletionBy.HANDLER, null, handlerInfo, null);
     }
 
-    public static TaskCompletionInfo createForSignal(Executor executor) {
-        return new TaskCompletionInfo(TaskCompletionBy.SIGNAL, executor);
+    public static TaskCompletionInfo createForSignal(Executor executor, String transitionName) {
+        return new TaskCompletionInfo(TaskCompletionBy.SIGNAL, executor, transitionName);
     }
 
     public TaskCompletionBy getCompletionBy() {
@@ -58,6 +67,10 @@ public class TaskCompletionInfo {
 
     public Long getProcessId() {
         return processId;
+    }
+
+    public String getTransitionName() {
+        return transitionName;
     }
 
     @Override

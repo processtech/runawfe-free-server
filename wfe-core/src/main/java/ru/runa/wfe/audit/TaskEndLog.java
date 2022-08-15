@@ -21,12 +21,14 @@
  */
 package ru.runa.wfe.audit;
 
+import java.util.List;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
@@ -49,11 +51,18 @@ public class TaskEndLog extends TaskLog {
         if (completionInfo.getExecutor() != null) {
             addAttribute(ATTR_ACTOR_NAME, completionInfo.getExecutor().getName());
         }
+        addAttribute(ATTR_TRANSITION_NAME, completionInfo.getTransitionName());
     }
 
-    public TaskEndLog(Process process, StartNode startNode, Actor actor) {
+    public TaskEndLog(Process process, StartNode startNode, Actor actor, String transitionName) {
         super(process, startNode);
         addAttribute(ATTR_ACTOR_NAME, actor.getName());
+        addAttribute(ATTR_TRANSITION_NAME, transitionName);
+    }
+
+    @Transient
+    public String getTransitionName() {
+        return getAttribute(ATTR_TRANSITION_NAME);
     }
 
     @Transient

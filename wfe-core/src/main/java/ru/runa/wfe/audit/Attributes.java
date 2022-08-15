@@ -23,6 +23,7 @@ public interface Attributes {
     static final String ATTR_IS_EXECUTOR_VALUE = "executorValue";
     static final String ATTR_DUE_DATE = "dueDate";
     static final String ATTR_ID = "id";
+    static final String ATTR_TRANSITION_NAME = "transitionName";
     static final String ATTR_PARAM = "param";
     static final String ATTR_VALUE_TRUE = Boolean.TRUE.toString();
 }
