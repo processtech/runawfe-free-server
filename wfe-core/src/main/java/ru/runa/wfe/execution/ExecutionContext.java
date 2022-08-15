@@ -66,8 +66,6 @@ import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableDao;
 import ru.runa.wfe.var.dao.VariableLoader;
-import ru.runa.wfe.var.dao.VariableLoaderDaoFallback;
-import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
 
@@ -111,15 +109,11 @@ public class ExecutionContext {
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
         if (disableVariableDaoLoading) {
-            this.variableLoader = new VariableLoaderFromMap(loadedVariables);
+            this.variableLoader = new VariableLoader(loadedVariables);
         } else {
-            this.variableLoader = new VariableLoaderDaoFallback(variableDao, loadedVariables);
+            this.variableLoader = new VariableLoader(variableDao, loadedVariables);
         }
         this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
-    }
-
-    public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {

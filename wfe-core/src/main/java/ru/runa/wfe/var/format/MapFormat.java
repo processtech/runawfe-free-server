@@ -152,4 +152,9 @@ public class MapFormat extends VariableFormat implements VariableFormatContainer
         return operation.onMap(this, context);
     }
 
+    @Override
+    public boolean canBePersistedAsComplexVariable() {
+        return true;
+    }
+
 }

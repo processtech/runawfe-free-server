@@ -113,4 +113,9 @@ public class VariableDao extends GenericDao<Variable> {
         QVariable v = QVariable.variable;
         queryFactory.delete(v).where(v.process.eq(process)).execute();
     }
+
+    public List<Variable<?>> getVariablesByNameStartsWith(Process process, String namePrefix) {
+        final QVariable variable = QVariable.variable;
+        return queryFactory.selectFrom(variable).where(variable.process.eq(process).and(variable.name.startsWith(namePrefix))).fetch();
+    }
 }
