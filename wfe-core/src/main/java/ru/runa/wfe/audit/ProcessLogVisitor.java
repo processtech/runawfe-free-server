@@ -42,6 +42,8 @@ public interface ProcessLogVisitor {
 
     void onTaskRemovedOnProcessEndLog(TaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog);
 
+    void onTaskRemovedOnEmbeddedSubprocessEndLog(TaskRemovedOnEmbeddedSubprocessEndLog log);
+
     void onTaskExpiredLog(TaskExpiredLog taskExpiredLog);
 
     void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog);
