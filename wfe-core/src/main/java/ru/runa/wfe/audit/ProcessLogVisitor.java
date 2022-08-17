@@ -45,6 +45,8 @@ public abstract class ProcessLogVisitor {
 
     public void onTaskExpiredLog(TaskExpiredLog taskExpiredLog) {}
 
+    public void onTaskRemovedOnEmbeddedSubprocessEndLog(TaskRemovedOnEmbeddedSubprocessEndLog log) {}
+
     public void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog) {}
 
     public void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog) {}

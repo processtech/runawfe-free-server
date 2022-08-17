@@ -295,22 +295,6 @@ public interface DefinitionService {
     List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging);
 
     /**
-     * Gets changes history for specified definition.
-     * 
-     * @return not <code>null</code>
-     */
-    List<ProcessDefinitionChange> getChanges(Long processDefinitionVersionId);
-
-    /**
-     * Gets last n changes for specified definition.
-     * 
-     * @param n
-     *            number of process definition versions to get changes
-     * @return not <code>null</code>
-     */
-    List<ProcessDefinitionChange> getLastChanges(Long processDefinitionVersionId, Long n);
-
-    /**
      * Gets changes between two versions of specified definition.
      * 
      * @return not <code>null</code>

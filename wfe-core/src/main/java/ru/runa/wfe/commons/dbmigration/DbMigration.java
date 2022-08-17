@@ -186,6 +186,24 @@ public abstract class DbMigration {
         });
     }
 
+    /**
+     * Helper for getting boolean type values for different DB.
+     *
+     * @return Boolean string value.
+     */
+    protected final String getBooleanValue(boolean value) {
+        String result;
+        switch (dbType) {
+            case POSTGRESQL:
+                result = String.valueOf(value);
+                break;
+            default:
+                result = value ? "1" : "0";
+                break;
+        }
+        return result;
+    }
+
     private static void checkIndentifierLength(String id) {
         if (id != null && id.length() > 30) {
             throw new RuntimeException("Identifier \"" + id + "\".length " + id.length() + " > 30 (Oracle restriction)");

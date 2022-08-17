@@ -33,6 +33,39 @@
 				container.find(".editData, a.apply, a.cancel").hide();
 				container.find(".displayData, a.change").show();
 			});
+			$("#showChangesFromNext5Versions").click(function (e) {
+				e.preventDefault();
+				var lastLoadedVersion = parseInt($("#processDefinitionChanges").attr("lastLoadedVersion"));
+				var nextLastLoadedVersion = lastLoadedVersion - 5;
+				$.ajax({
+					type: "GET",
+					url: $(this).attr("href"),
+					data: { "version1" : nextLastLoadedVersion, "version2": lastLoadedVersion - 1}, 
+					dataType: "json",
+					success: function (data) {
+						var currentVersion = 0;
+						$.each(data, function(i, change) {
+							var $versionTd = $("<td>", { "class": "list" });
+							if (currentVersion == change.version) {
+								$versionTd.attr("style", "border-top-style: hidden;");
+							} else {
+								$versionTd.text(change.version);
+							}
+							var $row = $("<tr>")
+								.append($versionTd)
+								.append($("<td>", { "class": "list", "text": change.createDateString }))
+								.append($("<td>", { "class": "list", "text": change.author }))
+								.append($("<td>", { "class": "list", "text": change.comment }));
+							$("#processDefinitionChanges").append($row);
+							currentVersion = change.version;
+						});
+						$("#processDefinitionChanges").attr("lastLoadedVersion", nextLastLoadedVersion);
+						if (nextLastLoadedVersion <= 1) {
+							$("#showChangesFromNext5Versions").hide();
+						}
+					}
+				});
+			});
 		});
 	</script>
 </tiles:put>

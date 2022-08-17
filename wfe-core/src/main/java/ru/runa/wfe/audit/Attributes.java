@@ -23,6 +23,7 @@ public interface Attributes {
     String ATTR_IS_EXECUTOR_VALUE = "executorValue";
     String ATTR_DUE_DATE = "dueDate";
     String ATTR_ID = "id";
+    String ATTR_TRANSITION_NAME = "transitionName";
     String ATTR_PARAM = "param";
     String ATTR_VALUE_TRUE = Boolean.TRUE.toString();
 }

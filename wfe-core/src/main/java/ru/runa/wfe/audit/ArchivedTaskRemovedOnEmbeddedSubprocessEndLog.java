@@ -5,14 +5,10 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 @Entity
-@DiscriminatorValue(value = "9")
-public class ArchivedTaskExpiredLog extends ArchivedTaskCancelledLog implements TaskExpiredLog {
+@DiscriminatorValue(value = "P")
+public class ArchivedTaskRemovedOnEmbeddedSubprocessEndLog extends ArchivedTaskCancelledLog implements TaskRemovedOnEmbeddedSubprocessEndLog {
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    @Transient
-    public Type getType() {
-        return Type.TASK_EXPIRED;
-    }
 
     @Override
     @Transient
@@ -22,6 +18,6 @@ public class ArchivedTaskExpiredLog extends ArchivedTaskCancelledLog implements 
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskExpiredLog(this);
+        visitor.onTaskRemovedOnEmbeddedSubprocessEndLog(this);
     }
 }

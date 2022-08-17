@@ -9,8 +9,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.runa.wfe.InternalApplicationException;
@@ -38,8 +38,8 @@ import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.CurrentVariable;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
@@ -47,8 +47,6 @@ import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.CurrentVariableDao;
 import ru.runa.wfe.var.dao.VariableDao;
 import ru.runa.wfe.var.dao.VariableLoader;
-import ru.runa.wfe.var.dao.VariableLoaderDaoFallback;
-import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
 
@@ -96,15 +94,11 @@ public class ExecutionContext {
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
         if (disableVariableDaoLoading) {
-            this.variableLoader = new VariableLoaderFromMap(loadedVariables);
+            this.variableLoader = new VariableLoader(loadedVariables);
         } else {
-            this.variableLoader = new VariableLoaderDaoFallback(variableDao, loadedVariables);
+            this.variableLoader = new VariableLoader(variableDao, loadedVariables);
         }
         this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getParsedProcessDefinition(), getProcess());
-    }
-
-    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token, Map<Process, Map<String, Variable>> loadedVariables) {
-        this(ApplicationContextFactory.getContext(), parsedProcessDefinition, token, loadedVariables, false);
     }
 
     public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token) {

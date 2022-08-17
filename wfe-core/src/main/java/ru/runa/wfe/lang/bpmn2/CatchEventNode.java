@@ -35,11 +35,12 @@ public class CatchEventNode extends BaseReceiveMessageNode implements BoundaryEv
             for (VariableMapping variableMapping : getVariableMappings()) {
                 if (!variableMapping.isPropertySelector()) {
                     if (Objects.equals(swimlaneName, variableMapping.getName())) {
-                        return TaskCompletionInfo.createForSignal((Executor) executionContext.getVariableValue(swimlaneName));
+                        return TaskCompletionInfo.createForSignal((Executor) executionContext.getVariableValue(swimlaneName),
+                                getLeavingTransitions().get(0).getName());
                     }
                 }
             }
         }
-        return TaskCompletionInfo.createForSignal(null);
+        return TaskCompletionInfo.createForSignal(null, getLeavingTransitions().get(0).getName());
     }
 }

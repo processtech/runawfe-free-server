@@ -133,7 +133,7 @@ public class TaskLogic extends WfCommonLogic {
                 transition = taskNode.getDefaultLeavingTransitionNotNull();
             }
             executionContext.setTransientVariable(WfProcess.SELECTED_TRANSITION_KEY, transition.getName());
-            task.end(executionContext, taskNode, TaskCompletionInfo.createForUser(completionBy, user.getActor()));
+            task.end(executionContext, taskNode, TaskCompletionInfo.createForUser(completionBy, user.getActor(), transition.getName()));
             if (taskNode instanceof Synchronizable && taskNode.isAsync()) {
                 taskNode.endBoundaryEventTokens(executionContext);
             } else {

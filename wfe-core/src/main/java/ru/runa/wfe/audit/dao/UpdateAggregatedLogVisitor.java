@@ -19,6 +19,7 @@ import ru.runa.wfe.audit.TaskEndByAdminLog;
 import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.TaskExpiredLog;
+import ru.runa.wfe.audit.TaskRemovedOnEmbeddedSubprocessEndLog;
 import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
 import ru.runa.wfe.audit.aggregated.QSignalListenerAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
@@ -152,6 +153,11 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
     }
 
     @Override
+    public void onTaskRemovedOnEmbeddedSubprocessEndLog(TaskRemovedOnEmbeddedSubprocessEndLog log) {
+        onTaskEnd(log, TaskEndReason.CANCELLED);
+    }
+
+    @Override
     public void onTaskExpiredLog(TaskExpiredLog taskExpiredLog) {
         onTaskEnd(taskExpiredLog, TaskEndReason.TIMEOUT);
     }
@@ -186,6 +192,7 @@ public class UpdateAggregatedLogVisitor extends ProcessLogVisitor {
         l.setEndDate(taskEndLog.getCreateDate());
         l.setCompleteActorName(taskEndLog.getActorName());
         l.setEndReason(endReason);
+        l.setTransitionName(taskEndLog.getTransitionName());
 
         sessionFactory.getCurrentSession().merge(l);
     }

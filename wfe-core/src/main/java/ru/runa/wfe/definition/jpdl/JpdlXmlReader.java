@@ -22,7 +22,7 @@ import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.Delegation;
-import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
+import ru.runa.wfe.lang.EmbeddedSubprocessLikeGraphPartEndNode;
 import ru.runa.wfe.lang.EmbeddedSubprocessStartNode;
 import ru.runa.wfe.lang.EndNode;
 import ru.runa.wfe.lang.GraphElement;
@@ -203,7 +203,7 @@ public class JpdlXmlReader {
                 }
             } else if ("end-token-state".equals(nodeName)) {
                 if (parsedProcessDefinition instanceof ParsedSubprocessDefinition && !BEHAVIOUR_TERMINATE.equals(element.attributeValue(BEHAVIOUR))) {
-                    node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessEndNode.class);
+                    node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessLikeGraphPartEndNode.class);
                 } else {
                     node = ApplicationContextFactory.createAutowiredBean(EndToken.class);
                 }

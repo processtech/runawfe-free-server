@@ -1,5 +1,6 @@
 package ru.runa.wfe.var.dao;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.logging.Log;
@@ -10,54 +11,55 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-public abstract class VariableLoader {
-    protected final Log log = LogFactory.getLog(getClass());
+/**
+ * Modes:
+ * * WITHOUT_DAO: only preloadedOutsideVariables used
+ * * WITH_DAO_BATCH_PRELOADED: preloadedBatchVariables are prefilled for complex variables (user types, lists, maps), dao called only for simple variables
+ * * WITH_DAO_DIRECT: dao called for each variable if preloadedOutsideVariables does not contain result
+ */
+public class VariableLoader {
+    private static final Log log = LogFactory.getLog(VariableLoader.class);
 
-    /**
-     * Get variable with given name for process.
-     *
-     * @param process
-     *            Process, which variable must be loaded.
-     * @param name
-     *            Variable name.
-     * @return Variable or null, if no variable found.
-     */
-    public abstract Variable get(Process process, String name);
+    private final VariableDao dao;
+    private final Map<Process, Map<String, Variable>> preloadedOutsideVariables = new HashMap<>();
 
-    /**
-     * Load all variables for given process.
-     *
-     * @param process
-     *            Process, which variables must be loaded.
-     * @return all process variables.
-     */
-    public abstract Map<String, Object> getAll(Process process);
+    public VariableLoader(VariableDao dao, Map<Process, Map<String, Variable>> preloadedVariables) {
+        this.dao = dao;
+        if (preloadedVariables != null) {
+            this.preloadedOutsideVariables.putAll(preloadedVariables);
+        }
+    }
 
-    /**
-     * Load variable.
-     *
-     * @param parsedProcessDefinition
-     *            Process definition.
-     * @param process
-     *            Process instance for loading variable from.
-     * @param variableName
-     *            Loading variable name.
-     * @return Loaded variable or null if no such variable defined.
-     */
-    public WfVariable getVariable(ParsedProcessDefinition parsedProcessDefinition, Process process, String variableName) {
-        VariableDefinition variableDefinition = parsedProcessDefinition.getVariable(variableName, false);
+    public VariableLoader(Map<Process, Map<String, Variable>> loadedVariables) {
+        this(null, loadedVariables);
+    }
+
+    public Variable get(Process process, String name) {
+        Map<String, Variable> loadedProcessVariables = preloadedOutsideVariables.get(process);
+        if (loadedProcessVariables != null && loadedProcessVariables.containsKey(name)) {
+            return loadedProcessVariables.get(name);
+        }
+        if (dao != null) {
+            return dao.get(process, name);
+        }
+        return null;
+    }
+
+    public WfVariable getVariable(ParsedProcessDefinition processDefinition, Process process, String variableName) {
+        VariableDefinition variableDefinition = processDefinition.getVariable(variableName, false);
         if (variableDefinition != null) {
-            Object variableValue = getVariableValue(parsedProcessDefinition, process, variableDefinition);
+            Object variableValue = getVariableValue(processDefinition, process, variableDefinition);
             if (variableValue == null && SystemProperties.isV4ListVariableCompatibilityMode()
                     && variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
                 int startQualifierIndex = variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
                 int endQualifierIndex = variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END);
                 String listVariableName = variableName.substring(0, startQualifierIndex);
                 int listIndex = Integer.parseInt(variableName.substring(startQualifierIndex + 1, endQualifierIndex));
-                VariableDefinition listVariableDefinition = parsedProcessDefinition.getVariable(listVariableName, false);
-                List<Object> list = (List<Object>) getVariableValue(parsedProcessDefinition, process, listVariableDefinition);
+                VariableDefinition listVariableDefinition = processDefinition.getVariable(listVariableName, false);
+                List<Object> list = (List<Object>) getVariableValue(processDefinition, process, listVariableDefinition);
                 if (list != null) {
                     if (list.size() > listIndex) {
                         variableValue = list.get(listIndex);
@@ -76,24 +78,23 @@ public abstract class VariableLoader {
         return null;
     }
 
-    /**
-     * Load variable value.
-     *
-     * @param parsedProcessDefinition
-     *            Process definition.
-     * @param process
-     *            Process instance for loading variable from.
-     * @param variableDefinition
-     *            Loading variable name.
-     * @return Loaded variable value or null.
-     */
-    public Object getVariableValue(ParsedProcessDefinition parsedProcessDefinition, Process process, VariableDefinition variableDefinition) {
-        LoadVariableOfTypeContext context = new LoadVariableOfTypeContext(parsedProcessDefinition, process, this, variableDefinition);
+    public Object getVariableValue(ParsedProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
+        VariableFormat format = variableDefinition.getFormatNotNull();
+        boolean preloadBatchVariables = dao != null && format.canBePersistedAsComplexVariable();
+        Map<String, Variable> preloadedBatchVariables = new HashMap<>();
+        if (preloadBatchVariables) {
+            final List<? extends Variable> variables = dao.getVariablesByNameStartsWith(process, variableDefinition.getName());
+            for (Variable variable : variables) {
+                preloadedBatchVariables.put(variable.getName(), variable);
+            }
+        }
+        LoadVariableOfTypeContext context = new LoadVariableOfTypeContext(processDefinition, process, this, preloadedBatchVariables,
+                variableDefinition);
         switch (variableDefinition.getStoreType()) {
-            case BLOB:
-                return new LoadVariableOfType().onOther(variableDefinition.getFormatNotNull(), context);
-            default:
-                return variableDefinition.getFormatNotNull().processBy(new LoadVariableOfType(), context);
+        case BLOB:
+            return new LoadVariableOfType().onOther(format, context);
+        default:
+            return format.processBy(new LoadVariableOfType(), context);
         }
     }
 }

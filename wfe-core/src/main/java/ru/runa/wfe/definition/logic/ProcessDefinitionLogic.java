@@ -309,21 +309,6 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         log.info("Process definition " + d + " successfully undeployed");
     }
 
-    public List<ProcessDefinitionChange> getChanges(long processDefinitionVersionId) {
-        List<Long> processDefinitionVersionIds = processDefinitionDao.findAllDefinitionVersionIds(processDefinitionVersionId, true);
-        return getChanges(processDefinitionVersionIds);
-    }
-
-    public List<ProcessDefinitionChange> getLastChanges(long processDefinitionVersionId, int n) {
-        Preconditions.checkArgument(n > 0);
-        List<Long> processDefinitionVersionIds = processDefinitionDao.findAllDefinitionVersionIds(processDefinitionVersionId, false);
-        if (n < processDefinitionVersionIds.size()) {
-            processDefinitionVersionIds = new ArrayList<>(processDefinitionVersionIds.subList(0, n));
-        }
-        Collections.reverse(processDefinitionVersionIds);
-        return getChanges(processDefinitionVersionIds);
-    }
-
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         List<Long> processDefinitionVersionIds = processDefinitionDao.findDefinitionVersionIds(definitionName, version1, version2);
         return getChanges(processDefinitionVersionIds);

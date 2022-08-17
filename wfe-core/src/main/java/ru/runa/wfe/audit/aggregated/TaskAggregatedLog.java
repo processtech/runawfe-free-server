@@ -95,4 +95,6 @@ public class TaskAggregatedLog {
     @Column(name = "SWIMLANE_NAME", length = 1024)
     private String swimlaneName;
 
+    @Column(name = "TRANSITION_NAME", length = 1024)
+    private String transitionName;
 }

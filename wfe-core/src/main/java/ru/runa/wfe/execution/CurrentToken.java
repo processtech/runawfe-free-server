@@ -223,6 +223,15 @@ public class CurrentToken extends Token implements Serializable {
         return result;
     }
 
+    public boolean hasActiveChild() {
+        for (val child : getChildren()) {
+            if (!child.hasEnded() || child.hasActiveChild()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public int getDepth() {
         return getParent() != null ? getParent().getDepth() + 1 : 0;
     }

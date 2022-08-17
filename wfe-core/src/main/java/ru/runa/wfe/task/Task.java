@@ -28,6 +28,7 @@ import ru.runa.wfe.audit.CurrentTaskEndByAdminLog;
 import ru.runa.wfe.audit.CurrentTaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.audit.CurrentTaskExpiredLog;
+import ru.runa.wfe.audit.CurrentTaskRemovedOnEmbeddedSubprocessEndLog;
 import ru.runa.wfe.audit.CurrentTaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.CurrentProcess;
@@ -298,6 +299,9 @@ public class Task implements Assignable {
             break;
         case PROCESS_END:
             executionContext.addLog(new CurrentTaskRemovedOnProcessEndLog(this, completionInfo));
+            break;
+        case EMBEDDED_SUBPROCESS_END:
+            executionContext.addLog(new CurrentTaskRemovedOnEmbeddedSubprocessEndLog(this, completionInfo));
             break;
         default:
             throw new IllegalArgumentException("Unimplemented for " + completionInfo.getCompletionBy());

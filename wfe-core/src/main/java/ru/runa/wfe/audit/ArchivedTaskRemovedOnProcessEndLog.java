@@ -7,7 +7,7 @@ import ru.runa.wfe.audit.presentation.ProcessIdValue;
 
 @Entity
 @DiscriminatorValue(value = "M")
-public class ArchivedTaskRemovedOnProcessEndLog extends ArchivedTaskEndLog implements TaskRemovedOnProcessEndLog {
+public class ArchivedTaskRemovedOnProcessEndLog extends ArchivedTaskCancelledLog implements TaskRemovedOnProcessEndLog {
 
     @Override
     @Transient

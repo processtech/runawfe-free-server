@@ -27,6 +27,12 @@ public class ArchivedTaskEndLog extends ArchivedTaskLog implements TaskEndLog {
 
     @Override
     @Transient
+    public String getTransitionName() {
+        return getAttribute(ATTR_TRANSITION_NAME);
+    }
+
+    @Override
+    @Transient
     public Object[] getPatternArguments() {
         return new Object[] { getTaskName(), new ExecutorNameValue(getActorName()) };
     }

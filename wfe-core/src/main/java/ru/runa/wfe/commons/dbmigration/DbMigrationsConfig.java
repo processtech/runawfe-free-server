@@ -34,6 +34,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenMessageSelectorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
+import ru.runa.wfe.commons.dbmigration.impl.AddTransitionNameForTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddUuidAndDropBytesChatMessageFilePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CorrectChatRoomViewRenameColumn;
@@ -170,6 +171,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(EnlargeMessageMaxSizePatch.class);
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
+        dbMigrations.add(AddTransitionNameForTaskPatch.class);
         // start develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);
@@ -180,10 +182,10 @@ public class DbMigrationsConfig {
         dbMigrations.add(RenameSequences.class);
         dbMigrations.add(AddArchivedProcessExternalData.class);
         dbMigrations.add(AddArchivedTokenNodeNameAndNodeEnterDateColumnsPatch.class);
-        // end develop patches
         dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
         dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
         dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);
+        // end develop patches
         return dbMigrations;
     }
 }
