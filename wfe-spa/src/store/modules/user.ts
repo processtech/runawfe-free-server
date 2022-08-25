@@ -43,9 +43,11 @@ const actions = {
             new SwaggerClient({
                 url: context.rootGetters['app/serverUrl'] + '/restapi/v3/api-docs',
             }).then((client: any) => {
-                client.apis['auth-controller'].basicUsingPOST({
-                    login,
-                    password
+                client.apis['auth-controller'].basicUsingPOST(null,{
+                    requestBody: {
+                        login: login,
+                        password: password
+                    }
                 }).then((data: any) => {
                     const token = data.body;
                     context.dispatch('makeSwaggerClient', { token, resolve, reject });
