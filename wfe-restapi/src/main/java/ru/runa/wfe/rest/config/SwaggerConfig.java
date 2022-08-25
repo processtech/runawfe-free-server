@@ -56,7 +56,7 @@ public class SwaggerConfig {
 
     private SecurityContext securityContext() {
         return SecurityContext.builder().securityReferences(securityReferences())
-                .operationSelector(o -> !o.requestMappingPattern().contains("/auth/basic")).build();
+                .operationSelector(o -> (!o.requestMappingPattern().contains("/auth/basic"))&&(!o.requestMappingPattern().contains("/auth/kerberos"))).build();
     }
 
     private List<SecurityReference> securityReferences() {
