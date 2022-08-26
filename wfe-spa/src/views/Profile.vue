@@ -90,8 +90,10 @@
           </v-card>
         </v-tab-item>
       </v-tabs>
-
     </v-card>
+    <v-container>
+      <v-icon left>mdi-monitor-shimmer</v-icon><a href="javascript:void(0);" onclick="location.assign(location.protocol + '//' + location.host + '/wfe');">Административный интерфейс</a>
+    </v-container>
   </v-container>
 </template>
 
