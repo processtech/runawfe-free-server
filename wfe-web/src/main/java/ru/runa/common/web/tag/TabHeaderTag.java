@@ -10,6 +10,7 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
+import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
@@ -141,7 +142,7 @@ public class TabHeaderTag extends TagSupport {
                 return true;
             }
             if (menuForward.menuMessage.getKey().equals("chat_rooms")) {
-                return SystemProperties.isChatEnabled();
+                return WebResources.isChatEnabled();
             }
             if (menuForward.menuMessage.getKey().equals("view_logs")) {
                 return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_LOGS, SecuredSingleton.SYSTEM);

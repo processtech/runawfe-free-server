@@ -50,7 +50,7 @@
 	String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
 %>
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
-<% if(SystemProperties.isChatEnabled()){%>
+<% if(WebResources.isChatEnabled()){%>
 <div style="float:left; max-width: 150px;">
 	<%
 		WfTask task = Delegates.getTaskService().getTask(Commons.getUser(request.getSession()), taskId);

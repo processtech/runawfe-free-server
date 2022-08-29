@@ -86,7 +86,7 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
-		<% if (SystemProperties.isChatEnabled() && isRoot) {%>
+		<% if (WebResources.isChatEnabled() && isRoot) {%>
 		<td align="right">
 			<% String href = "/wfe/chat_page.do?processId=" + id;%>
 			<a href="<%= href %>"><bean:message key="chat.open" /></a>
