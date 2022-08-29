@@ -46,7 +46,7 @@ public class BatchPresentationUtils {
     public static TdBuilder[] getBuilders(TdBuilder[] prefix, BatchPresentation batchPresentation, TdBuilder[] suffix) {
         int displayed = batchPresentation.getDisplayFields().length;
         for (FieldDescriptor field : batchPresentation.getDisplayFields()) {
-            if (field.variablePrototype || field.groupableByProcessId || field.fieldState != FieldState.ENABLED) {
+            if (field.isPrototype() || field.groupableByProcessId || field.fieldState != FieldState.ENABLED) {
                 --displayed;
             }
         }
@@ -61,7 +61,7 @@ public class BatchPresentationUtils {
         int idx = 0;
         for (int i = 0; i < batchPresentation.getDisplayFields().length; ++i) {
             FieldDescriptor field = batchPresentation.getDisplayFields()[i];
-            if (!field.variablePrototype && !field.groupableByProcessId && field.fieldState == FieldState.ENABLED) {
+            if (!field.isPrototype() && !field.groupableByProcessId && field.fieldState == FieldState.ENABLED) {
                 builders[idx++ + prefixBuildersLength] = (TdBuilder) field.getTdBuilder();
             }
         }

@@ -53,6 +53,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
     public static final String TASK_ASSIGN_DATE = "taskAssignDate";
     public static final String TASK_DEADLINE_DATE = "taskDeadlineDate";
     public static final String PROCESS_VARIABLE = "variable";
+    public static final String PROCESS_SWIMLANE = "swimlane";
 
     private static final ClassPresentation INSTANCE = new ProcessWithTasksClassPresentation();
 
@@ -124,6 +125,21 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
         }
     }
 
+    private static class SwimlaneDbSource extends DefaultDbSource {
+
+        public SwimlaneDbSource() {
+            super(Swimlane.class, "executor.name");
+        }
+
+        @Override
+        public String getJoinExpression(String alias) {
+            StringBuilder join = new StringBuilder(ClassPresentation.classNameSQL);
+            join.append("=").append(alias).append(".process");
+            return join.toString();
+        }
+
+    }
+
     private ProcessWithTasksClassPresentation() {
         super(Process.class, "", true, new FieldDescriptor[] {
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(Process.class, "id"), true, FieldFilterMode.DATABASE,
@@ -164,7 +180,10 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                 new FieldDescriptor("groupBy_" + PROCESS_ID, String.class.getName(), new SubProcessDbSource(
                         Process.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTdBuilder", new Object[] {}).setGroupableByProcessId(true),
                 new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}).setVariablePrototype(true) });
+                        "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}).setVariablePrototype(true),
+                new FieldDescriptor(PROCESS_SWIMLANE, UserOrGroupFilterCriteria.class.getName(), new SwimlaneDbSource(), false, FieldFilterMode.DATABASE,
+                        "ru.runa.wf.web.html.ProcessSwimlaneTdBuilder", new Object[] {}).setSwimlanePrototype(true),
+        });
     }
 
     public static ClassPresentation getInstance() {
