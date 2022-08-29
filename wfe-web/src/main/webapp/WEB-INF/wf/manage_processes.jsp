@@ -21,7 +21,7 @@
 		$("<option />", {val: "ENDED", text: endedLabel}).appendTo(select);
 		select.val(input.val());
 		input.replaceWith(select);
-		$("table.view-setup tr[field='batch_presentation.process.execution_status'] img[class='button-more']").remove();
+		$("table.view-setup tr[field='executionStatus'] img[class='button-more']").remove();
 	});
 	</script>
 </tiles:put>

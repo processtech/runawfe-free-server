@@ -73,7 +73,7 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
         Row header = workbook.getSheetAt(0).createRow(0);
         int i = 0;
         for (FieldDescriptor fieldDescriptor : batchPresentation.getDisplayFields()) {
-            if (fieldDescriptor.variablePrototype || fieldDescriptor.groupableByProcessId || fieldDescriptor.fieldState != FieldState.ENABLED) {
+            if (fieldDescriptor.isPrototype() || fieldDescriptor.groupableByProcessId || fieldDescriptor.fieldState != FieldState.ENABLED) {
                 continue;
             }
             Cell cell = header.createCell(i++);

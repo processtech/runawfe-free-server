@@ -1,6 +1,9 @@
 let chatSocket = null;
 let currentUser = "";
 
+const ABNORMAL_CLOSURE = 1006;
+const MESSAGE_TOO_BIG = 1009;
+
 function initChatSocket(socket) {
     chatSocket = socket;
 }
@@ -43,8 +46,11 @@ function establishWebSocketConnection(handlers, username) {
         }
 
         function socketCloseHandler(event) {
-            if (event.code === 1009 || event.code === 1006) {
+            if (event.code === MESSAGE_TOO_BIG) {
                 errorMessageAlerter({message: "Превышен максимально допустимый лимит сообщения. Обновите страницу"});
+            }
+            if (event.code === ABNORMAL_CLOSURE) {
+                console.error('chat socket closed')
             }
         }
 

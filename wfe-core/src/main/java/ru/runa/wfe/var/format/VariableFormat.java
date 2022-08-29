@@ -102,6 +102,9 @@ public abstract class VariableFormat {
     }
 
     public final String formatExcelCell(Object value) {
+        if (value == null) {
+            return null;
+        }
         return String.valueOf(convertToExcelCellValue(value));
     }
 

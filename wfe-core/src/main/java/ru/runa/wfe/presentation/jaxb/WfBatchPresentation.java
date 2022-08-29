@@ -13,6 +13,7 @@ public class WfBatchPresentation {
     private List<Filter> filters = new ArrayList<>();
     private List<Sorting> sortings = new ArrayList<>();
     private List<String> variables = new ArrayList<>();
+    private List<String> swimlanes = new ArrayList<>();
 
     @Data
     public static class Sorting {

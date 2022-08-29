@@ -32,6 +32,7 @@ public class CurrentProcessWithTasksClassPresentation extends ClassPresentation 
     public static final String TASK_ASSIGN_DATE = "taskAssignDate";
     public static final String TASK_DEADLINE_DATE = "taskDeadlineDate";
     public static final String PROCESS_VARIABLE = "variable";
+    public static final String PROCESS_SWIMLANE = "swimlane";
 
     public static final ClassPresentation INSTANCE = new CurrentProcessWithTasksClassPresentation();
 
@@ -103,9 +104,25 @@ public class CurrentProcessWithTasksClassPresentation extends ClassPresentation 
         }
     }
 
+    private static class SwimlaneDbSource extends DefaultDbSource {
+
+        public SwimlaneDbSource() {
+            super(CurrentSwimlane.class, "executor.name");
+        }
+
+        @Override
+        public String getJoinExpression(String alias) {
+            StringBuilder join = new StringBuilder(ClassPresentation.classNameSQL);
+            join.append("=").append(alias).append(".process");
+            return join.toString();
+        }
+
+    }
+
     private CurrentProcessWithTasksClassPresentation() {
         super(CurrentProcess.class, "", true, new FieldDescriptor[] {
-                new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(CurrentProcess.class, "id"), true, FieldFilterMode.DATABASE,
+                new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(CurrentProcess.class, "id"), true,
+                        FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "id" }),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(CurrentProcess.class, "definitionVersion.definition.name"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "name" }),
@@ -143,6 +160,9 @@ public class CurrentProcessWithTasksClassPresentation extends ClassPresentation 
                 new FieldDescriptor("groupBy_" + PROCESS_ID, String.class.getName(), new SubProcessDbSource(
                         CurrentProcess.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTdBuilder", new Object[] {}).setGroupableByProcessId(true),
                 new FieldDescriptor(PROCESS_VARIABLE, CurrentVariable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}).setVariablePrototype(true) });
+                        "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}).setVariablePrototype(true),
+                new FieldDescriptor(PROCESS_SWIMLANE, UserOrGroupFilterCriteria.class.getName(), new SwimlaneDbSource(), false, FieldFilterMode.DATABASE,
+                        "ru.runa.wf.web.html.ProcessSwimlaneTdBuilder", new Object[] {}).setSwimlanePrototype(true),
+        });
     }
 }

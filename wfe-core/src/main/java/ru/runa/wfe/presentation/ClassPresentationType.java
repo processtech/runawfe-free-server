@@ -47,6 +47,7 @@ public enum ClassPresentationType {
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
     private final String localizationKey;
     private int variablePrototypeIndex = -1;
+    private int swimlanePrototypeIndex = -1;
 
     ClassPresentationType(ClassPresentation cp, String localizationKey) {
         if (cp != null) {
@@ -70,6 +71,9 @@ public enum ClassPresentationType {
                 fieldIndexesByName.put(fields[i].name, i);
                 if (fields[i].variablePrototype) {
                     variablePrototypeIndex = i;
+                }
+                if (fields[i].swimlanePrototype) {
+                    swimlanePrototypeIndex = i;
                 }
             }
         }
@@ -108,4 +112,7 @@ public enum ClassPresentationType {
         return variablePrototypeIndex;
     }
 
+    public int getSwimlanePrototypeIndex() {
+        return swimlanePrototypeIndex;
+    }
 }

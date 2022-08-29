@@ -40,7 +40,7 @@ public final class MessagesExecutor {
     public static final StrutsMessage LABEL_SUBSTITUTION_CRITERIA_CONF = new StrutsMessage("label.substitution_criteria_conf");
     public static final StrutsMessage TITLE_TERMINATOR_EDIT = new StrutsMessage("terminator.edit.title");
     public static final StrutsMessage TITLE_SUBSTITUTION_EDIT = new StrutsMessage("substitutioncriteria.edit.title");
-    public static final StrutsMessage LABEL_SUBSTITUTION_SELECT = new StrutsMessage("substitution.select");
+    public static final StrutsMessage LABEL_SELECT = new StrutsMessage("label.select");
     public static final StrutsMessage LABEL_SUBSTITUTION_CRITERIA_USED_BY = new StrutsMessage("label.substitutioncriteria.usedby");
     public static final StrutsMessage LABEL_SWIMLANE_ORGFUNCTION = new StrutsMessage("label.swimlane_organization_function");
 
