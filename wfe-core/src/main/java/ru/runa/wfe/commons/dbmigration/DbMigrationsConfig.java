@@ -185,6 +185,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
         dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
         dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);
+        dbMigrations.add(RecreateChatRoomView.class);
         // end develop patches
         return dbMigrations;
     }

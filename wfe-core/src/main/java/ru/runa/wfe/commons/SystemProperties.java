@@ -489,10 +489,6 @@ public class SystemProperties {
         return NO_DATABASE_RESOURCES.getBooleanProperty("filesystem.access.allowed", false);
     }
 
-    public static boolean isChatEnabled() {
-        return RESOURCES.getBooleanProperty("chat.enabled", true);
-    }
-
     public static String getJwtSecret() {
         return NO_DATABASE_RESOURCES.getStringProperty("jwt.secret");
     }

@@ -1,3 +1,4 @@
+<%@page import="ru.runa.common.WebResources"%>
 <%@ page import="ru.runa.common.web.Commons" %>
 <%@ page import="ru.runa.wfe.commons.SystemProperties" %>
 <%@ page pageEncoding="UTF-8" %>
@@ -10,7 +11,7 @@
 </head>
 <body>
 <script type="text/javascript">
-    <% if (SystemProperties.isChatEnabled()) {%>
+    <% if (WebResources.isChatEnabled()) {%>
     $(document).ready(function () {
         initChatSocket(establishWebSocketConnection({
             "newMessage": newMessageAlerter,
