@@ -106,7 +106,7 @@ public class SortingHeaderBuilder implements HeaderBuilder {
 
     private void fillHeaderTR(FieldDescriptor[] fields, Map<Integer, Boolean> sortedFieldsIdModeMap, TR tr) {
         for (int i = 0; i < fields.length; i++) {
-            if (fields[i].variablePrototype || fields[i].groupableByProcessId || fields[i].fieldState != FieldState.ENABLED) {
+            if (fields[i].isPrototype() || fields[i].groupableByProcessId || fields[i].fieldState != FieldState.ENABLED) {
                 continue;
             }
 

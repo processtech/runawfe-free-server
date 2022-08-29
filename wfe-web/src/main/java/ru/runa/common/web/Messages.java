@@ -48,16 +48,16 @@ public class Messages {
     }
 
     public static String getMessage(BatchPresentation batchPresentation, FieldDescriptor fieldDescriptor, PageContext pageContext) {
-        if (fieldDescriptor.variableValue != null) {
-            return fieldDescriptor.variableValue;
+        if (fieldDescriptor.variableOrSwimlaneName != null) {
+            return fieldDescriptor.variableOrSwimlaneName;
         }
         String key = getClassPresentationFieldNameKey(batchPresentation.getType(), fieldDescriptor.name);
         return getMessage(key, pageContext);
     }
 
     public static String getMessage(BatchPresentation batchPresentation, FieldDescriptor fieldDescriptor, MessageResources messageResources) {
-        if (fieldDescriptor.variableValue != null) {
-            return fieldDescriptor.variableValue;
+        if (fieldDescriptor.variableOrSwimlaneName != null) {
+            return fieldDescriptor.variableOrSwimlaneName;
         }
         String key = getClassPresentationFieldNameKey(batchPresentation.getType(), fieldDescriptor.name);
         return messageResources.getMessage(key);

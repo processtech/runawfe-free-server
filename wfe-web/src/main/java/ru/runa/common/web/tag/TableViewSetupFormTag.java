@@ -228,7 +228,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 if (displayedFields[i].groupableByProcessId) {
                     continue;
                 }
-                if (!displayedFields[i].variablePrototype && displayedFields[i].fieldState == FieldState.ENABLED) {
+                if (!displayedFields[i].isPrototype() && displayedFields[i].fieldState == FieldState.ENABLED) {
                     table.addElement(buildViewRow(batchPresentation, displayedFields[i].fieldIdx, i));
                 }
             }
@@ -236,12 +236,12 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 if (f.groupableByProcessId) {
                     continue;
                 }
-                if (!f.variablePrototype && f.fieldState == FieldState.ENABLED) {
+                if (!f.isPrototype() && f.fieldState == FieldState.ENABLED) {
                     table.addElement(buildViewRow(batchPresentation, f.fieldIdx, -1));
                 }
             }
             for (FieldDescriptor f : batchPresentation.getAllFields()) {
-                if (f.variablePrototype && f.fieldState == FieldState.ENABLED || f.groupableByProcessId && groupBySubprocessEnabled) {
+                if (f.isPrototype() && f.fieldState == FieldState.ENABLED || f.groupableByProcessId && groupBySubprocessEnabled) {
                     table.addElement(buildViewRow(batchPresentation, f.fieldIdx, -1));
                 }
             }
@@ -261,10 +261,11 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
 
         { // field name section
             TD td;
-            if (field.variablePrototype) {
+            if (field.isPrototype()) {
                 td = new TD(Messages.getMessage(batchPresentation, field, pageContext));
+                td.addElement(Entities.NBSP);
                 td.addElement(new Input(Input.TEXT, TableViewSetupForm.EDITABLE_FIELDS, ""));
-            } else if (field.filterByVariable) {
+            } else if (field.isByVariableOrSwimlane()) {
                 td = new TD(new Input(Input.CHECKBOX, TableViewSetupForm.REMOVABLE_FIELD_IDS, fieldIdx).setChecked(true));
                 td.addElement(Messages.getMessage(batchPresentation, field, pageContext));
             } else if (field.groupableByProcessId) {
@@ -280,7 +281,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.IDS_INPUT_NAME, String.valueOf(fieldIdx)));
             tr.addElement(td);
         }
-        if (field.variablePrototype || field.groupableByProcessId) { // Editable fields havn't fields for
+        if (field.isPrototype() || field.groupableByProcessId) { // Editable fields havn't fields for
             // sorting/filtering e t.c.
             for (int idx = 0; idx < 5; ++idx) {
                 tr.addElement(new TD());
@@ -292,7 +293,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS,
                         createPositionOptions(batchPresentation, fieldIdx));
                 tr.addElement(new TD(displayFieldPositionSelect));
-                if (fieldDisplayPosition >= 0 && !field.variablePrototype) {
+                if (fieldDisplayPosition >= 0 && !field.isPrototype()) {
                     displayFieldPositionSelect.selectOption(fieldDisplayPosition + 1);
                 } else {
                     displayFieldPositionSelect.selectOption(noneOptionPosition);
@@ -354,12 +355,12 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
 
     protected Option[] createPositionOptions(BatchPresentation batchPresentation, int fieldIdx) {
         FieldDescriptor[] fields = batchPresentation.getAllFields();
-        if (fields[fieldIdx].variablePrototype) {
+        if (fields[fieldIdx].isPrototype()) {
             return new Option[] { HTMLUtils.createOption("-1", MessagesBatch.OPTION_NONE.message(pageContext), false) };
         }
         int fieldsCount = fields.length;
         for (int i = fields.length - 1; i >= 0; --i) {
-            if (fields[i].variablePrototype || fields[i].fieldState != FieldState.ENABLED) {
+            if (fields[i].isPrototype() || fields[i].fieldState != FieldState.ENABLED) {
                 --fieldsCount;
             }
         }

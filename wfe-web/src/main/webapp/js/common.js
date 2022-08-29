@@ -322,3 +322,47 @@ function saveRangeFilterCriteria(inputTextId) {
 	}
 	destroyFilterCriteriaEditor();
 }
+
+var selectUserFilterCriteriaDialogContent = "<div><input id='selectUserFilter' /><div id='selectUserSearch'></div></div>";
+
+function selectUser(nameInputId, labelInputId, cancelButtonText) {
+	$.editor = $(selectUserFilterCriteriaDialogContent).dialog({
+		modal: true,
+		autoOpen: false,
+		height: 400,
+		width: 400,
+		overlay: {
+			backgroundColor: "#000", opacity: 0.5
+		},
+	    close: function(event, ui) {
+			destroyFilterCriteriaEditor();
+		}
+	});
+	$("#selectUserFilter").on("change keyup", function() {
+		$.ajax({
+			type: "POST",
+			url: "/wfe/ajaxcmd?command=ajaxActorsList",
+			data: JSON.stringify({ target: "actor", hint: $(this).val(), page: 0, perPage: 10 }),
+			dataType: "json",
+			success: function(data) {
+				var $selectUserSearchDiv = $("#selectUserSearch");
+				$selectUserSearchDiv.empty();
+				$.each(data.data, function(k, v) {
+					var $link = $("<a>", { "href": "javascript: void(0);", "style": "display: block; padding: 1px;", "text": v.fullname });
+					$link.click(function() {
+						$("#" + nameInputId).val(v.name);
+						$("#" + labelInputId).val(v.fullname);
+						destroyFilterCriteriaEditor();
+					});
+					$selectUserSearchDiv.append($link);
+				});
+			}
+		});
+	}).change();
+	var buttons = {};
+	buttons[cancelButtonText] = function() {
+		destroyFilterCriteriaEditor();
+	};
+	$.editor.dialog("option", "buttons", buttons);
+	$.editor.dialog("open");
+}

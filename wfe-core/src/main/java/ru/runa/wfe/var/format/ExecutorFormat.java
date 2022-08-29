@@ -1,11 +1,11 @@
 package ru.runa.wfe.var.format;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -15,11 +15,8 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
+import ru.runa.wfe.var.VariableProvider;
 
 public class ExecutorFormat extends VariableFormat implements VariableDisplaySupport {
     private static Map<Class<?>, String> tooltipTemplates = Maps.newHashMap();
@@ -69,6 +66,11 @@ public class ExecutorFormat extends VariableFormat implements VariableDisplaySup
         jsonObject.put("name", executor.getName());
         jsonObject.put("fullName", executor.getFullName());
         return jsonObject;
+    }
+
+    @Override
+    protected Object convertToExcelCellValue(Object value) {
+        return ((Executor) value).getLabel();
     }
 
     @Override

@@ -253,14 +253,14 @@ public class BatchPresentationFields implements Serializable {
         fields.groupIds = new int[0];
         int displayedFieldsCount = fieldDescriptors.length;
         for (FieldDescriptor fieldDescriptor : fieldDescriptors) {
-            if (fieldDescriptor.variablePrototype || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
+            if (fieldDescriptor.isPrototype() || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 displayedFieldsCount--;
             }
         }
         fields.displayIds = new int[displayedFieldsCount];
         for (int i = fieldDescriptors.length - 1; i >= 0; i--) {
             FieldDescriptor fieldDescriptor = fieldDescriptors[i];
-            if (fieldDescriptor.variablePrototype || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
+            if (fieldDescriptor.isPrototype() || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 continue;
             }
             fields.displayIds[--displayedFieldsCount] = i;

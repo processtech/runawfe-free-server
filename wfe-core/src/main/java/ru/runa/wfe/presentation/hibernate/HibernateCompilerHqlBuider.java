@@ -241,10 +241,15 @@ public class HibernateCompilerHqlBuider {
                 }
                 StringBuilder joinRestriction = new StringBuilder();
                 joinRestriction.append("((").append(joinExpr).append(")");
-                if (field.filterByVariable) {
+                if (field.byVariable) {
                     String paramName = "variableValue" + field.fieldIdx;
                     joinRestriction.append(" and (").append(alias).append(".name=:").append(paramName).append(")");
-                    placeholders.add(paramName, field.variableValue);
+                    placeholders.add(paramName, field.variableOrSwimlaneName);
+                }
+                if (field.bySwimlane) {
+                    String paramName = "swimlaneValue" + field.fieldIdx;
+                    joinRestriction.append(" and (").append(alias).append(".name=:").append(paramName).append(")");
+                    placeholders.add(paramName, field.variableOrSwimlaneName);
                 }
                 joinRestriction.append(")");
                 result.add(joinRestriction.toString());
