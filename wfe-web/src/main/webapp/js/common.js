@@ -344,6 +344,8 @@ function selectUser(nameInputId, labelInputId, cancelButtonText) {
 			url: "/wfe/ajaxcmd?command=ajaxActorsList",
 			data: JSON.stringify({ target: "actor", hint: $(this).val(), page: 0, perPage: 10 }),
 			dataType: "json",
+			contentType:"application/json; charset=UTF-8",
+			processData: false,
 			success: function(data) {
 				var $selectUserSearchDiv = $("#selectUserSearch");
 				$selectUserSearchDiv.empty();
