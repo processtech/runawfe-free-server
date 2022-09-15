@@ -43,8 +43,8 @@ public class DefaultDbSource implements DbSource {
      *            HQL path to access property value.
      */
     public DefaultDbSource(Class<?> sourceObject, String valueDBPath) {
-        this.valueDBPath = valueDBPath;
         this.sourceObject = sourceObject;
+        this.valueDBPath = valueDBPath;
     }
 
     @Override

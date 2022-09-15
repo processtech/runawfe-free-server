@@ -23,7 +23,7 @@ public class JobDao extends GenericDao<Job> {
     public List<Job> getExpiredJobs(Long limit) {
         QJob j = QJob.job;
         return queryFactory.selectFrom(j)
-                .where(j.dueDate.loe(new Date()).and(j.token.executionStatus.eq(ExecutionStatus.ACTIVE)))
+                .where(j.dueDate.loe(new Date()).and(j.token.executionStatus.ne(ExecutionStatus.SUSPENDED)).and(j.token.endDate.isNull()))
                 .orderBy(j.dueDate.asc())
                 .limit(limit)
                 .fetch();
@@ -32,7 +32,7 @@ public class JobDao extends GenericDao<Job> {
     public Long getExpiredJobsCount() {
         QJob j = QJob.job;
         return queryFactory.selectFrom(j)
-                .where(j.dueDate.loe(new Date()).and(j.token.executionStatus.eq(ExecutionStatus.ACTIVE)))
+                .where(j.dueDate.loe(new Date()).and(j.token.executionStatus.ne(ExecutionStatus.SUSPENDED)).and(j.token.endDate.isNull()))
                 .fetchCount();
     }
 

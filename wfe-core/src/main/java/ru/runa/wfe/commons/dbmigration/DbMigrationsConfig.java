@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.runa.wfe.commons.dbmigration.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddAssignDateColumnPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddAsyncForTaskAndSubprocess;
 import ru.runa.wfe.commons.dbmigration.impl.AddBatchPresentationIsSharedPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddChatRoomViewPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddColumnForEmbeddedBotTaskFileName;
@@ -20,6 +21,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddParentProcessIdPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessLogCleanBeforeDateColumnPatch;
+import ru.runa.wfe.commons.dbmigration.impl.AddTransitionNameForTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbmigration.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
@@ -160,6 +162,8 @@ public class DbMigrationsConfig {
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
         dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
+        dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
+        dbMigrations.add(AddTransitionNameForTaskPatch.class);
         return dbMigrations;
     }
 }

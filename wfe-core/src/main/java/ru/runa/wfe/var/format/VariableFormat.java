@@ -105,6 +105,9 @@ public abstract class VariableFormat {
     }
 
     public final String formatExcelCell(Object value) {
+        if (value == null) {
+            return null;
+        }
         return String.valueOf(convertToExcelCellValue(value));
     }
 
@@ -128,5 +131,12 @@ public abstract class VariableFormat {
     @Override
     public String toString() {
         return getClass().getName();
+    }
+
+    /**
+     * @see ru.runa.wfe.var.dao.LoadVariableOfType.
+     */
+    public boolean canBePersistedAsComplexVariable() {
+        return false;
     }
 }

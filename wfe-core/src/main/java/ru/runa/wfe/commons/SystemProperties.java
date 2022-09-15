@@ -449,4 +449,8 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("chat.files.storage.path", IoCommons.getAppServerDirPath() + "/wfe.chat-files-storage");
     }
 
+    public static boolean isFileSystemAccessAllowed() {
+        return NO_DATABASE_RESOURCES.getBooleanProperty("filesystem.access.allowed", false);
+    }
+
 }

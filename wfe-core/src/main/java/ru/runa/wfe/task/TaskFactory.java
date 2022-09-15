@@ -16,6 +16,7 @@ import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.var.VariableProvider;
 
 public class TaskFactory {
     @Autowired
@@ -24,11 +25,12 @@ public class TaskFactory {
     /**
      * creates a new task on the given task, in the given execution context.
      */
-    public Task create(ExecutionContext executionContext, TaskDefinition taskDefinition, Swimlane swimlane, Executor executor, Integer index) {
+    public Task create(ExecutionContext executionContext, VariableProvider variableProvider, TaskDefinition taskDefinition, Swimlane swimlane,
+            Executor executor, Integer index, Boolean isAsync) {
         Task task = new Task(executionContext.getToken(), taskDefinition);
-        task.setName(ExpressionEvaluator.substitute(taskDefinition.getName(), executionContext.getVariableProvider()));
-        task.setDescription(ExpressionEvaluator.substitute(taskDefinition.getDescription(), executionContext.getVariableProvider()));
-        task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), getDeadlineDuration(taskDefinition)));
+        task.setName(ExpressionEvaluator.substitute(taskDefinition.getName(), variableProvider));
+        task.setDescription(ExpressionEvaluator.substitute(taskDefinition.getDescription(), variableProvider));
+        task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(variableProvider, getDeadlineDuration(taskDefinition)));
         task.setDeadlineDateExpression(taskDefinition.getDeadlineDuration());
         task.setIndex(index);
         taskDao.create(task);
@@ -37,6 +39,7 @@ public class TaskFactory {
         taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
         task.setSwimlane(swimlane);
         task.assignExecutor(executionContext, executor != null ? executor : swimlane.getExecutor(), false);
+        task.setAsync(isAsync);
         return task;
     }
 

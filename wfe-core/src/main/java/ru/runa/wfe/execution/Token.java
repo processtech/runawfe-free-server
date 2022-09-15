@@ -409,6 +409,16 @@ public class Token implements Serializable {
     }
 
     @Transient
+    public boolean hasActiveChild() {
+        for (Token child : getChildren()) {
+            if (!child.hasEnded() || child.hasActiveChild()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transient
     public int getDepth() {
         return getParent() != null ? getParent().getDepth() + 1 : 0;
     }

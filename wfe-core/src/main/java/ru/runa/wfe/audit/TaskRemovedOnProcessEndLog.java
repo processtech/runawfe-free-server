@@ -3,7 +3,6 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.audit.presentation.ProcessIdValue;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
@@ -16,7 +15,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  */
 @Entity
 @DiscriminatorValue(value = "M")
-public class TaskRemovedOnProcessEndLog extends TaskEndLog {
+public class TaskRemovedOnProcessEndLog extends TaskCancelledLog {
     private static final long serialVersionUID = 1L;
 
     public TaskRemovedOnProcessEndLog() {

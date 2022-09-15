@@ -35,6 +35,8 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.ConfigurationException;
@@ -60,6 +62,7 @@ import ru.runa.wfe.user.User;
 @WebService(name = "ScriptingAPI", serviceName = "ScriptingWebService")
 @SOAPBinding
 public class ScriptingServiceBean implements ScriptingService {
+    private static Log log = LogFactory.getLog(ScriptingServiceBean.class);
     @Autowired
     private AdminScriptRunner runner;
     @Autowired
@@ -126,6 +129,7 @@ public class ScriptingServiceBean implements ScriptingService {
                             }
                         }
                         errors.add(th.getMessage());
+                        log.warn(th.getMessage(), th);
                     }
                 });
             }

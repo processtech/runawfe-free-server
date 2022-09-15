@@ -42,6 +42,8 @@ public interface ProcessLogVisitor {
 
     void onTaskRemovedOnProcessEndLog(TaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog);
 
+    void onTaskRemovedOnEmbeddedSubprocessEndLog(TaskRemovedOnEmbeddedSubprocessEndLog log);
+
     void onTaskExpiredLog(TaskExpiredLog taskExpiredLog);
 
     void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog);
@@ -61,4 +63,6 @@ public interface ProcessLogVisitor {
     void onVariableUpdateLog(VariableUpdateLog variableUpdateLog);
 
     void onAdminActionLog(AdminActionLog adminActionLog);
+
+    void onNodeInfoLog(NodeInfoLog nodeInfoLog);
 }

@@ -32,6 +32,7 @@ public class LoadFileVariableFromFileSystemHandler extends CommonParamBasedHandl
 
     @Override
     protected void executeAction(HandlerData handlerData) throws Exception {
+        stopIfFileSystemAccessProhibited();
         String filePath = handlerData.getInputParamValueNotNull(String.class, "path");
         File file = new File(filePath);
         if (!file.exists()) {

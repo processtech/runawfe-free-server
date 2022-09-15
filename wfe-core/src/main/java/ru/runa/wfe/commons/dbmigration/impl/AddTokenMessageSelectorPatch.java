@@ -28,7 +28,7 @@ public class AddTokenMessageSelectorPatch extends DbMigration implements DbMigra
 
     @Override
     public void postExecute() {
-        List<Token> tokens = tokenDao.findByMessageSelectorIsNullAndExecutionStatusIsActive();
+        List<Token> tokens = tokenDao.findByMessageSelectorIsNullAndExecutionStatusIsNotEnded();
         log.info("Updating " + tokens.size() + " tokens message selector");
         for (Token token : tokens) {
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());

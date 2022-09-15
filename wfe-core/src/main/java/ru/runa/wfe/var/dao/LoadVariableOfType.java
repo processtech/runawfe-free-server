@@ -1,12 +1,11 @@
 package ru.runa.wfe.var.dao;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.UserType;
@@ -35,17 +34,10 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 import ru.runa.wfe.var.legacy.ComplexVariable;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 /**
  * Load variable value depends of variable type.
  */
 public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVariableOfTypeContext> {
-    /**
-     * Logging support.
-     */
-    private static Log log = LogFactory.getLog(LoadVariableOfType.class);
 
     @Override
     public Object onDate(DateFormat dateFormat, LoadVariableOfTypeContext context) {
@@ -105,7 +97,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
         if (size == null) {
             if (SystemProperties.isV4ListVariableCompatibilityMode()) {
-                Variable<?> variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
+                Variable<?> variable = context.getVariable();
                 if (variable != null) {
                     return processComplexVariables(context.processDefinition, context.variableDefinition, null, variable.getValue());
                 }
@@ -134,7 +126,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
         if (size == null && SystemProperties.isV4MapVariableCompatibilityMode()) {
             VariableDefinition variableDefinition = context.variableDefinition;
-            Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            Variable<?> variable = context.getVariable();
             if (variable == null) {
                 return variableDefinition.getDefaultValue();
             }
@@ -189,16 +181,15 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             userTypeMap.put(attributeDefinition.getName(), value);
         }
         if (userTypeMap.isEmpty()) {
-            Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            Variable<?> variable = context.getVariable();
             if (variable != null) {
                 // Back compatibility for variables stored as blob.
                 if (variable.getValue() == null) {
                     return variableDefinition.getDefaultValue();
                 }
                 if (!(variable.getValue() instanceof ComplexVariable)) {
-                    log.error("User type variable " + variableDefinition.getName() + " has unexpected value of type "
-                            + variable.getValue().getClass() + " in process " + context.process.getId());
-                    return variableDefinition.getDefaultValue();
+                    throw new InternalApplicationException("User type variable " + variableDefinition.getName() + " has unexpected value of type "
+                            + variable.getValue().getClass());
                 }
                 UserTypeMap map = new UserTypeMap(userTypeFormat.getUserType());
                 // limitation: embedded complex variables
@@ -224,10 +215,9 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
      * @return Returns loaded variable value.
      */
     private Object loadSimpleVariable(VariableFormat format, LoadVariableOfTypeContext context) {
-        VariableDefinition variableDefinition = context.variableDefinition;
-        Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
+        Variable<?> variable = context.getVariable();
         if (variable == null) {
-            return variableDefinition.getDefaultValue();
+            return context.variableDefinition.getDefaultValue();
         }
         Object value = variable.getValue();
         return value;

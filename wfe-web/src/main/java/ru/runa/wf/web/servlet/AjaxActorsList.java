@@ -1,14 +1,12 @@
 package ru.runa.wf.web.servlet;
 
+import com.google.common.base.Strings;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -20,8 +18,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Strings;
 
 public class AjaxActorsList extends JsonAjaxCommand {
 
@@ -35,7 +31,7 @@ public class AjaxActorsList extends JsonAjaxCommand {
             Long perPage = (Long) options.get("perPage");
             String hint = (String) options.get("hint");
             String target = (String) options.get("target");
-            boolean excludeSelf = (Boolean) options.get("excludeme");
+            Boolean excludeme = (Boolean) options.get("excludeme");
             JSONObject root = new JSONObject();
             JSONArray data = new JSONArray();
             BatchPresentation batchPresentation = getPresentation(target, page.intValue() + 1, perPage.intValue(), hint);
@@ -46,7 +42,7 @@ public class AjaxActorsList extends JsonAjaxCommand {
             root.put("page", page);
             List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user, batchPresentation);
             for (Executor executor : executors) {
-                if (isExcluded(user, executor, excludeSelf)) {
+                if (isExcluded(user, executor, excludeme)) {
                     continue;
                 }
                 Object obj = executorToJson(executor);
@@ -86,24 +82,24 @@ public class AjaxActorsList extends JsonAjaxCommand {
     private JSONObject executorToJson(Executor executor) {
         JSONObject r = new JSONObject();
         r.put("id", executor.getId());
+        r.put("name", executor.getName());
         if (executor instanceof Actor) {
             r.put("type", "actor");
             r.put("fullname", executor.getLabel());
         } else if (executor instanceof Group) {
             r.put("type", "group");
-            r.put("name", executor.getLabel());
         }
         return r;
     }
 
-    private boolean isExcluded(User user, Executor executor, boolean excludeSelf) {
+    private boolean isExcluded(User user, Executor executor, Boolean excludeme) {
         if (executor.getName().startsWith(ru.runa.wfe.user.SystemExecutors.SYSTEM_EXECUTORS_PREFIX)) {
             return true;
         }
         if (executor instanceof TemporaryGroup) {
             return true;
         }
-        if (excludeSelf && executor.getId().equals(user.getActor().getId())) {
+        if (Boolean.TRUE.equals(excludeme) && executor.getId().equals(user.getActor().getId())) {
             return true;
         }
         return false;

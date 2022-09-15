@@ -90,21 +90,16 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
 
     @Override
     public TaskCompletionInfo getTaskCompletionInfoIfInterrupting(ExecutionContext executionContext) {
-        return TaskCompletionInfo.createForTimer();
+        return TaskCompletionInfo.createForTimer(getLeavingTransitions().get(0).getName());
     }
 
     public void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
         try {
             if (actionDelegation != null) {
-                try {
-                    ActionHandler actionHandler = actionDelegation.getInstance();
-                    log.debug("Executing delegation in " + this);
-                    actionHandler.execute(executionContext);
-                    executionContext.addLog(new ActionLog(this));
-                } catch (Exception e) {
-                    log.error("Failed " + this);
-                    throw Throwables.propagate(e);
-                }
+                ActionHandler actionHandler = actionDelegation.getInstance();
+                log.debug("Executing delegation in " + this);
+                actionHandler.execute(executionContext);
+                executionContext.addLog(new ActionLog(this));
             }
             if (!getLeavingTransitions().isEmpty()) {
                 cancelBoundaryEvent(executionContext.getToken());

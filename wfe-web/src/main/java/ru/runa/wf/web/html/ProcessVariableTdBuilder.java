@@ -47,7 +47,6 @@ public class ProcessVariableTdBuilder implements TdBuilder {
     @Override
     public String getValue(Object object, Env env) {
         WfVariable variable = getVariable(object);
-        Long id = getId(object);
         if (variable != null && variable.getValue() != null) {
             VariableFormat format = variable.getDefinition().getFormatNotNull();
             return format.formatExcelCell(variable.getValue());

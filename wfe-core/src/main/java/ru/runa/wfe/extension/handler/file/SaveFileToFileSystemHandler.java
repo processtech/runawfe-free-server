@@ -13,6 +13,7 @@ public class SaveFileToFileSystemHandler extends CommonParamBasedHandler {
 
     @Override
     protected void executeAction(HandlerData handlerData) throws Exception {
+        stopIfFileSystemAccessProhibited();
         FileVariable fileVariable = handlerData.getInputParamValueNotNull(FileVariable.class, "file");
         String filePath = handlerData.getInputParamValueNotNull("path");
         if (Strings.isNullOrEmpty(Files.getFileExtension(filePath))) {

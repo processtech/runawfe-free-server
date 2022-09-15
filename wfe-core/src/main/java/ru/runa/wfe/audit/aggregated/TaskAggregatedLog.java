@@ -97,6 +97,8 @@ public class TaskAggregatedLog {
      */
     private List<TaskAssignmentHistory> assignmentHistory = new LinkedList<TaskAssignmentHistory>();
 
+    private String transitionName;
+
     public TaskAggregatedLog() {
         super();
     }
@@ -143,12 +145,16 @@ public class TaskAggregatedLog {
      *            Actor, which end's task.
      * @param endReason
      *            Task instance complete reason.
+     * 
+     * @param transitionName
+     *            Task selected transition name.
      */
-    public void updateOnEnd(Date endDate, String actorName, EndReason endReason) {
+    public void updateOnEnd(Date endDate, String actorName, EndReason endReason, String transitionName) {
         saveAssignment(endDate, actorName);
         this.endDate = endDate;
         completeActorName = actorName;
         this.endReason = endReason;
+        this.transitionName = transitionName;
     }
 
     /**
@@ -307,6 +313,15 @@ public class TaskAggregatedLog {
 
     public void setSwimlaneName(String swimlaneName) {
         this.swimlaneName = swimlaneName;
+    }
+
+    @Column(name = "TRANSITION_NAME", length = 1024)
+    public String getTransitionName() {
+        return transitionName;
+    }
+
+    public void setTransitionName(String transitionName) {
+        this.transitionName = transitionName;
     }
 
     @OneToMany(targetEntity = TaskAssignmentHistory.class, fetch = FetchType.LAZY)
