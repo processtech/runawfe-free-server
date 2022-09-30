@@ -171,7 +171,6 @@ public class DbMigrationsConfig {
         dbMigrations.add(EnlargeMessageMaxSizePatch.class);
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
-        dbMigrations.add(AddTransitionNameForTaskPatch.class);
         // start develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);
@@ -187,6 +186,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);
         dbMigrations.add(RecreateChatRoomView.class);
         // end develop patches
+        dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
         return dbMigrations;
     }
 }
