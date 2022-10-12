@@ -22,7 +22,7 @@ import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.Delegation;
-import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
+import ru.runa.wfe.lang.EmbeddedSubprocessLikeGraphPartEndNode;
 import ru.runa.wfe.lang.EmbeddedSubprocessStartNode;
 import ru.runa.wfe.lang.EndNode;
 import ru.runa.wfe.lang.GraphElement;
@@ -107,6 +107,7 @@ public class JpdlXmlReader {
     private static final String EXECUTION_CONDITION = "executionCondition";
     private static final String GLOBAL = "global";
     private static final String VALIDATE_AT_START = "validateAtStart";
+    private static final String DISABLE_CASCADING_SUSPENSION = "disableCascadingSuspension";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
@@ -202,7 +203,7 @@ public class JpdlXmlReader {
                 }
             } else if ("end-token-state".equals(nodeName)) {
                 if (parsedProcessDefinition instanceof ParsedSubprocessDefinition && !BEHAVIOUR_TERMINATE.equals(element.attributeValue(BEHAVIOUR))) {
-                    node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessEndNode.class);
+                    node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessLikeGraphPartEndNode.class);
                 } else {
                     node = ApplicationContextFactory.createAutowiredBean(EndToken.class);
                 }
@@ -345,6 +346,8 @@ public class JpdlXmlReader {
                 subprocessNode.setEmbedded(Boolean.parseBoolean(subProcessElement.attributeValue(EMBEDDED, "false")));
                 subprocessNode.setTransactional(Boolean.parseBoolean(subProcessElement.attributeValue(TRANSACTIONAL, "false")));
                 subprocessNode.setValidateAtStart(Boolean.parseBoolean(subProcessElement.attributeValue(VALIDATE_AT_START, "false")));
+                subprocessNode.setDisableCascadingSuspension(
+                        Boolean.parseBoolean(subProcessElement.attributeValue(DISABLE_CASCADING_SUSPENSION, "false")));
             }
             if (node instanceof MultiSubprocessNode) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(element.attributeValue(EXECUTION_CONDITION));

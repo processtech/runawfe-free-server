@@ -13,7 +13,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  */
 @Entity
 @DiscriminatorValue(value = "9")
-public class CurrentTaskExpiredLog extends CurrentTaskEndLog implements TaskExpiredLog {
+public class CurrentTaskExpiredLog extends CurrentTaskCancelledLog implements TaskExpiredLog {
     private static final long serialVersionUID = 1L;
 
     public CurrentTaskExpiredLog() {

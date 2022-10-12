@@ -12,7 +12,7 @@
 	var suspendedLabel = "<bean:message key="process.execution.status.suspended" />";
 	var endedLabel = "<bean:message key="process.execution.status.ended" />";
 	$(document).ready(function() {
-		var input = $("table.view-setup tr[field='batch_presentation.process.execution_status'] input[name='fieldsToFilterCriterias']");
+		var input = $("table.view-setup tr[field='executionStatus'] input[name='fieldsToFilterCriterias']");
 		var select = $("<select />", { name: input.attr("name") });
 		$("<option />", {val: "", text: ""}).appendTo(select);
 		$("<option />", {val: "ACTIVE", text: activeLabel}).appendTo(select);
@@ -21,7 +21,7 @@
 		$("<option />", {val: "ENDED", text: endedLabel}).appendTo(select);
 		select.val(input.val());
 		input.replaceWith(select);
-		$("table.view-setup tr[field='batch_presentation.process.execution_status'] img[class='button-more']").remove();
+		$("table.view-setup tr[field='executionStatus'] img[class='button-more']").remove();
 	});
 	</script>
 </tiles:put>
@@ -37,9 +37,6 @@
             <wf:viewControlsHideableBlock hideableBlockId="<%= batchPresentationId %>"  returnAction="<%= returnAction %>">
                 <wf:tableViewSetupForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>" excelExportAction="/exportExcelProcesses" />
             </wf:viewControlsHideableBlock>
-        </div>
-        <div style="position: absolute; right: 200px; top: 5px;">
-        	<wf:sendProcessSignalLink />
         </div>
     </div>
 </wf:listProcessesForm>

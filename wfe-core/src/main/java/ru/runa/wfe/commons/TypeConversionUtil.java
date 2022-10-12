@@ -1,5 +1,13 @@
 package ru.runa.wfe.commons;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Defaults;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.primitives.Primitives;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -9,21 +17,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.ExecutorLoader;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.UserTypeMap;
+import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.UserTypeFormat;
-
-import com.google.common.base.Defaults;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.primitives.Primitives;
 
 @SuppressWarnings("unchecked")
 public class TypeConversionUtil {
@@ -123,6 +124,10 @@ public class TypeConversionUtil {
                     return (T) (Long) ((Calendar) object).getTimeInMillis();
                 }
             }
+            if (classConvertTo == FileVariable.class && Map.class.isAssignableFrom(object.getClass())) {
+                // something like ru.runa.wfe.var.format.FileFormat.convertFromJSONValue(Object)?
+                throw new InternalApplicationException("TODO rm2650");
+            }
             if (classConvertTo.isArray()) {
                 List<?> list = convertTo(List.class, object, preConvertor, postConvertor);
                 Class<?> componentType = classConvertTo.getComponentType();
@@ -137,6 +142,9 @@ public class TypeConversionUtil {
             }
             if (object instanceof Calendar && classConvertTo == Date.class) {
                 return (T) ((Calendar) object).getTime();
+            }
+            if (object instanceof Number && classConvertTo == Date.class) {
+                return (T) new Date(((Number) object).longValue());
             }
             if (object instanceof String && (classConvertTo == Calendar.class || classConvertTo == Date.class)) {
                 Date date;

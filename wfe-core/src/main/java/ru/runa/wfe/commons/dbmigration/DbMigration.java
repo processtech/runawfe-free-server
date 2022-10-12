@@ -186,6 +186,24 @@ public abstract class DbMigration {
         });
     }
 
+    /**
+     * Helper for getting boolean type values for different DB.
+     *
+     * @return Boolean string value.
+     */
+    protected final String getBooleanValue(boolean value) {
+        String result;
+        switch (dbType) {
+            case POSTGRESQL:
+                result = String.valueOf(value);
+                break;
+            default:
+                result = value ? "1" : "0";
+                break;
+        }
+        return result;
+    }
+
     private static void checkIndentifierLength(String id) {
         if (id != null && id.length() > 30) {
             throw new RuntimeException("Identifier \"" + id + "\".length " + id.length() + " > 30 (Oracle restriction)");
@@ -524,6 +542,12 @@ public abstract class DbMigration {
     public class BigintColumnDef extends ColumnDef {
         public BigintColumnDef(String name) {
             super(name, dialect.getTypeName(Types.BIGINT));
+        }
+    }
+
+    public class ClobColumnDef extends ColumnDef {
+        public ClobColumnDef(String name) {
+            super(name, dialect.getTypeName(Types.CLOB));
         }
     }
 

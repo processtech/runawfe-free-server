@@ -47,11 +47,13 @@ public class TargetProcessSetDateVariableHandler extends SetDateVariableHandler 
         public void applySubstitutions(VariableProvider variableProvider) {
             super.applySubstitutions(variableProvider);
             {
-                String substitutedValue = (String) ExpressionEvaluator.evaluateVariableNotNull(variableProvider, baseVariableName);
-                if (!Objects.equal(substitutedValue, baseVariableName)) {
-                    log.debug("Substituted " + baseVariableName + " -> " + substitutedValue);
-                }
-                baseVariableName = substitutedValue;
+               if (baseVariableName != null) {
+                   String substitutedValue = (String) ExpressionEvaluator.evaluateVariableNotNull(variableProvider, baseVariableName);
+                   if (!Objects.equal(substitutedValue, baseVariableName)) {
+                       log.debug("Substituted " + baseVariableName + " -> " + substitutedValue);
+                   }
+                   baseVariableName = substitutedValue;
+               }
             }
             {
                 String substitutedValue = (String) ExpressionEvaluator.evaluateVariableNotNull(variableProvider, outVariableName);

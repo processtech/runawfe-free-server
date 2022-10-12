@@ -8,13 +8,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.SerializationUtils;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
-import ru.runa.wfe.commons.cache.CacheImplementation;
-import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
@@ -151,61 +147,6 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         }
     }
 
-    public <T extends Executor> boolean onExecutorChange(String executorName, Class<T> executorClass, boolean createOrDelete) {
-        Executor executor = nameToExecutorCache.get(executorName);
-        if (executor == null) {
-            return true;
-        }
-        nameToExecutorCache.remove(executor.getName());
-        idToExecutorCache.remove(executor.getId());
-        if (executor instanceof Actor) {
-            codeToActorCache.remove(((Actor) executor).getCode());
-        }
-        batchAllExecutors.clear();
-        Set<Group> upperGroups = executorToAllParentGroupsCache.get(executor.getId());
-        if (upperGroups != null) {
-            for (Group upperGroup : upperGroups) {
-                groupToMembersCache.remove(upperGroup.getId());
-                groupToAllActorMembersCache.remove(upperGroup.getId());
-            }
-        }
-        return clearGroupMembersCaches(executor);
-    }
-
-    private boolean clearGroupMembersCaches(Executor executor) {
-        boolean result = true;
-        result = result && executorToAllParentGroupsCache.remove(executor.getId());
-        result = result && executorToParentGroupsCache.remove(executor.getId());
-        if (executor instanceof Group) {
-            Set<Executor> executors = groupToMembersCache.get(executor.getId());
-            if (executors != null) {
-                for (Executor ex : executors) {
-                    result = result && clearGroupMembersCaches(ex);
-                }
-            }
-        }
-        return result;
-    }
-
-    public boolean onGroupMembersChange(Group group) {
-        groupToMembersCache.remove(group.getId());
-        groupToAllActorMembersCache.remove(group.getId());
-        batchAllExecutors.clear();
-        Set<Group> upperGroups = executorToAllParentGroupsCache.get(group.getId());
-        if (upperGroups != null) {
-            for (Group upperGroup : upperGroups) {
-                groupToMembersCache.remove(upperGroup.getId());
-                groupToAllActorMembersCache.remove(upperGroup.getId());
-            }
-        }
-        return true;
-    }
-
-    public boolean onExecutorInGroupChange(Executor executor) {
-        batchAllExecutors.clear();
-        return clearGroupMembersCaches(executor);
-    }
-
     private void addExecutorToCaches(Executor executor) {
         idToExecutorCache.put(executor.getId(), executor);
         nameToExecutorCache.put(executor.getName(), executor);
@@ -290,18 +231,15 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         return actorMembers;
     }
 
-    private <T> List<T> getAll(Class<?> clazz) {
-        Session session = ApplicationContextFactory.getCurrentSession();
-        Criteria criteria = session.createCriteria(clazz);
-        return criteria.list();
-    }
-
     private List<ExecutorGroupMembership> getAllMemberships() {
-        return getAll(ExecutorGroupMembership.class);
+        return ApplicationContextFactory.getCurrentSession()
+                .createSQLQuery("SELECT * FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N'))")
+                .addEntity(ExecutorGroupMembership.class).list();
     }
 
     private List<Executor> getAllExecutors() {
-        return getAll(Executor.class);
+        return ApplicationContextFactory.getCurrentSession().createSQLQuery("SELECT * FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')")
+                .addEntity(Executor.class).list();
     }
 
     private static class BatchPresentationFieldEquals {
@@ -326,36 +264,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
     }
 
     @Override
-    public CacheImplementation unlock() {
-        return null;
-    }
-
-    @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        if (changedObject.object instanceof Executor) {
-            boolean cleared;
-            int idx = changedObject.getPropertyIndex("name");
-            boolean createOrDelete = changedObject.changeType == Change.CREATE || changedObject.changeType == Change.DELETE;
-            if (changedObject.object instanceof Actor) {
-                cleared = onExecutorChange((String) changedObject.currentState[idx], Actor.class, createOrDelete);
-                if (changedObject.previousState != null) {
-                    cleared = cleared && onExecutorChange((String) changedObject.previousState[idx], Actor.class, createOrDelete);
-                }
-            } else {
-                cleared = onExecutorChange((String) changedObject.currentState[idx], Executor.class, createOrDelete);
-                if (changedObject.previousState != null) {
-                    cleared = cleared && onExecutorChange((String) changedObject.previousState[idx], Executor.class, createOrDelete);
-                }
-            }
-            return cleared;
-        }
-        if (changedObject.object instanceof ExecutorGroupMembership) {
-            boolean cleared = true;
-            ExecutorGroupMembership membership = (ExecutorGroupMembership) changedObject.object;
-            cleared = cleared && onExecutorInGroupChange(membership.getExecutor());
-            cleared = cleared && onGroupMembersChange(membership.getGroup());
-            return cleared;
-        }
         return false;
     }
 }

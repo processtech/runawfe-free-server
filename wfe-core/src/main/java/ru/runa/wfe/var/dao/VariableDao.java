@@ -125,4 +125,13 @@ public class VariableDao extends ArchiveAwareGenericDao<Variable, CurrentVariabl
 
         return result;
     }
+
+    public List<? extends Variable> getVariablesByNameStartsWith(Process process, String namePrefix) {
+        if (process.isArchived()) {
+            return archivedDao
+            .getVariablesByNameStartsWith((ArchivedProcess) process, namePrefix);
+        } else {
+            return currentDao.getVariablesByNameStartsWith((CurrentProcess) process, namePrefix);
+        }
+    }
 }

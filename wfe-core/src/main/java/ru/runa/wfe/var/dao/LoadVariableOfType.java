@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
@@ -97,7 +98,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
         if (size == null) {
             if (SystemProperties.isV4ListVariableCompatibilityMode()) {
-                Variable variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
+                Variable variable = context.getVariable();
                 if (variable != null) {
                     return processComplexVariables(context.variableDefinition, null, variable.getValue());
                 }
@@ -126,7 +127,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
         if (size == null && SystemProperties.isV4MapVariableCompatibilityMode()) {
             VariableDefinition variableDefinition = context.variableDefinition;
-            Variable variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            Variable variable = context.getVariable();
             if (variable == null) {
                 return variableDefinition.getDefaultValue();
             }
@@ -181,16 +182,15 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             userTypeMap.put(attributeDefinition.getName(), value);
         }
         if (userTypeMap.isEmpty()) {
-            Variable variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            Variable variable = context.getVariable();
             if (variable != null) {
                 // Back compatibility for variables stored as blob.
                 if (variable.getValue() == null) {
                     return variableDefinition.getDefaultValue();
                 }
                 if (!(variable.getValue() instanceof ComplexVariable)) {
-                    log.error("User type variable " + variableDefinition.getName() + " has unexpected value of type "
-                            + variable.getValue().getClass() + " in process " + context.process.getId());
-                    return variableDefinition.getDefaultValue();
+                    throw new InternalApplicationException("User type variable " + variableDefinition.getName() + " has unexpected value of type "
+                            + variable.getValue().getClass());
                 }
                 UserTypeMap map = new UserTypeMap(userTypeFormat.getUserType());
                 // limitation: embedded complex variables
@@ -216,10 +216,9 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
      * @return Returns loaded variable value.
      */
     private Object loadSimpleVariable(VariableFormat format, LoadVariableOfTypeContext context) {
-        VariableDefinition variableDefinition = context.variableDefinition;
-        Variable variable = context.variableLoader.get(context.process, variableDefinition.getName());
+        Variable variable = context.getVariable();
         if (variable == null) {
-            return variableDefinition.getDefaultValue();
+            return context.variableDefinition.getDefaultValue();
         }
         return variable.getValue();
     }

@@ -13,6 +13,7 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -288,14 +289,12 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         return processDefinitionLogic.getProcessDefinitionHistory(user, name);
     }
 
-    @Override
     public List<ProcessDefinitionChange> getChanges(@WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId) {
-        return processDefinitionLogic.getChanges(processDefinitionVersionId);
+        throw new InternalApplicationException("method is defined here for compatibility only");
     }
 
-    @Override
     public List<ProcessDefinitionChange> getLastChanges(@WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId, @NonNull Long n) {
-        return processDefinitionLogic.getLastChanges(processDefinitionVersionId, n.intValue());
+        throw new InternalApplicationException("method is defined here for compatibility only");
     }
 
     @Override

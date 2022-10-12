@@ -26,7 +26,7 @@ public class NodeGraphElement implements Serializable {
      * ATTENTION!!! Must be list of *class* BaseProcessLog, not *interface* ProcessLog,
      * or it won't be handled by JAX-WS (Apache CXF would fail on startup).
      */
-    private List<? extends BaseProcessLog> data;
+    private List<BaseProcessLog> data;
     private String label;
 
     /**
@@ -67,14 +67,14 @@ public class NodeGraphElement implements Serializable {
     /**
      * Some additional data, assigned to graph element.
      */
-    public List<? extends BaseProcessLog> getData() {
+    public List<BaseProcessLog> getData() {
         return data;
     }
 
     /**
      * Some additional data, assigned to graph element.
      */
-    public void setData(List<? extends BaseProcessLog> data) {
+    public void setData(List<BaseProcessLog> data) {
         this.data = data;
     }
 

@@ -19,7 +19,7 @@ public class TaskNode extends BaseTaskNode {
         for (TaskDefinition taskDefinition : taskDefinitions) {
             CurrentSwimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
             // copy the swimlane assignment into the task
-            taskFactory.create(executionContext, taskDefinition, swimlane, swimlane.getExecutor(), null);
+            taskFactory.create(executionContext, executionContext.getVariableProvider(), taskDefinition, swimlane, swimlane.getExecutor(), null, async);
         }
         if (async) {
             log.debug("continue execution in async " + this);

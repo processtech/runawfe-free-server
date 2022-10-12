@@ -34,7 +34,7 @@ public class HibernateCompilerLeftJoinBuilder {
     public void injectLeftJoin(StringBuilder sqlRequest) {
         List<LeftJoinDescription> leftJoins = new ArrayList<>();
         for (FieldDescriptor field : batchPresentation.getAllFields()) {
-            if (field.variablePrototype) {
+            if (field.isPrototype()) {
                 continue;
             }
             if (field.dbSources[0].getSourceObject().equals(batchPresentation.getType().getPresentationClass())) {
@@ -74,7 +74,7 @@ public class HibernateCompilerLeftJoinBuilder {
         String restriction = getJoinRestriction(sqlRequest, joinedTableAlias);
         String rootJoinTable = getRootJoinTable(joinedTableAlias, restriction);
         String leftJoinQuery;
-        if (field.filterByVariable) {
+        if (field.byVariable) {
             String condition = getFilterByVariableFieldCondition(sqlRequest, joinedTableAlias);
             leftJoinQuery = " left join (select " + joinedTableAlias + ".* from " + tableName + " " + joinedTableAlias + " where " + condition + ")"
                     + joinedTableAlias + " on " + restriction + " ";

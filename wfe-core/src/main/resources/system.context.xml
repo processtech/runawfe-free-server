@@ -5,17 +5,17 @@
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:task="http://www.springframework.org/schema/task"
 	xsi:schemaLocation="
-       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/tx 
+       http://www.springframework.org/schema/tx
        http://www.springframework.org/schema/tx/spring-tx.xsd
-       http://www.springframework.org/schema/aop 
+       http://www.springframework.org/schema/aop
        http://www.springframework.org/schema/aop/spring-aop.xsd
-       http://www.springframework.org/schema/jee 
+       http://www.springframework.org/schema/jee
        http://www.springframework.org/schema/jee/spring-jee.xsd
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context.xsd
-       http://www.springframework.org/schema/task 
+       http://www.springframework.org/schema/task
        http://www.springframework.org/schema/task/spring-task.xsd">
 
 
@@ -263,10 +263,11 @@
 	<bean id="processArchiver" class="ru.runa.wfe.job.impl.ProcessArchiver" />
 
     <bean id="statisticReportExecutor" class="ru.runa.wfe.statistics.job.StatisticReportExecutor" init-method="init"/>
-
+	<bean id="cacheUsageStatisticLogger" class="ru.runa.wfe.job.impl.CacheUsageStatisticLogger" />
 	<bean id="asyncTaskChecker" class="ru.runa.wfe.job.impl.AsyncTaskChecker">
 		<property name="ttlInSeconds" value="${async.tasks.ttl.in.seconds}" />
 	</bean>
+	<bean id="chatUnusedFilesCleanerJob" class="ru.runa.wfe.chat.ChatUnusedFilesCleanerJob" />
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
 
@@ -279,5 +280,7 @@
 	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
 
 	<bean id="formHandlerExecutor" class="ru.runa.wfe.execution.FormHandlerExecutor" />
+
+	<bean id="tokenNodeNameExtractor" class="ru.runa.wfe.execution.logic.TokenNodeNameExtractorImpl" />
 
 </beans>

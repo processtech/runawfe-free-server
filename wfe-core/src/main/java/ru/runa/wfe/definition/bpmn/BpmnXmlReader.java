@@ -24,7 +24,8 @@ import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.Delegation;
-import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
+import ru.runa.wfe.lang.EmbeddedSubprocessLikeGraphPartEndNode;
+import ru.runa.wfe.lang.EmbeddedSubprocessLikeSeparateSubprocessEndNode;
 import ru.runa.wfe.lang.EmbeddedSubprocessStartNode;
 import ru.runa.wfe.lang.EndNode;
 import ru.runa.wfe.lang.GraphElement;
@@ -45,6 +46,7 @@ import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.lang.VariableContainerNode;
+import ru.runa.wfe.lang.bpmn2.BusinessRule;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.DataStore;
 import ru.runa.wfe.lang.bpmn2.EndToken;
@@ -76,6 +78,7 @@ public class BpmnXmlReader {
     private static final String MULTI_INSTANCE = "multiInstance";
     private static final String EXCLUSIVE_GATEWAY = "exclusiveGateway";
     private static final String PARALLEL_GATEWAY = "parallelGateway";
+    private static final String BUSINESS_RULE = "businessRuleTask";
     private static final String DEFAULT_TASK_DEADLINE = "defaultTaskDeadline";
     private static final String TASK_DEADLINE = "taskDeadline";
     private static final String USER_TASK = "userTask";
@@ -126,6 +129,7 @@ public class BpmnXmlReader {
     private static final String COLOR = "color";
     private static final String GLOBAL = "global";
     private static final String VALIDATE_AT_START = "validateAtStart";
+    private static final String DISABLE_CASCADING_SUSPENSION = "disableCascadingSuspension";
 
     @Autowired
     private LocalizationDao localizationDao;
@@ -141,6 +145,7 @@ public class BpmnXmlReader {
         nodeTypes.put(SCRIPT_TASK, ScriptNode.class);
         nodeTypes.put(EXCLUSIVE_GATEWAY, ExclusiveGateway.class);
         nodeTypes.put(PARALLEL_GATEWAY, ParallelGateway.class);
+        nodeTypes.put(BUSINESS_RULE, BusinessRule.class);
         nodeTypes.put(TEXT_ANNOTATION, TextAnnotation.class);
         nodeTypes.put(DATA_STORE, DataStore.class);
         // back compatibility v < 4.3.0
@@ -179,7 +184,9 @@ public class BpmnXmlReader {
             if (processProperties.containsKey(NODE_ASYNC_EXECUTION)) {
                 parsedProcessDefinition.setNodeAsyncExecution("new".equals(processProperties.get(NODE_ASYNC_EXECUTION)));
             }
-
+            if (parsedProcessDefinition instanceof ParsedSubprocessDefinition && processProperties.containsKey(BEHAVIOUR)) {
+                ((ParsedSubprocessDefinition) parsedProcessDefinition).setBehaviorLikeGraphPart("GraphPart".equals(processProperties.get(BEHAVIOUR)));
+            }
             // 1: read most content
             readSwimlanes(parsedProcessDefinition, process);
             readNodes(parsedProcessDefinition, process);
@@ -237,14 +244,20 @@ public class BpmnXmlReader {
                     node = ApplicationContextFactory.createAutowiredBean(StartNode.class);
                 }
             } else if (END_EVENT.equals(nodeName)) {
-                if (properties.containsKey(TOKEN)) {
-                    if (parsedProcessDefinition instanceof ParsedSubprocessDefinition && !BEHAVIOUR_TERMINATE.equals(properties.get(BEHAVIOUR))) {
-                        node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessEndNode.class);
+                if (parsedProcessDefinition instanceof ParsedSubprocessDefinition) {
+                    if (((ParsedSubprocessDefinition) parsedProcessDefinition).isBehaviorLikeGraphPart()) {
+                        if (BEHAVIOUR_TERMINATE.equals(properties.get(BEHAVIOUR))) {
+                            node = ApplicationContextFactory.createAutowiredBean(EndToken.class);
+                        } else {
+                            node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessLikeGraphPartEndNode.class);
+                        }
                     } else {
-                        node = ApplicationContextFactory.createAutowiredBean(EndToken.class);
+                        node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessLikeSeparateSubprocessEndNode.class);
+                        ((EmbeddedSubprocessLikeSeparateSubprocessEndNode) node).setEndToken(properties.containsKey(TOKEN));
                     }
                 } else {
-                    node = ApplicationContextFactory.createAutowiredBean(EndNode.class);
+                    Class<? extends Node> nodeClass = properties.containsKey(TOKEN) ? EndToken.class : EndNode.class;
+                    node = ApplicationContextFactory.createAutowiredBean(nodeClass);
                 }
             } else if (SUBPROCESS.equals(nodeName)) {
                 if (properties.containsKey(MULTI_INSTANCE)) {
@@ -325,6 +338,9 @@ public class BpmnXmlReader {
             if (properties.containsKey(VALIDATE_AT_START)) {
                 subprocessNode.setValidateAtStart(Boolean.parseBoolean(properties.get(VALIDATE_AT_START)));
             }
+            if (properties.containsKey(DISABLE_CASCADING_SUSPENSION)) {
+                subprocessNode.setDisableCascadingSuspension(Boolean.parseBoolean(properties.get(DISABLE_CASCADING_SUSPENSION)));
+            }
             if (node instanceof MultiSubprocessNode && properties.containsKey(DISCRIMINATOR_CONDITION)) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(properties.get(DISCRIMINATOR_CONDITION));
             }
@@ -332,6 +348,10 @@ public class BpmnXmlReader {
         if (node instanceof ExclusiveGateway) {
             ExclusiveGateway gateway = (ExclusiveGateway) node;
             gateway.setDelegation(readDelegation(element, properties, false));
+        }
+        if (node instanceof BusinessRule) {
+            BusinessRule businessRule = (BusinessRule) node;
+            businessRule.setDelegation(readDelegation(element, properties, false));
         }
         if (node instanceof TimerNode) {
             TimerNode timerNode = (TimerNode) node;

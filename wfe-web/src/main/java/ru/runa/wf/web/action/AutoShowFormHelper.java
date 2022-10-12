@@ -13,18 +13,21 @@ import ru.runa.wfe.presentation.filter.LongFilterCriteria;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskClassPresentation;
 import ru.runa.wfe.task.dto.WfTask;
-import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 
 public class AutoShowFormHelper {
     private static final String LOCAL_FORWARD_TASKS_LIST = "tasksList";
     private static final String LOCAL_FORWARD_SUBMIT_TASK = "submitTask";
 
-    public static ActionForward getNextActionForward(User user, ActionMapping mapping, Long processId) {
+    public static List<WfTask> getTasks(User user, Long processId) {
         BatchPresentation batchPresentation = BatchPresentationFactory.TASKS.createDefault("getNextActionForward");
         int fieldIndex = batchPresentation.getType().getFieldIndex(TaskClassPresentation.PROCESS_ID);
         batchPresentation.getFilteredFields().put(fieldIndex, new LongFilterCriteria(processId));
-        List<WfTask> tasks = Delegates.getTaskService().getMyTasks(user, batchPresentation);
+        return Delegates.getTaskService().getMyTasks(user, batchPresentation);
+    }
+
+    public static ActionForward getNextActionForward(User user, ActionMapping mapping, Long processId) {
+        List<WfTask> tasks = getTasks(user, processId);
         if (tasks.size() == 1) {
         	WfTask task = tasks.get(0);
             Map<String, Object> params = new HashMap<>();

@@ -2,7 +2,6 @@ package ru.runa.wfe.datasource;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
@@ -20,8 +19,11 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -42,8 +44,9 @@ public class DataSourceStorage implements DataSourceStuff {
     private static File storageDir;
     private static File storageHistoryDir;
 
-    private static Set<String> driverJarNames = Sets.newHashSet();
-    private static Set<JdbcDataSourceType> registeredDsTypes = Sets.newHashSet();
+    private static final Set<String> driverJarNames = new HashSet<>();
+    private static final Set<JdbcDataSourceType> registeredDsTypes = new HashSet<>();
+    private static final Map<String, DataSource> dataSources = new ConcurrentHashMap<>();
 
     private static synchronized void registerDrivers() {
         try {
@@ -124,6 +127,7 @@ public class DataSourceStorage implements DataSourceStuff {
                                 "*{" + EXCEL_FILE_XLS_SUFFIX + "," + EXCEL_FILE_XLSX_SUFFIX + "}")) {
                             File file = path.toFile();
                             if (file.isFile() && file.delete()) {
+                                dataSources.remove(dsName);
                                 log.info(file + " is removed");
                             }
                         }
@@ -154,10 +158,14 @@ public class DataSourceStorage implements DataSourceStuff {
     }
 
     public static DataSource getDataSource(String dsName) {
-        registerDrivers();
-        Document document = XmlUtils.parseWithoutValidation(restore(dsName));
-        DataSource dataSource = DataSourceCreator.create(DataSourceType.valueOf(document.getRootElement().attributeValue(ATTR_TYPE)));
-        dataSource.init(document);
+        DataSource dataSource = dataSources.get(dsName);
+        if (dataSource == null) {
+            registerDrivers();
+            Document document = XmlUtils.parseWithoutValidation(restore(dsName));
+            dataSource = DataSourceCreator.create(DataSourceType.valueOf(document.getRootElement().attributeValue(ATTR_TYPE)));
+            dataSource.init(document);
+            dataSources.put(dsName, dataSource);
+        }
         return dataSource;
     }
 
@@ -165,10 +173,9 @@ public class DataSourceStorage implements DataSourceStuff {
         if (!s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) && !s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
             return null;
         }
-        final String dsName = s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) ?
-                s.substring(s.indexOf(':') + 1) :
-                (String) variableProvider.getValue(s.substring(s.indexOf(':') + 1));
-        return DataSourceStorage.getDataSource(dsName);
+        final String dsName = s.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) ? s.substring(s.indexOf(':') + 1)
+                : (String) variableProvider.getValue(s.substring(s.indexOf(':') + 1));
+        return getDataSource(dsName);
     }
 
     public static List<DataSource> getAllDataSources() {
@@ -245,6 +252,7 @@ public class DataSourceStorage implements DataSourceStuff {
                 }
                 try (FileOutputStream fos = new FileOutputStream(dsFile)) {
                     fos.write(contentTmp);
+                    dataSources.remove(dsName);
                     return true;
                 } catch (IOException e) {
                     throw new InternalApplicationException(e);

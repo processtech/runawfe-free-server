@@ -28,7 +28,7 @@ public class GetExecutorsByRelationHandler extends CommonParamBasedHandler {
         boolean recursively = handlerData.getInputParamValueNotNull(boolean.class, "recursively");
         List<Executor> parameters = Lists.newArrayList(parameter);
         if (recursively) {
-            parameters.addAll(executorDao.getExecutorParentsAll(parameter, false));
+            parameters.addAll(executorDao.getExecutorParentsAll(parameter));
         }
         Relation relation = relationDao.getNotNull(relationName);
         List<RelationPair> pairs;

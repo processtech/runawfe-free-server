@@ -24,6 +24,7 @@ import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.VariableDbSources;
+import ru.runa.wfe.presentation.filter.UserOrGroupFilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.var.Variable;
 
@@ -40,8 +41,24 @@ public class ProcessClassPresentation extends ClassPresentation {
     public static final String PROCESS_EXECUTION_STATUS = "executionStatus";
     public static final String ERRORS = "errors";
     public static final String PROCESS_VARIABLE = "variable";
+    public static final String PROCESS_SWIMLANE = "swimlane";
 
     private static final ClassPresentation INSTANCE = new ProcessClassPresentation();
+
+    private static class SwimlaneDbSource extends DefaultDbSource {
+
+        public SwimlaneDbSource() {
+            super(Swimlane.class, "executor.name");
+        }
+
+        @Override
+        public String getJoinExpression(String alias) {
+            StringBuilder join = new StringBuilder(ClassPresentation.classNameSQL);
+            join.append("=").append(alias).append(".process");
+            return join.toString();
+        }
+
+    }
 
     private ProcessClassPresentation() {
         super(Process.class, "", true, new FieldDescriptor[] {
@@ -63,7 +80,9 @@ public class ProcessClassPresentation extends ClassPresentation {
                 new FieldDescriptor(PROCESS_EXECUTION_STATUS, String.class.getName(), new DefaultDbSource(Process.class, "executionStatus"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessExecutionStatusTdBuilder", new Object[] {}),
                 new FieldDescriptor(ERRORS, String.class.getName(), new DefaultDbSource(Token.class, "errorMessage"), false, FieldFilterMode.NONE,
-                        "ru.runa.wf.web.html.ProcessErrorsTdBuilder", new Object[] {}).setVisible(false) });
+                        "ru.runa.wf.web.html.ProcessErrorsTdBuilder", new Object[] {}).setVisible(false),
+                new FieldDescriptor(PROCESS_SWIMLANE, UserOrGroupFilterCriteria.class.getName(), new SwimlaneDbSource(), false,
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessSwimlaneTdBuilder", new Object[] {}).setSwimlanePrototype(true) });
     }
 
     public static ClassPresentation getInstance() {

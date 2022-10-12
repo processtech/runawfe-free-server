@@ -11,13 +11,10 @@ import java.util.Map;
 import java.util.Set;
 import javax.transaction.UserTransaction;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
-import ru.runa.wfe.commons.error.ProcessError;
-import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -61,7 +58,7 @@ public class ParallelGateway extends Node {
             case WAITING: {
                 if (stateInfo.activeTokenNodeIds.contains(getNodeId())) {
                     log.debug("scheduling execution due to active concurrent token found in this node");
-                    TransactionListeners.addListener(new ActiveCheck(this, executionContext.getProcess().getId()), false);
+                    TransactionListeners.addListener(new ActiveCheck(this, executionContext.getProcess().getId(), token), false);
                 } else {
                     log.debug("blocking token " + token.getId() + " execution due to waiting on " + stateInfo.notPassedTransitions);
                 }
@@ -134,7 +131,7 @@ public class ParallelGateway extends Node {
         if (token.isAbleToReactivateParent()) {
             if (token.getExecutionStatus() != ExecutionStatus.ACTIVE && Objects.equal(token.getNodeId(), getNodeId())) {
                 stateInfo.arrivedTokens.add(token);
-            } else if (token.getExecutionStatus() == ExecutionStatus.ACTIVE) {
+            } else if (token.getExecutionStatus() == ExecutionStatus.ACTIVE || token.getExecutionStatus() == ExecutionStatus.FAILED) {
                 stateInfo.activeTokenNodeIds.add(token.getNodeId());
             }
         }
@@ -184,10 +181,12 @@ public class ParallelGateway extends Node {
     private static class ActiveCheck implements TransactionListener {
         private final ParallelGateway gateway;
         private final Long processId;
+        private final CurrentToken token;
 
-        public ActiveCheck(ParallelGateway gateway, Long processId) {
+        public ActiveCheck(ParallelGateway gateway, Long processId, CurrentToken token) {
             this.gateway = gateway;
             this.processId = processId;
+            this.token = token;
         }
 
         @Override
@@ -225,10 +224,8 @@ public class ParallelGateway extends Node {
                                 log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
                                         + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
                                 process.setExecutionStatus(ExecutionStatus.FAILED);
-                                ProcessError processError = new ProcessError(ProcessErrorType.execution, process.getId(), gateway.getNodeId());
-                                processError.setThrowable(new ProcessExecutionException(
+                                ApplicationContextFactory.getExecutionLogic().failToken(token, new ProcessExecutionException(
                                         ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION, stateInfo.unreachableTransition));
-                                Errors.sendEmailNotification(processError);
                                 break;
                             }
                         }
@@ -292,10 +289,6 @@ public class ParallelGateway extends Node {
                                     log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
                                             + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
                                     process.setExecutionStatus(ExecutionStatus.FAILED);
-                                    ProcessError processError = new ProcessError(ProcessErrorType.execution, process.getId(), gateway.getNodeId());
-                                    processError.setThrowable(new ProcessExecutionException(
-                                            ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION, stateInfo.unreachableTransition));
-                                    Errors.sendEmailNotification(processError);
                                 }
                                 break;
                             }

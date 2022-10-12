@@ -51,8 +51,8 @@ export default Vue.extend({
     components: {
         DefaultDrawerToggle,
         DefaultSearch,
-        DefaultAccount,
-        DefaultNotifications
+        DefaultAccount
+        // DefaultNotifications,
     }
 });
 </script>

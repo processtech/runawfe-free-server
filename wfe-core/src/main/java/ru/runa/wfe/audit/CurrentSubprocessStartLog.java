@@ -16,7 +16,7 @@ import ru.runa.wfe.lang.Node;
  */
 @Entity
 @DiscriminatorValue(value = "B")
-public class CurrentSubprocessStartLog extends CurrentNodeEnterLog implements SubprocessStartLog {
+public class CurrentSubprocessStartLog extends CurrentNodeLog implements SubprocessStartLog {
     private static final long serialVersionUID = 1L;
 
     public CurrentSubprocessStartLog() {

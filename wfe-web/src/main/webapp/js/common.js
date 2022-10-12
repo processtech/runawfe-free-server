@@ -11,6 +11,9 @@ $(document).ready(function() {
 		track: true
 	});
 	initComponents($(document));
+	
+	$(".paging-div").width($(window).width() - $(".systemMenu").width() - 30);
+	
 	// confirmation dialog
 	$.confirmDialog = $("<div></div>").dialog({
 		minWidth: 400, minHeight: 200, modal: true, autoOpen: false
@@ -175,7 +178,10 @@ function restoreDefaultSettingValue(settingName, fileName) {
 	jQuery.ajax({
 		type: "POST",
 		url: "/wfe/restore_setting.do",
-		data: { settingName: settingName, fileName: fileName }
+		data: { settingName: settingName, fileName: fileName },
+		success: function () {
+			window.location.href = "/wfe/manage_settings.do";
+		}
 	});
 }
 
@@ -315,4 +321,50 @@ function saveRangeFilterCriteria(inputTextId) {
 		alert(e);
 	}
 	destroyFilterCriteriaEditor();
+}
+
+var selectUserFilterCriteriaDialogContent = "<div><input id='selectUserFilter' /><div id='selectUserSearch'></div></div>";
+
+function selectUser(nameInputId, labelInputId, cancelButtonText) {
+	$.editor = $(selectUserFilterCriteriaDialogContent).dialog({
+		modal: true,
+		autoOpen: false,
+		height: 400,
+		width: 400,
+		overlay: {
+			backgroundColor: "#000", opacity: 0.5
+		},
+	    close: function(event, ui) {
+			destroyFilterCriteriaEditor();
+		}
+	});
+	$("#selectUserFilter").on("change keyup", function() {
+		$.ajax({
+			type: "POST",
+			url: "/wfe/ajaxcmd?command=ajaxActorsList",
+			data: JSON.stringify({ target: "actor", hint: $(this).val(), page: 0, perPage: 10 }),
+			dataType: "json",
+			contentType:"application/json; charset=UTF-8",
+			processData: false,
+			success: function(data) {
+				var $selectUserSearchDiv = $("#selectUserSearch");
+				$selectUserSearchDiv.empty();
+				$.each(data.data, function(k, v) {
+					var $link = $("<a>", { "href": "javascript: void(0);", "style": "display: block; padding: 1px;", "text": v.fullname });
+					$link.click(function() {
+						$("#" + nameInputId).val(v.name);
+						$("#" + labelInputId).val(v.fullname);
+						destroyFilterCriteriaEditor();
+					});
+					$selectUserSearchDiv.append($link);
+				});
+			}
+		});
+	}).change();
+	var buttons = {};
+	buttons[cancelButtonText] = function() {
+		destroyFilterCriteriaEditor();
+	};
+	$.editor.dialog("option", "buttons", buttons);
+	$.editor.dialog("open");
 }

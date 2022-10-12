@@ -56,7 +56,6 @@ import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableLoader;
-import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -184,8 +183,9 @@ public class VariableLogic extends WfCommonLogic {
         return new WfVariable(definition.getVariableNotNull(variableName, false), null);
     }
 
-    public WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) {
+    public WfVariable getTaskVariable(User user, Long taskId, String variableName) {
         Task task = taskDao.getNotNull(taskId);
+        Long processId = task.getProcess().getId();
         if (task.getIndex() == null) {
             return getVariable(user, processId, variableName);
         }
@@ -234,7 +234,7 @@ public class VariableLogic extends WfCommonLogic {
         permissionDao.checkAllowed(user, Permission.READ, process);
         val simpleVariablesChanged = new HashSet<String>();
         Map<Process, Map<String, Variable>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
-        VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);
+        VariableLoader loader = new VariableLoader(processStateOnTime);
         ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
         BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, parsedProcessDefinition, process);
         removeSyncVariablesInBaseProcessMode(processStateOnTime, baseProcessVariableLoader);

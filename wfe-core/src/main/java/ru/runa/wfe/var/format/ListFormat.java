@@ -1,6 +1,7 @@
 package ru.runa.wfe.var.format;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.json.simple.JSONArray;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -90,6 +91,20 @@ public class ListFormat extends VariableFormat implements VariableFormatContaine
     }
 
     @Override
+    protected Object convertToExcelCellValue(Object value) {
+        List<?> list = (List<?>) value;
+        List<Object> result = new ArrayList<>();
+        VariableFormat componentFormat = FormatCommons.createComponent(this, 0);
+        for (Object o : list) {
+            if (o != null) {
+                o = TypeConversionUtil.convertTo(componentFormat.getJavaClass(), o);
+                result.add(componentFormat.convertToExcelCellValue(o));
+            }
+        }
+        return result;
+    }
+
+    @Override
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object) {
         List<Object> list = (List<Object>) object;
         StringBuffer b = new StringBuffer();
@@ -121,6 +136,11 @@ public class ListFormat extends VariableFormat implements VariableFormatContaine
     @Override
     public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
         return operation.onList(this, context);
+    }
+
+    @Override
+    public boolean canBePersistedAsComplexVariable() {
+        return true;
     }
 
 }

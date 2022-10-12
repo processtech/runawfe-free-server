@@ -16,6 +16,7 @@ import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.hibernate.HibernateUtil;
 import ru.runa.wfe.execution.NodeProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.extension.ProcessArchiverStepHandler;
@@ -237,8 +238,8 @@ public class ProcessArchiver {
 
                     // References process, also has parent_token_id field.
                     stmt.executeUpdate("insert into archived_subprocess "
-                            + "      (id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id) "
-                            + "select id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id "
+                            + "      (id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id, async) "
+                            + "select id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id, async "
                             + "from bpm_subprocess " + "where process_id in " + pidsCsv + " or parent_process_id in " + pidsCsv);
 
                     // References process.

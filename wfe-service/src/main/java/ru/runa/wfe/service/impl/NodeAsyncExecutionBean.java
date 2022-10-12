@@ -1,7 +1,8 @@
 package ru.runa.wfe.service.impl;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -13,6 +14,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
+import javax.transaction.UserTransaction;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
@@ -23,6 +25,7 @@ import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.Node;
@@ -83,7 +86,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
                         log.debug("Ignored execution in ended " + token.getProcess());
                         return;
                     }
-                    if (!Objects.equal(nodeId, token.getNodeId())) {
+                    if (!Objects.equals(nodeId, token.getNodeId())) {
                         throw new InternalApplicationException(token + " expected to be in node " + nodeId);
                     }
                     if (token.getVersion() >= SystemProperties.getTokenMaximumLength()) {
@@ -110,13 +113,36 @@ public class NodeAsyncExecutionBean implements MessageListener {
             }
             TransactionListeners.reset();
         } catch (final Throwable th) {
-            // TODO does not work in case of timeout in handling transaction
-            // ARJUNA016051: thread is already associated with a transaction!
-            boolean needReprocessing = executionLogic.failProcessExecution(context.getUserTransaction(), tokenId, th);
+            boolean needReprocessing = failProcessExecution(context.getUserTransaction(), tokenId, nodeId, th);
             if (needReprocessing) {
                 throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
             }
         }
+    }
+
+    private boolean failProcessExecution(UserTransaction transaction, final Long tokenId, String nodeId, final Throwable throwable) {
+        final AtomicBoolean needReprocessing = new AtomicBoolean(false);
+        new TransactionalExecutor(transaction) {
+
+            @Override
+            protected void doExecuteInTransaction() throws Exception {
+                CurrentToken token = currentTokenDao.getNotNull(tokenId);
+                if (token.hasEnded()) {
+                    log.debug("Ignored fail processs execution in ended " + token.getProcess());
+                    return;
+                }
+                if (!Objects.equals(nodeId, token.getNodeId())) {
+                    log.debug("Ignored fail process execution: " + token + " expected to be in node " + nodeId);
+                    return;
+                }
+                boolean stateChanged = executionLogic.failToken(token, Throwables.getRootCause(throwable));
+                if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
+                    token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+                    needReprocessing.set(true);
+                }
+            }
+        }.executeInTransaction(true);
+        return needReprocessing.get();
     }
 
 }

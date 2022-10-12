@@ -112,7 +112,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             int[] activeRemovable = tableViewSetupForm.getRemovableIds();
             int removeCount = 0;
             for (int i = fields.length - 1; i >= 0; --i) {
-                if (fields[i].filterByVariable && fields[i].fieldState == FieldState.ENABLED) {
+                if (fields[i].isByVariableOrSwimlane() && fields[i].fieldState == FieldState.ENABLED) {
                     if (ArraysCommons.findPosition(activeRemovable, i) == -1) {
                         batchPresentation.removeDynamicField(i - removeCount);
                     }
@@ -123,7 +123,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             int editIdx = 0;
             fields = batchPresentation.getAllFields();
             for (int idx = 0; idx < fields.length; ++idx) {
-                if (fields[idx].variablePrototype && fields[idx].fieldState == FieldState.ENABLED) {
+                if (fields[idx].isPrototype() && fields[idx].fieldState == FieldState.ENABLED) {
                     if (variableValues[editIdx] != null && variableValues[editIdx].length() != 0) {
                         batchPresentation.addDynamicField(idx, variableValues[editIdx]);
                     }

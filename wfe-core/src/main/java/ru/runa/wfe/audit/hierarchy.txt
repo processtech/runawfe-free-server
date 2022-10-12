@@ -1,20 +1,20 @@
 
-    <!-- A : ru.runa.wfe.audit.ArchivedActionLog -->
+    <!-- A : ru.runa.wfe.audit.ActionLog -->
     <!-- B : ru.runa.wfe.audit.SubprocessStartLog -->
     <!-- C : ru.runa.wfe.audit.CreateTimerLog -->
     <!-- D : ru.runa.wfe.audit.VariableDeleteLog -->
     <!-- E : ru.runa.wfe.audit.AdminActionLog -->
     <!-- F : ru.runa.wfe.audit.TaskDelegationLog -->
     <!-- G : ru.runa.wfe.audit.ArchivedProcessLog -->
-    <!-- H : ru.runa.wfe.audit.CurrentNodeErrorLog -->
+    <!-- H : ru.runa.wfe.audit.NodeErrorLog -->
     <!-- I : ru.runa.wfe.audit.ProcessCreateLog -->
-    <!-- J :  -->
+    <!-- J : ru.runa.wfe.audit.NodeInfoLog -->
     <!-- K : ru.runa.wfe.audit.TaskEndByAdminLog -->
     <!-- L : ru.runa.wfe.audit.NodeLeaveLog -->
     <!-- M : ru.runa.wfe.audit.TaskRemovedOnProcessEndLog -->
     <!-- N : ru.runa.wfe.audit.NodeEnterLog -->
     <!-- O : ru.runa.wfe.audit.TaskCancelledLog -->
-    <!-- P :  -->
+    <!-- P : ru.runa.wfe.audit.TaskRemovedOnEmbeddedSubprocessEndLog -->
     <!-- Q : ru.runa.wfe.audit.CurrentProcessLog -->
     <!-- R : ru.runa.wfe.audit.VariableCreateLog -->
     <!-- S : ru.runa.wfe.audit.TaskEndBySubstitutorLog -->

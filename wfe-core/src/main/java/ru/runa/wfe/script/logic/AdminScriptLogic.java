@@ -19,7 +19,7 @@ public class AdminScriptLogic extends CommonLogic {
     @Autowired
     private HibernateQueryFactory queryFactory;
 
-    public void updateSript(AdminScript script) {
+    public void updateScript(AdminScript script) {
         scriptDAO.update(script);
     }
 

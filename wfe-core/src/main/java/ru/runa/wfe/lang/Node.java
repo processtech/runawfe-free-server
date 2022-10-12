@@ -4,8 +4,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.CurrentNodeEnterLog;
 import ru.runa.wfe.audit.CurrentNodeLeaveLog;
@@ -15,6 +16,7 @@ import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.execution.logic.ProcessExecutionListener;
+import ru.runa.wfe.execution.logic.TokenNodeNameExtractor;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
@@ -29,6 +31,8 @@ public abstract class Node extends GraphElement {
      * Graph constraints on SetMinimized(true) moment call;
      */
     private int[] originalConstraints;
+    @Autowired
+    protected transient TokenNodeNameExtractor tokenNodeNameExtractor;
 
     public abstract NodeType getNodeType();
 
@@ -161,6 +165,8 @@ public abstract class Node extends GraphElement {
         // update the runtime context information
         token.setNodeId(getNodeId());
         token.setNodeType(getNodeType());
+        token.setNodeName(tokenNodeNameExtractor.extract(this));
+        token.setNodeEnterDate(new Date());
         // fire the leave-node event for this node
         fireEvent(executionContext, ActionEvent.NODE_ENTER);
         executionContext.addLog(new CurrentNodeEnterLog(this));
@@ -170,8 +176,11 @@ public abstract class Node extends GraphElement {
                 CurrentToken eventToken = new CurrentToken(executionContext.getCurrentToken(), boundaryNode.getNodeId());
                 eventToken.setNodeId(boundaryNode.getNodeId());
                 eventToken.setNodeType(boundaryNode.getNodeType());
+                eventToken.setNodeName(tokenNodeNameExtractor.extract(boundaryNode));
+                eventToken.setNodeEnterDate(new Date());
                 ApplicationContextFactory.getCurrentTokenDao().create(eventToken);
                 ExecutionContext eventExecutionContext = new ExecutionContext(getParsedProcessDefinition(), eventToken);
+                eventExecutionContext.addLog(new CurrentNodeEnterLog((Node) boundaryEvent));
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
         }
@@ -210,6 +219,12 @@ public abstract class Node extends GraphElement {
     protected abstract void execute(ExecutionContext executionContext) throws Exception;
 
     /**
+     * override this method to customize the node behavior.
+     */
+    public void cancel(ExecutionContext executionContext) {
+    }
+
+    /**
      * called by the implementation of this node to continue execution over the default transition.
      */
     public final void leave(ExecutionContext executionContext) {
@@ -228,7 +243,18 @@ public abstract class Node extends GraphElement {
             CurrentToken parentToken = executionContext.getCurrentToken().getParent();
             ((Node) getParentElement()).onBoundaryEvent(new ExecutionContext(executionContext.getParsedProcessDefinition(), parentToken),
                     (BoundaryEvent) this);
-            endTokensRecursively(executionContext, parentToken.getChildren());
+            for (CurrentToken token : parentToken.getChildren()) {
+                if (Objects.equal(token, executionContext.getToken())) {
+                    continue;
+                }
+                if (token.hasEnded()) {
+                    // inactive ParallelGateway behaviour
+                    // https://redmine.mikhe.ru/issues/6254#note-28
+                    token.setAbleToReactivateParent(false);
+                }
+                ApplicationContextFactory.getExecutionLogic().endToken(token, executionContext.getParsedProcessDefinition(), null,
+                        ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executionContext), true);
+            }
         }
         CurrentToken token = executionContext.getCurrentToken();
         for (ProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
@@ -242,6 +268,8 @@ public abstract class Node extends GraphElement {
         }
         token.setNodeId(null);
         token.setNodeType(null);
+        token.setNodeName(null);
+        token.setNodeEnterDate(null);
         // take the transition
         transition.take(executionContext);
     }
@@ -295,20 +323,4 @@ public abstract class Node extends GraphElement {
                 boundaryEvent.getTaskCompletionInfoIfInterrupting(executionContext), false);
     }
 
-    private void endTokensRecursively(ExecutionContext executionContext, Set<CurrentToken> tokens) {
-        ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
-        for (CurrentToken token : tokens) {
-            if (Objects.equal(token, executionContext.getToken())) {
-                continue;
-            }
-            if (token.hasEnded()) {
-                log.debug("Inactiving ParallelGateway behaviour");
-                token.setAbleToReactivateParent(false);
-            } else {
-                executionLogic.endToken(token, executionContext.getParsedProcessDefinition(), null,
-                        ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(executionContext), true);
-            }
-            endTokensRecursively(executionContext, token.getChildren());
-        }
-    }
 }

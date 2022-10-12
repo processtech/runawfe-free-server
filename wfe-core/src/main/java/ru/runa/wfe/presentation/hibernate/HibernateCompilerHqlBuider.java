@@ -207,9 +207,10 @@ public class HibernateCompilerHqlBuider {
      */
     private List<String> addClassPresentationRestriction() {
         List<String> result = new LinkedList<>();
-        String restrictions = batchPresentation.getType().getRestrictions();
-        if (!Strings.isNullOrEmpty(restrictions)) {
-            result.add(restrictions);
+        for (String restriction : batchPresentation.getType().getRestrictions()) {
+            if (!Strings.isNullOrEmpty(restriction)) {
+                result.add(restriction);
+            }
         }
         return result;
     }
@@ -232,10 +233,15 @@ public class HibernateCompilerHqlBuider {
                 }
                 StringBuilder joinRestriction = new StringBuilder();
                 joinRestriction.append("((").append(joinExpr).append(")");
-                if (field.filterByVariable) {
+                if (field.byVariable) {
                     String paramName = "variableValue" + field.fieldIdx;
                     joinRestriction.append(" and (").append(alias).append(".name=:").append(paramName).append(")");
-                    placeholders.add(paramName, field.variableValue);
+                    placeholders.add(paramName, field.variableOrSwimlaneName);
+                }
+                if (field.bySwimlane) {
+                    String paramName = "swimlaneValue" + field.fieldIdx;
+                    joinRestriction.append(" and (").append(alias).append(".name=:").append(paramName).append(")");
+                    placeholders.add(paramName, field.variableOrSwimlaneName);
                 }
                 joinRestriction.append(")");
                 result.add(joinRestriction.toString());

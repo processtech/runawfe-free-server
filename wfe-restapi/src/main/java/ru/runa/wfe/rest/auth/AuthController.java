@@ -1,19 +1,15 @@
 package ru.runa.wfe.rest.auth;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Base64;
-import java.util.Date;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.runa.wfe.security.SecuredObjectUtil;
+import ru.runa.wfe.auth.JwtUser;
+import ru.runa.wfe.rest.dto.WfeCredentials;
 import ru.runa.wfe.security.logic.AuthenticationLogic;
 import ru.runa.wfe.user.User;
 
@@ -24,26 +20,28 @@ public class AuthController {
     @Autowired
     private AuthenticationLogic authenticationLogic;
 
-    @PostMapping("/token")
-    public String token(@RequestParam String login, @RequestParam String password) {
-        User user = authenticationLogic.authenticate(login, password);
-        Instant expirationInstant = Instant.now().plus(1, ChronoUnit.DAYS);
-        String token = Jwts
-                .builder()
-                .setId(UUID.randomUUID().toString())
-                .setSubject(login)
-                .claim(JwtAuthenticationFilter.USER_ACTOR_ID_ATTRIBUTE_NAME, user.getActor().getId())
-                .claim(JwtAuthenticationFilter.USER_SECURED_KEY_ATTRIBUTE_NAME, Base64.getEncoder().encodeToString(user.getSecuredKey()))
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(Date.from(expirationInstant))
-                .signWith(SecuredObjectUtil.JWT_SECRET_KEY, SignatureAlgorithm.HS512)
-                .compact();
-        return SecuredObjectUtil.BEARER_PREFIX + token;
+    @PostMapping("/basic")
+    public String basic(@RequestBody WfeCredentials request) {
+        User user = authenticationLogic.authenticate(request.getLogin(), request.getPassword());
+        return new JwtUser().tokenOf(user);
     }
 
-    // Тестовый запрос для проверки авторизации по токену
+    @PostMapping("/kerberos")
+    public String kerberos(@RequestBody byte[] token) {
+        User user = authenticationLogic.authenticate(token);
+        return new JwtUser().tokenOf(user);
+    }
+
+    @PostMapping("/trusted")
+    public String trusted(@AuthenticationPrincipal AuthUser authUser, @RequestBody String login) {
+        User user = authenticationLogic.authenticate(authUser.getUser(), login);
+        return new JwtUser().tokenOf(user);
+    }
+
+    // TODO 2678 remove
     @PostMapping("/validate")
     public String validate(@RequestParam String token) {
         return token;
     }
+    
 }

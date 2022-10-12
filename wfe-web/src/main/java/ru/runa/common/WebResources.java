@@ -46,6 +46,8 @@ public class WebResources {
     public static final String ACTION_MAPPING_MANAGE_REPORT = "/manage_report";
     public static final String ACTION_MAPPING_BUILD_REPORT = "/build_report";
 
+    public static final String ACTION_MAPPING_CHAT_PAGE = "/chat_page";
+
     public static PropertyResources getResources() {
         return RESOURCES;
     }
@@ -142,6 +144,10 @@ public class WebResources {
         return RESOURCES.getIntegerProperty("view.logs.limit.lines.count", 10000);
     }
 
+    public static int getViewLogsLimitLineCharactersCount() {
+        return RESOURCES.getIntegerProperty("view.logs.limit.line.characters.count", 100);
+    }
+
     public static int getViewLogsAutoReloadTimeout() {
         return RESOURCES.getIntegerProperty("view.logs.timeout.autoreload.seconds", 15);
     }
@@ -187,5 +193,9 @@ public class WebResources {
 
     public static String getProcessStartedMessage() {
         return RESOURCES.getStringProperty("process.started");
+    }
+
+    public static boolean isChatEnabled() {
+        return RESOURCES.getBooleanProperty("chat.enabled", true);
     }
 }

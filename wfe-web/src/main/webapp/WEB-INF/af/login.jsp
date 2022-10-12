@@ -1,6 +1,7 @@
 <%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" session="false" %>
 <%@ page import="java.net.URLDecoder" %>
+<%@ page import="static ru.runa.common.web.Commons.isPasswordCheckRequired" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 
@@ -14,6 +15,7 @@
 	if (request.getQueryString() != null && request.getQueryString().isEmpty() != true){
 		forwardUrl += "?" + request.getQueryString();
 	}
+	pageContext.setAttribute("doCheck", isPasswordCheckRequired());
 %>
 
 <html:html lang="true">
@@ -22,14 +24,17 @@
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/main.css?"+Version.getHash() %>' />">
   </head>
 	<body>
+	<script type="text/javascript">
+		window.localStorage.removeItem('runawfe@user');
+	</script>
 	<center>
-			<table height = "100%">
-				<tr height = "5%">
-					<td></td>
-				</tr>
-				<tr height = "65%">
-					<td align="center">
-					   <html:form action="/login">
+		<table height="100%">
+			<tr height="5%">
+				<td></td>
+			</tr>
+			<tr height="65%">
+				<td align="center">
+					<html:form action="/login">
 						<table>
 							<tr>
 								<td  align="left" colspan="2" target="new">
@@ -38,11 +43,11 @@
 									</a>
 								</td>
 							</tr>
-							<tr>			
+							<tr>
 								<td><bean:message key="login.page.login.message"/></td>
 								<td style="width:170px"><input type="text" name="login" value="<%= userName %>" style="width: 100%;" class="required"></td>
 				  			</tr>
-							<tr>
+							<tr style="${!doCheck ? 'display: none;' : ''}">
 		  						<td><bean:message key="login.page.password.message"/></td>
    	      						<td style="width:170px"><input type="password" name="password" value="<%= userPwd %>" style="width: 100%;"></td>
 			  				</tr>

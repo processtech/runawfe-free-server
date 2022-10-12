@@ -32,11 +32,13 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String NAME = "name";
     private static final String VARIABLE = "variable";
     private static final String PUBLIC = "public";
+    private static final String EDITABLE_IN_CHAT = "editableInChat";
     private static final String DEFAULT_VALUE = "defaultValue";
     private static final String SCRIPTING_NAME = "scriptingName";
     private static final String USER_TYPE = "usertype";
     private static final String DESCRIPTION = "description";
     private static final String STORE_TYPE = "storeType";
+    private static final String GLOBAL = "global";
 
     @Autowired
     private LocalizationDao localizationDao;
@@ -91,7 +93,9 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private VariableDefinition parse(ParsedProcessDefinition parsedProcessDefinition, Element element) {
         String name = element.attributeValue(NAME);
         String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
+        String global = element.attributeValue(GLOBAL);
         VariableDefinition variableDefinition = new VariableDefinition(name, scriptingName);
+        variableDefinition.setGlobal("true".equals(global));
         variableDefinition.setDescription(element.attributeValue(DESCRIPTION));
         String userTypeName = element.attributeValue(USER_TYPE);
         if (userTypeName != null) {
@@ -122,6 +126,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         }
         variableDefinition.initComponentUserTypes(parsedProcessDefinition);
         variableDefinition.setPublicAccess(Boolean.parseBoolean(element.attributeValue(PUBLIC, "false")));
+        variableDefinition.setEditableInChat(Boolean.parseBoolean(element.attributeValue(EDITABLE_IN_CHAT, "false")));
         variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
         String storeTypeString = element.attributeValue(STORE_TYPE);
         if (!Strings.isNullOrEmpty(storeTypeString)) {

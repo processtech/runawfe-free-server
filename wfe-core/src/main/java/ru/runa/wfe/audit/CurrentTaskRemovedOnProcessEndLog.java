@@ -14,7 +14,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  */
 @Entity
 @DiscriminatorValue(value = "M")
-public class CurrentTaskRemovedOnProcessEndLog extends CurrentTaskEndLog implements TaskRemovedOnProcessEndLog {
+public class CurrentTaskRemovedOnProcessEndLog extends CurrentTaskCancelledLog implements TaskRemovedOnProcessEndLog {
     private static final long serialVersionUID = 1L;
 
     public CurrentTaskRemovedOnProcessEndLog() {

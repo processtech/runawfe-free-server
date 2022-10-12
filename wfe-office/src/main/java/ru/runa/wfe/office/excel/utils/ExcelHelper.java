@@ -16,16 +16,10 @@ import ru.runa.wfe.var.format.VariableFormat;
 public class ExcelHelper {
 
     public static Sheet getSheet(Workbook workbook, String sheetName, int sheetIndex) {
-        if (sheetName != null) {
-            Sheet sheet = workbook.getSheet(sheetName);
-            if (sheet == null) {
-                sheet = workbook.createSheet(sheetName);
-            }
-            return sheet;
-        } else {
-            return workbook.getSheetAt(sheetIndex);
-
+        if (workbook.getNumberOfSheets() <= 0) {
+            workbook.createSheet();
         }
+        return workbook.getSheetAt(0);
     }
 
     public static Row getRow(Sheet sheet, int rowIndex, boolean createIfLost) {

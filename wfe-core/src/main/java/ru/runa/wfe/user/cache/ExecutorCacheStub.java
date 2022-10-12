@@ -2,8 +2,6 @@ package ru.runa.wfe.user.cache;
 
 import java.util.List;
 import java.util.Set;
-
-import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -59,11 +57,6 @@ class ExecutorCacheStub implements ManageableExecutorCache {
 
     @Override
     public void commitCache() {
-    }
-
-    @Override
-    public CacheImplementation unlock() {
-        return null;
     }
 
     @Override

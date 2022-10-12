@@ -127,6 +127,14 @@ public class CurrentToken extends Token implements Serializable {
         this.nodeId = nodeId;
     }
 
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    public void setNodeEnterDate(Date nodeEnterDate) {
+        this.nodeEnterDate = nodeEnterDate;
+    }
+
     public void setTransitionId(String transitionId) {
         this.transitionId = transitionId;
     }
@@ -213,6 +221,15 @@ public class CurrentToken extends Token implements Serializable {
             }
         }
         return result;
+    }
+
+    public boolean hasActiveChild() {
+        for (val child : getChildren()) {
+            if (!child.hasEnded() || child.hasActiveChild()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getDepth() {

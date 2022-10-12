@@ -249,24 +249,6 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     }
 
     @Override
-    public List<ProcessDefinitionChange> getChanges(Long processDefinitionVersionId) {
-        try {
-            return getDefinitionService().getChanges(processDefinitionVersionId);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public List<ProcessDefinitionChange> getLastChanges(Long processDefinitionVersionId, Long n) {
-        try {
-            return getDefinitionService().getLastChanges(processDefinitionVersionId, n);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         try {
             return getDefinitionService().findChanges(definitionName, version1, version2);

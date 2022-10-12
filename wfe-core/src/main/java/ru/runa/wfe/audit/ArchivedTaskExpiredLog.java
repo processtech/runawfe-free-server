@@ -6,7 +6,7 @@ import javax.persistence.Transient;
 
 @Entity
 @DiscriminatorValue(value = "9")
-public class ArchivedTaskExpiredLog extends ArchivedTaskEndLog implements TaskExpiredLog {
+public class ArchivedTaskExpiredLog extends ArchivedTaskCancelledLog implements TaskExpiredLog {
 
     @Override
     @Transient

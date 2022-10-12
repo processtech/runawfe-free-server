@@ -128,7 +128,7 @@ export default Vue.extend({
                 sortings: Sorting.convert(sortBy, sortDesc),
             };
             this.$apiClient().then((client: any) => {
-                client['process-definition-api-controller'].getDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
+                client['definition-controller'].getProcessDefinitionsUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
                         this.definitions = body.data;

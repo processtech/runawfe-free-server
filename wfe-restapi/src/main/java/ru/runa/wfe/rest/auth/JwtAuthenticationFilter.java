@@ -1,12 +1,7 @@
 package ru.runa.wfe.rest.auth;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -23,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ru.runa.wfe.auth.JwtUser;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.rest.config.SpringSecurityConfig;
 import ru.runa.wfe.security.SecuredObjectUtil;
@@ -30,53 +26,40 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
 
+import static java.util.Collections.singletonList;
+
 @CommonsLog
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    public static final String USER_ACTOR_ID_ATTRIBUTE_NAME = "uid";
-    public static final String USER_SECURED_KEY_ATTRIBUTE_NAME = "usk";
-
     @Transactional
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (header == null || !header.startsWith(SecuredObjectUtil.BEARER_PREFIX)) {
+            SecurityContextHolder.clearContext();
+            chain.doFilter(request, response);
+            return;
+        }
+        header = header.replace(SecuredObjectUtil.BEARER_PREFIX, "");
+
         try {
-            Claims claims = getTokenClaims(request);
-            if (claims != null && isNotExpired(claims)) {
-                setUpSpringAuthentication(request, claims);
-            } else {
-                SecurityContextHolder.clearContext();
-            }
+            final User dirtyUser = new JwtUser().with(header);
+            final Actor actor = getActor(request, dirtyUser.getActor().getId());
+            final User user = new User(actor, dirtyUser.getSecuredKey());
+
+            final List<GrantedAuthority> authorities = singletonList(new SimpleGrantedAuthority("ROLE_" + SpringSecurityConfig.ROLE));
+            final UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    new AuthUser(user),
+                    null,
+                    authorities
+            );
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             chain.doFilter(request, response);
         } catch (JwtException e) {
             log.error("", e);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         }
-    }
-
-    private boolean isNotExpired(Claims claims) {
-        if (claims.getExpiration().before(Calendar.getInstance().getTime())) {
-            throw new JwtException("Expired token!");
-        }
-        return true;
-    }
-
-    private void setUpSpringAuthentication(HttpServletRequest request, Claims claims) {
-        Long actorId = ((Number) claims.get(USER_ACTOR_ID_ATTRIBUTE_NAME)).longValue();
-        Actor actor = getActor(request, actorId);
-        byte[] securedKey = Base64.getDecoder().decode((String) claims.get(USER_SECURED_KEY_ATTRIBUTE_NAME));
-        User user = new User(actor, securedKey);
-        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + SpringSecurityConfig.ROLE));
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(new AuthUser(user), null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-    }
-
-    private Claims getTokenClaims(HttpServletRequest request) {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith(SecuredObjectUtil.BEARER_PREFIX)) {
-            return null;
-        }
-        return Jwts.parserBuilder().setSigningKey(SecuredObjectUtil.JWT_SECRET_KEY).build().parseClaimsJws(header.replace(SecuredObjectUtil.BEARER_PREFIX, "")).getBody();
     }
 
     // TODO newweb костыль на скорую руку
@@ -111,7 +94,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         @Override
-        protected void doExecuteInTransaction() throws Exception {
+        protected void doExecuteInTransaction() {
             actor = executorDao.getActor(actorId);
         }
 

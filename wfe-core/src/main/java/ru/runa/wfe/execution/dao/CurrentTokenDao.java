@@ -26,9 +26,9 @@ public class CurrentTokenDao extends GenericDao<CurrentToken> {
         super(CurrentToken.class);
     }
 
-    public List<CurrentToken> findByNodeTypeAndExecutionStatusIsActive(NodeType nodeType) {
+    public List<CurrentToken> findByNodeTypeInActiveProcesses(NodeType nodeType) {
         val t = QCurrentToken.currentToken;
-        return queryFactory.selectFrom(t).where(t.nodeType.eq(nodeType).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
+        return queryFactory.selectFrom(t).where(t.nodeType.eq(nodeType).and(t.executionStatus.ne(ExecutionStatus.SUSPENDED)).and(t.endDate.isNull())).fetch();
     }
 
     public List<CurrentToken> findByProcessAndExecutionStatus(CurrentProcess process, ExecutionStatus status) {
@@ -61,21 +61,22 @@ public class CurrentTokenDao extends GenericDao<CurrentToken> {
 
     }
 
-    public List<CurrentToken> findByMessageSelectorIsNullAndExecutionStatusIsActive() {
+    public List<CurrentToken> findByMessageSelectorIsNullAndExecutionStatusIsNotEnded() {
         val t = QCurrentToken.currentToken;
         return queryFactory.selectFrom(t)
-                .where(t.nodeType.eq(NodeType.RECEIVE_MESSAGE).and(t.messageSelector.isNull()).and(t.executionStatus.eq(ExecutionStatus.ACTIVE)))
+                .where(t.nodeType.eq(NodeType.RECEIVE_MESSAGE).and(t.messageSelector.isNull()).and(t.endDate.isNull()))
                 .fetch();
     }
 
-    public List<CurrentToken> findByMessageSelectorAndExecutionStatusIsActive(String messageSelector) {
+    public List<CurrentToken> findByMessageSelectorInActiveProcesses(String messageSelector) {
         val t = QCurrentToken.currentToken;
-        return queryFactory.selectFrom(t).where(t.messageSelector.eq(messageSelector).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
+        return queryFactory.selectFrom(t)
+                .where(t.messageSelector.eq(messageSelector).and(t.executionStatus.ne(ExecutionStatus.SUSPENDED)).and(t.endDate.isNull())).fetch();
     }
 
-    public List<CurrentToken> findByMessageSelectorInAndExecutionStatusIsActive(Collection<String> messageSelectors) {
+    public List<CurrentToken> findByMessageSelectorInActiveProcesses(Collection<String> messageSelectors) {
         val t = QCurrentToken.currentToken;
-        return queryFactory.selectFrom(t).where(t.messageSelector.in(messageSelectors).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
+        return queryFactory.selectFrom(t).where(t.messageSelector.in(messageSelectors).and(t.executionStatus.ne(ExecutionStatus.SUSPENDED)).and(t.endDate.isNull())).fetch();
     }
     
     public List<CurrentToken> findByProcessAndEndDateGreaterThanOrEquals(CurrentProcess process, Date endDate) {

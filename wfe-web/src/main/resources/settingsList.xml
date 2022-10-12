@@ -79,6 +79,8 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="definition.compatibility.check.processes.limit" pattern="\d*|-1">
+		</property>
 		<property title="reassign.swimlane.to.initializer">
 			<value>true</value>
 			<value>false</value>
@@ -116,6 +118,7 @@
 			<value>false</value>
 		</property>
 		<property title="view.logs.limit.lines.count" pattern="\d*"/>
+		<property title="view.logs.limit.line.characters.count" pattern="\d*"/>
 		<property title="view.logs.timeout.autoreload.seconds" pattern="\d*" />
 
 		<property title="menu.additional_links" />
@@ -212,9 +215,16 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="hide.temporary.executors">
+			<value>true</value>
+			<value>false</value>
+		</property>
 		<property title="process.processStartButtonName" />
 		<property title="process.completeTaskButtonName" />
 		<property title="process.started"/>
+		<property title="chat.enabled">
+			<value>true</value>
+			<value>false</value></property>
 	</properties_file>
 
 	<properties_file title="office.properties">

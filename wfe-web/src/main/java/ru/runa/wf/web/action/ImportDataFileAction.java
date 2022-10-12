@@ -21,12 +21,12 @@ import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.FileForm;
-import ru.runa.wf.web.datafile.builder.DataFileBuilder;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.datafile.builder.DataFileBuilder;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -34,6 +34,7 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
+import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.script.common.WorkflowScriptDto;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
@@ -171,6 +172,13 @@ public class ImportDataFileAction extends ActionBase {
                     }
                     ids.add(executor.getId());
                 }
+
+                List<WfReport> reports = Delegates.getReportService().getReportDefinitions(user,
+                        BatchPresentationFactory.REPORTS.createNonPaged(), false);
+                for (WfReport report : reports) {
+                    Delegates.getReportService().undeployReport(user, report.getId() );
+                }
+
                 Delegates.getExecutorService().remove(user, ids);
                 DataSourceStorage.clear(doNotChangeInternalStoragePath);
             }
@@ -184,6 +192,7 @@ public class ImportDataFileAction extends ActionBase {
                 addMessage(request, new ActionMessage(MessagesOther.EXECUTOR_STATE_DONT_UPDATE.getKey()));
                 return mapping.findForward(Resources.FORWARD_FAILURE);
             }
+
             addMessage(request, new ActionMessage(MessagesOther.IMPORT_DATA_SUCCESS.getKey()));
             addMessage(request, new ActionMessage(MessagesOther.EXECUTOR_STATE_DONT_UPDATE.getKey()));
             return mapping.findForward(Resources.FORWARD_SUCCESS);

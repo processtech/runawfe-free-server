@@ -1,8 +1,12 @@
 package ru.runa.wfe.presentation;
 
+import com.google.common.collect.Lists;
 import java.util.HashMap;
+import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SystemLogClassPresentation;
+import ru.runa.wfe.chat.ChatRoomClassPresentation;
+import ru.runa.wfe.commons.error.TokenErrorClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
 import ru.runa.wfe.execution.ArchivedProcessClassPresentation;
@@ -32,20 +36,23 @@ public enum ClassPresentationType {
     CURRENT_PROCESS_WITH_TASKS(CurrentProcessWithTasksClassPresentation.INSTANCE, "process"),
     TASK(TaskClassPresentation.INSTANCE, "task"),
     TASK_OBSERVABLE(TaskObservableClassPresentation.INSTANCE, "task"),
-    REPORTS(ReportClassPresentation.INSTANCE, "report");
+    REPORTS(ReportClassPresentation.INSTANCE, "report"),
+    TOKEN_ERRORS(TokenErrorClassPresentation.getInstance(), "error"),
+    CHAT_ROOM(ChatRoomClassPresentation.getInstance(), "process");
 
     private final Class<?> presentationClass;
-    private final String restrictions;
+    private final List<String> restrictions;
     private final boolean withPaging;
     private final FieldDescriptor[] fields;
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
     private final String localizationKey;
     private int variablePrototypeIndex = -1;
+    private int swimlanePrototypeIndex = -1;
 
     ClassPresentationType(ClassPresentation cp, String localizationKey) {
         if (cp != null) {
             presentationClass = cp.getPresentationClass();
-            restrictions = cp.getRestrictions();
+            restrictions = Lists.newArrayList(cp.getRestrictions());
             withPaging = cp.isWithPaging();
             fields = cp.getFields();
             populateFieldIndexesByName();
@@ -65,6 +72,9 @@ public enum ClassPresentationType {
                 if (fields[i].variablePrototype) {
                     variablePrototypeIndex = i;
                 }
+                if (fields[i].swimlanePrototype) {
+                    swimlanePrototypeIndex = i;
+                }
             }
         }
     }
@@ -73,7 +83,7 @@ public enum ClassPresentationType {
         return presentationClass;
     }
 
-    public String getRestrictions() {
+    public List<String> getRestrictions() {
         return restrictions;
     }
 
@@ -102,4 +112,7 @@ public enum ClassPresentationType {
         return variablePrototypeIndex;
     }
 
+    public int getSwimlanePrototypeIndex() {
+        return swimlanePrototypeIndex;
+    }
 }

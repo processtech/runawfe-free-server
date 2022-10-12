@@ -140,7 +140,7 @@ export default Vue.extend({
                 variables: variables
             };
             this.$apiClient().then((client: any) => {
-                client['process-api-controller'].getProcessesUsingPOST(null, { requestBody: query }).then((data: any) => {
+                client['process-controller'].getProcessesUsingPOST(null, { requestBody: query }).then((data: any) => {
                     const body = data.body;
                     if (body) {
                         this.processes = body.data;

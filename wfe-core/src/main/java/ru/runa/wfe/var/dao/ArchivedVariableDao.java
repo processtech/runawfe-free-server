@@ -33,4 +33,10 @@ public class ArchivedVariableDao extends ReadOnlyGenericDao<ArchivedVariable> {
         }
         return q.fetch();
     }
+
+    public List<ArchivedVariable<?>> getVariablesByNameStartsWith(ArchivedProcess process, String namePrefix) {
+        final QArchivedVariable variable = QArchivedVariable.archivedVariable;
+        return queryFactory.selectFrom(variable).where(variable.process.eq(process).and(variable.name.startsWith(namePrefix))).fetch();
+    }
+
 }

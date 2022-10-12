@@ -114,6 +114,10 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
         this.parentToken = parentToken;
     }
 
+    public void setAsync(Boolean async) {
+        this.async = async;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(id);

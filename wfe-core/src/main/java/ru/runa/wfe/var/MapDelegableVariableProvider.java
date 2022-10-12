@@ -1,13 +1,11 @@
 package ru.runa.wfe.var;
 
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.collect.Maps;
 
 public class MapDelegableVariableProvider extends DelegableVariableProvider {
     protected final Map<String, Object> values = Maps.newHashMap();
@@ -60,12 +58,12 @@ public class MapDelegableVariableProvider extends DelegableVariableProvider {
     @Override
     public WfVariable getVariable(String variableName) {
         if (values.containsKey(variableName)) {
-            Object object = getValue(variableName);
-            if (object instanceof WfVariable) {
-                return (WfVariable) object;
+            if (values.get(variableName) instanceof WfVariable) {
+                return (WfVariable) values.get(variableName);
             }
             WfVariable variable = super.getVariable(variableName);
             if (variable != null) {
+                Object object = getValue(variableName);
                 log.debug("Setting " + variable + " value to " + object);
                 variable.setValue(object);
             }

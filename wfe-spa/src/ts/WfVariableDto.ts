@@ -1,4 +1,4 @@
-export class WfVariableDto {
+export class WfeVariable {
     name: string = '';
     value: any;
     format: string = '';

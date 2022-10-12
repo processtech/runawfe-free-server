@@ -12,9 +12,9 @@ public final class TestLazyCacheCtrl {
     private final TestCacheStateMachineAudit<TestCacheIface> audit;
     private final ThreadLocal<TestTransaction> transactions = new ThreadLocal<>();
 
-    public TestLazyCacheCtrl(TestLazyCacheFactoryCallback factoryCallback, boolean isolated) {
+    public TestLazyCacheCtrl(TestLazyCacheFactoryCallback factoryCallback) {
         audit = new TestCacheStateMachineAudit<>();
-        stateMachine = new CacheStateMachine<>(new TestLazyCacheFactory(isolated, factoryCallback), TestLazyCacheCtrl.class, audit);
+        stateMachine = new CacheStateMachine<>(new TestLazyCacheFactory(factoryCallback), TestLazyCacheCtrl.class, audit);
     }
 
     public TestCacheIface getCacheWithChoise(boolean isWriteTransaction, boolean getCacheIfNotLocked) {

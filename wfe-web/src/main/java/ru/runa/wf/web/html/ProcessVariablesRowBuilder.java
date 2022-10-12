@@ -1,20 +1,17 @@
 package ru.runa.wf.web.html;
 
 import java.util.List;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.wf.web.ftl.component.ViewUtil;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -45,8 +42,16 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
             nameTd.setStyle("color: #aaaaaa;");
         }
         tr.addElement(nameTd.setClass(Resources.CLASS_LIST_TABLE_TD));
+
+        if (SystemProperties.isGlobalObjectsEnabled()) {
+            TD globalTD = new TD(variable.getDefinition().isGlobal() ? /*√*/"&#x221A;" : "");
+            tr.addElement(globalTD);
+            globalTD.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
+        }
         String fl = variable.getDefinition() != null ? variable.getDefinition().getFormatLabel() : "-";
         tr.addElement(new TD(fl).setClass(Resources.CLASS_LIST_TABLE_TD));
+
+
         if (WebResources.isDisplayVariablesJavaType()) {
             String className = value != null ? value.getClass().getName() : "";
             tr.addElement(new TD(className).setClass(Resources.CLASS_LIST_TABLE_TD));

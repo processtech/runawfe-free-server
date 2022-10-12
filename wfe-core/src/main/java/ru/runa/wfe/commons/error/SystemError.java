@@ -23,6 +23,12 @@ public class SystemError implements Serializable, Comparable<SystemError> {
         setThrowable(throwable);
     }
 
+    public SystemError(String message, String stackTrace) {
+        this();
+        this.message = message;
+        this.stackTrace = stackTrace;
+    }
+
     public Date getOccurredDate() {
         return occurredDate;
     }

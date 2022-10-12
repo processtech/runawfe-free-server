@@ -96,8 +96,9 @@
 		<forward name="manage_data_sources" path="/manage_data_sources.do?tabForwardName=manage_data_sources" />
 		<forward name="edit_settings" path="/edit_settings.do" />
 		<forward name="drop_settings" path="/drop_settings.do" />
-		<forward name="send_process_signal" path="/send_process_signal.do" />
+		<forward name="send_process_signal" path="/send_process_signal.do?tabForwardName=send_process_signal" />
 		<forward name="view_internal_storage" path="/viewInternalStorage.do?tabForwardName=view_internal_storage" />
+		<forward name="chat_rooms" path="/chat_rooms.do?tabForwardName=chat_rooms" />
 	</global-forwards>
 
 	<!-- ========== Action Mapping Definitions =================================== -->
@@ -190,6 +191,8 @@
 		</action>
 		<action path="/exportExcelProcesses" type="ru.runa.wf.web.action.ExportExcelProcessesAction" name="batchPresentationForm" validate="false" scope="request">
 		</action>
+		<action path="/exportExcelTokenErrors" type="ru.runa.wf.web.action.ExportExcelTokenErrorsAction" name="batchPresentationForm" validate="false" scope="request">
+		</action>
 		<action path="/create_bot" type="ru.runa.af.web.action.CreateBotAction"
 			name="botForm" scope="request" input="/WEB-INF/wf/add_bot.jsp"
 			unknown="false" validate="false">
@@ -246,10 +249,20 @@
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
+		<action path="/cancelProcesses" type="ru.runa.wf.web.action.CancelProcessesAction"
+				name="idsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_errors.do" redirect="true" />
+			<forward name="failure" path="/manage_errors.do" redirect="true" />
+		</action>
 		<action path="/activateProcessExecution" type="ru.runa.wf.web.action.ActivateProcessExecutionAction" 
 			name="idForm" scope="request">
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/activateProcesses" type="ru.runa.wf.web.action.ActivateProcessesAction"
+				name="idsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_errors.do" redirect="true" />
+			<forward name="failure" path="/manage_errors.do" redirect="true" />
 		</action>
 		<action path="/activateFailedProcesses" type="ru.runa.wf.web.action.ActivateFailedProcessesAction" scope="request">
 			<forward name="success" path="/manage_errors.do" redirect="true" />
@@ -587,6 +600,11 @@
 			<forward name="failure" path="/update_process_variables.do"
 				redirect="false" />
 		</action>
+		<action path="/updateProcessVariableInChat" type="ru.runa.wf.web.action.UpdateProcessVariableAction"
+				name="commonProcessForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/chat_page.do" redirect="true"/>
+			<forward name="failure" path="/chat_page.do" redirect="false"/>
+		</action>
 		<action path="/updateProcessSwimlane"
 			type="ru.runa.wf.web.action.UpdateProcessSwimlaneAction" name="commonProcessForm"
 			scope="request" unknown="false" validate="false">
@@ -641,6 +659,9 @@
 
 		<action path="/demo_login" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/demoConfiguration.jsp" />
+
+		<action path="/chat_page" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/af/chat_page.jsp" />
 
 		<action path="/manage_executor" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/manage_executor.jsp" />
@@ -827,6 +848,7 @@
 			
 		<action path="/exportDataFileAction" type="ru.runa.wf.web.action.ExportDataFileAction"
 			scope="request" unknown="false" validate="false">
+			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		<action path="/importDataFileAction" type="ru.runa.wf.web.action.ImportDataFileAction"
 			name="fileForm" scope="request" unknown="false" validate="false">
@@ -844,16 +866,16 @@
 			parameter="/WEB-INF/wf/send_process_signal.jsp" />
 
 		<action path="/sendProcessSignal" type="ru.runa.wf.web.action.SendProcessSignalAction"
-				name="sendProcessSignalForm" scope="request" input="/WEB-INF/wf/send_process_signal.jsp"
-				unknown="false" validate="true">
-			<forward name="success" path="/manage_processes.do" redirect="true" />
-			<forward name="failure" path="/send_process_signal.do" redirect="true" />
+				name="sendProcessSignalForm" scope="request" unknown="false" validate="false">
 		</action>
 
 		<action path="/cleanProcessLogs" type="ru.runa.wf.web.action.CleanProcessLogsAction">
 			<forward name="success" path="/manage_system.do" redirect="true" />
 			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
+
+		<action path="/chat_rooms" type="ru.runa.common.web.action.TabHeaderForwardAction"
+				parameter="/WEB-INF/wf/chat_rooms.jsp" />
 
 		<action path="/newweboldform" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/newweboldform.jsp" />

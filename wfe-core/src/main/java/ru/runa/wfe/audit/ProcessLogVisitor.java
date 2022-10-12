@@ -19,7 +19,7 @@ public abstract class ProcessLogVisitor {
 
     public void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog) {}
 
-    public void onNodeErrorLog(CurrentNodeErrorLog currentNodeErrorLog) {}
+    public void onNodeErrorLog(NodeErrorLog nodeErrorLog) {}
 
     public void onSendMessageLog(SendMessageLog sendMessageLog) {}
 
@@ -45,6 +45,8 @@ public abstract class ProcessLogVisitor {
 
     public void onTaskExpiredLog(TaskExpiredLog taskExpiredLog) {}
 
+    public void onTaskRemovedOnEmbeddedSubprocessEndLog(TaskRemovedOnEmbeddedSubprocessEndLog log) {}
+
     public void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog) {}
 
     public void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog) {}
@@ -61,5 +63,7 @@ public abstract class ProcessLogVisitor {
 
     public void onVariableUpdateLog(VariableUpdateLog variableUpdateLog) {}
 
-    public void onAdminActionLog(AdminActionLog adminActionLog) {}
+    public void onAdminActionLog(AdminActionLog adminActionLog) {};
+
+    public void onNodeInfoLog(NodeInfoLog nodeInfoLog) {};
 }

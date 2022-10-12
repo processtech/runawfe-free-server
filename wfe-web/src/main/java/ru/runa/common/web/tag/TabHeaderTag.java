@@ -10,11 +10,13 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
+import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.TabHttpSessionHelper;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceStuff;
@@ -56,6 +58,8 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS, null, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SEND_SIGNAL, null, true));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_CHATS));
     }
 
     @Attribute
@@ -136,6 +140,9 @@ public class TabHeaderTag extends TagSupport {
                     }
                 }
                 return true;
+            }
+            if (menuForward.menuMessage.getKey().equals("chat_rooms")) {
+                return WebResources.isChatEnabled();
             }
             if (menuForward.menuMessage.getKey().equals("view_logs")) {
                 return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_LOGS, SecuredSingleton.SYSTEM);

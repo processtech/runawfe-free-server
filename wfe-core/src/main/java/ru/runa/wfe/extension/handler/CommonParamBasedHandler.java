@@ -2,6 +2,7 @@ package ru.runa.wfe.extension.handler;
 
 import com.google.common.base.Throwables;
 import java.util.Map;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
@@ -50,5 +51,11 @@ public abstract class CommonParamBasedHandler extends TaskHandlerBase implements
             throw Throwables.propagate(th);
         }
         return handlerData.getOutputVariables();
+    }
+
+    protected void stopIfFileSystemAccessProhibited() throws Exception {
+        if (!SystemProperties.isFileSystemAccessAllowed()) {
+            throw new Exception("Access to server file system is not allowed");
+        }
     }
 }

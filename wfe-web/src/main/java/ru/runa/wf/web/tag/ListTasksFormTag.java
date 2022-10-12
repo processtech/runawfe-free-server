@@ -88,6 +88,11 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
+    protected boolean isSubmitButtonVisible() {
+        return isButtonEnabled;
+    }
+
+    @Override
     protected String getTitle() {
         return MessagesProcesses.TITLE_TASKS.message(pageContext);
     }

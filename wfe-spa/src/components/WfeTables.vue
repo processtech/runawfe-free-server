@@ -401,7 +401,7 @@ export default Vue.extend({
             }
         },
         openStartForm (item) {
-            this.$router.push({ name: this.routeName, params: { versionId: item.versionId.toString() } });
+            this.$router.push({ name: this.routeName, params: { id: item.id.toString() } });
         },
     },
 });

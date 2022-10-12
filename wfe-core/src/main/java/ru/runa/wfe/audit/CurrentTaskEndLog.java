@@ -28,11 +28,13 @@ public class CurrentTaskEndLog extends CurrentTaskLog implements TaskEndLog {
         if (completionInfo.getExecutor() != null) {
             addAttribute(ATTR_ACTOR_NAME, completionInfo.getExecutor().getName());
         }
+        addAttribute(ATTR_TRANSITION_NAME, completionInfo.getTransitionName());
     }
 
-    public CurrentTaskEndLog(CurrentProcess process, StartNode startNode, Actor actor) {
+    public CurrentTaskEndLog(CurrentProcess process, StartNode startNode, Actor actor, String transitionName) {
         super(process, startNode);
         addAttribute(ATTR_ACTOR_NAME, actor.getName());
+        addAttribute(ATTR_TRANSITION_NAME, transitionName);
     }
 
     @Override
@@ -49,6 +51,12 @@ public class CurrentTaskEndLog extends CurrentTaskLog implements TaskEndLog {
             return actorName;
         }
         return "";
+    }
+
+    @Override
+    @Transient
+    public String getTransitionName() {
+        return getAttribute(ATTR_TRANSITION_NAME);
     }
 
     @Override

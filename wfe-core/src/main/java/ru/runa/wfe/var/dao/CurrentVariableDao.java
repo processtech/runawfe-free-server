@@ -45,8 +45,7 @@ public class CurrentVariableDao extends GenericDao<CurrentVariable> {
     /**
      * Used by TNMS.
      */
-    @SuppressWarnings({"unused", "unchecked"})
-    public List<CurrentVariable> findNonEndedByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
+    public List<CurrentVariable<?>> findNonEndedByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
         SqlCommons.StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(variableNamePattern);
 
         return sessionFactory.getCurrentSession()
@@ -58,4 +57,10 @@ public class CurrentVariableDao extends GenericDao<CurrentVariable> {
                 .setParameter("value", stringValue)
                 .list();
     }
+
+    public List<CurrentVariable<?>> getVariablesByNameStartsWith(CurrentProcess process, String namePrefix) {
+        final QCurrentVariable variable = QCurrentVariable.currentVariable;
+        return queryFactory.selectFrom(variable).where(variable.process.eq(process).and(variable.name.startsWith(namePrefix))).fetch();
+    }
+
 }
