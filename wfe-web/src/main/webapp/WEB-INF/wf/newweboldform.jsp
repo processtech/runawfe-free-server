@@ -57,8 +57,9 @@
 	%>
 	var id = <%= id %>;
 	$(document).ready(function () {
-		$("<input />", { "type": "hidden", "name": "jwt", "value": "<%= jwt %>"}).appendTo($("#processForm"))
-		$("<input />", { "type": "hidden", "name": "startForm", "value": "<%= startForm %>"}).appendTo($("#processForm"))
+		$("<input />", { "type": "hidden", "name": "jwt", "value": "<%= jwt %>"}).appendTo($("#processForm"));
+		$("<input />", { "type": "hidden", "name": "startForm", "value": "<%= startForm %>"}).appendTo($("#processForm"));
+		$("<input />", { "type": "hidden", "name": "title", "value": "<%= title %>"}).appendTo($("#processForm"));
 	});
 	</script>
 	<script type="text/javascript">$(function(){setFocusOnInvalidInputIfAny()});</script>
