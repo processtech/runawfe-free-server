@@ -13,6 +13,7 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
+import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.rest.dto.WfePagedListFilter.Sorting.Order;
 
 @Data
@@ -43,7 +44,7 @@ public class WfePagedListFilter {
         BatchPresentation batchPresentation = new BatchPresentationFactory(classPresentationType).createDefault();
         // setRangeSize should go before setPageNumber due to resetting to pageNumber = 1
         batchPresentation.setRangeSize(pageSize);
-        batchPresentation.setPageNumber(pageNumber);  
+        batchPresentation.setPageNumber(pageNumber);
         for (Map.Entry<String, String> entry : filters.entrySet()) {
             if (Utils.isNullOrEmpty(entry.getValue()) || variables.contains(entry.getKey())) {
                 continue;
@@ -64,8 +65,9 @@ public class WfePagedListFilter {
             for (int i = 0; i < variables.size(); i++) {
                 fieldsToDisplayIds[i] = i;
                 String variable = variables.get(i);
+                String value = filters.get(variable);
                 batchPresentation.addDynamicField(variablePrototypeIndex + i, variable);
-                if (filters.containsKey(variable)) {
+                if (filters.containsKey(variable) && value != null && !value.isEmpty()) {
                     addFilteredField(batchPresentation, 0, filters.get(variable));
                 }
             }
@@ -95,10 +97,14 @@ public class WfePagedListFilter {
     private void addFilteredField(BatchPresentation batchPresentation, int fieldIndex, String value) {
         FilterCriteria filterCriteria = FilterCriteriaFactory.createFilterCriteria(batchPresentation, fieldIndex);
         if (!FILTER_IS_EMPTY.equals(value.isEmpty())) {
+            if (value.endsWith("/i") && filterCriteria instanceof StringFilterCriteria) {
+                ((StringFilterCriteria) (filterCriteria)).applyCaseSensitive(true);
+                value = value.substring(0, value.length() - 2);
+            }
             // TODO #2261
             String[] templates = filterCriteria.getTemplatesCount() > 1 ? value.split("\\|", -1) : new String[] { value };
             filterCriteria.applyFilterTemplates(templates);
+            batchPresentation.getFilteredFields().put(fieldIndex, filterCriteria);
         }
-        batchPresentation.getFilteredFields().put(fieldIndex, filterCriteria);
     }
 }

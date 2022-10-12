@@ -6,5 +6,6 @@ import lombok.Data;
 public class WfeVariable {
     private String name;
     private Object value;
+    private String format;
 
 }

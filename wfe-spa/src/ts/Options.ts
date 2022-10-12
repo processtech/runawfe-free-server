@@ -36,13 +36,29 @@ export class Sorting {
     }
 }
 
+export class Select {
+    text: string;
+    value: string;
+
+    constructor(text: string, value: string){
+        this.text = text ?? '';
+        this.value = value ?? '';
+    }
+}
+
 export class Header {
     text: string;
     align: string;
-    value: string;
-    visible: boolean;
     width: string;
+    bcolor: string;
     sortable: boolean;
+    visible: boolean;
+    dynamic: boolean;
+    format: string;
+    link: boolean;
+    selectOptions: Select[];
+    value: string;
+    filterable: boolean;
 
     constructor() {
         this.text = '';
@@ -51,5 +67,11 @@ export class Header {
         this.visible = true;
         this.width = '';
         this.sortable = false;
+        this.dynamic = false;
+        this.format = 'String';
+        this.link = false;
+        this.bcolor = '';
+        this.selectOptions = [];
+        this.filterable = true;
     }
 }

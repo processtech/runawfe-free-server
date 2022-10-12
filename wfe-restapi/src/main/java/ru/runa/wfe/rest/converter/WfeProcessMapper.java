@@ -6,7 +6,7 @@ import org.mapstruct.Mapping;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.rest.dto.WfeProcess;
 
-@Mapper
+@Mapper(uses = WfeVariableMapper.class)
 public interface WfeProcessMapper {
 
     @Mapping(source = "name", target = "definitionName")

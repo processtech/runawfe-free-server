@@ -1,4 +1,5 @@
 import { WfeExecutor } from './WfeExecutor';
+import { WfeVariable } from './WfeVariable';
 
 export class WfeTask {
     id: number|null = null;
@@ -23,7 +24,7 @@ export class WfeTask {
     acquiredBySubstitution: boolean|null = null;
     multitaskIndex: number|null = null;
     readOnly: boolean|null = null;
-    variables: Array<WfVariableDto>|null = null;
+    variables: Array<WfeVariable>|null = null;
 
     getInfo(): object {
         return {
@@ -37,9 +38,4 @@ export class WfeTask {
             'Время окончания': this.deadlineDate ? new Date(this.deadlineDate).toLocaleString() : ''
         };
     }
-}
-
-class WfVariableDto {
-    name: string = '';
-    value: any;
 }

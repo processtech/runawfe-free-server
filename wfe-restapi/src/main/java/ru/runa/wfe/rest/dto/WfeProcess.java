@@ -1,6 +1,8 @@
 package ru.runa.wfe.rest.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import lombok.Data;
 import ru.runa.wfe.execution.ExecutionStatus;
 
@@ -14,4 +16,5 @@ public class WfeProcess {
     private String definitionName;
     private int definitionVersion;
     private boolean archived;
+    private List<WfeVariable> variables = new ArrayList<>();
 }

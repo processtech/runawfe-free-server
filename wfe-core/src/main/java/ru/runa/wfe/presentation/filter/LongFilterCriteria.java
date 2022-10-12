@@ -23,7 +23,10 @@ public class LongFilterCriteria extends FilterCriteria {
         try {
             String[] values = newTemplates[0].split(",");
             if (values.length == 1) {
-                values = newTemplates[0].split("-");
+                values = (newTemplates[0].startsWith("-") ? newTemplates[0].substring(1) : newTemplates[0]).split("-");
+                if (values.length > 2) {
+                    throw new FilterFormatException("Not supported format " + newTemplates[0]);
+                }
             }
             for (String value : values) {
                 Long.parseLong(value.trim());
@@ -68,9 +71,17 @@ public class LongFilterCriteria extends FilterCriteria {
 
     private String buildBetweenOperator(String aliasedFieldName) {
         String where = "";
-        String[] values = getFilterTemplate(0).split("-");
+        String str = getFilterTemplate(0);
+        String[] values = (str.startsWith("-") ? str.substring(1) : str).split("-");
         if (values.length == 2) {
             where = aliasedFieldName + " BETWEEN '" + values[0].trim() + "' AND '" + values[1].trim() + "'";
+        } else {
+            String value = getFilterTemplate(0);
+            if (value.startsWith("-")) {
+                where = aliasedFieldName + " <= '" + value.replace("-", "").trim() + "'";
+            } else {
+                where = aliasedFieldName + " >= '" + value.replace("-", "").trim() + "'";
+            }
         }
         return where;
     }

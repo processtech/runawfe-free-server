@@ -1,9 +1,12 @@
+import { WfeVariable } from './WfeVariable';
+
 export class WfeProcess {
     id: number|null = null;
     definitionName: string = '';
     executionStatus: string = '';
     startDate: Date|null = null;
     endDate: Date|null = null; 
+    variables: Array<WfeVariable>|null = null;
 
     getInfo(): object {
         return {

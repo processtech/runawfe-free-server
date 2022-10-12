@@ -28,6 +28,10 @@ public class StringFilterCriteria extends FilterCriteria {
         this.ignoreCase = ignoreCase;
     }
 
+    public void applyCaseSensitive(boolean ignoreCase) {
+        this.ignoreCase = ignoreCase;
+    }
+
     @Override
     public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
         final String template = getFilterTemplate(0);

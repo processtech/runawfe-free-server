@@ -5,9 +5,9 @@
                 <v-col cols="12">
                     <v-card>
                         <v-card-title>
-                            <v-btn 
-                                text 
-                                icon 
+                            <v-btn
+                                text
+                                icon
                                 color="grey"
                                 @click="goBack"
                                 class="mr-2"
@@ -22,9 +22,9 @@
                                     Экземпляр процесса № {{ process.id }}
                                 </div>
                             </div>
-                            <v-btn 
+                            <v-btn
                                 text
-                                icon 
+                                icon
                                 link
                                 class="ml-2"
                                 color="grey"
@@ -54,7 +54,7 @@
             </v-row>
             <v-row justify="center" align="start">
                 <v-col cols="12">
-                    <v-img 
+                    <v-img
                         max-width="800px"
                         max-height="100%"
                         :src="graphImage"

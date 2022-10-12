@@ -1,8 +1,8 @@
 <template>
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-dialog v-model="dialog" max-width="500px" @click:outside="updateData" @keydown.esc="updateData">
         <template v-slot:activator="{ on, attrs }">
             <v-btn
-                text 
+                text
                 icon
                 v-bind="attrs"
                 v-on="on"
@@ -18,7 +18,7 @@
                 <v-btn
                     icon
                     color="rgba(0, 0, 0, 0.67)"
-                    @click="dialog = false"
+                    @click="dialog = false; showVarField = false; updateData()"
                 >
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
@@ -28,15 +28,23 @@
                 <v-container>
                     <v-row>
                         <v-col cols="12" class="d-flex justify-end">
-                            <v-btn 
-                                class="d-inline-block" 
+                            <v-btn
+                                class="d-inline-block"
+                                text
+                                v-if="dynamic"
+                                @click = "toggleVarField"
+                            >
+                                Добавить переменную
+                            </v-btn>
+                            <v-btn
+                                class="d-inline-block"
                                 text
                                 @click = "selectAll"
                             >
                                 Выбрать всё
                             </v-btn>
-                            <v-btn 
-                                class="d-inline-block" 
+                            <v-btn
+                                class="d-inline-block"
                                 text
                                 @click = "unSelectAll"
                             >
@@ -45,16 +53,38 @@
                         </v-col>
                     </v-row>
                     <v-row>
-                        <v-col v-for="header in initialHeaders" :key="header.value" cols="12" sm="6" md="4"> 
-                            <v-checkbox 
+                        <v-col cols="12">
+                            <v-text-field
+                                outlined
+                                dense
+                                required
+                                clearable
+                                v-model="variableName"
+                                v-if="showVarField"
+                                label="Введите имя переменной и нажмите Enter"
+                                @keydown.enter="addVariable"
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col v-for="header in headers" :key="header.value" cols="12" sm="6" md="4" class="d-flex">
+                            <v-checkbox
                                 dense
                                 class="mt-0"
                                 color="success"
                                 hide-details
-                                v-model="header.visible" 
+                                v-model="header.visible"
                                 :label="header.text"
-                                @change="initialHeaders" 
+                                @change="$emit('toggle-head-visible-event', header.value);"
                             />
+                            <v-btn  v-if="header.dynamic"
+                                icon
+                                x-small
+                                color="red"
+                                @click ="$emit('delete-variable-event', header.value);"
+                            >
+                                <v-icon>mdi-close</v-icon>
+                            </v-btn>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -71,25 +101,38 @@ import { PropOptions } from 'vue';
 export default Vue.extend({
     name: "ColumnsVisibility",
     props: {
-        initialHeaders: {
+        headers: {
             type: Array
         } as PropOptions<Header[]>,
+        dynamic: Boolean,
     },
     data() {
         return {
             dialog: false,
+            showVarField: false,
+            variableName: '',
         }
     },
     methods: {
+        updateData () {
+            this.$emit('update-data-event');
+        },
         selectAll () {
-            for (let header of this.initialHeaders) {
+            for (let header of this.headers) {
                 header.visible = true;
             }
         },
         unSelectAll () {
-            for (let header of this.initialHeaders) {
+            for (let header of this.headers) {
                 header.visible = false;
             }
+        },
+        toggleVarField () {
+            this.showVarField = !this.showVarField;
+            this.variableName = '';
+        },
+        addVariable () {
+            this.$emit('add-variable-event', this.variableName);
         },
     },
 });
