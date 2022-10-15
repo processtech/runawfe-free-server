@@ -28,6 +28,7 @@
                                     outlined 
                                     dense 
                                     clearable
+                                    v-disabled-icon-focus
                                 ></v-text-field>
                                 <v-text-field 
                                     color="#616161"
@@ -38,6 +39,7 @@
                                     outlined 
                                     dense 
                                     clearable
+                                    v-disabled-icon-focus
                                     @click:append="showPassword = !showPassword"
                                 ></v-text-field>
                                 <v-btn type="submit" color="primary" block>
@@ -68,7 +70,13 @@ export default Vue.extend({
             hasError: false
         }
     },
-
+    directives: {
+        disabledIconFocus: {
+            bind(el) {
+                el.querySelectorAll('.v-input__icon button').forEach(x => x.setAttribute('tabindex', -1));
+            },
+        },
+    },
     methods: {
         login() {
             this.$store.dispatch('user/login', {
