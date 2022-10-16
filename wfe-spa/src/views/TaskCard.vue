@@ -99,7 +99,7 @@ export default Vue.extend({
                 }).then((data: any) => {
                     if (data) {
                         this.task = Object.assign(this.task, data.body);
-                        this.oldFormUrl = `${this.serverUrl}/wfe/newweboldform.do?id=${this.task.id}&title=${this.task.name}&jwt=${this.token}&startForm=false`;
+                        this.oldFormUrl = `${this.serverUrl}/wfe/newweboldform.do?id=${this.task.id}&title=${encodeURIComponent(this.task.name)}&jwt=${this.token}&startForm=false`;
                     }
                 });
             });
