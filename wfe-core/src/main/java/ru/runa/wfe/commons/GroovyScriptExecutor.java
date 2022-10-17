@@ -103,11 +103,13 @@ public class GroovyScriptExecutor {
             }
             Object value = getVariableFromProcess(scriptingName);
             log.debug("Passing to script '" + scriptingName + "' as '" + value + "'" + (value != null ? " of " + value.getClass() : ""));
-            setVariable(scriptingName, value);
             if (value instanceof Serializable) {
-                startValues.put(scriptingName, clone((Serializable) value));
+                startValues.put(scriptingName, value);
+                setVariable(scriptingName, clone((Serializable) value));
+            } else {
+                setVariable(scriptingName, value);
             }
-            return value;
+            return super.getVariable(scriptingName);
         }
 
         protected Object getVariableFromProcess(String scriptingName) {

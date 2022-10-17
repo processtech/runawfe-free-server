@@ -9,6 +9,7 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.logic.TaskExecutionListener;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.BoundaryEventContainer;
@@ -42,6 +43,9 @@ public class TaskFactory {
         task.setSwimlane(swimlane);
         task.assignExecutor(executionContext, executor != null ? executor : swimlane.getExecutor(), false);
         task.setAsync(isAsync);
+        for (TaskExecutionListener listener : SystemProperties.getTaskExecutionListeners()) {
+            listener.afterTaskCreate(executionContext, task);
+        }
         return task;
     }
 

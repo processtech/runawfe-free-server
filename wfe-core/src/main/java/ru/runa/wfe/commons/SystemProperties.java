@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.execution.logic.ProcessExecutionListener;
+import ru.runa.wfe.execution.logic.TaskExecutionListener;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
@@ -26,6 +27,7 @@ public class SystemProperties {
     public static final String DEPRECATED_PREFIX = "deprecated.";
 
     private static volatile List<ProcessExecutionListener> processExecutionListeners = null;
+    private static volatile List<TaskExecutionListener> taskExecutionListeners = null;
 
     static {
         setSystemProperties("javamelody.disabled", "javamelody.datasources");
@@ -357,6 +359,26 @@ public class SystemProperties {
             }
         }
         return processExecutionListeners;
+    }
+
+    public static List<TaskExecutionListener> getTaskExecutionListeners() {
+        if (taskExecutionListeners == null) {
+            synchronized (SystemProperties.class) {
+                if (taskExecutionListeners == null) {
+                    taskExecutionListeners = Lists.newArrayList();
+                    for (String className : RESOURCES.getMultipleStringProperty("task.execution.listeners")) {
+                        try {
+                            TaskExecutionListener listener = ClassLoaderUtil.instantiate(className);
+                            taskExecutionListeners.add(listener);
+                        } catch (Throwable th) {
+                            taskExecutionListeners = null;
+                            Throwables.propagate(th);
+                        }
+                    }
+                }
+            }
+        }
+        return taskExecutionListeners;
     }
 
     public static List<String> getRequiredValidatorNames() {

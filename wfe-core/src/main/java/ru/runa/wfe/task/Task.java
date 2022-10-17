@@ -31,10 +31,12 @@ import ru.runa.wfe.audit.CurrentTaskExpiredLog;
 import ru.runa.wfe.audit.CurrentTaskRemovedOnEmbeddedSubprocessEndLog;
 import ru.runa.wfe.audit.CurrentTaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.logic.TaskExecutionListener;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.ActionEvent;
@@ -309,6 +311,9 @@ public class Task implements Assignable {
         if (completionInfo.getCompletionBy() != TaskCompletionBy.PROCESS_END) {
             ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), this);
             taskNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
+        }
+        for (TaskExecutionListener listener : SystemProperties.getTaskExecutionListeners()) {
+            listener.beforeTaskDelete(executionContext, this, completionInfo);
         }
         delete();
     }
