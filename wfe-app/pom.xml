@@ -25,7 +25,7 @@
 		<!--spring.version>4.3.17.RELEASE</spring.version-->
 		<!--spring.version>5.0.6.RELEASE</spring.version-->
 		<querydsl.version>4.2.1</querydsl.version>
-		<jackson.version>2.5.5</jackson.version>
+		<jackson.version>2.13.4.1</jackson.version>
 		<project.build.cactus>false</project.build.cactus>
 		<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
 		<maven.profile.hibernate.datasource>java:jboss/datasources/ExampleDS</maven.profile.hibernate.datasource>
