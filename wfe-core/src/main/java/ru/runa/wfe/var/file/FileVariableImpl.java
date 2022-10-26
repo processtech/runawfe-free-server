@@ -17,6 +17,9 @@
  */
 package ru.runa.wfe.var.file;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * Represents value of file variable in process context.
  * 
@@ -81,5 +84,23 @@ public class FileVariableImpl implements FileVariable {
     @Override
     public String getStringValue() {
         return null;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(data, name, contentType);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        FileVariableImpl other = (FileVariableImpl) obj;
+        return Objects.equals(contentType, other.contentType) && Arrays.equals(data, other.data)
+                && Objects.equals(name, other.name);
     }
 }
