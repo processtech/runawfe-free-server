@@ -86,12 +86,14 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
-		<% if (WebResources.isChatEnabled() && isRoot) {%>
 		<td align="right">
+		<% if (WebResources.isChatEnabled() && isRoot) {%>
 			<% String href = "/wfe/chat_page.do?processId=" + id;%>
-			<a href="<%= href %>"><bean:message key="chat.open" /></a>
-		</td>
+			<a href="<%= href %>">
+				<bean:message key="chat.open" />
+			</a>
 		<% }%>
+		</td>
 		<td align="right">
 			<wf:showGraphHistoryLink identifiableId='<%=id %>' href='<%= "/show_graph_history.do?id=" + id %>'  />
 		</td>
