@@ -224,8 +224,16 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("definition.comments.empty.allowed", true);
     }
 
+    public static boolean deleteTokensInMissingNodesOnDefinitionUpdate() {
+        return RESOURCES.getBooleanProperty("definition.update.delete.tokens.for.missing.nodes", false);
+    }
+
     public static boolean isDefinitionCompatibilityCheckEnabled() {
         return RESOURCES.getBooleanProperty("definition.compatibility.check.enabled", true);
+    }
+
+    public static int getDefinitionCompatibilityCheckProcessesLimit() {
+        return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
     }
 
     public static boolean isCheckProcessStartPermissions() {
@@ -453,10 +461,6 @@ public class SystemProperties {
 
     public static boolean isProcessLogCleanButtonEnabled() {
         return RESOURCES.getBooleanProperty("processLog.cleanButton.enabled", false);
-    }
-
-    public static int getDefinitionCompatibilityCheckProcessesLimit() {
-        return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
     }
 
     public static boolean isGlobalObjectsEnabled() {

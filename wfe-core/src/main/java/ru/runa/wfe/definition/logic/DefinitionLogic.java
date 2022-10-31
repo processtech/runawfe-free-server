@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -42,7 +43,7 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
-import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
+import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -68,7 +69,7 @@ import ru.runa.wfe.var.VariableDefinition;
  */
 public class DefinitionLogic extends WfCommonLogic {
     @Autowired
-    DefinitionUpdateValidatorManager definitionVersionValidatorManager;
+    ProcessDefinitionUpdateManager processDefinitionUpdateManager;
 
     public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
         permissionDao.checkAllowed(user, Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
@@ -159,7 +160,7 @@ public class DefinitionLogic extends WfCommonLogic {
             throw new DefinitionNameMismatchException("Expected definition name " + deployment.getName(), uploadedDefinition.getName(),
                     deployment.getName());
         }
-        ProcessDefinition oldDefinition = parseProcessDefinition(deployment.getContent());
+        ProcessDefinition oldDefinition = getDefinition(deployment.getId());
         boolean containsAllPreviousComments = uploadedDefinition.getChanges().containsAll(oldDefinition.getChanges());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (!containsAllPreviousComments) {
@@ -174,12 +175,14 @@ public class DefinitionLogic extends WfCommonLogic {
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
             }
         }
-        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), uploadedDefinition);
+        List<Process> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
+        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, uploadedDefinition, processes);
         deployment.setContent(uploadedDefinition.getDeployment().getContent());
         deployment.setUpdateDate(new Date());
         deployment.setUpdateActor(user.getActor());
         deploymentDao.update(deployment);
         addUpdatedDefinitionInProcessLog(user, deployment);
+        processDefinitionUpdateManager.after(uploadedDefinition, affectedProcesses);
         log.debug("Process definition " + deployment + " was successfully updated");
         return new WfDefinition(deployment);
     }
