@@ -1,4 +1,4 @@
-package ru.runa.wfe.definition.validation.impl;
+package ru.runa.wfe.definition.update.validator;
 
 import java.util.HashSet;
 import java.util.List;
@@ -7,9 +7,7 @@ import java.util.function.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.definition.Language;
-import ru.runa.wfe.definition.validation.DefinitionUpdateValidator;
-import ru.runa.wfe.definition.validation.DeploymentUpdateData;
-import ru.runa.wfe.definition.validation.ProcessDefinitionNotCompatibleException;
+import ru.runa.wfe.definition.update.ProcessDefinitionUpdateData;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDao;
@@ -23,18 +21,18 @@ import ru.runa.wfe.lang.bpmn2.ParallelGateway;
  * @author azyablin
  */
 @Component
-public class ParallelGatewayDefinitionUpdateValidator implements DefinitionUpdateValidator {
+public class ParallelGatewayProcessDefinitionUpdateValidator implements ProcessDefinitionUpdateValidator {
     @Autowired
     TokenDao tokenDao;
 
     @Override
-    public void validate(DeploymentUpdateData deploymentUpdateData) {
-        if (deploymentUpdateData.getNewDefinition().getProcessDefinition().getLanguage() != Language.BPMN2) {
+    public void validate(ProcessDefinitionUpdateData processDefinitionUpdateData) {
+        if (processDefinitionUpdateData.getNewDefinition().getProcessDefinition().getLanguage() != Language.BPMN2) {
             return;
         }
-        Set<ParallelGateway> parallelGateways = getParallelGatewaysForCheck(deploymentUpdateData);
+        Set<ParallelGateway> parallelGateways = getParallelGatewaysForCheck(processDefinitionUpdateData);
         for (ParallelGateway parallelGateway : parallelGateways) {
-            Node newNode = deploymentUpdateData.getNewDefinition().getNode(parallelGateway.getNodeId());
+            Node newNode = processDefinitionUpdateData.getNewDefinition().getNode(parallelGateway.getNodeId());
             if (!(newNode instanceof ParallelGateway)) {
                 throw new ProcessDefinitionNotCompatibleException(ProcessDefinitionNotCompatibleException.PARALLEL_GATEWAY_MISTYPED,
                         new String[] { parallelGateway.getNodeId() });
@@ -48,8 +46,6 @@ public class ParallelGatewayDefinitionUpdateValidator implements DefinitionUpdat
 
     /**
      * checks that nodes have not been added or updated in the new definition
-     * 
-     * @return true if the new definition has no changes
      */
     private boolean areInputTransitionsCompatible(ParallelGateway oldNode, ParallelGateway newNode) {
         List<Transition> oldTransitions = oldNode.getArrivingTransitions();
@@ -72,13 +68,13 @@ public class ParallelGatewayDefinitionUpdateValidator implements DefinitionUpdat
      * 
      * @return parallel gateways nearby to active nodes only
      */
-    private Set<ParallelGateway> getParallelGatewaysForCheck(DeploymentUpdateData deploymentUpdateData) {
+    private Set<ParallelGateway> getParallelGatewaysForCheck(ProcessDefinitionUpdateData processDefinitionUpdateData) {
         Set<ParallelGateway> parallelGateways = new HashSet<>();
         Set<Node> seenNodes = new HashSet<>();
-        for (CurrentProcess process : deploymentUpdateData.getProcesses()) {
+        for (CurrentProcess process : processDefinitionUpdateData.getProcesses()) {
             for (Token token : tokenDao.findByProcessAndExecutionStatusIsNotEnded(process)) {
                 String nodeId = token.getNodeId();
-                Node node = deploymentUpdateData.getOldDefinition().getNodeNotNull(nodeId);
+                Node node = processDefinitionUpdateData.getOldDefinition().getNodeNotNull(nodeId);
                 fetchNearestParallelGateways(parallelGateways, seenNodes, node);
             }
         }

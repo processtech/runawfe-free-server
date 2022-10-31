@@ -52,7 +52,7 @@ import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
+import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
 import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentProcessClassPresentation;
@@ -139,7 +139,7 @@ public class ExecutionLogic extends WfCommonLogic {
     @Autowired
     private JobDao jobDao;
     @Autowired
-    private DefinitionUpdateValidatorManager definitionVersionValidatorManager;
+    private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
     @Autowired
     private CurrentProcessLogDao currentProcessLogDao;
 
@@ -294,7 +294,11 @@ public class ExecutionLogic extends WfCommonLogic {
             if (nodeProcess != null) {
                 ParsedProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(
                         nodeProcess.getProcess());
-                SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNodeNotNull(nodeProcess.getNodeId());
+                SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNode(nodeProcess.getNodeId());
+                if (subprocessNode == null) {
+                    // rm2834 can cause this
+                    return false;
+                }
                 if (subprocessNode.isAsync() && subprocessNode.getCompletionMode() == AsyncCompletionMode.NEVER) {
                     return !nodeProcess.getSubProcess().hasEnded();
                 }
@@ -640,19 +644,17 @@ public class ExecutionLogic extends WfCommonLogic {
         if (Objects.equal(newVersion, dwv.processDefinitionVersion.getVersion())) {
             return 0;
         }
-        definitionVersionValidatorManager.validate(getDefinition(dwv.processDefinitionVersion.getId()),
-                getDefinition(nextDwv.processDefinitionVersion.getId()));
-        ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(dwv.processDefinition.getName());
-        filter.setDefinitionVersion(dwv.processDefinitionVersion.getVersion());
-        filter.setFinished(false);
-        List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
+        ParsedProcessDefinition oldDefinition = getDefinition(dwv.processDefinitionVersion.getId());
+        ParsedProcessDefinition newDefinition = getDefinition(nextDwv.processDefinitionVersion.getId());
+        List<CurrentProcess> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
+        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, newDefinition, processes);
         for (CurrentProcess process : processes) {
             process.setDefinitionVersion(nextDwv.processDefinitionVersion);
             currentProcessDao.update(process);
             processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION,
                     dwv.processDefinitionVersion.getVersion(), newVersion), process, null);
         }
+        processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
         return processes.size();
     }
 
@@ -671,11 +673,14 @@ public class ExecutionLogic extends WfCommonLogic {
             return false;
         }
         ProcessDefinitionWithVersion nextDwv = processDefinitionDao.getByNameAndVersion(dv.getDefinition().getName(), newVersion);
-        definitionVersionValidatorManager.validate(getDefinition(dv.getId()), getDefinition(nextDwv.processDefinitionVersion.getId()), process);
+        ParsedProcessDefinition newDefinition = getDefinition(nextDwv.processDefinitionVersion.getId());
+        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(getDefinition(dv.getId()), newDefinition,
+                Collections.singletonList(process));
         process.setDefinitionVersion(nextDwv.processDefinitionVersion);
         currentProcessDao.update(process);
         processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),
                 newVersion), process, null);
+        processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
         return true;
     }
 
@@ -1113,13 +1118,13 @@ public class ExecutionLogic extends WfCommonLogic {
         ParsedProcessDefinition definition = getDefinition(process);
         for (CurrentNodeProcess subprocessNode : currentNodeProcessDao.getNodeProcesses(process, null, null, null)) {
             CurrentProcess subprocess = subprocessNode.getSubProcess();
-            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED && !isDisableCascadingSuspension(definition, subprocessNode)) {
+            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED && subprocess.getExecutionStatus() != ExecutionStatus.ENDED && !isDisableCascadingSuspension(definition, subprocessNode)) {
                 suspendProcessWithSubprocesses(user, subprocess);
             }
         }
     }
 
     private boolean isDisableCascadingSuspension(ParsedProcessDefinition parentProcessDefinition, CurrentNodeProcess nodeProcess) {
-        return ((SubprocessNode) parentProcessDefinition.getNode(nodeProcess.getNodeId())).isDisableCascadingSuspension();
+        return ((SubprocessNode) parentProcessDefinition.getNodeNotNull(nodeProcess.getNodeId())).isDisableCascadingSuspension();
     }
 }

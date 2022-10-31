@@ -86,4 +86,13 @@ public class CurrentTokenDao extends GenericDao<CurrentToken> {
                 .fetch();
     }
 
+    public List<CurrentToken> findByProcessAndNodeTypeAndAbleToReactivateParent(CurrentProcess process, NodeType nodeType) {
+        QCurrentToken t = QCurrentToken.currentToken;
+        return queryFactory.selectFrom(t)
+                .where(t.process.eq(process)
+                        .and(t.nodeType.eq(nodeType))
+                        .and(t.ableToReactivateParent.isTrue()))
+                .fetch();
+    }
+
 }

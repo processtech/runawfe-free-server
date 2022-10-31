@@ -17,7 +17,7 @@ import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.InvalidDefinitionException;
-import ru.runa.wfe.definition.validation.ProcessDefinitionNotCompatibleException;
+import ru.runa.wfe.definition.update.validator.ProcessDefinitionNotCompatibleException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.presentation.filter.FilterFormatException;

@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.CurrentAdminActionLog;
@@ -32,6 +34,7 @@ import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
+import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -54,6 +57,8 @@ import ru.runa.wfe.var.VariableDefinition;
 
 @Component
 public class ProcessDefinitionLogic extends WfCommonLogic {
+    @Autowired
+    ProcessDefinitionUpdateManager processDefinitionUpdateManager;
 
     /**
      * @param secondsBeforeArchiving
@@ -163,12 +168,16 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
             throw new DefinitionNameMismatchException(dwv.processDefinition.getName(), parsed.getName());
         }
         checkCommentsOnDeploy(parseProcessDefinition(dwv.processDefinitionVersion.getContent()), parsed);
+        ParsedProcessDefinition oldDefinition = getDefinition(dwv.processDefinitionVersion.getId());
+        List<CurrentProcess> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
+        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, parsed, processes);
         dwv.processDefinitionVersion.setContent(parsed.getProcessDefinitionVersion().getContent());
         dwv.processDefinitionVersion.setUpdateDate(new Date());
         dwv.processDefinitionVersion.setUpdateActor(user.getActor());
         dwv.processDefinitionVersion.setSubVersion(dwv.processDefinitionVersion.getSubVersion() + 1);
         processDefinitionVersionDao.update(dwv.processDefinitionVersion);
         addUpdatedDefinitionInProcessLog(user, dwv);
+        processDefinitionUpdateManager.after(parsed, affectedProcesses);
         log.debug("Process definition " + dwv + " was successfully updated");
         return new WfDefinition(dwv);
     }

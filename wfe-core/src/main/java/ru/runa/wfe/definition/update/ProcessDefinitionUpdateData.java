@@ -1,4 +1,4 @@
-package ru.runa.wfe.definition.validation;
+package ru.runa.wfe.definition.update;
 
 import java.util.List;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class DeploymentUpdateData {
+public class ProcessDefinitionUpdateData {
     private final ParsedProcessDefinition oldDefinition;
     private final ParsedProcessDefinition newDefinition;
     private final List<CurrentProcess> processes;

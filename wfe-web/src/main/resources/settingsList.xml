@@ -75,6 +75,10 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="definition.update.delete.tokens.for.missing.nodes">
+			<value>true</value>
+			<value>false</value>
+		</property>
 		<property title="definition.compatibility.check.enabled">
 			<value>true</value>
 			<value>false</value>
