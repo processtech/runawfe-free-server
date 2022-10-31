@@ -50,13 +50,21 @@ public class TokenDao extends GenericDao<Token> {
                         .and(t.executionStatus.eq(ExecutionStatus.ENDED))
                         .and(t.ableToReactivateParent.isTrue()))
                 .fetch();
+    }
 
+    public List<Token> findByProcessAndNodeTypeAndAbleToReactivateParent(ru.runa.wfe.execution.Process process, NodeType nodeType) {
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t)
+                .where(t.process.eq(process)
+                        .and(t.nodeType.eq(nodeType))
+                        .and(t.ableToReactivateParent.isTrue()))
+                .fetch();
     }
 
     public List<Token> findByMessageSelectorIsNullAndExecutionStatusIsNotEnded() {
         QToken t = QToken.token;
         return queryFactory.selectFrom(t)
-.where(t.nodeType.eq(NodeType.RECEIVE_MESSAGE).and(t.messageSelector.isNull()).and(t.endDate.isNull()))
+                .where(t.nodeType.eq(NodeType.RECEIVE_MESSAGE).and(t.messageSelector.isNull()).and(t.endDate.isNull()))
                 .fetch();
     }
 

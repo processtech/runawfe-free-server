@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -54,7 +55,7 @@ import ru.runa.wfe.commons.error.dto.WfTokenError;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
+import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -122,8 +123,7 @@ public class ExecutionLogic extends WfCommonLogic {
     @Autowired
     private JobDao jobDao;
     @Autowired
-    private DefinitionUpdateValidatorManager definitionVersionValidatorManager;
-
+    private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -354,18 +354,17 @@ public class ExecutionLogic extends WfCommonLogic {
             return 0;
         }
         Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newVersion);
-        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), getDefinition(nextDeployment.getId()));
-        ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(deployment.getName());
-        filter.setDefinitionVersion(deployment.getVersion());
-        filter.setFinished(false);
-        List<Process> processes = processDao.getProcesses(filter);
+        ProcessDefinition oldDefinition = getDefinition(deployment.getId());
+        ProcessDefinition newDefinition = getDefinition(nextDeployment.getId());
+        List<Process> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
+        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, newDefinition, processes);
         for (Process process : processes) {
             process.setDeployment(nextDeployment);
             processDao.update(process);
             processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
                     newVersion), process, null);
         }
+        processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
         return processes.size();
     }
 
@@ -382,11 +381,14 @@ public class ExecutionLogic extends WfCommonLogic {
             return false;
         }
         Deployment nextDeployment = deploymentDao.findDeployment(deployment.getName(), newDeploymentVersion);
-        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), getDefinition(nextDeployment.getId()), process);
+        ProcessDefinition newDefinition = getDefinition(nextDeployment.getId());
+        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(getDefinition(deployment.getId()), newDefinition,
+                Collections.singletonList(process));
         process.setDeployment(nextDeployment);
         processDao.update(process);
         processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
                 newDeploymentVersion), process, null);
+        processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
         return true;
     }
 
@@ -797,13 +799,14 @@ public class ExecutionLogic extends WfCommonLogic {
         ProcessDefinition definition = getDefinition(process);
         for (NodeProcess subprocessNode : nodeProcessDao.getNodeProcesses(process, null, null, null)) {
             Process subprocess = subprocessNode.getSubProcess();
-            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED && !isDisableCascadingSuspension(definition, subprocessNode)) {
+            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED && subprocess.getExecutionStatus() != ExecutionStatus.ENDED
+                    && !isDisableCascadingSuspension(definition, subprocessNode)) {
                 suspendProcessWithSubprocesses(user, subprocess);
             }
         }
     }
 
     private boolean isDisableCascadingSuspension(ProcessDefinition parentProcessDefinition, NodeProcess nodeProcess) {
-        return ((SubprocessNode) parentProcessDefinition.getNode(nodeProcess.getNodeId())).isDisableCascadingSuspension();
+        return ((SubprocessNode) parentProcessDefinition.getNodeNotNull(nodeProcess.getNodeId())).isDisableCascadingSuspension();
     }
 }
