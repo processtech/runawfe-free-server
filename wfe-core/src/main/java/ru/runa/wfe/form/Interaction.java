@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
-import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.lang.dto.WfTransition;
@@ -38,7 +37,6 @@ public class Interaction implements Serializable {
     @XmlTransient
     private final HashMap<String, Object> defaultVariableValues = Maps.newHashMap();
     private final List<WfTransition> outputTransitions = Lists.newArrayList();
-    private String swimlaneName;
 
     protected Interaction() {
     }
@@ -60,9 +58,6 @@ public class Interaction implements Serializable {
             if (!transition.isTimerTransition()) {
                 outputTransitions.add(new WfTransition(transition));
             }
-        }
-        if (node instanceof InteractionNode && !((InteractionNode) node).getTasks().isEmpty()) {
-            this.swimlaneName = ((InteractionNode) node).getFirstTaskNotNull().getSwimlane().getName();
         }
     }
 
