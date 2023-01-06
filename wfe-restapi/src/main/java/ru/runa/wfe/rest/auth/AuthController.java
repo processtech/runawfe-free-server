@@ -33,7 +33,7 @@ public class AuthController {
     }
 
     @PostMapping("/trusted")
-    public String trusted(@AuthenticationPrincipal AuthUser authUser, @RequestBody String login) {
+    public String trusted(@AuthenticationPrincipal AuthUser authUser, @RequestParam String login) {
         User user = authenticationLogic.authenticate(authUser.getUser(), login);
         return new JwtUser().tokenOf(user);
     }
