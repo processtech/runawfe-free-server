@@ -21,7 +21,7 @@ public interface WfeUserMapper {
     }
 
     default Actor map(WfeUser dto) {
-        Actor actor = new Actor(null, null);
+        Actor actor = new Actor(dto.getName(), null);
         fill(actor, dto);
         return actor;
     }
