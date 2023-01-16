@@ -4,8 +4,6 @@ import com.google.common.collect.Maps;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
@@ -33,12 +31,7 @@ public class DocxHandler extends OfficeFilesSupplierHandler<DocxConfig> {
             document = fileChanger.changeAll();
         }
         OutputStream outputStream = config.getFileOutputStream(result, variableProvider, true);
-        if (config.getOutputFileName().endsWith(DocxConfig.PDF_EXTENSION)) {
-            PdfOptions options = PdfOptions.create();
-            PdfConverter.getInstance().convert(document, outputStream, options);
-        } else {
-            document.write(outputStream);
-        }
+        document.write(outputStream);
         return result;
     }
 
