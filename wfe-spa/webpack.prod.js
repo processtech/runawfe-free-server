@@ -20,7 +20,7 @@ module.exports = merge(common, {
   module: {
     rules: [
       {
-        test: /\.(sa|sc|c)ss$/,
+        test: /\.(sa|sc)ss$/,
         use: [
           MiniCssExtractPlugin.loader,
           {
@@ -39,6 +39,18 @@ module.exports = merge(common, {
               },
               additionalData: "@import './src/styles/variables.scss'",
             },
+          },
+        ],
+      },
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: false, // Disable generation of source maps
+            }
           },
         ],
       },
