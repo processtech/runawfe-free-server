@@ -13,7 +13,7 @@ import lombok.Setter;
 public class AddMessageRequest extends MessageRequest {
     private static final long serialVersionUID = -2343987208864174162L;
 
-    private String message;
+    private String text;
     private Boolean isPrivate = false;
     private Map<String, byte[]> files;
 }

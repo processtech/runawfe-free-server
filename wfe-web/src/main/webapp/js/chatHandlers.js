@@ -18,7 +18,7 @@ function sendMessageHandler() {
     if ((message !== "") || (attachedFiles.length !== 0)) {
         message = replaceLinks(message);
         let newMessage = {};
-        newMessage.message = message;
+        newMessage.text = message;
         newMessage.processId = $("#ChatForm").attr("processId");
         if (editMessageId === -1) {
             newMessage.messageType = newMessageType;

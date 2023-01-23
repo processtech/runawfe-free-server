@@ -72,7 +72,7 @@ public class ChatLogic extends WfCommonLogic {
         final ChatMessage newMessage = messageRequestMapper.toEntity(request);
         newMessage.setCreateActor(executorLogic.getActor(user, user.getActor().getName()));
         final long processId = request.getProcessId();
-        final Set<Actor> recipients = recipientCalculator.calculateRecipients(user, request.getIsPrivate(), request.getMessage(), processId);
+        final Set<Actor> recipients = recipientCalculator.calculateRecipients(user, request.getIsPrivate(), request.getText(), processId);
 
         MessageAddedBroadcast messageAddedBroadcast;
         if (request.getFiles() != null) {
@@ -91,7 +91,7 @@ public class ChatLogic extends WfCommonLogic {
 
     public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request) {
         final ChatMessage message = chatMessageDao.getNotNull(request.getEditMessageId());
-        message.setText(request.getMessage());
+        message.setText(request.getText());
         if (!message.getCreateActor().equals(user.getActor())) {
             throw new AuthorizationException("Allowed for author only");
         }

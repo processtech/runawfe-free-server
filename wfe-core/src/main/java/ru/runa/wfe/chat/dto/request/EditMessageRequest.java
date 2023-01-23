@@ -9,5 +9,5 @@ public class EditMessageRequest extends MessageRequest {
     private static final long serialVersionUID = -851411986695432630L;
 
     private Long editMessageId;
-    private String message;
+    private String text;
 }
