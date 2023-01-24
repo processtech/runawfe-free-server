@@ -90,7 +90,7 @@ public class ChatLogic extends WfCommonLogic {
     }
 
     public WfChatMessageBroadcast<MessageEditedBroadcast> editMessage(User user, EditMessageRequest request) {
-        final ChatMessage message = chatMessageDao.getNotNull(request.getEditMessageId());
+        final ChatMessage message = chatMessageDao.getNotNull(request.getId());
         message.setText(request.getText());
         if (!message.getCreateActor().equals(user.getActor())) {
             throw new AuthorizationException("Allowed for author only");
@@ -107,12 +107,12 @@ public class ChatLogic extends WfCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException("Allowed for admin only");
         }
-        final ChatMessage message = chatMessageDao.getNotNull(request.getMessageId());
+        final ChatMessage message = chatMessageDao.getNotNull(request.getId());
         final Set<Actor> recipients = getRecipientsByMessageId(message.getId());
         fileDao.deleteByMessage(message);
         recipientDao.deleteByMessageId(message.getId());
         chatMessageDao.delete(message.getId());
-        return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getMessageId(), user.getName()), recipients);
+        return new WfChatMessageBroadcast<>(new MessageDeletedBroadcast(request.getProcessId(), request.getId(), user.getName()), recipients);
     }
 
     public ChatMessage getMessageById(User user, Long messageId) {

@@ -8,5 +8,5 @@ import lombok.Setter;
 public class DeleteMessageRequest extends MessageRequest {
     private static final long serialVersionUID = -7206377413987357194L;
 
-    private Long messageId;
+    private Long id;
 }
