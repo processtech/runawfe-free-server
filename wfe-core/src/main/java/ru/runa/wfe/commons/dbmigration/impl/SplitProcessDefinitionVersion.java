@@ -16,7 +16,7 @@ public class SplitProcessDefinitionVersion extends DbMigration {
         // Table BPM_PROCESS_DEFINITION does not have UK(name, version), so perform sanity check first.
         @SuppressWarnings("unchecked")
         List<Object[]> duplicates = sessionFactory.getCurrentSession()
-                .createSQLQuery("select name, version, count(*) from bpm_process_definition group by name, version having count(*) > 1")
+                .createSQLQuery("select name, version, count(*) from " + schemaPrefix + "bpm_process_definition group by name, version having count(*) > 1")
                 .list();
         if (!duplicates.isEmpty()) {
             StringBuilder sb = new StringBuilder();
@@ -71,43 +71,43 @@ public class SplitProcessDefinitionVersion extends DbMigration {
         try (val stmt = conn.createStatement()) {
 
             // Fill new BPM_PROCESS_DEFINITION table (except latest_version_id).
-            stmt.executeUpdate("insert into bpm_process_definition (" + insertPkColumn() + "name, language, description, category) " +
+            stmt.executeUpdate("insert into " + schemaPrefix + "bpm_process_definition (" + insertPkColumn() + "name, language, description, category) " +
                     // Take distinct name and arbitrary values for other fields (they all should be the same in all rows with same name);
                     // max() is as good as anything else.
                     "select " + insertPkNextVal("bpm_process_definition") + "d.name, d.language, d.description, d.category " +
                     "from (" +
                     "    select name, max(language) as language, max(description) as description, max(category) as category " +
-                    "    from bpm_process_definition_ver " +
+                    "    from " + schemaPrefix + "bpm_process_definition_ver " +
                     "    group by name" +
                     ") d"
             );
 
             // Fill PROCESS_DEFINITION_VER.DEFINITION_ID (after we filled PROCESS_DEFINITION table).
-            stmt.executeUpdate("update bpm_process_definition_ver set " +
-                    "definition_id = (select max(id) from bpm_process_definition where bpm_process_definition.name = bpm_process_definition_ver.name), " +
+            stmt.executeUpdate("update " + schemaPrefix + "bpm_process_definition_ver set " +
+                    "definition_id = (select max(id) from " + schemaPrefix + "bpm_process_definition where bpm_process_definition.name = bpm_process_definition_ver.name), " +
                     "subversion = 0"
             );
 
             // Fill PROCESS_DEFINITION.LATEST_VERSION_ID (after we filled PROCESS_DEFINITION_VER.DEFINITION_ID).
-            stmt.executeUpdate("update bpm_process_definition set latest_version_id = " +
-                    "(select max(id) from bpm_process_definition_ver where bpm_process_definition.id = bpm_process_definition_ver.definition_id)"
+            stmt.executeUpdate("update " + schemaPrefix + "bpm_process_definition set latest_version_id = " +
+                    "(select max(id) from " + schemaPrefix + "bpm_process_definition_ver where bpm_process_definition.id = bpm_process_definition_ver.definition_id)"
             );
 
             // Fix permissions.
             try (
-                    val update = conn.prepareStatement("update permission_mapping " +
+                    val update = conn.prepareStatement("update " + schemaPrefix + "permission_mapping " +
                             "set object_type='DEFINITION2', object_id=? " +
                             "where object_type='DEFINITION' and object_id=?");
                     val select = conn.createStatement()
             ) {
-                ResultSet rs = select.executeQuery("select name, id from bpm_process_definition");
+                ResultSet rs = select.executeQuery("select name, id from " + schemaPrefix + "bpm_process_definition");
                 while (rs.next()) {
                     update.setLong(1, rs.getString(1).hashCode());
                     update.setLong(2, rs.getLong(2));
                     update.executeUpdate();
                 }
             }
-            stmt.executeUpdate("update permission_mapping set object_type='DEFINITION' where object_type='DEFINITION2'");
+            stmt.executeUpdate("update " + schemaPrefix + "permission_mapping set object_type='DEFINITION' where object_type='DEFINITION2'");
         }
     }
 

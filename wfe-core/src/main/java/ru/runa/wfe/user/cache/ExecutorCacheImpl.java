@@ -233,12 +233,15 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
 
     private List<ExecutorGroupMembership> getAllMemberships() {
         return ApplicationContextFactory.getCurrentSession()
-                .createSQLQuery("SELECT * FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N'))")
+                .createSQLQuery(
+                        "SELECT * FROM " + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM "
+                                + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N'))")
                 .addEntity(ExecutorGroupMembership.class).list();
     }
 
     private List<Executor> getAllExecutors() {
-        return ApplicationContextFactory.getCurrentSession().createSQLQuery("SELECT * FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')")
+        return ApplicationContextFactory.getCurrentSession()
+                .createSQLQuery("SELECT * FROM " + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')")
                 .addEntity(Executor.class).list();
     }
 

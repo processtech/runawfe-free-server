@@ -1,6 +1,4 @@
-package ru.runa.wfe.commons.dbmigration;
-
-import ru.runa.wfe.commons.dbmigration.impl.CorrectChatRoomViewRenameColumn;
+package ru.runa.wfe.commons.dbmigration.impl;
 
 public class RecreateChatRoomView extends CorrectChatRoomViewRenameColumn {
 

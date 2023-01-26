@@ -5,6 +5,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 
 @CommonsLog
 public class UnusedTemporaryGroupsCleaner {
@@ -32,12 +33,21 @@ public class UnusedTemporaryGroupsCleaner {
         sessionFactory
                 .getCurrentSession()
                 .createSQLQuery(
-                        "DELETE FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR IN ('D', 'T', 'E') AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM BPM_TASK WHERE EXECUTOR_ID IS NOT NULL))")
+                        "DELETE FROM " + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM "
+                                + ApplicationContextFactory.getSchemaPrefix()
+                                + "EXECUTOR WHERE DISCRIMINATOR IN ('D', 'T', 'E') AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM "
+                                + ApplicationContextFactory.getSchemaPrefix()
+                                + " BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM "
+                                + ApplicationContextFactory.getSchemaPrefix() + "BPM_TASK WHERE EXECUTOR_ID IS NOT NULL))")
                 .executeUpdate();
         sessionFactory
                 .getCurrentSession()
                 .createSQLQuery(
-                        "DELETE FROM EXECUTOR WHERE DISCRIMINATOR IN ('D', 'T', 'E') AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM BPM_TASK WHERE EXECUTOR_ID IS NOT NULL)")
+                        "DELETE FROM " + ApplicationContextFactory.getSchemaPrefix()
+                                + "EXECUTOR WHERE DISCRIMINATOR IN ('D', 'T', 'E') AND ID NOT IN (SELECT DISTINCT(EXECUTOR_ID) FROM "
+                                + ApplicationContextFactory.getSchemaPrefix()
+                                + "BPM_SWIMLANE WHERE EXECUTOR_ID IS NOT NULL UNION SELECT DISTINCT(EXECUTOR_ID) FROM "
+                                + ApplicationContextFactory.getSchemaPrefix() + "BPM_TASK WHERE EXECUTOR_ID IS NOT NULL)")
                 .executeUpdate();
     }
 

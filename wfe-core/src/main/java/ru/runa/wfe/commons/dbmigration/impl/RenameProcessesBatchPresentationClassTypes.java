@@ -18,7 +18,7 @@ public class RenameProcessesBatchPresentationClassTypes extends DbMigration {
             add(new Pair<>("PROCESS_WITH_TASKS", "CURRENT_PROCESS_WITH_TASKS"));
         }};
 
-        try (val stmt = conn.prepareStatement("update batch_presentation set class_type = ? where class_type = ?")) {
+        try (val stmt = conn.prepareStatement("update " + schemaPrefix + "batch_presentation set class_type = ? where class_type = ?")) {
             for (val r : replacements) {
                 stmt.setString(1, r.getValue2());
                 stmt.setString(2, r.getValue1());

@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.dao.CommonDao;
@@ -590,7 +591,8 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
         }
         result = new HashSet<>();
         SQLQuery sqlQuery = sessionFactory.getCurrentSession().createSQLQuery(
-                "SELECT * FROM EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')) AND EXECUTOR_ID = :executorId")
+                "SELECT * FROM " + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR_GROUP_MEMBER WHERE GROUP_ID IN (SELECT ID FROM "
+                        + ApplicationContextFactory.getSchemaPrefix() + "EXECUTOR WHERE DISCRIMINATOR IN ('Y', 'N')) AND EXECUTOR_ID = :executorId")
                 .addEntity(ExecutorGroupMembership.class);
         sqlQuery.setParameter("executorId", executor.getId());
         List<ExecutorGroupMembership> memberships = sqlQuery.list();
