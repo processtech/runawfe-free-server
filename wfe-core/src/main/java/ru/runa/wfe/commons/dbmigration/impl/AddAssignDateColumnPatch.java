@@ -26,9 +26,9 @@ public class AddAssignDateColumnPatch extends DbMigration {
     @SuppressWarnings("unchecked")
     @Override
     public void executeDML(Session session) {
-        List<Object[]> rows = session.createSQLQuery("SELECT ID, PROCESS_ID, NODE_ID FROM BPM_TASK").list();
+        List<Object[]> rows = session.createSQLQuery("SELECT ID, PROCESS_ID, NODE_ID FROM " + schemaPrefix + "BPM_TASK").list();
         log.info("Found " + rows.size() + " tasks");
-        SQLQuery updateQuery = session.createSQLQuery("UPDATE BPM_TASK SET ASSIGN_DATE=:assignDate WHERE ID=:taskId");
+        SQLQuery updateQuery = session.createSQLQuery("UPDATE " + schemaPrefix + "BPM_TASK SET ASSIGN_DATE=:assignDate WHERE ID=:taskId");
         for (Object[] row : rows) {
             Long taskId = ((Number) row[0]).longValue();
             ProcessLogFilter filter = new ProcessLogFilter(((Number) row[1]).longValue());

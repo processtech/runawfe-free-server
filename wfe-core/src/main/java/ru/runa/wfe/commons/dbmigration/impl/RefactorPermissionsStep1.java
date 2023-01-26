@@ -133,7 +133,7 @@ public class RefactorPermissionsStep1 extends DbMigration {
 
         // Fill `object_type` column in `permission_mapping__old`.
         {
-            SQLQuery q = session.createSQLQuery("update permission_mapping__old set object_type=:s where type_id=:i");
+            SQLQuery q = session.createSQLQuery("update " + schemaPrefix + "permission_mapping__old set object_type=:s where type_id=:i");
             for (TMatch m : tMatches) {
                 q.setParameter("s", m.name);
                 q.setParameter("i", m.ordinal);
@@ -142,7 +142,7 @@ public class RefactorPermissionsStep1 extends DbMigration {
 
             @SuppressWarnings("unchecked")
             List<Object> rows = session
-                    .createSQLQuery("select distinct type_id from permission_mapping__old where object_type is null order by type_id")
+                    .createSQLQuery("select distinct type_id from " + schemaPrefix + "permission_mapping__old where object_type is null order by type_id")
                     .list();
             if (!rows.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
@@ -162,7 +162,7 @@ public class RefactorPermissionsStep1 extends DbMigration {
 
         // Fill `permission` column in `permission_mapping__old`.
         {
-            SQLQuery q = session.createSQLQuery("update permission_mapping__old set permission=:p where object_type=:t and mask=:m");
+            SQLQuery q = session.createSQLQuery("update " + schemaPrefix + "permission_mapping__old set permission=:p where object_type=:t and mask=:m");
             for (PMatch m : pMatches) {
                 q.setParameter("p", m.name);
                 q.setParameter("t", m.type);
@@ -172,7 +172,7 @@ public class RefactorPermissionsStep1 extends DbMigration {
 
             @SuppressWarnings("unchecked")
             List<Object[]> rows = session
-                    .createSQLQuery("select distinct object_type, mask from permission_mapping__old where permission is null order by object_type, mask")
+                    .createSQLQuery("select distinct object_type, mask from " + schemaPrefix + "permission_mapping__old where permission is null order by object_type, mask")
                     .list();
             if (!rows.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
@@ -203,14 +203,14 @@ public class RefactorPermissionsStep1 extends DbMigration {
                     // TODO Should we generate PK field with "default nextval('sequence_name')" instead?
                     //      Or even use BIGSERIAL instead of manual sequence creation?
                     idName = "id, ";
-                    idValue = "nextval('seq_permission_mapping'), ";
+                    idValue = "nextval('" + schemaPrefix + "seq_permission_mapping'), ";
                     break;
                 default:
                     idName = "";
                     idValue = "";
             }
             session.createSQLQuery(
-                    "insert into permission_mapping (" + idName + "executor_id, object_type, object_id, permission) " +
+                    "insert into " + schemaPrefix + "permission_mapping (" + idName + "executor_id, object_type, object_id, permission) " +
                     "select " + idValue + "executor_id, object_type, identifiable_id, permission " +
                     "from permission_mapping__old"
             ).executeUpdate();

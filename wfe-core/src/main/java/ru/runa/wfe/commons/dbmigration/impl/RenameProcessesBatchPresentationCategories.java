@@ -18,7 +18,7 @@ public class RenameProcessesBatchPresentationCategories extends DbMigration {
             add(new Pair<>("listProcessesWithTasksForm", "listCurrentProcessesWithTasksForm"));
         }};
 
-        try (val stmt = conn.prepareStatement("update batch_presentation set category = ? where category = ?")) {
+        try (val stmt = conn.prepareStatement("update " + schemaPrefix + "batch_presentation set category = ? where category = ?")) {
             for (val r : replacements) {
                 stmt.setString(1, r.getValue2());
                 stmt.setString(2, r.getValue1());

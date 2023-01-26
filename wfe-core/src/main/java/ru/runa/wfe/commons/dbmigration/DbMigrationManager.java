@@ -5,8 +5,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -50,7 +50,7 @@ public class DbMigrationManager {
             public HashSet<String> call(Connection conn) {
                 HashSet<String> result = null;
                 try (val stmt = conn.createStatement()) {
-                    val rs = stmt.executeQuery("select name, when_finished from db_migration");
+                    val rs = stmt.executeQuery("select name, when_finished from " + ApplicationContextFactory.getSchemaPrefix() + "db_migration");
                     // Table exists:
                     result = new HashSet<>();
                     while (rs.next()) {
@@ -82,7 +82,8 @@ public class DbMigrationManager {
             @Override
             public Integer call(Connection conn) {
                 try (val stmt = conn.createStatement()) {
-                    val rs = stmt.executeQuery("select value from wfe_constants where name='ru.runa.database_version'");
+                    val rs = stmt.executeQuery("select value from " + ApplicationContextFactory.getSchemaPrefix()
+                            + "wfe_constants where name='ru.runa.database_version'");
                     if (rs.next()) {
                         return Integer.parseInt(rs.getString(1));
                     } else {
@@ -155,7 +156,7 @@ public class DbMigrationManager {
                         default:
                             sqlTimestampTypeName = "timestamp";
                     }
-                    executeUpdates(conn, "create table db_migration (" +
+                    executeUpdates(conn, "create table " + ApplicationContextFactory.getSchemaPrefix() + "db_migration (" +
                             "name varchar(255) not null primary key, " +
                             "when_started " + sqlTimestampTypeName + " not null, " +
                             "when_finished " + sqlTimestampTypeName +
@@ -171,7 +172,8 @@ public class DbMigrationManager {
 
                     ctx.appliedMigrationNames = new HashSet<>();
                     val now = new Timestamp(System.currentTimeMillis());
-                    try (val stmt = conn.prepareStatement("insert into db_migration (name, when_started, when_finished) values (?, ?, ?)")) {
+                    try (val stmt = conn.prepareStatement("insert into " + ApplicationContextFactory.getSchemaPrefix()
+                            + "db_migration (name, when_started, when_finished) values (?, ?, ?)")) {
                         for (int i = 0; i < ctx.oldDbVersion; i++) {
                             val c = migrations.get(i);
                             if (UnsupportedPatch.class.isAssignableFrom(c) || EmptyPatch.class.isAssignableFrom(c)) {
@@ -212,7 +214,8 @@ public class DbMigrationManager {
                 public void run(Connection conn) throws Exception {
                     // No reason to split single insert into insert + update(when_finished) both performed in single transaction for PostgreSQL,
                     // but Oracle does not have transactional DDL. TODO Or maybe perform this first insert in separate transaction?
-                    try (val stmt = conn.prepareStatement("insert into db_migration (name, when_started) values (?, ?)")) {
+                    try (val stmt = conn.prepareStatement(
+                            "insert into " + ApplicationContextFactory.getSchemaPrefix() + "db_migration (name, when_started) values (?, ?)")) {
                         stmt.setString(1, name);
                         stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
                         stmt.executeUpdate();
@@ -228,7 +231,8 @@ public class DbMigrationManager {
             txManager.runInTransaction(new TxRunnable() {
                 @Override
                 public void run(Connection conn) throws Exception {
-                    try (val stmt = conn.prepareStatement("update db_migration set when_finished = ? where name = ?")) {
+                    try (val stmt = conn.prepareStatement(
+                            "update " + ApplicationContextFactory.getSchemaPrefix() + "db_migration set when_finished = ? where name = ?")) {
                         stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
                         stmt.setString(2, name);
                         stmt.executeUpdate();

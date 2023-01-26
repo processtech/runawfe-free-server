@@ -465,7 +465,7 @@ public class DbMigration0 extends DbMigration {
     @Override
     public void executeDML(Connection conn) throws Exception {
         try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("insert into wfe_constants (" + insertPkColumn() + "name, value) values (" +
+            stmt.executeUpdate("insert into " + schemaPrefix + "wfe_constants (" + insertPkColumn() + "name, value) values (" +
                     insertPkNextVal("wfe_constants") + "'ru.runa.database_version', 59)");
         }
     }

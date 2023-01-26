@@ -20,21 +20,21 @@ public class SupportProcessArchivingBefore extends DbMigration {
         sessionFactory.getCurrentSession().doWork(conn -> {
             try (Statement stmt = conn.createStatement()) {
                 ResultSet rs =
-                		stmt.executeQuery("select count(*) from bpm_agglog_tasks where end_reason is not null and end_reason not between -1 and 6");
+                		stmt.executeQuery("select count(*) from " + schemaPrefix + "bpm_agglog_tasks where end_reason is not null and end_reason not between -1 and 6");
                 rs.next();
                 long n = rs.getLong(1);
                 if (n > 0) {
                     throw new RuntimeException("Column bpm_agglog_tasks.end_reason contains " + n + " invalid value(s). Migration aborted.");
                 }
 
-                rs = stmt.executeQuery("select count(*) from bpm_agglog_assignments where discriminator <> 'T'");
+                rs = stmt.executeQuery("select count(*) from " + schemaPrefix + "bpm_agglog_assignments where discriminator <> 'T'");
                 rs.next();
                 n = rs.getLong(1);
                 if (n > 0) {
                     throw new RuntimeException("Column bpm_agglog_assignments.discriminator contains " + n + " non-'T' values. Migration aborted.");
                 }
 
-                rs = stmt.executeQuery("select count(*) from bpm_agglog_assignments where assignment_object_id is null");
+                rs = stmt.executeQuery("select count(*) from " + schemaPrefix + "bpm_agglog_assignments where assignment_object_id is null");
                 rs.next();
                 n = rs.getLong(1);
                 if (n > 0) {
@@ -66,7 +66,7 @@ public class SupportProcessArchivingBefore extends DbMigration {
     @Override
     public void executeDML(Connection conn) {
         executeUpdates(
-                "update bpm_agglog_task set end_reason = case end_reason_old " +
+                "update " + schemaPrefix + "bpm_agglog_task set end_reason = case end_reason_old " +
                         "when -1 then 'UNKNOWN' " +
                         "when 0 then 'PROCESSING' " +
                         "when 1 then 'COMPLETED' " +

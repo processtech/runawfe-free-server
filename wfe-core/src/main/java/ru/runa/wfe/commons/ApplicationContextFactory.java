@@ -1,5 +1,6 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -10,6 +11,7 @@ import javax.transaction.UserTransaction;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -142,7 +144,7 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static DbType getDbType() {
         if (dbType == null) {
-            String hibernateDialect = getConfiguration().getProperty("hibernate.dialect").toLowerCase();
+            String hibernateDialect = getConfiguration().getProperty(Environment.DIALECT).toLowerCase();
             if (hibernateDialect.contains("hsql")) {
                 dbType = DbType.HSQL;
             } else if (hibernateDialect.contains("oracle")) {
@@ -160,6 +162,14 @@ public class ApplicationContextFactory implements ApplicationContextAware {
             }
         }
         return dbType;
+    }
+
+    public static String getSchemaPrefix() {
+        String defaultSchema = getConfiguration().getProperty(Environment.DEFAULT_SCHEMA);
+        if (Strings.isNullOrEmpty(defaultSchema)) {
+            return "";
+        }
+        return defaultSchema + ".";
     }
 
     public static ExecutorDao getExecutorDao() {
