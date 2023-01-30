@@ -7,8 +7,6 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFAbstractNum;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -118,12 +116,7 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
             }
         }
         OutputStream outputStream = config.getFileOutputStream(result, variableProvider, true);
-        if (config.getOutputFileName().endsWith("pdf")) {
-            PdfOptions options = PdfOptions.create();
-            PdfConverter.getInstance().convert(document, outputStream, options);
-        } else {
-            document.write(outputStream);
-        }
+        document.write(outputStream);
         return result;
     }
 }

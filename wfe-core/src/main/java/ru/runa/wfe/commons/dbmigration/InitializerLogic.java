@@ -35,11 +35,14 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
             val mmContext = dbMigrationManager.checkDbInitialized();
-            if (!mmContext.isDbInitialized()) {
+            boolean isDbInitialized = mmContext.isDbInitialized();
+            if (!isDbInitialized) {
                 dbMigrationManager.runDbMigration0();
-                dbTransactionalInitializer.insertInitialData();
             }
             val appliedMigrations = dbMigrationManager.runAll(mmContext, dbMigrations);
+            if (!isDbInitialized) {
+                dbTransactionalInitializer.insertInitialData();
+            }
             dbTransactionalInitializer.initPermissions();
             postProcessPatches(appliedMigrations);
             dbTransactionalInitializer.initLocalizations();
