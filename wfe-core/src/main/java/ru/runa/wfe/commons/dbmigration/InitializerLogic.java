@@ -3,6 +3,7 @@ package ru.runa.wfe.commons.dbmigration;
 import com.google.common.base.Throwables;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +31,14 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     private DbTransactionalInitializer dbTransactionalInitializer;
     @Autowired
     private DbMigrationManager dbMigrationManager;
+    private AtomicBoolean initialized = new AtomicBoolean(false);
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
+            if (initialized.getAndSet(true)) {
+                return;
+            }
             val mmContext = dbMigrationManager.checkDbInitialized();
             if (!mmContext.isDbInitialized()) {
                 dbMigrationManager.runDbMigration0();
