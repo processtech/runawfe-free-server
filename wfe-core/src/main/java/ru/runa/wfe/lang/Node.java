@@ -160,6 +160,9 @@ public abstract class Node extends GraphElement {
      * called by a transition to pass execution to this node.
      */
     public void enter(ExecutionContext executionContext) {
+        if (executionContext.getCurrentToken().hasEnded()) {
+            throw new IllegalStateException("Execution in ended token does not allowed");
+        }
         log.debug("Entering " + this + " with " + executionContext);
         CurrentToken token = executionContext.getCurrentToken();
         // update the runtime context information
@@ -182,6 +185,10 @@ public abstract class Node extends GraphElement {
                 ExecutionContext eventExecutionContext = new ExecutionContext(getParsedProcessDefinition(), eventToken);
                 eventExecutionContext.addLog(new CurrentNodeEnterLog((Node) boundaryEvent));
                 ((Node) boundaryEvent).handle(eventExecutionContext);
+            }
+            if (executionContext.getCurrentToken().hasEnded()) {
+                log.debug("Execution has been interrupted by boundary event");
+                return;
             }
         }
         boolean async = getAsyncExecution(executionContext);

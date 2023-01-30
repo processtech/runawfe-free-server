@@ -43,6 +43,7 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTable;
+import ru.runa.wfe.commons.dbmigration.impl.CreateSignalTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateTimerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.DropMessageNotNullConstraintPatch;
@@ -155,7 +156,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(RefactorPermissionsStep3.class);
         dbMigrations.add(AddProcessExternalData.class);
         dbMigrations.add(RefactorPermissionsStep4.class);
-        dbMigrations.add(EmptyPatch.class); // instead signals...
+        dbMigrations.add(EmptyPatch.class);
         dbMigrations.add(CreateChatDbPatch.class);
         dbMigrations.add(RefactorPermissionsBack.class);
         dbMigrations.add(RemoveWfeConstants.class);
@@ -186,6 +187,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
         dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);
         dbMigrations.add(RecreateChatRoomView.class);
+        dbMigrations.add(CreateSignalTable.class);
         // end develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
         return dbMigrations;
