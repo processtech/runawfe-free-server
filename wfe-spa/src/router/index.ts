@@ -82,7 +82,16 @@ router.beforeEach((to, from, next) => {
     store.dispatch('user/authenticate').then(ifAuthenticated => {
       next();
     }, ifNotAuthenticated => {
-      next({ name: 'Login' });
+      if (to.fullPath !== '/') {
+        next({
+          name: 'Login',
+          query: {
+            forwardUrl: to.fullPath,
+          }
+        });
+      } else {
+        next({ name: 'Login' });
+      }
     }).catch((error: any) => {
       console.log(error);
     });
