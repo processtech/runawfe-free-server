@@ -1,23 +1,16 @@
 package ru.runa.wfe.script.processes;
 
-import java.io.File;
-import java.io.IOException;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.ScriptValidation;
 import ru.runa.wfe.script.common.ScriptValidationException;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.io.Files;
 
 @XmlType(name = RedeployProcessDefinitionOperation.SCRIPT_NAME + "Type", namespace = AdminScriptConstants.NAMESPACE)
 public class RedeployProcessDefinitionOperation extends ScriptOperation {
@@ -57,11 +50,6 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
         if (Strings.isNullOrEmpty(type)) {
             parsedType = Splitter.on('/').splitToList(type);
         }
-        try {
-            byte[] scriptBytes = Files.toByteArray(new File(file));
-            context.getDefinitionLogic().redeployProcessDefinition(context.getUser(), definitionId, scriptBytes, parsedType);
-        } catch (IOException e) {
-            throw Throwables.propagate(e);
-        }
+        context.getDefinitionLogic().redeployProcessDefinition(context.getUser(), definitionId, context.getExternalResource(file), parsedType);
     }
 }

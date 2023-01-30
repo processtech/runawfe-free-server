@@ -52,12 +52,15 @@ import ru.runa.wfe.audit.TaskEndByAdminLog;
 import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.TaskExpiredLog;
+import ru.runa.wfe.audit.TaskRemovedOnEmbeddedSubprocessEndLog;
 import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.logic.TaskExecutionListener;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.ActionEvent;
@@ -95,6 +98,7 @@ public class Task implements Assignable {
     private Process process;
     private Set<Long> openedByExecutorIds;
     private Integer index;
+    private Boolean async;
 
     public Task() {
     }
@@ -261,6 +265,15 @@ public class Task implements Assignable {
         this.index = index;
     }
 
+    @Column(name = "ASYNC")
+    public Boolean isAsync() {
+        return async;
+    }
+
+    public void setAsync(Boolean async) {
+        this.async = async;
+    }
+
     @Transient
     @Override
     public String getSwimlaneName() {
@@ -320,12 +333,18 @@ public class Task implements Assignable {
         case PROCESS_END:
             executionContext.addLog(new TaskRemovedOnProcessEndLog(this, completionInfo));
             break;
+        case EMBEDDED_SUBPROCESS_END:
+            executionContext.addLog(new TaskRemovedOnEmbeddedSubprocessEndLog(this, completionInfo));
+            break;
         default:
             throw new IllegalArgumentException("Unimplemented for " + completionInfo.getCompletionBy());
         }
         if (completionInfo.getCompletionBy() != TaskCompletionBy.PROCESS_END) {
             ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
             taskNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
+        }
+        for (TaskExecutionListener listener : SystemProperties.getTaskExecutionListeners()) {
+            listener.beforeTaskDelete(executionContext, this, completionInfo);
         }
         delete();
     }

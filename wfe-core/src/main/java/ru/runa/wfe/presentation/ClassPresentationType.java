@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SystemLogClassPresentation;
+import ru.runa.wfe.chat.ChatRoomClassPresentation;
 import ru.runa.wfe.commons.error.TokenErrorClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
-import ru.runa.wfe.chat.ChatRoomClassPresentation;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessWithTasksClassPresentation;
 import ru.runa.wfe.relation.RelationClassPresentation;
@@ -45,6 +45,7 @@ public enum ClassPresentationType {
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
     private final String localizationKey;
     private int variablePrototypeIndex = -1;
+    private int swimlanePrototypeIndex = -1;
 
     ClassPresentationType(ClassPresentation cp, String localizationKey) {
         if (cp != null) {
@@ -68,6 +69,9 @@ public enum ClassPresentationType {
                 fieldIndexesByName.put(fields[i].name, i);
                 if (fields[i].variablePrototype) {
                     variablePrototypeIndex = i;
+                }
+                if (fields[i].swimlanePrototype) {
+                    swimlanePrototypeIndex = i;
                 }
             }
         }
@@ -106,4 +110,7 @@ public enum ClassPresentationType {
         return variablePrototypeIndex;
     }
 
+    public int getSwimlanePrototypeIndex() {
+        return swimlanePrototypeIndex;
+    }
 }

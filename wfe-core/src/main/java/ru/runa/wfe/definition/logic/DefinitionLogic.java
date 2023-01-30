@@ -21,10 +21,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -43,7 +43,7 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
-import ru.runa.wfe.definition.validation.DefinitionUpdateValidatorManager;
+import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -69,7 +69,7 @@ import ru.runa.wfe.var.VariableDefinition;
  */
 public class DefinitionLogic extends WfCommonLogic {
     @Autowired
-    DefinitionUpdateValidatorManager definitionVersionValidatorManager;
+    ProcessDefinitionUpdateManager processDefinitionUpdateManager;
 
     public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
         permissionDao.checkAllowed(user, Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
@@ -160,7 +160,7 @@ public class DefinitionLogic extends WfCommonLogic {
             throw new DefinitionNameMismatchException("Expected definition name " + deployment.getName(), uploadedDefinition.getName(),
                     deployment.getName());
         }
-        ProcessDefinition oldDefinition = parseProcessDefinition(deployment.getContent());
+        ProcessDefinition oldDefinition = getDefinition(deployment.getId());
         boolean containsAllPreviousComments = uploadedDefinition.getChanges().containsAll(oldDefinition.getChanges());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (!containsAllPreviousComments) {
@@ -175,12 +175,14 @@ public class DefinitionLogic extends WfCommonLogic {
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
             }
         }
-        definitionVersionValidatorManager.validate(getDefinition(deployment.getId()), uploadedDefinition);
+        List<Process> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
+        Set<Process> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, uploadedDefinition, processes);
         deployment.setContent(uploadedDefinition.getDeployment().getContent());
         deployment.setUpdateDate(new Date());
         deployment.setUpdateActor(user.getActor());
         deploymentDao.update(deployment);
         addUpdatedDefinitionInProcessLog(user, deployment);
+        processDefinitionUpdateManager.after(uploadedDefinition, affectedProcesses);
         log.debug("Process definition " + deployment + " was successfully updated");
         return new WfDefinition(deployment);
     }
@@ -294,23 +296,6 @@ public class DefinitionLogic extends WfCommonLogic {
         }
         deploymentDao.delete(deployment);
         systemLogDao.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), deployment.getName(), deployment.getVersion()));
-    }
-
-    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
-        String definitionName = getDefinition(definitionId).getName();
-        List<Long> deploymentIds = deploymentDao.findAllDeploymentVersionIds(definitionName, true);
-        return getChanges(deploymentIds);
-    }
-
-    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
-        Preconditions.checkArgument(n > 0);
-        String definitionName = getDefinition(definitionId).getName();
-        List<Long> deploymentIds = deploymentDao.findAllDeploymentVersionIds(definitionName, false);
-        if (n < deploymentIds.size()) {
-            deploymentIds = new ArrayList<>(deploymentIds.subList(0, n.intValue()));
-        }
-        Collections.reverse(deploymentIds);
-        return getChanges(deploymentIds);
     }
 
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {

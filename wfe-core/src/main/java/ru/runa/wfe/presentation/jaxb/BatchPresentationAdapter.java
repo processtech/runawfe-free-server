@@ -36,20 +36,28 @@ public class BatchPresentationAdapter extends XmlAdapter<WfBatchPresentation, Ba
             sortingModes[i] = Sorting.Order.asc == sorting.getOrder();
         }
         batchPresentation.setFieldsToSort(fieldsToSortIds, sortingModes);
-        if (!wfBatchPresentation.getVariables().isEmpty()) {
-            int[] fieldsToDisplayIds = new int[wfBatchPresentation.getVariables().size()];
-            int variablePrototypeIndex = wfBatchPresentation.getClassPresentationType().getVariablePrototypeIndex();
-            for (int i = 0; i < wfBatchPresentation.getVariables().size(); i++) {
-                fieldsToDisplayIds[i] = i;
-                String variable = wfBatchPresentation.getVariables().get(i);
-                batchPresentation.addDynamicField(variablePrototypeIndex + i, variable);
-                Filter filter = getFilter(wfBatchPresentation.getFilters(), variable);
-                if (filter != null) {
-                    addFilteredField(batchPresentation, 0, filter);
-                }
+        int[] fieldsToDisplayIds = new int[wfBatchPresentation.getVariables().size() + wfBatchPresentation.getSwimlanes().size()];
+        int variablePrototypeIndex = wfBatchPresentation.getClassPresentationType().getVariablePrototypeIndex();
+        int swimlanePrototypeIndex = wfBatchPresentation.getClassPresentationType().getSwimlanePrototypeIndex();
+        for (int i = 0; i < wfBatchPresentation.getVariables().size(); i++) {
+            fieldsToDisplayIds[i] = i;
+            String variable = wfBatchPresentation.getVariables().get(i);
+            batchPresentation.addDynamicField(variablePrototypeIndex + i, variable);
+            Filter filter = getFilter(wfBatchPresentation.getFilters(), variable);
+            if (filter != null) {
+                addFilteredField(batchPresentation, 0, filter);
             }
-            batchPresentation.setFieldsToDisplayIds(fieldsToDisplayIds);
         }
+        for (int i = 0; i < wfBatchPresentation.getSwimlanes().size(); i++) {
+            fieldsToDisplayIds[wfBatchPresentation.getVariables().size() + i] = wfBatchPresentation.getVariables().size() + i;
+            String swimlane = wfBatchPresentation.getSwimlanes().get(i);
+            batchPresentation.addDynamicField(wfBatchPresentation.getVariables().size() + swimlanePrototypeIndex + i, swimlane);
+            Filter filter = getFilter(wfBatchPresentation.getFilters(), swimlane);
+            if (filter != null) {
+                addFilteredField(batchPresentation, 0, filter);
+            }
+        }
+        batchPresentation.setFieldsToDisplayIds(fieldsToDisplayIds);
         return batchPresentation;
     }
 

@@ -6,6 +6,7 @@ import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeErrorLog;
+import ru.runa.wfe.audit.NodeInfoLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessActivateLog;
 import ru.runa.wfe.audit.ProcessCancelLog;
@@ -27,6 +28,7 @@ import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.TaskExpiredLog;
+import ru.runa.wfe.audit.TaskRemovedOnEmbeddedSubprocessEndLog;
 import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.audit.VariableCreateLog;
@@ -199,6 +201,11 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
+    public void onTaskRemovedOnEmbeddedSubprocessEndLog(TaskRemovedOnEmbeddedSubprocessEndLog log) {
+        onTaskEnd(log, EndReason.CANCELLED);
+    }
+
+    @Override
     public void onTaskExpiredLog(TaskExpiredLog taskExpiredLog) {
         onTaskEnd(taskExpiredLog, EndReason.TIMEOUT);
     }
@@ -242,6 +249,10 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     public void onAdminActionLog(AdminActionLog adminActionLog) {
     }
 
+    @Override
+    public void onNodeInfoLog(NodeInfoLog nodeInfoLog) {
+    }
+
     private ProcessInstanceAggregatedLog getProcessInstanceLog(long processId) {
         QProcessInstanceAggregatedLog l = QProcessInstanceAggregatedLog.processInstanceAggregatedLog;
         return queryFactory.selectFrom(l).where(l.processInstanceId.eq(processId)).fetchFirst();
@@ -257,7 +268,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
         if (logEntry == null) {
             return;
         }
-        logEntry.updateOnEnd(taskEndLog.getCreateDate(), taskEndLog.getActorName(), endReason);
+        logEntry.updateOnEnd(taskEndLog.getCreateDate(), taskEndLog.getActorName(), endReason, taskEndLog.getTransitionName());
         sessionFactory.getCurrentSession().merge(logEntry);
     }
 }

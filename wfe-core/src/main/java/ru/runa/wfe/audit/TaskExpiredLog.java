@@ -3,7 +3,6 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
@@ -14,7 +13,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  */
 @Entity
 @DiscriminatorValue(value = "9")
-public class TaskExpiredLog extends TaskEndLog {
+public class TaskExpiredLog extends TaskCancelledLog {
     private static final long serialVersionUID = 1L;
 
     public TaskExpiredLog() {

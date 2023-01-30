@@ -19,7 +19,6 @@ package ru.runa.wfe.service;
 
 import java.util.Date;
 import java.util.List;
-
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -335,22 +334,6 @@ public interface DefinitionService {
      * @return not <code>null</code>
      */
     List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging);
-
-    /**
-     * Gets changes history for specified definition.
-     * 
-     * @return not <code>null</code>
-     */
-    List<ProcessDefinitionChange> getChanges(Long definitionId);
-
-    /**
-     * Gets last n changes for specified definition.
-     * 
-     * @param n
-     *            number of process definition versions to get changes
-     * @return not <code>null</code>
-     */
-    List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n);
 
     /**
      * Gets changes between two versions of specified definition.

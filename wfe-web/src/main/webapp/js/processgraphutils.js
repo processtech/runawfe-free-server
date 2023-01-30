@@ -10,19 +10,6 @@ $(document).ready(function() {
 	$(document).delegate(".multiInstanceBox", "mouseout", function() {
 		$(this).css("background-color", $(this).attr("bgcolor"));
 	});
-	$("#showAllProcessDefinitionChanges").click(function(e) {
-		$(this).hide();
-		e.preventDefault();
-		$("#processDefinitionChanges").find("tr:gt(0)").remove();
-		$.ajax({
-			type: "GET",
-			url: $(this).attr("href"),
-			dataType: "html",
-			success: function (data) {
-				$("#processDefinitionChanges").append(data);
-			}
-		});
-	});
 });
 
 function initTooltipOnArea() {

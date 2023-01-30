@@ -44,7 +44,8 @@ public class WaitNode extends Node {
             if (timerJob.getOutTransitionName() != null) {
                 Transition transition = executionContext.getNode().getLeavingTransitionNotNull(timerJob.getOutTransitionName());
                 if (executionContext.getNode() instanceof BaseTaskNode) {
-                    ((BaseTaskNode) executionContext.getNode()).endTokenTasks(executionContext, TaskCompletionInfo.createForTimer());
+                    ((BaseTaskNode) executionContext.getNode()).endTokenTasks(executionContext, TaskCompletionInfo.createForTimer(
+                            (String) transition.getName()));
                 }
                 log.debug("Leaving " + timerJob + " from " + executionContext.getNode() + " by transition " + timerJob.getOutTransitionName());
                 executionContext.getNode().leave(executionContext, transition);

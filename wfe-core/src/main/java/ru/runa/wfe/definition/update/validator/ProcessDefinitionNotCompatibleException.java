@@ -1,4 +1,4 @@
-package ru.runa.wfe.definition.validation;
+package ru.runa.wfe.definition.update.validator;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

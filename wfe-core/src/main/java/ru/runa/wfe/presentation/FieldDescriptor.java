@@ -108,18 +108,25 @@ public class FieldDescriptor {
     public final FieldState fieldState;
 
     /**
-     * Means that this field can be used as variable filter.
+     * Means that variable field can be created from this field.
      * See ClassPresentation.editable_prefix in old code version.
      */
     public boolean variablePrototype = false;
 
-    public String variableValue;
+    /**
+     * Means that swimlane field can be created from this field.
+     */
+    public boolean swimlanePrototype = false;
+
+    public String variableOrSwimlaneName;
 
     /**
-     * Means that this field is used as variable filter.
+     * Means that this field is formed by variable.
      * See ClassPresentation.removable_prefix in old code version.
      */
-    public boolean filterByVariable = false;
+    public boolean byVariable = false;
+
+    public boolean bySwimlane = false;
 
     public FieldDescriptor(String name, String fieldType, DbSource dbSource, boolean sortable, FieldFilterMode filterMode,
             FieldState fieldState) {
@@ -149,13 +156,13 @@ public class FieldDescriptor {
             boolean defaultSortMode, FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams, int fieldIdx, FieldState fieldState) {
         this.name = name;
         this.fieldType = fieldType;
+        this.dbSources = dbSources;
         this.sortable = sortable;
         this.defaultSortOrder = defaultSortOrder;
         this.defaultSortMode = defaultSortMode;
         this.filterMode = filterMode;
         this.tdBuilder = tdBuilder;
         this.tdBuilderParams = tdBuilderParams;
-        this.dbSources = dbSources;
         this.fieldIdx = fieldIdx;
         this.fieldState = fieldState == null ? FieldState.ENABLED : fieldState;
         if (filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION && sortable) {
@@ -172,8 +179,8 @@ public class FieldDescriptor {
             return true;
         }
         FieldDescriptor other = (FieldDescriptor) obj;
-        return Objects.equal(name, other.name) && Objects.equal(fieldType, other.fieldType)
-                && Arrays.equals(dbSources, other.dbSources) && Objects.equal(variableValue, other.variableValue);
+        return Objects.equal(name, other.name) && Objects.equal(fieldType, other.fieldType) && Arrays.equals(dbSources, other.dbSources)
+                && Objects.equal(variableOrSwimlaneName, other.variableOrSwimlaneName);
     }
 
     @Override
@@ -190,24 +197,27 @@ public class FieldDescriptor {
      */
     public FieldDescriptor createConcreteField(int fieldIdx) {
         return new FieldDescriptor(name, fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder, tdBuilderParams,
-                fieldIdx, fieldState).setVisible(visible).setShowable(showable).setGroupableByProcessId(groupableByProcessId).setVariablePrototype(variablePrototype);
+                fieldIdx, fieldState).setVisible(visible).setShowable(showable).setGroupableByProcessId(groupableByProcessId)
+                .setVariablePrototype(variablePrototype).setSwimlanePrototype(swimlanePrototype);
     }
 
     /**
      * Creates filter by variable field. If this method called not to variable prototype field, null will be returned.
      *
-     * @param variableValue
+     * @param variableOrSwimlaneValue
      *            Value, inserted by user to editable field editor.
      * @param fieldIdx
      *            New field index.
      */
-    public FieldDescriptor createConcreteEditableField(String variableValue, int fieldIdx) {
-        if (!variablePrototype) {
+    public FieldDescriptor createConcreteEditableField(String variableOrSwimlaneValue, int fieldIdx) {
+        if (!isPrototype()) {
             throw new InternalApplicationException("Field '" + name + "' is not a prototype");
         }
         FieldDescriptor fieldDescriptor = new FieldDescriptor(name, fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode,
-                tdBuilder, tdBuilderParams, fieldIdx, fieldState).setFilterByVariable(true);
-        fieldDescriptor.variableValue = variableValue;
+                tdBuilder, tdBuilderParams, fieldIdx, fieldState);
+        fieldDescriptor.byVariable = variablePrototype;
+        fieldDescriptor.bySwimlane = swimlanePrototype;
+        fieldDescriptor.variableOrSwimlaneName = variableOrSwimlaneValue;
         return fieldDescriptor;
     }
 
@@ -253,9 +263,17 @@ public class FieldDescriptor {
         return this;
     }
 
-    public FieldDescriptor setFilterByVariable(boolean filterByVariable) {
-        this.filterByVariable = filterByVariable;
+    public FieldDescriptor setSwimlanePrototype(boolean swimlanePrototype) {
+        this.swimlanePrototype = swimlanePrototype;
         return this;
+    }
+
+    public boolean isPrototype() {
+        return variablePrototype || swimlanePrototype;
+    }
+
+    public boolean isByVariableOrSwimlane() {
+        return byVariable || bySwimlane;
     }
 
     /**
@@ -265,19 +283,12 @@ public class FieldDescriptor {
      */
     private Object loadTdBuilder() {
         Object builder = null;
-        if (filterByVariable) {
+        if (isByVariableOrSwimlane()) {
             Object[] params = new Object[tdBuilderParams.length + 1];
             for (int idx = 0; idx < tdBuilderParams.length; ++idx) {
                 params[idx] = tdBuilderParams[idx];
             }
-            params[params.length - 1] = variableValue;
-            builder = ClassLoaderUtil.instantiate(tdBuilder, params);
-        } else if (variablePrototype) {
-            Object[] params = new Object[tdBuilderParams.length + 1];
-            for (int idx = 0; idx < tdBuilderParams.length; ++idx) {
-                params[idx] = tdBuilderParams[idx];
-            }
-            params[params.length - 1] = "";
+            params[params.length - 1] = variableOrSwimlaneName;
             builder = ClassLoaderUtil.instantiate(tdBuilder, params);
         } else {
             builder = ClassLoaderUtil.instantiate(tdBuilder, tdBuilderParams);

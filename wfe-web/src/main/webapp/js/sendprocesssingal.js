@@ -1,7 +1,7 @@
 function addRow(tableId) {
 	var $table = $("#" + tableId);
 	var $rows = $table.find("tr[row]");
-	var index = $rows.length ? Number.parseInt($rows.last().attr("row")) + 1 : 0;
+	var index = $rows.length ? parseInt($rows.last().attr("row")) + 1 : 0;
 	var $row = $("<tr>", { "row": index })
 		.append($("<td>", { "class": "list" })
 			.append($("<input>", { "name": tableId + "Param(" + index + ")" }))

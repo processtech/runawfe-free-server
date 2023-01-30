@@ -229,7 +229,7 @@ public class UpdateSubstitutionFormTag extends SecuredObjectFormTag {
             span.addElement(Entities.NBSP);
             String url = "javascript:editParameter('" + index + "','" + renderer.getClass().getName() + "');";
             A selectorHref = new A(url);
-            selectorHref.addElement(MessagesExecutor.LABEL_SUBSTITUTION_SELECT.message(pageContext));
+            selectorHref.addElement(MessagesExecutor.LABEL_SELECT.message(pageContext));
             span.addElement(selectorHref);
         }
         return span;

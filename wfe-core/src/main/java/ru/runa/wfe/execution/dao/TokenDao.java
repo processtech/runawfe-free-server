@@ -19,9 +19,10 @@ import ru.runa.wfe.lang.NodeType;
 @Component
 public class TokenDao extends GenericDao<Token> {
 
-    public List<Token> findByNodeTypeAndExecutionStatusIsActive(NodeType nodeType) {
+    public List<Token> findByNodeTypeInActiveProcesses(NodeType nodeType) {
         QToken t = QToken.token;
-        return queryFactory.selectFrom(t).where(t.nodeType.eq(nodeType).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
+        return queryFactory.selectFrom(t).where(t.nodeType.eq(nodeType).and(t.executionStatus.ne(ExecutionStatus.SUSPENDED)).and(t.endDate.isNull()))
+                .fetch();
     }
 
     public List<Token> findByProcessAndExecutionStatusIsNotEnded(ru.runa.wfe.execution.Process process) {
@@ -49,24 +50,34 @@ public class TokenDao extends GenericDao<Token> {
                         .and(t.executionStatus.eq(ExecutionStatus.ENDED))
                         .and(t.ableToReactivateParent.isTrue()))
                 .fetch();
-
     }
 
-    public List<Token> findByMessageSelectorIsNullAndExecutionStatusIsActive() {
+    public List<Token> findByProcessAndNodeTypeAndAbleToReactivateParent(ru.runa.wfe.execution.Process process, NodeType nodeType) {
         QToken t = QToken.token;
         return queryFactory.selectFrom(t)
-                .where(t.nodeType.eq(NodeType.RECEIVE_MESSAGE).and(t.messageSelector.isNull()).and(t.executionStatus.eq(ExecutionStatus.ACTIVE)))
+                .where(t.process.eq(process)
+                        .and(t.nodeType.eq(nodeType))
+                        .and(t.ableToReactivateParent.isTrue()))
                 .fetch();
     }
 
-    public List<Token> findByMessageSelectorAndExecutionStatusIsActive(String messageSelector) {
+    public List<Token> findByMessageSelectorIsNullAndExecutionStatusIsNotEnded() {
         QToken t = QToken.token;
-        return queryFactory.selectFrom(t).where(t.messageSelector.eq(messageSelector).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
+        return queryFactory.selectFrom(t)
+                .where(t.nodeType.eq(NodeType.RECEIVE_MESSAGE).and(t.messageSelector.isNull()).and(t.endDate.isNull()))
+                .fetch();
     }
 
-    public List<Token> findByMessageSelectorInAndExecutionStatusIsActive(Collection<String> messageSelectors) {
+    public List<Token> findByMessageSelectorInActiveProcesses(String messageSelector) {
         QToken t = QToken.token;
-        return queryFactory.selectFrom(t).where(t.messageSelector.in(messageSelectors).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
+        return queryFactory.selectFrom(t)
+                .where(t.messageSelector.eq(messageSelector).and(t.executionStatus.ne(ExecutionStatus.SUSPENDED)).and(t.endDate.isNull())).fetch();
+    }
+
+    public List<Token> findByMessageSelectorInActiveProcesses(Collection<String> messageSelectors) {
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t)
+                .where(t.messageSelector.in(messageSelectors).and(t.executionStatus.ne(ExecutionStatus.SUSPENDED)).and(t.endDate.isNull())).fetch();
     }
 
     public List<Token> findByProcessAndEndDateGreaterThanOrEquals(ru.runa.wfe.execution.Process process, Date endDate) {
