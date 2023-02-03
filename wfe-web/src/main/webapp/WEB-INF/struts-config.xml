@@ -238,11 +238,6 @@
 		<action path="/deploy_bot" type="ru.runa.af.web.action.DeployBotAction"
 			name="deployBotForm" scope="request" unknown="false" validate="false">
 		</action>
-		<action path="/ntlmlogin" type="ru.runa.af.web.action.NtlmLoginAction"
-			unknown="false" validate="true">
-			<forward name="success" path="/manage_tasks.do" redirect="true" />
-			<forward name="failure" path="/start.do" redirect="true" />
-		</action>
 		<action path="/cancelProcess" type="ru.runa.wf.web.action.CancelProcessAction"
 			name="idForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
 			unknown="false" validate="true">

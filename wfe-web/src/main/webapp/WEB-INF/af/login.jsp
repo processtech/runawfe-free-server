@@ -61,17 +61,6 @@
 							</tr>					
 						</table>
 						</html:form>
-						<% if (ru.runa.common.WebResources.isNTLMSupported()) { %>
-						<table>
-							<tr>
-								<td>
-									<html:link action="/ntlmlogin">
-										<bean:message key="login.page.login.ntlm"/>
-									</html:link> 	
-								</td>
-							</tr>
-						</table>
-						<% } %>
 						<% if (ru.runa.wfe.security.auth.KerberosLoginModuleResources.isHttpAuthEnabled()) { %>
 						<table>
 							<tr>

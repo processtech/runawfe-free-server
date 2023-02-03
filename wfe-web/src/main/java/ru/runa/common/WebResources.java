@@ -97,14 +97,6 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("process.showGraphMode", false);
     }
 
-    public static boolean isNTLMSupported() {
-        return RESOURCES.getBooleanProperty("ntlm.enabled", false);
-    }
-
-    public static String getDomainName() {
-        return RESOURCES.getStringPropertyNotNull("ntlm.domain");
-    }
-
     public static boolean isAutoShowForm() {
         return RESOURCES.getBooleanProperty("task.form.autoShowNext", false);
     }
