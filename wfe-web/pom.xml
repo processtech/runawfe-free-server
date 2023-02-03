@@ -140,16 +140,6 @@
 		</dependency>
 		<dependency>
 			<groupId>jcifs</groupId>
-			<artifactId>jcifs</artifactId>
-			<exclusions>
-				<exclusion>
-					<artifactId>servlet-api</artifactId>
-					<groupId>javax.servlet</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>jcifs</groupId>
 			<artifactId>jcifs-ext</artifactId>
 		</dependency>
 		<dependency>

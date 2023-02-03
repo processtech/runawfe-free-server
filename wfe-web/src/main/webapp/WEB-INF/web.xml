@@ -13,10 +13,6 @@
 	</listener>
 
 	<filter>
-		<filter-name>ntlmfilter</filter-name>
-		<filter-class>ru.runa.af.web.filter.NTLMFilter</filter-class>
-	</filter>
-	<filter>
 		<filter-name>session</filter-name>
 		<filter-class>ru.runa.common.web.filter.HTTPSessionFilter</filter-class>
 	</filter>
@@ -32,11 +28,6 @@
 		<filter-name>NewWebJwt</filter-name>
 		<filter-class>ru.runa.common.web.filter.NewWebJwtFilter</filter-class>
 	</filter>
-
-	<filter-mapping>
-		<filter-name>ntlmfilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
 	<filter-mapping>
 		<filter-name>NewWebJwt</filter-name>
 		<url-pattern>/*</url-pattern>

@@ -112,11 +112,6 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="ntlm.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
-		<property title="ntlm.domain" />
 		<property title="process.variables.displayJavaType">
 			<value>true</value>
 			<value>false</value>
