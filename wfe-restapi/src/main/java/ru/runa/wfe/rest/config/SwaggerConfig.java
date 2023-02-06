@@ -47,6 +47,7 @@ public class SwaggerConfig {
                 .ignoredParameterTypes(AuthenticationPrincipal.class)
                 .securitySchemes(Collections.singletonList(HttpAuthenticationScheme.JWT_BEARER_BUILDER.name("token").build()))
                 .securityContexts(Collections.singletonList(securityContext()))
+                .forCodeGeneration(true)
         ;
     }
 
