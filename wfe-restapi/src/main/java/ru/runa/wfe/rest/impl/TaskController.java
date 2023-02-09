@@ -90,6 +90,7 @@ public class TaskController {
         return taskLogic.reassignTask(authUser.getUser(), id);
     }
 
+    @ValidationException
     @PostMapping("{id}/complete")
     public WfeTask completeTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
         WfTask task = taskLogic.getTask(authUser.getUser(), id);

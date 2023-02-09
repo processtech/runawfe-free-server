@@ -58,6 +58,7 @@ public class ProcessController {
     @Autowired
     private VariableLogic variableLogic;
 
+    @ValidationException
     @PutMapping("start")
     public Long startProcessByName(@AuthenticationPrincipal AuthUser authUser, @RequestParam String name,
             @RequestBody(required = false) Map<String, Object> variables) {
@@ -67,6 +68,7 @@ public class ProcessController {
         return executionLogic.startProcess(authUser.getUser(), name, converted);
     }
 
+    @ValidationException
     @PostMapping("{definitionId}/start")
     public Long startProcessById(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long definitionId,
             @RequestBody(required = false) Map<String, Object> variables) {
