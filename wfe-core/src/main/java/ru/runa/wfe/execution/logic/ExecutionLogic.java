@@ -310,7 +310,10 @@ public class ExecutionLogic extends WfCommonLogic {
 
     private void endAsyncTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo, boolean mainProcessForAsyncActivitiesIsActive) {
         for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(executionContext.getCurrentProcess())) {
-            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNodeNotNull(task.getNodeId());
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNode(task.getNodeId());
+            if (taskNode == null) {
+                continue;
+            }
             if (taskNode.isAsync()) {
                 switch (taskNode.getCompletionMode()) {
                 case NEVER:
