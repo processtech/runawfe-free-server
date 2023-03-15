@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.ecs.html.A;
+import org.apache.ecs.html.P;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
@@ -74,7 +75,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
     protected void fillFormData(TD tdFormElement) {
         List<WfVariable> variables = getVariables(getUser());
         if (WebResources.isUpdateProcessVariablesEnabled() && isAvailable()) {
-            Table table = new Table();
+            Table table = new Table().setWidth("100%");
             tdFormElement.addElement(table);
 
             TR updateVariableTR = new TR();
@@ -99,23 +100,23 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
     }
 
     protected List<WfVariable> getVariables(User user) {
-        List<WfVariable> variables;
         String date = pageContext.getRequest().getParameter("date");
-        if (Strings.isNullOrEmpty(date)) {
-            variables = Delegates.getExecutionService().getVariables(user, getIdentifiableId());
-        } else {
-            Date historicalDateTo = CalendarUtil.convertToDate(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
-            Calendar dateToCalendar = CalendarUtil.dateToCalendar(historicalDateTo);
-            dateToCalendar.add(Calendar.SECOND, 5);
-            historicalDateTo = dateToCalendar.getTime();
-            dateToCalendar.add(Calendar.SECOND, -10);
-            Date historicalDateFrom = dateToCalendar.getTime();
-            ProcessLogFilter historyFilter = new ProcessLogFilter(getIdentifiableId());
-            historyFilter.setCreateDateTo(historicalDateTo);
-            historyFilter.setCreateDateFrom(historicalDateFrom);
-            variables = Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
-        }
-        return variables;
+        return Strings.isNullOrEmpty(date)
+                ? Delegates.getExecutionService().getVariables(user, getIdentifiableId())
+                : getHistoricalVariables(user, date, getIdentifiableId());
+    }
+
+    public static List<WfVariable> getHistoricalVariables(User user, String date, Long processId) {
+        Date historicalDateTo = CalendarUtil.convertToDate(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
+        Calendar dateToCalendar = CalendarUtil.dateToCalendar(historicalDateTo);
+        dateToCalendar.add(Calendar.SECOND, 5);
+        historicalDateTo = dateToCalendar.getTime();
+        dateToCalendar.add(Calendar.SECOND, -10);
+        Date historicalDateFrom = dateToCalendar.getTime();
+        ProcessLogFilter historyFilter = new ProcessLogFilter(processId);
+        historyFilter.setCreateDateTo(historicalDateTo);
+        historyFilter.setCreateDateFrom(historicalDateFrom);
+        return Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
     }
 
     protected boolean isAvailable() {
@@ -128,6 +129,11 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         String updateVariableUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_VARIABLES, params, pageContext, PortletUrlType.Render);
         A a = new A(updateVariableUrl, MessagesProcesses.LINK_UPDATE_VARIABLE.message(pageContext));
         updateVariableTR.addElement(new TD(a));
+        P expandAllButton = new P();
+        expandAllButton.setClass("expandAllButton");
+        expandAllButton.addAttribute("opened", false);
+        expandAllButton.addElement(MessagesProcesses.LABEL_EXPAND_ALL.message(pageContext));
+        updateVariableTR.addElement(new TD(expandAllButton).setAlign("right"));
     }
 
     @Override
