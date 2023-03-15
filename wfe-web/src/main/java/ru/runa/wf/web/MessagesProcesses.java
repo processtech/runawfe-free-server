@@ -102,6 +102,10 @@ public final class MessagesProcesses {
     public static final StrutsMessage TITLE_SUBPROCESSES_LIST = new StrutsMessage("title.process_subprocess_list");
     public static final StrutsMessage LINK_SHOW_TASKS = new StrutsMessage("link.show_tasks");
     public static final StrutsMessage LABEL_GLOBAL = new StrutsMessage("label.global");
+    public static final StrutsMessage LABEL_COLLAPSE = new StrutsMessage("label.collapse");
+    public static final StrutsMessage LABEL_EXPAND = new StrutsMessage("label.expand");
+    public static final StrutsMessage LABEL_COLLAPSE_ALL = new StrutsMessage("label.collapse.all");
+    public static final StrutsMessage LABEL_EXPAND_ALL = new StrutsMessage("label.expand.all");
 
     public static final StrutsMessage LABEL_SEND_PROCESS_SIGNAL = new StrutsMessage("label.send_process_signal");
     public static final StrutsMessage ROUTING_PARAMETER_NAME = new StrutsMessage("label.routing_parameter_name");
