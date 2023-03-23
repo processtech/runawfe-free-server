@@ -187,6 +187,14 @@ public class WebResources {
         return RESOURCES.getStringProperty("process.started");
     }
 
+    public static boolean isVariableHidingEnabled() {
+        return RESOURCES.getBooleanProperty("process.variable.hiding.enabled", true);
+    }
+
+    public static int getProcessVariableNumberOfAttributesToHide() {
+        return RESOURCES.getIntegerProperty("process.variable.number.of.attributes.to.hide", 10);
+    }
+
     public static boolean isChatEnabled() {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }

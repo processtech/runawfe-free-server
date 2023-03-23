@@ -72,6 +72,9 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
                         successKeys.add(entry.getKey());
                     } catch (DefinitionAlreadyExistException e) {
                         existingDefinitionName = e.getName();
+                        if (existingDefinitionsMap.get(existingDefinitionName) == null) {
+                            throw e;
+                        }
                         redeploy = true;
                     } catch (Exception e) {
                         addError(request, e);

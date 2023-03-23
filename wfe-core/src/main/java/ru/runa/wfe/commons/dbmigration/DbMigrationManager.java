@@ -1,6 +1,8 @@
 package ru.runa.wfe.commons.dbmigration;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -47,25 +49,26 @@ public class DbMigrationManager {
     private HashSet<String> queryAppliedMigrationNames() throws Exception {
         return txManager.callInTransaction(new ManualTransactionManager.TxCallable<HashSet<String>>() {
             @Override
-            public HashSet<String> call(Connection conn) {
+            public HashSet<String> call(Connection conn) throws Exception {
                 HashSet<String> result = null;
                 try (val stmt = conn.createStatement()) {
-                    val rs = stmt.executeQuery("select name, when_finished from " + ApplicationContextFactory.getSchemaPrefix() + "db_migration");
+                    ResultSet rs = null;
+                    try {
+                        rs = stmt.executeQuery("select name, when_finished from " + ApplicationContextFactory.getSchemaPrefix() + "db_migration");
+                    } catch (SQLException e) {
+                        return null;
+                    }
                     // Table exists:
                     result = new HashSet<>();
                     while (rs.next()) {
                         String name = rs.getString(1);
                         if (rs.getTimestamp(2) == null) {
-                            throw new Exception("Migration \"" + name + "\" was unfinished, database is possibly inconsistent, aborting.");
+                            log.error("Migration \"" + name + "\" was unfinished, database is possibly inconsistent, aborting.");
+                            throw new RuntimeException("Migration \"" + name + "\" was unfinished, database is possibly inconsistent, aborting.");
                         }
                         result.add(name);
                     }
                     return result;
-                } catch (Throwable e) {
-                    if (result != null) {
-                        throw new RuntimeException("Failed to fetch DB_MIGRATION table", e);
-                    }
-                    return null;
                 }
             }
         });

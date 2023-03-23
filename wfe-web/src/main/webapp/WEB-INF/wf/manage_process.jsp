@@ -6,7 +6,7 @@
 <%@ page import="ru.runa.wf.web.action.ShowGraphModeHelper" %>
 <%@ page import="ru.runa.common.WebResources" %>
 <%@ page import="ru.runa.wfe.service.delegate.Delegates" %>
-<%@ page import="ru.runa.wfe.commons.SystemProperties" %>
+<%@ page import="ru.runa.wf.web.MessagesProcesses" %>
 
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -20,6 +20,14 @@
 <script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
 
+<script type="text/javascript">
+	var labelExpand = "<%=MessagesProcesses.LABEL_EXPAND.message(pageContext)%>";
+	var labelCollapse = "<%=MessagesProcesses.LABEL_COLLAPSE.message(pageContext)%>";
+	var labelExpandAll = "<%=MessagesProcesses.LABEL_EXPAND_ALL.message(pageContext)%>";
+	var labelCollapseAll = "<%=MessagesProcesses.LABEL_COLLAPSE_ALL.message(pageContext)%>";
+	var processId = <%=Long.parseLong(request.getParameter("id"))%>;
+</script>
+<script type="text/javascript" src="<html:rewrite page='<%="/js/bigVariablesHiding.js?"+Version.getHash() %>' />"></script>
 <% if (WebResources.getDiagramRefreshInterval() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {

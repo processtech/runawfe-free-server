@@ -29,6 +29,7 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang.StringUtils;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -87,6 +88,7 @@ public class EmailUtils {
 
         if (config.getHeaderProperties().containsKey("Subject")) {
             String subject = config.getHeaderProperties().get("Subject");
+            subject = StringUtils.normalizeSpace(subject);
             subject = MimeUtility.encodeText(subject, Charsets.UTF_8.name(), null);
             config.getHeaderProperties().put("Subject", subject);
         }
