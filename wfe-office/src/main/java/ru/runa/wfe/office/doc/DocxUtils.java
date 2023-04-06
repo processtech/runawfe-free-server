@@ -114,7 +114,19 @@ public class DocxUtils {
                     return paragraph0.getRuns().size() > 1;
                 }
             }.doLoop();
-            paragraph0.getRuns().get(0).setText(text != null ? text : "", 0);
+            XWPFRun run = paragraph0.getRuns().get(0);
+            if (text.contains(LINE_DELIMITER)) {
+                StringTokenizer tokenizer = new StringTokenizer(text, LINE_DELIMITER);
+                while (tokenizer.hasMoreTokens()) {
+                    run.setText(tokenizer.nextToken(), 0);
+                    if (tokenizer.hasMoreTokens()) {
+                        run.addBreak();
+                        run = paragraph0.insertNewRun(paragraph0.getRuns().indexOf(run) + 1);
+                    }
+                }
+            } else {
+                run.setText(text, 0);
+            }
         } else {
             cell.setText(text != null ? text : "");
             log.warn("no paragraphs or empty one, using raw text insert");
