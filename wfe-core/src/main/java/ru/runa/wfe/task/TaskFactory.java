@@ -36,13 +36,13 @@ public class TaskFactory {
         task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(variableProvider, getDeadlineDuration(taskDefinition)));
         task.setDeadlineDateExpression(taskDefinition.getDeadlineDuration());
         task.setIndex(index);
+        task.setAsync(isAsync);
         taskDao.create(task);
         taskDao.flushPendingChanges();
         executionContext.addLog(new CurrentTaskCreateLog(task));
         taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
         task.setSwimlane(swimlane);
         task.assignExecutor(executionContext, executor != null ? executor : swimlane.getExecutor(), false);
-        task.setAsync(isAsync);
         for (TaskExecutionListener listener : SystemProperties.getTaskExecutionListeners()) {
             listener.afterTaskCreate(executionContext, task);
         }
