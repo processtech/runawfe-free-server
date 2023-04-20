@@ -23,11 +23,15 @@ import ru.runa.wfe.chat.socket.HandshakeInterceptor;
 public class WebSocketConfig implements WebSocketConfigurer {
     @Value("${chat.max.message.size.bytes}")
     private int maxMessageSize;
+    @Value("#{'${chat.allowed.origins}'.split(',')}")
+    private String[] allowedOrigins;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        log.info("registerWebSocketHandlers");
-        registry.addHandler(socket(), "/").addInterceptors(new HandshakeInterceptor());
+        registry
+                .addHandler(socket(), "/")
+                .setAllowedOrigins(allowedOrigins)
+                .addInterceptors(new HandshakeInterceptor());
     }
 
     @Bean
