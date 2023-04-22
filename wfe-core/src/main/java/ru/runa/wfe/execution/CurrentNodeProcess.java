@@ -14,7 +14,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.SubprocessNode;
 
 @Entity
 @Table(name = "BPM_SUBPROCESS")
@@ -46,7 +46,7 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
     protected CurrentNodeProcess() {
     }
 
-    public CurrentNodeProcess(Node processStateNode, CurrentToken parentToken, CurrentProcess rootProcess, CurrentProcess subProcess, Integer index) {
+    public CurrentNodeProcess(SubprocessNode processStateNode, CurrentToken parentToken, CurrentProcess rootProcess, CurrentProcess subProcess, Integer index) {
         this.process = parentToken.getProcess();
         this.parentToken = parentToken;
         this.nodeId = processStateNode.getNodeId();
@@ -54,6 +54,7 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
         this.rootProcess = rootProcess;
         this.index = index;
         this.createDate = new Date();
+        this.async = processStateNode.isAsync();
     }
 
     @Override
