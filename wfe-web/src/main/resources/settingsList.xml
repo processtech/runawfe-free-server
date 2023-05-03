@@ -131,6 +131,7 @@
 			<value>false</value>
 		</property>
 		<property title="process.graph.autoRefreshInterval.seconds" pattern="\d*" />
+		<property title="process.graph.node.logs.limit.count" pattern="\d*"/>
 		<property title="confirmation.remove.executors">
 			<value>true</value>
 			<value>false</value>

@@ -28,10 +28,10 @@
 	var processId = <%=Long.parseLong(request.getParameter("id"))%>;
 </script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/bigVariablesHiding.js?"+Version.getHash() %>' />"></script>
-<% if (WebResources.getDiagramRefreshInterval() > 0) { %>
+<% if (WebResources.getProcessGraphAutoRefreshIntervalSeconds() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {
-  window.setInterval("Reload()", <%= WebResources.getDiagramRefreshInterval() %>*1000);
+  window.setInterval("Reload()", <%= WebResources.getProcessGraphAutoRefreshIntervalSeconds() %>*1000);
 });
 function Reload() { 
    var src = $("#graph").attr("src");

@@ -82,8 +82,12 @@ public class WebResources {
     /**
      * Used from JSP page
      */
-    public static int getDiagramRefreshInterval() {
+    public static int getProcessGraphAutoRefreshIntervalSeconds() {
         return RESOURCES.getIntegerProperty("process.graph.autoRefreshInterval.seconds", 0);
+    }
+
+    public static int getProcessGraphNodeLogsLimitCount() {
+        return RESOURCES.getIntegerProperty("process.graph.node.logs.limit.count", 7);
     }
 
     /**
