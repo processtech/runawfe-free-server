@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
@@ -160,23 +161,28 @@ public class MultiTaskNode extends BaseTaskNode {
         int tasksCounter = 0;
         CurrentSwimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
         Executor executor = swimlane.getExecutor();
+        Map<String, WfVariable> mappedVariableValues = new HashMap<>();
+        for (VariableMapping m : getVariableMappings()) {
+            WfVariable listVariable = executionContext.getVariableProvider().getVariableNotNull(m.getName());
+            mappedVariableValues.put(m.getMappedName(), listVariable);
+        }
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
             MapDelegableVariableProvider variableProvider = new MapDelegableVariableProvider(new HashMap<>(), executionContext.getVariableProvider());
             variableProvider.add("index", index);
-            for (VariableMapping m : getVariableMappings()) {
-                WfVariable listVariable = executionContext.getVariableProvider().getVariableNotNull(m.getName());
+            for (Map.Entry<String, WfVariable> e : mappedVariableValues.entrySet()) {
+                WfVariable listVariable = e.getValue();
                 List<?> list = (List<?>) listVariable.getValue();
                 if (list != null && list.size() > index) {
                     VariableDefinition variableDefinition;
                     UserType userType = ((VariableFormatContainer) listVariable.getDefinition().getFormatNotNull()).getComponentUserType(0);
                     if (userType != null) {
-                        variableDefinition = new VariableDefinition(m.getMappedName(), null, UserTypeFormat.class.getName(), userType);
+                        variableDefinition = new VariableDefinition(e.getKey(), null, UserTypeFormat.class.getName(), userType);
                     } else {
                         String formatClassName = ((VariableFormatContainer) listVariable.getDefinition().getFormatNotNull()).getComponentClassName(0);
-                        variableDefinition = new VariableDefinition(m.getMappedName(), null, formatClassName, null);
+                        variableDefinition = new VariableDefinition(e.getKey(), null, formatClassName, null);
                     }
                     WfVariable variable = new WfVariable(variableDefinition, list.get(index));
                     variableProvider.add(variable);

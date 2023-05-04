@@ -72,6 +72,32 @@ public class MultiSubprocessNode extends SubprocessNode {
         map.put(Variables.CURRENT_NODE_NAME_WRAPPED, executionContext.getNode().getName());
         map.put(Variables.CURRENT_NODE_ID_WRAPPED, executionContext.getNode().getNodeId());
         VariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
+        boolean baseProcessIdMode = isInBaseProcessIdMode();
+        Map<VariableMapping, Object> copyVariableValues = new HashMap<>();
+        for (VariableMapping variableMapping : variableMappings) {
+            String variableName = variableMapping.getName();
+            String mappedName = variableMapping.getMappedName();
+            boolean isSwimlane = parsedSubProcessDefinition.getSwimlane(mappedName) != null;
+            if (isSwimlane && variableMapping.isSyncable()) {
+                throw new InternalApplicationException("Sync mode does not supported for swimlane " + mappedName);
+            }
+            boolean copyValue;
+            if (baseProcessIdMode) {
+                copyValue = variableMapping.isReadable() && (isSwimlane || SystemProperties.getBaseProcessIdVariableName().equals(mappedName));
+            } else {
+                copyValue = variableMapping.isReadable() || variableMapping.isSyncable();
+            }
+            if (copyValue) {
+                Object value = variableProvider.getValue(variableName);
+                if (value != null) {
+                    log.debug("preparing to copy super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value + " of "
+                            + value.getClass());
+                    copyVariableValues.put(variableMapping, value);
+                } else {
+                    log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");
+                }
+            }
+        }
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
@@ -84,33 +110,12 @@ public class MultiSubprocessNode extends SubprocessNode {
             log.debug("setting discriminator var '" + parameters.getDiscriminatorVariableName() + "' to sub process var '"
                     + parameters.getIteratorVariableName() + "': " + discriminatorValue);
             variables.put(parameters.getIteratorVariableName(), discriminatorValue);
-            boolean baseProcessIdMode = isInBaseProcessIdMode();
-            for (VariableMapping variableMapping : variableMappings) {
-                String variableName = variableMapping.getName();
-                String mappedName = variableMapping.getMappedName();
-                boolean isSwimlane = parsedSubProcessDefinition.getSwimlane(mappedName) != null;
-                if (isSwimlane && variableMapping.isSyncable()) {
-                    throw new InternalApplicationException("Sync mode does not supported for swimlane " + mappedName);
-                }
-                boolean copyValue;
-                if (baseProcessIdMode) {
-                    copyValue = variableMapping.isReadable() && (isSwimlane || SystemProperties.getBaseProcessIdVariableName().equals(mappedName));
+            for (Map.Entry<VariableMapping, Object> e : copyVariableValues.entrySet()) {
+                Object value = e.getValue();
+                if (e.getKey().isMultiinstanceLink()) {
+                    variables.put(e.getKey().getMappedName(), TypeConversionUtil.getListValue(value, index));
                 } else {
-                    copyValue = variableMapping.isReadable() || variableMapping.isSyncable();
-                }
-                if (copyValue) {
-                    Object value = variableProvider.getValue(variableName);
-                    if (value != null) {
-                        log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value + " of "
-                                + value.getClass());
-                        if (variableMapping.isMultiinstanceLink()) {
-                            variables.put(mappedName, TypeConversionUtil.getListValue(value, index));
-                        } else {
-                            variables.put(mappedName, value);
-                        }
-                    } else {
-                        log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");
-                    }
+                    variables.put(e.getKey().getMappedName(), value);
                 }
             }
             CurrentProcess subProcess = processFactory.createSubprocess(executionContext, parsedSubProcessDefinition, variables, index,
