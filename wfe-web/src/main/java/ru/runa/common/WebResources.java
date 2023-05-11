@@ -187,6 +187,14 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("process.task.filters.enabled", true);
     }
 
+    public static boolean isProcessExternalDataEnabled() {
+        return RESOURCES.getBooleanProperty("process.external.data.enabled", false);
+    }
+
+    public static String getExternalDataUrl() {
+        return RESOURCES.getStringProperty("process.external.data.url.prefix");
+    }
+
     public static boolean isImportExportEnabled() {
         return RESOURCES.getBooleanProperty("import.export.enabled", true);
     }

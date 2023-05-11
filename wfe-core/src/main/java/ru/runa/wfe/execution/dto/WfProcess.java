@@ -51,6 +51,7 @@ public class WfProcess extends SecuredObjectBase {
     private final List<WfVariable> variables = Lists.newArrayList();
     private ExecutionStatus executionStatus;
     private String errors;
+    private Long externalData;
 
     public WfProcess() {
     }
@@ -65,6 +66,7 @@ public class WfProcess extends SecuredObjectBase {
         this.hierarchyIds = process.getHierarchyIds();
         this.executionStatus = process.getExecutionStatus();
         this.errors = errors;
+        this.externalData = process.getExternalData();
     }
     
     public String getErrors() {
@@ -143,6 +145,10 @@ public class WfProcess extends SecuredObjectBase {
 
     public ExecutionStatus getExecutionStatus() {
         return executionStatus;
+    }
+
+    public Long getExternalData() {
+        return externalData;
     }
 
     @Override
