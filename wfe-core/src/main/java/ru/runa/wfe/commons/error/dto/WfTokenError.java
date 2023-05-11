@@ -4,9 +4,11 @@ import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.NodeType;
+import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
 
@@ -32,9 +34,11 @@ public class WfTokenError extends SecuredObjectBase {
     public WfTokenError(Token token, String stackTrace) {
         this.id = token.getId();
         this.processId = token.getProcess().getId();
-        this.processType = token.getProcess().getDeployment().getCategory();
-        this.processName = token.getProcess().getDeployment().getName();
-        this.processVersion = token.getProcess().getDeployment().getVersion();
+        ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader()
+                .getDefinition(token.getProcess().getDeployment().getId());
+        this.processType = processDefinition.getDeployment().getCategory();
+        this.processName = processDefinition.getName();
+        this.processVersion = processDefinition.getDeployment().getVersion();
         this.processExecutionStatus = token.getProcess().getExecutionStatus();
         this.nodeId = token.getNodeId();
         this.nodeName = token.getNodeName();

@@ -119,10 +119,7 @@ public class DeploymentDao extends GenericDao<Deployment> {
 
     /**
      * queries the database for all versions of process definitions with the given name, ordered by version (descending).
-     * 
-     * @deprecated use findAllDeploymentVersionIds
      */
-    @Deprecated
     public List<Deployment> findAllDeploymentVersions(String name) {
         QDeployment d = QDeployment.deployment;
         return queryFactory.selectFrom(d).where(d.name.eq(name)).orderBy(d.version.desc()).fetch();
