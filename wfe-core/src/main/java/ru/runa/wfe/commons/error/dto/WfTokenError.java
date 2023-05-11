@@ -17,6 +17,7 @@ public class WfTokenError extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
     private Long id;
     private Long processId;
+    private String processType;
     private String processName;
     private Long processVersion;
     private ExecutionStatus processExecutionStatus;
@@ -31,6 +32,7 @@ public class WfTokenError extends SecuredObjectBase {
     public WfTokenError(Token token, String stackTrace) {
         this.id = token.getId();
         this.processId = token.getProcess().getId();
+        this.processType = token.getProcess().getDeployment().getCategory();
         this.processName = token.getProcess().getDeployment().getName();
         this.processVersion = token.getProcess().getDeployment().getVersion();
         this.processExecutionStatus = token.getProcess().getExecutionStatus();
