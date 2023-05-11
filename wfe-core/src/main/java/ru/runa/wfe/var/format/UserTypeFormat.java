@@ -121,8 +121,8 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
         StringBuffer b = new StringBuffer();
         b.append("<table class=\"list usertype\">");
         for (VariableDefinition attributeDefinition : userType.getAttributes()) {
-            b.append("<tr>");
-            b.append("<td class=\"list\">").append(attributeDefinition.getName()).append("</td>");
+            b.append("<tr variable=\"").append(attributeDefinition.getName()).append("\">");
+            b.append("<td class=\"list name\">").append(attributeDefinition.getName()).append("</td>");
             VariableFormat attributeFormat = FormatCommons.create(attributeDefinition);
             Object attributeValue = userTypeMap.get(attributeDefinition.getName());
             b.append("<td class=\"list\">");
