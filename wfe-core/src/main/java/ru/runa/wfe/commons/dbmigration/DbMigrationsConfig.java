@@ -41,6 +41,7 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateTimerAggregatedLogTable;
+import ru.runa.wfe.commons.dbmigration.impl.DeleteBatchPresentationsRm3017;
 import ru.runa.wfe.commons.dbmigration.impl.DeleteBatchPresentationsRm3056;
 import ru.runa.wfe.commons.dbmigration.impl.DropMessageNotNullConstraintPatch;
 import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
@@ -165,6 +166,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
         dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
         dbMigrations.add(AddTransitionNameForTaskPatch.class);
+        dbMigrations.add(DeleteBatchPresentationsRm3017.class);
         dbMigrations.add(DeleteBatchPresentationsRm3056.class);
         return dbMigrations;
     }

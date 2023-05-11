@@ -17,24 +17,20 @@
  */
 package ru.runa.common.web;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.B;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
-
 import ru.runa.common.web.form.ReturnActionForm;
 import ru.runa.wf.web.action.SetViewPageAction;
 import ru.runa.wf.web.form.PagingForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.presentation.BatchPresentation;
-
-import com.google.common.collect.Maps;
 
 /**
  * Helper class to create paging navigation elements.
@@ -42,6 +38,9 @@ import com.google.common.collect.Maps;
  * @author Konstantinov Aleksey 04.03.2012
  */
 public final class PagingNavigationHelper {
+    public static final String PAGE_PARAMETER = "page";
+    public static final String PAGE_PARAMETER_GAP = "{" + PAGE_PARAMETER + "}";
+    public static final String FIRST_PAGE = "1";
     private static final int MAX_PAGING_NOVIGATION_ELEMENTS_TO_SHOW = 10;
 
     /**
@@ -179,7 +178,7 @@ public final class PagingNavigationHelper {
         }
         if (endIndex < pageCount) {
             int nextPageNumber = Math.min(pageCount, currentPageNumber + MAX_PAGING_NOVIGATION_ELEMENTS_TO_SHOW);
-            addPageNovigationElement(pagingNovigationElementTD, nextPageNumber, MessagesBatch.PAGING_NEXT_PAGE.message(pageContext));
+            addPageNovigationElement(pagingNovigationElementTD, nextPageNumber, MessagesBatch.PAGING_NEXT_RANGE.message(pageContext));
             addDoubleNBSP(pagingNovigationElementTD);
         }
         return pagingNovigationElementTD;
@@ -192,11 +191,12 @@ public final class PagingNavigationHelper {
         return elementsCountTd;
     }
 
-    private void addPageNovigationElement(TD listTd, int prevPageNumber, String textPresentation) {
+    private void addPageNovigationElement(TD listTd, int pageNumber, String textPresentation) {
         Map<String, Object> params = Maps.newHashMap();
         params.put(PagingForm.BATCH_PRESENTATION_ID, batchPresentation.getCategory());
-        params.put(ReturnActionForm.RETURN_ACTION, returnAction);
-        params.put(PagingForm.VIEW_PAGE, prevPageNumber);
+        String action = returnAction.contains(PAGE_PARAMETER_GAP) ? returnAction.replace(PAGE_PARAMETER_GAP, PAGE_PARAMETER + "=" + pageNumber) : returnAction;
+        params.put(ReturnActionForm.RETURN_ACTION, action);
+        params.put(PagingForm.VIEW_PAGE, pageNumber);
         String actionUrl = Commons.getActionUrl(SetViewPageAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
         A hrefBack = new A(actionUrl, textPresentation);
         listTd.addElement(hrefBack);

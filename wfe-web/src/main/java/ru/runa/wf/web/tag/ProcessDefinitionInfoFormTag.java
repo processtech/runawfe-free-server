@@ -17,6 +17,8 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Span;
@@ -29,12 +31,12 @@ import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.MessagesOther;
+import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction;
 import ru.runa.wf.web.action.SetProcessDefinitionSubprocessBindingDateAction;
-import ru.runa.wf.web.action.ShowDefinitionHistoryAction;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
@@ -68,8 +70,10 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         nameTD.setClass(Resources.CLASS_LIST_TABLE_TD);
         if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM)) {
             nameTD.addElement(definition.getName() + " (");
-            String historyUrl = Commons.getActionUrl(ShowDefinitionHistoryAction.ACTION, "name", definition.getName(), pageContext,
-                    PortletUrlType.Render);
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put(ListDefinitionsHistoryFormTag.NAME_PARAMETER, definition.getName());
+            parameters.put(PagingNavigationHelper.PAGE_PARAMETER, PagingNavigationHelper.FIRST_PAGE);
+            String historyUrl = Commons.getActionUrl(ListDefinitionsHistoryFormTag.ACTION_PATH, parameters, pageContext, PortletUrlType.Render);
             nameTD.addElement(new A(historyUrl, MessagesProcesses.TITLE_DEFINITIONS_HISTORY.message(pageContext)));
             nameTD.addElement(")");
         } else {
