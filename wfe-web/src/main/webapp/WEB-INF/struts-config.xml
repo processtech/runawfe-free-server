@@ -595,8 +595,8 @@
 		<action path="/updateProcessVariable"
 			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="commonProcessForm"
 			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_process.do"
-				redirect="true" />
+			<forward name="success" path="/update_process_variables.do"
+				redirect="false" />
 			<forward name="failure" path="/update_process_variables.do"
 				redirect="false" />
 		</action>

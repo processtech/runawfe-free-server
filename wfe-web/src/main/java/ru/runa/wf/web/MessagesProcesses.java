@@ -88,6 +88,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_VARIABLE_NULL_VALUE = new StrutsMessage("label.variable_null_value");
     public static final StrutsMessage LABEL_VARIABLE_OLD_VALUE = new StrutsMessage("label.variable_old_value");
     public static final StrutsMessage LABEL_VARIABLE_NEW_VALUE = new StrutsMessage("label.variable_new_value");
+    public static final StrutsMessage LABEL_SEARCH_VARIABLE = new StrutsMessage("label.search_variable");
     public static final StrutsMessage LABEL_NO_VARIABLES = new StrutsMessage("label.no_variables");
     public static final StrutsMessage TASK_COMPLETED = new StrutsMessage("task.completed");
     public static final StrutsMessage LABEL_SHOW_TASKS_HISTORY = new StrutsMessage("label.manage_tasks_history");
