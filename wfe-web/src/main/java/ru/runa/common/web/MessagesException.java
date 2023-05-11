@@ -13,6 +13,7 @@ public final class MessagesException {
     public static final StrutsMessage EXCEPTION_ACTOR_DOES_NOT_EXISTS = new StrutsMessage("ru.runa.wf.web.actor.does.not.exists.exception");
     public static final StrutsMessage EXCEPTION_GROUP_DOES_NOT_EXISTS = new StrutsMessage("ru.runa.wf.web.group.does.not.exists.exception");
     public static final StrutsMessage EXCEPTION_EXECUTOR_PARTICIPATES_IN_PROCESSES = new StrutsMessage("executor.participates.in.processes");
+
     public static final StrutsMessage ERROR_NULL_VALUE = new StrutsMessage("emptyvalue");
     public static final StrutsMessage ERROR_FILL_REQUIRED_VALUES = new StrutsMessage("error.fill.required.values");
     public static final StrutsMessage ERROR_VALIDATION = new StrutsMessage("validation.error");
@@ -24,6 +25,17 @@ public final class MessagesException {
     public static final StrutsMessage ERROR_PROCESS_DOES_NOT_EXIST = new StrutsMessage("process.does.not.exist.error");
     public static final StrutsMessage ERROR_TASK_DOES_NOT_EXIST = new StrutsMessage("task.does.not.exist.error");
     public static final StrutsMessage ERROR_TASK_FORM_NOT_DEFINED = new StrutsMessage("task.form.not.defined.error");
+
+
+    public static final StrutsMessage DS_ERROR_STRING_LENGTH_MORE = new StrutsMessage("ds.string.length.more.than");
+    public static final StrutsMessage DS_ERROR_STRING_LENGTH_LESS = new StrutsMessage("ds.string.length.less.than");
+    public static final StrutsMessage DS_ERROR_STRING_NOT_CAPITAL_LETTER = new StrutsMessage("ds.string.not.capital.letter");
+    public static final StrutsMessage DS_EMAIL_NOT_VALID = new StrutsMessage("ds.email.not.valid");
+    public static final StrutsMessage DS_VALIDITY_CANT_BE_NEGATIVE = new StrutsMessage("ds.validity.cant.be.negative");
+    public static final StrutsMessage DS_VALIDITY_CANT_BE_ZERO = new StrutsMessage("ds.validity.cant.be.zero");
+    public static final StrutsMessage DS_VALIDITY_MUST_BE_NUMBER = new StrutsMessage("ds.validity.must.be.number");
+
+
     public static final StrutsMessage DEFINITION_ARCHIVE_FORMAT_ERROR = new StrutsMessage("definition.archive.format.error");
     public static final StrutsMessage DEFINITION_FILE_FORMAT_ERROR = new StrutsMessage("definition.file.format.error");
     public static final StrutsMessage DEFINITION_FILE_DOES_NOT_EXIST_ERROR = new StrutsMessage("definition.file.does.not.exist.error");

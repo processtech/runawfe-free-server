@@ -103,6 +103,44 @@ function openConfirmPopup(element, cookieName, message, confirmMessage, cancelBu
 	}
 }
 
+function openDeletePopup(element, cookieName, message, deleteMessage, cancelButton, okButton) {
+	if($.cookie(cookieName) == "true") {
+		if(element.href == null) {
+			var parent = element.parentNode;
+			while(parent.tagName != "FORM") {
+				parent = parent.parentNode;
+			}
+			parent.remove();
+		} else {
+			window.location = element.href;
+		}
+	} else {
+		$.confirmDialog.html("<p style=\"font-size: 8pt; font-style: italic;\"><input id=\"cookieCh\" type=\"checkbox\" value=\"\"> " + deleteMessage + "</p><p>" + message + "</p>");
+
+		var buttons = {};
+		buttons[okButton] = function() {
+			if($("#cookieCh").is(":checked")) {
+				$.cookie(cookieName, "true");
+			}
+			var parent = element.parentNode;
+			while(parent.tagName != "FORM") {
+				parent = parent.parentNode;
+			}
+			if (element.href == null) {
+				parent.remove();
+			} else {
+				window.location = element.href;
+			}
+		}
+		buttons[cancelButton] = function() {
+			$(this).dialog("close");
+		};
+		$.confirmDialog.dialog("option", "buttons", buttons);
+		$.confirmDialog.dialog("option", "position", "center");
+		$.confirmDialog.dialog("open");
+	}
+}
+
 function openSubstitutionCriteriasConfirmPopup(message, allMethod, allButton, onlyMethod, onlyButton, cancelButton) {
 	$.confirmDialog.html("<p>" + message + "</p>");
 	var form = $("#substitutionCriteriasForm");

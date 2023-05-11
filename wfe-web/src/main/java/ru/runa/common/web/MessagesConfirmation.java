@@ -55,6 +55,7 @@ public final class MessagesConfirmation {
     public static final StrutsMessage COOKIE_USE_DEFAULT_PROPERTIES = new StrutsMessage("use.default.properties.cookie");
 
     public static final StrutsMessage CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ALL = new StrutsMessage("confirmpopup.substitutioncriteria.button.all");
-    public static final StrutsMessage CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ONLY = new StrutsMessage(
-            "confirmpopup.substitutioncriteria.button.only");
+    public static final StrutsMessage CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ONLY = new StrutsMessage("confirmpopup.substitutioncriteria.button.only");
+    public static final StrutsMessage CONF_POPUP_UPDATE_DS = new StrutsMessage("confirmpopup.update.digital.signature");
+    public static final StrutsMessage CONF_POPUP_DELETE_DS = new StrutsMessage("confirmpopup.delete.digital.signature");
 }

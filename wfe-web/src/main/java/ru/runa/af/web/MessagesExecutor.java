@@ -30,6 +30,7 @@ public final class MessagesExecutor {
     public static final StrutsMessage TITLE_ACTOR_PASSWORD = new StrutsMessage("title.actor_password");
     public static final StrutsMessage TITLE_ACTOR_STATUS = new StrutsMessage("title.actor_status");
     public static final StrutsMessage TITLE_GRANT_PERMISSION = new StrutsMessage("title.grant_permission");
+    public static final StrutsMessage TITLE_DIGITAL_SIGNATURE_DETAILS = new StrutsMessage("title.digital_signature_details");
 
     public static final StrutsMessage SUBSTITUTION_ALWAYS = new StrutsMessage("substitution.always");
     public static final StrutsMessage LABEL_SUBSTITUTORS = new StrutsMessage("label.substitutors");
@@ -65,4 +66,17 @@ public final class MessagesExecutor {
     public static final StrutsMessage LABEL_YOU_ARE_NOT_ENABLED_WITHOUT_SUBSTITUTIONS = new StrutsMessage(
             "label.you_are_not_active_without_substitutions");
     public static final StrutsMessage SYNCHRONIZATION_COMPLETED = new StrutsMessage("executors.synchronization.completed");
+
+    public static final StrutsMessage TITLE_CREATE_DIGITAL_SIGNATURE = new StrutsMessage("title.create_digital_signature");
+    public static final StrutsMessage DIGITAL_SIGNATURE_COMMON_NAME = new StrutsMessage("label.digital_signature_common_name");
+    public static final StrutsMessage DIGITAL_SIGNATURE_EMAIL = new StrutsMessage("label.digital_signature_email");
+    public static final StrutsMessage DIGITAL_SIGNATURE_DEPARTMENT = new StrutsMessage("label.digital_signature_department");
+    public static final StrutsMessage DIGITAL_SIGNATURE_ORGANISATION = new StrutsMessage("label.digital_signature_organization");
+    public static final StrutsMessage DIGITAL_SIGNATURE_CITY = new StrutsMessage("label.digital_signature_city");
+    public static final StrutsMessage DIGITAL_SIGNATURE_STATE = new StrutsMessage("label.digital_signature_state");
+    public static final StrutsMessage DIGITAL_SIGNATURE_COUNTRY = new StrutsMessage("label.digital_signature_country");
+    public static final StrutsMessage DIGITAL_SIGNATURE_DATE_OF_ISSUE = new StrutsMessage("label.digital_signature_date_of_issue");
+    public static final StrutsMessage DIGITAL_SIGNATURE_DATE_OF_EXPIRY = new StrutsMessage("label.digital_signature_date_of_expiry");
+    public static final StrutsMessage DIGITAL_SIGNATURE_VALIDITY_IN_MONTH = new StrutsMessage("label.digital_signature_validity");
+
 }

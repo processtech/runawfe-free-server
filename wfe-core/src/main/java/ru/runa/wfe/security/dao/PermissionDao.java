@@ -119,6 +119,12 @@ public class PermissionDao extends CommonDao {
         requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.UPDATE, true));
         requiredRules.add(new PermissionRule(SecuredObjectType.DATASOURCES, Permission.READ, true));
 
+        requiredRules.add(new PermissionRule(SecuredObjectType.DIGITAL_SIGNATURE, Permission.READ_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DIGITAL_SIGNATURE, Permission.UPDATE_PERMISSIONS, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DIGITAL_SIGNATURE, Permission.UPDATE, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.DIGITAL_SIGNATURE, Permission.READ, true));
+        requiredRules.add(new PermissionRule(SecuredObjectType.SYSTEM, Permission.CREATE_DIGITAL_SIGNATURE, true));
+
         implicitRules.add(new DelegateTaskPermissionRule(SecuredObjectType.EXECUTOR, Permission.DELEGATE_TASKS, true));
 
         implicitRules.add(new PermissionRule(SecuredObjectType.RELATIONS, Permission.READ_PERMISSIONS, true));

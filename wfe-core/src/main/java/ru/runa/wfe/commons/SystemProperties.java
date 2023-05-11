@@ -515,8 +515,9 @@ public class SystemProperties {
         return NO_DATABASE_RESOURCES.getBooleanProperty("filesystem.access.allowed", false);
     }
 
-    public static String getJwtSecret() {
-        return NO_DATABASE_RESOURCES.getStringProperty("jwt.secret");
-    }
+    public static String getJwtSecret() {  return NO_DATABASE_RESOURCES.getStringProperty("jwt.secret");  }
+
+    public static String getTSAurl() {  return NO_DATABASE_RESOURCES.getStringProperty("signature.tsaurl");  }
+
 
 }

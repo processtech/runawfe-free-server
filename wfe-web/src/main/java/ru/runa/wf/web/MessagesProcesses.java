@@ -98,11 +98,11 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_START_DATE = new StrutsMessage("label.task_history_table_start_date");
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_END_DATE = new StrutsMessage("label.task_history_table_end_date");
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_DURATION = new StrutsMessage("label.task_history_table_duration");
-    public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage(
-            "batch_presentation.process_definition.update_current_version");
+    public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage("batch_presentation.process_definition.update_current_version");
     public static final StrutsMessage TITLE_SUBPROCESSES_LIST = new StrutsMessage("title.process_subprocess_list");
     public static final StrutsMessage LINK_SHOW_TASKS = new StrutsMessage("link.show_tasks");
     public static final StrutsMessage LABEL_GLOBAL = new StrutsMessage("label.global");
+    public static final StrutsMessage LABEL_CREATE = new StrutsMessage("label.create");
     public static final StrutsMessage LABEL_COLLAPSE = new StrutsMessage("label.collapse");
     public static final StrutsMessage LABEL_EXPAND = new StrutsMessage("label.expand");
     public static final StrutsMessage LABEL_COLLAPSE_ALL = new StrutsMessage("label.collapse.all");

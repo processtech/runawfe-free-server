@@ -5,7 +5,6 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.RestoreDefaultSettingsAction;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.tag.TitledFormTag;

@@ -150,6 +150,11 @@ public final class Permission implements Serializable, Comparable<Permission> {
     public static final Permission DELETE = new Permission("DELETE");
 
     /**
+     * Create digital signature.
+     */
+    public static final Permission CREATE_DIGITAL_SIGNATURE = new Permission("CREATE_DIGITAL_SIGNATURE");
+
+    /**
      * Actor is allowed to login into system.
      */
     public static final Permission LOGIN = new Permission("LOGIN");
@@ -190,4 +195,5 @@ public final class Permission implements Serializable, Comparable<Permission> {
     public static final Permission DELEGATE_TASKS = new Permission("DELEGATE_TASKS");
     
     public static final Permission ADD_ACTOR_TO_GROUP = new Permission("ADD_ACTOR_TO_GROUP");
+
 }

@@ -41,6 +41,7 @@ import ru.runa.wfe.commons.dbmigration.impl.CorrectChatRoomViewRenameColumn;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
+import ru.runa.wfe.commons.dbmigration.impl.CreateDigitalSignatureTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalTable;
@@ -190,6 +191,8 @@ public class DbMigrationsConfig {
         dbMigrations.add(CreateSignalTable.class);
         // end develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
+        //rm2762
+        dbMigrations.add(CreateDigitalSignatureTable.class);
         return dbMigrations;
     }
 }

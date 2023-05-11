@@ -29,7 +29,6 @@ import ru.runa.wfe.user.Group;
 public class UpdateExecutorDetailsAction extends ActionBase {
 
     public static final String ACTION_PATH = "/updateExecutorDetails";
-
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         UpdateExecutorDetailsForm form = (UpdateExecutorDetailsForm) actionForm;

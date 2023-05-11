@@ -11,6 +11,7 @@
 	<form-beans>
 
 		<form-bean name="createExecutorForm" type="ru.runa.af.web.form.CreateExecutorForm" />
+		<form-bean name="createDigitalSignatureForm" type="ru.runa.af.web.form.CreateDigitalSignatureForm" />
 		<form-bean name="grantPermissionsForm" type="ru.runa.af.web.form.GrantPermissionsForm" />
 		<form-bean name="updatePermissionsForm" type="ru.runa.af.web.form.UpdatePermissionsForm" />
 		<form-bean name="groupForm" type="ru.runa.common.web.form.GroupForm" />
@@ -39,6 +40,7 @@
 		<form-bean name="relationPairsForm" type="ru.runa.af.web.form.RelationPairsForm" />
 		<form-bean name="idsForm" type="ru.runa.common.web.form.IdsForm" />
 		<form-bean name="updateExecutorDetailsForm" type="ru.runa.af.web.form.UpdateExecutorDetailsForm" />
+		<form-bean name="updateDigitalSignatureDetailsForm" type="ru.runa.af.web.form.UpdateDigitalSignatureDetailsForm" />
 		<form-bean name="botStationForm" type="ru.runa.af.web.form.BotStationForm" />
 		<form-bean name="idUrlForm" type="ru.runa.wf.web.form.DefinitionFileForm" />
 		<form-bean name="variableForm" type="ru.runa.wf.web.form.VariableForm" />
@@ -345,6 +347,20 @@
 			<forward name="success" path="/manage_executor.do" redirect="true" />
 			<forward name="failure" path="/manage_executor.do" redirect="true" />
 		</action>
+		<action path="/createDigitalSignature" type="ru.runa.af.web.action.CreateDigitalSignatureAction"
+				name="createDigitalSignatureForm" scope="request" input="/WEB-INF/af/create_digital_signature.jsp"
+				unknown="false" validate="true">
+			<forward name="success" path="/manage_executor.do" redirect="true" />
+			<forward name="failure" path="/create_digital_signature.do" redirect="true" />
+		</action>
+		<action path="/updateDigitalSignatureDetails"
+				type="ru.runa.af.web.action.UpdateDigitalSignatureDetailsAction"
+				name="updateDigitalSignatureDetailsForm"
+				scope="request" input="/WEB-INF/af/manage_executor.jsp" unknown="false"
+				validate="true">
+			<forward name="success" path="/manage_executor.do" redirect="true" />
+			<forward name="failure" path="/manage_executor.do" redirect="true" />
+		</action>
 		<action path="/historyGraphImage" type="ru.runa.wf.web.action.HistoryGraphImageAction"
 			name="taskIdForm" scope="request" input="/WEB-INF/wf/show_graph_history.jsp"
 			unknown="false" validate="true">
@@ -358,6 +374,11 @@
 			name="idsForm" scope="request" unknown="false" validate="false">
 			<forward name="success" path="/manage_executors.do" redirect="true" />
 			<forward name="failure" path="/manage_executors.do" redirect="true" />
+		</action>
+		<action path="/removeDigitalSignature" type="ru.runa.af.web.action.RemoveDigitalSignatureAction"
+				name="updateDigitalSignatureDetailsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_executor.do" redirect="false" />
+			<forward name="failure" path="/manage_executor.do" redirect="false" />
 		</action>
 		<action path="/synchronizeExecutors" type="ru.runa.af.web.action.SynchronizeExecutorsAction" scope="request" validate="false">
 			<forward name="success" path="/manage_executors.do" redirect="true" />
@@ -663,6 +684,9 @@
 
 		<action path="/create_executor" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/create_executor.jsp" />
+
+		<action path="/create_digital_signature" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/af/create_digital_signature.jsp" />
 
 		<action path="/add_executor_to_groups" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/add_executor_to_groups.jsp" />

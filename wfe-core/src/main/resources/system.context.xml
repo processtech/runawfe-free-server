@@ -223,7 +223,7 @@
 	</bean>
 
 	<bean id="commonLogic" class="ru.runa.wfe.commons.logic.CommonLogic" />
-
+	<bean id="digitalSignatureLogic" class="ru.runa.wfe.digitalsignature.logic.DigitalSignatureLogic"/>
 	<bean id="loginModuleConfiguration" class="ru.runa.wfe.security.auth.LoginModuleConfiguration">
 		<property name="loginModuleClassNames">
 			<list>

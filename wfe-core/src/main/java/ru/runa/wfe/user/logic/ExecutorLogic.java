@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
+import ru.runa.wfe.digitalsignature.dao.DigitalSignatureDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
@@ -51,6 +52,8 @@ public class ExecutorLogic extends CommonLogic {
     private RelationPairDao relationPairDao;
     @Autowired
     private SubstitutionDao substitutionDao;
+    @Autowired
+    private DigitalSignatureDao digitalSignatureDao;
     @Autowired
     private AuthorizationLogic authorizationLogic;
 
@@ -163,6 +166,8 @@ public class ExecutorLogic extends CommonLogic {
         relationPairDao.removeAllRelationPairs(executor);
         substitutionDao.deleteAllActorSubstitutions(executor.getId());
         executorDao.remove(executor);
+        digitalSignatureDao.remove(executor.getId());
+
     }
 
     public <T extends Executor> T create(User user, T executor) {
