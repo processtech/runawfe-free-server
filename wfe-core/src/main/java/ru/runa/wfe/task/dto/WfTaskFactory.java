@@ -21,7 +21,6 @@ package ru.runa.wfe.task.dto;
 import com.google.common.base.Objects;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
@@ -57,9 +56,7 @@ public class WfTaskFactory {
         Process process = task.getProcess();
         Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(process.getHierarchyIds());
         Process rootProcess = rootProcessId.equals(process.getId()) ? process : processDao.get(rootProcessId);
-        Long rootDefinitionId = rootProcess.getDeployment().getId();
-        String rootDefinitionName = rootProcess.getDeployment().getName();
-        Deployment deployment = process.getDeployment();
+        ProcessDefinition rootProcessDefinition = processDefinitionLoader.getDefinition(rootProcess.getDeployment().getId());
         boolean escalated = false;
         if (task.getExecutor() instanceof EscalationGroup) {
             EscalationGroup escalationGroup = (EscalationGroup) task.getExecutor();
@@ -70,10 +67,10 @@ public class WfTaskFactory {
                 escalated = !Objects.equal(originalExecutor, targetActor);
             }
         }
-        WfTask wfTask = new WfTask(task, rootProcessId, rootDefinitionId, rootDefinitionName,
-                targetActor, escalated, acquiredBySubstitution, firstOpen);
+        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
+        WfTask wfTask = new WfTask(task, rootProcessId, rootProcessDefinition.getId(), rootProcessDefinition.getName(),
+                processDefinition.getId(), processDefinition.getName(), targetActor, escalated, acquiredBySubstitution, firstOpen);
         if (variableNamesToInclude != null && !variableNamesToInclude.isEmpty()) {
-            ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(deployment.getId());
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
             for (String variableName : variableNamesToInclude) {
                 wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));

@@ -304,14 +304,14 @@ public class DefinitionLogic extends WfCommonLogic {
     }
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
-        Deployment deployment = deploymentDao.getNotNull(definitionId);
+        ProcessDefinition definition = getDefinition(definitionId);
+        Deployment deployment = definition.getDeployment();
         if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(FileDataProvider.BOTS_XML_FILE)) {
             permissionDao.checkAllowed(user, Permission.READ, deployment);
         }
         if (FileDataProvider.PAR_FILE.equals(fileName)) {
             return deployment.getContent();
         }
-        ProcessDefinition definition = getDefinition(definitionId);
         return definition.getFileData(fileName);
     }
 

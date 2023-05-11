@@ -18,14 +18,14 @@
 
 package ru.runa.wfe.task.dto;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
 import ru.runa.wfe.task.Task;
@@ -79,8 +79,8 @@ public class WfTask implements Serializable {
     public WfTask() {
     }
 
-    public WfTask(Task task, Long rootProcessId, Long rootDefinitionId, String rootDefinitionName, Actor targetActor,
-                  boolean escalated, boolean acquiredBySubstitution, boolean firstOpen) {
+    public WfTask(Task task, Long rootProcessId, Long rootDefinitionId, String rootDefinitionName, Long definitionId, String definitionName,
+            Actor targetActor, boolean escalated, boolean acquiredBySubstitution, boolean firstOpen) {
         this.id = task.getId();
         this.name = task.getName();
         this.nodeId = task.getNodeId();
@@ -90,10 +90,10 @@ public class WfTask implements Serializable {
         this.rootProcessId = rootProcessId;
         this.processHierarchyIds = task.getProcess().getHierarchyIds();
         this.tokenId = task.getToken().getId();
-        this.definitionId = task.getProcess().getDeployment().getId();
         this.rootDefinitionId = rootDefinitionId;
-        this.definitionName = task.getProcess().getDeployment().getName();
         this.rootDefinitionName = rootDefinitionName;
+        this.definitionId = definitionId;
+        this.definitionName = definitionName;
         this.swimlaneName = task.getSwimlane() != null ? task.getSwimlane().getName() : "";
         this.creationDate = task.getCreateDate();
         this.deadlineDate = task.getDeadlineDate();
