@@ -50,64 +50,13 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
                 table.setClass(Resources.CLASS_LIST_TABLE);
                 tdFormElement.addElement(table);
 
-                TR variableComboboxTr = new TR();
-                variableComboboxTr.setClass("variableSelect");
-
-                TD labelTd = new TD();
-                Label labelVariable = new Label("variableSel");
-                labelVariable.addElement(MessagesProcesses.LABEL_VARIABLE.message(pageContext) + "&nbsp;");
-                labelTd.addElement(labelVariable);
-                labelTd.setWidth(labelTDWidth);
-                variableComboboxTr.addElement(labelTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-                Select variablesSelect = new Select("variableSelect");
-                variablesSelect.setID("variableSelect");
-                for (VariableDefinition variable : variables) {
-                    variablesSelect.addElement(HTMLUtils.createOption(variable.getName(), false));
-                }
-
-                TD selectTd = new TD();
-                selectTd.addElement(variablesSelect);
-                variableComboboxTr.addElement(selectTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-                table.addElement(variableComboboxTr);
-
-                TR variableScriptingValueTr = new TR();
-
-                labelTd = new TD();
-                Label labelScriptingValue = new Label("variableScriptingValue");
-                labelScriptingValue.addElement(MessagesProcesses.LABEL_VARIABLE_SCRIPTING_VALUE.message(pageContext) + ":&nbsp;");
-                labelTd.addElement(labelScriptingValue);
-                labelTd.setWidth(labelTDWidth);
-                variableScriptingValueTr.addElement(labelTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-
-                TD scriptingValueTd = new TD();
-                Div variableScriptingInfoDiv = new Div();
-                variableScriptingInfoDiv.setID("variableScriptingInfo");
-                scriptingValueTd.addElement(variableScriptingInfoDiv);
-                variableScriptingValueTr.addElement(scriptingValueTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-
-                table.addElement(variableScriptingValueTr);
-
-                TR variableCurrentValueTr = new TR();
-
-                labelTd = new TD();
-                Label labelCurrentValue = new Label("variableCurrentValue");
-                labelCurrentValue.addElement(MessagesProcesses.LABEL_VARIABLE_OLD_VALUE.message(pageContext) + ":&nbsp;");
-                labelTd.addElement(labelCurrentValue);
-                labelTd.setWidth(labelTDWidth);
-                variableCurrentValueTr.addElement(labelTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-
-                TD currentValueTd = new TD();
-                Div variableCurrentInfoDiv = new Div();
-                variableCurrentInfoDiv.setID("variableCurrentInfo");
-                currentValueTd.addElement(variableCurrentInfoDiv);
-                variableCurrentValueTr.addElement(currentValueTd.setClass(Resources.CLASS_LIST_TABLE_TD));
-
-                table.addElement(variableCurrentValueTr);
-
+                Input searchInput = HTMLUtils.createInput("searchVariable","");
+                searchInput.addAttribute("autocomplete", "off");
+                table.addElement(HTMLUtils.createRow(MessagesProcesses.LABEL_SEARCH_VARIABLE.message(pageContext), searchInput));
                 TR variableInputTr = new TR();
                 variableInputTr.setClass("variableInputRegion");
 
-                labelTd = new TD();
+                TD labelTd = new TD();
                 Label labelInputValue = new Label("variableInput");
                 labelInputValue.addElement(MessagesProcesses.LABEL_VARIABLE_NEW_VALUE.message(pageContext) + ":&nbsp;");
                 labelTd.addElement(labelInputValue);
@@ -160,6 +109,15 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
     @Override
     protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_UPDATE_VARIABLE.message(pageContext);
+    }
+    @Override
+    protected boolean isCancelButtonEnabled() {
+        return true;
+    }
+
+    @Override
+    protected String getCancelButtonAction() {
+        return "manage_process.do?id=" + getProcessId();
     }
 
 }

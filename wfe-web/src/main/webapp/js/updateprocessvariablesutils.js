@@ -1,8 +1,33 @@
+$(document).ready(function() {
+	$("input[name='searchVariable']").autocomplete({
+		delay: 300,
+		minLength: 0,
+		source: function(request, response) {
+		    $.ajax({
+		   	    type: "GET",
+			    cache: false,
+			    url: "/wfe/ajaxcmd?command=ajaxGetProcessVariablesList",
+			    data:
+			    {
+                    processId : id,
+                    hint : request.term
+                },
+			    dataType: "json",
+			    success:
+			    function (result) {
+				    response(result.data);
+			    }
+		    })
+        },
+		select: function(event, ui) {
+			$("input[name='searchVariable']").val(ui.item.label);
+			getVariableInfo(ui.item.label);
+			return false;
+		}
+	});
 
-$(function() {
-	getVariableInfo($("#variableSelect").val());
-	$("#variableSelect").bind("change", function() {
-		getVariableInfo($("#variableSelect").val());		
+    $("input[name='searchVariable']").focus(function() {
+		$(this).autocomplete("search", $(this).val());
 	});
 });
 
@@ -13,20 +38,14 @@ function getVariableInfo(value) {
 			cache: false,
 			url: "/wfe/getComponentInput",
 			data: {
-				id: id,			
+				id: id,
 				variableName: value
 			},
 			dataType: "html",
-			success: function (e, msg, result) { 
+			success: function (e, msg, result) {
 				var data = jQuery.parseJSON(result.responseText);
-				
-				$("#variableScriptingInfo").empty();
-				$("#variableCurrentInfo").empty();
 				$("#variableInput").empty();
-				
-				var scriptingValue = "<div class=\"variableLabel\">" + data.scriptingName + "</div>";
-				$("#variableScriptingInfo").append(scriptingValue);
-				
+
 				var currentValue;
 				if(data.variableIsNull == "true") {
 					currentValue = "<div class=\"variableLabel\"><input type='checkbox' disabled='true' checked>NULL</div>";
@@ -36,9 +55,7 @@ function getVariableInfo(value) {
 					currentValue = "<div class=\"variableScript\">" + data.variableValue + "</div>";
 					$("#nullValueCheckbox").css("display", "inline");
 					$("#nullValueLabel").css("display", "inline");
-				}						
-				$("#variableCurrentInfo").append(currentValue); 
-				$("#variableCurrentInfo").find("*").prop("disabled", true);
+				}
 				$("#variableInput").append(data.input);
 				$("#nullValueCheckbox").change(function() {
 			        if($(this).is(':checked')) {
@@ -49,7 +66,7 @@ function getVariableInfo(value) {
 			    });
 				initComponents($("#variableInput"));
 			}
-		});	
+		});
 	} else {
 		$(".button").css("display", "none");
 	}
