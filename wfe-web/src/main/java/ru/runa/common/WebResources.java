@@ -211,6 +211,10 @@ public class WebResources {
         return RESOURCES.getIntegerProperty("process.variable.number.of.attributes.to.hide", 10);
     }
 
+    public static boolean isVariableHintsEnabled() {
+        return RESOURCES.getBooleanProperty("process.variable.hints.enabled", true);
+    }
+
     public static boolean isChatEnabled() {
         return RESOURCES.getBooleanProperty("chat.enabled", true);
     }

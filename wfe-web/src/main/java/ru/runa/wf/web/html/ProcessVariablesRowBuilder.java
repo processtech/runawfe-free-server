@@ -61,6 +61,7 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
         WfVariable variable = variables.get(index);
         Object value = variable.getValue();
         TR tr = new TR();
+        tr.addAttribute("variable", variable.getDefinition().getName());
         TD nameTd = new TD(variable.getDefinition().getName());
         if (variable.getDefinition().isSynthetic()) {
             nameTd.setStyle("color: #aaaaaa;");
