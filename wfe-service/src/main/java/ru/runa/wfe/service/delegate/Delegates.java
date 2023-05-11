@@ -10,6 +10,7 @@ import ru.runa.wfe.service.BotService;
 import ru.runa.wfe.service.ChatService;
 import ru.runa.wfe.service.DataSourceService;
 import ru.runa.wfe.service.DefinitionService;
+import ru.runa.wfe.service.DigitalSignatureService;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.ProfileService;
@@ -110,4 +111,7 @@ public class Delegates {
         return getDelegate(DataSourceServiceDelegate.class);
     }
 
+    public static DigitalSignatureService getDigitalSignatureService() {
+        return getDelegate(DigitalSignatureServiceDelegate.class);
+    }
 }

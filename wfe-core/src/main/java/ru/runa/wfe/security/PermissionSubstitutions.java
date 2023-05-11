@@ -16,6 +16,7 @@ import static ru.runa.wfe.security.Permission.UPDATE;
 import static ru.runa.wfe.security.Permission.UPDATE_ACTOR_STATUS;
 import static ru.runa.wfe.security.SecuredObjectType.BOTSTATIONS;
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
+import static ru.runa.wfe.security.SecuredObjectType.DIGITAL_SIGNATURE;
 import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 import static ru.runa.wfe.security.SecuredObjectType.PROCESS;
 import static ru.runa.wfe.security.SecuredObjectType.RELATION;
@@ -284,5 +285,7 @@ public class PermissionSubstitutions {
         add(REPORTS, READ_PERMISSIONS).self(READ);
 
         add(SYSTEM, READ_PERMISSIONS).self(READ);
+
+        add(DIGITAL_SIGNATURE, READ_PERMISSIONS).self(READ);
     }
 }

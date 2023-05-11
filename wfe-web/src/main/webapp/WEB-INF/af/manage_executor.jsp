@@ -13,8 +13,8 @@
 	SecuredObjectType securedObjectType = Delegates.getExecutorService().getExecutor(Commons.getUser(pageContext.getSession()), id).getSecuredObjectType();
 %>
 <wf:updateExecutorDetailsForm identifiableId="<%= id %>">
-<table width="100%">
-	<tr>
+    <table width="100%">
+    <tr>
 		<td align="right">
 		</td>
 <%
@@ -35,6 +35,16 @@
 	</tr>
 </table>
 </wf:updateExecutorDetailsForm>
+
+<wf:updateDigitalSignatureDetailsForm identifiableId="<%= id %>">
+    <table width="100%">
+        <tr>
+		    <td align="left">
+			    <wf:createDigitalSignatureLink identifiableId='<%= id %>' href='<%= "/create_digital_signature.do?executorId=" + id %>' />
+		    </td>
+		</tr>
+    </table>
+</wf:updateDigitalSignatureDetailsForm>
 
 <wf:updateStatusForm identifiableId="<%= id %>"  />
 

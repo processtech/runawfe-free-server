@@ -6,7 +6,6 @@ import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateExecutorDetailsAction;
 import ru.runa.af.web.html.ExecutorTableBuilder;
 import ru.runa.common.web.MessagesCommon;
-import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.SystemExecutors;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateExecutorDetailsForm")
@@ -15,8 +14,8 @@ public class UpdateExecutorDetailsFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     public void fillFormData(TD tdFormElement) {
-        boolean isCheckboxInputDisaabled = !isSubmitButtonEnabled();
-        ExecutorTableBuilder builder = new ExecutorTableBuilder(getExecutor(), isCheckboxInputDisaabled, pageContext);
+        boolean isCheckboxInputDisabled = !isSubmitButtonEnabled();
+        ExecutorTableBuilder builder = new ExecutorTableBuilder(getExecutor(), isCheckboxInputDisabled, pageContext);
         tdFormElement.addElement(builder.buildTable());
     }
 

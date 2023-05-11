@@ -26,6 +26,8 @@ public class ConfirmationPopupHelper {
     public static final String REMOVE_BOT_PARAMETER = "remove.bot";
     public static final String REMOVE_DATA_SOURCE_PARAMETER = "remove.datasource";
     public static final String USE_DEFAULT_PROPERTIES_PARAMETER = "use.default.properties";
+    public static final String UPDATE_DIGITAL_SIGNATURE_PARAMETER = "update.digitalsignature";
+    public static final String DELETE_DIGITAL_SIGNATURE_PARAMETER = "delete.digitalsignature";
 
     private static final Map<String, StrutsMessage> confirmationResource = new HashMap<String, StrutsMessage>();
     private static final Map<String, StrutsMessage> confirmationCookies = new HashMap<String, StrutsMessage>();
@@ -48,6 +50,8 @@ public class ConfirmationPopupHelper {
         confirmationCookies.put(REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_EXECUTORS_FROM_GROUPS);
         confirmationCookies.put(REMOVE_DATA_SOURCE_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_DATA_SOURCE);
         confirmationCookies.put(USE_DEFAULT_PROPERTIES_PARAMETER, MessagesConfirmation.COOKIE_USE_DEFAULT_PROPERTIES);
+        confirmationCookies.put(UPDATE_DIGITAL_SIGNATURE_PARAMETER, MessagesConfirmation.CONF_POPUP_UPDATE_DS);
+        confirmationCookies.put(DELETE_DIGITAL_SIGNATURE_PARAMETER, MessagesConfirmation.CONF_POPUP_DELETE_DS);
     }
 
     static {
@@ -68,6 +72,8 @@ public class ConfirmationPopupHelper {
         confirmationResource.put(REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_EXECUTORS_FROM_GROUPS);
         confirmationResource.put(REMOVE_DATA_SOURCE_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_DATA_SOURCE);
         confirmationResource.put(USE_DEFAULT_PROPERTIES_PARAMETER, MessagesConfirmation.CONF_POPUP_USE_DEFAULT_PROPERTIES);
+        confirmationResource.put(UPDATE_DIGITAL_SIGNATURE_PARAMETER, MessagesConfirmation.CONF_POPUP_UPDATE_DS);
+        confirmationResource.put(DELETE_DIGITAL_SIGNATURE_PARAMETER, MessagesConfirmation.CONF_POPUP_DELETE_DS);
     }
 
     public static ConfirmationPopupHelper getInstance() {
@@ -83,6 +89,13 @@ public class ConfirmationPopupHelper {
 
     public String getConfirmationPopupCodeHTML(String parameter, PageContext pageContext) {
         return "openConfirmPopup(this,'" + confirmationCookies.get(parameter).message(pageContext) + "', '"
+                + confirmationResource.get(parameter).message(pageContext) + "', '"
+                + MessagesConfirmation.CONF_POPUP_CONFIRM_ACTION.message(pageContext) + "','"
+                + MessagesConfirmation.CONF_POPUP_BUTTON_CANCEL.message(pageContext) + "', '"
+                + MessagesConfirmation.CONF_POPUP_BUTTON_OK.message(pageContext) + "'); return false;";
+    }
+    public String getDeletePopupCodeHTML(String parameter, PageContext pageContext) {
+        return "openDeletePopup(this,'" + confirmationCookies.get(parameter).message(pageContext) + "', '"
                 + confirmationResource.get(parameter).message(pageContext) + "', '"
                 + MessagesConfirmation.CONF_POPUP_CONFIRM_ACTION.message(pageContext) + "','"
                 + MessagesConfirmation.CONF_POPUP_BUTTON_CANCEL.message(pageContext) + "', '"

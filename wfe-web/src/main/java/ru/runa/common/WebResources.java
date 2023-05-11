@@ -24,6 +24,9 @@ public class WebResources {
 
     /* Validation rules */
     public static final int VALIDATOR_STRING_255 = 255;
+    public static final int VALIDATOR_STRING_64 = 64;
+    public static final int VALIDATOR_STRING_3 = 3;
+    public static final int VALIDATOR_STRING_2 = 2;
 
     public static final String ACTION_MAPPING_MANAGE_DEFINITION = "/manage_process_definition";
     public static final String ACTION_MAPPING_MANAGE_PROCESS = "/manage_process";

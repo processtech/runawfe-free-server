@@ -36,8 +36,8 @@ abstract public class FormTag extends VisibleTag {
 
     private String method = Form.POST;
 
-    private String buttonAlignment;
-    private Form form;
+    protected String buttonAlignment;
+    protected Form form;
 
     public String getAction() {
         return action;
@@ -124,6 +124,8 @@ abstract public class FormTag extends VisibleTag {
         return "";
     }
 
+    protected String getCancelButtonName() { return MessagesCommon.BUTTON_CANCEL.message(pageContext);  }
+
     @Override
     protected ConcreteElement getEndElement() {
         form = new Form();
@@ -186,7 +188,7 @@ abstract public class FormTag extends VisibleTag {
                 td.addElement(submitButton);
             }
             if (isCancelButtonEnabled()) {
-                Input cancelButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, MessagesCommon.BUTTON_CANCEL.message(pageContext));
+                Input cancelButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, getCancelButtonName());
                 cancelButton.setClass(Resources.CLASS_BUTTON);
                 cancelButton.addAttribute(ATTRIBUTE_ONCLICK, "window.location='" + getCancelButtonAction() + "'");
                 td.addElement(Entities.NBSP);

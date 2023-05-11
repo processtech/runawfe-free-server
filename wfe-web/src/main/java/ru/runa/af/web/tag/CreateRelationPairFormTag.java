@@ -10,7 +10,6 @@ import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.CreateRelationPairAction;
 import ru.runa.af.web.form.RelationPairForm;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
