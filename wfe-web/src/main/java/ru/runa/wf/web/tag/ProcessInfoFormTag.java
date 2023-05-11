@@ -165,6 +165,24 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         startedTR.addElement(new TD(startedName).setClass(Resources.CLASS_LIST_TABLE_TD));
         startedTR.addElement(new TD(CalendarUtil.formatDateTime(process.getStartDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
+        if (WebResources.isProcessExternalDataEnabled()) {
+            TR externalIdTR = new TR();
+            table.addElement(externalIdTR);
+            String definitionExternalId = Messages.getMessage(ClassPresentationType.PROCESS, ProcessClassPresentation.EXTERNAL_ID, pageContext);
+            externalIdTR.addElement(new TD(definitionExternalId).setClass(Resources.CLASS_LIST_TABLE_TD));
+            if (WebResources.getExternalDataUrl() != null && process.getExternalData() != null) {
+                String link = WebResources.getExternalDataUrl().replace("{id}", process.getExternalData().toString());
+                Element externalIdRef = new A(link, String.valueOf(process.getExternalData()));
+                externalIdTR.addElement(new TD(externalIdRef).setClass(Resources.CLASS_LIST_TABLE_TD));
+            } else {
+                String externalData = "";
+                if (process.getExternalData() != null) {
+                    externalData = String.valueOf(process.getExternalData());
+                }
+                externalIdTR.addElement(new TD(externalData).setClass(Resources.CLASS_LIST_TABLE_TD));
+            }
+        }
+
         boolean isAdministrator = Delegates.getExecutorService().isAdministrator(getUser());
         if (process.getExecutionStatus() != null) {
             ConcreteElement statusElement = new Span(Messages.getMessage(process.getExecutionStatus().getLabelKey(), pageContext));

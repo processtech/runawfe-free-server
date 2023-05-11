@@ -216,6 +216,11 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="process.external.data.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.external.data.url.prefix"/>
 		<property title="import.export.enabled">
 			<value>true</value>
 			<value>false</value>
