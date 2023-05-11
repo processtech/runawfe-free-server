@@ -27,6 +27,7 @@ public final class MessagesBatch {
 
     public static final StrutsMessage PAGING_TOTAL = new StrutsMessage("label.total");
     public static final StrutsMessage PAGING_NEXT_PAGE = new StrutsMessage("label.paging_next_page");
+    public static final StrutsMessage PAGING_NEXT_RANGE = new StrutsMessage("label.paging_next_range");
     public static final StrutsMessage PAGING_PREV_PAGE = new StrutsMessage("label.paging_prev_page");
     public static final StrutsMessage PAGING_PREV_RANGE = new StrutsMessage("label.paging_prev_range");
 
