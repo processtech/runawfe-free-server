@@ -6,6 +6,7 @@
 <%@ page import="ru.runa.wf.web.action.ShowGraphModeHelper" %>
 <%@ page import="ru.runa.common.WebResources" %>
 <%@ page import="ru.runa.wfe.service.delegate.Delegates" %>
+<%@ page import="ru.runa.wf.web.MessagesProcesses" %>
 
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -19,10 +20,18 @@
 <script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
 
-<% if (WebResources.getDiagramRefreshInterval() > 0) { %>
+<script type="text/javascript">
+	var labelExpand = "<%=MessagesProcesses.LABEL_EXPAND.message(pageContext)%>";
+	var labelCollapse = "<%=MessagesProcesses.LABEL_COLLAPSE.message(pageContext)%>";
+	var labelExpandAll = "<%=MessagesProcesses.LABEL_EXPAND_ALL.message(pageContext)%>";
+	var labelCollapseAll = "<%=MessagesProcesses.LABEL_COLLAPSE_ALL.message(pageContext)%>";
+	var processId = <%=Long.parseLong(request.getParameter("id"))%>;
+</script>
+<script type="text/javascript" src="<html:rewrite page='<%="/js/bigVariablesHiding.js?"+Version.getHash() %>' />"></script>
+<% if (WebResources.getProcessGraphAutoRefreshIntervalSeconds() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {
-  window.setInterval("Reload()", <%= WebResources.getDiagramRefreshInterval() %>*1000);
+  window.setInterval("Reload()", <%= WebResources.getProcessGraphAutoRefreshIntervalSeconds() %>*1000);
 });
 function Reload() { 
    var src = $("#graph").attr("src");
@@ -85,12 +94,14 @@ function Reload() {
 		</td>
 	</tr>
 	<tr>
-		<% if (WebResources.isChatEnabled() && isRoot) {%>
 		<td align="right">
+		<% if (WebResources.isChatEnabled() && isRoot) {%>
 			<% String href = "/wfe/chat_page.do?processId=" + id;%>
-			<a href="<%= href %>"><bean:message key="chat.open" /></a>
-		</td>
+			<a href="<%= href %>">
+				<bean:message key="chat.open" />
+			</a>
 		<% }%>
+		</td>
 		<td align="right">
 			<wf:showGraphHistoryLink identifiableId='<%=id %>' href='<%= "/show_graph_history.do?id=" + id %>'  />
 		</td>

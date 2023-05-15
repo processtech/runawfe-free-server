@@ -21,7 +21,6 @@ import ru.runa.wfe.commons.dbmigration.impl.AddParentProcessIdPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessLogCleanBeforeDateColumnPatch;
-import ru.runa.wfe.commons.dbmigration.impl.AddTransitionNameForTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbmigration.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
@@ -31,6 +30,7 @@ import ru.runa.wfe.commons.dbmigration.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenMessageSelectorPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTokenNodeNameAndNodeEnterDateColumnsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddTransactionalBotSupport;
+import ru.runa.wfe.commons.dbmigration.impl.AddTransitionNameForTaskPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddUuidAndDropBytesChatMessageFilePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CorrectChatRoomViewRenameColumn;
@@ -41,6 +41,8 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateTimerAggregatedLogTable;
+import ru.runa.wfe.commons.dbmigration.impl.DeleteBatchPresentationsRm3017;
+import ru.runa.wfe.commons.dbmigration.impl.DeleteBatchPresentationsRm3056;
 import ru.runa.wfe.commons.dbmigration.impl.DropMessageNotNullConstraintPatch;
 import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.EnlargeMessageMaxSizePatch;
@@ -164,6 +166,8 @@ public class DbMigrationsConfig {
         dbMigrations.add(CorrectChatRoomViewRenameColumn.class);
         dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
         dbMigrations.add(AddTransitionNameForTaskPatch.class);
+        dbMigrations.add(DeleteBatchPresentationsRm3017.class);
+        dbMigrations.add(DeleteBatchPresentationsRm3056.class);
         return dbMigrations;
     }
 }

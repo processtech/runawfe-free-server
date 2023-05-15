@@ -306,7 +306,11 @@ public class Process extends SecuredObjectBase {
             NodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDAO().findBySubProcessId(processId);
             if (nodeProcess != null) {
                 ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(nodeProcess.getProcess());
-                SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNodeNotNull(nodeProcess.getNodeId());
+                SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNode(nodeProcess.getNodeId());
+                if (subprocessNode == null) {
+                    // rm2834 can cause this
+                    return false;
+                }
                 if (subprocessNode.isAsync() && subprocessNode.getCompletionMode() == AsyncCompletionMode.NEVER) {
                     return !nodeProcess.getSubProcess().hasEnded();
                 }

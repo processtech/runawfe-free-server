@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import ru.runa.wfe.execution.logic.ProcessExecutionListener;
+import ru.runa.wfe.execution.logic.TaskExecutionListener;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
@@ -24,6 +25,7 @@ public class SystemProperties {
     public static final String DEPRECATED_PREFIX = "deprecated.";
 
     private static volatile List<ProcessExecutionListener> processExecutionListeners = null;
+    private static volatile List<TaskExecutionListener> taskExecutionListeners = null;
 
     static {
         setSystemProperties("javamelody.disabled", "javamelody.datasources");
@@ -222,8 +224,16 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("definition.comments.empty.allowed", true);
     }
 
+    public static boolean deleteTokensInMissingNodesOnDefinitionUpdate() {
+        return RESOURCES.getBooleanProperty("definition.update.delete.tokens.for.missing.nodes", false);
+    }
+
     public static boolean isDefinitionCompatibilityCheckEnabled() {
         return RESOURCES.getBooleanProperty("definition.compatibility.check.enabled", true);
+    }
+
+    public static int getDefinitionCompatibilityCheckProcessesLimit() {
+        return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
     }
 
     public static boolean isCheckProcessStartPermissions() {
@@ -336,6 +346,26 @@ public class SystemProperties {
         return processExecutionListeners;
     }
 
+    public static List<TaskExecutionListener> getTaskExecutionListeners() {
+        if (taskExecutionListeners == null) {
+            synchronized (SystemProperties.class) {
+                if (taskExecutionListeners == null) {
+                    taskExecutionListeners = Lists.newArrayList();
+                    for (String className : RESOURCES.getMultipleStringProperty("task.execution.listeners")) {
+                        try {
+                            TaskExecutionListener listener = ClassLoaderUtil.instantiate(className);
+                            taskExecutionListeners.add(listener);
+                        } catch (Throwable th) {
+                            taskExecutionListeners = null;
+                            Throwables.propagate(th);
+                        }
+                    }
+                }
+            }
+        }
+        return taskExecutionListeners;
+    }
+
     public static List<String> getRequiredValidatorNames() {
         return RESOURCES.getMultipleStringProperty("required.validator.names");
     }
@@ -431,10 +461,6 @@ public class SystemProperties {
 
     public static boolean isProcessLogCleanButtonEnabled() {
         return RESOURCES.getBooleanProperty("processLog.cleanButton.enabled", false);
-    }
-
-    public static int getDefinitionCompatibilityCheckProcessesLimit() {
-        return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
     }
 
     public static boolean isGlobalObjectsEnabled() {

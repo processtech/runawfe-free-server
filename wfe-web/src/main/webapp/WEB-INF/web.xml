@@ -154,8 +154,8 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>processDefinitionChanges</servlet-name>
-		<url-pattern>/processDefinitionChanges</url-pattern>
+		<servlet-name>getVariableNames</servlet-name>
+		<url-pattern>/getVariableNames</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

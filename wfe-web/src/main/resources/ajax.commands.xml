@@ -5,6 +5,8 @@
 	<command name="ajaxActorsList" class="ru.runa.wf.web.servlet.AjaxActorsList" />
 	<command name="ajaxDefinitionVersions" class="ru.runa.wf.web.servlet.AjaxProcessDefinitionVersionsList" />
 	<command name="ajaxSwimlaneCurrentExecutor" class="ru.runa.wf.web.servlet.AjaxSwimlaneCurrentExecutor" />
-	<command class="ru.runa.wf.web.servlet.LocaleTextChat" name="LocaleTextChat"></command>
+	<command name="getProcessVariableValue" class="ru.runa.wf.web.servlet.GetProcessVariableValueAjaxCommand" />
+	<command name="ajaxGetProcessVariablesList" class="ru.runa.wf.web.servlet.AjaxGetProcessVariablesList" />
+	<command class="ru.runa.wf.web.servlet.LocaleTextChat" name="LocaleTextChat" />
 
 </configuration>

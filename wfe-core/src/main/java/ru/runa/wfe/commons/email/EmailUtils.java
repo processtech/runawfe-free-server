@@ -28,6 +28,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.ConfigurationException;
@@ -47,7 +48,7 @@ import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.file.FileVariable;
 
 public class EmailUtils {
-    private static final Log log = LogFactory.getLog(EmailConfig.class);
+    private static final Log log = LogFactory.getLog(EmailUtils.class);
     private static MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 
     /**
@@ -88,6 +89,7 @@ public class EmailUtils {
 
         if (config.getHeaderProperties().containsKey("Subject")) {
             String subject = config.getHeaderProperties().get("Subject");
+            subject = StringUtils.normalizeSpace(subject);
             subject = MimeUtility.encodeText(subject, Charsets.UTF_8.name(), null);
             config.getHeaderProperties().put("Subject", subject);
         }

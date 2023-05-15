@@ -1,18 +1,15 @@
 package ru.runa.wfe.commons.email;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
-import org.dom4j.Element;
-
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.xml.XmlUtils;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import org.dom4j.Element;
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.xml.XmlUtils;
 
 @SuppressWarnings("unchecked")
 public class EmailConfigParser {
@@ -47,6 +44,9 @@ public class EmailConfigParser {
                 for (Element element : commonParamElements) {
                     String name = element.attributeValue(NAME_ATTR);
                     String value = element.attributeValue(VALUE_ATTR);
+                    if (value == null && element.hasContent()) {
+                        value = element.getTextTrim();
+                    }
                     config.getCommonProperties().put(name, value);
                 }
             }
@@ -64,6 +64,9 @@ public class EmailConfigParser {
                 for (Element element : paramElements) {
                     String name = element.attributeValue(NAME_ATTR);
                     String value = element.attributeValue(VALUE_ATTR);
+                    if (value == null && element.hasContent()) {
+                        value = element.getTextTrim();
+                    }
                     config.getConnectionProperties().put(name, value);
                 }
             }
@@ -73,6 +76,9 @@ public class EmailConfigParser {
                 for (Element element : paramElements) {
                     String name = element.attributeValue(NAME_ATTR);
                     String value = element.attributeValue(VALUE_ATTR);
+                    if (value == null && element.hasContent()) {
+                        value = element.getTextTrim();
+                    }
                     config.getHeaderProperties().put(name, value);
                 }
             }
@@ -86,6 +92,9 @@ public class EmailConfigParser {
                 for (Element element : paramElements) {
                     String name = element.attributeValue(NAME_ATTR);
                     String value = element.attributeValue(VALUE_ATTR);
+                    if (value == null && element.hasContent()) {
+                        value = element.getTextTrim();
+                    }
                     config.getContentProperties().put(name, value);
                 }
             }

@@ -24,8 +24,10 @@ import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -51,20 +53,23 @@ public class WfProcess extends SecuredObjectBase {
     private final List<WfVariable> variables = Lists.newArrayList();
     private ExecutionStatus executionStatus;
     private String errors;
+    private Long externalData;
 
     public WfProcess() {
     }
 
     public WfProcess(Process process, String errors) {
         this.id = process.getId();
-        this.name = process.getDeployment().getName();
-        this.definitionId = process.getDeployment().getId();
-        this.version = process.getDeployment().getVersion().intValue();
+        ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process.getDeployment().getId());
+        this.name = processDefinition.getName();
+        this.definitionId = processDefinition.getId();
+        this.version = processDefinition.getDeployment().getVersion().intValue();
         this.startDate = process.getStartDate();
         this.endDate = process.getEndDate();
         this.hierarchyIds = process.getHierarchyIds();
         this.executionStatus = process.getExecutionStatus();
         this.errors = errors;
+        this.externalData = process.getExternalData();
     }
     
     public String getErrors() {
@@ -143,6 +148,10 @@ public class WfProcess extends SecuredObjectBase {
 
     public ExecutionStatus getExecutionStatus() {
         return executionStatus;
+    }
+
+    public Long getExternalData() {
+        return externalData;
     }
 
     @Override

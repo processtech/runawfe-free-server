@@ -1,19 +1,15 @@
 package ru.runa.wf.web.action;
 
+import com.google.common.collect.Maps;
+import com.google.common.io.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
-
 import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
@@ -61,6 +57,9 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
                         successKeys.add(entry.getKey());
                     } catch (DefinitionAlreadyExistException e) {
                         existingDefinitionName = e.getName();
+                        if (existingDefinitionsMap.get(existingDefinitionName) == null) {
+                            throw e;
+                        }
                         redeploy = true;
                     } catch (Exception e) {
                         addError(request, e);

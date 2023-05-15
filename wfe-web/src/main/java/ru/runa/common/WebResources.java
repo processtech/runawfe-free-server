@@ -1,20 +1,3 @@
-/*
- * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- */
 package ru.runa.common;
 
 import com.google.common.base.Strings;
@@ -22,7 +5,7 @@ import com.google.common.collect.Sets;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
@@ -32,6 +15,7 @@ import ru.runa.wfe.service.delegate.Delegates;
  * Created on 30.09.2004
  * 
  */
+@CommonsLog
 public class WebResources {
     private static final PropertyResources RESOURCES = new PropertyResources("web.properties");
 
@@ -98,8 +82,12 @@ public class WebResources {
     /**
      * Used from JSP page
      */
-    public static int getDiagramRefreshInterval() {
+    public static int getProcessGraphAutoRefreshIntervalSeconds() {
         return RESOURCES.getIntegerProperty("process.graph.autoRefreshInterval.seconds", 0);
+    }
+
+    public static int getProcessGraphNodeLogsLimitCount() {
+        return RESOURCES.getIntegerProperty("process.graph.node.logs.limit.count", 7);
     }
 
     /**
@@ -148,7 +136,7 @@ public class WebResources {
                 return getter.invoke(clazz, (Object[]) null).toString();
             }
         } catch (Exception e) {
-            LogFactory.getLog(WebResources.class).error("Unable to get additional links", e);
+            log.error("Unable to get additional links", e);
         }
         return "";
     }
@@ -203,6 +191,14 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("process.task.filters.enabled", true);
     }
 
+    public static boolean isProcessExternalDataEnabled() {
+        return RESOURCES.getBooleanProperty("process.external.data.enabled", false);
+    }
+
+    public static String getExternalDataUrl() {
+        return RESOURCES.getStringProperty("process.external.data.url.prefix");
+    }
+
     public static boolean isImportExportEnabled() {
         return RESOURCES.getBooleanProperty("import.export.enabled", true);
     }
@@ -213,6 +209,18 @@ public class WebResources {
 
     public static String getProcessStartedMessage() {
         return RESOURCES.getStringProperty("process.started");
+    }
+
+    public static boolean isVariableHidingEnabled() {
+        return RESOURCES.getBooleanProperty("process.variable.hiding.enabled", true);
+    }
+
+    public static int getProcessVariableNumberOfAttributesToHide() {
+        return RESOURCES.getIntegerProperty("process.variable.number.of.attributes.to.hide", 10);
+    }
+
+    public static boolean isVariableHintsEnabled() {
+        return RESOURCES.getBooleanProperty("process.variable.hints.enabled", true);
     }
 
     public static boolean isChatEnabled() {

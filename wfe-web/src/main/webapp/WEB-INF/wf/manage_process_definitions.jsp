@@ -37,9 +37,6 @@
 			</wf:bulkDeployDefinitionControlHideableBlock>
 		</div>
 		<wf:deployDefinitionLink forward="deploy_definition" /> 
-		<div style="position: absolute; right: 5px; top: 5px;">
-			<wf:showDefinitionsHistoryLink forward="show_definitions_history" />
-		</div>
 	</div>
 </wf:listProcessesDefinitionsForm>
 </tiles:put>

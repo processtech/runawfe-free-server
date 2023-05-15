@@ -33,7 +33,7 @@ public class JavaScriptActionHandler extends ActionHandlerBase {
             }
         }
         engine.eval(configuration);
-        Bindings bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
+        Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
         for (VariableDefinition definition : rawDefinitions) {
             Object value = bindings.get(definition.getScriptingName());
             Object currentValue = executionContext.getVariableValue(definition.getName());

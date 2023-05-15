@@ -7,15 +7,15 @@ form {
 	margin: 0pt;
 }
 
-a:link {color: #666666; text-decoration: none; }
+a:link, .hiddenVariableContent, .expandAllButton {color: #666666; text-decoration: none; }
 
-a:visited {color: #666666; text-decoration: none;}
+a:visited, .hiddenVariableContent:visited, .expandAllButton:visited {color: #666666; text-decoration: none;}
 
-a:hover {color: #990000;text-decoration: none;}
+a:hover, .hiddenVariableContent:hover, .expandAllButton:hover {color: #990000;text-decoration: none;}
 
-a:active {color: #666666; text-decoration: none;}
+a:active, .hiddenVariableContent:active, .expandAllButton:active {color: #666666; text-decoration: none;}
 
-a:focus {color: #990000;text-decoration: none;}
+a:focus, .hiddenVariableContent:focus, .expandAllButton:focus {color: #990000;text-decoration: none;}
 
 a.current-page {
 	color: #5a43ac;
@@ -349,9 +349,12 @@ a.permissionLink {
 	background-color: #990000;
 	color: white;
 }
-
-
-
-#mainTableSwitchChats{
-	display:none;
+.hiddenVariableContent {
+	cursor: pointer;
+}
+.expandAllButton {
+	cursor: pointer;
+}
+#processGraph {
+	position: absolute;
 }
