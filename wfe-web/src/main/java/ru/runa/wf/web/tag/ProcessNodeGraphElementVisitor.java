@@ -7,6 +7,7 @@ import org.apache.ecs.html.Area;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import ru.runa.common.WebResources;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
@@ -69,45 +70,60 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
         if (element.getNodeType() == NodeType.TASK_STATE) {
             area = presentationHelper.createTaskTooltip((TaskNodeGraphElement) element);
         }
-
         if (element.getData() != null) {
             Table table = new Table();
             table.setClass(Resources.CLASS_LIST_TABLE);
-            for (BaseProcessLog log : element.getData()) {
-                String description;
-                try {
-                    String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);
-                    Object[] arguments = log.getPatternArguments();
-                    if (log instanceof ActionLog) {
-                        // #812
-                        Matcher matcher = ACTION_LOG_PATTERN.matcher((String) arguments[0]);
-                        if (matcher.find()) {
-                            String className = matcher.group(1);
-                            arguments[0] = Delegates.getSystemService().getLocalized(className);
-                        }
-                    }
-                    Object[] substitutedArguments = HTMLUtils.substituteArguments(user, pageContext, arguments);
-                    description = log.toString(format, substitutedArguments);
-                } catch (Exception e) {
-                    description = log.toString();
-                }
+            int limit = WebResources.getProcessGraphNodeLogsLimitCount();
+            if (limit > 0 && element.getData().size() > limit * 2 + 1) {
+                element.getData().stream().limit(limit).forEach((log) -> {
+                    addLogRow(table, log);
+                });
                 TR tr = new TR();
-                String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
-                tr.addElement(new TD().addElement(eventDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
-                if (log.getSeverity() == Severity.ERROR) {
-                    // to be escaped in js
-                    description = "<error>" + description + "</error>";
-                }
-                tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD));
+                tr.addElement(((TD) new TD().addAttribute("colspan", 2)).addElement("...").setClass(Resources.CLASS_LIST_TABLE_TD));
                 table.addElement(tr);
+                element.getData().stream().skip(element.getData().size() - limit).forEach((log) -> {
+                    addLogRow(table, log);
+                });
+            } else {
+                for (BaseProcessLog log : element.getData()) {
+                    addLogRow(table, log);
+                }
             }
-
             presentationHelper.addTooltip(element, area, table.toString());
         }
     }
 
     public GraphElementPresentationHelper getPresentationHelper() {
         return presentationHelper;
+    }
+
+    private void addLogRow(Table table, BaseProcessLog log) {
+        String description;
+        try {
+            String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);
+            Object[] arguments = log.getPatternArguments();
+            if (log instanceof ActionLog) {
+                // #812
+                Matcher matcher = ACTION_LOG_PATTERN.matcher((String) arguments[0]);
+                if (matcher.find()) {
+                    String className = matcher.group(1);
+                    arguments[0] = Delegates.getSystemService().getLocalized(className);
+                }
+            }
+            Object[] substitutedArguments = HTMLUtils.substituteArguments(user, pageContext, arguments);
+            description = log.toString(format, substitutedArguments);
+        } catch (Exception e) {
+            description = log.toString();
+        }
+        TR tr = new TR();
+        String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
+        tr.addElement(new TD().addElement(eventDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
+        if (log.getSeverity() == Severity.ERROR) {
+            // to be escaped in js
+            description = "<error>" + description + "</error>";
+        }
+        tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD));
+        table.addElement(tr);
     }
 
 }

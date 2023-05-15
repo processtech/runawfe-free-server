@@ -15,6 +15,7 @@ $(document).ready(function () {
                 success: function (data) {
                     $('#content' + data.index).append(data.text);
                     $('#content' + data.index).show();
+                    updateTooltips();
                 }
             });
             $(this).attr("loaded", "true");
@@ -60,4 +61,16 @@ $(document).ready(function () {
             });
         }
     }
+
+    function updateTooltips() {
+        $("table#variables[hints='true']").find("td.name").each(function() {
+            var items = [];
+            $(this).parents("tr[variable]").each(function() {
+                items.unshift($(this).attr("variable"));
+            });
+            $(this).attr("title", items.join("."));
+        });
+    }
+
+    updateTooltips();
 });

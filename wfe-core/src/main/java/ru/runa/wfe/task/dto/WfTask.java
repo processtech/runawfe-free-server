@@ -61,7 +61,8 @@ public class WfTask implements Serializable {
     public WfTask() {
     }
 
-    public WfTask(Task task, Long rootProcessId, Long rootDefinitionVersionId, String rootDefinitionName, Actor targetActor,
+    public WfTask(Task task, Long rootProcessId, Long rootDefinitionVersionId, String rootDefinitionName, Long definitionVersionId,
+            String definitionName, Actor targetActor,
                   boolean escalated, boolean acquiredBySubstitution, boolean firstOpen) {
         this.id = task.getId();
         this.name = task.getName();
@@ -72,10 +73,10 @@ public class WfTask implements Serializable {
         this.rootProcessId = rootProcessId;
         this.processHierarchyIds = task.getProcess().getHierarchyIds();
         this.tokenId = task.getToken().getId();
-        this.definitionVersionId = task.getProcess().getDefinitionVersion().getId();
         this.rootDefinitionVersionId = rootDefinitionVersionId;
-        this.definitionName = task.getProcess().getDefinitionVersion().getDefinition().getName();
         this.rootDefinitionName = rootDefinitionName;
+        this.definitionVersionId = definitionVersionId;
+        this.definitionName = definitionName;
         this.swimlaneName = task.getSwimlane() != null ? task.getSwimlane().getName() : "";
         this.creationDate = task.getCreateDate();
         this.deadlineDate = task.getDeadlineDate();

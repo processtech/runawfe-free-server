@@ -12,6 +12,7 @@ import ru.runa.wfe.var.CurrentVariable;
 
 public class CurrentProcessClassPresentation extends ClassPresentation {
     public static final String PROCESS_ID = "id";
+    public static final String EXTERNAL_ID = "externalId";
     public static final String DEFINITION_NAME = "definitionName";
     public static final String PROCESS_START_DATE = "startDate";
     public static final String PROCESS_END_DATE = "endDate";

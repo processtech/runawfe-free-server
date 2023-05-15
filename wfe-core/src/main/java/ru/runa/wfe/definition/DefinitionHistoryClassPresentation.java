@@ -1,5 +1,7 @@
 package ru.runa.wfe.definition;
 
+import ru.runa.wfe.presentation.BatchPresentationConsts;
+
 import java.util.Date;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDbSource;
@@ -34,7 +36,7 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                         true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder",
                         new Object[] { Permission.START_PROCESS, "name" }),
                 new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class, "version"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "version" }),
+                        1, BatchPresentationConsts.DESC, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "version" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(ProcessDefinitionVersion.class,
                         "definition.description"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTdBuilder",
                         new Object[] {}),

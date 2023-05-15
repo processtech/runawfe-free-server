@@ -86,7 +86,6 @@
 		<forward name="manage_definitions"
 			path="/manage_process_definitions.do?tabForwardName=manage_definitions" />
 		<forward name="deploy_definition" path="/deploy_process_definition.do" />
-		<forward name="show_definitions_history" path="/show_definitions_history.do" />
 		<forward name="definitions_history" path="/definitions_history.do" />
 		<forward name="validate_definition" path="/validate_process_definition.do" />
 		<forward name="manage_processes" path="/manage_processes.do?tabForwardName=manage_processes" />
@@ -611,8 +610,8 @@
 		<action path="/updateProcessVariable"
 			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="commonProcessForm"
 			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_process.do"
-				redirect="true" />
+			<forward name="success" path="/update_process_variables.do"
+				redirect="false" />
 			<forward name="failure" path="/update_process_variables.do"
 				redirect="false" />
 		</action>
@@ -736,11 +735,6 @@
 			parameter="/WEB-INF/wf/manage_process_definition.jsp" />
 		<action path="/definition_graph_component" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/definition_graph_component.jsp" />
-		<action path="/show_definitions_history" type="ru.runa.wf.web.action.ShowDefinitionHistoryAction" name="idNameForm"
-			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/definitions_history.do" redirect="true" />
-			<forward name="failure" path="/definitions_history.do" redirect="true" />
-		</action>
 		<action path="/show_definitions_history_diff" type="ru.runa.wf.web.action.ShowDefinitionHistoryDiffAction">
 			<forward name="success" path="/definitions_history_diff.do" redirect="false" />
 			<forward name="failure" path="/definitions_history.do" redirect="true" />

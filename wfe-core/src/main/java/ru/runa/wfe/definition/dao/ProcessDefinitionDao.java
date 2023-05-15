@@ -171,10 +171,7 @@ public class ProcessDefinitionDao extends GenericDao<ProcessDefinition> {
 
     /**
      * queries the database for all versions of process definitions with the given name, ordered by version (descending).
-     * 
-     * @deprecated use findAllDefinitionVersionIds
      */
-    @Deprecated
     public List<ProcessDefinitionWithVersion> findAllDefinitionVersions(String name) {
         QProcessDefinition d = QProcessDefinition.processDefinition;
         QProcessDefinitionVersion dv = QProcessDefinitionVersion.processDefinitionVersion;

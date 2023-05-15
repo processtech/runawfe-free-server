@@ -47,6 +47,8 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTab
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateTimerAggregatedLogTable;
+import ru.runa.wfe.commons.dbmigration.impl.DeleteBatchPresentationsRm3017;
+import ru.runa.wfe.commons.dbmigration.impl.DeleteBatchPresentationsRm3056;
 import ru.runa.wfe.commons.dbmigration.impl.DropMessageNotNullConstraintPatch;
 import ru.runa.wfe.commons.dbmigration.impl.DropQuotedMessageIdsPatch;
 import ru.runa.wfe.commons.dbmigration.impl.EnlargeMessageMaxSizePatch;
@@ -174,6 +176,9 @@ public class DbMigrationsConfig {
         dbMigrations.add(EnlargeMessageMaxSizePatch.class);
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
+        dbMigrations.add(AddTransitionNameForTaskPatch.class);
+        dbMigrations.add(DeleteBatchPresentationsRm3017.class);
+        dbMigrations.add(DeleteBatchPresentationsRm3056.class);
         // start develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);
@@ -189,10 +194,9 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);
         dbMigrations.add(RecreateChatRoomView.class);
         dbMigrations.add(CreateSignalTable.class);
+        dbMigrations.add(CreateDigitalSignatureTable.class);
         // end develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
-        //rm2762
-        dbMigrations.add(CreateDigitalSignatureTable.class);
         return dbMigrations;
     }
 }

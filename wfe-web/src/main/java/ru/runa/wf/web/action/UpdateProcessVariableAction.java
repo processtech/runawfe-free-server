@@ -13,6 +13,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wf.web.form.ProcessForm;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -25,7 +26,7 @@ import ru.runa.wfe.var.format.BooleanFormat;
  * Created on 24.06.2014
  * 
  * @struts:action path="/updateProcessVariable" name="commonProcessForm" validate="false"
- * @struts.action-forward name="success" path="/manage_process.do" redirect = "true"
+ * @struts.action-forward name="success" path="/update_process_variables.do" redirect = "false"
  * @struts.action-forward name="failure" path="/update_process_variables.do" redirect = "false"
  */
 public class UpdateProcessVariableAction extends ActionBase {
@@ -38,9 +39,14 @@ public class UpdateProcessVariableAction extends ActionBase {
         Map<String, Object> params = new HashMap<>();
         params.put(ProcessForm.ID_INPUT_NAME, processId);
         try {
-            String variableName = request.getParameter("variableSelect");
+            String variableName = request.getParameter("searchVariable");
+            if (variableName.isEmpty()) {
+                throw new InternalApplicationException("Variable name should not be empty");
+            }
             WfVariable variable = Delegates.getExecutionService().getVariable(user, processId, variableName);
-            Preconditions.checkNotNull(variable, variableName);
+            if (variable == null) {
+                throw new InternalApplicationException("Variable \"" + variableName + "\" is not found");
+            }
             Object variableValue;
             if ("on".equals(request.getParameter("isNullValue"))) {
                 variableValue = null;

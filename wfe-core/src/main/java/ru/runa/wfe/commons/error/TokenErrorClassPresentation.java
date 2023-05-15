@@ -3,7 +3,6 @@ package ru.runa.wfe.commons.error;
 import java.util.Date;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -14,6 +13,7 @@ import static ru.runa.wfe.presentation.BatchPresentationConsts.DESC;
 
 public class TokenErrorClassPresentation extends ClassPresentation {
     public static final String PROCESS_ID = "processId";
+    public static final String PROCESS_TYPE = "processType";
     public static final String PROCESS_NAME = "processName";
     public static final String PROCESS_VERSION = "processVersion";
     public static final String NODE_ID = "nodeId";
@@ -33,6 +33,8 @@ public class TokenErrorClassPresentation extends ClassPresentation {
                 new FieldDescriptor[] {
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(CurrentToken.class, "process.id"), true, 1, DESC,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "processId"}),
+                new FieldDescriptor(PROCESS_TYPE, String.class.getName(), new DefaultDbSource(CurrentToken.class, "process.definitionVersion.definition.category"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "processType"}),
                 new FieldDescriptor(PROCESS_NAME, String.class.getName(), new DefaultDbSource(CurrentToken.class, "process.definitionVersion.definition.name"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "processName"}),
                 new FieldDescriptor(PROCESS_VERSION, Integer.class.getName(), new DefaultDbSource(CurrentToken.class, "process.definitionVersion.version"), true,

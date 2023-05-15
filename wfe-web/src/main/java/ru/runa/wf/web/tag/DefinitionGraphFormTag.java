@@ -1,14 +1,13 @@
 package ru.runa.wf.web.tag;
 
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.html.Center;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
@@ -18,13 +17,15 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.collect.Maps;
-
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "definitionGraphForm")
 public class DefinitionGraphFormTag extends ProcessDefinitionBaseFormTag {
 
     private static final long serialVersionUID = 880745425325952663L;
     private String subprocessId;
+
+    public DefinitionGraphFormTag() {
+        this.id = "processGraph";
+    }
 
     public String getSubprocessId() {
         return subprocessId;

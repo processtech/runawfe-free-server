@@ -126,6 +126,7 @@
 			<value>false</value>
 		</property>
 		<property title="process.graph.autoRefreshInterval.seconds" pattern="\d*" />
+		<property title="process.graph.node.logs.limit.count" pattern="\d*"/>
 		<property title="confirmation.remove.executors">
 			<value>true</value>
 			<value>false</value>
@@ -210,6 +211,11 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="process.external.data.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.external.data.url.prefix"/>
 		<property title="import.export.enabled">
 			<value>true</value>
 			<value>false</value>

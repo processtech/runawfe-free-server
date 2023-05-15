@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -39,8 +40,7 @@ public class WfTaskFactory {
         CurrentProcess process = task.getProcess();
         Long rootProcessId = ProcessHierarchyUtils.getRootProcessId(process.getHierarchyIds());
         CurrentProcess rootProcess = rootProcessId.equals(process.getId()) ? process : currentProcessDao.get(rootProcessId);
-        Long rootDefinitionId = rootProcess.getDefinitionVersion().getId();
-        String rootDefinitionName = rootProcess.getDefinitionVersion().getDefinition().getName();
+        ProcessDefinitionVersion rootProcessDefinitionVersion = processDefinitionLoader.getDefinition(rootProcess).getProcessDefinitionVersion();
         boolean escalated = false;
         if (task.getExecutor() instanceof EscalationGroup) {
             val escalationGroup = (EscalationGroup) task.getExecutor();
@@ -51,11 +51,12 @@ public class WfTaskFactory {
                 escalated = !Objects.equal(originalExecutor, targetActor);
             }
         }
-        WfTask wfTask = new WfTask(task, rootProcessId, rootDefinitionId, rootDefinitionName,
-                targetActor, escalated, acquiredBySubstitution, firstOpen);
+        ProcessDefinitionVersion processDefinitionVersion = processDefinitionLoader.getDefinition(process).getProcessDefinitionVersion();
+        WfTask wfTask = new WfTask(task, rootProcessId, rootProcessDefinitionVersion.getId(), rootProcessDefinitionVersion.getDefinition().getName(),
+                processDefinitionVersion.getId(), processDefinitionVersion.getDefinition().getName(), targetActor, escalated, acquiredBySubstitution,
+                firstOpen);
         if (variableNamesToInclude != null && !variableNamesToInclude.isEmpty()) {
-            val processDefinition = processDefinitionLoader.getDefinition(process);
-            val executionContext = new ExecutionContext(processDefinition, process);
+            ExecutionContext executionContext = new ExecutionContext(processDefinitionLoader.getDefinition(process), process);
             for (String variableName : variableNamesToInclude) {
                 wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
             }

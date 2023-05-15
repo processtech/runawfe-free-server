@@ -81,8 +81,12 @@ public class WebResources {
     /**
      * Used from JSP page
      */
-    public static int getDiagramRefreshInterval() {
+    public static int getProcessGraphAutoRefreshIntervalSeconds() {
         return RESOURCES.getIntegerProperty("process.graph.autoRefreshInterval.seconds", 0);
+    }
+
+    public static int getProcessGraphNodeLogsLimitCount() {
+        return RESOURCES.getIntegerProperty("process.graph.node.logs.limit.count", 7);
     }
 
     /**
@@ -178,6 +182,14 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("process.task.filters.enabled", true);
     }
 
+    public static boolean isProcessExternalDataEnabled() {
+        return RESOURCES.getBooleanProperty("process.external.data.enabled", false);
+    }
+
+    public static String getExternalDataUrl() {
+        return RESOURCES.getStringProperty("process.external.data.url.prefix");
+    }
+
     public static boolean isImportExportEnabled() {
         return RESOURCES.getBooleanProperty("import.export.enabled", true);
     }
@@ -196,6 +208,10 @@ public class WebResources {
 
     public static int getProcessVariableNumberOfAttributesToHide() {
         return RESOURCES.getIntegerProperty("process.variable.number.of.attributes.to.hide", 10);
+    }
+
+    public static boolean isVariableHintsEnabled() {
+        return RESOURCES.getBooleanProperty("process.variable.hints.enabled", true);
     }
 
     public static boolean isChatEnabled() {

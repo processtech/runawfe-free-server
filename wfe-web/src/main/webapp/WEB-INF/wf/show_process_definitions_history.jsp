@@ -12,11 +12,6 @@
 	String returnAction = "/definitions_history.do";
 %>
 <wf:listDefinitionsHistoryForm batchPresentationId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" >
-	<div>
-		<wf:viewControlsHideableBlock hideableBlockId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" >
-			<wf:tableViewSetupForm batchPresentationId="listProcessesDefinitionsHistoryForm" returnAction="<%= returnAction %>" />
-		</wf:viewControlsHideableBlock>
-	</div>
 </wf:listDefinitionsHistoryForm>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />

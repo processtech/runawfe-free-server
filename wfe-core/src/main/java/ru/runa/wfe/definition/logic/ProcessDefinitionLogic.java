@@ -324,14 +324,13 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
     }
 
     public byte[] getFile(User user, long processDefinitionVersionId, String fileName) {
-        ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
+        ParsedProcessDefinition definition = getDefinition(processDefinitionVersionId);
         if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(FileDataProvider.BOTS_XML_FILE)) {
-            permissionDao.checkAllowed(user, Permission.READ, dwv.processDefinition);
+            permissionDao.checkAllowed(user, Permission.READ, definition.getProcessDefinition());
         }
         if (FileDataProvider.PAR_FILE.equals(fileName)) {
-            return dwv.processDefinitionVersion.getContent();
+            return definition.getProcessDefinitionVersion().getContent();
         }
-        ParsedProcessDefinition definition = getDefinition(processDefinitionVersionId);
         return definition.getFileData(fileName);
     }
 

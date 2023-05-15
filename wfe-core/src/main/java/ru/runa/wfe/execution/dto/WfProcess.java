@@ -7,8 +7,10 @@ import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -35,21 +37,24 @@ public class WfProcess extends SecuredObject {
     private final List<WfVariable> variables = Lists.newArrayList();
     private ExecutionStatus executionStatus;
     private String errors;
+    private Long externalData;
 
     public WfProcess() {
     }
 
     public WfProcess(Process process, String errors) {
         this.id = process.getId();
-        this.name = process.getDefinitionVersion().getDefinition().getName();
-        this.definitionVersionId = process.getDefinitionVersion().getId();
-        this.version = process.getDefinitionVersion().getVersion().intValue();
+        ParsedProcessDefinition parsedProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
+        this.name = parsedProcessDefinition.getName();
+        this.definitionVersionId = parsedProcessDefinition.getProcessDefinitionVersion().getId();
+        this.version = parsedProcessDefinition.getProcessDefinitionVersion().getVersion().intValue();
         this.archived = process.isArchived();
         this.startDate = process.getStartDate();
         this.endDate = process.getEndDate();
         this.hierarchyIds = process.getHierarchyIds();
         this.executionStatus = process.getExecutionStatus();
         this.errors = errors;
+        this.externalData = process.getExternalData();
     }
     
     public String getErrors() {
@@ -132,6 +137,10 @@ public class WfProcess extends SecuredObject {
 
     public ExecutionStatus getExecutionStatus() {
         return executionStatus;
+    }
+
+    public Long getExternalData() {
+        return externalData;
     }
 
     public boolean isArchived() {

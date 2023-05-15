@@ -35,15 +35,9 @@
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-	<!-- cache
-		name="ru.runa.wfe.definition.cache.definitionIdToDefinition"
-		maxElementsInMemory="100"
-		overflowToDisk="true"
-	/>
-	
 	<cache
-		name="ru.runa.wfe.definition.ProcessDefinitioninition"
-		maxElementsInMemory="1000"
-	/ -->
+		name="ru.runa.wfe.definition.ProcessDefinition"
+		maxElementsInMemory="100"
+	/>
 
 </ehcache>
