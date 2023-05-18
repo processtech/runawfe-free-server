@@ -150,7 +150,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                     variableDefinition.setDefaultValue(variableFormat.parse(stringDefaultValue));
                 }
             } catch (Exception e) {
-                Date createDate = parsedProcessDefinition.getProcessDefinitionVersion().getCreateDate();
+                Date createDate = parsedProcessDefinition.getCreateDate();
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
                         || (createDate == null ? new Date() : createDate).after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
                     log.warn("Unable to parse default value '" + stringDefaultValue +

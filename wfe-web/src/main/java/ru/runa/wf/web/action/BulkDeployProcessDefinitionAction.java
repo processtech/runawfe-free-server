@@ -85,7 +85,7 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
                         WfDefinition definition = existingDefinitionsMap.get(existingDefinitionName);
                         Delegates.getDefinitionService().redeployProcessDefinition(
                                 getLoggedUser(request),
-                                definition.getVersionId(),
+                                definition.getId(),
                                 uploadedFile.getContent(),
                                 BulkDeployDefinitionFormTag.TYPE_APPLYIES_TO_ALL_PROCESSES.equals(paramTypeApplying) ? categories : null,
                                 secondsBeforeArchiving

@@ -21,6 +21,7 @@ import ru.runa.wfe.chat.dao.ChatMessageDao;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailUtils;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.security.Permission;
@@ -47,6 +48,8 @@ public class ChatEmailNotificationJob {
     private ChatMessageDao chatMessageDao;
     @Autowired
     private ChatFileDao chatFileDao;
+    @Autowired
+    private ProcessDefinitionLoader processDefinitionLoader;
 
     private byte[] configBytes;
     private String baseUrl;
@@ -133,7 +136,7 @@ public class ChatEmailNotificationJob {
     private Map<Process<CurrentToken>, String> getDefinitionNamesByProcesses(Set<Process<CurrentToken>> processes) {
         Map<Process<CurrentToken>, String> result = new HashMap<>(processes.size());
         for (Process<CurrentToken> process : processes) {
-            result.put(process, process.getDefinitionVersion().getDefinition().getName());
+            result.put(process, processDefinitionLoader.getDefinition(process).getName());
         }
         return result;
     }

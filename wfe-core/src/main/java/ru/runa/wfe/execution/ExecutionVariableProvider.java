@@ -13,7 +13,7 @@ public class ExecutionVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public Long getProcessDefinitionVersionId() {
+    public Long getProcessDefinitionId() {
         return executionContext.getParsedProcessDefinition().getId();
     }
 

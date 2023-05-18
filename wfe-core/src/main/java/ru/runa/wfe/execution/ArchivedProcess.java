@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinition;
 
 @Entity
 @Table(name = "ARCHIVED_PROCESS")
@@ -21,9 +21,9 @@ public class ArchivedProcess extends Process<ArchivedToken> {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
+    @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @SuppressWarnings("unused")
-    private ProcessDefinitionVersion definitionVersion;
+    private ProcessDefinition definition;
 
     @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
     @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
@@ -48,8 +48,8 @@ public class ArchivedProcess extends Process<ArchivedToken> {
      */
 
     @Override
-    public ProcessDefinitionVersion getDefinitionVersion() {
-        return definitionVersion;
+    public ProcessDefinition getDefinition() {
+        return definition;
     }
 
     @Override

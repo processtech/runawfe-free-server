@@ -43,7 +43,7 @@ public class UndeployProcessDefinitionTdBuilder extends BaseTdBuilder {
         ConcreteElement element;
         if (isEnabled(object, env) && allCount == 0) {
             Map<String, Object> parameters = Maps.newHashMap();
-            parameters.put(IdForm.ID_INPUT_NAME, definition.getVersionId());
+            parameters.put(IdForm.ID_INPUT_NAME, definition.getId());
             parameters.put(IdVersionForm.VERSION_INPUT_NAME, definition.getVersion());
             String url = Commons.getActionUrl(UndeployProcessDefinitionAction.ACTION_PATH, parameters, env.getPageContext(), PortletUrlType.Render);
             element = new A(url, MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(env.getPageContext()));

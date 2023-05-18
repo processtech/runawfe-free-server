@@ -29,7 +29,7 @@ public class PropertiesProcessTdBuilder extends BaseTdBuilder {
         WfDefinition pd = (WfDefinition) object;
         ConcreteElement element;
         if (isEnabled(object, env)) {
-            String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, pd.getVersionId(),
+            String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, pd.getId(),
                     env.getPageContext(), PortletUrlType.Render);
             element = new A(url, MessagesCommon.LABEL_PROPERTIES.message(env.getPageContext()));
         } else {

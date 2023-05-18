@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,7 @@ import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
+import ru.runa.wfe.definition.ProcessDefinitionPack;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
@@ -58,7 +58,7 @@ import ru.runa.wfe.var.VariableDefinition;
 @Component
 public class ProcessDefinitionLogic extends WfCommonLogic {
     @Autowired
-    ProcessDefinitionUpdateManager processDefinitionUpdateManager;
+    private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
 
     /**
      * @param secondsBeforeArchiving
@@ -81,20 +81,25 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         if (secondsBeforeArchiving != null && secondsBeforeArchiving < 0) {
             secondsBeforeArchiving = null;
         }
-        ProcessDefinition d = parsed.getProcessDefinition();
-        ProcessDefinitionVersion dv = parsed.getProcessDefinitionVersion();
-        d.setCategories(categories);
-        d.setSecondsBeforeArchiving(secondsBeforeArchiving);
-        dv.setCreateDate(new Date());
-        dv.setCreateActor(user.getActor());
-        dv.setVersion(1L);
-        dv.setSubVersion(0L);
+        ProcessDefinitionPack p = new ProcessDefinitionPack();
+        ProcessDefinition d = new ProcessDefinition();
+        p.setLanguage(parsed.getLanguage());
+        p.setName(parsed.getName());
+        p.setDescription(parsed.getDescription());
+        p.setCategories(categories);
+        p.setSecondsBeforeArchiving(secondsBeforeArchiving);
+        d.setPack(p);
+        d.setContent(processArchiveBytes);
+        d.setCreateDate(new Date());
+        d.setCreateActor(user.getActor());
+        d.setVersion(1L);
+        d.setSubVersion(0L);
+        processDefinitionPackDao.create(p);
         processDefinitionDao.create(d);
-        processDefinitionVersionDao.create(dv);
-        d.setLatestVersion(dv);
-        permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(SecuredObjectType.DEFINITION), d);
+        p.setLatest(d);
+        permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(SecuredObjectType.DEFINITION), p);
         log.debug("Deployed process definition " + parsed);
-        return new WfDefinition(parsed, permissionDao.isAllowed(user, Permission.START_PROCESS, d));
+        return new WfDefinition(d);
     }
 
     /**
@@ -103,83 +108,80 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
      * @param secondsBeforeArchiving
      *              If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
      */
-    public WfDefinition redeployProcessDefinition(User user, long processDefinitionVersionId, byte[] processArchiveBytes, List<String> categories,
+    public WfDefinition redeployProcessDefinition(User user, Long processDefinitionId, byte[] processArchiveBytes, List<String> categories,
             Integer secondsBeforeArchiving) {
-        ProcessDefinitionWithVersion dwvOld = processDefinitionDao.findDefinition(processDefinitionVersionId);
-        permissionDao.checkAllowed(user, Permission.UPDATE, dwvOld.processDefinition);
+        ProcessDefinition oldDefinition = processDefinitionDao.get(processDefinitionId);
+        permissionDao.checkAllowed(user, Permission.UPDATE, oldDefinition.getPack());
         if (processArchiveBytes == null) {
             Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
-            dwvOld.processDefinition.setCategories(categories);
+            oldDefinition.getPack().setCategories(categories);
             if (secondsBeforeArchiving != null) {
-                dwvOld.processDefinition.setSecondsBeforeArchiving(secondsBeforeArchiving < 0 ? null : secondsBeforeArchiving);
+                oldDefinition.getPack().setSecondsBeforeArchiving(secondsBeforeArchiving < 0 ? null : secondsBeforeArchiving);
             }
-            return getProcessDefinition(user, processDefinitionVersionId);
+            return getProcessDefinition(user, processDefinitionId);
         }
 
-        if (!Objects.equals(dwvOld.processDefinitionVersion.getId(), dwvOld.processDefinition.getLatestVersion().getId())) {
-            throw new InternalApplicationException("Latest version of process definition '" + dwvOld.processDefinition.getName() + "' is '" +
-                    dwvOld.processDefinition.getLatestVersion().getVersion() + "'. You provided processDefinitionVersionId for version '" +
-                    dwvOld.processDefinitionVersion.getVersion() + "'");
+        if (!Objects.equals(oldDefinition.getId(), oldDefinition.getPack().getLatest().getId())) {
+            throw new InternalApplicationException("Latest version of process definition '" + oldDefinition.getPack().getName() + "' is '"
+                    + oldDefinition.getPack().getLatest().getVersion() + "'. You provided processDefinitionId for version '"
+                    + oldDefinition.getVersion() + "'");
         }
 
         ParsedProcessDefinition parsed = parseProcessDefinition(processArchiveBytes);
-        if (!Objects.equals(dwvOld.processDefinition.getName(), parsed.getName())) {
-            throw new DefinitionNameMismatchException(dwvOld.processDefinition.getName(), parsed.getName());
+        if (!Objects.equals(oldDefinition.getPack().getName(), parsed.getName())) {
+            throw new DefinitionNameMismatchException(oldDefinition.getPack().getName(), parsed.getName());
         }
+        ParsedProcessDefinition parsedOld = parseProcessDefinition(oldDefinition.getContent());
         try {
-            checkCommentsOnDeploy(parseProcessDefinition(dwvOld.processDefinitionVersion.getContent()), parsed);
+            checkCommentsOnDeploy(parsedOld, parsed);
         } catch (InvalidDefinitionException e) {
-            log.warn(dwvOld + ": " + e);
+            log.warn(oldDefinition + ": " + e);
         }
-
-        // We don't create new ProcessDefinition record here, but copy data from parsed to old...
-        ProcessDefinition d = parsed.getProcessDefinition();
-        ProcessDefinitionVersion dv = parsed.getProcessDefinitionVersion();
-        dwvOld.processDefinition.setDescription(d.getDescription());
-        dwvOld.processDefinition.setLanguage(d.getLanguage());
+        ProcessDefinitionPack p = oldDefinition.getPack();
+        p.setDescription(parsed.getDescription());
+        p.setLanguage(parsed.getLanguage());
         if (categories != null) {
-            dwvOld.processDefinition.setCategories(categories);
+            p.setCategories(categories);
         }
         if (secondsBeforeArchiving != null) {
-            dwvOld.processDefinition.setSecondsBeforeArchiving(secondsBeforeArchiving < 0 ? null : secondsBeforeArchiving);
+            p.setSecondsBeforeArchiving(secondsBeforeArchiving < 0 ? null : secondsBeforeArchiving);
         }
-        // ...and continue working with old.
-        d = dwvOld.processDefinition;
-        dv.setDefinition(d);
-
-        dv.setCreateDate(new Date());
-        dv.setCreateActor(user.getActor());
-        dv.setVersion(dwvOld.processDefinition.getLatestVersion().getVersion() + 1);
-        dv.setSubVersion(0L);
-        processDefinitionVersionDao.create(dv);
-        d.setLatestVersion(dv);
-        log.debug("Process definition " + dwvOld + " was successfully redeployed");
-        return new WfDefinition(parsed, true);
+        ProcessDefinition d = new ProcessDefinition();
+        d.setPack(p);
+        d.setContent(processArchiveBytes);
+        d.setCreateDate(new Date());
+        d.setCreateActor(user.getActor());
+        d.setVersion(oldDefinition.getPack().getLatest().getVersion() + 1);
+        d.setSubVersion(0L);
+        processDefinitionDao.create(d);
+        p.setLatest(d);
+        log.debug("Process definition " + oldDefinition + " was successfully redeployed");
+        return new WfDefinition(d);
     }
 
     /**
-     * Updates process definition, without incrementing version number.
+     * Updates process definition subversion.
      */
-    public WfDefinition updateProcessDefinition(User user, Long processDefinitionVersionId, @NonNull byte[] processArchiveBytes) {
-        val dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
-        permissionDao.checkAllowed(user, Permission.UPDATE, dwv.processDefinition);
+    public WfDefinition updateProcessDefinition(User user, Long processDefinitionId, @NonNull byte[] processArchiveBytes) {
+        val d = processDefinitionDao.get(processDefinitionId);
+        permissionDao.checkAllowed(user, Permission.UPDATE, d.getPack());
         val parsed = parseProcessDefinition(processArchiveBytes);
-        if (!Objects.equals(dwv.processDefinition.getName(), parsed.getName())) {
-            throw new DefinitionNameMismatchException(dwv.processDefinition.getName(), parsed.getName());
+        if (!Objects.equals(d.getPack().getName(), parsed.getName())) {
+            throw new DefinitionNameMismatchException(d.getPack().getName(), parsed.getName());
         }
-        checkCommentsOnDeploy(parseProcessDefinition(dwv.processDefinitionVersion.getContent()), parsed);
-        ParsedProcessDefinition oldDefinition = getDefinition(dwv.processDefinitionVersion.getId());
+        ParsedProcessDefinition oldDefinition = getDefinition(d.getId());
+        checkCommentsOnDeploy(oldDefinition, parsed);
         List<CurrentProcess> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
         Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, parsed, processes);
-        dwv.processDefinitionVersion.setContent(parsed.getProcessDefinitionVersion().getContent());
-        dwv.processDefinitionVersion.setUpdateDate(new Date());
-        dwv.processDefinitionVersion.setUpdateActor(user.getActor());
-        dwv.processDefinitionVersion.setSubVersion(dwv.processDefinitionVersion.getSubVersion() + 1);
-        processDefinitionVersionDao.update(dwv.processDefinitionVersion);
-        addUpdatedDefinitionInProcessLog(user, dwv);
+        d.setContent(processArchiveBytes);
+        d.setUpdateDate(new Date());
+        d.setUpdateActor(user.getActor());
+        d.setSubVersion(d.getSubVersion() + 1);
+        processDefinitionDao.update(d);
+        addUpdatedDefinitionInProcessLog(user, d);
         processDefinitionUpdateManager.after(parsed, affectedProcesses);
-        log.debug("Process definition " + dwv + " was successfully updated");
-        return new WfDefinition(dwv);
+        log.debug("Process definition " + d + " was successfully updated");
+        return new WfDefinition(d);
     }
 
     private void checkCommentsOnDeploy(ParsedProcessDefinition oldDefinition, ParsedProcessDefinition definition) {
@@ -197,20 +199,20 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         }
     }
 
-    public void setProcessDefinitionSubprocessBindingDate(User user, Long processDefinitionVersionId, Date date) {
-        ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
-        permissionDao.checkAllowed(user, Permission.UPDATE, dwv.processDefinition);
-        Date oldDate = dwv.processDefinitionVersion.getSubprocessBindingDate();
-        dwv.processDefinitionVersion.setSubprocessBindingDate(date);
-        processDefinitionVersionDao.update(dwv.processDefinitionVersion);
+    public void setProcessDefinitionSubprocessBindingDate(User user, Long processDefinitionId, Date date) {
+        ProcessDefinition d = processDefinitionDao.get(processDefinitionId);
+        permissionDao.checkAllowed(user, Permission.UPDATE, d.getPack());
+        Date oldDate = d.getSubprocessBindingDate();
+        d.setSubprocessBindingDate(date);
+        processDefinitionDao.update(d);
         log.info("ParsedProcessDefinition subprocessBindingDate changed: " + CalendarUtil.formatDateTime(oldDate) + " -> "
                 + CalendarUtil.formatDateTime(date));
     }
 
-    private void addUpdatedDefinitionInProcessLog(User user, ProcessDefinitionWithVersion dwv) {
+    private void addUpdatedDefinitionInProcessLog(User user, ProcessDefinition d) {
         ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(dwv.processDefinition.getName());
-        filter.setDefinitionVersion(dwv.processDefinitionVersion.getVersion());
+        filter.setDefinitionName(d.getPack().getName());
+        filter.setDefinitionVersion(d.getVersion());
         filter.setFinished(false);
         List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
         for (CurrentProcess process : processes) {
@@ -220,38 +222,38 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
 
     public WfDefinition getLatestProcessDefinition(User user, String definitionName) {
         ParsedProcessDefinition definition = getLatestDefinition(definitionName);
-        permissionDao.checkAllowed(user, Permission.READ, definition.getProcessDefinition());
-        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getProcessDefinition()));
+        permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
+        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getSecuredObject()));
     }
 
     public WfDefinition getProcessDefinitionVersion(User user, String name, Long version) {
-        ProcessDefinitionWithVersion dwv = processDefinitionDao.getByNameAndVersion(name, version);
-        ParsedProcessDefinition definition = getDefinition(dwv.processDefinitionVersion.getId());
-        permissionDao.checkAllowed(user, Permission.READ, definition.getProcessDefinition());
-        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getProcessDefinition()));
+        ProcessDefinition d = processDefinitionDao.getByNameAndVersion(name, version);
+        ParsedProcessDefinition definition = getDefinition(d.getId());
+        permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
+        return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getSecuredObject()));
     }
 
-    public WfDefinition getProcessDefinition(User user, long processDefinitionVersionId) {
+    public WfDefinition getProcessDefinition(User user, Long processDefinitionId) {
         try {
-            val definition = getDefinition(processDefinitionVersionId);
-            permissionDao.checkAllowed(user, Permission.READ, definition.getProcessDefinition());
-            return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getProcessDefinition()));
+            val definition = getDefinition(processDefinitionId);
+            permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
+            return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START_PROCESS, definition.getSecuredObject()));
         } catch (Exception e) {
-            val dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
-            permissionDao.checkAllowed(user, Permission.READ, dwv.processDefinition);
-            return new WfDefinition(dwv);
+            val d = processDefinitionDao.get(processDefinitionId);
+            permissionDao.checkAllowed(user, Permission.READ, d.getPack());
+            return new WfDefinition(d);
         }
     }
 
-    public ParsedProcessDefinition getParsedProcessDefinition(User user, long processDefinitionVersionId) {
-        ParsedProcessDefinition pd = getDefinition(processDefinitionVersionId);
-        permissionDao.checkAllowed(user, Permission.READ, pd.getProcessDefinition());
+    public ParsedProcessDefinition getParsedProcessDefinition(User user, Long processDefinitionId) {
+        ParsedProcessDefinition pd = getDefinition(processDefinitionId);
+        permissionDao.checkAllowed(user, Permission.READ, pd.getSecuredObject());
         return pd;
     }
 
-    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, long processDefinitionVersionId, String subprocessId) {
-        ParsedProcessDefinition definition = getDefinition(processDefinitionVersionId);
-        permissionDao.checkAllowed(user, Permission.READ, definition.getProcessDefinition());
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long processDefinitionId, String subprocessId) {
+        ParsedProcessDefinition definition = getDefinition(processDefinitionId);
+        permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
@@ -260,90 +262,85 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
     }
 
     public List<WfDefinition> getProcessDefinitionHistory(User user, String name) {
-        List<ProcessDefinitionWithVersion> dwvs = processDefinitionDao.findAllDefinitionVersions(name);
-        if (dwvs.isEmpty() || !permissionDao.isAllowed(user, Permission.READ, dwvs.get(0).processDefinition)) {
+        List<ProcessDefinition> list = processDefinitionDao.findAllByNameOrderByVersionDesc(name);
+        if (list.isEmpty() || !permissionDao.isAllowed(user, Permission.READ, list.get(0).getPack())) {
             return Collections.emptyList();
         }
-        val result = new ArrayList<WfDefinition>(dwvs.size());
-        for (val dwv : dwvs) {
-            result.add(new WfDefinition(dwv));
-        }
-        return result;
+        return list.stream().map(d -> new WfDefinition(d)).collect(Collectors.toList());
     }
 
     public void undeployProcessDefinition(User user, @NonNull String definitionName, Long version) {
+        ProcessDefinitionPack p;
         ProcessDefinition d;
-        ProcessDefinitionVersion dv;
         if (version == null) {
-            d = processDefinitionDao.getByName(definitionName);
-            dv = null;
+            p = processDefinitionPackDao.getByName(definitionName);
+            d = null;
         } else {
             // Load both definition and version by single SQL query.
-            val dwv = processDefinitionDao.getByNameAndVersion(definitionName, version);
-            d = dwv.processDefinition;
-            dv = dwv.processDefinitionVersion;
+            d = processDefinitionDao.getByNameAndVersion(definitionName, version);
+            p = d.getPack();
         }
 
         // ===== Check if deletion allowed.
 
-        permissionDao.checkAllowed(user, Permission.DELETE, d);
+        permissionDao.checkAllowed(user, Permission.DELETE, p);
 
-        if (archivedProcessDao.processesExist(d.getId())) {
-            throw new RuntimeException("Archived processes exist for definition ID=" + d.getId());
+        if (archivedProcessDao.processesExist(p)) {
+            throw new RuntimeException("Archived processes exist for definition ID=" + p.getId());
         }
 
         // Check that processes to be deleted don't have parent processes of different definition.
-        String parentProcessDefinitionName = currentProcessDao.findParentProcessDefinitionName(d.getId());
+        String parentProcessDefinitionName = currentProcessDao.findParentProcessDefinitionName(p);
         if (parentProcessDefinitionName != null) {
             throw new ParentProcessExistsException(definitionName, parentProcessDefinitionName);
         }
 
         // ===== Perform deletion.
 
-        val processes = currentProcessDao.findAllProcessesForAllDefinitionVersions(d.getId());
-        for (CurrentProcess p : processes) {
-            deleteProcess(user, p);
+        val processes = currentProcessDao.findAllProcessesForAllDefinitionVersions(p);
+        for (CurrentProcess cp : processes) {
+            deleteProcess(user, cp);
         }
         currentProcessDao.flushPendingChanges();
 
-        if (dv == null) {
-            processDefinitionVersionDao.deleteAll(d.getId());
+        if (d == null) {
+            processDefinitionDao.deleteAll(p);
         } else {
-            processDefinitionVersionDao.delete(dv);
+            processDefinitionDao.delete(d);
         }
 
-        permissionDao.deleteAllPermissions(d);
-        processDefinitionDao.delete(d);
-        systemLogDao.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), d.getName(), dv == null ? null : dv.getVersion()));
-        log.info("Process definition " + d + " successfully undeployed");
+        permissionDao.deleteAllPermissions(p);
+        processDefinitionPackDao.delete(p);
+        systemLogDao.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), p.getName(), d == null ? null : d.getVersion()));
+        log.info("Process definition " + p + " successfully undeployed");
     }
 
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
-        List<Long> processDefinitionVersionIds = processDefinitionDao.findDefinitionVersionIds(definitionName, version1, version2);
-        return getChanges(processDefinitionVersionIds);
+        List<Long> processDefinitionIds = processDefinitionDao.findIds(definitionName, version1, version2);
+        return getChanges(processDefinitionIds);
     }
 
-    public byte[] getFile(User user, long processDefinitionVersionId, String fileName) {
-        ParsedProcessDefinition definition = getDefinition(processDefinitionVersionId);
+    public byte[] getFile(User user, Long processDefinitionId, String fileName) {
+        ParsedProcessDefinition definition = getDefinition(processDefinitionId);
         if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(FileDataProvider.BOTS_XML_FILE)) {
-            permissionDao.checkAllowed(user, Permission.READ, definition.getProcessDefinition());
+            permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
         }
         if (FileDataProvider.PAR_FILE.equals(fileName)) {
-            return definition.getProcessDefinitionVersion().getContent();
+            return processDefinitionDao.get(processDefinitionId).getContent();
         }
         return definition.getFileData(fileName);
     }
 
-    public byte[] getGraph(User user, long processDefinitionVersionId, String subprocessId) {
-        ParsedProcessDefinition definition = getDefinition(processDefinitionVersionId);
+    public byte[] getGraph(User user, Long processDefinitionId, String subprocessId) {
+        ParsedProcessDefinition definition = getDefinition(processDefinitionId);
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
         return definition.getGraphImageBytesNotNull();
     }
 
-    public Interaction getStartInteraction(User user, long processDefinitionVersionId) {
-        ParsedProcessDefinition definition = getDefinition(processDefinitionVersionId);
+    public Interaction getStartInteraction(User user, Long processDefinitionId) {
+        ParsedProcessDefinition definition = getDefinition(processDefinitionId);
         Interaction interaction = definition.getInteractionNotNull(definition.getStartStateNotNull().getNodeId());
         Map<String, Object> defaultValues = definition.getDefaultVariableValues();
         for (Entry<String, Object> entry : defaultValues.entrySet()) {
@@ -352,42 +349,42 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         return interaction;
     }
 
-    public List<SwimlaneDefinition> getSwimlanes(User user, long processDefinitionVersionId) {
-        ParsedProcessDefinition definition = processDefinitionLoader.getDefinition(processDefinitionVersionId);
-        permissionDao.checkAllowed(user, Permission.READ, definition.getProcessDefinition());
+    public List<SwimlaneDefinition> getSwimlanes(User user, Long processDefinitionId) {
+        ParsedProcessDefinition definition = processDefinitionLoader.getDefinition(processDefinitionId);
+        permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
         return definition.getSwimlanes();
     }
 
-    public List<VariableDefinition> getProcessDefinitionVariables(User user, long processDefinitionVersionId) {
-        ParsedProcessDefinition definition = getDefinition(processDefinitionVersionId);
-        permissionDao.checkAllowed(user, Permission.READ, definition.getProcessDefinition());
+    public List<VariableDefinition> getProcessDefinitionVariables(User user, Long processDefinitionId) {
+        ParsedProcessDefinition definition = getDefinition(processDefinitionId);
+        permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
         return definition.getVariables();
     }
 
-    public VariableDefinition getProcessDefinitionVariable(User user, long processDefinitionVersionId, String variableName) {
-        ParsedProcessDefinition definition = getDefinition(processDefinitionVersionId);
-        permissionDao.checkAllowed(user, Permission.READ, definition.getProcessDefinition());
+    public VariableDefinition getProcessDefinitionVariable(User user, Long processDefinitionId, String variableName) {
+        ParsedProcessDefinition definition = getDefinition(processDefinitionId);
+        permissionDao.checkAllowed(user, Permission.READ, definition.getSecuredObject());
         return definition.getVariable(variableName, true);
     }
 
     public int getProcessDefinitionsCount(User user, BatchPresentation batchPresentation) {
         CompilerParameters parameters = CompilerParameters.createNonPaged();
-        return new PresentationCompiler<ProcessDefinition>(batchPresentation).getCount(parameters);
+        return new PresentationCompiler<>(batchPresentation).getCount(parameters);
     }
 
     /**
      * @param batchPresentation of type DEFINITIONS_HISTORY.
      */
-    public List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging) {
+    public List<WfDefinition> getProcessDefinitionsNotUsingCache(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         val result = new ArrayList<WfDefinition>();
-        List<Long> processIdRestriction = getIdRestriction(user);
+        List<Long> processIdRestriction = getPackIdRestriction(user);
         if (processIdRestriction.isEmpty()) {
             return result;
         }
-        CompilerParameters parameters = CompilerParameters.create(enablePaging).addOwners(new RestrictionsToOwners(processIdRestriction, "definition.id"));
-        List<ProcessDefinitionVersion> versions = new PresentationCompiler<ProcessDefinitionVersion>(batchPresentation).getBatch(parameters);
-        for (ProcessDefinitionVersion dv : versions) {
-            result.add(new WfDefinition(dv));
+        CompilerParameters parameters = CompilerParameters.create(enablePaging).addOwners(new RestrictionsToOwners(processIdRestriction, "pack.id"));
+        List<ProcessDefinition> definitions = new PresentationCompiler<ProcessDefinition>(batchPresentation).getBatch(parameters);
+        for (ProcessDefinition d : definitions) {
+            result.add(new WfDefinition(d));
         }
         return result;
     }
@@ -395,10 +392,9 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
     private ParsedProcessDefinition parseProcessDefinition(byte[] data) {
         try {
             val d = new ProcessDefinition();
-            val dv = new ProcessDefinitionVersion();
-            dv.setDefinition(d);
-            dv.setContent(data);
-            ProcessArchive archive = new ProcessArchive(d, dv);
+            d.setPack(new ProcessDefinitionPack());
+            d.setContent(data);
+            ProcessArchive archive = new ProcessArchive(d);
             return archive.parseProcessDefinition();
         } catch (DefinitionArchiveFormatException e) {
             throw e;
@@ -411,37 +407,36 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
      * @param batchPresentation of type DEFINITIONS.
      */
     public List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
-        List<Long> definitionIdRestriction = getIdRestriction(user);
+        List<Long> definitionIdRestriction = getPackIdRestriction(user);
         if (definitionIdRestriction.isEmpty()) {
             return Lists.newArrayList();
         }
 
         CompilerParameters parameters = CompilerParameters.create(enablePaging)
-                .loadOnlySpecificHqlFields("latestVersion.id")
+                .loadOnlySpecificHqlFields("latest.id")
                 .addOwners(new RestrictionsToOwners(definitionIdRestriction, "id"));
-        List<Number> definitionVersionIds = new PresentationCompiler<Number>(batchPresentation).getBatch(parameters);
-        val processDefinitions = new HashMap<ProcessDefinition, ParsedProcessDefinition>(definitionVersionIds.size());
-        val definitions = new ArrayList<ProcessDefinition>(definitionVersionIds.size());
-        for (Number definitionVersionId : definitionVersionIds) {
+        List<Number> definitionIds = new PresentationCompiler<Number>(batchPresentation).getBatch(parameters);
+        val processDefinitions = new HashMap<SecuredObject, ParsedProcessDefinition>(definitionIds.size());
+        val securedObjects = new ArrayList<SecuredObject>(definitionIds.size());
+        for (Number definitionId : definitionIds) {
             try {
-                ParsedProcessDefinition parsed = getDefinition(definitionVersionId.longValue());
-                processDefinitions.put(parsed.getProcessDefinition(), parsed);
-                definitions.add(parsed.getProcessDefinition());
+                ParsedProcessDefinition parsed = getDefinition(definitionId.longValue());
+                processDefinitions.put(parsed.getSecuredObject(), parsed);
+                securedObjects.add(parsed.getSecuredObject());
             } catch (Exception e) {
-                ProcessDefinition processDefinition = processDefinitionDao.get(definitionVersionId.longValue());
-                if (processDefinition != null) {
-                    processDefinitions.put(processDefinition, null);
-                    definitions.add(processDefinition);
+                ProcessDefinitionPack processDefinitionPack = processDefinitionPackDao.get(definitionId.longValue());
+                if (processDefinitionPack != null) {
+                    securedObjects.add(processDefinitionPack);
                 }
             }
         }
-        val result = new ArrayList<WfDefinition>(definitionVersionIds.size());
-        isPermissionAllowed(user, definitions, Permission.START_PROCESS, new StartProcessPermissionCheckCallback(result, processDefinitions));
+        val result = new ArrayList<WfDefinition>(definitionIds.size());
+        isPermissionAllowed(user, securedObjects, Permission.START_PROCESS, new StartProcessPermissionCheckCallback(result, processDefinitions));
         return result;
     }
 
-    private List<Long> getIdRestriction(User user) {
-        val allIds = processDefinitionDao.findAllDefinitionIds();
+    private List<Long> getPackIdRestriction(User user) {
+        val allIds = processDefinitionPackDao.findAllIds();
         val idsWithPermission = new ArrayList<Long>();
         isPermissionAllowed(user, SecuredObjectType.DEFINITION, allIds, Permission.READ, new CheckMassPermissionCallback<Long>() {
             @Override
@@ -452,27 +447,24 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         return idsWithPermission;
     }
 
-    private List<ProcessDefinitionChange> getChanges(List<Long> processDefinitionVersionIds) {
+    private List<ProcessDefinitionChange> getChanges(List<Long> processDefinitionIds) {
         List<ProcessDefinitionChange> ignoredChanges = null;
-        if (!processDefinitionVersionIds.isEmpty()) {
-            ParsedProcessDefinition firstParsed = getDefinition(processDefinitionVersionIds.get(0));
-            long firstVersion = firstParsed.getProcessDefinitionVersion().getVersion();
-            Long previousVersionId = processDefinitionDao.findDefinitionVersionIdLatestVersionLessThan(
-                    firstParsed.getProcessDefinition().getId(),
-                    firstVersion
-            );
-            if (previousVersionId != null) {
-                ignoredChanges = getDefinition(previousVersionId).getChanges();
+        if (!processDefinitionIds.isEmpty()) {
+            ParsedProcessDefinition firstParsed = getDefinition(processDefinitionIds.get(0));
+            Long firstVersion = firstParsed.getVersion();
+            Long previousId = processDefinitionDao.findLatestIdLessThan(firstParsed.getName(), firstVersion);
+            if (previousId != null) {
+                ignoredChanges = getDefinition(previousId).getChanges();
             }
         }
         val result = new ArrayList<ProcessDefinitionChange>();
-        for (val processDefinitionVersionId : processDefinitionVersionIds) {
-            ParsedProcessDefinition parsedProcessDefinition = getDefinition(processDefinitionVersionId);
+        for (val processDefinitionId : processDefinitionIds) {
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(processDefinitionId);
             for (ProcessDefinitionChange change : parsedProcessDefinition.getChanges()) {
                 if (ignoredChanges != null && ignoredChanges.contains(change) || result.contains(change)) {
                     continue;
                 }
-                result.add(new ProcessDefinitionChange(parsedProcessDefinition.getProcessDefinitionVersion().getVersion(), change));
+                result.add(new ProcessDefinitionChange(parsedProcessDefinition.getVersion(), change));
             }
         }
         return result;
@@ -480,9 +472,9 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
 
     private static final class StartProcessPermissionCheckCallback extends CheckMassPermissionCallback<SecuredObject> {
         private final List<WfDefinition> result;
-        private final Map<ProcessDefinition, ParsedProcessDefinition> parsedDefinitions;
+        private final Map<SecuredObject, ParsedProcessDefinition> parsedDefinitions;
 
-        private StartProcessPermissionCheckCallback(List<WfDefinition> result, Map<ProcessDefinition, ParsedProcessDefinition> parsedDefinitions) {
+        private StartProcessPermissionCheckCallback(List<WfDefinition> result, Map<SecuredObject, ParsedProcessDefinition> parsedDefinitions) {
             this.result = result;
             this.parsedDefinitions = parsedDefinitions;
         }
@@ -498,12 +490,12 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         }
 
         private void addDefinitionToResult(SecuredObject securedObject, boolean canBeStarted) {
-            val d = (ProcessDefinition) securedObject;
-            ParsedProcessDefinition parsed = parsedDefinitions.get(d);
+            ParsedProcessDefinition parsed = parsedDefinitions.get(securedObject);
             if (parsed != null) {
                 result.add(new WfDefinition(parsed, canBeStarted));
             } else {
-                result.add(new WfDefinition(d, d.getLatestVersion()));
+                val p = (ProcessDefinitionPack) securedObject;
+                result.add(new WfDefinition(p, p.getLatest()));
             }
         }
     }

@@ -7,8 +7,9 @@ import java.util.Set;
 import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.definition.ProcessDefinitionPack;
 import ru.runa.wfe.definition.QProcessDefinition;
-import ru.runa.wfe.definition.QProcessDefinitionVersion;
+import ru.runa.wfe.definition.QProcessDefinitionPack;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionStatus;
@@ -42,22 +43,20 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
      *
      * @return Null if not found.
      */
-    public String findParentProcessDefinitionName(long processDefinitionId) {
+    public String findParentProcessDefinitionName(ProcessDefinitionPack pack) {
+        QProcessDefinitionPack dp = new QProcessDefinitionPack("dp");
         QProcessDefinition d0 = new QProcessDefinition("d0");
-        QProcessDefinitionVersion dv = new QProcessDefinitionVersion("dv");
-        QProcessDefinitionVersion dv0 = new QProcessDefinitionVersion("dv0");
+        QProcessDefinition d1 = new QProcessDefinition("d1");
         QCurrentProcess p = new QCurrentProcess("p");
         QCurrentProcess p0 = new QCurrentProcess("p0");
         QCurrentNodeProcess np = new QCurrentNodeProcess("np");
-        return queryFactory.select(d0.name)
-                .from(dv, p, np, p0, dv0, d0)
-                .where(dv.definition.id.eq(processDefinitionId)
-                        .and(p.definitionVersion.eq(dv))
+        return queryFactory
+                .select(dp.name)
+                .from(d0, p, np, p0, d1, dp)
+                .where(d0.pack.eq(pack).and(p.definition.eq(d0))
                         .and(np.subProcess.eq(p))
                         .and(p0.eq(np.process))
-                        .and(dv0.eq(p0.definitionVersion))
-                        .and(dv0.definition.id.ne(processDefinitionId))
-                        .and(d0.eq(dv0.definition))
+                        .and(d1.eq(p0.definition)).and(d1.pack.ne(pack)).and(dp.eq(d1.pack))
                 )
                 .fetchFirst();
     }
@@ -65,10 +64,10 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
     /**
      * Fetches all processes for ALL given process definition versions. The returned list of processs is sorted start date, youngest first.
      */
-    public List<CurrentProcess> findAllProcessesForAllDefinitionVersions(Long processDefinitionId) {
+    public List<CurrentProcess> findAllProcessesForAllDefinitionVersions(ProcessDefinitionPack pack) {
         QCurrentProcess p = QCurrentProcess.currentProcess;
         return queryFactory.selectFrom(p)
-                .where(p.definitionVersion.definition.id.eq(processDefinitionId))
+                .where(p.definition.pack.eq(pack))
                 .orderBy(p.startDate.desc())
                 .fetch();
     }
@@ -103,10 +102,10 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
         val p = QCurrentProcess.currentProcess;
         val q = queryFactory.selectFrom(p).where();
         if (filter.getDefinitionName() != null) {
-            q.where(p.definitionVersion.definition.name.eq(filter.getDefinitionName()));
+            q.where(p.definition.pack.name.eq(filter.getDefinitionName()));
         }
         if (filter.getDefinitionVersion() != null) {
-            q.where(p.definitionVersion.version.eq(filter.getDefinitionVersion()));
+            q.where(p.definition.version.eq(filter.getDefinitionVersion()));
         }
         if (filter.getId() != null) {
             q.where(p.id.eq(filter.getId()));

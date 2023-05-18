@@ -8,8 +8,8 @@
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 
 <%
-	long versionId = Long.parseLong(request.getParameter("id"));
-	long id = Delegates.getDefinitionService().getProcessDefinition(Commons.getUser(pageContext.getSession()), versionId).getId();
+	long id = Long.parseLong(request.getParameter("id"));
+	long packId = Delegates.getDefinitionService().getProcessDefinition(Commons.getUser(pageContext.getSession()), id).getPackId();
 %>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
@@ -71,21 +71,21 @@
 </tiles:put>
 
 <tiles:put name="body" type="string" >
-<wf:processDefinitionInfoForm identifiableId='<%= versionId %>'>
+<wf:processDefinitionInfoForm identifiableId='<%= id %>'>
 <table width="100%">
 	<tr>
 		<td align="right">
-			<wf:managePermissionsLink securedObjectType="DEFINITION" identifiableId="<%= id %>" />
+			<wf:managePermissionsLink securedObjectType="DEFINITION" identifiableId="<%= packId %>" />
 		</td>
 	<tr>
 </table>
 </wf:processDefinitionInfoForm>
 
-<wf:listProcessDefinitionChangesForm identifiableId='<%= versionId %>'>
+<wf:listProcessDefinitionChangesForm identifiableId='<%= id %>'>
 </wf:listProcessDefinitionChangesForm>
 
-<wf:redeployDefinitionForm identifiableId='<%= versionId %>'  />
-<wf:definitionGraphForm identifiableId='<%= versionId %>' />
+<wf:redeployDefinitionForm identifiableId='<%= id %>'  />
+<wf:definitionGraphForm identifiableId='<%= id %>' />
 </tiles:put>
 
 <tiles:put name="messages" value="../common/messages.jsp" />

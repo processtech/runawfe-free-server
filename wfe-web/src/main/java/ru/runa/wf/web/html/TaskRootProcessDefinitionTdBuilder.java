@@ -5,7 +5,7 @@ import ru.runa.wfe.task.dto.WfTask;
 public class TaskRootProcessDefinitionTdBuilder extends TaskProcessDefinitionTdBuilder {
     @Override
     protected Long getDefinitionId(WfTask task) {
-        return task.getRootDefinitionVersionId();
+        return task.getRootDefinitionId();
     }
 
     @Override

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import javax.transaction.UserTransaction;
 import lombok.val;
 import net.bull.javamelody.MonitoredWithSpring;
@@ -49,8 +50,7 @@ import ru.runa.wfe.commons.email.EmailErrorNotifier;
 import ru.runa.wfe.commons.error.dto.WfTokenError;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
 import ru.runa.wfe.execution.CurrentNodeProcess;
@@ -161,8 +161,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public void deleteProcesses(User user, final ProcessFilter filter) {
         List<CurrentProcess> processes = getCurrentProcessesInternal(user, filter);
-        // TODO add ProcessPermission.DELETE_PROCESS
-        processes = filterSecuredObject(user, processes, Permission.CANCEL);
+        processes = filterSecuredObject(user, processes, Permission.DELETE);
         for (CurrentProcess process : processes) {
             deleteProcess(user, process);
         }
@@ -361,8 +360,7 @@ public class ExecutionLogic extends WfCommonLogic {
                 );
             }
             CurrentNodeProcess parentNodeProcess = subExecutionContext.getCurrentParentNodeProcess();
-            Long parentDefinitionVersionId = parentNodeProcess.getProcess().getDefinitionVersion().getId();
-            ParsedProcessDefinition superDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(parentDefinitionVersionId);
+            ParsedProcessDefinition superDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
             token.getNodeNotNull(superDefinition).leave(subExecutionContext, null);
         }
     }
@@ -478,11 +476,7 @@ public class ExecutionLogic extends WfCommonLogic {
                 jobs.addAll(jobDao.findByProcess(subProcess));
             }
         }
-        List<WfJob> result = Lists.newArrayList();
-        for (Job job : jobs) {
-            result.add(new WfJob(job));
-        }
-        return result;
+        return jobs.stream().map(job -> new WfJob(job)).collect(Collectors.toList());
     }
 
     public List<WfToken> getTokens(User user, Long processId, boolean recursive, boolean toPopulateExecutionErrors)
@@ -511,8 +505,8 @@ public class ExecutionLogic extends WfCommonLogic {
         return startProcessImpl(user, getLatestDefinition(definitionName), variables);
     }
 
-    public Long startProcess(User user, Long processDefinitionVersionId, Map<String, Object> variables) {
-        return startProcessImpl(user, getDefinition(processDefinitionVersionId), variables);
+    public Long startProcess(User user, Long processDefinitionId, Map<String, Object> variables) {
+        return startProcessImpl(user, getDefinition(processDefinitionId), variables);
     }
 
     private Long startProcessImpl(User user, ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables) {
@@ -520,7 +514,7 @@ public class ExecutionLogic extends WfCommonLogic {
             variables = Maps.newHashMap();
         }
         if (SystemProperties.isCheckProcessStartPermissions()) {
-            permissionDao.checkAllowed(user, Permission.START_PROCESS, parsedProcessDefinition.getProcessDefinition());
+            permissionDao.checkAllowed(user, Permission.START_PROCESS, parsedProcessDefinition.getSecuredObject());
         }
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
         val extraVariablesMap = new HashMap<String, Object>();
@@ -571,7 +565,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) {
         Process process = processDao.getNotNull(processId);
-        ParsedProcessDefinition definition = getDefinition(process.getDefinitionVersion().getId());
+        ParsedProcessDefinition definition = getDefinition(process);
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
@@ -589,7 +583,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) {
         Process process = processDao.getNotNull(processId);
-        ParsedProcessDefinition definition = getDefinition(process.getDefinitionVersion().getId());
+        ParsedProcessDefinition definition = getDefinition(process);
         List<? extends NodeProcess> nodeProcesses = nodeProcessDao.getNodeProcesses(process, null, nodeId, null);
         ProcessLogs processLogs = null;
         if (DrawProperties.isLogsInGraphEnabled()) {
@@ -635,33 +629,33 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    public int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionVersionId, long newVersion) {
+    public int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionId, long newVersion) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' " +
                     "to 'true' in system.properties or wfe.custom.system.properties"
             );
         }
-        ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
-        ProcessDefinitionWithVersion nextDwv = processDefinitionDao.getByNameAndVersion(dwv.processDefinition.getName(), newVersion);
-        if (Objects.equal(newVersion, dwv.processDefinitionVersion.getVersion())) {
+        ProcessDefinition d = processDefinitionDao.get(processDefinitionId);
+        ProcessDefinition nextDefinition = processDefinitionDao.getByNameAndVersion(d.getPack().getName(), newVersion);
+        if (Objects.equal(newVersion, d.getVersion())) {
             return 0;
         }
-        ParsedProcessDefinition oldDefinition = getDefinition(dwv.processDefinitionVersion.getId());
-        ParsedProcessDefinition newDefinition = getDefinition(nextDwv.processDefinitionVersion.getId());
+        ParsedProcessDefinition oldDefinition = getDefinition(d.getId());
+        ParsedProcessDefinition newDefinition = getDefinition(nextDefinition.getId());
         List<CurrentProcess> processes = processDefinitionUpdateManager.findApplicableProcesses(oldDefinition);
         Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(oldDefinition, newDefinition, processes);
         for (CurrentProcess process : processes) {
-            process.setDefinitionVersion(nextDwv.processDefinitionVersion);
+            process.setDefinition(nextDefinition);
             currentProcessDao.update(process);
             processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION,
-                    dwv.processDefinitionVersion.getVersion(), newVersion), process, null);
+                    d.getVersion(), newVersion), process, null);
         }
         processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
         return processes.size();
     }
 
-    public boolean upgradeProcessToDefinitionVersion(User user, long processId, Long version) {
+    public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' " +
@@ -669,19 +663,19 @@ public class ExecutionLogic extends WfCommonLogic {
             );
         }
         CurrentProcess process = currentProcessDao.getNotNull(processId);
-        // TODO checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
-        ProcessDefinitionVersion dv = process.getDefinitionVersion();
-        long newVersion = version != null ? version : dv.getVersion() + 1;
-        if (newVersion == dv.getVersion()) {
+        permissionDao.checkAllowed(user, Permission.UPDATE, process);
+        ParsedProcessDefinition d = processDefinitionLoader.getDefinition(process);
+        long newVersion = version != null ? version : d.getVersion() + 1;
+        if (newVersion == d.getVersion()) {
             return false;
         }
-        ProcessDefinitionWithVersion nextDwv = processDefinitionDao.getByNameAndVersion(dv.getDefinition().getName(), newVersion);
-        ParsedProcessDefinition newDefinition = getDefinition(nextDwv.processDefinitionVersion.getId());
-        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(getDefinition(dv.getId()), newDefinition,
+        ProcessDefinition nextDefinition = processDefinitionDao.getByNameAndVersion(d.getName(), newVersion);
+        ParsedProcessDefinition newDefinition = getDefinition(nextDefinition.getId());
+        Set<CurrentProcess> affectedProcesses = processDefinitionUpdateManager.before(getDefinition(d.getId()), newDefinition,
                 Collections.singletonList(process));
-        process.setDefinitionVersion(nextDwv.processDefinitionVersion);
+        process.setDefinition(nextDefinition);
         currentProcessDao.update(process);
-        processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),
+        processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, d.getVersion(),
                 newVersion), process, null);
         processDefinitionUpdateManager.after(newDefinition, affectedProcesses);
         return true;

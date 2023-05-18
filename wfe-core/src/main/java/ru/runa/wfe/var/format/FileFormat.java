@@ -79,7 +79,7 @@ public class FileFormat extends VariableFormat implements VariableDisplaySupport
         params.put(WebHelper.PARAM_ID, processId);
         params.put(WebHelper.PARAM_VARIABLE_NAME, name);
         if (value instanceof LinkedWithProcessDefinition) {
-            params.put(WebHelper.PARAM_DEFINITION_ID, ((LinkedWithProcessDefinition) value).getDefinitionVersionId());
+            params.put(WebHelper.PARAM_DEFINITION_ID, ((LinkedWithProcessDefinition) value).getDefinitionId());
         }
 
         String href = webHelper.getActionUrl(WebHelper.ACTION_DOWNLOAD_PROCESS_FILE, params);

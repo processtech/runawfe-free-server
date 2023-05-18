@@ -14,7 +14,7 @@ import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.common.web.tag.SecuredObjectFormTag2;
-import ru.runa.wfe.definition.ProcessDefinition;
+import ru.runa.wfe.definition.ProcessDefinitionPack;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.relation.Relation;
@@ -79,12 +79,12 @@ public class ManagePermissionsFormTag extends SecuredObjectFormTag2 {
         final String linkClass = "permissionLink";
         String type = so.getSecuredObjectType().getName();
         String name = null;
-        if (so instanceof ProcessDefinition) {
-            ProcessDefinition deployment = (ProcessDefinition) so;
+        if (so instanceof ProcessDefinitionPack) {
+            ProcessDefinitionPack deployment = (ProcessDefinitionPack) so;
             name = new A("manage_process_definition.do?id=" + deployment.getId()).addElement(deployment.getName()).setClass(linkClass).toString();
         } else if (so instanceof Process) {
             WfProcess process = Delegates.getExecutionService().getProcess(getUser(), identifiableId);
-            A processName = (A) new A("manage_process_definition.do?id=" + process.getDefinitionVersionId()).addElement(process.getName())
+            A processName = (A) new A("manage_process_definition.do?id=" + process.getDefinitionId()).addElement(process.getName())
                     .setClass(linkClass);
             A processId = (A) new A("manage_process.do?id=" + identifiableId).addElement(identifiableId.toString()).setClass(linkClass);
             name = processName + ", Id: " + processId;

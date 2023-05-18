@@ -34,7 +34,7 @@ public class ChatRoomClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatNewMessagesCountTdBuilder", new Object[]{Permission.READ, "processId"}),
                 new FieldDescriptor(PROCESS_ID, Long.class.getName(), new DefaultDbSource(ChatRoom.class, "id"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "id"}),
-                new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(ChatRoom.class, "definitionVersion.definition.name"), true,
+                new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(ChatRoom.class, "definition.pack.name"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "process.name"}),
                 new FieldDescriptor(PROCESS_START_DATE, Date.class.getName(), new DefaultDbSource(ChatRoom.class, "process.startDate"), true, 1,
                         BatchPresentationConsts.DESC, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomStartDateTdBuilder",
@@ -43,7 +43,7 @@ public class ChatRoomClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomEndDateTdBuilder", new Object[]{}).setVisible(false),
                 new FieldDescriptor(PROCESS_VARIABLE, CurrentVariable.class.getName(), VariableDbSources.get(null), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ChatRoomVariableTdBuilder", new Object[]{}).setVariablePrototype(true),
-                new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(ChatRoom.class, "definitionVersion.version"), true,
+                new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(ChatRoom.class, "definition.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[]{Permission.READ, "process.version"}).setVisible(false),
                 new FieldDescriptor(ERRORS, String.class.getName(), new DefaultDbSource(Token.class, "errorMessage"), false,
                         FieldFilterMode.NONE, "ru.runa.wf.web.html.ChatRoomErrorsTdBuilder", new Object[]{}).setVisible(false)});

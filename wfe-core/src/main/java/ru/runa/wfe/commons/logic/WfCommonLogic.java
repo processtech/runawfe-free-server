@@ -15,7 +15,7 @@ import ru.runa.wfe.chat.logic.ChatComponentFacade;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionPackDao;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
@@ -58,9 +58,9 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected SubstitutionLogic substitutionLogic;
     @Autowired
-    protected ProcessDefinitionDao processDefinitionDao;
+    protected ProcessDefinitionPackDao processDefinitionPackDao;
     @Autowired
-    protected ProcessDefinitionVersionDao processDefinitionVersionDao;
+    protected ProcessDefinitionDao processDefinitionDao;
     @Autowired
     protected CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
@@ -90,8 +90,8 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected ChatComponentFacade chatComponentFacade;
 
-    public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) {
-        return processDefinitionLoader.getDefinition(processDefinitionVersionId);
+    public ParsedProcessDefinition getDefinition(Long processDefinitionId) {
+        return processDefinitionLoader.getDefinition(processDefinitionId);
     }
 
     public ParsedProcessDefinition getDefinition(Process process) {
@@ -106,8 +106,8 @@ public class WfCommonLogic extends CommonLogic {
         return processDefinitionLoader.getLatestDefinition(definitionName);
     }
 
-    protected ParsedProcessDefinition getLatestDefinition(long definitionId) {
-        return processDefinitionLoader.getLatestDefinition(definitionId);
+    protected ParsedProcessDefinition getLatestDefinition(Long definitionId) {
+        return processDefinitionLoader.getLatestDefinitionByPackId(definitionId);
     }
 
     protected void validateVariables(ExecutionContext executionContext, VariableProvider variableProvider,
@@ -209,7 +209,7 @@ public class WfCommonLogic extends CommonLogic {
         chatComponentFacade.deleteByProcessId(process.getId());
         currentProcessDao.delete(process);
         systemLogDao.create(new ProcessDeleteLog(
-                user.getActor().getId(), process.getDefinitionVersion().getDefinition().getName(), process.getId()
+                user.getActor().getId(), processDefinitionLoader.getDefinition(process).getName(), process.getId()
         ));
     }
 

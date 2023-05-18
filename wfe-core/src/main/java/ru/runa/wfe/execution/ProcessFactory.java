@@ -15,6 +15,7 @@ import ru.runa.wfe.audit.CurrentTaskAssignLog;
 import ru.runa.wfe.audit.CurrentTaskCreateLog;
 import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.commons.CollectionUtil;
+import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
@@ -38,6 +39,8 @@ import ru.runa.wfe.var.VariableProvider;
 @Component
 public class ProcessFactory {
     @Autowired
+    private ProcessDefinitionDao processDefinitionDao;
+    @Autowired
     private CurrentProcessDao currentProcessDao;
     @Autowired
     private PermissionDao permissionDao;
@@ -57,7 +60,7 @@ public class ProcessFactory {
         Set<Permission> result = new HashSet<>();
         for (Map.Entry<Permission, Permission> kv : DEFINITION_TO_PROCESS_PERMISSION_MAP.entrySet()) {
             // Using isAllowed() because it takes DEFINITIONS list & executor groups into account.
-            if (permissionDao.isAllowed(executor, kv.getKey(), parsedProcessDefinition.getProcessDefinition(), false)) {
+            if (permissionDao.isAllowed(executor, kv.getKey(), parsedProcessDefinition.getSecuredObject(), false)) {
                 result.add(kv.getValue());
             }
         }
@@ -85,7 +88,7 @@ public class ProcessFactory {
         boolean permissionsAreSetToProcessStarter = false;
         Executor processStarter = executorDao.getExecutor(SystemExecutors.PROCESS_STARTER_NAME);
         Set<Permission> processStarterPermissions = getProcessPermissions(processStarter, parsedProcessDefinition);
-        for (Executor executor : permissionDao.getExecutorsWithPermission(parsedProcessDefinition.getProcessDefinition())) {
+        for (Executor executor : permissionDao.getExecutorsWithPermission(parsedProcessDefinition.getSecuredObject())) {
             Set<Permission> permissions = getProcessPermissions(executor, parsedProcessDefinition);
             if (Objects.equal(actor, executor)) {
                 permissions = CollectionUtil.unionSet(permissions, processStarterPermissions);
@@ -137,7 +140,7 @@ public class ProcessFactory {
 
     private void grantSubprocessPermissions(ParsedProcessDefinition parsedProcessDefinition, Process subProcess, Process parentProcess) {
         Set<Executor> executors = new HashSet<>();
-        executors.addAll(permissionDao.getExecutorsWithPermission(parsedProcessDefinition.getProcessDefinition()));
+        executors.addAll(permissionDao.getExecutorsWithPermission(parsedProcessDefinition.getSecuredObject()));
         executors.addAll(permissionDao.getExecutorsWithPermission(parentProcess));
         for (Executor executor : executors) {
             List<Permission> permissionsByParentProcess = permissionDao.getIssuedPermissions(executor, parentProcess);
@@ -152,7 +155,7 @@ public class ProcessFactory {
     private ExecutionContext createProcessInternal(ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables, Actor actor,
             CurrentProcess parentProcess, Map<String, Object> transientVariables, String transitionName) {
         Preconditions.checkNotNull(parsedProcessDefinition, "can't create a process when parsedProcessDefinition is null");
-        CurrentProcess process = new CurrentProcess(parsedProcessDefinition.getProcessDefinitionVersion());
+        CurrentProcess process = new CurrentProcess(processDefinitionDao.get(parsedProcessDefinition.getId()));
         CurrentToken rootToken = new CurrentToken(parsedProcessDefinition, process);
         process.setRootToken(rootToken);
         currentProcessDao.create(process);

@@ -6,31 +6,23 @@ import java.util.Map;
 import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.FileDataProvider;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.bpmn2.EndToken;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 
 public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
-    private static final long serialVersionUID = 1L;
     private ParsedProcessDefinition parent;
     private boolean behaviorLikeGraphPart = true;
 
-    protected ParsedSubprocessDefinition() {
-    }
-
-    public ParsedSubprocessDefinition(ParsedProcessDefinition parent) {
-        super(parent.getProcessDefinitionVersion().createCopyWithDefinition());
+    public ParsedSubprocessDefinition(ParsedProcessDefinition parent, ProcessDefinition processDefinition) {
+        super(processDefinition);
         this.parent = parent;
     }
 
     public ParsedProcessDefinition getParent() {
         return parent;
-    }
-
-    @Override
-    public void setName(String name) {
-        processDefinition.setName(name);
     }
 
     @Override
@@ -53,7 +45,7 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
             throw new InternalApplicationException("Start state in embedded subprocess should have 1 leaving transition");
         }
         int endNodesCount = 0;
-        for (Node node : nodesList) {
+        for (Node node : getNodeList()) {
             if (node instanceof EndNode) {
                 throw new InternalApplicationException("In embedded subprocess it is not allowed end state");
             }
@@ -76,7 +68,7 @@ public class ParsedSubprocessDefinition extends ParsedProcessDefinition {
 
     public List<EmbeddedSubprocessEndNode> getEndNodes() {
         val list = new ArrayList<EmbeddedSubprocessEndNode>();
-        for (Node node : nodesList) {
+        for (Node node : getNodeList()) {
             if (node instanceof EmbeddedSubprocessEndNode) {
                 list.add((EmbeddedSubprocessEndNode) node);
             }

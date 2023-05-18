@@ -79,5 +79,4 @@ public class ArchivedNodeProcess extends NodeProcess<ArchivedProcess, ArchivedTo
         return parentToken;
     }
 
-    // TODO Do we need equals() and hashCode() like in CurrentNodeProcess class?
 }

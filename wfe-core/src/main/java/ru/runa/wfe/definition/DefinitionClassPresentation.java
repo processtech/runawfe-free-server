@@ -30,28 +30,28 @@ public class DefinitionClassPresentation extends ClassPresentation {
     public static final ClassPresentation INSTANCE = new DefinitionClassPresentation();
 
     private DefinitionClassPresentation() {
-        super(ProcessDefinition.class, null, false, new FieldDescriptor[] {
+        super(ProcessDefinitionPack.class, null, false, new FieldDescriptor[] {
                 // display name field type DB source isSort filter mode
                 // get value/show in web getter parameters
-                new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(ProcessDefinition.class, "name"), true, 1,
+                new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "name"), true, 1,
                         BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] {
                         Permission.START_PROCESS, "name" }),
-                new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(ProcessDefinition.class, "description"), true,
+                new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTdBuilder", new Object[] {}),
-                new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDbSource(ProcessDefinition.class, "category"),
+                new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "category"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTdBuilder", new Object[] {}),
-                new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinition.class, "latestVersion.createDate"),
+                new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "latest.createDate"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTdBuilder", new Object[] {}),
-                new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDbSource(ProcessDefinition.class, "latestVersion.createActor"),
+                new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "latest.createActor"),
                         false, FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionCreateActorTdBuilder", new Object[] {}),
-                new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinition.class, "latestVersion.updateDate"),
+                new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "latest.updateDate"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTdBuilder", new Object[] {}),
-                new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDbSource(ProcessDefinition.class, "latestVersion.updateActor"),
+                new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "latest.updateActor"),
                         false, FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTdBuilder", new Object[] {}),
-                new FieldDescriptor(SUBPROCESS_BINDING_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinition.class,
-                        "latestVersion.subprocessBindingDate"), true, FieldFilterMode.DATABASE,
+                new FieldDescriptor(SUBPROCESS_BINDING_DATE, Date.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class,
+                        "latest.subprocessBindingDate"), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.DefinitionSubprocessBindingDateTdBuilder", new Object[] {}).setVisible(false),
-                new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDbSource(ProcessDefinition.class, "latestVersion.version"), true,
+                new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDbSource(ProcessDefinitionPack.class, "latest.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "version" })
                         .setVisible(false)
         });

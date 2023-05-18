@@ -35,9 +35,9 @@ public class WfTokenError extends SecuredObject {
         this.id = token.getId();
         this.processId = token.getProcess().getId();
         ParsedProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(token.getProcess());
-        this.processType = processDefinition.getProcessDefinition().getCategory();
+        this.processType = processDefinition.getCategory();
         this.processName = processDefinition.getName();
-        this.processVersion = processDefinition.getProcessDefinitionVersion().getVersion();
+        this.processVersion = processDefinition.getVersion();
         this.processExecutionStatus = token.getProcess().getExecutionStatus();
         this.nodeId = token.getNodeId();
         this.nodeName = token.getNodeName();

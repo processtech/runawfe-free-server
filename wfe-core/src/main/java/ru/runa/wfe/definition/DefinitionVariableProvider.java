@@ -15,7 +15,7 @@ public class DefinitionVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public Long getProcessDefinitionVersionId() {
+    public Long getProcessDefinitionId() {
         return parsedProcessDefinition.getId();
     }
 

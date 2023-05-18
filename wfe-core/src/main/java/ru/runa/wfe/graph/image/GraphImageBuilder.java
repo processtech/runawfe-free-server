@@ -44,7 +44,7 @@ public class GraphImageBuilder {
 
     public GraphImageBuilder(ParsedProcessDefinition parsedProcessDefinition) {
         this.parsedProcessDefinition = parsedProcessDefinition;
-        this.smoothTransitions = DrawProperties.isSmoothLinesEnabled() && parsedProcessDefinition.getProcessDefinition().getLanguage() == Language.BPMN2;
+        this.smoothTransitions = DrawProperties.isSmoothLinesEnabled() && parsedProcessDefinition.getLanguage() == Language.BPMN2;
     }
 
     public void setHighlightedToken(Token highlightedToken) {
@@ -53,7 +53,7 @@ public class GraphImageBuilder {
 
     public byte[] createDiagram(Process process, ProcessLogs logs, Set<String> activeNodeIds) throws Exception {
         AbstractFigureFactory factory;
-        if (parsedProcessDefinition.getProcessDefinition().getLanguage() == Language.BPMN2) {
+        if (parsedProcessDefinition.getLanguage() == Language.BPMN2) {
             factory = new BpmnFigureFactory();
         } else {
             factory = new UmlFigureFactory();
@@ -77,7 +77,7 @@ public class GraphImageBuilder {
                 AbstractFigure figureTo = allNodeFigures.get(transition.getTo().getTransitionNodeId(true));
                 TransitionFigure transitionFigure = factory.createTransitionFigure();
                 transitionFigure.init(transition, nodeFigure, figureTo, smoothTransitions);
-                if (parsedProcessDefinition.getProcessDefinition().getLanguage() == Language.BPMN2) {
+                if (parsedProcessDefinition.getLanguage() == Language.BPMN2) {
                     NodeType nodeType = node.getNodeType();
                     transitionFigure.setExclusive(nodeType != NodeType.EXCLUSIVE_GATEWAY && node.getNodeType() != NodeType.PARALLEL_GATEWAY
                             && leavingTransitionsCount > 1);

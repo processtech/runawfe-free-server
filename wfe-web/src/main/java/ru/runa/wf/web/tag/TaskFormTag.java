@@ -31,14 +31,14 @@ public class TaskFormTag extends WFFormTag {
     }
 
     @Override
-    protected Long getDefinitionVersionId() {
-        return Delegates.getTaskService().getTask(getUser(), taskId).getDefinitionVersionId();
+    protected Long getDefinitionId() {
+        return Delegates.getTaskService().getTask(getUser(), taskId).getDefinitionId();
     }
 
     @Override
     protected Interaction getInteraction() {
         WfTask task = Delegates.getTaskService().getTask(getUser(), taskId);
-        return Delegates.getDefinitionService().getTaskNodeInteraction(getUser(), task.getDefinitionVersionId(), task.getNodeId());
+        return Delegates.getDefinitionService().getTaskNodeInteraction(getUser(), task.getDefinitionId(), task.getNodeId());
     }
 
     @Override

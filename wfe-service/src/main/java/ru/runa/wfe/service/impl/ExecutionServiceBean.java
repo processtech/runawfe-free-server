@@ -81,7 +81,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public Long startProcessWS(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
             @WebParam(name = "variables") List<Variable> variables) {
         WfDefinition definition = processDefinitionLogic.getLatestProcessDefinition(user, definitionName);
-        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(definition.getVersionId());
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(definition.getId());
         return startProcess(user, definitionName, VariableConverter.unmarshal(parsedProcessDefinition, variables));
     }
 
@@ -299,10 +299,10 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @WebResult(name = "result")
     public int upgradeProcessesToDefinitionVersion(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionId,
             @WebParam(name = "version") @NonNull Long newVersion
     ) {
-        return executionLogic.upgradeProcessesToDefinitionVersion(user, processDefinitionVersionId, newVersion);
+        return executionLogic.upgradeProcessesToDefinitionVersion(user, processDefinitionId, newVersion);
     }
 
     @Override
@@ -310,7 +310,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public void updateVariablesWS(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "variables") List<Variable> variables) {
         WfProcess process = executionLogic.getProcess(user, processId);
-        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(process.getDefinitionVersionId());
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(process.getDefinitionId());
         updateVariables(user, processId, VariableConverter.unmarshal(parsedProcessDefinition, variables));
     }
 

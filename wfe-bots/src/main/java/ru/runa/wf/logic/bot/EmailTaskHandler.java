@@ -34,7 +34,7 @@ public class EmailTaskHandler extends TaskHandlerBase {
     @Override
     public Map<String, Object> handle(final User user, VariableProvider variableProvider, final WfTask task) throws Exception {
         try {
-            Interaction interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionVersionId(), task.getNodeId());
+            Interaction interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionId(), task.getNodeId());
             Map<String, Object> map = Maps.newHashMap();
             map.put("interaction", interaction);
             map.put("task", task);

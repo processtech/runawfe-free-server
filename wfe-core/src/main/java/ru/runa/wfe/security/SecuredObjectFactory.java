@@ -11,7 +11,7 @@ import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
-import ru.runa.wfe.definition.QProcessDefinition;
+import ru.runa.wfe.definition.QProcessDefinitionPack;
 import ru.runa.wfe.execution.QArchivedProcess;
 import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.relation.QRelation;
@@ -169,17 +169,13 @@ public class SecuredObjectFactory {
         add(SecuredObjectType.DEFINITION, new Loader(SecuredObjectType.DEFINITION) {
             @Override
             public SecuredObject findById(Long id) {
-                QProcessDefinition d = QProcessDefinition.processDefinition;
-                return getQueryFactory().selectFrom(d).where(d.id.eq(id)).fetchFirst();
+                QProcessDefinitionPack p = QProcessDefinitionPack.processDefinitionPack;
+                return getQueryFactory().selectFrom(p).where(p.id.eq(id)).fetchFirst();
             }
-//            @Override
-//            SecuredObject getByName(User user, String name) {
-//                return instance.definitionLogic.getLatestProcessDefinition(user, name);
-//            }
             @Override
             List<Tuple> getByNames(Set<String> names) {
-                QProcessDefinition d = QProcessDefinition.processDefinition;
-                return getQueryFactory().select(d.id, d.name).from(d).where(d.name.in(names)).fetch();
+                QProcessDefinitionPack p = QProcessDefinitionPack.processDefinitionPack;
+                return getQueryFactory().select(p.id, p.name).from(p).where(p.name.in(names)).fetch();
             }
         });
 

@@ -37,7 +37,7 @@ public class JobTransactionalExecutor {
 
     public void execute(Long jobId) {
         Job job = jobDao.get(jobId);
-        ParsedProcessDefinition parsed = processDefinitionLoader.getDefinition(job.getProcess().getDefinitionVersion().getId());
+        ParsedProcessDefinition parsed = processDefinitionLoader.getDefinition(job.getProcess());
         ExecutionContext executionContext = new ExecutionContext(parsed, job.getToken());
         job.execute(executionContext);
     }

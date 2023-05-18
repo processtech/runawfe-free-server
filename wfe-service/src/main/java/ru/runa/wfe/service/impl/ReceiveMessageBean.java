@@ -89,9 +89,7 @@ public class ReceiveMessageBean implements MessageListener {
             }
             for (CurrentToken token : tokens) {
                 try {
-                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(
-                            token.getProcess().getDefinitionVersion().getId()
-                    );
+                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                     BaseReceiveMessageNode receiveMessageNode = (BaseReceiveMessageNode) token.getNodeNotNull(parsedProcessDefinition);
                     ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
                     if (errorEventData != null) {
@@ -192,9 +190,7 @@ public class ReceiveMessageBean implements MessageListener {
                     if (!Objects.equal(token.getNodeId(), data.node.getNodeId())) {
                         throw new InternalApplicationException(token + " not in " + data.node.getNodeId());
                     }
-                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(
-                            token.getProcess().getDefinitionVersion().getId()
-                    );
+                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                     ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
                     executionContext.activateTokenIfHasPreviousError();
                     executionContext.addLog(new CurrentReceiveMessageLog(data.node, Utils.toString(message, true)));

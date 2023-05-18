@@ -23,7 +23,7 @@ public class DelegateTaskVariableProvider extends DelegateProcessVariableProvide
 
     public DelegateTaskVariableProvider(User user, WfTask task) {
         super(user, task.getProcessId());
-        this.processDefinitionVersionId = task.getDefinitionVersionId();
+        this.processDefinitionId = task.getDefinitionId();
         this.taskId = task.getId();
     }
 

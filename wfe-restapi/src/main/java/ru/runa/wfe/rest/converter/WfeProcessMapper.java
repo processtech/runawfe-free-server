@@ -10,7 +10,6 @@ import ru.runa.wfe.rest.dto.WfeProcess;
 public interface WfeProcessMapper {
 
     @Mapping(source = "name", target = "definitionName")
-    @Mapping(source = "definitionVersionId", target = "definitionId")
     @Mapping(source = "version", target = "definitionVersion")
     WfeProcess map(WfProcess process);
 

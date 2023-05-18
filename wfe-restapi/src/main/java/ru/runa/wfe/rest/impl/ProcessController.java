@@ -179,7 +179,8 @@ public class ProcessController {
     @PatchMapping("{id}/variables")
     public void updateProcessVariables(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
         WfProcess process = executionLogic.getProcess(authUser.getUser(), id);
-        Map<String, Object> converted = new VariableValueUnwrapper().process(processDefinitionLoader.getDefinition(process.getDefinitionVersionId()), variables);
+        Map<String, Object> converted = new VariableValueUnwrapper().process(processDefinitionLoader.getDefinition(process.getDefinitionId()),
+                variables);
         variableLogic.updateVariables(authUser.getUser(), id, converted);
     }
 

@@ -6,6 +6,6 @@ package ru.runa.wfe.var.file;
  */
 public interface LinkedWithProcessDefinition {
 
-    Long getDefinitionVersionId();
+    Long getDefinitionId();
 
 }

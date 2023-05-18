@@ -79,7 +79,7 @@
 	</div>
 	<div id="content">
 		<logic:match parameter="startForm" value="true">
-			<wf:startForm title="<%= title %>" definitionVersionId="<%= id %>" action="/submitStartProcessForm" />
+			<wf:startForm title="<%= title %>" definitionId="<%= id %>" action="/submitStartProcessForm" />
 		</logic:match>
 		<logic:notMatch parameter="startForm" value="true">
 			<wf:taskForm title="<%= title %>" taskId="<%= id %>" action="/submitTaskForm" />

@@ -1,5 +1,9 @@
 package ru.runa.wfe.graph.image.figure;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -10,14 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.imageio.ImageIO;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.graph.DrawProperties;
@@ -268,7 +265,7 @@ public class TransitionFigure {
     }
 
     protected boolean isJpdlCanvas() {
-        return transition.getParsedProcessDefinition().getProcessDefinition().getLanguage().equals(Language.JPDL);
+        return transition.getParsedProcessDefinition().getLanguage().equals(Language.JPDL);
     }
 
     private Point getConnectionMidpoint(Point start, Point end, double part) {

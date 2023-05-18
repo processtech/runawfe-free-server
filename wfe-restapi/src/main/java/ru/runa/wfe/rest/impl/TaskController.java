@@ -94,7 +94,7 @@ public class TaskController {
     @PostMapping("{id}/complete")
     public WfeTask completeTask(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long id, @RequestBody Map<String, Object> variables) {
         WfTask task = taskLogic.getTask(authUser.getUser(), id);
-        Map<String, Object> converted = new VariableValueUnwrapper().process(taskLogic.getDefinition(task.getDefinitionVersionId()), variables);
+        Map<String, Object> converted = new VariableValueUnwrapper().process(taskLogic.getDefinition(task.getDefinitionId()), variables);
         WfTask nextTask = taskLogic.completeTask(authUser.getUser(), id, converted);
         return Mappers.getMapper(WfeTaskMapper.class).map(nextTask);
     }

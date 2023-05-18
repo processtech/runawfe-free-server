@@ -57,7 +57,7 @@ public interface DefinitionService {
      *            If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
      * @return redeployed definition
      */
-    WfDefinition redeployProcessDefinition(User user, Long definitionVersionId, byte[] archive, List<String> categories,
+    WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] archive, List<String> categories,
             Integer secondsBeforeArchiving) throws DefinitionDoesNotExistException, DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
@@ -69,7 +69,7 @@ public interface DefinitionService {
      *            process definition archive (ZIP format)
      * @return redeployed definition
      */
-    WfDefinition updateProcessDefinition(User user, Long processDefinitionVersionId, byte[] archive) throws DefinitionDoesNotExistException,
+    WfDefinition updateProcessDefinition(User user, Long processDefinitionId, byte[] archive) throws DefinitionDoesNotExistException,
             DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
@@ -80,7 +80,7 @@ public interface DefinitionService {
      * @param date
      *            can be <code>null</code>
      */
-    void setProcessDefinitionSubprocessBindingDate(User user, Long processDefinitionVersionId, Date date) throws DefinitionDoesNotExistException;
+    void setProcessDefinitionSubprocessBindingDate(User user, Long processDefinitionId, Date date) throws DefinitionDoesNotExistException;
 
     /**
      * Gets only last version from process definition by name.
@@ -100,10 +100,10 @@ public interface DefinitionService {
      *            authorized user
      * @return not <code>null</code>
      */
-    WfDefinition getProcessDefinition(User user, Long processDefinitionVersionId) throws DefinitionDoesNotExistException;
+    WfDefinition getProcessDefinition(User user, Long processDefinitionId) throws DefinitionDoesNotExistException;
 
     /**
-     * Gets only last version from process definition by name.
+     * Gets selected version from process definition by name.
      * 
      * @param user
      *            authorized user
@@ -122,7 +122,7 @@ public interface DefinitionService {
      *            authorized user
      * @return not <code>null</code>
      */
-    ParsedProcessDefinition getParsedProcessDefinition(User user, Long processDefinitionVersionId) throws DefinitionDoesNotExistException;
+    ParsedProcessDefinition getParsedProcessDefinition(User user, Long processDefinitionId) throws DefinitionDoesNotExistException;
 
     /**
      * Gets parsed process definition by id. TODO this method return too many data through references.
@@ -133,7 +133,7 @@ public interface DefinitionService {
      *            node id
      * @return node or <code>null</code>
      */
-    WfNode getNode(User user, Long processDefinitionVersionId, String nodeId) throws DefinitionDoesNotExistException;
+    WfNode getNode(User user, Long processDefinitionId, String nodeId) throws DefinitionDoesNotExistException;
 
     /**
      * Deletes process definition by name. If version is not specified all versions will be deleted.
@@ -157,7 +157,7 @@ public interface DefinitionService {
      *            file name in definition archive
      * @return file data or <code>null</code> if file does not exist
      */
-    byte[] getProcessDefinitionFile(User user, Long processDefinitionVersionId, String fileName) throws DefinitionDoesNotExistException;
+    byte[] getProcessDefinitionFile(User user, Long processDefinitionId, String fileName) throws DefinitionDoesNotExistException;
 
     /**
      * Retrieves processimage.png (or earlier equivalent) file data from process definition archive.
@@ -168,7 +168,7 @@ public interface DefinitionService {
      *            subprocess id, can be <code>null</code>
      * @return file data, not <code>null</code>
      */
-    byte[] getProcessDefinitionGraph(User user, Long processDefinitionVersionId, String subprocessId) throws DefinitionDoesNotExistException;
+    byte[] getProcessDefinitionGraph(User user, Long processDefinitionId, String subprocessId) throws DefinitionDoesNotExistException;
 
     /**
      * Gets start task user interaction.
@@ -179,7 +179,7 @@ public interface DefinitionService {
      * @deprecated use {@link #getTaskNodeInteraction(User, Long, String)}
      */
     @Deprecated
-    Interaction getStartInteraction(User user, Long processDefinitionVersionId) throws DefinitionDoesNotExistException;
+    Interaction getStartInteraction(User user, Long processDefinitionId) throws DefinitionDoesNotExistException;
 
     /**
      * Gets task node user interaction.
@@ -190,7 +190,7 @@ public interface DefinitionService {
      *            interaction node id
      * @return not <code>null</code>
      */
-    Interaction getTaskNodeInteraction(User user, Long processDefinitionVersionId, String nodeId) throws DefinitionDoesNotExistException;
+    Interaction getTaskNodeInteraction(User user, Long processDefinitionId, String nodeId) throws DefinitionDoesNotExistException;
 
     /**
      * Gets all role definitions for process definition by id.
@@ -199,7 +199,7 @@ public interface DefinitionService {
      *            authorized user
      * @return not <code>null</code>
      */
-    List<SwimlaneDefinition> getSwimlaneDefinitions(User user, Long processDefinitionVersionId) throws DefinitionDoesNotExistException;
+    List<SwimlaneDefinition> getSwimlaneDefinitions(User user, Long processDefinitionId) throws DefinitionDoesNotExistException;
 
     /**
      * Gets all variable user types for process definition by id.
@@ -208,7 +208,7 @@ public interface DefinitionService {
      *            authorized user
      * @return not <code>null</code>
      */
-    List<UserType> getUserTypes(User user, Long processDefinitionVersionId) throws DefinitionDoesNotExistException;
+    List<UserType> getUserTypes(User user, Long processDefinitionId) throws DefinitionDoesNotExistException;
 
     /**
      * Gets variable user type for process definition by name.
@@ -219,7 +219,7 @@ public interface DefinitionService {
      *            variable user type name
      * @return variable definition or <code>null</code>
      */
-    UserType getUserType(User user, Long processDefinitionVersionId, String name) throws DefinitionDoesNotExistException;
+    UserType getUserType(User user, Long processDefinitionId, String name) throws DefinitionDoesNotExistException;
 
     /**
      * Gets all variable definitions for process definition by id.
@@ -228,7 +228,7 @@ public interface DefinitionService {
      *            authorized user
      * @return not <code>null</code>
      */
-    List<VariableDefinition> getVariableDefinitions(User user, Long processDefinitionVersionId) throws DefinitionDoesNotExistException;
+    List<VariableDefinition> getVariableDefinitions(User user, Long processDefinitionId) throws DefinitionDoesNotExistException;
 
     /**
      * Gets variable definition for process definition by name.
@@ -239,7 +239,7 @@ public interface DefinitionService {
      *            variable name
      * @return variable definition or <code>null</code>
      */
-    VariableDefinition getVariableDefinition(User user, Long processDefinitionVersionId, String variableName) throws DefinitionDoesNotExistException;
+    VariableDefinition getVariableDefinition(User user, Long processDefinitionId, String variableName) throws DefinitionDoesNotExistException;
 
     /**
      * Gets all graph elements for process definition by id.
@@ -250,7 +250,7 @@ public interface DefinitionService {
      *            embedded subprocess id or <code>null</code>
      * @return not <code>null</code>
      */
-    List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long processDefinitionVersionId, String subprocessId);
+    List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long processDefinitionId, String subprocessId);
 
     /**
      * Gets all versions of process definition specified by name.

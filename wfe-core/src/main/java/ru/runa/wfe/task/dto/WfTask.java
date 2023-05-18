@@ -37,8 +37,8 @@ public class WfTask implements Serializable {
     private String swimlaneName;
     private Executor owner;
     private Actor targetActor;
-    private Long definitionVersionId;
-    private Long rootDefinitionVersionId;
+    private Long definitionId;
+    private Long rootDefinitionId;
     private String definitionName;
     private String rootDefinitionName;
     private Long processId;
@@ -61,9 +61,8 @@ public class WfTask implements Serializable {
     public WfTask() {
     }
 
-    public WfTask(Task task, Long rootProcessId, Long rootDefinitionVersionId, String rootDefinitionName, Long definitionVersionId,
-            String definitionName, Actor targetActor,
-                  boolean escalated, boolean acquiredBySubstitution, boolean firstOpen) {
+    public WfTask(Task task, Long rootProcessId, Long rootDefinitionId, String rootDefinitionName, Long definitionId, String definitionName,
+            Actor targetActor, boolean escalated, boolean acquiredBySubstitution, boolean firstOpen) {
         this.id = task.getId();
         this.name = task.getName();
         this.nodeId = task.getNodeId();
@@ -73,9 +72,9 @@ public class WfTask implements Serializable {
         this.rootProcessId = rootProcessId;
         this.processHierarchyIds = task.getProcess().getHierarchyIds();
         this.tokenId = task.getToken().getId();
-        this.rootDefinitionVersionId = rootDefinitionVersionId;
+        this.rootDefinitionId = rootDefinitionId;
         this.rootDefinitionName = rootDefinitionName;
-        this.definitionVersionId = definitionVersionId;
+        this.definitionId = definitionId;
         this.definitionName = definitionName;
         this.swimlaneName = task.getSwimlane() != null ? task.getSwimlane().getName() : "";
         this.creationDate = task.getCreateDate();
@@ -139,6 +138,7 @@ public class WfTask implements Serializable {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("definitionVersionId", definitionVersionId).add("processId", processId).add("id", id).add("name", name).toString();
+        return MoreObjects.toStringHelper(this).add("definitionId", definitionId).add("processId", processId).add("id", id).add("name", name)
+                .toString();
     }
 }

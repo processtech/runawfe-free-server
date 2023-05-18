@@ -40,10 +40,10 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition redeployProcessDefinition(User user, Long processDefinitionVersionId, byte[] processArchive, List<String> categories,
+    public WfDefinition redeployProcessDefinition(User user, Long processDefinitionId, byte[] processArchive, List<String> categories,
             Integer secondsBeforeArchiving) {
         try {
-            return getDefinitionService().redeployProcessDefinition(user, processDefinitionVersionId, processArchive, categories,
+            return getDefinitionService().redeployProcessDefinition(user, processDefinitionId, processArchive, categories,
                     secondsBeforeArchiving);
         } catch (Exception e) {
             throw handleException(e);
@@ -51,18 +51,18 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition updateProcessDefinition(User user, Long processDefinitionVersionId, byte[] processArchive) {
+    public WfDefinition updateProcessDefinition(User user, Long processDefinitionId, byte[] processArchive) {
         try {
-            return getDefinitionService().updateProcessDefinition(user, processDefinitionVersionId, processArchive);
+            return getDefinitionService().updateProcessDefinition(user, processDefinitionId, processArchive);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void setProcessDefinitionSubprocessBindingDate(User user, Long processDefinitionVersionId, Date date) throws DefinitionDoesNotExistException {
+    public void setProcessDefinitionSubprocessBindingDate(User user, Long processDefinitionId, Date date) throws DefinitionDoesNotExistException {
         try {
-            getDefinitionService().setProcessDefinitionSubprocessBindingDate(user, processDefinitionVersionId, date);
+            getDefinitionService().setProcessDefinitionSubprocessBindingDate(user, processDefinitionId, date);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -114,27 +114,27 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition getProcessDefinition(User user, Long processDefinitionVersionId) {
+    public WfDefinition getProcessDefinition(User user, Long processDefinitionId) {
         try {
-            return getDefinitionService().getProcessDefinition(user, processDefinitionVersionId);
+            return getDefinitionService().getProcessDefinition(user, processDefinitionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public ParsedProcessDefinition getParsedProcessDefinition(User user, Long processDefinitionVersionId) throws DefinitionDoesNotExistException {
+    public ParsedProcessDefinition getParsedProcessDefinition(User user, Long processDefinitionId) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getParsedProcessDefinition(user, processDefinitionVersionId);
+            return getDefinitionService().getParsedProcessDefinition(user, processDefinitionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfNode getNode(User user, Long processDefinitionVersionId, String nodeId) throws DefinitionDoesNotExistException {
+    public WfNode getNode(User user, Long processDefinitionId, String nodeId) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getNode(user, processDefinitionVersionId, nodeId);
+            return getDefinitionService().getNode(user, processDefinitionId, nodeId);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -150,90 +150,90 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     }
 
     @Override
-    public Interaction getStartInteraction(User user, Long processDefinitionVersionId) {
+    public Interaction getStartInteraction(User user, Long processDefinitionId) {
         try {
-            return getDefinitionService().getStartInteraction(user, processDefinitionVersionId);
+            return getDefinitionService().getStartInteraction(user, processDefinitionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public Interaction getTaskNodeInteraction(User user, Long processDefinitionVersionId, String nodeId) {
+    public Interaction getTaskNodeInteraction(User user, Long processDefinitionId, String nodeId) {
         try {
-            return getDefinitionService().getTaskNodeInteraction(user, processDefinitionVersionId, nodeId);
+            return getDefinitionService().getTaskNodeInteraction(user, processDefinitionId, nodeId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public byte[] getProcessDefinitionFile(User user, Long processDefinitionVersionId, String fileName) {
+    public byte[] getProcessDefinitionFile(User user, Long processDefinitionId, String fileName) {
         try {
-            return getDefinitionService().getProcessDefinitionFile(user, processDefinitionVersionId, fileName);
+            return getDefinitionService().getProcessDefinitionFile(user, processDefinitionId, fileName);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public byte[] getProcessDefinitionGraph(User user, Long processDefinitionVersionId, String subprocessId) throws DefinitionDoesNotExistException {
+    public byte[] getProcessDefinitionGraph(User user, Long processDefinitionId, String subprocessId) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getProcessDefinitionGraph(user, processDefinitionVersionId, subprocessId);
+            return getDefinitionService().getProcessDefinitionGraph(user, processDefinitionId, subprocessId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<SwimlaneDefinition> getSwimlaneDefinitions(User user, Long processDefinitionVersionId) {
+    public List<SwimlaneDefinition> getSwimlaneDefinitions(User user, Long processDefinitionId) {
         try {
-            return getDefinitionService().getSwimlaneDefinitions(user, processDefinitionVersionId);
+            return getDefinitionService().getSwimlaneDefinitions(user, processDefinitionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<UserType> getUserTypes(User user, Long processDefinitionVersionId) {
+    public List<UserType> getUserTypes(User user, Long processDefinitionId) {
         try {
-            return getDefinitionService().getUserTypes(user, processDefinitionVersionId);
+            return getDefinitionService().getUserTypes(user, processDefinitionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public UserType getUserType(User user, Long processDefinitionVersionId, String name) throws DefinitionDoesNotExistException {
+    public UserType getUserType(User user, Long processDefinitionId, String name) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getUserType(user, processDefinitionVersionId, name);
+            return getDefinitionService().getUserType(user, processDefinitionId, name);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<VariableDefinition> getVariableDefinitions(User user, Long processDefinitionVersionId) {
+    public List<VariableDefinition> getVariableDefinitions(User user, Long processDefinitionId) {
         try {
-            return getDefinitionService().getVariableDefinitions(user, processDefinitionVersionId);
+            return getDefinitionService().getVariableDefinitions(user, processDefinitionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public VariableDefinition getVariableDefinition(User user, Long processDefinitionVersionId, String variableName) throws DefinitionDoesNotExistException {
+    public VariableDefinition getVariableDefinition(User user, Long processDefinitionId, String variableName) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getVariableDefinition(user, processDefinitionVersionId, variableName);
+            return getDefinitionService().getVariableDefinition(user, processDefinitionId, variableName);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long processDefinitionVersionId, String subprocessId) {
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long processDefinitionId, String subprocessId) {
         try {
-            return getDefinitionService().getProcessDefinitionGraphElements(user, processDefinitionVersionId, subprocessId);
+            return getDefinitionService().getProcessDefinitionGraphElements(user, processDefinitionId, subprocessId);
         } catch (Exception e) {
             throw handleException(e);
         }

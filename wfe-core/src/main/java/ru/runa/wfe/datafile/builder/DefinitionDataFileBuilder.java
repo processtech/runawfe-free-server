@@ -35,7 +35,7 @@ public class DefinitionDataFileBuilder implements DataFileBuilder {
         List<WfDefinition> definitions = processDefinitionLogic.getProcessDefinitions(user, batchPresentation, false);
         for (WfDefinition definition : definitions) {
             String fileName = definition.getName() + "." + FileDataProvider.PAR_FILE;
-            byte[] definitionPar = processDefinitionLogic.getFile(user, definition.getVersionId(), FileDataProvider.PAR_FILE);
+            byte[] definitionPar = processDefinitionLogic.getFile(user, definition.getId(), FileDataProvider.PAR_FILE);
             ZipEntry zipEntry = new ZipEntry(PATH_TO_PROCESS_DEF + fileName);
             zos.putNextEntry(zipEntry);
             zos.write(definitionPar, 0, definitionPar.length);

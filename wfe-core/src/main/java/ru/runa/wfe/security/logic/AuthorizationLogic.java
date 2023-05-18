@@ -1,5 +1,7 @@
 package ru.runa.wfe.security.logic;
 
+import ru.runa.wfe.definition.QProcessDefinitionPack;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mysema.commons.lang.CloseableIterator;
@@ -37,7 +39,6 @@ import ru.runa.wfe.security.dao.QPermissionMapping;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.QExecutor;
 import ru.runa.wfe.user.User;
-
 import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
 import static ru.runa.wfe.security.SecuredObjectType.EXECUTOR;
 
@@ -149,11 +150,11 @@ public class AuthorizationLogic extends CommonLogic {
 
         // Export DEFINITION permissions.
         {
-            val d = QProcessDefinition.processDefinition;
-            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, d.name)
-                    .from(pm, e, d)
-                    .where(pm.objectType.eq(DEFINITION).and(pm.objectId.eq(d.id)).and(pm.executor.eq(e)))
-                    .orderBy(d.name.asc(), e.name.asc(), pm.permission.asc()));
+            val p = QProcessDefinitionPack.processDefinitionPack;
+            exportDataFilePermissions(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, p.name)
+                    .from(pm, e, p)
+                    .where(pm.objectType.eq(DEFINITION).and(pm.objectId.eq(p.id)).and(pm.executor.eq(e)))
+                    .orderBy(p.name.asc(), e.name.asc(), pm.permission.asc()));
         }
     }
 

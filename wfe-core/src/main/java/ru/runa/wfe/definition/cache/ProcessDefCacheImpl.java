@@ -5,89 +5,74 @@ import lombok.val;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.hibernate.HibernateUtil;
 import ru.runa.wfe.definition.ProcessDefinition;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
-import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionPackDao;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 class ProcessDefCacheImpl extends BaseCacheImpl {
 
-    public static final String versionIdToParsedCacheName = "ru.runa.wfe.definition.cache.definitionIdToDefinition";
-    public static final String definitionNameToVersionIdCacheName = "ru.runa.wfe.definition.cache.definitionNameToLatestDefinition";
-    public static final String definitionIdToVersionIdCacheName = "ru.runa.wfe.definition.cache.deploymentIdToDeploymentVersionId";
+    public static final String definitionIdToParsedCacheName = "ru.runa.wfe.definition.cache.definitionIdToParsed";
+    public static final String definitionNameToLatestCacheName = "ru.runa.wfe.definition.cache.definitionNameToLatest";
+    public static final String packIdToDefinitionIdCacheName = "ru.runa.wfe.definition.cache.packIdToDefinitionId";
 
     /**
-     * Key is ProcessDefinitionVersion.id.
+     * Key is ProcessDefinition.id.
      */
-    private final Cache<Long, ParsedProcessDefinition> versionIdToParsed;
+    private final Cache<Long, ParsedProcessDefinition> definitionIdToParsed;
 
     /**
-     * Key is ProcessDefinition.name, value is ProcessDefinitionVersion.id.
+     * Key is ProcessDefinitionPack.name, value is ProcessDefinition.id.
      */
-    private final Cache<String, Long> definitionNameToVersionId;
+    private final Cache<String, Long> definitionNameToLatest;
 
     /**
-     * Key is ProcessDefinition.name, value is ProcessDefinitionVersion.id.
+     * Key is ProcessDefinitionPack.id, value is ProcessDefinitionPack.latest.id.
      */
-    private final Cache<Long, Long> definitionIdToVersionId;
+    private final Cache<Long, Long> packIdToDefinitionId;
 
     public ProcessDefCacheImpl() {
-        versionIdToParsed = createCache(versionIdToParsedCacheName);
-        definitionNameToVersionId = createCache(definitionNameToVersionIdCacheName);
-        definitionIdToVersionId = createCache(definitionIdToVersionIdCacheName);
+        definitionIdToParsed = createCache(definitionIdToParsedCacheName);
+        definitionNameToLatest = createCache(definitionNameToLatestCacheName);
+        packIdToDefinitionId = createCache(packIdToDefinitionIdCacheName);
     }
 
-    public ParsedProcessDefinition getDefinition(
-            ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long processDefinitionVersionId
+    public ParsedProcessDefinition getDefinition(ProcessDefinitionDao processDefinitionDao, Long processDefinitionId
     ) {
-        ParsedProcessDefinition parsed;
-        parsed = versionIdToParsed.get(processDefinitionVersionId);
+        ParsedProcessDefinition parsed = definitionIdToParsed.get(processDefinitionId);
         if (parsed != null) {
             return parsed;
         }
-        ProcessDefinitionWithVersion dwv = processDefinitionDao.findDefinition(processDefinitionVersionId);
-        ProcessDefinition d = dwv.processDefinition;
-        ProcessDefinitionVersion dv = dwv.processDefinitionVersion;
-
-        // TODO Do we really need to unproxy? Maybe Hibernate.initialize(d), ...(dv) would be enough? Cannot ParsedProcessDefinition hold detached
-        // proxies?
-        dv = HibernateUtil.unproxy(dv);
-        d = HibernateUtil.unproxy(d);
-
-        val archive = new ProcessArchive(d, dv);
+        ProcessDefinition processDefinition = processDefinitionDao.get(processDefinitionId);
+        val archive = new ProcessArchive(processDefinition);
         parsed = archive.parseProcessDefinition();
-        versionIdToParsed.put(processDefinitionVersionId, parsed);
+        definitionIdToParsed.put(processDefinitionId, parsed);
         return parsed;
     }
 
     public ParsedProcessDefinition getLatestDefinition(
-            ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, @NonNull String definitionName
+            ProcessDefinitionPackDao processDefinitionPackDao, ProcessDefinitionDao processDefinitionDao, @NonNull String definitionName
     ) {
-        Long definitionVersionId = definitionNameToVersionId.get(definitionName);
-        if (definitionVersionId != null) {
-            return getDefinition(processDefinitionDao, processDefinitionVersionDao, definitionVersionId);
+        Long definitionId = definitionNameToLatest.get(definitionName);
+        if (definitionId != null) {
+            return getDefinition(processDefinitionDao, definitionId);
         }
-        // TODO Suboptimal: can we use whole entities instead of just id?
-        definitionVersionId = processDefinitionDao.findLatestDefinition(definitionName).processDefinitionVersion.getId();
-        definitionNameToVersionId.put(definitionName, definitionVersionId);
-        return getDefinition(processDefinitionDao, processDefinitionVersionDao, definitionVersionId);
+        definitionId = processDefinitionPackDao.getByName(definitionName).getLatest().getId();
+        definitionNameToLatest.put(definitionName, definitionId);
+        return getDefinition(processDefinitionDao, definitionId);
     }
 
-    public ParsedProcessDefinition getLatestDefinition(
-            ProcessDefinitionDao processDefinitionDao, ProcessDefinitionVersionDao processDefinitionVersionDao, long definitionId
+    public ParsedProcessDefinition getLatestDefinitionByPackId(
+            ProcessDefinitionPackDao processDefinitionPackDao, ProcessDefinitionDao processDefinitionDao, Long packId
     ) {
-        Long processDefinitionVersionId = definitionIdToVersionId.get(definitionId);
-        if (processDefinitionVersionId != null) {
-            return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
+        Long processDefinitionId = packIdToDefinitionId.get(packId);
+        if (processDefinitionId != null) {
+            return getDefinition(processDefinitionDao, processDefinitionId);
         }
-        // TODO Suboptimal: can we use whole entities instead of just id?
-        processDefinitionVersionId = processDefinitionDao.findLatestDefinition(definitionId).processDefinitionVersion.getId();
-        definitionIdToVersionId.put(definitionId, processDefinitionVersionId);
-        return getDefinition(processDefinitionDao, processDefinitionVersionDao, processDefinitionVersionId);
+        processDefinitionId = processDefinitionPackDao.get(packId).getLatest().getId();
+        packIdToDefinitionId.put(packId, processDefinitionId);
+        return getDefinition(processDefinitionDao, processDefinitionId);
     }
 
     @Override

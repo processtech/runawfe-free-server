@@ -49,7 +49,7 @@ public class ProcessDefinitionUpdateManager {
         timeMeasurer.jobStarted();
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(oldDefinition.getName());
-        filter.setDefinitionVersion(oldDefinition.getProcessDefinitionVersion().getVersion());
+        filter.setDefinitionVersion(oldDefinition.getVersion());
         filter.setFinished(false);
         List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
         timeMeasurer.jobEnded("Loading " + processes.size() + " active processes for " + oldDefinition);

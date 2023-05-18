@@ -15,7 +15,7 @@ public class DefinitionCreateDateTdBuilder extends BaseDateTdBuilder<WfDefinitio
 
     @Override
     protected Long getId(WfDefinition definition) {
-        return definition.getVersionId();
+        return definition.getId();
     }
 
     @Override

@@ -26,7 +26,6 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinition;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
@@ -54,14 +53,12 @@ public class ProcessArchive {
     );
 
     private final ProcessDefinition processDefinition;
-    private final ProcessDefinitionVersion processDefinitionVersion;
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 
-    public ProcessArchive(@NonNull ProcessDefinition d, @NonNull ProcessDefinitionVersion dv) {
+    public ProcessArchive(@NonNull ProcessDefinition processDefinition) {
         try {
-            this.processDefinition = d;
-            this.processDefinitionVersion = dv;
-            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(dv.getContent()));
+            this.processDefinition = processDefinition;
+            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(processDefinition.getContent()));
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
                 String entryName = zipEntry.getName();
@@ -78,7 +75,7 @@ public class ProcessArchive {
     }
 
     public ParsedProcessDefinition parseProcessDefinition() {
-        ParsedProcessDefinition parsedProcessDefinition = new ParsedProcessDefinition(processDefinition, processDefinitionVersion);
+        ParsedProcessDefinition parsedProcessDefinition = new ParsedProcessDefinition(processDefinition);
         for (ProcessArchiveParser processArchiveParser : processArchiveParsers) {
             processArchiveParser.readFromArchive(this, parsedProcessDefinition);
         }
@@ -87,7 +84,7 @@ public class ProcessArchive {
             Matcher matcher = SUBPROCESS_DEFINITION_PATTERN.matcher(entry.getKey());
             if (matcher.matches()) {
                 int subprocessIndex = Integer.parseInt(matcher.group(1));
-                ParsedSubprocessDefinition subprocessDefinition = new ParsedSubprocessDefinition(parsedProcessDefinition);
+                ParsedSubprocessDefinition subprocessDefinition = new ParsedSubprocessDefinition(parsedProcessDefinition, processDefinition);
                 subprocessDefinition.setNodeId(FileDataProvider.SUBPROCESS_DEFINITION_PREFIX + subprocessIndex);
                 for (ProcessArchiveParser processArchiveParser : processArchiveParsers) {
                     if (processArchiveParser.isApplicableToEmbeddedSubprocess()) {
@@ -104,7 +101,7 @@ public class ProcessArchive {
         for (ParsedSubprocessDefinition unusedDefinition : Sets.difference(new HashSet<>(subprocessDefinitions.values()),
                 usedSubprocessDefinitions)) {
             log.debug(String.format("Subprocess file '%s.%s' has been ignored on deployment '%s'", unusedDefinition.getNodeId(),
-                    FileDataProvider.PROCESSDEFINITION_XML_FILE_NAME, processDefinition.getName()));
+                    FileDataProvider.PROCESSDEFINITION_XML_FILE_NAME, processDefinition.getPack().getName()));
         }
         parsedProcessDefinition.mergeWithEmbeddedSubprocesses();
         return parsedProcessDefinition;

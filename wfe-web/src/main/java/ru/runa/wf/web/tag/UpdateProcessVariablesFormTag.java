@@ -5,7 +5,6 @@ import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Label;
-import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
@@ -40,7 +39,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getProcessId());
-        List<VariableDefinition> variables = getVariableDefinitions(process.getDefinitionVersionId());
+        List<VariableDefinition> variables = getVariableDefinitions(process.getDefinitionId());
         if (!variables.isEmpty()) {
             if (WebResources.isUpdateProcessVariablesEnabled() && isAvailable()) {
                 getForm().setEncType(Form.ENC_UPLOAD);
@@ -88,8 +87,8 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         }
     }
 
-    protected List<VariableDefinition> getVariableDefinitions(Long processDefinitionVersionId) {
-        return Delegates.getDefinitionService().getVariableDefinitions(getUser(), processDefinitionVersionId);
+    protected List<VariableDefinition> getVariableDefinitions(Long processDefinitionId) {
+        return Delegates.getDefinitionService().getVariableDefinitions(getUser(), processDefinitionId);
     }
 
     protected boolean isAvailable() {

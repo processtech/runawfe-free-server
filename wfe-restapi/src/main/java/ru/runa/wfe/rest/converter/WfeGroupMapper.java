@@ -6,7 +6,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import ru.runa.wfe.rest.dto.WfeExecutor;
 import ru.runa.wfe.rest.dto.WfeGroup;
-import ru.runa.wfe.rest.dto.WfeUser;
 import ru.runa.wfe.user.DelegationGroup;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Group;
@@ -20,7 +19,7 @@ public interface WfeGroupMapper {
     List<WfeGroup> map(List<Group> groups);
 
     @AfterMapping
-    public default void additionalProperties(Group element, @MappingTarget WfeUser target) {
+    public default void additionalProperties(Group element, @MappingTarget WfeGroup target) {
         if (element instanceof DelegationGroup) {
             target.setType(WfeExecutor.Type.USER);
         } else if (element instanceof EscalationGroup) {

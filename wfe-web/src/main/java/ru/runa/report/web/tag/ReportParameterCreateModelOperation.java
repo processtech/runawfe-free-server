@@ -85,7 +85,7 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
 
         for (WfDefinition definition : definitions) {
             try {
-                for (SwimlaneDefinition swimlane : Delegates.getDefinitionService().getSwimlaneDefinitions(user, definition.getVersionId())) {
+                for (SwimlaneDefinition swimlane : Delegates.getDefinitionService().getSwimlaneDefinitions(user, definition.getId())) {
                     swimlanes.add(swimlane.getName());
                 }
             } catch (Exception e) {

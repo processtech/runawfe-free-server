@@ -6,7 +6,7 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
@@ -46,7 +46,7 @@ public abstract class Process<T extends Token> extends SecuredObject {
     @Override
     public abstract Long getId();
     public abstract T getRootToken();
-    public abstract ProcessDefinitionVersion getDefinitionVersion();
+    public abstract ProcessDefinition getDefinition();
     public abstract ExecutionStatus getExecutionStatus();
 
     @Override

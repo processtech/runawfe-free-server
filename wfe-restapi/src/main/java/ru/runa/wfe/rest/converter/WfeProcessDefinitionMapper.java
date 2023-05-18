@@ -9,7 +9,6 @@ import ru.runa.wfe.rest.dto.WfeProcessDefinition;
 @Mapper(uses = WfeUserMapper.class)
 public interface WfeProcessDefinitionMapper {
 
-    @Mapping(source = "versionId", target = "id")
     @Mapping(source = "createActor", target = "createUser")
     @Mapping(source = "updateActor", target = "updateUser")
     WfeProcessDefinition map(WfDefinition definition);

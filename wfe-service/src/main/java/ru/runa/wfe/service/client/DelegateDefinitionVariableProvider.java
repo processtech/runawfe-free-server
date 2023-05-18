@@ -18,29 +18,29 @@ import ru.runa.wfe.var.format.FileFormat;
 public class DelegateDefinitionVariableProvider extends AbstractVariableProvider {
     private final DefinitionService definitionService;
     private final User user;
-    private final Long definitionVersionId;
+    private final Long definitionId;
     private String definitionName;
     private ParsedProcessDefinition definition;
 
-    public DelegateDefinitionVariableProvider(DefinitionService definitionService, User user, Long definitionVersionId) {
+    public DelegateDefinitionVariableProvider(DefinitionService definitionService, User user, Long definitionId) {
         this.definitionService = definitionService;
         this.user = user;
-        this.definitionVersionId = definitionVersionId;
+        this.definitionId = definitionId;
     }
 
-    public DelegateDefinitionVariableProvider(User user, Long definitionVersionId) {
-        this(Delegates.getDefinitionService(), user, definitionVersionId);
+    public DelegateDefinitionVariableProvider(User user, Long definitionId) {
+        this(Delegates.getDefinitionService(), user, definitionId);
     }
 
     @Override
-    public Long getProcessDefinitionVersionId() {
-        return definitionVersionId;
+    public Long getProcessDefinitionId() {
+        return definitionId;
     }
 
     @Override
     public String getProcessDefinitionName() {
         if (definitionName == null) {
-            definitionName = definitionService.getProcessDefinition(user, definitionVersionId).getName();
+            definitionName = definitionService.getProcessDefinition(user, definitionId).getName();
         }
         return definitionName;
     }
@@ -48,7 +48,7 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
     @Override
     public ParsedProcessDefinition getParsedProcessDefinition() {
         if (definition == null) {
-            definition = definitionService.getParsedProcessDefinition(user, definitionVersionId);
+            definition = definitionService.getParsedProcessDefinition(user, definitionId);
         }
         return definition;
     }
@@ -60,7 +60,7 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
 
     @Override
     public UserType getUserType(String name) {
-        return definitionService.getUserType(user, definitionVersionId, name);
+        return definitionService.getUserType(user, definitionId, name);
     }
 
     @Override
@@ -74,16 +74,17 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
 
     @Override
     public WfVariable getVariable(String variableName) {
-        VariableDefinition variableDefinition = definitionService.getVariableDefinition(user, definitionVersionId, variableName);
+        VariableDefinition variableDefinition = definitionService.getVariableDefinition(user, definitionId, variableName);
         if (variableDefinition != null) {
             return new WfVariable(
                     variableDefinition,
                     variableDefinition.getFormatNotNull() instanceof FileFormat ?
-                            new FileVariableProxy(user, null, definitionVersionId, variableName, (FileVariable) variableDefinition.getDefaultValue()) :
+ new FileVariableProxy(user, null,
+                    definitionId, variableName, (FileVariable) variableDefinition.getDefaultValue()) :
                             null
             );
         }
-        List<SwimlaneDefinition> swimlaneDefinitions = definitionService.getSwimlaneDefinitions(user, definitionVersionId);
+        List<SwimlaneDefinition> swimlaneDefinitions = definitionService.getSwimlaneDefinitions(user, definitionId);
         for (SwimlaneDefinition swimlaneDefinition : swimlaneDefinitions) {
             if (Objects.equal(variableName, swimlaneDefinition.getName())) {
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), null);
@@ -94,6 +95,6 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("definitionVersionId", definitionVersionId).toString();
+        return MoreObjects.toStringHelper(this).add("definitionId", definitionId).toString();
     }
 }

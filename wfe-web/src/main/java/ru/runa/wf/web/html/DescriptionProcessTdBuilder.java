@@ -28,7 +28,7 @@ public class DescriptionProcessTdBuilder implements TdBuilder {
         WfDefinition definition = (WfDefinition) object;
         ConcreteElement descriptionLink;
         if (definition.hasHtmlDescription()) {
-            String url = Commons.getActionUrl(LoadProcessDefinitionHtmlFileAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getVersionId(),
+            String url = Commons.getActionUrl(LoadProcessDefinitionHtmlFileAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
                     env.getPageContext(), PortletUrlType.Render);
             descriptionLink = new A(url, definition.getDescription());
         } else {

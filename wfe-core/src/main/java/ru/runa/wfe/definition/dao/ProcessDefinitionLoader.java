@@ -13,19 +13,19 @@ public class ProcessDefinitionLoader {
     @Autowired
     private ProcessDefCacheCtrl processDefCacheCtrl;
 
-    public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) {
-        return processDefCacheCtrl.getDefinition(processDefinitionVersionId);
+    public ParsedProcessDefinition getDefinition(Long processDefinitionId) {
+        return processDefCacheCtrl.getDefinition(processDefinitionId);
     }
 
     public ParsedProcessDefinition getDefinition(@NonNull Process process) {
-        return getDefinition(process.getDefinitionVersion().getId());
+        return getDefinition(process.getDefinition().getId());
     }
 
     public ParsedProcessDefinition getLatestDefinition(@NonNull String definitionName) {
         return processDefCacheCtrl.getLatestDefinition(definitionName);
     }
 
-    public ParsedProcessDefinition getLatestDefinition(long definitionId) {
-        return processDefCacheCtrl.getLatestDefinition(definitionId);
+    public ParsedProcessDefinition getLatestDefinitionByPackId(Long packId) {
+        return processDefCacheCtrl.getLatestDefinitionByPackId(packId);
     }
 }

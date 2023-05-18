@@ -36,8 +36,8 @@ public class PropertyTdBuilder extends BaseTdBuilder {
         ConcreteElement element;
         if (authState == AuthState.ALWAYS_ENABLE || (authState == AuthState.ASK_WFE && isEnabled(object, env))) {
             element = new A(env.getURL(object), getValue(object, env));
-            if (object instanceof WfDefinition && env.getConfirmationMessage(((WfDefinition) object).getVersionId()) != null) {
-                element.addAttribute("onclick", env.getConfirmationMessage(((WfDefinition) object).getVersionId()));
+            if (object instanceof WfDefinition && env.getConfirmationMessage(((WfDefinition) object).getId()) != null) {
+                element.addAttribute("onclick", env.getConfirmationMessage(((WfDefinition) object).getId()));
             }
         } else {
             element = new StringElement(getValue(object, env));

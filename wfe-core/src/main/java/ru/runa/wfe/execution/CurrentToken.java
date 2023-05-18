@@ -32,7 +32,7 @@ import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 
 /**
- * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.definition.ProcessDefinitionVersion}.
+ * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.definition.ProcessDefinition}.
  */
 @Entity
 @Table(name = "BPM_TOKEN")

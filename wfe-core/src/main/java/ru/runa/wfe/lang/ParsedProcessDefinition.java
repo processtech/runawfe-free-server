@@ -2,8 +2,8 @@ package ru.runa.wfe.lang;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,13 +12,14 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
-import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.ListFormat;
@@ -27,79 +28,137 @@ import ru.runa.wfe.var.format.MapFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 public class ParsedProcessDefinition extends GraphElement implements FileDataProvider {
-    private static final long serialVersionUID = 1L;
-    // TODO remove association for efficiency
-    protected ProcessDefinition processDefinition;
-    protected ProcessDefinitionVersion processDefinitionVersion;
-    protected Map<String, byte[]> processFiles = Maps.newHashMap();
-    protected StartNode startNode;
-    protected final List<Node> nodesList = Lists.newArrayList();
-    protected final Map<String, Node> nodesMap = Maps.newHashMap();
-    protected final List<SwimlaneDefinition> swimlaneDefinitions = Lists.newArrayList();
-    protected final Map<String, SwimlaneDefinition> swimlaneDefinitionsMap = Maps.newHashMap();
-    protected final Map<String, Interaction> interactions = Maps.newHashMap();
-    protected final Map<String, UserType> userTypes = Maps.newHashMap();
-    protected final List<VariableDefinition> variables = Lists.newArrayList();
-    protected final Map<String, VariableDefinition> variablesMap = Maps.newHashMap();
-    protected ProcessDefinitionAccessType accessType = ProcessDefinitionAccessType.Process;
-    protected Map<String, ParsedSubprocessDefinition> embeddedSubprocesses = Maps.newHashMap();
+    private final Long id;
+    private final Long packId;
+    private Language language = Language.BPMN2;
+    private String name;
+    private String description;
+    private final String category;
+    private final Long version;
+    private final Date createDate;
+    private final Actor createActor;
+    private final Date updateDate;
+    private final Actor updateActor;
+    private final Date subprocessBindingDate;
+    private final Integer secondsBeforeArchiving;
+    private final SecuredObject securedObject = new SecuredObject();;
+    private final Map<String, byte[]> processFiles = new HashMap<>();
+    private StartNode startNode;
+    private final List<Node> nodeList = new ArrayList<>();
+    private final Map<String, Node> nodesMap = new HashMap<>();
+    private final List<SwimlaneDefinition> swimlaneDefinitions = new ArrayList<>();
+    private final Map<String, SwimlaneDefinition> swimlaneDefinitionsMap = new HashMap<>();
+    private final Map<String, Interaction> interactions = new HashMap<>();
+    private final Map<String, UserType> userTypes = new HashMap<>();
+    private final List<VariableDefinition> variables = new ArrayList<>();
+    private final Map<String, VariableDefinition> variablesMap = new HashMap<>();
+    private final Map<String, ParsedSubprocessDefinition> embeddedSubprocesses = new HashMap<>();
+    private ProcessDefinitionAccessType accessType = ProcessDefinitionAccessType.Process;
     private Boolean nodeAsyncExecution;
     private boolean graphActionsEnabled;
-    private final List<ProcessDefinitionChange> changes = Lists.newArrayList();
+    private final List<ProcessDefinitionChange> changes = new ArrayList<>();
 
-    protected ParsedProcessDefinition() {
+    public class SecuredObject extends ru.runa.wfe.security.SecuredObject {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Long getId() {
+            return ParsedProcessDefinition.this.packId;
+        }
+
+        @Override
+        public SecuredObjectType getSecuredObjectType() {
+            return SecuredObjectType.DEFINITION;
+        }
+
     }
 
-    public ParsedProcessDefinition(@NonNull ProcessDefinition d, @NonNull ProcessDefinitionVersion dv) {
-        this.processDefinition = d;
-        this.processDefinitionVersion = dv;
+    public ParsedProcessDefinition(@NonNull ProcessDefinition processDefinition) {
+        id = processDefinition.getId();
+        packId = processDefinition.getPack().getId();
+        version = processDefinition.getVersion();
+        name = processDefinition.getPack().getName();
+        description = processDefinition.getPack().getDescription();
+        category = processDefinition.getPack().getCategory();
+        createDate = processDefinition.getCreateDate();
+        createActor = processDefinition.getCreateActor();
+        updateDate = processDefinition.getUpdateDate();
+        updateActor = processDefinition.getUpdateActor();
+        subprocessBindingDate = processDefinition.getSubprocessBindingDate();
+        secondsBeforeArchiving = processDefinition.getPack().getSecondsBeforeArchiving();
         parsedProcessDefinition = this;
     }
 
-    public ParsedProcessDefinition(ProcessDefinitionWithVersion dwv) {
-        this(dwv.processDefinition, dwv.processDefinitionVersion);
+    public Language getLanguage() {
+        return language;
     }
 
-    /**
-     * @return processDefinitionVersion.id
-     */
-    public Long getId() {
-        return processDefinitionVersion.getId();
+    public void setLanguage(Language language) {
+        this.language = language;
     }
 
-    /**
-     * @return processDefinition.name
-     */
     @Override
     public String getName() {
-        return processDefinition.getName();
+        return name;
     }
 
     @Override
     public void setName(String name) {
-        if (processDefinition.getName() != null) {
-            // don't override name from database
-            return;
-        }
-        processDefinition.setName(name);
+        this.name = name;
     }
 
     @Override
     public String getDescription() {
-        return processDefinition.getDescription();
+        return description;
     }
 
     @Override
     public void setDescription(String description) {
-        processDefinition.setDescription(description);
+        this.description = description;
     }
 
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
+    public Long getId() {
+        return id;
     }
 
-    public ProcessDefinitionVersion getProcessDefinitionVersion() {
-        return processDefinitionVersion;
+    public Long getPackId() {
+        return packId;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public Actor getCreateActor() {
+        return createActor;
+    }
+
+    public Actor getUpdateActor() {
+        return updateActor;
+    }
+
+    public Date getUpdateDate() {
+        return updateDate;
+    }
+
+    public Date getSubprocessBindingDate() {
+        return subprocessBindingDate;
+    }
+
+    public Integer getSecondsBeforeArchiving() {
+        return secondsBeforeArchiving;
+    }
+
+    public SecuredObject getSecuredObject() {
+        return securedObject;
     }
 
     public ProcessDefinitionAccessType getAccessType() {
@@ -238,7 +297,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     }
 
     public List<UserType> getUserTypes() {
-        return Lists.newArrayList(userTypes.values());
+        return new ArrayList<>(userTypes.values());
     }
 
     public List<VariableDefinition> getVariables() {
@@ -303,7 +362,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     }
 
     public List<Node> getNodes(boolean withEmbeddedSubprocesses) {
-        List<Node> result = Lists.newArrayList(nodesList);
+        List<Node> result = new ArrayList<>(nodeList);
         if (withEmbeddedSubprocesses) {
             for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
                 result.addAll(subprocessDefinition.getNodes(withEmbeddedSubprocesses));
@@ -314,7 +373,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
 
     public Node addNode(Node node) {
         Preconditions.checkArgument(node != null, "can't add a null node to a processdefinition");
-        nodesList.add(node);
+        nodeList.add(node);
         if (nodesMap.put(node.getNodeId(), node) != null) {
             throw new InvalidDefinitionException(getName(), "found duplicated node " + node.getNodeId());
         }
@@ -326,6 +385,10 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
             startNode = (StartNode) node;
         }
         return node;
+    }
+
+    public List<Node> getNodeList() {
+        return nodeList;
     }
 
     public Node getNode(String id) {
@@ -421,8 +484,8 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     }
 
     public List<String> getEmbeddedSubprocessNodeIds() {
-        List<String> result = Lists.newArrayList();
-        for (Node node : nodesList) {
+        List<String> result = new ArrayList<>();
+        for (Node node : nodeList) {
             if (node instanceof SubprocessNode && ((SubprocessNode) node).isEmbedded()) {
                 result.add(node.getNodeId());
             }
@@ -431,7 +494,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     }
 
     public String getEmbeddedSubprocessNodeId(String subprocessName) {
-        for (Node node : nodesList) {
+        for (Node node : nodeList) {
             if (node instanceof SubprocessNode) {
                 SubprocessNode subprocessNode = (SubprocessNode) node;
                 if (subprocessNode.isEmbedded() && Objects.equal(subprocessName, subprocessNode.getSubProcessName())) {
@@ -480,7 +543,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     }
 
     public void mergeWithEmbeddedSubprocesses() {
-        for (Node node : Lists.newArrayList(nodesList)) {
+        for (Node node : new ArrayList<>(nodeList)) {
             if (node instanceof SubprocessNode) {
                 SubprocessNode subprocessNode = (SubprocessNode) node;
                 if (subprocessNode.isEmbedded()) {
@@ -510,9 +573,6 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
 
     @Override
     public String toString() {
-        if (processDefinition != null) {
-            return processDefinition.toString();
-        }
-        return name;
+        return name + " v " + version;
     }
 }

@@ -57,7 +57,7 @@ public interface TdBuilder {
         // As of 2018-09-01, parameter "extractor" is used only in ReflectionRowBuilder.EnvImpl.isAllowed().
         boolean isAllowed(Permission permission, ru.runa.common.web.html.TdBuilder.Env.SecuredObjectExtractor extractor);
 
-        boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionVersionId);
+        boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionId);
 
         boolean isExcelExport();
     }

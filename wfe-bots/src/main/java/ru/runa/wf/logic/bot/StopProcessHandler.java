@@ -30,7 +30,7 @@ public class StopProcessHandler extends TaskHandlerBase implements ActionHandler
         if (processId > 0) {
             CurrentProcess process = ApplicationContextFactory.getCurrentProcessDao().get(processId);
             ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
-            ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process.getDefinitionVersion().getId());
+            ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process);
             ExecutionContext targetExecutionContext = new ExecutionContext(parsedProcessDefinition, process);
             ApplicationContextFactory.getExecutionLogic().endProcess(process, targetExecutionContext, null);
         } else {

@@ -37,7 +37,7 @@ public class TaskProcessDefinitionTdBuilder implements TdBuilder {
     }
 
     protected Long getDefinitionId(WfTask task) {
-        return task.getDefinitionVersionId();
+        return task.getDefinitionId();
     }
 
     @Override

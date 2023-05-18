@@ -26,7 +26,7 @@ import ru.runa.wfe.commons.GitProperties;
 import ru.runa.wfe.commons.InstallationProperties;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.datasource.DataSourceStorage;
-import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionPackDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.report.dao.ReportDefinitionDao;
@@ -51,7 +51,7 @@ public class StatisticReportService {
     @Autowired
     private ExecutorDao executorDao;
     @Autowired
-    private ProcessDefinitionDao processDefinitionDao;
+    private ProcessDefinitionPackDao processDefinitionPackDao;
     @Autowired
     private StatisticReportLogDao statisticReportLogDao;
 
@@ -85,7 +85,7 @@ public class StatisticReportService {
         info.put("relationsCount", relationDao.getAllCount());
         info.put("activeProcessesCount", currentProcessDao.getAllActiveProcessesCount());
         info.put("completedProcessesCount", currentProcessDao.getAllCompletedProcessesCount());
-        info.put("processDefinitionsCount", processDefinitionDao.findAllDefinitionIds().size());
+        info.put("processDefinitionsCount", processDefinitionPackDao.findAllIds().size());
         info.put("dataSourcesCount", DataSourceStorage.getAllDataSourcesCount());
 
         return info;

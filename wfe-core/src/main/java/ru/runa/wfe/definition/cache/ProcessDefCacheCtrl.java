@@ -9,39 +9,39 @@ import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.ProcessDefinition;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinitionPack;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
-import ru.runa.wfe.definition.dao.ProcessDefinitionVersionDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionPackDao;
 import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 @Component
 public class ProcessDefCacheCtrl extends BaseCacheCtrl<ProcessDefCacheImpl> {
 
     @Autowired
-    private ProcessDefinitionDao processDefinitionDao;
+    private ProcessDefinitionPackDao processDefinitionPackDao;
     @Autowired
-    private ProcessDefinitionVersionDao processDefinitionVersionDao;
+    private ProcessDefinitionDao processDefinitionDao;
 
     public ProcessDefCacheCtrl() {
         super(
                 new ProcessDefinitionCacheFactory(),
                 new ArrayList<ListenObjectDefinition>() {{
+                    add(new ListenObjectDefinition(ProcessDefinitionPack.class));
                     add(new ListenObjectDefinition(ProcessDefinition.class));
-                    add(new ListenObjectDefinition(ProcessDefinitionVersion.class));
                 }}
         );
     }
 
-    public ParsedProcessDefinition getDefinition(long definitionVersionId) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(stateMachine).getDefinition(processDefinitionDao, processDefinitionVersionDao, definitionVersionId);
+    public ParsedProcessDefinition getDefinition(Long definitionId) throws DefinitionDoesNotExistException {
+        return CachingLogic.getCacheImpl(stateMachine).getDefinition(processDefinitionDao, definitionId);
     }
 
     public ParsedProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionDao, processDefinitionVersionDao, definitionName);
+        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionPackDao, processDefinitionDao, definitionName);
     }
 
-    public ParsedProcessDefinition getLatestDefinition(long definitionId) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(processDefinitionDao, processDefinitionVersionDao, definitionId);
+    public ParsedProcessDefinition getLatestDefinitionByPackId(Long packId) throws DefinitionDoesNotExistException {
+        return CachingLogic.getCacheImpl(stateMachine).getLatestDefinitionByPackId(processDefinitionPackDao, processDefinitionDao, packId);
     }
 
     private static class ProcessDefinitionCacheFactory extends SMCacheFactory<ProcessDefCacheImpl> {

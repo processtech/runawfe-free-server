@@ -9,9 +9,9 @@ import ru.runa.wfe.var.VariableDefinition;
 @Tag(bodyContent = BodyContent.EMPTY, name = "updateProcessVariablesInChat")
 public class UpdateProcessVariablesInChatFormTag extends UpdateProcessVariablesFormTag {
     @Override
-    protected List<VariableDefinition> getVariableDefinitions(Long processDefinitionVersionId) {
+    protected List<VariableDefinition> getVariableDefinitions(Long processDefinitionId) {
         List<VariableDefinition> variables = new ArrayList<>();
-        for (VariableDefinition variable : super.getVariableDefinitions(processDefinitionVersionId)) {
+        for (VariableDefinition variable : super.getVariableDefinitions(processDefinitionId)) {
             if (variable.isEditableInChat()) {
                 variables.add(variable);
             }

@@ -114,15 +114,15 @@ public class ProcessArchiver {
         // "Order by" is for determinism and to simplify updating lastHandledProcessId.
         sqlSelectRootProcessIds = dialect.getLimitString("select p.id " +
                 "from bpm_process p " +
-                "inner join bpm_process_definition_ver dv on (dv.id = p.definition_version_id) " +
-                "inner join bpm_process_definition d on (d.id = dv.definition_id) " +
+                "inner join bpm_process_definition d on (d.id = p.definition_id) " +
+                "inner join bpm_process_definition_pack dp on (dp.id = d.pack_id) " +
                 // Continue since last step:
                 "where p.id > ? and " +
                 // Get only root process IDs:
                 "      not exists (select s.process_id from bpm_subprocess s where s.process_id = p.id) and " +
                 // Check condition for root processes:
                 "      p.execution_status = 'ENDED' and " +
-                "      " + generateEndDateCheckExpression("d", "p.end_date", defaultSecondsBeforeArchiving) + " and " +
+                "      " + generateEndDateCheckExpression("dp", "p.end_date", defaultSecondsBeforeArchiving) + " and " +
                 "      not exists (select t.process_id from bpm_task t where t.process_id = p.id) and " +
                 "      not exists (select j.process_id from bpm_job j where j.process_id = p.id) and " +
                 // Check no descendant processes exist that violate condition:
@@ -130,11 +130,11 @@ public class ProcessArchiver {
                 "          select p2.id " +
                 "          from bpm_subprocess s2 " +
                 "          inner join bpm_process p2 on (p2.id = s2.process_id) " +
-                "          inner join bpm_process_definition_ver dv2 on (dv2.id = p2.definition_version_id) " +
-                "          inner join bpm_process_definition d2 on (d2.id = dv2.definition_id) " +
+                "          inner join bpm_process_definition d2 on (d2.id = p2.definition_id) " +
+                "          inner join bpm_process_definition_pack dp2 on (dp2.id = d2.pack_id) " +
                 "          where s2.root_process_id = p.id and (" +
                 "                p2.execution_status <> 'ENDED' or " +
-                "                not(" + generateEndDateCheckExpression("d2", "p2.end_date", defaultSecondsBeforeArchiving) + ") or " +
+                "                not(" + generateEndDateCheckExpression("dp2", "p2.end_date", defaultSecondsBeforeArchiving) + ") or " +
                 "                exists (select t.process_id from bpm_task t where t.process_id = p2.id) or " +
                 "                exists (select j.process_id from bpm_job j where j.process_id = p2.id) " +
                 "          ) " +
@@ -224,10 +224,10 @@ public class ProcessArchiver {
                 try {
                     // Create rows in referenced tables first, then in referencing tables.
 
-                    // Refernces self, plus has root_token_id field.
+                    // References self, plus has root_token_id field.
                     stmt.executeUpdate("insert into archived_process "
-                            + "      (id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id, external_data) "
-                            + "select id, parent_id, tree_path, start_date, end_date, version, definition_version_id, root_token_id, external_data "
+                            + "      (id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id, external_data) "
+                            + "select id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id, external_data "
                             + "from bpm_process " + "where id in " + pidsCsv);
 
                     // References process and self.

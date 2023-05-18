@@ -70,7 +70,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         versionTR.addElement(new TD(versionName).setClass(Resources.CLASS_LIST_TABLE_TD));
         TD versionTD = new TD();
         versionTD.addElement(definition.getVersion() + " (");
-        String downloadUrl = Commons.getActionUrl(LoadProcessDefinitionArchiveAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getVersionId(),
+        String downloadUrl = Commons.getActionUrl(LoadProcessDefinitionArchiveAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
                 pageContext, PortletUrlType.Render);
         versionTD.addElement(new A(downloadUrl, MessagesOther.LABEL_EXPORT.message(pageContext)));
         versionTD.addElement(")");
@@ -124,7 +124,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         displayDataSpan.setClass("displayData");
         subprocessBindingDateTd.addElement(displayDataSpan);
         Span editDataSpan = new Span();
-        editDataSpan.addElement(HTMLUtils.createInput(Input.HIDDEN, IdForm.ID_INPUT_NAME, definition.getVersionId().toString()));
+        editDataSpan.addElement(HTMLUtils.createInput(Input.HIDDEN, IdForm.ID_INPUT_NAME, definition.getId().toString()));
         Input input = HTMLUtils.createInput("subprocessBindingDate", CalendarUtil.formatDateTime(definition.getSubprocessBindingDate()));
         input.setClass("inputDateTime");
         input.setStyle("width: 150px;");

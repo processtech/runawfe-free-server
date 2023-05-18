@@ -27,13 +27,13 @@ public class CurrentProcessClassPresentation extends ClassPresentation {
         super(CurrentProcess.class, "", true, new FieldDescriptor[] {
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(CurrentProcess.class, "id"), true, FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "id" }),
-                new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(CurrentProcess.class, "definitionVersion.definition.name"), true,
+                new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(CurrentProcess.class, "definition.pack.name"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "name" }),
                 new FieldDescriptor(PROCESS_START_DATE, Date.class.getName(), new DefaultDbSource(CurrentProcess.class, "startDate"), true, 1,
                         BatchPresentationConsts.DESC, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessStartDateTdBuilder", new Object[] {}),
                 new FieldDescriptor(PROCESS_END_DATE, Date.class.getName(), new DefaultDbSource(CurrentProcess.class, "endDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessEndDateTdBuilder", new Object[] {}),
-                new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(CurrentProcess.class, "definitionVersion.version"), true,
+                new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(CurrentProcess.class, "definition.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "version" }),
                 new FieldDescriptor("groupBy_" + PROCESS_ID, String.class.getName(), new SubProcessDbSource(CurrentProcess.class,
                         "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTdBuilder", new Object[] {})

@@ -13,7 +13,7 @@ import ru.runa.wfe.audit.dao.CurrentProcessLogDao;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.dbmigration.DbMigration;
 import ru.runa.wfe.definition.InvalidDefinitionException;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
@@ -46,7 +46,7 @@ public class TransitionLogPatch extends DbMigration {
         ScrollableResults scrollableResults = session.createSQLQuery(q).scroll(ScrollMode.FORWARD_ONLY);
         int failed = 0;
         int success = 0;
-        val failedDeployments = new HashMap<ProcessDefinitionVersion, Date>();
+        val failedDeployments = new HashMap<ProcessDefinition, Date>();
         while (scrollableResults.next()) {
             CurrentProcess process = currentProcessDao.get(((Number) scrollableResults.get(0)).longValue());
             try {
@@ -65,23 +65,23 @@ public class TransitionLogPatch extends DbMigration {
                     failed++;
                 }
             } catch (InvalidDefinitionException e) {
-                ProcessDefinitionVersion dv = process.getDefinitionVersion();
-                if (failedDeployments.containsKey(dv)) {
-                    Date endDate = failedDeployments.get(dv);
+                ProcessDefinition d = process.getDefinition();
+                if (failedDeployments.containsKey(d)) {
+                    Date endDate = failedDeployments.get(d);
                     if (endDate != null && (process.getEndDate() == null || endDate.before(process.getEndDate()))) {
-                        failedDeployments.put(dv, process.getEndDate());
+                        failedDeployments.put(d, process.getEndDate());
                     }
                 } else {
-                    failedDeployments.put(dv, process.getEndDate());
-                    log.error("Unable to restore history for " + dv + ": " + e);
+                    failedDeployments.put(d, process.getEndDate());
+                    log.error("Unable to restore history for " + d + ": " + e);
                 }
             }
         }
         log.info("-------------------- RESULT OF " + getClass());
         for (val entry : failedDeployments.entrySet()) {
-            val dv = entry.getKey();
-            val d = dv.getDefinition();
-            log.warn("Unparsed definition " + d + " / " + dv + ", last process end date = " + entry.getValue());
+            val d = entry.getKey();
+            val p = d.getPack();
+            log.warn("Unparsed definition " + p + " / " + d + ", last process end date = " + entry.getValue());
         }
         log.info("Reverted history [for parsed definitions] result: success " + success + ", failed " + failed);
     }

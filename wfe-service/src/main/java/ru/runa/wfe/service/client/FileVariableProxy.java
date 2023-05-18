@@ -17,7 +17,7 @@ public class FileVariableProxy implements FileVariable, LinkedWithProcessDefinit
     private static final long serialVersionUID = 1L;
     private User user;
     private Long processId;
-    private Long definitionVersionId;
+    private Long definitionId;
     private String variableName;
     private String name;
     private String contentType;
@@ -36,11 +36,11 @@ public class FileVariableProxy implements FileVariable, LinkedWithProcessDefinit
         }
     }
 
-    public FileVariableProxy(User user, Long processId, Long definitionVersionId, String variableName, FileVariable fileVariable) {
+    public FileVariableProxy(User user, Long processId, Long definitionId, String variableName, FileVariable fileVariable) {
         this(user, processId, variableName, fileVariable);
-        this.definitionVersionId = definitionVersionId;
-        if (definitionVersionId == null && processId == null) {
-            throw new IllegalArgumentException("One of processId or definitionVersionId should not be null");
+        this.definitionId = definitionId;
+        if (definitionId == null && processId == null) {
+            throw new IllegalArgumentException("One of processId or definitionId should not be null");
         }
     }
 
@@ -79,7 +79,8 @@ public class FileVariableProxy implements FileVariable, LinkedWithProcessDefinit
     public FileVariable getUnproxiedFileVariable() {
         return processId != null ?
                 Delegates.getExecutionService().getFileVariableValue(user, processId, variableName) :
-                Delegates.getDefinitionService().getFileVariableDefaultValue(user, definitionVersionId, variableName);
+ Delegates
+                .getDefinitionService().getFileVariableDefaultValue(user, definitionId, variableName);
     }
 
     public String getUnproxiedClassName() {
@@ -95,7 +96,8 @@ public class FileVariableProxy implements FileVariable, LinkedWithProcessDefinit
     public boolean equals(Object obj) {
         if (obj instanceof FileVariableProxy) {
             FileVariableProxy p = (FileVariableProxy) obj;
-            return Objects.equal(processId, p.processId) && Objects.equal(definitionVersionId, p.definitionVersionId) &&
+            return Objects.equal(processId, p.processId) && Objects.equal(definitionId, p.definitionId)
+                    &&
                     Objects.equal(variableName, p.variableName) && Objects.equal(stringValue, p.stringValue);
         }
         return super.equals(obj);
@@ -103,11 +105,11 @@ public class FileVariableProxy implements FileVariable, LinkedWithProcessDefinit
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(processId, definitionVersionId, variableName, stringValue);
+        return Objects.hashCode(processId, definitionId, variableName, stringValue);
     }
 
     @Override
-    public Long getDefinitionVersionId() {
-        return definitionVersionId;
+    public Long getDefinitionId() {
+        return definitionId;
     }
 }

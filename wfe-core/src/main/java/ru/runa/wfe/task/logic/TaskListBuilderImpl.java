@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import ru.runa.wfe.audit.BaseProcessLog;
@@ -104,6 +104,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
         this.taskCache = taskCache;
     }
 
+    @Override
     public List<WfTask> getTasks(Actor actor, BatchPresentation batchPresentation) {
         Preconditions.checkNotNull(batchPresentation, "batchPresentation");
 
@@ -125,7 +126,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
                     !openedTasks.contains(state.getTask().getId()));
             if (!Utils.isNullOrEmpty(variableNames)) {
                 CurrentProcess process = state.getTask().getProcess();
-                ParsedProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDefinitionVersion().getId());
+                ParsedProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process);
                 ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                 for (String variableName : variableNames) {
                     wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
@@ -155,7 +156,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
                     !openedTasks.contains(state.getTask().getId()));
             if (!Utils.isNullOrEmpty(variableNames)) {
                 CurrentProcess process = state.getTask().getProcess();
-                ParsedProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDefinitionVersion().getId());
+                ParsedProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process);
                 ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                 for (String variableName : variableNames) {
                     wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));

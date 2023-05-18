@@ -53,7 +53,7 @@ public class TaskFactory {
         if (taskDefinition.getDeadlineDuration() != null) {
             return taskDefinition.getDeadlineDuration();
         }
-        if (taskDefinition.getNode().getParsedProcessDefinition().getProcessDefinition().getLanguage() == Language.BPMN2) {
+        if (taskDefinition.getNode().getParsedProcessDefinition().getLanguage() == Language.BPMN2) {
             if (taskDefinition.getNode() instanceof BoundaryEventContainer) {
                 for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) taskDefinition.getNode()).getBoundaryEvents()) {
                     if (boundaryEvent instanceof TimerNode) {

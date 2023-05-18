@@ -31,7 +31,7 @@ public class WfProcess extends SecuredObject {
     private Date endDate;
     private int version;
     private boolean archived;
-    private Long definitionVersionId;
+    private Long definitionId;
     private String hierarchyIds;
     // map is not usable in web services
     private final List<WfVariable> variables = Lists.newArrayList();
@@ -46,8 +46,8 @@ public class WfProcess extends SecuredObject {
         this.id = process.getId();
         ParsedProcessDefinition parsedProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
         this.name = parsedProcessDefinition.getName();
-        this.definitionVersionId = parsedProcessDefinition.getProcessDefinitionVersion().getId();
-        this.version = parsedProcessDefinition.getProcessDefinitionVersion().getVersion().intValue();
+        this.definitionId = parsedProcessDefinition.getId();
+        this.version = parsedProcessDefinition.getVersion().intValue();
         this.archived = process.isArchived();
         this.startDate = process.getStartDate();
         this.endDate = process.getEndDate();
@@ -94,8 +94,8 @@ public class WfProcess extends SecuredObject {
         return version;
     }
 
-    public Long getDefinitionVersionId() {
-        return definitionVersionId;
+    public Long getDefinitionId() {
+        return definitionId;
     }
 
     public String getHierarchyIds() {

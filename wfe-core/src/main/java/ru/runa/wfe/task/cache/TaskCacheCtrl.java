@@ -8,8 +8,8 @@ import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
+import ru.runa.wfe.definition.ProcessDefinitionPack;
 import ru.runa.wfe.definition.ProcessDefinition;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
 import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.Substitution;
@@ -36,8 +36,8 @@ public class TaskCacheCtrl extends BaseCacheCtrl<TaskCacheImpl> {
                     add(new ListenObjectDefinition(SubstitutionCriteria.class));
                     add(new ListenObjectDefinition(ExecutorGroupMembership.class));
                     add(new ListenObjectDefinition(Executor.class));
+                    add(new ListenObjectDefinition(ProcessDefinitionPack.class));
                     add(new ListenObjectDefinition(ProcessDefinition.class));
-                    add(new ListenObjectDefinition(ProcessDefinitionVersion.class));
                     // Must be invalidated in case of non runtime substitution cache update.
                     add(new ListenObjectDefinition(SubstitutionCacheImpl.class));
                 }}

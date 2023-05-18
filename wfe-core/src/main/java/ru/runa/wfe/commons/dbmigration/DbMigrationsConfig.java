@@ -60,10 +60,12 @@ import ru.runa.wfe.commons.dbmigration.impl.NodeTypeChangePatch;
 import ru.runa.wfe.commons.dbmigration.impl.PerformancePatch401;
 import ru.runa.wfe.commons.dbmigration.impl.PermissionMappingPatch403;
 import ru.runa.wfe.commons.dbmigration.impl.RecreateChatRoomView;
+import ru.runa.wfe.commons.dbmigration.impl.RecreateChatRoomView2;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsBack;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbmigration.impl.RefactorPermissionsStep4;
+import ru.runa.wfe.commons.dbmigration.impl.RefactorProcessDefinitionsRm2681;
 import ru.runa.wfe.commons.dbmigration.impl.RemoveWfeConstants;
 import ru.runa.wfe.commons.dbmigration.impl.RenameColumnInChatMessageRecipientPatch;
 import ru.runa.wfe.commons.dbmigration.impl.RenameProcessesBatchPresentationCategories;
@@ -196,6 +198,8 @@ public class DbMigrationsConfig {
         dbMigrations.add(CreateDigitalSignatureTable.class);
         // end develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
+        dbMigrations.add(RefactorProcessDefinitionsRm2681.class);
+        dbMigrations.add(RecreateChatRoomView2.class);
         return dbMigrations;
     }
 }

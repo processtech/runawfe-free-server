@@ -96,7 +96,7 @@ public class MapVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public Long getProcessDefinitionVersionId() {
+    public Long getProcessDefinitionId() {
         return parsedProcessDefinition == null ? null : parsedProcessDefinition.getId();
     }
 

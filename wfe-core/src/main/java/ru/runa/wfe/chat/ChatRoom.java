@@ -11,7 +11,7 @@ import lombok.Setter;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.execution.CurrentProcess;
 
 @Getter
@@ -33,11 +33,11 @@ public class ChatRoom {
     @ForeignKey(name = "FK_CHAT_MESSAGE_PROCESS_ID")
     private CurrentProcess process;
 
-    @ManyToOne(targetEntity = ProcessDefinitionVersion.class)
-    @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
+    @ManyToOne(targetEntity = ProcessDefinition.class)
+    @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION")
     @Index(name = "IX_PROCESS_DEFINITION")
-    private ProcessDefinitionVersion definitionVersion;
+    private ProcessDefinition definition;
 
     @Column(name = "NEW_MESSAGES_COUNT")
     private Long newMessagesCount;

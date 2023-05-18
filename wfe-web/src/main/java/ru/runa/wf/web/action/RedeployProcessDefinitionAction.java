@@ -29,36 +29,36 @@ import ru.runa.wfe.user.User;
 public class RedeployProcessDefinitionAction extends BaseDeployProcessDefinitionAction {
     public static final String ACTION_PATH = "/redeployProcessDefinition";
 
-    private Long definitionVersionId;
+    private Long definitionId;
 
     @Override
     protected void doAction(User user, FileForm fileForm, boolean isUpdateCurrentVersion, List<String> categories, Integer secondsBeforeArchiving)
             throws IOException {
         byte[] data = Strings.isNullOrEmpty(fileForm.getFile().getFileName()) ? null : fileForm.getFile().getFileData();
-        Long definitionVersionId = fileForm.getId();
+        Long definitionId = fileForm.getId();
         if (secondsBeforeArchiving == null) {
             // API does not change current value if we pass null;
             // but form will show current value and user can edit / delete it, so if user deleted value, we must delete it too.
             secondsBeforeArchiving = -1;
         }
         WfDefinition definition = isUpdateCurrentVersion
-                ? Delegates.getDefinitionService().updateProcessDefinition(user, definitionVersionId, data)
-                : Delegates.getDefinitionService().redeployProcessDefinition(user, definitionVersionId, data, categories, secondsBeforeArchiving);
-        this.definitionVersionId = definition.getVersionId();
+ ? Delegates.getDefinitionService().updateProcessDefinition(user, definitionId, data)
+                : Delegates.getDefinitionService().redeployProcessDefinition(user, definitionId, data, categories, secondsBeforeArchiving);
+        this.definitionId = definition.getId();
     }
 
     @Override
     protected ActionForward getSuccessAction(ActionMapping mapping) {
-        return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, definitionVersionId);
+        return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, definitionId);
     }
 
     @Override
     protected ActionForward getErrorForward(ActionMapping mapping) {
-        return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), IdForm.ID_INPUT_NAME, definitionVersionId);
+        return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), IdForm.ID_INPUT_NAME, definitionId);
     }
 
     @Override
     protected void prepare(FileForm fileForm) {
-        definitionVersionId = fileForm.getId();
+        definitionId = fileForm.getId();
     }
 }

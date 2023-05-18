@@ -2,11 +2,9 @@ package ru.runa.wf.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdsForm;
@@ -30,9 +28,9 @@ public class UndeployProcessDefinitionsAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse responce) {
         IdsForm idsForm = (IdsForm) form;
-        for (Long definitionVersionId : idsForm.getIds()) {
+        for (Long definitionId : idsForm.getIds()) {
             try {
-                WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionVersionId);
+                WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);
                 Delegates.getDefinitionService().undeployProcessDefinition(getLoggedUser(request), definition.getName(), null);
             } catch (Exception e) {
                 addError(request, e);

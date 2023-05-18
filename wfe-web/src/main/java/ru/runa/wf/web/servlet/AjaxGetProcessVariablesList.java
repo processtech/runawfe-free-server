@@ -21,7 +21,7 @@ public class AjaxGetProcessVariablesList extends JsonAjaxCommand {
             Long processId = Long.valueOf(request.getParameter("processId"));
             String hint = request.getParameter("hint");
             WfProcess process = Delegates.getExecutionService().getProcess(user, processId);
-            List<VariableDefinition> variables = Delegates.getDefinitionService().getVariableDefinitions(user, process.getDefinitionVersionId());
+            List<VariableDefinition> variables = Delegates.getDefinitionService().getVariableDefinitions(user, process.getDefinitionId());
             JSONObject root = new JSONObject();
             JSONArray data = new JSONArray();
             hint = hint.toLowerCase();

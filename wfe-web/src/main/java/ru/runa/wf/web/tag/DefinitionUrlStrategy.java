@@ -22,7 +22,7 @@ public class DefinitionUrlStrategy implements ItemUrlStrategy {
     @Override
     public String getUrl(String baseUrl, Object item) {
         WfDefinition definition = (WfDefinition) item;
-        Long definitionId = definition.getVersionId();
+        Long definitionId = definition.getId();
         Map<String, Object> map = Maps.newHashMap();
         map.put(IdForm.ID_INPUT_NAME, definitionId);
         return Commons.getActionUrl(baseUrl, map, pageContext, PortletUrlType.Action);

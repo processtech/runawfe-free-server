@@ -24,7 +24,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     public String name;
 
     @XmlAttribute(name = AdminScriptConstants.DEFINITION_ID_ATTRIBUTE_NAME)
-    public Long processDefinitionVersionId;
+    public Long processDefinitionId;
 
     /**
      * If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
@@ -39,7 +39,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     public void validate(ScriptExecutionContext context) {
         ScriptValidation.requiredAttribute(this, AdminScriptConstants.FILE_ATTRIBUTE_NAME, file);
         if (Strings.isNullOrEmpty(name)) {
-            if (processDefinitionVersionId == null) {
+            if (processDefinitionId == null) {
                 throw new ScriptValidationException(this, "Required definition name or id");
             }
         } else {
@@ -50,13 +50,13 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         if (!Strings.isNullOrEmpty(name)) {
-            processDefinitionVersionId = ApplicationContextFactory.getProcessDefinitionDao().getByName(name).getLatestVersion().getId();
+            processDefinitionId = ApplicationContextFactory.getProcessDefinitionPackDao().getByName(name).getLatest().getId();
         }
         List<String> parsedType = null;
         if (Strings.isNullOrEmpty(type)) {
             parsedType = Splitter.on('/').splitToList(type);
         }
-        context.getProcessDefinitionLogic().redeployProcessDefinition(context.getUser(), processDefinitionVersionId,
+        context.getProcessDefinitionLogic().redeployProcessDefinition(context.getUser(), processDefinitionId,
                 context.getExternalResource(file), parsedType, secondsBeforeArchiving);
     }
 }

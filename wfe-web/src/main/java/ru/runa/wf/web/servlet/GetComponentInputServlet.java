@@ -1,13 +1,11 @@
 package ru.runa.wf.web.servlet;
 
+import com.google.common.base.Charsets;
 import java.io.IOException;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.json.simple.JSONObject;
-
 import ru.runa.common.web.AjaxWebHelper;
 import ru.runa.common.web.Commons;
 import ru.runa.wf.web.ftl.component.ViewUtil;
@@ -17,8 +15,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Charsets;
 
 public class GetComponentInputServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -58,8 +54,8 @@ public class GetComponentInputServlet extends HttpServlet {
             scriptingName = variable.getDefinition().getScriptingName();
             variableIsNullString = variableIsNull.toString();
         } else {
-            Long processDefinitionVersionId = Delegates.getExecutionService().getProcess(user, processId).getDefinitionVersionId();
-            VariableDefinition variableDefinition = Delegates.getDefinitionService().getVariableDefinition(user, processDefinitionVersionId, variableName);
+            Long processDefinitionId = Delegates.getExecutionService().getProcess(user, processId).getDefinitionId();
+            VariableDefinition variableDefinition = Delegates.getDefinitionService().getVariableDefinition(user, processDefinitionId, variableName);
             if (variableDefinition != null) {
                 scriptingName = variableDefinition.getScriptingName();
                 variableIsNullString = "true";

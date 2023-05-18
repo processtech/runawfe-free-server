@@ -16,10 +16,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import ru.runa.wfe.definition.ProcessDefinitionVersion;
+import ru.runa.wfe.definition.ProcessDefinition;
 
 /**
- * Is one execution of a {@link ProcessDefinitionVersion}.
+ * Is one execution of a {@link ProcessDefinition}.
  */
 @Entity
 @Table(name = "BPM_PROCESS")
@@ -34,8 +34,8 @@ public class CurrentProcess extends Process<CurrentToken> {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
-    private ProcessDefinitionVersion definitionVersion;
+    @JoinColumn(name = "DEFINITION_ID", nullable = false)
+    private ProcessDefinition definition;
 
     @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
     @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
@@ -48,8 +48,8 @@ public class CurrentProcess extends Process<CurrentToken> {
     public CurrentProcess() {
     }
 
-    public CurrentProcess(ProcessDefinitionVersion definitionVersion) {
-        setDefinitionVersion(definitionVersion);
+    public CurrentProcess(ProcessDefinition processDefinition) {
+        setDefinition(processDefinition);
         setStartDate(new Date());
     }
 
@@ -88,12 +88,12 @@ public class CurrentProcess extends Process<CurrentToken> {
     }
 
     @Override
-    public ProcessDefinitionVersion getDefinitionVersion() {
-        return definitionVersion;
+    public ProcessDefinition getDefinition() {
+        return definition;
     }
 
-    public void setDefinitionVersion(ProcessDefinitionVersion definitionVersion) {
-        this.definitionVersion = definitionVersion;
+    public void setDefinition(ProcessDefinition processDefinition) {
+        this.definition = processDefinition;
     }
 
     @Override

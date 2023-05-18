@@ -12,7 +12,7 @@ import ru.runa.wfe.audit.CurrentSubprocessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.definition.ProcessDefinitionWithVersion;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
@@ -121,18 +121,19 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     protected ParsedProcessDefinition getSubProcessDefinition() {
-        long version = getParsedProcessDefinition().getProcessDefinitionVersion().getVersion();
+        long version = getParsedProcessDefinition().getVersion();
         if (version < 0) {
-            ProcessDefinitionWithVersion dwv = ApplicationContextFactory.getProcessDefinitionDao().getByNameAndVersion(subProcessName, version);
-            return processDefinitionLoader.getDefinition(dwv.processDefinitionVersion.getId());
+            ProcessDefinition d = ApplicationContextFactory.getProcessDefinitionDao().getByNameAndVersion(subProcessName, version);
+            return processDefinitionLoader.getDefinition(d.getId());
         }
-        Date beforeDate = getParsedProcessDefinition().getProcessDefinitionVersion().getSubprocessBindingDate();
+        Date beforeDate = getParsedProcessDefinition().getSubprocessBindingDate();
         if (beforeDate != null) {
-            Long processDefinitionVersionId = ApplicationContextFactory.getProcessDefinitionDao().findDefinitionVersionIdLatestBeforeDate(subProcessName, beforeDate);
-            if (processDefinitionVersionId == null) {
+            Long processDefinitionId = ApplicationContextFactory.getProcessDefinitionDao().findLatestIdBeforeDate(subProcessName,
+                    beforeDate);
+            if (processDefinitionId == null) {
                 throw new InternalApplicationException("No definition \"" + subProcessName + "\" found before " + CalendarUtil.formatDateTime(beforeDate));
             }
-            return processDefinitionLoader.getDefinition(processDefinitionVersionId);
+            return processDefinitionLoader.getDefinition(processDefinitionId);
         }
         return processDefinitionLoader.getLatestDefinition(subProcessName);
     }

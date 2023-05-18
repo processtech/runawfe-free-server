@@ -43,9 +43,9 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public Long startProcessById(User user, Long processDefinitionVersionId, Map<String, Object> variablesMap) {
+    public Long startProcessById(User user, Long processDefinitionId, Map<String, Object> variablesMap) {
         try {
-            return getExecutionService().startProcessById(user, processDefinitionVersionId, variablesMap);
+            return getExecutionService().startProcessById(user, processDefinitionId, variablesMap);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -232,9 +232,9 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionVersionId, Long newVersion) {
+    public int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionId, Long newVersion) {
         try {
-            return getExecutionService().upgradeProcessesToDefinitionVersion(user, processDefinitionVersionId, newVersion);
+            return getExecutionService().upgradeProcessesToDefinitionVersion(user, processDefinitionId, newVersion);
         } catch (Exception e) {
             throw handleException(e);
         }

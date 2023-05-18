@@ -54,9 +54,6 @@ WHERE
 		COUNT(*) AS CompletedByCurrentUser, 
 		SUM(CASE WHEN TASK.DEADLINE_DATE IS NOT NULL AND TASK.END_DATE IS NOT NULL AND TASK.END_DATE > TASK.DEADLINE_DATE THEN 1 ELSE 0 END) AS TasksWithDeadline 
 		FROM BPM_AGGLOG_TASK TASK
-			JOIN BPM_PROCESS PROCESS ON (PROCESS.ID=TASK.PROCESS_ID)
-			JOIN BPM_PROCESS_DEFINITION_VER DEFINITION_VER ON (DEFINITION_VER.ID=PROCESS.DEFINITION_VERSION_ID)
-			JOIN BPM_PROCESS_DEFINITION DEFINITION ON (DEFINITION.ID=DEFINITION_VER.DEFINITION_ID)
 		WHERE (TASK.CREATE_DATE >= $P{ReportDateFrom} AND TASK.CREATE_DATE <= $P{ReportDateTo} OR
 			TASK.END_DATE IS NOT NULL AND TASK.END_DATE >= $P{ReportDateFrom} AND TASK.END_DATE <= $P{ReportDateTo}) 
 			AND TASK.COMPLETE_ACTOR_NAME = $P{UserName}]]>
@@ -84,15 +81,15 @@ WHERE
 		<queryString language="SQL">
 			<![CDATA[SELECT 
 				PROCESS.ID AS PROCESS_ID,
-				DEFINITION.NAME AS PROCESS_NAME,
+				PACK.NAME AS PROCESS_NAME,
 				TASK.TASK_NAME AS TASK_NAME,
 				TASK.CREATE_DATE AS START_DATE,
 				TASK.END_DATE AS END_DATE,
 				TASK.DEADLINE_DATE AS DEADLINE_DATE
 		FROM BPM_AGGLOG_TASK TASK
 			JOIN BPM_PROCESS PROCESS ON (PROCESS.ID=TASK.PROCESS_ID)
-			JOIN BPM_PROCESS_DEFINITION_VER DEFINITION_VER ON (DEFINITION_VER.ID=PROCESS.DEFINITION_VERSION_ID)
-			JOIN BPM_PROCESS_DEFINITION DEFINITION ON (DEFINITION.ID=DEFINITION_VER.DEFINITION_ID)
+			JOIN BPM_PROCESS_DEFINITION DEFINITION ON (DEFINITION.ID=PROCESS.DEFINITION_ID)
+			JOIN BPM_PROCESS_DEFINITION_PACK PACK ON (DEFINITION.ID=DEFINITION.PACK_ID)
 		WHERE 
 			(TASK.CREATE_DATE >= $P{ReportDateFrom} AND TASK.CREATE_DATE <= $P{ReportDateTo} OR
 			TASK.END_DATE IS NOT NULL AND TASK.END_DATE >= $P{ReportDateFrom} AND TASK.END_DATE <= $P{ReportDateTo}) 
@@ -229,11 +226,11 @@ WHERE
 						<datasetParameter name="UserName">
 							<datasetParameterExpression><![CDATA[$P{UserName}]]></datasetParameterExpression>
 						</datasetParameter>
-						<datasetParameter name="ReportDateTo">
-							<datasetParameterExpression><![CDATA[$P{ReportDateTo}]]></datasetParameterExpression>
-						</datasetParameter>
 						<datasetParameter name="ReportDateFrom">
 							<datasetParameterExpression><![CDATA[$P{ReportDateFrom}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="ReportDateTo">
+							<datasetParameterExpression><![CDATA[$P{ReportDateTo}]]></datasetParameterExpression>
 						</datasetParameter>
 						<datasetParameter name="DataFormatter">
 							<datasetParameterExpression><![CDATA[$P{DataFormatter}]]></datasetParameterExpression>

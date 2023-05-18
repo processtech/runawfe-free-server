@@ -10,7 +10,6 @@ import ru.runa.wfe.task.dto.WfTask;
 public abstract class WfeTaskMapper {
 
     @Mapping(source = "creationDate", target = "createDate")
-    @Mapping(source = "definitionVersionId", target = "definitionId")
     @Mapping(source = "targetActor", target = "targetUser")
     public abstract WfeTask map(WfTask task);
 

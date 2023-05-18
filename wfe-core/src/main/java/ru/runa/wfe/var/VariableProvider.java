@@ -17,7 +17,7 @@ public interface VariableProvider {
      * @return context process definition id, can be <code>null</code> (if
      *         variables does not linked with process definition)
      */
-    Long getProcessDefinitionVersionId();
+    Long getProcessDefinitionId();
 
     /**
      * Access to current process definition name.

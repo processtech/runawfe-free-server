@@ -1,8 +1,5 @@
 package ru.runa.wf.web.tag;
 
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
-import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
@@ -13,46 +10,39 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.TaskFormBuilder;
 import ru.runa.wf.web.TaskFormBuilderFactory;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "startForm")
 public class StartFormTag extends WFFormTag {
     private static final long serialVersionUID = -1162637745236395968L;
-    private Long definitionVersionId;
+    private Long definitionId;
 
     @Override
-    protected Long getDefinitionVersionId() {
-        return definitionVersionId;
+    protected Long getDefinitionId() {
+        return definitionId;
     }
 
     @Attribute(required = true)
-    public void setDefinitionVersionId(Long definitionVersionId) {
-        this.definitionVersionId = definitionVersionId;
+    public void setDefinitionId(Long definitionId) {
+        this.definitionId = definitionId;
     }
 
     @Override
     protected String buildForm(Interaction interaction) {
         TaskFormBuilder startFormBuilder = TaskFormBuilderFactory.createTaskFormBuilder(getUser(), pageContext, interaction);
-        return startFormBuilder.build(getDefinitionVersionId());
+        return startFormBuilder.build(getDefinitionId());
     }
 
     @Override
     protected Interaction getInteraction() {
-        return Delegates.getDefinitionService().getStartInteraction(getUser(), definitionVersionId);
+        return Delegates.getDefinitionService().getStartInteraction(getUser(), definitionId);
     }
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        try {
-            Utils.getTransactionManager().begin();
-            super.fillFormElement(tdFormElement);
-            tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(definitionVersionId)));
-            Utils.getTransactionManager().rollback();
-        } catch (NotSupportedException | SystemException e) {
-            LogFactory.getLog(getClass()).error("Unable to build StartFormTag", e);
-        }
+        super.fillFormElement(tdFormElement);
+        tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(definitionId)));
     }
 
     @Override

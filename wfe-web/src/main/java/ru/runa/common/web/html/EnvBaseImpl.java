@@ -22,18 +22,18 @@ public abstract class EnvBaseImpl implements Env {
     }
 
     @Override
-    public boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionVersionId) {
+    public boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionId) {
         try {
-            Boolean result = processDefPermissionCache.get(processDefinitionVersionId);
+            Boolean result = processDefPermissionCache.get(processDefinitionId);
             if (result != null) {
                 return result;
             }
-            WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getUser(), processDefinitionVersionId);
+            WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getUser(), processDefinitionId);
             result = Delegates.getAuthorizationService().isAllowed(getUser(), permission, definition);
-            processDefPermissionCache.put(processDefinitionVersionId, result);
+            processDefPermissionCache.put(processDefinitionId, result);
             return result;
         } catch (AuthorizationException e) {
-            processDefPermissionCache.put(processDefinitionVersionId, false);
+            processDefPermissionCache.put(processDefinitionId, false);
             return false;
         }
     }

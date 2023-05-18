@@ -27,7 +27,7 @@ public class ParallelGatewayProcessDefinitionUpdateValidator implements ProcessD
 
     @Override
     public void validate(ProcessDefinitionUpdateData processDefinitionUpdateData) {
-        if (processDefinitionUpdateData.getNewDefinition().getProcessDefinition().getLanguage() != Language.BPMN2) {
+        if (processDefinitionUpdateData.getNewDefinition().getLanguage() != Language.BPMN2) {
             return;
         }
         Set<ParallelGateway> parallelGateways = getParallelGatewaysForCheck(processDefinitionUpdateData);
