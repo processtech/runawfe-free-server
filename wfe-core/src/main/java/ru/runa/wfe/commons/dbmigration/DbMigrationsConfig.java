@@ -176,7 +176,6 @@ public class DbMigrationsConfig {
         dbMigrations.add(EnlargeMessageMaxSizePatch.class);
         dbMigrations.add(DropMessageNotNullConstraintPatch.class);
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
-        dbMigrations.add(AddTransitionNameForTaskPatch.class);
         dbMigrations.add(DeleteBatchPresentationsRm3017.class);
         dbMigrations.add(DeleteBatchPresentationsRm3056.class);
         // start develop patches
