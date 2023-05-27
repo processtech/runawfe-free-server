@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -13,7 +12,6 @@ import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToPermissions;
 import ru.runa.wfe.report.QReportDefinition;
 import ru.runa.wfe.report.ReportDefinition;
-import ru.runa.wfe.report.ReportParameter;
 import ru.runa.wfe.report.ReportWithNameExistsException;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.security.Permission;
@@ -58,14 +56,7 @@ public class ReportDefinitionDao extends GenericDao<ReportDefinition> {
     }
 
     public void redeployReport(ReportDefinition reportDefinition) {
-        Session session = sessionFactory.getCurrentSession();
-        // TODO All this magic is weird: get() then updateFrom().
-        ReportDefinition def = get(reportDefinition.getId());
-        for (ReportParameter p : def.getParameters()) {
-            session.delete(p);
-        }
-        def.updateFrom(reportDefinition);
-        this.update(def);
+        this.update(reportDefinition);
     }
 
     public void undeploy(Long reportId) {

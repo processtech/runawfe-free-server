@@ -2,9 +2,7 @@ package ru.runa.wfe.report.logic;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
@@ -48,15 +46,7 @@ public class ReportLogic extends WfCommonLogic {
     }
 
     public List<WfReportParameter> analyzeReportFile(WfReport report, byte[] reportFileContent) {
-        Map<String, String> reportParameters = new GetCompiledReportParametersDescription(reportFileContent).onRawSqlReport();
-        List<WfReportParameter> result = new ArrayList<>();
-        for (Map.Entry<String, String> entry : reportParameters.entrySet()) {
-            WfReportParameter reportParameterDto = new WfReportParameter();
-            reportParameterDto.setInternalName(entry.getKey());
-            reportParameterDto.setDescription(entry.getValue());
-            result.add(reportParameterDto);
-        }
-        return result;
+        return new GetCompiledReportParametersDescription(reportFileContent).onRawSqlReport();
     }
 
     public void deployReport(User user, WfReport report, byte[] file) {
@@ -86,7 +76,6 @@ public class ReportLogic extends WfCommonLogic {
         if (!permissionDao.isAllowed(user, Permission.UPDATE, report)) {
             throw new AuthorizationException(user + " does not have " + Permission.UPDATE + " permission to " + report);
         }
-
         reportDefinitionDao.redeployReport(reportDefinition);
     }
 
@@ -96,7 +85,16 @@ public class ReportLogic extends WfCommonLogic {
     }
 
     private ReportDefinition createReportDefinition(WfReport report, byte[] file) {
-        Map<String, String> reportParameters = new GetCompiledReportParametersDescription(file).onRawSqlReport();
+        List<WfReportParameter> reportParameters = new GetCompiledReportParametersDescription(file).onRawSqlReport();
+        for (WfReportParameter reportParameter : report.getParameters()) {
+            if (!reportParameters.contains(reportParameter)) {
+                throw new ReportParameterUnknownException(reportParameter.getInternalName());
+            }
+            reportParameters.remove(reportParameter);
+        }
+        if (!reportParameters.isEmpty()) {
+            throw new ReportParameterMissingException(reportParameters.iterator().next().getInternalName());
+        }
         List<ReportParameter> params = Lists.transform(report.getParameters(), new Function<WfReportParameter, ReportParameter>() {
 
             @Override
@@ -106,15 +104,6 @@ public class ReportLogic extends WfCommonLogic {
         });
         ReportDefinition reportDefinition = new ReportDefinition(report.getId(), report.getName(), report.getDescription(), file, params,
                 report.getCategory());
-        for (ReportParameter reportParameterDto : params) {
-            if (!reportParameters.containsKey(reportParameterDto.getInnerName())) {
-                throw new ReportParameterUnknownException(reportParameterDto.getInnerName());
-            }
-            reportParameters.remove(reportParameterDto.getInnerName());
-        }
-        if (!reportParameters.isEmpty()) {
-            throw new ReportParameterMissingException(reportParameters.keySet().iterator().next());
-        }
         return reportDefinition;
     }
 

@@ -21,10 +21,6 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-/**
- * DTO for report description.
- */
-
 @Entity
 @Table(name = "REPORT")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -161,15 +157,5 @@ public class ReportDefinition {
     @Transient
     public String getConfigTypeDescription() {
         return configType.getDescription();
-    }
-
-    public void updateFrom(ReportDefinition reportDefinition) {
-        this.category = reportDefinition.category;
-        this.compiledReport = reportDefinition.compiledReport;
-        this.configType = reportDefinition.configType;
-        this.description = reportDefinition.description;
-        this.name = reportDefinition.name;
-        this.parameters.clear();
-        this.parameters.addAll(reportDefinition.getParameters());
     }
 }

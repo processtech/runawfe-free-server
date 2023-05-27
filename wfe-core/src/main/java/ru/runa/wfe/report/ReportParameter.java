@@ -12,10 +12,6 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-/**
- * DTO for parameters data storage. These parameters must be input by the user in order to build report.
- */
-
 @Entity
 @Table(name = "REPORT_PARAMETER")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

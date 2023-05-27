@@ -1,14 +1,10 @@
 package ru.runa.report.web.action;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
-import com.google.common.collect.Lists;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
@@ -41,7 +37,7 @@ public class RedeployReportAction extends BaseDeployReportAction {
             for (WfReportParameter parameter : reportParameters) {
                 boolean exists = false;
                 for (WfReportParameter current : currentReportParameters) {
-                    if (current.weekEquals(parameter)) {
+                    if (current.equals(parameter)) {
                         exists = true;
                         newReportParameters.add(current);
                         break;

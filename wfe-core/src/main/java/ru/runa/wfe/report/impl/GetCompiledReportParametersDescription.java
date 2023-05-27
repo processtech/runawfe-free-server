@@ -1,35 +1,35 @@
 package ru.runa.wfe.report.impl;
 
 import java.io.ByteArrayInputStream;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.List;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.util.JRLoader;
 import ru.runa.wfe.report.ReportConfigurationType.ReportConfigurationTypeVisitor;
 import ru.runa.wfe.report.ReportFileIncorrectException;
+import ru.runa.wfe.report.ReportParameterType;
+import ru.runa.wfe.report.dto.WfReportParameter;
 
 /**
  * Gets parameters names from compiled report and puts them to parameters description.
  */
-public class GetCompiledReportParametersDescription implements ReportConfigurationTypeVisitor<Map<String, String>> {
+public class GetCompiledReportParametersDescription implements ReportConfigurationTypeVisitor<List<WfReportParameter>> {
 
     private final byte[] compiledReport;
 
     public GetCompiledReportParametersDescription(byte[] compiledReport) {
-        super();
         this.compiledReport = compiledReport;
     }
 
     @Override
-    public Map<String, String> onParameterBuilder() {
-        return new HashMap<String, String>();
+    public List<WfReportParameter> onParameterBuilder() {
+        return new ArrayList<>();
     }
 
     @Override
-    public Map<String, String> onRawSqlReport() {
-        Map<String, String> parameters = new HashMap<String, String>();
+    public List<WfReportParameter> onRawSqlReport() {
+        List<WfReportParameter> parameters = new ArrayList<>();
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(compiledReport);
             JasperReport jasperReport = (JasperReport) JRLoader.loadObject(inputStream);
@@ -37,7 +37,12 @@ public class GetCompiledReportParametersDescription implements ReportConfigurati
                 if (jrParam.isSystemDefined() || !jrParam.isForPrompting()) {
                     continue;
                 }
-                parameters.put(jrParam.getName(), jrParam.getDescription());
+                WfReportParameter parameter = new WfReportParameter();
+                parameter.setUserName(jrParam.getName());
+                parameter.setInternalName(jrParam.getName());
+                parameter.setDescription(jrParam.getDescription());
+                parameter.setType(ReportParameterType.getForClass(jrParam.getValueClass()));
+                parameters.add(parameter);
             }
         } catch (Throwable e) {
             throw new ReportFileIncorrectException(e);

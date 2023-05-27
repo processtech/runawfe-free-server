@@ -23,11 +23,9 @@ public class WfReport extends SecuredObject implements Comparable<WfReport>, Ent
     private List<WfReportParameter> parameters;
 
     public WfReport() {
-        super();
     }
 
     public WfReport(Long id, String name, String description, String category, List<WfReportParameter> parameters) {
-        super();
         this.id = id;
         this.name = name;
         this.description = description;
@@ -36,7 +34,6 @@ public class WfReport extends SecuredObject implements Comparable<WfReport>, Ent
     }
 
     public WfReport(ReportDefinition definition) {
-        super();
         id = definition.getId();
         name = definition.getName();
         description = definition.getDescription();

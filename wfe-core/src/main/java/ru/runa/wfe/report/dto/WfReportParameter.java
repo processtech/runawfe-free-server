@@ -1,7 +1,7 @@
 package ru.runa.wfe.report.dto;
 
-import com.google.common.base.Strings;
 import java.io.Serializable;
+import java.util.Objects;
 import ru.runa.wfe.report.ReportParameterType;
 
 public class WfReportParameter implements Serializable {
@@ -14,11 +14,9 @@ public class WfReportParameter implements Serializable {
     private boolean isRequired;
 
     public WfReportParameter() {
-        super();
     }
 
     public WfReportParameter(String userName, String description, String internalName, int position, ReportParameterType type, boolean isRequired) {
-        super();
         this.userName = userName;
         this.description = description;
         this.internalName = internalName;
@@ -77,65 +75,16 @@ public class WfReportParameter implements Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((internalName == null) ? 0 : internalName.hashCode());
-        return result;
+        return Objects.hashCode(internalName);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
+        if (obj instanceof WfReportParameter) {
+            WfReportParameter other = (WfReportParameter) obj;
+            return Objects.equals(internalName, other.internalName);
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        WfReportParameter other = (WfReportParameter) obj;
-        if (internalName == null) {
-            if (other.internalName != null) {
-                return false;
-            }
-        } else if (!internalName.equals(other.internalName)) {
-            return false;
-        }
-        if (isRequired != other.isRequired) {
-            return false;
-        }
-        if (position != other.position) {
-            return false;
-        }
-        if (type != other.type) {
-            return false;
-        }
-        if (userName == null) {
-            if (other.userName != null) {
-                return false;
-            }
-        } else if (!userName.equals(other.userName)) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
-    /**
-     * Check for equality on data, loaded from report definition.
-     *
-     * @param other
-     *            Object for comparison.
-     * @return Returns true, if other object has same report parameters as current and false otherwise.
-     */
-    public boolean weekEquals(WfReportParameter other) {
-        if (Strings.isNullOrEmpty(internalName)) {
-            if (!Strings.isNullOrEmpty(other.internalName)) {
-                return false;
-            }
-        } else if (!internalName.equals(other.internalName)) {
-            return false;
-        }
-        return true;
-    }
 }
