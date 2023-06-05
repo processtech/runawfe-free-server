@@ -39,6 +39,7 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTable;
+import ru.runa.wfe.commons.dbmigration.impl.CreateSignalTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateStatisticReportTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateTimerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.DeleteBatchPresentationsRm3017;
@@ -168,6 +169,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddTransitionNameForTaskPatch.class);
         dbMigrations.add(DeleteBatchPresentationsRm3017.class);
         dbMigrations.add(DeleteBatchPresentationsRm3056.class);
+        dbMigrations.add(CreateSignalTable.class);
         return dbMigrations;
     }
 }

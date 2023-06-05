@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListener;
@@ -41,8 +40,7 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
  * @author Alex Chernyshev
  */
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/nodeAsyncExecution"),
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "useDLQ", propertyValue = "false") })
+        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") })
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
 public class NodeAsyncExecutionBean implements MessageListener {
@@ -51,8 +49,6 @@ public class NodeAsyncExecutionBean implements MessageListener {
     private TokenDao tokenDao;
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
-    private ProcessLogDao processLogDao;
     @Resource
     private MessageDrivenContext context;
 
@@ -130,7 +126,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
             protected void doExecuteInTransaction() throws Exception {
                 Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
                 if (token.hasEnded()) {
-                    log.debug("Ignored fail processs execution in ended " + token.getProcess());
+                    log.debug("Ignored fail process execution in ended " + token);
                     return;
                 }
                 if (!Objects.equals(nodeId, token.getNodeId())) {

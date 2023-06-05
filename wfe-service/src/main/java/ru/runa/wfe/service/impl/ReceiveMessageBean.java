@@ -50,7 +50,9 @@ import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.Signal;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.dao.SignalDao;
 import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.BaseMessageNode;
@@ -80,6 +82,8 @@ public class ReceiveMessageBean implements MessageListener {
     private ProcessDefinitionLoader processDefinitionLoader;
     @Resource
     private MessageDrivenContext context;
+    @Autowired
+    private SignalDao signalDao;
 
     @Override
     public void onMessage(Message jmsMessage) {
@@ -151,18 +155,24 @@ public class ReceiveMessageBean implements MessageListener {
                 log.error(errorMessage);
                 SystemErrors.addError(new InternalApplicationException(errorMessage));
             } else {
-                Date expiryDate = null;
                 try {
+                    transaction.begin();
+                    Date createDate = message.getJMSTimestamp() != 0 ? new Date(message.getJMSTimestamp()) : new Date();
+                    Date expiryDate = null;
                     if (message.propertyExists(BaseMessageNode.EXPIRATION_PROPERTY)) {
                         expiryDate = new Date(message.getLongProperty(BaseMessageNode.EXPIRATION_PROPERTY));
                     }
-                } catch (JMSException e) {
+                    if (expiryDate == null || expiryDate.after(new Date())) {
+                        Signal signal = new Signal(createDate, getRoutingData(message), (Map<String, Object>) message.getObject(), expiryDate);
+                        log.debug("Rejecting message request " + messageString + ", persisting to " + signal);
+                        signalDao.create(signal);
+                    } else {
+                        log.debug("Rejecting message request " + messageString + ", already expired");
+                    }
+                    transaction.commit();
+                } catch (Exception e) {
+                    Utils.rollbackTransaction(transaction);
                     Throwables.propagate(e);
-                }
-                if (expiryDate == null || expiryDate.after(new Date())) {
-                    throw new MessagePostponedException(messageString);
-                } else {
-                    log.debug("Rejecting message request " + messageString + ", already expired");
                 }
             }
         }
