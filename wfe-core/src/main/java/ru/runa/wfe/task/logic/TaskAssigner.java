@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentException;
 import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
@@ -29,7 +30,9 @@ public class TaskAssigner {
                 task.getToken().removeError();
                 return true;
             } else {
-                task.getToken().fail(new NoExecutorAssignedException());
+                if (task.getToken().getExecutionStatus() != ExecutionStatus.FAILED) {
+                    task.getToken().fail(new NoExecutorAssignedException());
+                }
             }
         } catch (Throwable th) {
             if (task.getToken().fail(th)) {
