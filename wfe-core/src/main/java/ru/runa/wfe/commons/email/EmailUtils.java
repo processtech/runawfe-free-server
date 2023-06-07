@@ -175,13 +175,26 @@ public class EmailUtils {
         config.setMessage(formMessage);
         log.debug(formMessage);
         for (String variableName : config.getAttachmentVariableNames()) {
-            FileVariable fileVariable = variableProvider.getValue(FileVariable.class, variableName);
-            if (fileVariable != null) {
-                Attachment attachment = new Attachment();
-                attachment.fileName = fileVariable.getName();
-                attachment.content = fileVariable.getData();
-                config.getAttachments().add(attachment);
+            addAttachmentsFromVariable(config.getAttachments(), variableProvider.getValue(variableName));
+        }
+    }
+
+    private static void addAttachmentsFromVariable(List<Attachment> attachments, Object varObj) {
+        if (varObj == null) {
+            return;
+        }
+        if (varObj instanceof FileVariable) {
+            FileVariable fileVariable = (FileVariable) varObj;
+            Attachment attachment = new Attachment();
+            attachment.fileName = fileVariable.getName();
+            attachment.content = fileVariable.getData();
+            attachments.add(attachment);
+        } else if (varObj instanceof Collection) {
+            for (Object object : (Collection<?>) varObj) {
+                addAttachmentsFromVariable(attachments, object);
             }
+        } else {
+            throw new RuntimeException("Couldn't extract file from variable: " + varObj);
         }
     }
 
