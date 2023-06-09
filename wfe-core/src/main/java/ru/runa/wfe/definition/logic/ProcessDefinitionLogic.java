@@ -17,8 +17,10 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.ArchivedProcessDeleteLog;
 import ru.runa.wfe.audit.CurrentAdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
+import ru.runa.wfe.audit.dao.ArchivedProcessLogDao;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
@@ -35,9 +37,13 @@ import ru.runa.wfe.definition.ProcessDefinitionPack;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.definition.update.ProcessDefinitionUpdateManager;
+import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.dao.ArchivedNodeProcessDao;
+import ru.runa.wfe.execution.dao.ArchivedProcessDao;
+import ru.runa.wfe.execution.dao.ArchivedSwimlaneDao;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.ProcessDefinitionInfoVisitor;
@@ -54,11 +60,22 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.dao.ArchivedVariableDao;
 
 @Component
 public class ProcessDefinitionLogic extends WfCommonLogic {
     @Autowired
     private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
+    @Autowired
+    protected ArchivedProcessDao archivedProcessDao;
+    @Autowired
+    protected ArchivedNodeProcessDao archivedNodeProcessDao;
+    @Autowired
+    protected ArchivedSwimlaneDao archivedSwimlaneDao;
+    @Autowired
+    protected ArchivedProcessLogDao archivedProcessLogDao;
+    @Autowired
+    protected ArchivedVariableDao archivedVariableDao;
 
     /**
      * @param secondsBeforeArchiving
@@ -270,24 +287,12 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
     }
 
     public void undeployProcessDefinition(User user, @NonNull String definitionName, Long version) {
-        ProcessDefinitionPack p;
-        ProcessDefinition d;
-        if (version == null) {
-            p = processDefinitionPackDao.getByName(definitionName);
-            d = null;
-        } else {
-            // Load both definition and version by single SQL query.
-            d = processDefinitionDao.getByNameAndVersion(definitionName, version);
-            p = d.getPack();
-        }
+        boolean removePack = version == null;
+        ProcessDefinitionPack p = processDefinitionPackDao.getByName(definitionName);
+        ProcessDefinition d = removePack ? null : processDefinitionDao.getByNameAndVersion(definitionName, version);
 
         // ===== Check if deletion allowed.
-
         permissionDao.checkAllowed(user, Permission.DELETE, p);
-
-        if (archivedProcessDao.processesExist(p)) {
-            throw new RuntimeException("Archived processes exist for definition ID=" + p.getId());
-        }
 
         // Check that processes to be deleted don't have parent processes of different definition.
         String parentProcessDefinitionName = currentProcessDao.findParentProcessDefinitionName(p);
@@ -297,22 +302,37 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
 
         // ===== Perform deletion.
 
-        val processes = currentProcessDao.findAllProcessesForAllDefinitionVersions(p);
+        List<CurrentProcess> processes;
+        if (removePack) {
+            processes = currentProcessDao.findAllByDefinitionPackOrderByStartDateAsc(p);
+        } else {
+            processes = currentProcessDao.findAllByDefinitionOrderByStartDateAsc(d);
+        }
         for (CurrentProcess cp : processes) {
             deleteProcess(user, cp);
         }
         currentProcessDao.flushPendingChanges();
 
-        if (d == null) {
+        List<ArchivedProcess> archivedProcesses;
+        if (removePack) {
+            archivedProcesses = archivedProcessDao.findAllByDefinitionPackOrderByStartDateAsc(p);
+        } else {
+            archivedProcesses = archivedProcessDao.findAllByDefinitionOrderByStartDateAsc(d);
+        }
+        for (ArchivedProcess process : archivedProcesses) {
+            deleteArchivedProcess(user, process);
+        }
+        archivedProcessDao.flushPendingChanges();
+
+        if (removePack) {
             processDefinitionDao.deleteAll(p);
+            permissionDao.deleteAllPermissions(p);
+            processDefinitionPackDao.delete(p);
         } else {
             processDefinitionDao.delete(d);
         }
-
-        permissionDao.deleteAllPermissions(p);
-        processDefinitionPackDao.delete(p);
         systemLogDao.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), p.getName(), d == null ? null : d.getVersion()));
-        log.info("Process definition " + p + " successfully undeployed");
+        log.info("Process definition " + p + " version " + version + " successfully undeployed");
     }
 
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
@@ -387,6 +407,20 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
             result.add(new WfDefinition(d));
         }
         return result;
+    }
+
+    private void deleteArchivedProcess(User user, ArchivedProcess process) {
+        log.debug("deleting archived process " + process);
+        List<ArchivedProcess> subProcesses = archivedNodeProcessDao.getSubprocesses(process);
+        archivedNodeProcessDao.deleteByProcess(process);
+        for (ArchivedProcess subProcess : subProcesses) {
+            deleteArchivedProcess(user, subProcess);
+        }
+        archivedProcessLogDao.deleteAll(process);
+        archivedVariableDao.deleteAll(process);
+        archivedSwimlaneDao.deleteAll(process);
+        archivedProcessDao.delete(process);
+        systemLogDao.create(new ArchivedProcessDeleteLog(user.getActor().getId(), process.getDefinition().getPack().getName(), process.getId()));
     }
 
     private ParsedProcessDefinition parseProcessDefinition(byte[] data) {

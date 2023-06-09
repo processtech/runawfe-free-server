@@ -39,4 +39,10 @@ public class ArchivedVariableDao extends ReadOnlyGenericDao<ArchivedVariable> {
         return queryFactory.selectFrom(variable).where(variable.process.eq(process).and(variable.name.startsWith(namePrefix))).fetch();
     }
 
+    public void deleteAll(ArchivedProcess process) {
+        log.debug("deleting variables for archived process " + process.getId());
+        val v = QArchivedVariable.archivedVariable;
+        queryFactory.delete(v).where(v.process.eq(process)).execute();
+    }
+
 }

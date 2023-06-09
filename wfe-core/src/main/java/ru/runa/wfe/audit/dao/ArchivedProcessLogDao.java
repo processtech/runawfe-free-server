@@ -43,4 +43,11 @@ public class ArchivedProcessLogDao extends ReadOnlyGenericDao<ArchivedProcessLog
         val nel = QArchivedNodeEnterLog.archivedNodeEnterLog;
         return queryFactory.select(nel.id).from(nel).where(nel.processId.eq(process.getId()).and(nel.nodeId.eq(nodeId))).fetchFirst() != null;
     }
+
+    public void deleteAll(ArchivedProcess process) {
+        long processId = process.getId();
+        log.debug("deleting logs for archived process " + processId);
+        val pl = QArchivedProcessLog.archivedProcessLog;
+        queryFactory.delete(pl).where(pl.processId.eq(processId)).execute();
+    }
 }

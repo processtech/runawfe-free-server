@@ -1,14 +1,13 @@
 package ru.runa.wfe.presentation;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
-
+import ru.runa.wfe.audit.ArchivedProcessDeleteLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
 import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.ProcessLogsCleanLog;
 import ru.runa.wfe.audit.SystemLog;
-
-import com.google.common.collect.Maps;
 
 /**
  * Helper class to map {@link SystemLog} descriminator value to display name.
@@ -29,6 +28,7 @@ public final class SystemLogTypeHelper {
         addType(ProcessDefinitionDeleteLog.class, "PDDel", "history.system.type.process_definition_delete");
         addType(ProcessDeleteLog.class, "PIDel", "history.system.type.process_delete");
         addType(ProcessLogsCleanLog.class, "PLDel", "history.system.type.process_logs_cleaned");
+        addType(ArchivedProcessDeleteLog.class, "ArPIDel", "history.system.type.archived_process_delete");
     }
 
     /**

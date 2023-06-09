@@ -7,6 +7,7 @@ import java.util.Set;
 import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.ReadOnlyGenericDao;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionPack;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.QArchivedProcess;
@@ -25,11 +26,6 @@ public class ArchivedProcessDao extends ReadOnlyGenericDao<ArchivedProcess> {
         return queryFactory.selectFrom(p).where(p.id.in(ids)).fetch();
     }
 
-    public boolean processesExist(ProcessDefinitionPack pack) {
-        val p = QArchivedProcess.archivedProcess;
-        return queryFactory.select(p.id).from(p).where(p.definition.pack.eq(pack)).limit(1).fetchFirst() != null;
-    }
-
     Set<Long> getDependentProcessIds(Executor executor, int limit) {
         Preconditions.checkArgument(limit > 0);
         val s = QArchivedSwimlane.archivedSwimlane;
@@ -39,6 +35,25 @@ public class ArchivedProcessDao extends ReadOnlyGenericDao<ArchivedProcess> {
                 .where(s.executor.eq(executor))
                 .limit(limit)
                 .fetch());
+    }
+
+    public List<ArchivedProcess> findAllByDefinitionPackOrderByStartDateAsc(ProcessDefinitionPack pack) {
+        val p = QArchivedProcess.archivedProcess;
+        return queryFactory.selectFrom(p).where(p.definition.pack.eq(pack)).orderBy(p.startDate.desc()).fetch();
+    }
+
+    public List<ArchivedProcess> findAllByDefinitionOrderByStartDateAsc(ProcessDefinition definition) {
+        val p = QArchivedProcess.archivedProcess;
+        return queryFactory.selectFrom(p).where(p.definition.eq(definition)).orderBy(p.startDate.desc()).fetch();
+    }
+
+    public void delete(ArchivedProcess process) {
+        Preconditions.checkNotNull(process);
+        sessionFactory.getCurrentSession().delete(process);
+    }
+
+    public void flushPendingChanges() {
+        sessionFactory.getCurrentSession().flush();
     }
 
 }

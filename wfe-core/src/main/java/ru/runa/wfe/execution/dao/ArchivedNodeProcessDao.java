@@ -65,4 +65,10 @@ public class ArchivedNodeProcessDao
     public List<ArchivedProcess> getSubprocesses(ArchivedProcess process, String nodeId, ArchivedToken parentToken, Boolean finished) {
         return delegate.getSubprocesses(process, nodeId, parentToken, finished);
     }
+
+    public void deleteByProcess(ArchivedProcess process) {
+        log.debug("deleting subprocess nodes for archived process " + process.getId());
+        val np = QArchivedNodeProcess.archivedNodeProcess;
+        queryFactory.delete(np).where(np.process.eq(process)).execute();
+    }
 }

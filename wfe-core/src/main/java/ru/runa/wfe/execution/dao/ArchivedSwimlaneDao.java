@@ -18,4 +18,10 @@ public class ArchivedSwimlaneDao extends ReadOnlyGenericDao<ArchivedSwimlane> {
         val s = QArchivedSwimlane.archivedSwimlane;
         return queryFactory.selectFrom(s).where(s.process.eq(process).and(s.name.eq(name))).fetchFirst();
     }
+
+    public void deleteAll(ArchivedProcess process) {
+        log.debug("deleting swimlanes for archived process " + process.getId());
+        val s = QArchivedSwimlane.archivedSwimlane;
+        queryFactory.delete(s).where(s.process.eq(process)).execute();
+    }
 }
