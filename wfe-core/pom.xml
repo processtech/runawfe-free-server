@@ -121,12 +121,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-			<version>3.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 		</dependency>
