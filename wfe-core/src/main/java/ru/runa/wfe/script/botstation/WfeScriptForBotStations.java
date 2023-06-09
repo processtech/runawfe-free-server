@@ -1,4 +1,4 @@
-package ru.runa.wfe.service.delegate;
+package ru.runa.wfe.script.botstation;
 
 import java.util.List;
 
@@ -11,11 +11,8 @@ import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.AdminScriptRunner;
-import ru.runa.wfe.script.botstation.BotSystemScriptOperation;
-import ru.runa.wfe.script.botstation.RemoveConfigurationsFromBotOperation;
 import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.WorkflowScriptDto;
-import ru.runa.wfe.service.utils.AdminScriptUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -31,7 +28,7 @@ public class WfeScriptForBotStations extends AdminScriptRunner {
     }
 
     public static byte[] createScriptForBotLoading(Bot bot, List<BotTask> tasks) {
-        Document script = AdminScriptUtils.createScriptDocument();
+        Document script = XmlUtils.createDocument("workflowScript", XmlUtils.RUNA_NAMESPACE);
         Element root = script.getRootElement();
         Element createBotElement = root.addElement("createBot", XmlUtils.RUNA_NAMESPACE);
         createBotElement.addAttribute(AdminScriptConstants.NAME_ATTRIBUTE_NAME, bot.getUsername());
