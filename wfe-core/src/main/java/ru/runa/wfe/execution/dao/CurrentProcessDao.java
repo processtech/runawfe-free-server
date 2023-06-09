@@ -7,6 +7,7 @@ import java.util.Set;
 import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.ProcessDefinitionPack;
 import ru.runa.wfe.definition.QProcessDefinition;
 import ru.runa.wfe.definition.QProcessDefinitionPack;
@@ -61,15 +62,14 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
                 .fetchFirst();
     }
 
-    /**
-     * Fetches all processes for ALL given process definition versions. The returned list of processs is sorted start date, youngest first.
-     */
-    public List<CurrentProcess> findAllProcessesForAllDefinitionVersions(ProcessDefinitionPack pack) {
+    public List<CurrentProcess> findAllByDefinitionPackOrderByStartDateAsc(ProcessDefinitionPack pack) {
         QCurrentProcess p = QCurrentProcess.currentProcess;
-        return queryFactory.selectFrom(p)
-                .where(p.definition.pack.eq(pack))
-                .orderBy(p.startDate.desc())
-                .fetch();
+        return queryFactory.selectFrom(p).where(p.definition.pack.eq(pack)).orderBy(p.startDate.desc()).fetch();
+    }
+
+    public List<CurrentProcess> findAllByDefinitionOrderByStartDateAsc(ProcessDefinition definition) {
+        QCurrentProcess p = QCurrentProcess.currentProcess;
+        return queryFactory.selectFrom(p).where(p.definition.eq(definition)).orderBy(p.startDate.desc()).fetch();
     }
 
     List<CurrentProcess> findImpl(List<Long> ids) {

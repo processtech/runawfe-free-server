@@ -23,17 +23,22 @@ public class WfeInterceptor extends EmptyInterceptor {
     }
 
     private boolean onChanges(Object entity, Change change, Object[] state, Object[] previousState, String[] propertyNames, boolean fixOracleStrings) {
+        // Deleting a process automatically entails tokens update. Ignore it.
+        if (change == Change.UPDATE && entity instanceof ArchivedToken) {
+            return false;
+        }
+
         // Archive immutability support:
         // NOTE: This check is mandatory, because some archived entity classes HAVE public setters.
         //       E.g. variables, since VariableLogic.getProcessStateOnTime() creates temporary fake variables which are then proxied.
         //       Also, a reflection potentially can be used to make archived variable dirty.
-        if (entity instanceof ArchivedNodeProcess ||
+        if (change != Change.DELETE && (entity instanceof ArchivedNodeProcess ||
                 entity instanceof ArchivedProcess ||
                 entity instanceof ArchivedProcessLog ||
                 entity instanceof ArchivedSwimlane ||
                 entity instanceof ArchivedToken ||
                 entity instanceof ArchivedVariable
-        ) {
+        )) {
             throw new RuntimeException("Attempted to " + change + " immutable " + entity);
         }
 
