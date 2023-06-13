@@ -218,11 +218,11 @@ public class JpdlXmlReader {
     private void readTasks(ParsedProcessDefinition parsedProcessDefinition, Element parentElement, InteractionNode taskNode) {
         List<Element> elements = parentElement.elements(TASK_NODE);
         for (Element element : elements) {
-            readTask(parsedProcessDefinition, element, taskNode, parentElement);
+            readTask(parsedProcessDefinition, element, taskNode);
         }
     }
 
-    private void readTask(ParsedProcessDefinition parsedProcessDefinition, Element element, InteractionNode node, Element parentElement) {
+    private void readTask(ParsedProcessDefinition parsedProcessDefinition, Element element, InteractionNode node) {
         if (node instanceof EmbeddedSubprocessStartNode) {
             return;
         }
@@ -301,7 +301,7 @@ public class JpdlXmlReader {
             StartNode startNode = (StartNode) node;
             Element startTaskElement = element.element(TASK_NODE);
             if (startTaskElement != null) {
-                readTask(parsedProcessDefinition, startTaskElement, startNode, element);
+                readTask(parsedProcessDefinition, startTaskElement, startNode);
             }
         }
         // if (node instanceof WaitNode) {

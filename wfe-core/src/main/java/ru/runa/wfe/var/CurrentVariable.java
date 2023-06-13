@@ -89,16 +89,19 @@ public abstract class CurrentVariable<V> extends Variable<CurrentProcess, V> {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
+    @Override
     @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
     public CurrentProcess getProcess() {
         return process;
     }
 
+    @Override
     public void setProcess(CurrentProcess process) {
         this.process = process;
     }
@@ -110,7 +113,7 @@ public abstract class CurrentVariable<V> extends Variable<CurrentProcess, V> {
         } else if (newValue == null) {
             return new CurrentVariableDeleteLog(this);
         } else {
-            return new CurrentVariableUpdateLog(this, oldValue, newValue, variableDefinition);
+            return new CurrentVariableUpdateLog(this, newValue, variableDefinition);
         }
     }
 }

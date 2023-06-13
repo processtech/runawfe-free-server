@@ -19,7 +19,7 @@ public class CurrentVariableUpdateLog extends CurrentVariableLog implements Vari
     public CurrentVariableUpdateLog() {
     }
 
-    public CurrentVariableUpdateLog(CurrentVariable<?> variable, Object oldValue, Object newValue, VariableDefinition variableDefinition) {
+    public CurrentVariableUpdateLog(CurrentVariable<?> variable, Object newValue, VariableDefinition variableDefinition) {
         super(variable);
         setVariableNewValue(variable, newValue, variableDefinition);
     }

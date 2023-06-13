@@ -1,12 +1,10 @@
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.SelectableOption;
-
-import com.google.common.collect.Lists;
 
 @SuppressWarnings("unchecked")
 public class DisplayMultipleSelectInList extends FormComponent {
@@ -35,7 +33,7 @@ public class DisplayMultipleSelectInList extends FormComponent {
                 optionLabel = executor.getLabel();
             } else {
                 optionValue = String.valueOf(option);
-                optionLabel = String.valueOf(option);
+                optionLabel = optionValue;
             }
             String id = variableName + "_" + optionValue;
             html.append("<input id=\"").append(id).append("\"");

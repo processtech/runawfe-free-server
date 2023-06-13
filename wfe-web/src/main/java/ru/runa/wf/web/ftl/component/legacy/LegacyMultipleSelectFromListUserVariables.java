@@ -1,13 +1,13 @@
 package ru.runa.wf.web.ftl.component.legacy;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.var.UserType;
@@ -19,9 +19,6 @@ import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.TextFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 public class LegacyMultipleSelectFromListUserVariables extends LegacyAbstractListUserVariables implements FormComponentSubmissionHandler {
     private static final long serialVersionUID = 1L;
 
@@ -29,7 +26,7 @@ public class LegacyMultipleSelectFromListUserVariables extends LegacyAbstractLis
     protected Object renderRequest() throws Exception {
         initFields();
         return getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName),
-                variableProvider.getVariableNotNull(dectVariableName), variableProvider.getProcessId(), sortField,
+                variableProvider.getVariableNotNull(dectVariableName), sortField,
                 displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE);
     }
 

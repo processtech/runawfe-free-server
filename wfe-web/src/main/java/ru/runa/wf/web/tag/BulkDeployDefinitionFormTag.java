@@ -48,8 +48,8 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         form.setEncType(Form.ENC_UPLOAD);
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
-        table.addElement(createFileInputRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), FileForm.FILE_INPUT_NAME, "", true,
-                true, Input.FILE, strutsWebHelper));
+        table.addElement(createFileInputRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), FileForm.FILE_INPUT_NAME,
+                strutsWebHelper));
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
         TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, def == null ? null : def.getCategories(), pageContext);
         table.addElement(HTMLUtils.createRow(Messages.getMessage(ClassPresentationType.DEFINITION, DefinitionClassPresentation.TYPE, pageContext),
@@ -128,8 +128,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_DEFINITION, SecuredSingleton.SYSTEM);
     }
 
-    private static TR createFileInputRow(String label, String name, String value, boolean enabled, boolean required, String type,
-            WebHelper strutsWebHelper) {
+    private static TR createFileInputRow(String label, String name, WebHelper strutsWebHelper) {
         TR tr = new TR();
         TD labelTd = new TD(label);
         labelTd.setClass(Resources.CLASS_LIST_TABLE_TD);

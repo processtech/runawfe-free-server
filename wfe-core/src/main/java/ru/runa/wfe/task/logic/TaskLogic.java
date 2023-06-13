@@ -124,7 +124,7 @@ public class TaskLogic extends WfCommonLogic {
             }
             VariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
             validateVariables(executionContext, validationVariableProvider, parsedProcessDefinition, task.getNodeId(), variables);
-            processMultiTaskVariables(executionContext, task, variables);
+            processMultiTaskVariables(task, variables);
             executionContext.setVariableValues(variables);
             Transition transition;
             if (transitionName != null) {
@@ -154,7 +154,7 @@ public class TaskLogic extends WfCommonLogic {
         }
     }
 
-    private void processMultiTaskVariables(ExecutionContext executionContext, Task task, Map<String, Object> variables) {
+    private void processMultiTaskVariables(Task task, Map<String, Object> variables) {
         if (task.getIndex() == null) {
             return;
         }

@@ -70,8 +70,6 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     /**
      * Creates node from log instance for specific {@link Node}.
      * 
-     * @param processLog
-     *            Log instance.
      * @param node
      *            Node instance to create history graph node.
      * @param definitionModel
@@ -79,7 +77,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
      * @param nodeFactory
      *            Factory to create nodes.
      */
-    protected HistoryGraphBaseNodeModel(ProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    protected HistoryGraphBaseNodeModel(Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         try {
             this.definitionModel = definitionModel;
             this.nodeFactory = nodeFactory;

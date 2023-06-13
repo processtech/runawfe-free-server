@@ -210,8 +210,8 @@ public class TransitionFigure {
             String drawString = transition.isTimerTransition() ? timerInfo : transition.getName();
             Rectangle2D textBounds = graphics.getFontMetrics().getStringBounds(drawString, graphics);
             int padding = 1;
-            int xStart = 0;
-            int yStart = 0;
+            int xStart;
+            int yStart;
             if (figureFrom.getNode().getNodeType() == NodeType.FORK) {
                 xStart = (int) (xPoints[xPoints.length - 2] + xPoints[xPoints.length - 1] - textBounds.getWidth()) / 2;
                 yStart = (int) (yPoints[yPoints.length - 2] + yPoints[yPoints.length - 1] - textBounds.getHeight()) / 2;

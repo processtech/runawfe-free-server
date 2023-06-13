@@ -301,9 +301,7 @@ public class ClassLoaderUtil {
             if (is == null) {
                 is = getAsStreamNotNull(resourceBaseName + ".properties", callingClass);
             }
-            if (is != null) {
-                properties.load(is);
-            }
+            properties.load(is);
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }

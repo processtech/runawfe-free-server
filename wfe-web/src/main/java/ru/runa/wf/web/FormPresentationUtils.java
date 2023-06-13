@@ -23,7 +23,6 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.action.LoadProcessDefinitionHtmlFileAction;
 import ru.runa.wf.web.form.DefinitionFileForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.var.VariableProvider;
 
 /**
  * 
@@ -147,8 +146,7 @@ public class FormPresentationUtils {
         return !href.contains(PROTOCOL_SEPARATOR) && !href.startsWith("/");
     }
 
-    public static String adjustForm(PageContext pageContext, Long definitionId, String formHtml, VariableProvider variableProvider,
-            List<String> requiredVarNames) {
+    public static String adjustForm(PageContext pageContext, Long definitionId, String formHtml, List<String> requiredVarNames) {
         try {
             Map<String, String> userErrors = FormSubmissionUtils.getUserInputErrors(pageContext.getRequest());
             Document document = HTMLUtils.readHtml(formHtml.getBytes(Charsets.UTF_8));

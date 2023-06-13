@@ -1,7 +1,5 @@
 package ru.runa.wfe.commons;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Defaults;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -250,7 +248,7 @@ public class TypeConversionUtil {
             } else {
                 throw new RuntimeException("List has insufficient size, index = " + index);
             }
-        } else if (container.getClass().isArray()) {
+        } else if (container != null && container.getClass().isArray()) {
             Object[] array = (Object[]) container;
             if (array.length > index) {
                 return array[index];

@@ -59,19 +59,17 @@ public class EditSettingsTag extends TitledFormTag {
         settingsList = readSettingsList("settingsList.xml");
     }
 
-    @SuppressWarnings("unchecked")
     private static void parseSettingType(Setting p, Element el) {
         p.pattern = el.attributeValue("pattern");
         List<Element> vlist = el.elements();
         for (Element v : vlist) {
-            if (v.getName() != "value") {
+            if (!"value".equals(v.getName())) {
                 continue;
             }
             p.values.add(v.getText());
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static TreeMap<String, SettingsFile> readSettingsList(String path) {
         TreeMap<String, SettingsFile> result = new TreeMap<>();
         try (InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, EditSettingsTag.class)) {
@@ -83,7 +81,7 @@ public class EditSettingsTag extends TitledFormTag {
                 parseSettingType(pf.defaultSetting, f);
                 List<Element> plist = f.elements();
                 for (Element p : plist) {
-                    if (p.getName() != "property") {
+                    if (!"property".equals(p.getName())) {
                         continue;
                     }
                     Setting np = new Setting(p.attributeValue("title"));

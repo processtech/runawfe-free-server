@@ -45,10 +45,7 @@ public class AjaxActorsList extends JsonAjaxCommand {
                 if (isExcluded(user, executor, excludeme)) {
                     continue;
                 }
-                Object obj = executorToJson(executor);
-                if (obj != null) {
-                    data.add(obj);
-                }
+                data.add(executorToJson(executor));
             }
             root.put("data", data);
             return root;

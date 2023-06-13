@@ -10,8 +10,8 @@ import ru.runa.wfe.lang.jpdl.Fork;
  */
 public class HistoryGraphForkNodeModel extends HistoryGraphBaseNodeModel {
 
-    public HistoryGraphForkNodeModel(ProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
-        super(processLog, node, definitionModel, nodeFactory);
+    public HistoryGraphForkNodeModel(Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+        super(node, definitionModel, nodeFactory);
     }
 
     public HistoryGraphForkNodeModel(ProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {

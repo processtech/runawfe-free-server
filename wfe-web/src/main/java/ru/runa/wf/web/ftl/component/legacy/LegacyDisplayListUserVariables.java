@@ -6,7 +6,7 @@ public class LegacyDisplayListUserVariables extends LegacyAbstractListUserVariab
     @Override
     protected Object renderRequest() throws Exception {
         initFields();
-        return getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName), null, variableProvider.getProcessId(),
+        return getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName), null,
                 sortField, displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE);
     }
 

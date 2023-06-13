@@ -131,8 +131,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                     ParamsDef paramsDef = BotTaskConfigurationUtils.getExtendedBotTaskParameters(user, task, botTask.getConfiguration());
                     variableProvider = new ParamBasedVariableProvider(variableProvider, paramsDef);
                 } else if (BotTaskConfigurationUtils.isParameterizedBotTaskConfiguration(botTask.getConfiguration())) {
-                    byte[] configuration = BotTaskConfigurationUtils.substituteParameterizedConfiguration(user, task, botTask.getConfiguration(),
-                            variableProvider);
+                    byte[] configuration = BotTaskConfigurationUtils.substituteParameterizedConfiguration(user, task, botTask.getConfiguration());
                     taskHandler.setConfiguration(configuration, botTask.getEmbeddedFile());
                 } else {
                     taskHandler.setConfiguration(botTask.getConfiguration(), botTask.getEmbeddedFile());

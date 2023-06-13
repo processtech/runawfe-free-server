@@ -2,7 +2,6 @@ package ru.runa.wfe.graph.history;
 
 import java.awt.Color;
 import java.util.List;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.graph.DrawProperties;
@@ -47,7 +46,7 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
         for (HistoryGraphTransitionModel transition : node.getTransitions()) {
             transition.getToNode().processBy(this, context);
         }
-        createFigureForTransitions(node, data, model);
+        createFigureForTransitions(node, data);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
         for (HistoryGraphTransitionModel transition : node.getTransitions()) {
             transition.getToNode().processBy(this, context);
         }
-        createFigureForTransitions(node, data, model);
+        createFigureForTransitions(node, data);
     }
 
     @Override
@@ -75,7 +74,7 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
         for (HistoryGraphTransitionModel transition : node.getTransitions()) {
             transition.getToNode().processBy(this, context);
         }
-        createFigureForTransitions(node, data, model);
+        createFigureForTransitions(node, data);
     }
 
     @Override
@@ -89,7 +88,7 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
         for (HistoryGraphTransitionModel transition : node.getTransitions()) {
             transition.getToNode().processBy(this, context);
         }
-        createFigureForTransitions(node, data, model);
+        createFigureForTransitions(node, data);
     }
 
     private Node createCommonModel(HistoryGraphNode historyNode) {
@@ -130,7 +129,7 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
         data.setFigure(nodeFigure);
     }
 
-    private void createFigureForTransitions(HistoryGraphNode node, FiguresNodeData data, Node model) {
+    private void createFigureForTransitions(HistoryGraphNode node, FiguresNodeData data) {
         try {
             for (HistoryGraphTransitionModel transition : node.getTransitions()) {
                 createTransitionFigure(transition, data);

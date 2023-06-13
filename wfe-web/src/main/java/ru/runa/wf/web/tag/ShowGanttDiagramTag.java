@@ -42,7 +42,7 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
         ProcessLogs logs = Delegates.getAuditService().getProcessLogs(getUser(), filter);
         Map<TaskCreateLog, TaskEndLog> taskLogs = logs.getTaskLogs();
         List<String> barList = new ArrayList<>();
-        barList.add(getBar(process.getId(), process.getName(), new Date(), new Date(), "process", null, true, "0", null));
+        barList.add(getBar(process.getId(), process.getName(), new Date(), new Date(), "process", null, true, "0"));
         TaskService taskService = Delegates.getTaskService();
         for (TaskCreateLog createLog : logs.getLogs(TaskCreateLog.class)) {
             TaskEndLog endLog = taskLogs.get(createLog);
@@ -57,10 +57,10 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
                 }
             }
             barList.add(getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), end, "task2", executorName, false,
-                    createLog.getProcessId(), null));
+                    createLog.getProcessId()));
             if (log instanceof SubprocessStartLog) {
                 WfProcess subProcess = executionService.getProcess(getUser(), ((SubprocessStartLog) log).getSubprocessId());
-                barList.add(getBar(subProcess.getId(), subProcess.getName(), null, null, "subprocess", null, true, process.getId(), null));
+                barList.add(getBar(subProcess.getId(), subProcess.getName(), null, null, "subprocess", null, true, process.getId()));
             }
         }
         String js = "var tasks = {data:[";
@@ -79,8 +79,7 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
         tdFormElement.addElement(script);
     }
 
-    private String getBar(Object id, String name, Date start, Date end, String type, String executorName, boolean group, Object parentId,
-            String depends) {
+    private String getBar(Object id, String name, Date start, Date end, String type, String executorName, boolean group, Object parentId) {
         String _id = id.toString();
         String _parentId = parentId.toString();
         if (_id.equals(_parentId)) {

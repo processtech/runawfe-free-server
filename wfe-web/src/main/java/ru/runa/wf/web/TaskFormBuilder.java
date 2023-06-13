@@ -67,7 +67,7 @@ public abstract class TaskFormBuilder {
 
     private String buildForm(VariableProvider variableProvider, Long definitionId) {
         String form = buildForm(variableProvider);
-        return FormPresentationUtils.adjustForm(pageContext, definitionId, form, variableProvider, interaction.getRequiredVariableNames());
+        return FormPresentationUtils.adjustForm(pageContext, definitionId, form, interaction.getRequiredVariableNames());
     }
 
     protected abstract String buildForm(VariableProvider variableProvider);

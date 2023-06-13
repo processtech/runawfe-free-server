@@ -1,15 +1,13 @@
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.collect.Lists;
 
 public class DisplayLinkedLists extends FormComponent {
     private static final long serialVersionUID = 1L;
@@ -70,11 +68,11 @@ public class DisplayLinkedLists extends FormComponent {
             int row, int column) {
         WfVariable componentVariable = ViewUtil.createListComponentVariable(containerVariable, row, componentFormat, value);
         html.append("<td column=\"").append(column).append("\">");
-        html.append(getComponentOutput(componentVariable, componentView, row));
+        html.append(getComponentOutput(componentVariable, componentView));
         html.append("</td>");
     }
 
-    private String getComponentOutput(WfVariable componentVariable, boolean componentView, int row) {
+    private String getComponentOutput(WfVariable componentVariable, boolean componentView) {
         if (componentView) {
             return ViewUtil.getComponentOutput(user, webHelper, variableProvider.getProcessId(), componentVariable);
         } else {

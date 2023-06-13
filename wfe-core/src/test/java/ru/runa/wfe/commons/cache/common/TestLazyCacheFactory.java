@@ -35,7 +35,7 @@ public final class TestLazyCacheFactory extends SMCacheFactory<TestCacheIface> {
         if (callback != null) {
             callback.beforeCacheCreation();
         }
-        return new TestLazyCache(context, initialCachedData);
+        return new TestLazyCache(initialCachedData);
     }
 
     public void setCallback(TestLazyCacheFactoryCallback callback) {

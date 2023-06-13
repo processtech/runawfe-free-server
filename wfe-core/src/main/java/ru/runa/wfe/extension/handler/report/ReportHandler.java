@@ -76,7 +76,7 @@ public class ReportHandler extends CommonParamBasedHandler {
         }
 
         ReportGenerationType reportGenerationType = ReportGenerationType.valueOf(format);
-        ReportBuildResult result = reportGenerationType.exportReport(report.getName(), fillReport(params, reportGenerationType, report));
+        ReportBuildResult result = reportGenerationType.exportReport(report.getName(), fillReport(params, report));
         FileVariableImpl fileVariable = new FileVariableImpl();
         fileVariable.setName(result.getReportFileName());
         fileVariable.setData((byte[]) result.getReportData());
@@ -84,7 +84,7 @@ public class ReportHandler extends CommonParamBasedHandler {
         handlerData.setOutputParam(OUTPUT_PARAM_RESULT, fileVariable);
     }
 
-    private JasperPrint fillReport(Map<String, Object> params, ReportGenerationType reportGenerationType, WfReport report) throws Exception {
+    private JasperPrint fillReport(Map<String, Object> params, WfReport report) throws Exception {
         Connection connection;
         if (!Strings.isNullOrEmpty(dataSource)) {
             DataSource ds = DataSourceStorage.getDataSource(dataSource);

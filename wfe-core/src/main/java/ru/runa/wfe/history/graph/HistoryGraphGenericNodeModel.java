@@ -10,8 +10,8 @@ import ru.runa.wfe.lang.Node;
  */
 public class HistoryGraphGenericNodeModel extends HistoryGraphBaseNodeModel {
 
-    public HistoryGraphGenericNodeModel(ProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
-        super(processLog, node, definitionModel, nodeFactory);
+    public HistoryGraphGenericNodeModel(Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+        super(node, definitionModel, nodeFactory);
     }
 
     public HistoryGraphGenericNodeModel(ProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
