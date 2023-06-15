@@ -1,6 +1,5 @@
 export class Options {
     page: number;
-    itemsPerPage: number;
     sortBy: string[];
     sortDesc: boolean[];
     groupBy: string[];
@@ -10,7 +9,6 @@ export class Options {
 
     constructor() {
         this.page = 1;
-        this.itemsPerPage = 10;
         this.sortBy = [];
         this.sortDesc = [];
         this.groupBy = [];

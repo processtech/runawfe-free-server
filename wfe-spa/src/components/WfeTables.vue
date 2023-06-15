@@ -8,11 +8,12 @@
         :options.sync="options"
         :server-items-length="total"
         :loading="loading"
-        :footer-props="{
+        :footer-props="footerProps ? footerProps : {
             disablePagination: false,
             disableItemsPerPage: false,
             itemsPerPageAllText: 'Все',
             itemsPerPageText: 'Строк на странице',
+            itemsPerPageOptions: [20, 50, 100, 500]
         }"
         >
         <template v-for="header in visibleHeaders" v-slot:[`item.${header.value}`]="{ item }">
@@ -125,6 +126,7 @@ export default Vue.extend({
         routeName: String,
         prefixLocalStorageName: String,
         dynamic: Boolean,
+        footerProps: Object
     },
     data() {
         return {

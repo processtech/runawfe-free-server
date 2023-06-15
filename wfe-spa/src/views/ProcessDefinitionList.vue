@@ -12,6 +12,13 @@
             :prefixLocalStorageName="`runawfe@definition-list`"
             :dynamic="false"
             @get-data-event="onGetData"
+            :footerProps= "{
+                disablePagination: false,
+                disableItemsPerPage: false,
+                itemsPerPageAllText: 'Все',
+                itemsPerPageText: 'Строк на странице',
+                itemsPerPageOptions: [10, 20, 100, 500]
+            }"
         />
     </v-container>
 </template>
