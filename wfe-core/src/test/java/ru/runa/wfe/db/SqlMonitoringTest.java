@@ -7,9 +7,6 @@ import org.testng.annotations.Test;
 import ru.runa.wfe.definition.ProcessDefinition;
 import ru.runa.wfe.definition.dao.ProcessDefinitionDao;
 
-/**
- * In order to start need to be commented: (rm2432) transaction = Utils.getUserTransaction(); in ApplicationContextFactory
- */
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/db/test.context.xml" })
 public class SqlMonitoringTest extends AbstractTransactionalTestNGSpringContextTests {

@@ -6,6 +6,7 @@ import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
 import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
@@ -39,17 +40,14 @@ public abstract class SMCacheFactory<CacheImpl extends CacheImplementation> {
     protected final Log log = LogFactory.getLog(getClass());
     public final Type type;
     public final CacheStateFactory<CacheImpl> stateFactory;
-    private final CacheTransactionalExecutor transactionalExecutor;
 
-    protected SMCacheFactory(Type type, CacheTransactionalExecutor transactionalExecutor) {
-        Preconditions.checkArgument(type == Type.EAGER || transactionalExecutor != null);
+    protected SMCacheFactory(Type type) {
         this.type = type;
         if (type == Type.LAZY_STALEABLE) {
             stateFactory = new StaleableCacheStateFactory<>();
         } else {
             stateFactory = new IsolatedCacheStateFactory<>();
         }
-        this.transactionalExecutor = transactionalExecutor;
     }
 
     public final boolean isLazy() {
@@ -70,22 +68,18 @@ public abstract class SMCacheFactory<CacheImpl extends CacheImplementation> {
                     if (!context.isInitializationStillRequired()) {
                         return;
                     }
-                    transactionalExecutor.executeInTransaction(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            if (!context.isInitializationStillRequired()) {
-                                return;
-                            }
-                            if (log.isTraceEnabled()) {
-                                log.trace("Creating cache from " + this);
-                            }
-                            cache.set(createCacheImpl(context));
-                            if (log.isDebugEnabled()) {
-                                log.debug("Created cache " + cache.get());
-                            }
-                            context.onComplete(cache.get());
+                    ApplicationContextFactory.getTransactionalExecutor().execute(() -> {
+                        if (!context.isInitializationStillRequired()) {
+                            return;
                         }
+                        if (log.isTraceEnabled()) {
+                            log.trace("Creating cache from " + this);
+                        }
+                        cache.set(createCacheImpl(context));
+                        if (log.isDebugEnabled()) {
+                            log.debug("Created cache " + cache.get());
+                        }
+                        context.onComplete(cache.get());
                     });
                 } catch (Throwable e) {
                     context.onError(e);

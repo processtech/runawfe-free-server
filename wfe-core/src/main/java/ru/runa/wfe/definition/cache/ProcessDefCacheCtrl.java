@@ -47,7 +47,7 @@ public class ProcessDefCacheCtrl extends BaseCacheCtrl<ProcessDefCacheImpl> {
     private static class ProcessDefinitionCacheFactory extends SMCacheFactory<ProcessDefCacheImpl> {
 
         ProcessDefinitionCacheFactory() {
-            super(Type.EAGER, null);
+            super(Type.EAGER);
         }
 
         @Override

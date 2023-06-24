@@ -22,11 +22,9 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
 import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
@@ -58,15 +56,6 @@ public class Utils {
             initialContext = new InitialContext();
         }
         return initialContext;
-    }
-
-    public static synchronized UserTransaction getUserTransaction() {
-        String jndiName = DatabaseProperties.getUserTransactionJndiName();
-        try {
-            return (UserTransaction) getInitialContext().lookup(jndiName);
-        } catch (NamingException e) {
-            throw new InternalApplicationException("Unable to find UserTransaction by name '" + jndiName + "'", e);
-        }
     }
 
     public static synchronized TransactionManager getTransactionManager() {
@@ -327,22 +316,6 @@ public class Utils {
             return buffer.toString();
         } catch (JMSException e) {
             throw Throwables.propagate(e);
-        }
-    }
-
-    public static void rollbackTransaction(UserTransaction transaction) {
-        int status = -1;
-        try {
-            if (transaction != null) {
-                status = transaction.getStatus();
-                if (status != Status.STATUS_NO_TRANSACTION) {
-                    transaction.rollback();
-                } else {
-                    log.warn("Unable to rollback, status: " + status);
-                }
-            }
-        } catch (Exception e) {
-            throw new InternalApplicationException("Unable to rollback, status: " + status, e);
         }
     }
 

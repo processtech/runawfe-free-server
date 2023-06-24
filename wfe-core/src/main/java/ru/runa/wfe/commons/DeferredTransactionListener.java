@@ -3,7 +3,6 @@ package ru.runa.wfe.commons;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,7 +16,7 @@ public abstract class DeferredTransactionListener implements TransactionListener
     protected final Log log = LogFactory.getLog(getClass());
 
     @Override
-    public void onTransactionComplete(UserTransaction transaction) {
+    public void onTransactionComplete() {
         log.debug("Scheduling invocation");
         scheduledExecutorService.schedule(this, 10, TimeUnit.MILLISECONDS);
     }

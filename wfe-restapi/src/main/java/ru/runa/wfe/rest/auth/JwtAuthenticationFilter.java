@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.apachecommons.CommonsLog;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,6 +31,8 @@ import static java.util.Collections.singletonList;
 
 @CommonsLog
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    @Autowired
+    private TransactionalExecutor transactionalExecutor;
     @Transactional
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -74,29 +77,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
             executorDao = webApplicationContext.getBean(ExecutorDao.class);
         }
-        ActorLoader actorLoader = new ActorLoader(actorId);
-        actorLoader.executeInTransaction(true);
-        return actorLoader.actor;
+        return (Actor) transactionalExecutor.executeWithResult(() -> {
+            return executorDao.getActor(actorId);
+        });
         // Actor actor = new Actor(claims.getSubject(), null);
         // Long actorId = ((Number) claims.get(USER_ACTOR_ID_ATTRIBUTE_NAME)).longValue();
         // actor.setId(actorId);
         // org.hibernate.TransientObjectException: object references an unsaved transient instance - save the transient instance before flushing:
         // ru.runa.wfe.user.Actor
         // at org.hibernate.engine.internal.ForeignKeys.getEntityIdentifierIfNotUnsaved(ForeignKeys.java:279)
-    }
-
-    private class ActorLoader extends TransactionalExecutor {
-        final Long actorId;
-        Actor actor;
-
-        public ActorLoader(Long actorId) {
-            this.actorId = actorId;
-        }
-
-        @Override
-        protected void doExecuteInTransaction() {
-            actor = executorDao.getActor(actorId);
-        }
-
     }
 }

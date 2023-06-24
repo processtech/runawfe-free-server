@@ -19,7 +19,6 @@ import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -240,14 +239,10 @@ public class WorkflowBotExecutor {
         ParsedSubprocessDefinition subprocessDefinition = parsedProcessDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
         final String embeddedSubprocessNodeId = parsedProcessDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
 
-        new TransactionalExecutor(ApplicationContextFactory.getTransaction()) {
-
-            @Override
-            protected void doExecuteInTransaction() {
-                Utils.sendBpmnErrorMessage(bot.getBoundProcessId(), embeddedSubprocessNodeId, new Throwable("Transactional bot " + bot.getUsername()
-                        + " timeout expired"));
-            }
-        }.executeInTransaction(false);
+        ApplicationContextFactory.getTransactionalExecutor().execute(() -> {
+            Utils.sendBpmnErrorMessage(bot.getBoundProcessId(), embeddedSubprocessNodeId,
+                    new Throwable("Transactional bot " + bot.getUsername() + " timeout expired"));
+        });
     }
 
 }

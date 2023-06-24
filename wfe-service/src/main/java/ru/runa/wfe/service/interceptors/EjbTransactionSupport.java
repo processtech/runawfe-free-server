@@ -1,17 +1,14 @@
 package ru.runa.wfe.service.interceptors;
 
 import com.google.common.base.Throwables;
-import javax.annotation.Resource;
-import javax.ejb.EJBContext;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
-import javax.transaction.UserTransaction;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.auth.SubjectPrincipalsHelper;
 import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.service.utils.ApiProperties;
@@ -26,24 +23,21 @@ import ru.runa.wfe.user.User;
  */
 @CommonsLog
 public class EjbTransactionSupport {
-    @Resource
-    private EJBContext ejbContext;
 
     @AroundInvoke
     public Object process(InvocationContext ic) {
-        UserTransaction transaction = ejbContext.getUserTransaction();
         try {
             if (ic.getParameters() != null && ic.getParameters().length > 0 && ic.getParameters()[0] instanceof User) {
                 User user = (User) ic.getParameters()[0];
                 SubjectPrincipalsHelper.validateUser(user);
                 UserHolder.set(user);
             }
-            return invokeWithRetry(ic, transaction, ApiProperties.getRetriesCount());
+            return invokeWithRetry(ic, ApiProperties.getRetriesCount());
         } finally {
             UserHolder.reset();
             for (TransactionListener listener : TransactionListeners.get()) {
                 try {
-                    listener.onTransactionComplete(transaction);
+                    listener.onTransactionComplete();
                 } catch (Throwable th) {
                     log.error(th);
                 }
@@ -59,21 +53,19 @@ public class EjbTransactionSupport {
      *            current transaction
      * @return invocation result.
      */
-    private Object invokeWithRetry(InvocationContext ic, UserTransaction transaction, int retriesCount) {
+    private Object invokeWithRetry(InvocationContext ic, int retriesCount) {
         try {
-            transaction.begin();
-            Object result = ic.proceed();
-            transaction.commit();
-            return result;
+            return ApplicationContextFactory.getTransactionalExecutor().executeWithResult(() -> {
+                return ic.proceed();
+            });
         } catch (Throwable th) {
-            Utils.rollbackTransaction(transaction);
             if (th instanceof StaleObjectStateException || th instanceof OptimisticLockingFailureException) {
                 log.error(th);
                 if (retriesCount > 0) {
                     try {
                         Thread.sleep(ApiProperties.getRetryTimeoutMilliseconds());
                         retriesCount--;
-                        return invokeWithRetry(ic, transaction, retriesCount);
+                        return invokeWithRetry(ic, retriesCount);
                     } catch (InterruptedException e) {
                         log.error(e);
                     }
