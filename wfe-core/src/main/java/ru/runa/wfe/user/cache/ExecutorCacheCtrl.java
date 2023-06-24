@@ -10,7 +10,6 @@ import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.DefaultCacheTransactionalExecutor;
 import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Actor;
@@ -196,7 +195,7 @@ public class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> {
     private static class ExecutorCacheFactory extends SMCacheFactory<ManageableExecutorCache> {
 
         ExecutorCacheFactory() {
-            super(Type.LAZY, new DefaultCacheTransactionalExecutor());
+            super(Type.LAZY);
         }
 
         @Override

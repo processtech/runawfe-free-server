@@ -16,11 +16,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import javax.transaction.UserTransaction;
 import lombok.val;
 import net.bull.javamelody.MonitoredWithSpring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.BaseProcessLog;
@@ -43,7 +43,6 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
-import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.email.EmailErrorNotifier;
@@ -178,23 +177,18 @@ public class ExecutionLogic extends WfCommonLogic {
         }
     }
 
-    public boolean failProcessExecution(UserTransaction transaction, Long tokenId, Throwable throwable) {
+    @Transactional
+    public boolean failProcessExecution(Long tokenId, Throwable throwable) {
         final AtomicBoolean needReprocessing = new AtomicBoolean(false);
-        new TransactionalExecutor(transaction) {
-
-            @Override
-            protected void doExecuteInTransaction() {
-                CurrentToken token = ApplicationContextFactory.getCurrentTokenDao().getNotNull(tokenId);
-                if (token.hasEnded()) {
-                    return;
-                }
-                boolean stateChanged = failToken(token, Throwables.getRootCause(throwable));
-                if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
-                    token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
-                    needReprocessing.set(true);
-                }
-            }
-        }.executeInTransaction(true);
+        CurrentToken token = ApplicationContextFactory.getCurrentTokenDao().getNotNull(tokenId);
+        if (token.hasEnded()) {
+            return false;
+        }
+        boolean stateChanged = failToken(token, Throwables.getRootCause(throwable));
+        if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
+            token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+            needReprocessing.set(true);
+        }
         return needReprocessing.get();
     }
 

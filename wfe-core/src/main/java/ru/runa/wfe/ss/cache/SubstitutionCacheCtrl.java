@@ -12,7 +12,6 @@ import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.DefaultCacheTransactionalExecutor;
 import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
@@ -101,7 +100,7 @@ public class SubstitutionCacheCtrl extends BaseCacheCtrl<SubstitutionCacheImpl> 
     private static class SubstitutionCacheFactory extends SMCacheFactory<SubstitutionCacheImpl> {
 
         SubstitutionCacheFactory() {
-            super(Type.EAGER, null);
+            super(Type.EAGER);
         }
 
         @Override
@@ -116,7 +115,7 @@ public class SubstitutionCacheCtrl extends BaseCacheCtrl<SubstitutionCacheImpl> 
     private static class StaleableSubstitutionCacheFactory extends SMCacheFactory<SubstitutionCacheImpl> {
 
         StaleableSubstitutionCacheFactory() {
-            super(Type.LAZY_STALEABLE, new DefaultCacheTransactionalExecutor());
+            super(Type.LAZY_STALEABLE);
         }
 
         @Override

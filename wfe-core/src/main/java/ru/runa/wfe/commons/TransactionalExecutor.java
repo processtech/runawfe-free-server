@@ -1,39 +1,40 @@
 package ru.runa.wfe.commons;
 
-import com.google.common.base.Throwables;
-import javax.transaction.UserTransaction;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-// use @Transactional
-@Deprecated
-public abstract class TransactionalExecutor {
-    protected final Log log = LogFactory.getLog(getClass());
-    private final UserTransaction transaction;
+@Component
+@Transactional
+public class TransactionalExecutor {
 
-    public TransactionalExecutor(UserTransaction transaction) {
-        this.transaction = transaction;
-    }
-
-    public TransactionalExecutor() {
-        this(Utils.getUserTransaction());
-    }
-
-    public final void executeInTransaction(boolean throwExceptionOnError) {
+    public void execute(TransactionalCallback callback) throws RuntimeException {
         try {
-            transaction.begin();
-            doExecuteInTransaction();
-            transaction.commit();
-        } catch (Throwable th) {
-            Utils.rollbackTransaction(transaction);
-            if (throwExceptionOnError) {
-                throw Throwables.propagate(th);
-            } else {
-                log.error("", th);
-            }
+            callback.run();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    protected abstract void doExecuteInTransaction() throws Exception;
+    public Object executeWithResult(TransactionalCallbackWithResult callbackWithResult) throws RuntimeException {
+        try {
+            return callbackWithResult.run();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @FunctionalInterface
+    public static interface TransactionalCallback {
+
+        void run() throws Exception;
+
+    }
+
+    @FunctionalInterface
+    public static interface TransactionalCallbackWithResult {
+
+        Object run() throws Exception;
+
+    }
 
 }

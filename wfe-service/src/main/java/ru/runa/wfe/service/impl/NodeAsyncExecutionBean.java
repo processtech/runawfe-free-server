@@ -3,10 +3,8 @@ package ru.runa.wfe.service.impl;
 import com.google.common.base.Throwables;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
-import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
@@ -14,7 +12,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-import javax.transaction.UserTransaction;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
@@ -50,8 +47,8 @@ public class NodeAsyncExecutionBean implements MessageListener {
     private ExecutionLogic executionLogic;
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
-    @Resource
-    private MessageDrivenContext context;
+    @Autowired
+    private TransactionalExecutor transactionalExecutor;
 
     @Override
     public void onMessage(Message jmsMessage) {
@@ -76,71 +73,63 @@ public class NodeAsyncExecutionBean implements MessageListener {
             return;
         }
         try {
-            new TransactionalExecutor(context.getUserTransaction()) {
-
-                @Override
-                protected void doExecuteInTransaction() {
-                    CurrentToken token = currentTokenDao.getNotNull(tokenId);
-                    if (token.getProcess().hasEnded()) {
-                        log.debug("Ignored execution in ended " + token.getProcess());
-                        return;
-                    }
-                    if (!Objects.equals(nodeId, token.getNodeId())) {
-                        throw new InternalApplicationException(token + " expected to be in node " + nodeId);
-                    }
-                    if (token.getVersion() >= SystemProperties.getTokenMaximumLength()) {
-                        throw new InternalApplicationException("Maximum token length " + SystemProperties.getTokenMaximumLength()
-                                + " has been reached");
-                    }
-                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
-                    Node node = parsedProcessDefinition.getNodeNotNull(token.getNodeId());
-                    try {
-                        ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
-                        node.handle(executionContext);
-                    } catch (Throwable th) {
-                        log.error(processId + ":" + tokenId, th);
-                        Throwables.propagate(th);
-                    }
+            transactionalExecutor.execute(() -> {
+                CurrentToken token = currentTokenDao.getNotNull(tokenId);
+                if (token.getProcess().hasEnded()) {
+                    log.debug("Ignored execution in ended " + token.getProcess());
+                    return;
                 }
-            }.executeInTransaction(true);
+                if (!Objects.equals(nodeId, token.getNodeId())) {
+                    throw new InternalApplicationException(token + " expected to be in node " + nodeId);
+                }
+                if (token.getVersion() >= SystemProperties.getTokenMaximumLength()) {
+                    throw new InternalApplicationException("Maximum token length " + SystemProperties.getTokenMaximumLength()
+                            + " has been reached");
+                }
+                ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
+                Node node = parsedProcessDefinition.getNodeNotNull(token.getNodeId());
+                try {
+                    ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
+                    node.handle(executionContext);
+                } catch (Throwable th) {
+                    log.error(processId + ":" + tokenId, th);
+                    Throwables.propagate(th);
+                }
+            });
             for (TransactionListener listener : TransactionListeners.get()) {
                 try {
-                    listener.onTransactionComplete(context.getUserTransaction());
+                    listener.onTransactionComplete();
                 } catch (Throwable th) {
                     log.error(th);
                 }
             }
             TransactionListeners.reset();
         } catch (final Throwable th) {
-            boolean needReprocessing = failProcessExecution(context.getUserTransaction(), tokenId, nodeId, th);
+            boolean needReprocessing = failProcessExecution(tokenId, nodeId, th);
             if (needReprocessing) {
                 throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
             }
         }
     }
 
-    private boolean failProcessExecution(UserTransaction transaction, final Long tokenId, String nodeId, final Throwable throwable) {
+    private boolean failProcessExecution(final Long tokenId, String nodeId, final Throwable throwable) {
         final AtomicBoolean needReprocessing = new AtomicBoolean(false);
-        new TransactionalExecutor(transaction) {
-
-            @Override
-            protected void doExecuteInTransaction() throws Exception {
-                CurrentToken token = currentTokenDao.getNotNull(tokenId);
-                if (token.hasEnded()) {
-                    log.debug("Ignored fail processs execution in ended " + token);
-                    return;
-                }
-                if (!Objects.equals(nodeId, token.getNodeId())) {
-                    log.debug("Ignored fail process execution: " + token + " expected to be in node " + nodeId);
-                    return;
-                }
-                boolean stateChanged = executionLogic.failToken(token, Throwables.getRootCause(throwable));
-                if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
-                    token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
-                    needReprocessing.set(true);
-                }
+        transactionalExecutor.execute(() -> {
+            CurrentToken token = currentTokenDao.getNotNull(tokenId);
+            if (token.hasEnded()) {
+                log.debug("Ignored fail process execution in ended " + token);
+                return;
             }
-        }.executeInTransaction(true);
+            if (!Objects.equals(nodeId, token.getNodeId())) {
+                log.debug("Ignored fail process execution: " + token + " expected to be in node " + nodeId);
+                return;
+            }
+            boolean stateChanged = executionLogic.failToken(token, Throwables.getRootCause(throwable));
+            if (stateChanged && token.getProcess().getExecutionStatus() == ExecutionStatus.ACTIVE) {
+                token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+                needReprocessing.set(true);
+            }
+        });
         return needReprocessing.get();
     }
 
