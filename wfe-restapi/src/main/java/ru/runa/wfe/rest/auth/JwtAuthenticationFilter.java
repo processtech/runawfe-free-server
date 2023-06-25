@@ -4,23 +4,18 @@ import io.jsonwebtoken.JwtException;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.runa.wfe.auth.JwtUser;
-import ru.runa.wfe.commons.TransactionalExecutor;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.rest.config.SpringSecurityConfig;
 import ru.runa.wfe.security.SecuredObjectUtil;
 import ru.runa.wfe.user.Actor;
@@ -31,9 +26,7 @@ import static java.util.Collections.singletonList;
 
 @CommonsLog
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private TransactionalExecutor transactionalExecutor;
-    @Transactional
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -73,11 +66,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private Actor getActor(HttpServletRequest request, Long actorId) {
         if (executorDao == null) {
-            ServletContext servletContext = request.getServletContext();
-            WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-            executorDao = webApplicationContext.getBean(ExecutorDao.class);
+            executorDao = ApplicationContextFactory.getExecutorDao();
         }
-        return (Actor) transactionalExecutor.executeWithResult(() -> {
+        return (Actor) ApplicationContextFactory.getTransactionalExecutor().executeWithResult(() -> {
             return executorDao.getActor(actorId);
         });
         // Actor actor = new Actor(claims.getSubject(), null);
