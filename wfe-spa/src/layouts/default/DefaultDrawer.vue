@@ -38,7 +38,7 @@ export default Vue.extend({
     computed: {
       dark: get('user/dark'),
       drawer: sync('app/drawer'),
-      mini: sync('app/mini'),
+      mini: get('app/mini'),
       items: get('app/items'),
     },
 });

@@ -5,7 +5,7 @@ const state = {
   serverUrl: '',
   swagger: null,
   drawer: null,
-  mini: false,
+  mini: localStorage.getItem('mini') === 'true',
   items: [
     // {
     //   title: 'Рабочий стол',
