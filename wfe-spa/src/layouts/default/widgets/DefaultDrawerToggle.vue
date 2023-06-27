@@ -4,7 +4,7 @@
         elevation="1"
         fab
         small
-        @click="mini = !mini"
+        @click="toggleMini()"
     >
         <v-icon>
             {{ mini ? 'mdi-format-list-bulleted' : 'mdi-dots-vertical' }}
@@ -21,5 +21,11 @@ export default Vue.extend({
     computed: {
       mini: sync('app/mini'),
     },
+    methods: {
+     toggleMini() {
+       this.mini = !this.mini;
+       localStorage.setItem('mini', this.mini.toString());
+     }
+    }
 });
 </script>
