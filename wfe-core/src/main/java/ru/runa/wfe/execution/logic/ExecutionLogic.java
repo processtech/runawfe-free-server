@@ -83,6 +83,7 @@ import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessNode;
@@ -764,12 +765,17 @@ public class ExecutionLogic extends WfCommonLogic {
         ProcessDefinition processDefinition = getDefinition(process);
         for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
             Node node = processDefinition.getNode(token.getNodeId());
-            // may be this behaviour should be changed to non-marking task as FAILED (see rm2464#note-11)
+            // may be this behavior should be changed to non-marking task as FAILED (see rm2464#note-11)
             node.cancel(new ExecutionContext(processDefinition, token));
             nodeAsyncExecutor.execute(token, false);
         }
         for (Token token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
             token.setExecutionStatus(ExecutionStatus.ACTIVE);
+            if (token.getNodeType() == NodeType.RECEIVE_MESSAGE) {
+                // search in accumulated signals
+                Node node = processDefinition.getNode(token.getNodeId());
+                node.handle(new ExecutionContext(processDefinition, token));
+            }
         }
         if (process.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             process.setExecutionStatus(ExecutionStatus.ACTIVE);
