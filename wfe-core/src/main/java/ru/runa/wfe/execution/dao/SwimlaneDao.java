@@ -65,7 +65,7 @@ public class SwimlaneDao extends GenericDao<Swimlane> {
                     } else {
                         log.warn("Unable to assign in " + swimlane, e);
                     }
-                    swimlane.assignExecutor(executionContext, null, true);
+                    swimlane.assignExecutor(executionContext, null, false);
                 }
             }
         }
