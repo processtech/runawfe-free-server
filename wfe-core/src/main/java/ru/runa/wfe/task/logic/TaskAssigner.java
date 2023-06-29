@@ -4,6 +4,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentException;
@@ -31,7 +32,9 @@ public class TaskAssigner {
                 executionLogic.removeTokenError(task.getToken());
                 return true;
             } else {
-                executionLogic.failToken(task.getToken(), new NoExecutorAssignedException());
+                if (task.getToken().getExecutionStatus() != ExecutionStatus.FAILED) {
+                    executionLogic.failToken(task.getToken(), new NoExecutorAssignedException());
+                }
             }
         } catch (Throwable th) {
             if (executionLogic.failToken(task.getToken(), th)) {

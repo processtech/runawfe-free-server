@@ -103,11 +103,10 @@ public class ProcessLogDao extends ArchiveAwareGenericDao<BaseProcessLog, Curren
 
     public void addLog(CurrentProcessLog processLog, CurrentProcess process, CurrentToken token) {
         processLog.setProcessId(process.getId());
-        if (token == null) {
-            token = process.getRootToken();
+        if (token != null) {
+            processLog.setTokenId(token.getId());
         }
-        processLog.setTokenId(token.getId());
-        if (processLog.getNodeId() == null) {
+        if (processLog.getNodeId() == null && token != null) {
             processLog.setNodeId(token.getNodeId());
         }
         processLog.setCreateDate(new Date());

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.UserType;
@@ -88,6 +89,10 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onList(ListFormat listFormat, ConvertToSimpleVariablesContext context) {
+        if (context.getValue() != null && !(context.getValue() instanceof List)) {
+            throw new InternalApplicationException(context.getVariableDefinition().getName() + " has value of class " + context.getValue().getClass()
+                    + " but expected to be a List");
+        }
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
         if (context.isVirtualVariablesRequired()) {
             results.add(new ConvertToSimpleVariablesResult(context, true));
@@ -122,6 +127,10 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onMap(MapFormat mapFormat, ConvertToSimpleVariablesContext context) {
+        if (context.getValue() != null && !(context.getValue() instanceof Map)) {
+            throw new InternalApplicationException(context.getVariableDefinition().getName() + " has value of class " + context.getValue().getClass()
+                    + " but expected to be a Map");
+        }
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
         if (context.isVirtualVariablesRequired()) {
             results.add(new ConvertToSimpleVariablesResult(context, true));
@@ -180,6 +189,10 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onUserType(UserTypeFormat userTypeFormat, ConvertToSimpleVariablesContext context) {
+        if (context.getValue() != null && !(context.getValue() instanceof Map)) {
+            throw new InternalApplicationException(context.getVariableDefinition().getName() + " has value of class " + context.getValue().getClass()
+                    + " but expected to be a Map");
+        }
         Map<String, Object> userTypeMap = (Map<String, Object>) context.getValue();
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
         if (context.isVirtualVariablesRequired()) {

@@ -180,6 +180,7 @@ public class DbMigrationsConfig {
         dbMigrations.add(RenameColumnInChatMessageRecipientPatch.class);
         dbMigrations.add(DeleteBatchPresentationsRm3017.class);
         dbMigrations.add(DeleteBatchPresentationsRm3056.class);
+        dbMigrations.add(CreateSignalTable.class);
         // start develop patches
         dbMigrations.add(SplitProcessDefinitionVersion.class);
         dbMigrations.add(AddSubprocessRootIdColumn.class);
@@ -194,7 +195,6 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddAsyncForTaskAndSubprocess.class);
         dbMigrations.add(AddAsyncForArchivedTaskAndSubprocess.class);
         dbMigrations.add(RecreateChatRoomView.class);
-        dbMigrations.add(CreateSignalTable.class);
         dbMigrations.add(CreateDigitalSignatureTable.class);
         // end develop patches
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore

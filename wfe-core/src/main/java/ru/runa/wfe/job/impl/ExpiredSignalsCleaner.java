@@ -15,8 +15,8 @@ public class ExpiredSignalsCleaner {
     @Transactional
     @Scheduled(fixedDelayString = "${timertask.period.millis.expired.signals.execution}")
     public void execute() {
-        log.debug("Cleaning expired signals");
-        signalDao.deleteAllExpired();
+        long count = signalDao.deleteAllExpired();
+        log.debug("Cleaned expired signals: " + count);
     }
 
 }

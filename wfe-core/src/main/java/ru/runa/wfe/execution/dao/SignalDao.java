@@ -20,8 +20,8 @@ public class SignalDao extends GenericDao<Signal> {
                 .orderBy(s.createDate.asc()).fetch();
     }
 
-    public void deleteAllExpired() {
+    public long deleteAllExpired() {
         QSignal s = QSignal.signal;
-        queryFactory.delete(s).where(s.expiryDate.before(new Date())).execute();
+        return queryFactory.delete(s).where(s.expiryDate.before(new Date())).execute();
     }
 }

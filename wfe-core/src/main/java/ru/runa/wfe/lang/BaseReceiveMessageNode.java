@@ -45,6 +45,7 @@ public class BaseReceiveMessageNode extends BaseMessageNode implements BoundaryE
                 }
             }
             if (suitable) {
+                log.debug(signal.toString() + " activated incoming token");
                 signalDao.delete(signal);
                 executionContext.addLog(new CurrentReceiveMessageLog(this, signal.toString()));
                 Map<String, Object> payloadData = signal.getPayloadData();

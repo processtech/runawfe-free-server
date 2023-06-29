@@ -1074,12 +1074,17 @@ public class ExecutionLogic extends WfCommonLogic {
         ParsedProcessDefinition parsedPocessDefinition = getDefinition(process);
         for (CurrentToken token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
             Node node = parsedPocessDefinition.getNode(token.getNodeId());
-            // may be this behaviour should be changed to non-marking task as FAILED (see rm2464#note-11)
+            // may be this behavior should be changed to non-marking task as FAILED (see rm2464#note-11)
             node.cancel(new ExecutionContext(parsedPocessDefinition, token));
             nodeAsyncExecutor.execute(token, false);
         }
         for (CurrentToken token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
             token.setExecutionStatus(ExecutionStatus.ACTIVE);
+            if (token.getNodeType() == NodeType.RECEIVE_MESSAGE) {
+                // search in accumulated signals
+                Node node = parsedPocessDefinition.getNode(token.getNodeId());
+                node.handle(new ExecutionContext(parsedPocessDefinition, token));
+            }
         }
         if (process.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             process.setExecutionStatus(ExecutionStatus.ACTIVE);
