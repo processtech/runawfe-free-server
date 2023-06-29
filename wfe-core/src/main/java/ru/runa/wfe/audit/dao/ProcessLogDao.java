@@ -120,11 +120,10 @@ public class ProcessLogDao extends GenericDao<ProcessLog> {
 
     public void addLog(ProcessLog processLog, Process process, Token token) {
         processLog.setProcessId(process.getId());
-        if (token == null) {
-            token = process.getRootToken();
+        if (token != null) {
+            processLog.setTokenId(token.getId());
         }
-        processLog.setTokenId(token.getId());
-        if (processLog.getNodeId() == null) {
+        if (processLog.getNodeId() == null && token != null) {
             processLog.setNodeId(token.getNodeId());
         }
         processLog.setCreateDate(new Date());
