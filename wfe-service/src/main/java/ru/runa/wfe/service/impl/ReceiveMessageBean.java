@@ -72,85 +72,75 @@ public class ReceiveMessageBean implements MessageListener {
         String messageString = Utils.toString(message, false);
         log.debug("Received " + messageString);
         ErrorEventData errorEventData = ErrorEventData.match(message);
-        try {
-            transactionalExecutor.execute(() -> {
-                List<CurrentToken> tokens;
-                if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
-                    Map<String, String> routingData = getRoutingData(message);
-                    tokens = executionLogic.findTokensForMessageSelector(routingData);
-                    log.debug("Checking " + tokens.size() + " tokens by routingData = " + routingData);
-                } else {
-                    tokens = currentTokenDao.findByNodeTypeInActiveProcesses(NodeType.RECEIVE_MESSAGE);
-                    log.debug("Checking " + tokens.size() + " tokens");
-                }
-                for (CurrentToken token : tokens) {
-                    try {
-                        ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
-                        BaseReceiveMessageNode receiveMessageNode = (BaseReceiveMessageNode) token.getNodeNotNull(parsedProcessDefinition);
-                        ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
-                        if (errorEventData != null) {
-                            if (receiveMessageNode.getEventType() == MessageEventType.error
-                                    && receiveMessageNode.getParentElement() instanceof Node) {
-                                Long processId = token.getProcess().getId();
-                                String nodeId = ((Node) receiveMessageNode.getParentElement()).getNodeId();
-                                if (processId.equals(errorEventData.processId) && nodeId.equals(errorEventData.nodeId)) {
-                                    handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
-                                    break;
-                                }
-                            }
-                        } else {
-                            boolean suitable = true;
-                            VariableProvider variableProvider = executionContext.getVariableProvider();
-                            for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
-                                if (mapping.isPropertySelector()) {
-                                    String selectorValue = message.getStringProperty(mapping.getName());
-                                    String expectedValue = Utils.getMessageSelectorValue(variableProvider, receiveMessageNode, mapping);
-                                    if (!Objects.equal(expectedValue, selectorValue)) {
-                                        log.debug(message + " rejected in " + token + " due to diff in " + mapping.getName() + " (" + expectedValue
-                                                + "!=" + selectorValue + ")");
-                                        suitable = false;
-                                        break;
-
-                                    }
-                                }
-                            }
-                            if (suitable) {
+        transactionalExecutor.execute(() -> {
+            List<CurrentToken> tokens;
+            if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
+                Map<String, String> routingData = getRoutingData(message);
+                tokens = executionLogic.findTokensForMessageSelector(routingData);
+                log.debug("Checking " + tokens.size() + " tokens by routingData = " + routingData);
+            } else {
+                tokens = currentTokenDao.findByNodeTypeInActiveProcesses(NodeType.RECEIVE_MESSAGE);
+                log.debug("Checking " + tokens.size() + " tokens");
+            }
+            for (CurrentToken token : tokens) {
+                try {
+                    ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
+                    BaseReceiveMessageNode receiveMessageNode = (BaseReceiveMessageNode) token.getNodeNotNull(parsedProcessDefinition);
+                    ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token);
+                    if (errorEventData != null) {
+                        if (receiveMessageNode.getEventType() == MessageEventType.error && receiveMessageNode.getParentElement() instanceof Node) {
+                            Long processId = token.getProcess().getId();
+                            String nodeId = ((Node) receiveMessageNode.getParentElement()).getNodeId();
+                            if (processId.equals(errorEventData.processId) && nodeId.equals(errorEventData.nodeId)) {
                                 handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
+                                break;
                             }
                         }
-                    } catch (Exception e) {
-                        log.error("Unable to handle " + token, e);
+                    } else {
+                        boolean suitable = true;
+                        VariableProvider variableProvider = executionContext.getVariableProvider();
+                        for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
+                            if (mapping.isPropertySelector()) {
+                                String selectorValue = message.getStringProperty(mapping.getName());
+                                String expectedValue = Utils.getMessageSelectorValue(variableProvider, receiveMessageNode, mapping);
+                                if (!Objects.equal(expectedValue, selectorValue)) {
+                                    log.debug(message + " rejected in " + token + " due to diff in " + mapping.getName() + " (" + expectedValue
+                                            + "!=" + selectorValue + ")");
+                                    suitable = false;
+                                    break;
+
+                                }
+                            }
+                        }
+                        if (suitable) {
+                            handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
+                        }
                     }
+                } catch (Exception e) {
+                    log.error("Unable to handle " + token, e);
                 }
-            });
-        } catch (Exception e) {
-            log.error("", e);
-            Throwables.propagate(e);
-        }
+            }
+        });
         if (handlers.isEmpty()) {
             if (errorEventData != null) {
                 String errorMessage = "Unexpected errorEvent in processId = " + errorEventData.processId + ", nodeId = " + errorEventData.nodeId;
                 log.error(errorMessage);
                 SystemErrors.addError(new InternalApplicationException(errorMessage));
             } else {
-                try {
-                    transactionalExecutor.execute(() -> {
-                        Date createDate = message.getJMSTimestamp() != 0 ? new Date(message.getJMSTimestamp()) : new Date();
-                        Date expiryDate = null;
-                        if (message.propertyExists(BaseMessageNode.EXPIRATION_PROPERTY)) {
-                            expiryDate = new Date(message.getLongProperty(BaseMessageNode.EXPIRATION_PROPERTY));
-                        }
-                        if (expiryDate == null || expiryDate.after(new Date())) {
-                            Signal signal = new Signal(createDate, getRoutingData(message), (Map<String, Object>) message.getObject(), expiryDate);
-                            log.debug("Rejecting message request " + messageString + ", persisting to " + signal);
-                            signalDao.create(signal);
-                        } else {
-                            log.debug("Rejecting message request " + messageString + ", already expired");
-                        }
-                    });
-                } catch (Exception e) {
-                    Throwables.propagate(e);
-                }
+                transactionalExecutor.execute(() -> {
+                    Date createDate = message.getJMSTimestamp() != 0 ? new Date(message.getJMSTimestamp()) : new Date();
+                    Date expiryDate = null;
+                    if (message.propertyExists(BaseMessageNode.EXPIRATION_PROPERTY)) {
+                        expiryDate = new Date(message.getLongProperty(BaseMessageNode.EXPIRATION_PROPERTY));
+                    }
+                    if (expiryDate == null || expiryDate.after(new Date())) {
+                        Signal signal = new Signal(createDate, getRoutingData(message), (Map<String, Object>) message.getObject(), expiryDate);
+                        log.debug("Rejecting message request " + messageString + ", persisting to " + signal);
+                        signalDao.create(signal);
+                    } else {
+                        log.debug("Rejecting message request " + messageString + ", already expired");
+                    }
+                });
             }
         }
         for (ReceiveMessageData data : handlers) {
