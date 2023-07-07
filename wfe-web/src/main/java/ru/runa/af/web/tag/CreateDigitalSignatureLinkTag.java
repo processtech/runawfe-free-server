@@ -19,7 +19,7 @@ public class CreateDigitalSignatureLinkTag extends IdLinkBaseTag {
         return (getUser().getActor().getId().equals(getIdentifiableId())
                 || Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_DIGITAL_SIGNATURE,
                 SecuredObjectType.DIGITAL_SIGNATURE, getIdentifiableId())) &&
-                !Delegates.getDigitalSignatureService().isDigitalSignatureExist(getUser(), getIdentifiableId());
+                !Delegates.getDigitalSignatureService().doesDigitalSignatureExist(getUser(), getIdentifiableId());
     }
 
     @Override

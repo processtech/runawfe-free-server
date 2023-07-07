@@ -1,5 +1,6 @@
 package ru.runa.wfe.digitalsignature.utils;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -90,7 +91,7 @@ public abstract class CreateSignatureBase implements SignatureInterface {
             gen.addCertificates(new JcaCertStore(Arrays.asList(certificateChain)));
             CMSProcessableInputStream msg = new CMSProcessableInputStream(content);
             CMSSignedData signedData = gen.generate(msg, false);
-            if (tsaUrl != null && tsaUrl.length() > 0) {
+            if (!Strings.isNullOrEmpty(tsaUrl)) {
                 ValidationTimeStamp validation = new ValidationTimeStamp(tsaUrl);
                 signedData = validation.addSignedTimeStamp(signedData);
             }

@@ -29,7 +29,7 @@ public class SignPdfHandler extends CommonParamBasedHandler {
             handlerData.setOutputParam("signedFile", inputFile);
             return;
         }
-        PKCS12Container pkcs12Container = new PKCS12Container(digitalSignature);
+        PKCS12Container pkcs12Container = new PKCS12Container(digitalSignature, null);
         pkcs12Container.updateUserDataFromContainer();
         KeyStore keyStore = pkcs12Container.getKeyStore();
 

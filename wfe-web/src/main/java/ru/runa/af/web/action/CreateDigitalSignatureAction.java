@@ -1,5 +1,6 @@
 package ru.runa.af.web.action;
 
+import org.apache.ecs.vxml.If;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -30,6 +31,9 @@ public class CreateDigitalSignatureAction extends ActionBase {
         CreateDigitalSignatureForm createForm = (CreateDigitalSignatureForm) form;
         try {
             DigitalSignatureService digitalSignatureService = Delegates.getDigitalSignatureService();
+            if (!digitalSignatureService.doesRootDigitalSignatureExist(getLoggedUser(request))){
+                throw new Exception("Root digital signature doesn't exist");
+            }
             DigitalSignature digitalSignature = digitalSignatureService.create(getLoggedUser(request),
                     new DigitalSignature(createForm.getCommonName(),
                             createForm.getEmail(),
@@ -43,8 +47,8 @@ public class CreateDigitalSignatureAction extends ActionBase {
             digitalSignatureService.update(getLoggedUser(request), digitalSignature);
         } catch (Exception e) {
             addError(request, e);
-            return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), CreateDigitalSignatureForm.COMMON_NAME_INPUT_NAME,
-                    createForm.getCommonName());
+            return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), IdForm.ID_INPUT_NAME,
+                    createForm.getExecutorId());
         }
         return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, createForm.getExecutorId());
     }

@@ -105,6 +105,18 @@
 
 <wf:importDataFile />
 
+<wf:updateRootDigitalSignatureDetailsForm >
+    <table width="100%">
+        <tr>
+		    <td align="left">
+			    <wf:createRootDigitalSignatureLink href='<%= "/create_root_digital_signature.do" %>' />
+		    </td>
+		</tr>
+    </table>
+</wf:updateRootDigitalSignatureDetailsForm>
+
+<wf:exportRootCertificate />
+
 <table class='box'><tr><th class='box'><bean:message key="title.monitoring" /></th></tr>
 	<tr>
 		<td class='box'>

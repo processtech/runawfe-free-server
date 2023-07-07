@@ -32,6 +32,8 @@ public final class MessagesExecutor {
     public static final StrutsMessage TITLE_GRANT_PERMISSION = new StrutsMessage("title.grant_permission");
     public static final StrutsMessage TITLE_DIGITAL_SIGNATURE_DETAILS = new StrutsMessage("title.digital_signature_details");
 
+    public static final StrutsMessage TITLE_ROOT_DIGITAL_SIGNATURE_DETAILS = new StrutsMessage("title.root_digital_signature_details");
+
     public static final StrutsMessage SUBSTITUTION_ALWAYS = new StrutsMessage("substitution.always");
     public static final StrutsMessage LABEL_SUBSTITUTORS = new StrutsMessage("label.substitutors");
     public static final StrutsMessage LABEL_SUBSTITUTORS_CRITERIA = new StrutsMessage("label.substitutors_criteria");
@@ -68,7 +70,9 @@ public final class MessagesExecutor {
     public static final StrutsMessage SYNCHRONIZATION_COMPLETED = new StrutsMessage("executors.synchronization.completed");
 
     public static final StrutsMessage TITLE_CREATE_DIGITAL_SIGNATURE = new StrutsMessage("title.create_digital_signature");
+    public static final StrutsMessage TITLE_CREATE_ROOT_DIGITAL_SIGNATURE = new StrutsMessage("title.create_root_digital_signature");
     public static final StrutsMessage DIGITAL_SIGNATURE_COMMON_NAME = new StrutsMessage("label.digital_signature_common_name");
+    public static final StrutsMessage DIGITAL_SIGNATURE_ROOT_COMMON_NAME = new StrutsMessage("label.digital_signature_root_common_name");;
     public static final StrutsMessage DIGITAL_SIGNATURE_EMAIL = new StrutsMessage("label.digital_signature_email");
     public static final StrutsMessage DIGITAL_SIGNATURE_DEPARTMENT = new StrutsMessage("label.digital_signature_department");
     public static final StrutsMessage DIGITAL_SIGNATURE_ORGANISATION = new StrutsMessage("label.digital_signature_organization");
@@ -78,5 +82,6 @@ public final class MessagesExecutor {
     public static final StrutsMessage DIGITAL_SIGNATURE_DATE_OF_ISSUE = new StrutsMessage("label.digital_signature_date_of_issue");
     public static final StrutsMessage DIGITAL_SIGNATURE_DATE_OF_EXPIRY = new StrutsMessage("label.digital_signature_date_of_expiry");
     public static final StrutsMessage DIGITAL_SIGNATURE_VALIDITY_IN_MONTH = new StrutsMessage("label.digital_signature_validity");
+
 
 }

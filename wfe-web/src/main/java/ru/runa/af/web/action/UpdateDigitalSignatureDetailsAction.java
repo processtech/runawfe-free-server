@@ -29,6 +29,9 @@ public class UpdateDigitalSignatureDetailsAction extends ActionBase {
         UpdateDigitalSignatureDetailsForm form = (UpdateDigitalSignatureDetailsForm) actionForm;
         try {
             DigitalSignatureService digitalSignatureService = Delegates.getDigitalSignatureService();
+            if (!digitalSignatureService.doesRootDigitalSignatureExist(getLoggedUser(request))){
+                throw new Exception("Root digital signature doesn't exist");
+            }
             DigitalSignature digitalSignature = digitalSignatureService.getDigitalSignature(getLoggedUser(request),
                     Long.parseLong(form.getExecutorId()));
             digitalSignature.setCommonName(form.getCommonName());

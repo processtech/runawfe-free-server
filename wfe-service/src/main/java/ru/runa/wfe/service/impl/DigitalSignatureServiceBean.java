@@ -51,6 +51,11 @@ public class DigitalSignatureServiceBean implements DigitalSignatureServiceLocal
     public void update(@WebParam(name = "user") @NonNull User user, @WebParam(name = "digitalSignature") @NonNull DigitalSignature digitalSignature) {
         digitalSignatureLogic.update(user, digitalSignature);
     }
+    @Override
+    @WebResult(name = "result")
+    public void updateRoot(@WebParam(name = "user") @NonNull User user, @WebParam(name = "digitalSignature") @NonNull DigitalSignature digitalSignature) {
+        digitalSignatureLogic.updateRoot(user, digitalSignature);
+    }
 
     @Override
     @WebResult(name = "result")
@@ -60,8 +65,32 @@ public class DigitalSignatureServiceBean implements DigitalSignatureServiceLocal
 
     @Override
     @WebResult(name = "result")
-    public boolean isDigitalSignatureExist(@WebParam(name = "user") @NonNull User user, @WebParam(name = "id") @NonNull Long id) {
-        return digitalSignatureLogic.isDigitalSignatureExist(user, id);
+    public boolean doesDigitalSignatureExist(@WebParam(name = "user") @NonNull User user, @WebParam(name = "id") @NonNull Long id) {
+        return digitalSignatureLogic.doesDigitalSignatureExist(user, id);
+    }
+
+    @Override
+    public boolean doesRootDigitalSignatureExist(User user) {
+       return digitalSignatureLogic.doesRootDigitalSignatureExist(user);
+    }
+
+    @Override
+    public byte[] getRootCertificate(User user) {
+        return digitalSignatureLogic.getRootCertificate(user);
+    }
+
+    @Override
+    public DigitalSignature createRoot(User loggedUser, DigitalSignature digitalSignature) {
+        return digitalSignatureLogic.createRoot(digitalSignature);
+    }
+
+    public DigitalSignature getRootDigitalSignature(User user) {
+        return digitalSignatureLogic.getRootDigitalSignature(user);
+    }
+
+    @Override
+    public void removeRootDigitalSignature(User user) {
+        digitalSignatureLogic.remove(user, digitalSignatureLogic.getRootDigitalSignature(user));
     }
 
 }
