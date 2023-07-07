@@ -18,31 +18,49 @@ public interface DigitalSignatureService {
     DigitalSignature create(User user, DigitalSignature digitalSignature);
 
     /**
-     * Gets actor profile by id.
+     * Gets digital signature by actor id.
      *
      * @throws DigitalSignatureDoesNotExistException
      */
     DigitalSignature getDigitalSignature(User user, Long id) throws DigitalSignatureDoesNotExistException;
 
     /**
-     * Update actor profile.
+     * Update digital signature.
      *
      */
     void update(User user, DigitalSignature digitalSignature);
 
+    void updateRoot(User user, DigitalSignature digitalSignature);
+
     /**
-     * Delete actor profile by id.
+     * Delete digital signature by actor id.
      */
     void remove(User user, Long id);
 
+    void removeRootDigitalSignature(User loggedUser);
+
     /**
-     * Whether actor profile exists.
+     * Whether digital signature exists.
      *
      * @param user - actor
      * @param id - actor id
      * @return
      */
-    boolean isDigitalSignatureExist(User user, Long id);
+    boolean doesDigitalSignatureExist(User user, Long id);
+
+    boolean doesRootDigitalSignatureExist(User user);
+
+    /**
+     * Gets root digital signature's certificate.
+     *
+     * @return x509 certificate
+     */
+    public byte [] getRootCertificate(User user);
+
+    DigitalSignature createRoot(User loggedUser, DigitalSignature digitalSignature);
+
+    DigitalSignature getRootDigitalSignature(User user);
+
 
 }
 

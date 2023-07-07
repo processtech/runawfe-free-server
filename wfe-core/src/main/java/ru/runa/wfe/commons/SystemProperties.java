@@ -515,7 +515,7 @@ public class SystemProperties {
 
     public static String getJwtSecret() {  return NO_DATABASE_RESOURCES.getStringProperty("jwt.secret");  }
 
-    public static String getTSAurl() {  return NO_DATABASE_RESOURCES.getStringProperty("signature.tsaurl");  }
-
+    public static String getTSAurl() {  return NO_DATABASE_RESOURCES.getStringProperty("signature.server.tsaurl");  }
+    public static String getSignatureServerContainerPassword() {  return NO_DATABASE_RESOURCES.getStringProperty("signature.server.container.password");  }
 
 }

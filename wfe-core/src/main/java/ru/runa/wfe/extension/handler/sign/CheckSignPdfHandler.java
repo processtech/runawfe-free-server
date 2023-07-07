@@ -28,10 +28,10 @@ public class CheckSignPdfHandler extends CommonParamBasedHandler {
             handlerData.setOutputParam("isSigned", false);
             return;
         }
-        PKCS12Container container = new PKCS12Container(digitalSignature);
+        PKCS12Container container = new PKCS12Container(digitalSignature, null);
         container.updateUserDataFromContainer();
         try {
-            showSignature.execute(inputFile.getData(), container.getX509Certificate());
+            showSignature.execute(inputFile.getData(), container.getCertificate());
             signIsValid = true;
         } catch (Exception e) {
             signIsValid = false;

@@ -58,4 +58,5 @@ public class MessagesOther {
     public static final StrutsMessage USER = new StrutsMessage("batch_presentation.executor.user");
     public static final StrutsMessage GROUP = new StrutsMessage("batch_presentation.executor.group");
     public static final StrutsMessage TITLE_BACK = new StrutsMessage("title.back");
+    public static final StrutsMessage TITLE_EXPORT_ROOT_CERTIFICATE = new StrutsMessage("title.export.root.certificate");
 }

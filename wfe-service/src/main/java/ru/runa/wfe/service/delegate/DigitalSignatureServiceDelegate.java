@@ -41,6 +41,14 @@ public class DigitalSignatureServiceDelegate extends Ejb3Delegate implements Dig
             throw handleException(e);
         }
     }
+    @Override
+    public void updateRoot(User user, DigitalSignature digitalSignature) {
+        try {
+            getDigitalSignatureService().updateRoot(user, digitalSignature);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
 
     @Override
     public void remove(User user, Long id) {
@@ -52,12 +60,44 @@ public class DigitalSignatureServiceDelegate extends Ejb3Delegate implements Dig
     }
 
     @Override
-    public boolean isDigitalSignatureExist(User user, Long id) {
+    public boolean doesDigitalSignatureExist(User user, Long id) {
         try {
-            return getDigitalSignatureService().isDigitalSignatureExist(user, id);
+            return getDigitalSignatureService().doesDigitalSignatureExist(user, id);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
+    @Override
+    public boolean doesRootDigitalSignatureExist(User user) {
+        try {
+            return getDigitalSignatureService().doesRootDigitalSignatureExist(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public byte[] getRootCertificate(User user) {
+        return getDigitalSignatureService().getRootCertificate(user);
+    }
+
+    @Override
+    public DigitalSignature createRoot(User loggedUser, DigitalSignature digitalSignature) {
+        return getDigitalSignatureService().createRoot(loggedUser, digitalSignature);
+    }
+
+    @Override
+    public DigitalSignature getRootDigitalSignature(User user) {
+        return getDigitalSignatureService().getRootDigitalSignature(user);
+    }
+
+    @Override
+    public void removeRootDigitalSignature(User user) {
+        try {
+            getDigitalSignatureService().removeRootDigitalSignature(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
 }

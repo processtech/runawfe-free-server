@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
@@ -43,7 +44,7 @@ public class DigitalSignature extends SecuredObject {
         city = "";
         state = "";
         country = "RU";
-        validityInMonth = 12; //in months
+        validityInMonth = 12;
         dateOfIssue = new Date();
         dateOfExpiry = new Date(dateOfIssue.getTime() + validityInMonth * MILLISECONDS_IN_MONTH);
     }
@@ -105,6 +106,9 @@ public class DigitalSignature extends SecuredObject {
 
     @Transient
     private Integer validityInMonth;
+
+    @Transient
+    private DigitalSignature rootDS;
 
     @Transient
     public boolean isDigitalSignatureValid() {

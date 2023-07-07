@@ -7,115 +7,48 @@ import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
-import org.tldgen.annotations.Attribute;
-import org.tldgen.annotations.BodyContent;
-import ru.runa.af.web.action.RemoveDigitalSignatureAction;
-import ru.runa.af.web.action.UpdateDigitalSignatureDetailsAction;
-import ru.runa.af.web.form.CreateDigitalSignatureForm;
-import ru.runa.af.web.html.DigitalSignatureTableBuilder;
 import ru.runa.af.web.MessagesExecutor;
+import ru.runa.af.web.action.RemoveRootDigitalSignatureAction;
+import ru.runa.af.web.action.UpdateRootDigitalSignatureDetailsAction;
+import ru.runa.af.web.html.RootDigitalSignatureTableBuilder;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredObject;
-import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.digitalsignature.DigitalSignature;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.service.delegate.Delegates;
 
-@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateDigitalSignatureDetailsForm")
-public class UpdateDigitalSignatureDetailsFormTag extends SecuredObjectFormTag {
-    private Long identifiableId;
-
-    @Attribute(required = true)
-    public void setIdentifiableId(Long identifiableId) {
-        this.identifiableId = identifiableId;
-    }
-
+public class UpdateRootDigitalSignatureDetailsFormTag extends UpdateDigitalSignatureDetailsFormTag{
     public Long getIdentifiableId() {
-        return identifiableId;
+        return getUser().getActor().getId();
     }
-
     @Override
     public void fillFormData(TD tdFormElement) {
-        DigitalSignature digitalSignature = Delegates.getDigitalSignatureService().getDigitalSignature(getUser(), identifiableId);
+        DigitalSignature digitalSignature = Delegates.getDigitalSignatureService().getRootDigitalSignature(getUser());
         if (digitalSignature == null) {
             return;
         }
         boolean isInputDisabled = !isSubmitButtonEnabled();
-        DigitalSignatureTableBuilder builder = new DigitalSignatureTableBuilder(digitalSignature, isInputDisabled, pageContext);
+        RootDigitalSignatureTableBuilder builder = new RootDigitalSignatureTableBuilder (digitalSignature, isInputDisabled, pageContext);
         tdFormElement.addElement(builder.buildTable());
-        tdFormElement.addElement(createHiddenUserId());
-    }
-
-    private Input createHiddenUserId() {
-        return new Input(Input.HIDDEN, CreateDigitalSignatureForm.EXECUTOR_ID_INPUT_NAME, identifiableId.toString());
-    }
-
-    @Override
-    protected boolean isSubmitButtonVisible() {
-        return getDigitalSignature() != null;
-    }
-
-    @Override
-    protected Permission getSubmitPermission() {
-        return null;
-    }
-
-    @Override
-    protected boolean isCancelButtonEnabled() {
-        return isSubmitButtonEnabled();
     }
 
     @Override
     protected String getCancelButtonAction() {
-        return RemoveDigitalSignatureAction.ACTION_PATH;
+        return RemoveRootDigitalSignatureAction.ACTION_PATH;
     }
-
-    @Override
-    protected SecuredObject getSecuredObject() {
-        return null;
-    }
-
-    @Override
-    protected boolean isSubmitButtonEnabled() {
-        if (getDigitalSignature() == null) {
-            return false;
-        }
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, getDigitalSignature());
-    }
-
-    @Override
-    public String getSubmitButtonName() {
-        return MessagesCommon.BUTTON_UPDATE.message(pageContext);
-    }
-
-    @Override
-    public String getCancelButtonName() {
-        return MessagesCommon.BUTTON_REMOVE.message(pageContext);
-    }
-
     @Override
     protected String getTitle() {
-        return MessagesExecutor.TITLE_DIGITAL_SIGNATURE_DETAILS.message(pageContext);
+        return MessagesExecutor.TITLE_ROOT_DIGITAL_SIGNATURE_DETAILS.message(pageContext);
     }
 
     @Override
     public String getAction() {
-        return UpdateDigitalSignatureDetailsAction.ACTION_PATH;
+        return UpdateRootDigitalSignatureDetailsAction.ACTION_PATH;
     }
-
-    protected final Executor getExecutor() {
-        return Delegates.getExecutorService().getExecutor(getUser(), identifiableId);
-    }
-
     protected DigitalSignature getDigitalSignature() {
-        return Delegates.getDigitalSignatureService().getDigitalSignature(getUser(), identifiableId);
+        return Delegates.getDigitalSignatureService().getRootDigitalSignature(getUser());
     }
-
     @Override
     protected ConcreteElement getEndElement() {
         form = new Form();
@@ -154,7 +87,7 @@ public class UpdateDigitalSignatureDetailsFormTag extends SecuredObjectFormTag {
             Input deleteButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, getCancelButtonName());
             deleteButton.setClass(Resources.CLASS_BUTTON);
             String attr = Commons.getActionUrl(getCancelButtonAction(), getSubmitButtonParam(), pageContext, PortletUrlType.Action);
-            deleteButton.addAttribute(ATTRIBUTE_ONCLICK, "window.location='" + attr + "?id=" + getIdentifiableId().toString() + "'");
+            deleteButton.addAttribute(ATTRIBUTE_ONCLICK, "window.location='" + attr +  "'");
             td.addElement(Entities.NBSP);
             td.addElement(deleteButton);
         }
