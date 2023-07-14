@@ -290,7 +290,14 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
         boolean removePack = version == null;
         ProcessDefinitionPack p = processDefinitionPackDao.getByName(definitionName);
         ProcessDefinition d = removePack ? null : processDefinitionDao.getByNameAndVersion(definitionName, version);
-
+        if (!removePack && Objects.equals(d, p.getLatest())) {
+            Long nextLastId = processDefinitionDao.findLatestIdLessThan(definitionName, version);
+            if (nextLastId != null) {
+                p.setLatest(processDefinitionDao.get(nextLastId));
+            } else {
+                removePack = true;
+            }
+        }
         // ===== Check if deletion allowed.
         permissionDao.checkAllowed(user, Permission.DELETE, p);
 
