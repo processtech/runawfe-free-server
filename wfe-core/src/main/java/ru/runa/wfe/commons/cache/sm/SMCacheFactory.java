@@ -7,6 +7,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
 import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
@@ -38,7 +39,7 @@ public abstract class SMCacheFactory<CacheImpl extends CacheImplementation> {
     }
 
     protected final Log log = LogFactory.getLog(getClass());
-    public final Type type;
+    private final Type type;
     public final CacheStateFactory<CacheImpl> stateFactory;
 
     protected SMCacheFactory(Type type) {
@@ -68,7 +69,7 @@ public abstract class SMCacheFactory<CacheImpl extends CacheImplementation> {
                     if (!context.isInitializationStillRequired()) {
                         return;
                     }
-                    ApplicationContextFactory.getTransactionalExecutor().execute(() -> {
+                    getTransactionalExecutor().execute(() -> {
                         if (!context.isInitializationStillRequired()) {
                             return;
                         }
@@ -82,6 +83,7 @@ public abstract class SMCacheFactory<CacheImpl extends CacheImplementation> {
                         context.onComplete(cache.get());
                     });
                 } catch (Throwable e) {
+                    log.error("", e);
                     context.onError(e);
                 }
             }
@@ -103,4 +105,8 @@ public abstract class SMCacheFactory<CacheImpl extends CacheImplementation> {
      * @see Type
      */
     protected abstract CacheImpl createCacheImpl(CacheInitializationProcessContext context);
+
+    protected TransactionalExecutor getTransactionalExecutor() {
+        return ApplicationContextFactory.getTransactionalExecutor();
+    }
 }

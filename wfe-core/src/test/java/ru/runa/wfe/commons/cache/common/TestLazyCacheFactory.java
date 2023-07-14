@@ -2,6 +2,7 @@ package ru.runa.wfe.commons.cache.common;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 
@@ -41,4 +42,10 @@ public final class TestLazyCacheFactory extends SMCacheFactory<TestCacheIface> {
     public void setCallback(TestLazyCacheFactoryCallback callback) {
         this.callback = callback;
     }
+
+    @Override
+    protected TransactionalExecutor getTransactionalExecutor() {
+        return new TransactionalExecutor();
+    }
+
 }
