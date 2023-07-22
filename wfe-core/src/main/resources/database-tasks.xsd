@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://runa.ru/xml" xmlns="http://runa.ru/xml"
+	elementFormDefault="qualified">
+	<xs:element name="database-tasks">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="task" maxOccurs="unbounded" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="task">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="queries" />
+			</xs:sequence>
+			<xs:attribute name="datasource" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="queries">
+		<xs:complexType>
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="query" minOccurs="0" />
+				<xs:element ref="procedure" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:complexType name="baseQueryType">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element ref="param" />
+			<xs:element ref="swimlane-param" />
+			<xs:element ref="result" />
+			<xs:element ref="swimlane-result" />
+		</xs:choice>
+		<xs:attribute name="sql" type="xs:string" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="queryType">
+		<xs:complexContent>
+			<xs:extension base="baseQueryType" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="procedureType">
+		<xs:complexContent>
+			<xs:extension base="baseQueryType" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="param" type="paramType" />
+	<xs:element name="swimlane-param" type="swimlaneParamType" />
+	<xs:element name="result" type="paramType" />
+	<xs:element name="swimlane-result" type="swimlaneParamType" />
+	<xs:element name="query" type="queryType" />
+	<xs:element name="procedure" type="procedureType" />
+
+	<xs:complexType name="paramType">
+		<xs:attribute name="var" type="xs:string" use="required" />
+		<xs:attribute name="field" type="xs:string" use="optional" />
+		<xs:attribute name="outIndex" type="xs:int" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="swimlaneParamType">
+		<xs:attribute name="var" type="xs:string" use="required" />
+		<xs:attribute name="field" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="id" />
+					<xs:enumeration value="name" />
+					<xs:enumeration value="code" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+</xs:schema>

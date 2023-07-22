@@ -1,0 +1,85 @@
+
+#delegateDialog table {
+	width: 100%;
+	height:100%;
+	overflow:auto;
+}
+
+#delegateDialog table td {
+	width: 50%;
+}
+
+#delegateDialog ul {
+	margin: 0;
+	padding: 0;
+	height: 155px;
+	overflow: auto;
+}
+
+#delegateDialog fieldset fieldset {
+	 height: 200px;
+ 	 overflow: auto;
+}
+
+#delegateDialog fieldset.group {
+	height: 175px;
+	overflow: auto;
+}
+
+#delegateDialog li {
+	list-style: none;
+}
+
+#delegateDialog fieldset {
+	border: 1px solid #999;
+	margin: 5px;
+}
+
+#delegateDialog fieldset.set {
+	border: 0px;
+}
+
+#delegateDialog fieldset.set > legend {
+	border: 0px;
+}
+
+#delegateDialog legend {
+	padding: 2px 5px;
+	border:1px solid #999;
+	color: #555;
+	font-size:70%;
+	text-align:right;
+}
+
+#delegateDialog .paging span {
+	display: inline-block;
+	padding: 5px;
+}
+
+#delegateDialog .paging span.icon-helper {
+	padding: 0;
+	position: relative;
+	top: 2px;
+}
+
+#delegateDialog .paging {
+	text-align: center;
+}
+
+#delegateDialog .paging span.ui-icon {
+	padding: 0px;
+}
+
+#delegateDialog .paging span {
+	font-weight: bold;
+}
+
+#delegateDialog .paging span.paging-active {
+	cursor: pointer;
+	font-weight: unset;
+}
+
+#delegateDialog input.filter {
+	margin-left: 21px;
+	padding-left: 4px;
+}

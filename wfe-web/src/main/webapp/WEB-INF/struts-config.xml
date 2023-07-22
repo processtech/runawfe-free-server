@@ -1,0 +1,879 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.2//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+
+<struts-config>
+
+	<!-- ========== Data Sources Definitions =================================== -->
+	<!-- Define your Struts data sources in a file called struts-data-sources.xml and place it in your merge directory. -->
+
+	<!-- ========== Form Bean Definitions =================================== -->
+	<form-beans>
+
+		<form-bean name="createExecutorForm" type="ru.runa.af.web.form.CreateExecutorForm" />
+		<form-bean name="grantPermissionsForm" type="ru.runa.af.web.form.GrantPermissionsForm" />
+		<form-bean name="updatePermissionsForm" type="ru.runa.af.web.form.UpdatePermissionsForm" />
+		<form-bean name="groupForm" type="ru.runa.common.web.form.GroupForm" />
+		<form-bean name="processForm" type="ru.runa.wf.web.form.ProcessForm" />
+		<form-bean name="loginForm" type="ru.runa.af.web.form.LoginForm" />
+		<form-bean name="substitutionCriteriasForm" type="ru.runa.common.web.form.SubstitutionCriteriasForm" />
+		<form-bean name="strIdsForm" type="ru.runa.common.web.form.StrIdsForm" />
+		<form-bean name="deployBotForm" type="ru.runa.af.web.form.DeployBotForm" />
+		<form-bean name="tableViewSetupForm" type="ru.runa.common.web.form.TableViewSetupForm" />
+		<form-bean name="idForm" type="ru.runa.common.web.form.IdForm" />
+		<form-bean name="idVersionForm" type="ru.runa.common.web.form.IdVersionForm" />
+		<form-bean name="idNameForm" type="ru.runa.common.web.form.IdNameForm" />
+		<form-bean name="startProcessForm" type="ru.runa.wf.web.form.StartProcessForm" />
+		<form-bean name="updatePasswordForm" type="ru.runa.af.web.form.UpdatePasswordForm" />
+		<form-bean name="setSortingForm" type="ru.runa.common.web.form.SetSortingForm" />
+		<form-bean name="botForm" type="ru.runa.af.web.form.BotForm" />
+		<form-bean name="substitutionCriteriaForm" type="ru.runa.af.web.form.SubstitutionCriteriaForm" />
+		<form-bean name="botTasksForm" type="ru.runa.af.web.form.BotTasksForm" />
+		<form-bean name="taskIdForm" type="ru.runa.wf.web.form.TaskIdForm" />
+		<form-bean name="commonProcessForm" type="ru.runa.wf.web.form.CommonProcessForm" />
+		<form-bean name="fileForm" type="ru.runa.common.web.form.FileForm" />
+		<form-bean name="settingsFileForm" type="ru.runa.common.web.form.SettingsFileForm" />
+		<form-bean name="restoreDefaultSettingValueForm" type="ru.runa.common.web.form.RestoreDefaultSettingValueForm" />
+		<form-bean name="relationForm" type="ru.runa.af.web.form.RelationForm" />
+		<form-bean name="relationPairForm" type="ru.runa.af.web.form.RelationPairForm" />
+		<form-bean name="relationPairsForm" type="ru.runa.af.web.form.RelationPairsForm" />
+		<form-bean name="idsForm" type="ru.runa.common.web.form.IdsForm" />
+		<form-bean name="updateExecutorDetailsForm" type="ru.runa.af.web.form.UpdateExecutorDetailsForm" />
+		<form-bean name="botStationForm" type="ru.runa.af.web.form.BotStationForm" />
+		<form-bean name="idUrlForm" type="ru.runa.wf.web.form.DefinitionFileForm" />
+		<form-bean name="variableForm" type="ru.runa.wf.web.form.VariableForm" />
+		<form-bean name="substitutionForm" type="ru.runa.af.web.form.SubstitutionForm" />
+		<form-bean name="batchPresentationForm" type="ru.runa.common.web.form.BatchPresentationForm" />
+		<form-bean name="settingsForm" type="ru.runa.wf.web.form.SettingsForm" />
+		<form-bean name="viewLogForm" type="ru.runa.common.web.form.ViewLogForm" />
+		<form-bean name="viewInternalStorageForm" type="ru.runa.common.web.form.ViewInternalStorageForm" />
+		<form-bean name="updateStatusForm" type="ru.runa.af.web.form.UpdateStatusForm" />
+		<form-bean name="pagingForm" type="ru.runa.wf.web.form.PagingForm" />
+		<form-bean name="adminScriptForm" type="ru.runa.common.web.form.AdminScriptForm" />
+		<form-bean name="deployReportForm" type="ru.runa.report.web.form.DeployReportForm" />
+		<form-bean name="deployDataSourceForm" type="ru.runa.af.web.form.DeployDataSourceForm" />
+		<form-bean name="changeDataSourcePasswordForm" type="ru.runa.af.web.form.ChangeDataSourcePasswordForm" />
+		<form-bean name="sendProcessSignalForm" type="ru.runa.wf.web.form.SendProcessSignalForm" />
+	</form-beans>
+
+	<!-- ========== Global Exceptions Definitions =================================== -->
+	<global-exceptions>
+		<exception type="ru.runa.wfe.security.AuthenticationException" key="login.failed" path="/start.do" />
+	</global-exceptions>
+
+	<!-- ========== Global Forward Definitions =================================== -->
+	<global-forwards>
+		<forward name="start" path="/start.do" />
+		<forward name="create_actor" path="/create_executor.do?executorType=actor" />
+		<forward name="create_group" path="/create_executor.do?executorType=group" />
+		<forward name="manage_executors"
+			path="/manage_executors.do?tabForwardName=manage_executors" />
+		<forward name="manage_reports"
+			path="/manage_reports.do?tabForwardName=manage_reports" />
+		<forward name="deploy_report" path="/deploy_report.do" />
+		<forward name="manage_report" path="/manage_report.do" />
+		<forward name="build_report" path="/build_report.do" />
+		<forward name="manage_relations"
+			path="/manage_relations.do?tabForwardName=manage_relations" />
+		<forward name="manage_system" path="/manage_system.do?tabForwardName=manage_system" />
+		<forward name="manage_errors" path="/manage_errors.do?tabForwardName=manage_errors" />
+		<forward name="manage_settings"
+			path="/manage_settings.do?tabForwardName=manage_settings" />
+		<forward name="version" path="/version.do" />
+		<forward name="view_logs" path="/viewLogs.do?tabForwardName=view_logs" />
+		<forward name="manage_definitions"
+			path="/manage_process_definitions.do?tabForwardName=manage_definitions" />
+		<forward name="deploy_definition" path="/deploy_process_definition.do" />
+		<forward name="definitions_history" path="/definitions_history.do" />
+		<forward name="validate_definition" path="/validate_process_definition.do" />
+		<forward name="manage_processes"
+			path="/manage_processes.do?tabForwardName=manage_processes" />
+		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
+		<forward name="manage_observable_tasks" path="/manage_observable_tasks.do?tabForwardName=manage_observable_tasks" />
+		<forward name="configure_bot_station"
+			path="/configure_bot_station.do?tabForwardName=configure_bot_station" />
+		<forward name="manage_data_sources" path="/manage_data_sources.do?tabForwardName=manage_data_sources" />
+		<forward name="edit_settings" path="/edit_settings.do" />
+		<forward name="drop_settings" path="/drop_settings.do" />
+		<forward name="send_process_signal" path="/send_process_signal.do?tabForwardName=send_process_signal" />
+		<forward name="view_internal_storage" path="/viewInternalStorage.do?tabForwardName=view_internal_storage" />
+		<forward name="chat_rooms" path="/chat_rooms.do?tabForwardName=chat_rooms" />
+	</global-forwards>
+
+	<!-- ========== Action Mapping Definitions =================================== -->
+	<action-mappings>
+		<action path="/startDisabledImageProcess"
+			type="ru.runa.wf.web.action.StartDisabledImageProcessAction" name="idForm"
+			scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
+			unknown="false" validate="true">
+		</action>
+		<action path="/submitTaskForm" type="ru.runa.wf.web.action.SubmitTaskFormAction"
+			name="processForm" scope="request" input="/WEB-INF/wf/manage_tasks.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_tasks.do" redirect="true" />
+			<forward name="failure" path="/submit_task.do" redirect="false" />
+			<forward name="submitTask" path="/submit_task.do" redirect="false" />
+			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
+		</action>
+		<action path="/save_bot" type="ru.runa.af.web.action.SaveBotAction"
+			name="idForm" scope="request" input="/WEB-INF/wf/bot.jsp" unknown="false"
+			validate="false">
+		</action>
+		<action path="/restore_default_settings" type="ru.runa.af.web.action.RestoreDefaultSettingsAction"
+			input="/WEB-INF/wf/manage_settings.jsp">
+			<forward name="success" path="/manage_settings.do" redirect="true" />
+		</action>
+		<action path="/save_settings" type="ru.runa.af.web.action.SaveSettingsAction"
+			name="settingsFileForm" scope="request" input="/WEB-INF/wf/edit_settings.jsp" unknown="false"
+			validate="false">
+			<forward name="success" path="/manage_settings.do" redirect="true" />
+		</action>
+		<action path="/restore_setting" type="ru.runa.af.web.action.RestoreDefaultSettingAction"
+			name="restoreDefaultSettingValueForm" scope="request" input="/WEB-INF/wf/edit_settings.jsp" unknown="false" validate="false">
+			<forward name="success" path="/manage_settings.do" redirect="true" />
+		</action>
+		<action path="/setSorting" type="ru.runa.common.web.action.SetSortingAction"
+			name="setSortingForm" scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/deploy_bot_station" type="ru.runa.af.web.action.DeployBotStationAction"
+			name="deployBotForm" scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/processDefinitionGraphImage"
+			type="ru.runa.wf.web.action.ProcessDefinitionGraphImageAction" name="idNameForm"
+			scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
+			unknown="false" validate="true">
+		</action>
+		<action path="/updateStatus" type="ru.runa.af.web.action.UpdateStatusAction"
+			name="updateStatusForm" scope="request" input="/WEB-INF/af/manage_executor.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/WEB-INF/af/manage_executor.jsp"
+				redirect="false" />
+			<forward name="failure" path="/WEB-INF/af/manage_executor.jsp"
+				redirect="false" />
+		</action>
+		<action path="/logout" type="ru.runa.af.web.action.LogoutAction"
+			unknown="false" validate="false">
+			<forward name="success" path="/start.do" redirect="true" />
+		</action>
+		<action path="/download_bot_task_configuration"
+			type="ru.runa.af.web.action.BotTaskConfigurationDownloadAction" name="idForm"
+			scope="request" input="/WEB-INF/wf/bot.jsp" unknown="false" validate="true">
+		</action>
+		<action path="/delete_bot_station" type="ru.runa.af.web.action.DeleteBotStationAction"
+			name="idsForm" scope="request" input="/WEB-INF/wf/configure_bot_station.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/configure_bot_station.do"
+				redirect="true" />
+			<forward name="failure" path="/delete_bot_station.do"
+				redirect="true" />
+		</action>
+		<action path="/update_tasks_handler_conf"
+			type="ru.runa.af.web.action.UpdateBotTaskConfigurationAction" name="botTasksForm"
+			scope="request" input="/WEB-INF/wf/bot.jsp" unknown="false" validate="true">
+		</action>
+		<action path="/updateSubstitutionCriteria"
+			type="ru.runa.af.web.action.UpdateSubstitutionCriteriaAction" name="substitutionCriteriaForm"
+			scope="request" input="/WEB-INF/af/edit_substitution_criteria.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/WEB-INF/af/manage_system.jsp"
+				redirect="false" />
+			<forward name="failure" path="/WEB-INF/af/edit_substitution_criteria.jsp"
+				redirect="false" />
+		</action>
+		<action path="/processTaskAssignment"
+			type="ru.runa.wf.web.action.ProcessTaskAssignmentAction" name="strIdsForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
+			<forward name="submitTask" path="/submit_task.do" redirect="false" />
+		</action>
+		<action path="/exportExcelTasks" type="ru.runa.wf.web.action.ExportExcelTasksAction" name="batchPresentationForm" validate="false" scope="request">
+		</action>
+		<action path="/exportExcelProcesses" type="ru.runa.wf.web.action.ExportExcelProcessesAction" name="batchPresentationForm" validate="false" scope="request">
+		</action>
+		<action path="/exportExcelTokenErrors" type="ru.runa.wf.web.action.ExportExcelTokenErrorsAction" name="batchPresentationForm" validate="false" scope="request">
+		</action>
+		<action path="/create_bot" type="ru.runa.af.web.action.CreateBotAction"
+			name="botForm" scope="request" input="/WEB-INF/wf/add_bot.jsp"
+			unknown="false" validate="false">
+			<forward name="success" path="/bot_station.do" redirect="true" />
+			<forward name="failure" path="/add_bot.do" redirect="true" />
+		</action>
+		<action path="/startImageProcess" type="ru.runa.wf.web.action.StartImageProcessAction"
+			name="idForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
+			unknown="false" validate="true">
+		</action>
+		<action path="/hideableBlock" type="ru.runa.common.web.action.HideableBlockAction"
+			name="idNameForm" scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/deleteSubstitutionCriterias"
+			type="ru.runa.af.web.action.DeleteSubstitutionCriteriasAction" name="substitutionCriteriasForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
+		</action>
+		<action path="/startProcess" type="ru.runa.wf.web.action.StartProcessAction"
+			name="startProcessForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_process_definitions.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_process_definitions.do"
+				redirect="true" />
+			<forward name="success_display_start_form" path="/submit_start_process.do"
+				redirect="true" />
+			<forward name="submitTask" path="/submit_task.do" redirect="false" />
+			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
+		</action>
+		<action path="/submitStartProcessForm"
+			type="ru.runa.wf.web.action.SubmitStartProcessFormAction" name="commonProcessForm"
+			scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_process_definitions.do"
+				redirect="true" />
+			<forward name="failure" path="/submit_start_process.do"
+				redirect="false" />
+			<forward name="submitTask" path="/submit_task.do" redirect="false" />
+			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
+		</action>
+		<action path="/deploy_bot" type="ru.runa.af.web.action.DeployBotAction"
+			name="deployBotForm" scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/ntlmlogin" type="ru.runa.af.web.action.NtlmLoginAction"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_tasks.do" redirect="true" />
+			<forward name="failure" path="/start.do" redirect="true" />
+		</action>
+		<action path="/cancelProcess" type="ru.runa.wf.web.action.CancelProcessAction"
+			name="idForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/cancelProcesses" type="ru.runa.wf.web.action.CancelProcessesAction"
+				name="idsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_errors.do" redirect="true" />
+			<forward name="failure" path="/manage_errors.do" redirect="true" />
+		</action>
+		<action path="/activateProcessExecution" type="ru.runa.wf.web.action.ActivateProcessExecutionAction" 
+			name="idForm" scope="request">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/activateProcesses" type="ru.runa.wf.web.action.ActivateProcessesAction"
+				name="idsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_errors.do" redirect="true" />
+			<forward name="failure" path="/manage_errors.do" redirect="true" />
+		</action>
+		<action path="/activateFailedProcesses" type="ru.runa.wf.web.action.ActivateFailedProcessesAction" scope="request">
+			<forward name="success" path="/manage_errors.do" redirect="true" />
+			<forward name="failure" path="/manage_errors.do" redirect="true" />
+		</action>
+		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
+			name="idForm" scope="request">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/removeProcess" type="ru.runa.wf.web.action.RemoveProcessAction"
+			name="idForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_processes.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/restoreProcess" type="ru.runa.wf.web.action.RestoreProcessAction" name="idForm" validate="false" scope="request">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/upgradeProcessToDefinitionVersion" type="ru.runa.wf.web.action.UpgradeProcessToDefinitionVersionAction"
+			name="idVersionForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/upgradeProcessesToDefinitionVersion" type="ru.runa.wf.web.action.UpgradeProcessesToDefinitionVersionAction"
+				name="idVersionForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
+				unknown="false" validate="true">
+			<forward name="success" path="/manage_process_definition.do" redirect="true" />
+			<forward name="failure" path="/manage_process_definition.do" redirect="true" />
+		</action>
+		<action path="/processDefinitionArchive"
+			type="ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction" name="idForm"
+			scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/tableViewSetup"
+			type="ru.runa.common.web.action.TableViewSetupFormAction" name="tableViewSetupForm"
+			scope="request" parameter="dispatch" unknown="false" validate="false">
+		</action>
+		<action path="/createRelationPair" type="ru.runa.af.web.action.CreateRelationPairAction"
+			name="relationPairForm" scope="request" input="/WEB-INF/af/create_relation_pair.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_relation.do" redirect="true" />
+			<forward name="failure" path="/create_relation_pair.do" redirect="true" />
+		</action>
+		<action path="/removeRelationPairs" type="ru.runa.af.web.action.RemoveRelationPairsAction"
+			name="relationPairsForm" scope="request"
+			input="/WEB-INF/af/manage_relation.jsp" unknown="false"
+			validate="false">
+			<forward name="success" path="/manage_relation.do" redirect="true" />
+			<forward name="failure" path="/manage_relation.do" redirect="true" />
+		</action>
+		<action path="/update_bot_station" type="ru.runa.af.web.action.UpdateBotStationAction"
+			name="botStationForm" scope="request" input="/WEB-INF/wf/bot_station.jsp"
+			unknown="false" validate="false">
+		</action>
+		<action path="/processGraphImage" type="ru.runa.wf.web.action.ProcessGraphImageAction"
+			name="taskIdForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
+			unknown="false" validate="true">
+		</action>
+		<action path="/processDefinitionDescription"
+			type="ru.runa.wf.web.action.ProcessDefinitionDescriptionAction" name="idForm"
+			scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
+			unknown="false" validate="true">
+		</action>
+		<action path="/getHtmlFile"
+			type="ru.runa.wf.web.action.LoadProcessDefinitionHtmlFileAction"
+			name="idUrlForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
+			unknown="false" validate="true">
+			<forward name="success"
+				path="/WEB-INF/wf/process_definition_description.jsp" redirect="false" />
+			<forward name="failure" path="/error.do" redirect="true" />
+		</action>
+		<action path="/createExecutor" type="ru.runa.af.web.action.CreateExecutorAction"
+			name="createExecutorForm" scope="request" input="/WEB-INF/af/create_executor.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_executors.do" redirect="true" />
+			<forward name="failure" path="/create_executor.do" redirect="true" />
+		</action>
+		<action path="/updateExecutorDetails"
+			type="ru.runa.af.web.action.UpdateExecutorDetailsAction" name="updateExecutorDetailsForm"
+			scope="request" input="/WEB-INF/af/manage_executor.jsp" unknown="false"
+			validate="true">
+			<forward name="success" path="/manage_executor.do" redirect="true" />
+			<forward name="failure" path="/manage_executor.do" redirect="true" />
+		</action>
+		<action path="/historyGraphImage" type="ru.runa.wf.web.action.HistoryGraphImageAction"
+			name="taskIdForm" scope="request" input="/WEB-INF/wf/show_graph_history.jsp"
+			unknown="false" validate="true">
+		</action>
+		<action path="/deleteSubstitutions" type="ru.runa.af.web.action.DeleteSubstitutionsAction"
+			name="idsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_executor.do" redirect="false" />
+			<forward name="failure" path="/manage_executor.do" redirect="false" />
+		</action>
+		<action path="/removeExecutors" type="ru.runa.af.web.action.RemoveExecutorsAction"
+			name="idsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_executors.do" redirect="true" />
+			<forward name="failure" path="/manage_executors.do" redirect="true" />
+		</action>
+		<action path="/synchronizeExecutors" type="ru.runa.af.web.action.SynchronizeExecutorsAction" scope="request" validate="false">
+			<forward name="success" path="/manage_executors.do" redirect="true" />
+		</action>
+		<action path="/updatePassword" type="ru.runa.af.web.action.UpdatePasswordAction"
+			name="updatePasswordForm" scope="request" input="/WEB-INF/af/manage_executor.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_executor.do" redirect="true" />
+			<forward name="failure" path="/manage_executor.do" redirect="true" />
+		</action>
+		<action path="/removeExecutorsFromGroup"
+			type="ru.runa.af.web.action.RemoveExecutorsFromGroupAction" name="idsForm"
+			scope="request" input="/WEB-INF/af/manage_executor.jsp" unknown="false"
+			validate="true">
+			<forward name="success" path="/manage_executor.do" redirect="true" />
+			<forward name="failure" path="/manage_executor.do" redirect="true" />
+		</action>
+		<action path="/viewLogs" type="ru.runa.common.web.action.ViewLogsAction"
+			name="viewLogForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/displayLogs.do" redirect="false" />
+			<forward name="failure" path="/messages_page.do" redirect="false" />
+		</action>
+		<action path="/viewInternalStorage" type="ru.runa.common.web.action.ViewInternalStorageAction"
+			name="viewInternalStorageForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/displayInternalStorage.do" redirect="false" />
+			<forward name="failure" path="/messages_page.do" redirect="false" />
+		</action>
+		<action path="/addExecutorToGroups" type="ru.runa.af.web.action.AddExecutorToGroupsAction"
+			name="idsForm" scope="request" input="/WEB-INF/af/manage_executor.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_executor.do" redirect="true" />
+			<forward name="failure" path="/manage_executor.do" redirect="true" />
+		</action>
+		<action path="/switchSubstitutionsPositions"
+			type="ru.runa.af.web.action.SwitchSubstitutionsPositionsAction" name="idsForm"
+			scope="request" input="/WEB-INF/af/manage_executor.jsp" unknown="false"
+			validate="true">
+			<forward name="success" path="/WEB-INF/af/manage_executor.jsp"
+				redirect="false" />
+			<forward name="failure" path="/WEB-INF/af/manage_executor.jsp"
+				redirect="false" />
+		</action>
+		<action path="/redeployProcessDefinition"
+			type="ru.runa.wf.web.action.RedeployProcessDefinitionAction" name="fileForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process_definition.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_process_definition.do"
+				redirect="false" />
+		</action>
+		<action path="/setProcessDefinitionSubprocessBindingDate"
+			type="ru.runa.wf.web.action.SetProcessDefinitionSubprocessBindingDateAction" name="idForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process_definition.do"
+				redirect="true" />
+		</action>
+		<action path="/create_bot_station" type="ru.runa.af.web.action.CreateBotStationAction"
+			name="botStationForm" scope="request" input="/WEB-INF/wf/add_bot_station.jsp"
+			unknown="false" validate="false">
+			<forward name="success" path="/configure_bot_station.do"
+				redirect="true" />
+			<forward name="failure" path="/add_bot_station.do"
+				redirect="true" />
+		</action>
+		<action path="/login" type="ru.runa.af.web.action.LoginAction"
+			name="loginForm" scope="request" input="/start.do" unknown="false"
+			validate="true">
+			<forward name="success" path="/manage_tasks.do" redirect="true" />
+			<forward name="failure" path="/start.do" redirect="true" />
+		</action>
+		<action path="/save_bot_station" type="ru.runa.af.web.action.SaveBotStationAction"
+			name="idForm" scope="request" input="/WEB-INF/wf/bot_station.jsp"
+			unknown="false" validate="false">
+		</action>
+		<action path="/krblogin" type="ru.runa.af.web.action.KrbLoginAction"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_tasks.do" redirect="true" />
+			<forward name="failure" path="/start.do" redirect="true" />
+		</action>
+		<action path="/removeRelation" type="ru.runa.af.web.action.RemoveRelationAction"
+			name="idsForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_relations.do" redirect="true" />
+			<forward name="failure" path="/manage_relations.do" redirect="true" />
+		</action>
+		<action path="/variableDownloader" type="ru.runa.wf.web.action.VariableDownloaderAction"
+			name="variableForm" scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/variableJson" type="ru.runa.wf.web.action.VariableJsonAction"
+			name="variableForm" scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/create_bot_task" type="ru.runa.af.web.action.CreateBotTaskAction"
+			name="idForm" scope="request" input="/WEB-INF/wf/bot.jsp" unknown="false"
+			validate="false">
+		</action>
+		<action path="/stop_periodic_bots_invocation"
+			type="ru.runa.af.web.action.StopPeriodicBotsInvocationAction" name="botStationForm"
+			scope="request" input="/WEB-INF/wf/bot_station.jsp" unknown="false"
+			validate="false">
+		</action>
+		<action path="/undeployProcessDefinition"
+			type="ru.runa.wf.web.action.UndeployProcessDefinitionAction" name="idVersionForm"
+			scope="request" unknown="false" validate="true">
+			<forward name="success" path="/manage_process_definitions.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_process_definitions.do"
+				redirect="true" />
+		</action>
+		<action path="/undeployProcessDefinitions"
+			type="ru.runa.wf.web.action.UndeployProcessDefinitionsAction" name="idsForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process_definitions.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_process_definitions.do"
+				redirect="true" />
+		</action>
+		<action path="/addMembersToGroup" type="ru.runa.af.web.action.AddMembersToGroupAction"
+			name="idsForm" scope="request" input="/WEB-INF/af/manage_executor.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_executor.do" redirect="true" />
+			<forward name="failure" path="/manage_executor.do" redirect="true" />
+		</action>
+		<action path="/changeActiveBatchPresentation"
+			type="ru.runa.common.web.action.ChangeActiveBatchPresentationAction"
+			name="batchPresentationForm" scope="request" unknown="false"
+			validate="false">
+		</action>
+		<action path="/start_periodic_bots_invocation"
+			type="ru.runa.af.web.action.StartPeriodicBotsInvocationAction" name="botStationForm"
+			scope="request" input="/WEB-INF/wf/bot_station.jsp" unknown="false"
+			validate="false">
+		</action>
+		<action path="/delete_bot" type="ru.runa.af.web.action.DeleteBotAction"
+			name="idsForm" scope="request" input="/WEB-INF/wf/bot_station.jsp"
+			unknown="false" validate="true">
+		</action>
+		<action path="/submitTaskDispatcher" type="ru.runa.wf.web.action.SubmitTaskDispatcherAction"
+			name="idForm" scope="request" unknown="false" validate="false">
+			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
+			<forward name="submitTask" path="/submit_task.do" redirect="false" />
+			<forward name="executeTask" path="/submitTaskForm.do"
+				redirect="false" />
+		</action>
+		<action path="/changeGroupping"
+			type="ru.runa.common.web.action.ExpandCollapseGroupAction" name="groupForm"
+			scope="request" input="/error.do" unknown="false" validate="true">
+		</action>
+		<action path="/update_bot_tasks" type="ru.runa.af.web.action.UpdateBotTasksAction"
+			name="botTasksForm" scope="request" input="/WEB-INF/wf/bot.jsp"
+			unknown="false" validate="true">
+		</action>
+		<action path="/removeExecutorFromGroups"
+			type="ru.runa.af.web.action.RemoveExecutorFromGroupsAction" name="idsForm"
+			scope="request" input="/WEB-INF/af/manage_executor.jsp" unknown="false"
+			validate="true">
+			<forward name="success" path="/manage_executor.do" redirect="true" />
+			<forward name="failure" path="/manage_executor.do" redirect="true" />
+		</action>
+		<action path="/update_bot" type="ru.runa.af.web.action.UpdateBotAction"
+			name="botForm" scope="request" input="/WEB-INF/wf/bot.jsp" unknown="false"
+			validate="false">
+		</action>
+		<action path="/updateSubstitution" type="ru.runa.af.web.action.UpdateSubstitutionAction"
+			name="substitutionForm" scope="request" input="/WEB-INF/af/edit_substitution.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/WEB-INF/af/manage_executor.jsp"
+				redirect="false" />
+			<forward name="failure" path="/WEB-INF/af/edit_substitution.jsp"
+				redirect="false" />
+		</action>
+		<action path="/bulkDeployProcessDefinition"
+			type="ru.runa.wf.web.action.BulkDeployProcessDefinitionAction" name="fileForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process_definitions.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_process_definitions.do"
+				redirect="false" />
+		</action>
+		<action path="/deployProcessDefinition"
+			type="ru.runa.wf.web.action.DeployProcessDefinitionAction" name="fileForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process_definitions.do"
+				redirect="true" />
+			<forward name="failure" path="/deploy_process_definition.do"
+				redirect="false" />
+		</action>
+		<action path="/deployReport"
+			type="ru.runa.report.web.action.DeployReportAction" name="deployReportForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_reports.do"
+				redirect="true" />
+			<forward name="failure" path="/deploy_report.do"
+				redirect="false" />
+		</action>
+		<action path="/analyzeReport"
+			type="ru.runa.report.web.action.AnalyzeReportAction" name="fileForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/deploy_report.do"
+				redirect="false" />
+			<forward name="failure" path="/deploy_report.do"
+				redirect="false" />
+		</action>
+		<action path="/redeployReport"
+			type="ru.runa.report.web.action.RedeployReportAction" name="deployReportForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_report.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_report.do"
+				redirect="false" />
+		</action>
+		<action path="/undeployReport"
+			type="ru.runa.report.web.action.UndeployReportAction" name="idsForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_reports.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_reports.do"
+				redirect="true" />
+		</action>
+		<action path="/buildReport"
+			type="ru.runa.report.web.action.BuildReportAction" name="idForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/build_report.do"
+				redirect="false" />
+			<forward name="failure" path="/build_report.do"
+				redirect="false" />
+		</action>
+		<action path="/reportResource"
+			type="ru.runa.report.web.action.GetReportResourceAction" 
+			scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/updateProcessVariable"
+			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="commonProcessForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/update_process_variables.do"
+				redirect="false" />
+			<forward name="failure" path="/update_process_variables.do"
+				redirect="false" />
+		</action>
+		<action path="/updateProcessVariableInChat" type="ru.runa.wf.web.action.UpdateProcessVariableAction"
+				name="commonProcessForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/chat_page.do" redirect="true"/>
+			<forward name="failure" path="/chat_page.do" redirect="false"/>
+		</action>
+		<action path="/updateProcessSwimlane"
+			type="ru.runa.wf.web.action.UpdateProcessSwimlaneAction" name="commonProcessForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process.do"
+				redirect="true" />
+			<forward name="failure" path="/update_process_swimlanes.do"
+				redirect="false" />
+		</action>
+		<action path="/setViewPage" type="ru.runa.wf.web.action.SetViewPageAction"
+			name="pagingForm" scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/createRelation" type="ru.runa.af.web.action.CreateRelationAction"
+			name="relationForm" scope="request"
+			input="/WEB-INF/af/create_relation.jsp" unknown="false"
+			validate="true">
+			<forward name="success" path="/manage_relations.do" redirect="true" />
+			<forward name="failure" path="/create_relation.do"
+				redirect="true" />
+		</action>
+		<action path="/updateRelation" type="ru.runa.af.web.action.UpdateRelationAction"
+			name="relationForm" scope="request"
+			input="/WEB-INF/af/manage_relation.jsp" unknown="false"
+			validate="true">
+			<forward name="success" path="/manage_relations.do" redirect="true" />
+			<forward name="failure" path="/manage_relation.do" redirect="true" />
+		</action>
+		<action path="/updatePermissions"
+                type="ru.runa.af.web.action.UpdatePermissionsAction" name="updatePermissionsForm"
+			    scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/grantPermissions"
+                type="ru.runa.af.web.action.GrantPermissionsAction" name="grantPermissionsForm"
+			    scope="request" unknown="false" validate="false">
+		</action>
+		<action path="/admin_scripts" type="ru.runa.common.web.action.AdminkitScriptsAction"
+			name="adminScriptForm" scope="request" validate="false">
+			<forward name="success" path="/manage_system.do" redirect="false" />
+		</action>
+		<action path="/getSessionFile"
+			type="ru.runa.common.web.action.GetSessionFileAction"
+			validate="false">
+		</action>
+		<action path="/error_details" type="ru.runa.common.web.action.ErrorDetailsAction"
+			name="idNameForm" scope="request" validate="false">
+		</action>
+
+		<action path="/start" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/login.jsp" />
+
+		<action path="/error" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/error.jsp" />
+
+		<action path="/demo_login" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/demoConfiguration.jsp" />
+
+		<action path="/chat_page" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/af/chat_page.jsp" />
+
+		<action path="/manage_executor" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/manage_executor.jsp" />
+
+		<action path="/create_executor" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/create_executor.jsp" />
+
+		<action path="/add_executor_to_groups" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/add_executor_to_groups.jsp" />
+
+		<action path="/manage_executors" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/af/manage_executors.jsp" />
+
+		<action path="/manage_reports" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/report/manage_reports.jsp" />
+
+		<action path="/deploy_report" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/deploy_report.jsp" />
+
+		<action path="/manage_report" name="idForm" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/manage_report.jsp" />
+
+		<action path="/build_report" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/build_report.jsp" />
+
+		<action path="/manage_relations" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/af/manage_relations.jsp" />
+
+		<action path="/editSubstitution" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/edit_substitution.jsp" />
+
+		<action path="/createSubstitution" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/edit_substitution.jsp" />
+
+		<action path="/editSubstitutionCriteria" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/edit_substitution_criteria.jsp" />
+
+		<action path="/createSubstitutionCriteria" type="ru.runa.af.web.action.CreateSubstitutionCriteriaAction"
+			parameter="/WEB-INF/af/edit_substitution_criteria.jsp" />
+
+		<action path="/manage_system" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SYSTEM" />
+		<action path="/manage_errors" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="ERRORS" />
+
+        <action path="/messages_page" type="org.apache.struts.actions.ForwardAction" parameter="/WEB-INF/common/messages_page.jsp" />
+
+        <action path="/add_members_to_group" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/add_members_to_group.jsp" />
+		<!-- wf struts actions -->
+		<action path="/manage_process_definitions" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/wf/manage_process_definitions.jsp" />
+
+		<action path="/manage_process_definition" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/manage_process_definition.jsp" />
+		<action path="/definition_graph_component" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/definition_graph_component.jsp" />
+		<action path="/show_definitions_history_diff" type="ru.runa.wf.web.action.ShowDefinitionHistoryDiffAction">
+			<forward name="success" path="/definitions_history_diff.do" redirect="false" />
+			<forward name="failure" path="/definitions_history.do" redirect="true" />
+		</action>
+		<action path="/definitions_history" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_process_definitions_history.jsp" />
+		<action path="/definitions_history_diff" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_process_definitions_history_diff.jsp" />
+
+		<action path="/deploy_process_definition" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/deploy_process_definition.jsp" />
+
+		<action path="/redeploy_process_definition" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/redeploy_process_definition.jsp" />
+
+		<action path="/validate_process_definition" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/validate_process_definition.jsp" />
+
+		<action path="/manage_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/wf/manage_processes.jsp" />
+
+		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction"
+			parameter="/WEB-INF/wf/manage_process.jsp" />
+
+		<action path="/submit_start_process" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/submit_start_process.jsp" />
+
+		<action path="/manage_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
+			parameter="/WEB-INF/wf/manage_tasks.jsp" />
+
+		<action path="/manage_observable_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
+			parameter="/WEB-INF/wf/manage_observable_tasks.jsp" />
+
+		<action path="/submit_task" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/submit_task.jsp" />
+
+		<action path="/manage_relation" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/manage_relation.jsp" />
+
+		<action path="/create_relation" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/create_relation.jsp" />
+
+		<action path="/create_relation_pair" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/create_relation_pair.jsp" />
+
+		<action path="/configure_bot_station" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/wf/configure_bot_station.jsp" />
+
+		<action path="/manage_data_sources" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/wf/manage_data_sources.jsp" />
+
+		<action path="/deploy_data_source" type="ru.runa.af.web.action.DeployDataSourceAction"
+			name="deployDataSourceForm" scope="request" unknown="false" validate="false">
+		</action>
+
+		<action path="/delete_data_source" type="ru.runa.af.web.action.DeleteDataSourceAction"
+			name="strIdsForm" scope="request" input="/WEB-INF/wf/manage_data_sources.jsp"
+			unknown="false" validate="true">
+			<forward name="success" path="/manage_data_sources.do"
+				redirect="true" />
+			<forward name="failure" path="/delete_data_source.do"
+				redirect="true" />
+		</action>
+
+		<action path="/change_data_source_password" type="ru.runa.af.web.action.ChangeDataSourcePasswordAction"
+			name="changeDataSourcePasswordForm" scope="request" input="/WEB-INF/wf/manage_data_sources.jsp" validate="false">
+		</action>
+		<action path="/data_source_server_version" type="ru.runa.af.web.action.DataSourceServerVersionAction"
+			scope="request" input="/WEB-INF/wf/manage_data_sources.jsp" validate="false" >
+		</action>
+		
+		<action path="/edit_settings" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/edit_settings.jsp" />
+		<action path="/drop_settings" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/af/drop_settings.jsp" />
+
+		<action path="/add_bot_station" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/add_bot_station.jsp" />
+		<action path="/add_bot" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/add_bot.jsp" />
+
+		<action path="/bot" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/bot.jsp" />
+		<action path="/bot_station" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/bot_station.jsp" />
+
+		<action path="/grantPermissionsForm" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/af/grantPermissionsForm.jsp" />
+		<action path="/managePermissionsForm" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/af/managePermissionsForm.jsp" />
+		<action path="/show_history" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_history.jsp" />
+		<action path="/show_system_logs" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_system_logs.jsp" />
+		<action path="/show_graph_history" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_graph_history.jsp" />
+
+		<action path="/manage_settings" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/af/manage_settings.jsp" />
+		<action path="/show_process_graph" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_process_graph.jsp" />
+		<action path="/process_graph_component" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/process_graph_component.jsp" />
+		<action path="/process_graph_component_history" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_graph_component_history.jsp" />
+			
+
+		<action path="/version" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/common/version.jsp" />
+
+		<action path="/displayLogs" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/common/logs.jsp" />
+
+		<action path="/displayInternalStorage" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/common/internal_storage.jsp" />
+
+		<action path="/show_tasks_history" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_tasks_history.jsp" />
+		<action path="/show_gantt_diagram" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/show_gantt_diagram.jsp" />
+			
+		<action path="/exportDataFileAction" type="ru.runa.wf.web.action.ExportDataFileAction"
+			scope="request" unknown="false" validate="false">
+			<forward name="failure" path="/manage_system.do" redirect="true" />
+		</action>
+		<action path="/importDataFileAction" type="ru.runa.wf.web.action.ImportDataFileAction"
+			name="fileForm" scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
+		</action>
+		
+		<action path="/update_process_variables" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/update_process_variables_value.jsp" />
+		
+		<action path="/update_process_swimlanes" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/update_process_swimlanes.jsp" />
+
+		<action path="/send_process_signal" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/wf/send_process_signal.jsp" />
+
+		<action path="/sendProcessSignal" type="ru.runa.wf.web.action.SendProcessSignalAction"
+				name="sendProcessSignalForm" scope="request" unknown="false" validate="false">
+		</action>
+
+		<action path="/cleanProcessLogs" type="ru.runa.wf.web.action.CleanProcessLogsAction">
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
+		</action>
+
+		<action path="/chat_rooms" type="ru.runa.common.web.action.TabHeaderForwardAction"
+				parameter="/WEB-INF/wf/chat_rooms.jsp" />
+
+	</action-mappings>
+
+	<controller contentType="text/html; charset=UTF-8" nocache="true"
+		locale="true" processorClass="ru.runa.common.web.UTF8RequestProcessor" />
+
+	<message-resources parameter="struts" />
+	<message-resources parameter="settingsDescriptions" key="settingsDescriptions" />
+
+</struts-config>

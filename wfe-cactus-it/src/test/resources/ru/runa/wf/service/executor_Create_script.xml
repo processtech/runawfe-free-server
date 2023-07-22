@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml workflowScript.xsd">
+	 <!-- Sample wfe script -->
+	<createGroup name="employee"/>
+	<createGroup name="boss"/>
+	<createActor name="dorothy" fullName="Dorothy Gale" password="shout"/>
+	<createActor name="toto" description="Dorothy's dog" password="bark"/>
+	<createActor name="lion" fullName="The Cowardly Lion" password="mew"/>
+	<createActor name="scarecrow" fullName="The Scarecrow" password="cry"/>
+	<createActor name="tin" fullName="The Tin Man"  password="secretword" />
+	<createActor name="gulch" fullName="The Wicked Witch of the West"  description="Someone we will create and delete in this script" password="www"/>
+
+	<addExecutorsToGroup name="employee">
+		<executor name="lion"/>
+		<executor name="dorothy"/>
+		<executor name="scarecrow"/>
+		<executor name="tin"/>
+		<executor name="gulch"/>
+	</addExecutorsToGroup>
+	
+	<addExecutorsToGroup name="boss">
+		<executor name="dorothy"/>
+	</addExecutorsToGroup>
+</workflowScript>

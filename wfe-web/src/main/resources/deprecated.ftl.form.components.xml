@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml">
+	<component name="ActorsMultiSelect" class="ru.runa.wf.web.ftl.component.ActorsMultiSelect" />
+	<component name="ChooseActor" class="ru.runa.wf.web.ftl.component.ChooseActor" />
+	<component name="ChooseGroup" class="ru.runa.wf.web.ftl.component.ChooseGroup" />
+	<component name="DisplayActor" class="ru.runa.wf.web.ftl.component.DisplayActor" />
+	<component name="DisplayExecutor" class="ru.runa.wf.web.ftl.component.DisplayVariable" />
+	<component name="DisplayFormattedText" class="ru.runa.wf.web.ftl.component.DisplayVariable" />
+	<component name="DisplayLinkedListsInTable" class="ru.runa.wf.web.ftl.component.DisplayLinkedLists" />
+	<component name="DisplayLinkedMapsInTable" class="ru.runa.wf.web.ftl.component.DisplayLinkedMaps" />
+	<component name="DownloadFile" class="ru.runa.wf.web.ftl.component.DisplayVariable" />
+	<component name="InputDateTime" class="ru.runa.wf.web.ftl.component.DateTimeInput" />
+	<component name="MultipleSelect" class="ru.runa.wf.web.ftl.component.MultipleSelectFromList" />
+	<component name="EditStringList" class="ru.runa.wf.web.ftl.component.InputVariable" />
+	<component name="EditList" class="ru.runa.wf.web.ftl.component.InputVariable" />
+	<component name="ViewList" class="ru.runa.wf.web.ftl.component.DisplayVariable" />
+</configuration>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://runa.ru/xml" xmlns="http://runa.ru/xml" elementFormDefault="qualified">
+	<xs:element name="processes">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="processToCancel" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="name" type="xs:string" use="required"/>
+						<xs:attribute name="taskHandlerConfiguration" type="xs:string" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="processIdVariable" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

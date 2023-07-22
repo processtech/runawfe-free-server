@@ -1,0 +1,482 @@
+package ru.runa.wfe.commons;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import ru.runa.wfe.execution.logic.ProcessExecutionListener;
+import ru.runa.wfe.execution.logic.TaskExecutionListener;
+import ru.runa.wfe.lang.NodeType;
+import ru.runa.wfe.security.ApplicablePermissions;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
+
+public class SystemProperties {
+    public static final String CONFIG_FILE_NAME = "system.properties";
+    private static final PropertyResources RESOURCES = new PropertyResources(CONFIG_FILE_NAME);
+    private static final PropertyResources NO_DATABASE_RESOURCES = new PropertyResources(CONFIG_FILE_NAME, true, false);
+    private static final boolean developmentMode = "true".equals(System.getProperty("devmode"));
+    private static final boolean v3CompatibilityMode = "true".equals(System.getProperty("v3compatibility"));
+    public static final String WEB_SERVICE_NAMESPACE = "http://runa.ru/wfe";
+
+    public static final String RESOURCE_EXTENSION_PREFIX = "wfe.custom.";
+    public static final String DEPRECATED_PREFIX = "deprecated.";
+
+    private static volatile List<ProcessExecutionListener> processExecutionListeners = null;
+    private static volatile List<TaskExecutionListener> taskExecutionListeners = null;
+
+    static {
+        setSystemProperties("javamelody.disabled", "javamelody.datasources");
+    }
+
+    public static PropertyResources getResources() {
+        return RESOURCES;
+    }
+
+    public static boolean isTaskDelegationEnabled() {
+        return RESOURCES.getBooleanProperty("task.delegation.enabled", true);
+    }
+
+    /**
+     * Production or development mode?
+     */
+    public static boolean isDevMode() {
+        return developmentMode;
+    }
+
+    /**
+     * Sets system properties
+     * @param props
+     *             system properties names.
+     */
+    public static void setSystemProperties(String ... props) {
+        for (String prop: props) {
+            System.setProperty(prop, RESOURCES.getStringProperty(prop));
+        }
+    }
+
+    /**
+     * Process-level compatibility with version 3.x.
+     */
+    public static boolean isV3CompatibilityMode() {
+        return v3CompatibilityMode;
+    }
+
+    /**
+     * List variable back compatibility mode with version 4.2.x.
+     */
+    public static boolean isV4ListVariableCompatibilityMode() {
+        return RESOURCES.getBooleanProperty("v4.2.list.variable.compatibility", true);
+    }
+
+    /**
+     * List variable back compatibility mode with version 4.2.x.
+     */
+    public static boolean isV4MapVariableCompatibilityMode() {
+        return RESOURCES.getBooleanProperty("v4.2.map.variable.compatibility", true);
+    }
+
+    /**
+     * MultiSubprocess pre 4.3.0 compatibility.
+     */
+    public static boolean isMultiSubprocessDataCompatibilityMode() {
+        return RESOURCES.getBooleanProperty("v4.2.multi.subprocess.data.compatibility", true);
+    }
+
+    /**
+     * Using non runtime substitution cache instead of static substitution cache.
+     */
+    public static boolean useNonRuntimeSubstitutionCache() {
+        return NO_DATABASE_RESOURCES.getBooleanProperty("nonruntime.susbstitution.cache", true);
+    }
+
+    /**
+     * Product name
+     */
+    public static String getProductName() {
+        return RESOURCES.getStringProperty("product.name");
+    }
+
+    /**
+     * System version
+     */
+    public static String getVersion() {
+        return RESOURCES.getStringProperty("version");
+    }
+
+    /**
+     * System build date
+     */
+    public static String getBuildDateString() {
+        return RESOURCES.getStringProperty("build.date");
+    }
+
+    public static String getAdministratorName() {
+        return RESOURCES.getStringPropertyNotNull("default.administrator.name");
+    }
+
+    public static String getAdministratorDefaultPassword() {
+        return RESOURCES.getStringPropertyNotNull("default.administrator.password");
+    }
+
+    public static String getAdministratorsGroupName() {
+        return RESOURCES.getStringPropertyNotNull("default.administrators.group.name");
+    }
+
+    public static String getBotsGroupName() {
+        return RESOURCES.getStringPropertyNotNull("default.bots.group.name");
+    }
+
+    public static String getDateFormatPattern() {
+        return RESOURCES.getStringPropertyNotNull("date.format.pattern");
+    }
+
+    public static boolean isLocalFileStorageEnabled() {
+        return RESOURCES.getBooleanProperty("file.variable.local.storage.enabled", true);
+    }
+
+    public static String getLocalFileStoragePath() {
+        return RESOURCES.getStringProperty("file.variable.local.storage.path", IoCommons.getAppServerDirPath() + "/wfe.filedata");
+    }
+
+    public static int getLocalFileStorageFileLimit() {
+        return RESOURCES.getIntegerProperty("file.variable.local.storage.enableforfilesgreaterthan", 100000);
+    }
+
+    public static String getStrongPasswordsRegexp() {
+        return RESOURCES.getStringProperty("strong.passwords.regexp");
+    }
+
+    public static String getDefaultTaskDeadline() {
+        return RESOURCES.getStringProperty("task.default.deadline");
+    }
+
+    /**
+     * @return value between 0..100 [%]
+     */
+    public static int getTaskAlmostDeadlineInPercents() {
+        int percents = RESOURCES.getIntegerProperty("task.almostDeadlinePercents", 90);
+        if (percents < 0 || percents > 100) {
+            percents = 90;
+        }
+        return percents;
+    }
+
+    /**
+     * Change this value sync with DB.
+     *
+     * @return max string value
+     */
+    public static int getStringVariableValueLength() {
+        return RESOURCES.getIntegerProperty("string.variable.length", 1024);
+    }
+
+    /**
+     * ORA-24816: Expanded non LONG bind data supplied after actual LONG or LOB column (if string length > 1000)
+     */
+    public static int getLogMaxAttributeValueLength() {
+        return RESOURCES.getIntegerProperty("log.attribute.max.length", 512);
+    }
+
+    public static int getTokenMaximumDepth() {
+        return RESOURCES.getIntegerProperty("token.maximum.depth", 100);
+    }
+
+    public static long getTokenMaximumLength() {
+        int length = RESOURCES.getIntegerProperty("token.maximum.length", -1);
+        if (length == -1) {
+            return Long.MAX_VALUE;
+        }
+        return length;
+    }
+
+    public static String getEARFileName() {
+        return RESOURCES.getStringProperty("ear.filename", "runawfe.ear");
+    }
+
+    public static boolean isStrongVariableFormatEnabled() {
+        return RESOURCES.getBooleanProperty("strong.variables.format.enabled", true);
+    }
+
+    public static boolean isVariableAutoCastingEnabled() {
+        return RESOURCES.getBooleanProperty("variables.autocast.enabled", true);
+    }
+
+    public static boolean isEscalationEnabled() {
+        return RESOURCES.getBooleanProperty("escalation.enabled", true);
+    }
+
+    public static String getEscalationDefaultHierarchyLoader() {
+        return RESOURCES.getStringProperty("escalation.default.hierarchy.loader");
+    }
+
+    public static boolean isTrustedAuthenticationEnabled() {
+        return RESOURCES.getBooleanProperty("trusted.authentication.enabled", false);
+    }
+
+    public static boolean isDefinitionDeploymentWithCommentsCollisionsAllowed() {
+        return RESOURCES.getBooleanProperty("definition.comments.collisions.allowed", false);
+    }
+
+    public static boolean isDefinitionDeploymentWithEmptyCommentsAllowed() {
+        return RESOURCES.getBooleanProperty("definition.comments.empty.allowed", true);
+    }
+
+    public static boolean deleteTokensInMissingNodesOnDefinitionUpdate() {
+        return RESOURCES.getBooleanProperty("definition.update.delete.tokens.for.missing.nodes", false);
+    }
+
+    public static boolean isDefinitionCompatibilityCheckEnabled() {
+        return RESOURCES.getBooleanProperty("definition.compatibility.check.enabled", true);
+    }
+
+    public static int getDefinitionCompatibilityCheckProcessesLimit() {
+        return RESOURCES.getIntegerProperty("definition.compatibility.check.processes.limit", -1);
+    }
+
+    public static boolean isCheckProcessStartPermissions() {
+        return RESOURCES.getBooleanProperty("check.process.start.permissions", true);
+    }
+
+    public static boolean isTaskAssignmentStrictRulesEnabled() {
+        return RESOURCES.getBooleanProperty("task.assignment.strict.rules.enabled", true);
+    }
+
+    public static boolean isAutoInvocationLocalBotStationEnabled() {
+        return RESOURCES.getBooleanProperty("auto.invocation.local.botstation.enabled", true);
+    }
+
+    public static boolean isExecuteGroovyScriptInAPIEnabled() {
+        return RESOURCES.getBooleanProperty("scriptingServiceAPI.executeGroovyScript.enabled", false);
+    }
+
+    public static boolean isUpgradeProcessToDefinitionVersionEnabled() {
+        return RESOURCES.getBooleanProperty("upgrade.process.to.definition.version.enabled", true);
+    }
+
+    public static boolean isErrorEmailNotificationEnabled() {
+        return getErrorEmailNotificationConfiguration() != null;
+    }
+
+    public static String getErrorEmailNotificationConfiguration() {
+        return RESOURCES.getStringProperty("error.email.notification.configuration");
+    }
+
+    public static List<String> getErrorEmailNotificationFilterExcludes() {
+        return RESOURCES.getMultipleStringProperty("error.email.notification.filter.excludes");
+    }
+
+    public static boolean isFormulaHandlerInStrictMode() {
+        return RESOURCES.getBooleanProperty("formula.handler.strict.mode", false);
+    }
+
+    public static boolean isEmailGuaranteedDeliveryEnabled() {
+        return RESOURCES.getBooleanProperty("email.guaranteed.delivery.enabled", false);
+    }
+
+    public static long getEmailDefaultTimeoutInMilliseconds() {
+        return RESOURCES.getLongProperty("email.default.timeout.milliseconds", 10000);
+    }
+
+    public static List<String> getProcessEndHandlers() {
+        return RESOURCES.getMultipleStringProperty("process.end.handlers");
+    }
+
+    public static List<String> getProcessAdminGroupNames() {
+        return RESOURCES.getMultipleStringProperty("process.admin.groups");
+    }
+
+    public static String getBaseProcessIdVariableName() {
+        return RESOURCES.getStringProperty("base.process.id.variable.name");
+    }
+
+    public static boolean isBaseProcessIdModeReadAllVariables() {
+        return RESOURCES.getBooleanProperty("base.process.id.variable.read.all", true);
+    }
+
+    /**
+     * Max.number of integer IDs in "in (...)" clause in queries.
+     */
+    public static int getDatabaseParametersCount() {
+        return RESOURCES.getIntegerProperty("database.parameters.count", 900);
+    }
+
+    /**
+     * Max.number of string names (executor names, definition names, etc.) in "in (...)" clause in queries.
+     */
+    public static int getDatabaseNameParametersCount() {
+        return RESOURCES.getIntegerProperty("database.name.parameters.count", 50);
+    }
+
+    public static List<String> getFreemarkerStaticClassNames() {
+        return RESOURCES.getMultipleStringProperty("freemarker.static.class.names");
+    }
+
+    public static boolean setPermissionsToTemporaryGroups() {
+        return RESOURCES.getBooleanProperty("temporary.groups.set.permissions", false);
+    }
+
+    public static boolean deleteTemporaryGroupsOnProcessEnd() {
+        return RESOURCES.getBooleanProperty("temporary.groups.delete.on.process.end", false);
+    }
+
+    public static boolean deleteTemporaryGroupsOnTaskEnd() {
+        return RESOURCES.getBooleanProperty("temporary.groups.delete.on.task.end", false);
+    }
+
+    public static List<ProcessExecutionListener> getProcessExecutionListeners() {
+        if (processExecutionListeners == null) {
+            synchronized (SystemProperties.class) {
+                if (processExecutionListeners == null) {
+                    processExecutionListeners = Lists.newArrayList();
+                    for (String className : RESOURCES.getMultipleStringProperty("process.execution.listeners")) {
+                        try {
+                            ProcessExecutionListener listener = ClassLoaderUtil.instantiate(className);
+                            processExecutionListeners.add(listener);
+                        } catch (Throwable th) {
+                            processExecutionListeners = null;
+                            Throwables.propagate(th);
+                        }
+                    }
+                }
+            }
+        }
+        return processExecutionListeners;
+    }
+
+    public static List<TaskExecutionListener> getTaskExecutionListeners() {
+        if (taskExecutionListeners == null) {
+            synchronized (SystemProperties.class) {
+                if (taskExecutionListeners == null) {
+                    taskExecutionListeners = Lists.newArrayList();
+                    for (String className : RESOURCES.getMultipleStringProperty("task.execution.listeners")) {
+                        try {
+                            TaskExecutionListener listener = ClassLoaderUtil.instantiate(className);
+                            taskExecutionListeners.add(listener);
+                        } catch (Throwable th) {
+                            taskExecutionListeners = null;
+                            Throwables.propagate(th);
+                        }
+                    }
+                }
+            }
+        }
+        return taskExecutionListeners;
+    }
+
+    public static List<String> getRequiredValidatorNames() {
+        return RESOURCES.getMultipleStringProperty("required.validator.names");
+    }
+
+    public static boolean isProcessExecutionNodeAsyncEnabled(NodeType nodeType) {
+        String propertyValue = RESOURCES.getStringProperty("process.execution.node.async." + nodeType);
+        if (propertyValue != null) {
+            return Boolean.parseBoolean(propertyValue);
+        }
+        return RESOURCES.getBooleanProperty("process.execution.node.async.default", false);
+    }
+
+    public static boolean isProcessSuspensionEnabled() {
+        return RESOURCES.getBooleanProperty("process.suspension.enabled", true);
+    }
+
+    public static boolean isSwimlaneAutoInitializationEnabled() {
+        return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", false);
+    }
+
+    public static boolean isProcessExecutionMessagePredefinedSelectorEnabled() {
+        return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.enabled", true);
+    }
+
+    public static boolean isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling() {
+        return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
+    }
+
+    /**
+     * @return default permissions by object type
+     */
+    public static List<Permission> getDefaultPermissions(SecuredObjectType securedObjectType) {
+        List<Permission> result = new ArrayList<>();
+        List<Permission> applicablePermissions = ApplicablePermissions.listVisible(securedObjectType);
+        List<String> permissionNames = RESOURCES.getMultipleStringProperty(securedObjectType.toString().toLowerCase() + ".default.permissions");
+        for (String permissionName : permissionNames) {
+            Permission foundPermission = null;
+            for (Permission permission : applicablePermissions) {
+                if (permission.getName().equals(permissionName)) {
+                    foundPermission = permission;
+                    break;
+                }
+            }
+            Preconditions.checkArgument(foundPermission != null, permissionName);
+            result.add(foundPermission);
+        }
+        return result;
+    }
+
+    public static boolean isVariablesInvalidDefaultValuesAllowed() {
+        return RESOURCES.getBooleanProperty("variables.invalid.default.values.allowed", false);
+    }
+
+    public static Date getVariablesInvalidDefaultValuesAllowedBefore() {
+        return RESOURCES.getDateProperty("variables.invalid.default.values.allowed.before", new Date());
+    }
+
+    /**
+     * Returns datasource password import/export policy (true - import/export allowed, false - otherwise)
+     * 
+     * @return boolean; default true
+     */
+    public static boolean isDatasourcePasswordExportAllowed() {
+        return RESOURCES.getBooleanProperty("datasource.password.export", true);
+    }
+
+    public static boolean ignoreErrorsInSendEmailActionHandler() {
+        return RESOURCES.getBooleanProperty("SendEmailActionHandler.ignore.errors", false);
+    }
+
+    public static boolean showErrorsInGroovyExpressionValidator() {
+        return RESOURCES.getBooleanProperty("GroovyExpressionValidator.show.errors", false);
+    }
+
+    public static String getPreferredMessagesLanguage() {
+        return RESOURCES.getStringProperty("preferred.messages.language");
+    }
+
+    /**
+     * System statistic report enabled
+     */
+    public static boolean isReportStatisticEnabled() {
+        return RESOURCES.getBooleanProperty("statistic.report.enabled", false);
+    }
+
+    public static boolean isReassignSwimlaneToInitializer() {
+        return RESOURCES.getBooleanProperty("reassign.swimlane.to.initializer", false);
+    }
+
+    public static boolean isReassignSwimlaneToTaskPerformer() {
+        return RESOURCES.getBooleanProperty("reassign.swimlane.to.task.performer", true);
+    }
+
+    public static boolean isProcessLogCleanButtonEnabled() {
+        return RESOURCES.getBooleanProperty("processLog.cleanButton.enabled", false);
+    }
+
+    public static boolean isGlobalObjectsEnabled() {
+        return RESOURCES.getBooleanProperty("global.objects.enabled", true);
+    }
+
+    public static long getJobExecutorBatchSize() {
+        return RESOURCES.getLongProperty("job.executor.batch.size", 50L);
+    }
+
+    public static String getChatFileStoragePath() {
+        return RESOURCES.getStringProperty("chat.files.storage.path", IoCommons.getAppServerDirPath() + "/wfe.chat-files-storage");
+    }
+
+    public static boolean isFileSystemAccessAllowed() {
+        return NO_DATABASE_RESOURCES.getBooleanProperty("filesystem.access.allowed", false);
+    }
+
+}

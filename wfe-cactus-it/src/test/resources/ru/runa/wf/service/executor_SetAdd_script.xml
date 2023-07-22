@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml workflowScript.xsd">
+	 <!-- Sample wfe script -->
+	<createGroup name="employee"/>
+	<createActor name="dorothy" fullName="Dorothy Gale" password="shout"/>
+	<createActor name="toto" description="Dorothy's dog" password="bark"/>
+	<createActor name="tin" fullName="The Tin Man"  password="secretword" />
+
+	<addExecutorsToGroup name="employee">
+		<executor name="dorothy"/>
+		<executor name="tin"/>
+	</addExecutorsToGroup>
+
+	<setPermissions type="EXECUTOR" name="toto" executor="dorothy">		
+		<permission name="VIEW_TASKS"/>
+	</setPermissions>
+
+	<addPermissions type="EXECUTOR" name="toto" executor="dorothy">
+		<permission name="READ"/>
+		<permission name="UPDATE"/>
+	</addPermissions>
+
+	<setPermissions type="EXECUTOR" name="employee" executor="dorothy">
+		<permission name="READ"/>
+		<permission name="VIEW_TASKS"/>
+	</setPermissions>
+
+	<addPermissions type="EXECUTOR" name="employee" executor="dorothy">
+		<permission name="UPDATE"/>
+		<permission name="UPDATE_PERMISSIONS"/>
+	</addPermissions>
+         
+	<addPermissions type="EXECUTOR" name="employee" executor="employee">
+		<permission name="READ"/>
+		<permission name="VIEW_TASKS"/>
+		<permission name="UPDATE"/>
+		<permission name="UPDATE_PERMISSIONS"/>
+	</addPermissions>
+
+	<addPermissions type="EXECUTOR" name="tin" executor="employee">
+		<permission name="READ"/>
+		<permission name="UPDATE"/>
+	</addPermissions>
+
+	<setPermissions type="SYSTEM" executor="employee">
+		<permission name="LOGIN"/>
+		<permission name="READ"/>
+	</setPermissions>
+
+	<addPermissions type="SYSTEM" executor="employee">
+		<permission name="CREATE_DEFINITION"/>
+		<permission name="CREATE_EXECUTOR"/>
+	</addPermissions>
+</workflowScript>

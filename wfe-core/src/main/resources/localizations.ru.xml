@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<artifacts>
+  <artifact enabled="true" name="ru.runa.bp.handler.AlfSetContent" label="Alfresco: upload file data"/>
+  <artifact enabled="true" name="ru.runa.wfe.office.excel.handler.ExcelReadHandler" label="Excel: Прочесть данные из файла"/>
+  <artifact enabled="true" name="ru.runa.wfe.office.excel.handler.ExcelSaveHandler" label="Excel: Сохранить данные в файл"/>
+  <artifact enabled="true" name="ru.runa.wfe.office.doc.DocxHandler" label="Word: Формирование документа DOCX используя шаблон"/>
+  <artifact enabled="true" name="ru.runa.wf.logic.bot.MSWordReportTaskHandler" label="Word: Формирование документа используя шаблон (используя MSWord ActiveX)"/>
+  <artifact enabled="true" name="ru.runa.bp.demo.ApproveMyDoc" label="alfdemo: approve document"/>
+  <artifact enabled="true" name="ru.runa.bp.demo.CreateMyDoc" label="alfdemo: create document"/>
+  <artifact enabled="true" name="ru.runa.bp.demo.RejectMyDoc" label="alfdemo: reject document"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.MapAggregateFunctionActionHandler" label="Агрегатная функция над картой"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ListAggregateFunctionActionHandler" label="Агрегатная функция над списком"/>
+  <artifact enabled="true" name="ru.runa.wfe.service.handler.BotInvokerActionHandler" label="Вызвать бот станцию"/>
+  <artifact enabled="true" name="ru.runa.wf.logic.bot.WebServiceTaskHandler" label="Вызвать внешнюю веб службу"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.SQLActionHandler" label="Выполнить запросы SQL"/>
+  <artifact enabled="true" name="ru.runa.wf.logic.bot.DatabaseTaskHandler" label="Выполнить запросы SQL"/>
+  <artifact enabled="false" name="ru.runa.wfe.extension.decision.BSFDecisionHandler" label="Выполнить код BeanShell"/>
+  <artifact enabled="false" name="ru.runa.wfe.extension.handler.BSHActionHandler" label="Выполнить код BeanShell"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.decision.GroovyDecisionHandler" label="Выполнить код Groovy"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.GroovyActionHandler" label="Выполнить код Groovy"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.BusinessRuleHandler" label="Бизнес правило"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.JavaScriptActionHandler" label="Выполнить код JavaScript"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.RhinoJSActionHandler" label="Выполнить код JavaScript (rhino)"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.FormulaActionHandler" label="Выполнить формулу"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.DebugHandler" label="Дебаг (выводит текст)"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.AddObjectToListActionHandler" label="Добавить объект в список"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.process.AddReadProcessPermissionsHandler" label="Добавить права на чтение процесса"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.task.EndAsyncTasksHandler" label="Завершить асинхронные задания"/>
+  <artifact enabled="true" name="ru.runa.wf.logic.bot.StartProcessTaskHandler" label="Запустить другой процесс"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.AssignSwimlaneActionHandler" label="Назначить роль"/>
+  <artifact enabled="true" name="ru.runa.wf.logic.bot.SwimlaneAssignerTaskHandler" label="Назначить роль"/>
+  <artifact enabled="true" name="ru.runa.wf.logic.bot.UpdatePermissionsTaskHandler" label="Обновить полномочия на процесс"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ClearVariableActionHandler" label="Обнулить переменную"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.MergeMapsActionHandler" label="Объединить карты"/>
+  <artifact enabled="true" name="ru.runa.wf.logic.bot.StopProcessHandler" label="Остановить процесс"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.SendEmailActionHandler" label="Отправить email"/>
+  <artifact enabled="true" name="ru.runa.wf.logic.bot.EmailTaskHandler" label="Отправить email"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ConvertMapsToListsHandler" label="Перевести значения карт в списки"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ConvertMapValuesToListActionHandler" label="Перевести значения карты в список"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ConvertMapKeysToListActionHandler" label="Перевести ключи карты в список"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.assign.DefaultAssignmentHandler" label="По умолчанию"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.PutObjectToMapActionHandler" label="Положить элемент в карту"/>
+  <artifact enabled="false" name="ru.runa.wfe.extension.handler.user.ActorNameActionHandler" label="Получить имя пользователя"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.GetExecutorInfoHandler" label="Получить информацию об исполнителе"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.GetExecutorByRelationHandler" label="Получить исполнителя по отношению"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.ExecutorsListFromGroupHandler" label="Получить список исполнителей, входящих в группу"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.GetExecutorsByRelationHandler" label="Получить список исполнителей по отношению"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.GetObjectFromMapActionHandler" label="Получить элемент карты"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.GetObjectFromListActionHandler" label="Получить элемент списка"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.ConvertGroupsToUsersHandler" label="Развернуть группы (преобразовать в пользователей)"/>
+  <artifact enabled="true" name="ru.runa.wf.logic.bot.TextReportTaskHandler" label="Сделать текстовый отчет"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.CreateOptionActionHandler" label="Создать опцию для выбора"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.SetDateVariableHandler" label="Установить переменную даты"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.TargetProcessSetDateVariableHandler" label="Установить переменную даты в другом БП"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.SortListActionHandler" label="Сортировка списка"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.EmailTaskNotifierActionHandler" label="Уведомление о невыполненных заданиях"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.RemoveObjectFromListActionHandler" label="Удалить объект из списка"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.RemoveObjectFromMapActionHandler" label="Удалить элемент из карты"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.SetObjectToListActionHandler" label="Установить элемент списка"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.EscalationActionHandler" label="Эскалация"/>
+  <artifact enabled="true" name="EmptyOrgFunctionName" label=""/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.SQLDirectorFunction" label="Директор"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.ExecutorByNameFunction" label="Исполнитель по имени"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.GetActorsByCodesFunction" label="Исполнитель по коду"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.ExecutorsFromListFunction" label="Исполнители из списка"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.SQLChiefFunction" label="Руководитель"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.DemoChiefFunction" label="Руководитель (демо)"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.orgfunction.SQLFunction" label="Функция SQL"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.TimeFormat" label="Время"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.GroupFormat" label="Группа"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.DateFormat" label="Дата"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.DateTimeFormat" label="Дата со временем"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.DoubleFormat" label="Дробное число"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.ExecutorFormat" label="Исполнитель"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.MapFormat" label="Карта"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.ActorFormat" label="Пользователь"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.UserTypeFormat" label="Пользовательский тип данных"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.ListFormat" label="Список"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.ProcessIdFormat" label="Ссылка на процесс"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.StringFormat" label="Строка"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.TextFormat" label="Текст"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.FormattedTextFormat" label="Форматированный текст"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.FileFormat" label="Файл"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.BooleanFormat" label="Флаг (логическое выражение)"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.LongFormat" label="Целое число"/>
+  <artifact enabled="false" name="ru.runa.wfe.var.format.BigDecimalFormat" label="Число повышенной точности"/>
+</artifacts>

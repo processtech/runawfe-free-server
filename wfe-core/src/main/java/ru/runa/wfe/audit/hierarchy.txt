@@ -1,0 +1,36 @@
+
+    <!-- A : ru.runa.wfe.audit.ActionLog -->
+    <!-- B : ru.runa.wfe.audit.SubprocessStartLog -->
+    <!-- C : ru.runa.wfe.audit.CreateTimerLog -->
+    <!-- D : ru.runa.wfe.audit.VariableDeleteLog -->
+    <!-- E : ru.runa.wfe.audit.AdminActionLog -->
+    <!-- F : ru.runa.wfe.audit.TaskDelegationLog -->
+    <!-- H : ru.runa.wfe.audit.NodeErrorLog -->
+    <!-- I : ru.runa.wfe.audit.ProcessCreateLog -->
+    <!-- J : ru.runa.wfe.audit.NodeInfoLog -->
+    <!-- K : ru.runa.wfe.audit.TaskEndByAdminLog -->
+    <!-- L : ru.runa.wfe.audit.NodeLeaveLog -->
+    <!-- M : ru.runa.wfe.audit.TaskRemovedOnProcessEndLog -->
+    <!-- N : ru.runa.wfe.audit.NodeEnterLog -->
+    <!-- O : ru.runa.wfe.audit.TaskCancelledLog -->
+    <!-- P : ru.runa.wfe.audit.TaskRemovedOnEmbeddedSubprocessEndLog -->
+    <!-- R : ru.runa.wfe.audit.VariableCreateLog -->
+    <!-- S : ru.runa.wfe.audit.TaskEndBySubstitutorLog -->
+    <!-- T : ru.runa.wfe.audit.TransitionLog -->
+    <!-- U : ru.runa.wfe.audit.ProcessActivateLog -->
+    <!-- V : ru.runa.wfe.audit.ProcessSuspendLog -->
+    <!-- W : ru.runa.wfe.audit.VariableUpdateLog -->
+    <!-- X : ru.runa.wfe.audit.ProcessEndLog -->
+    <!-- Y : ru.runa.wfe.audit.ProcessCancelLog -->
+    <!-- Z : ru.runa.wfe.audit.SubprocessEndLog -->
+    <!-- 0 : ru.runa.wfe.audit.ProcessLog & abstract subclasses -->
+    <!-- 1 : ru.runa.wfe.audit.TaskCreateLog -->
+    <!-- 2 : ru.runa.wfe.audit.TaskAssignLog -->
+    <!-- 3 : ru.runa.wfe.audit.TaskEndLog -->
+    <!-- 4 : ru.runa.wfe.audit.SwimlaneAssignLog -->
+    <!-- 5 : ru.runa.wfe.audit.TaskEscalationLog -->
+    <!-- 6 :  -->
+    <!-- 7 : ru.runa.wfe.audit.SendMessageLog -->
+    <!-- 8 : ru.runa.wfe.audit.ReceiveMessageLog -->
+    <!-- 9 : ru.runa.wfe.audit.TaskExpiredLog -->
+    

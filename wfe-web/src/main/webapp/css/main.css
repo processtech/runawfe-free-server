@@ -1,0 +1,360 @@
+body { 
+	color: black;
+	background-color: white;
+}
+
+form {
+	margin: 0pt;
+}
+
+a:link, .hiddenVariableContent, .expandAllButton {color: #666666; text-decoration: none; }
+
+a:visited, .hiddenVariableContent:visited, .expandAllButton:visited {color: #666666; text-decoration: none;}
+
+a:hover, .hiddenVariableContent:hover, .expandAllButton:hover {color: #990000;text-decoration: none;}
+
+a:active, .hiddenVariableContent:active, .expandAllButton:active {color: #666666; text-decoration: none;}
+
+a:focus, .hiddenVariableContent:focus, .expandAllButton:focus {color: #990000;text-decoration: none;}
+
+a.current-page {
+	color: #5a43ac;
+	font-weight: bolder;
+}
+
+table.box {
+	width: 100%;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+}
+
+th.box {
+	background-color: #990000;
+	color: white;
+	text-align: left;
+	width: 100%;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11pt;
+	padding: 0px 10px;
+}
+
+td.box {
+	height: 100%;
+}
+
+.link {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-style: normal;
+	text-decoration: none;
+}
+
+a.link {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-style: normal;
+	text-decoration: none;
+}
+
+table.permissions, table.list, table.view-setup, table.invisible-list {
+	border-collapse: collapse;
+	empty-cells: show;
+	border-width: 1pt;
+	border-style: solid;
+	border-color: #aaaaaa;
+	width: 100%;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+}
+
+table.invisible-list {
+	border-width: 0pt;
+	border-style: none;
+}
+
+th.permissions, th.list, table.view-setup th {
+	text-align: left;
+	border-width: 1pt;
+	border-style: solid;
+	border-color: #aaaaaa;
+	color: #666666;
+	padding: 2px 5px 2px 5px;
+}
+
+td.permissions, td.list, table.view-setup td {
+	border-width: 1pt;
+	border-style: solid;
+	border-color: #aaaaaa;
+	color: #666666;
+	padding: 2px 5px 2px 5px;
+}
+
+td.list input[type="text"] {
+	width: 100%;
+}
+
+table.tab {
+	width: 100%;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+}
+
+td.tab-selected {
+	background-color: #e9e9e9;
+}
+
+td.group-name {
+	background-color: #f3f3f3;
+	border-width: 1pt;
+	border-color: #aaaaaa;
+	border-style: solid;
+}
+
+tr.deadlineExpired td {
+	background-color: #ff9999;
+}
+tr.deadlineAlmostExpired td {
+	background-color: #ddbb99;
+}
+tr.deadlineExists td {
+	background-color: white;
+}
+tr.escalatedTask td {
+	background-color: #ef8ff8;
+}
+tr.delegatedTask td {
+	background-color: aquamarine;
+}
+tr.substitutionTask td {
+	background-color: #ffff9d;
+}
+
+a.hideableblock {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	font-style: normal;
+	text-decoration: none;
+}
+
+img.hideableblock {
+	border-width: 0pt;
+}
+
+td.hideableblock {
+	vertical-align: middle;
+}
+
+a.settings-link {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-style: normal;
+	text-decoration: none;
+}
+
+img.settings-link {
+	border-width: 0pt;
+	background-color: white;
+}
+
+td.settings-link {
+	vertical-align: middle;
+}
+
+.error {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-style: normal;
+	text-decoration: none;
+	color: red;
+}
+
+.errors {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-style: normal;
+	text-decoration: none;
+}
+
+.grouppingHeader {
+	text-align: left;
+	font-family: Verdana; 
+	font-size: 11px; 
+	font-style: normal; 
+	font-weight: bold
+}
+
+table.paging {
+	border-collapse: collapse;
+	empty-cells: show;
+	border-width: 0pt;
+	width: 100%;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+}
+
+td.paging-navigation {
+	border-width: 0pt;
+	padding: 2px 5px 2px 5px;
+}
+td.paging-total-count {
+	border-width: 0pt;
+	padding: 2px 5px 2px 5px;
+	text-align: right;
+}
+
+th.empty20, td.empty20 {
+	width: 20;
+	text-align: left;
+	border-width: 1pt;
+	border-style: solid;
+	border-color: #aaaaaa;
+	padding: 2px 5px 2px 5px;
+}
+
+.text {
+	color: black;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-style: normal;
+	text-decoration: none;
+}
+
+.multiInstanceContainer {
+	position: relative; 
+	z-index: 9; 
+	background-color: white;
+}
+
+.multiInstanceBox {
+	border: 1px solid gray; 
+	display: inline; 
+	text-align: center;
+	cursor: pointer;
+}
+
+#alfBlockArea {
+	border: 1px solid gray;
+	margin: 4px;
+	padding: 10px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+#alfBlockArea td {
+	padding: 4px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+#alfBlockArea tr.header td {
+	font-weight: bold;
+}
+
+.required {
+	background: url("images/required.png") top right no-repeat white;
+}
+
+div.requiredWrapper::after {
+	content: "*" !important;
+	color: #990000 !important;
+	font-weight: bold;
+}
+
+.invalid {
+	border: 1px solid red;
+}
+
+.wide {
+	width: 100%;
+}
+
+.ui-datepicker-today a.ui-state-highlight {
+	border: 1px solid red; 
+	background-color: #aaaaaa;
+}
+.ui-datepicker-current-day a.ui-state-active {
+	border: 1px solid #aaaaaa;
+	background: #aaaaaa;
+}
+.ui-datepicker-title {
+	color: #ffffff;
+}
+.ui-datepicker-prev, .ui-datepicker-next {
+	background-color: white;
+}
+
+tr.suspended td, span.suspended {
+	background-color: #ff9999;
+}
+
+tr.executor_group {
+	font-weight: bold;
+}
+
+.CodeMirror-wrapping {
+	border: 1px solid lightgrey;
+	padding: 1px;
+	margin-top: 10px;
+}
+
+.button-green {
+	background-color: palegreen;
+}
+.button-yellow {
+	background-color: yellow;
+}
+.button-red {
+	background-color: tomato;
+}
+
+.symbol {
+	color: #990000;
+}
+
+.checkBoxNone {
+	display: none;
+}
+.checkBoxCustom {
+	position: relative;
+	top: -2px;
+	width: 16px;
+	height: 16px;
+	background: url(images/equal.png) center no-repeat;
+	background-size: cover;
+	cursor: pointer;
+	display: inline-block;
+	vertical-align: middle;
+}
+.checkBoxNone:checked + .checkBoxCustom::before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	background: url(images/equal_no.png) center no-repeat white;
+	background-size: cover;
+}
+.button-more {
+	vertical-align: middle;
+	opacity: 0.3;
+	cursor: pointer;
+}
+#hideSystemMenu.ui-icon-triangle-1-w {
+	background-image: url(images/ui-icons_ffffff_256x240.png);
+}
+.fontRed {
+    color: red !important;
+}
+a.permissionLink {
+	background-color: #990000;
+	color: white;
+}
+.hiddenVariableContent {
+	cursor: pointer;
+}
+.expandAllButton {
+	cursor: pointer;
+}
+#processGraph {
+	position: absolute;
+}

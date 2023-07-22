@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml workflowScript.xsd">
+	 <!-- Sample wfe script -->
+	<createGroup name="employee"/>
+	<createActor name="dorothy" fullName="Dorothy Gale" password="shout"/>
+	<createActor name="toto" description="Dorothy's dog" password="bark"/>
+    <createActor name="tin" fullName="The Tin Man"  password="secretword" />
+	<createActor name="gulch" fullName="The Wicked Witch of the West"  description="Someone we will create and delete in this script" password="www"/>
+	
+	<deleteExecutor name="gulch" />
+
+	<addExecutorsToGroup name="employee">
+		<executor name="dorothy"/>
+		<executor name="tin"/>
+	</addExecutorsToGroup>
+	
+	<removeExecutorsFromGroup name="employee">
+		<executor name="dorothy"/>
+	</removeExecutorsFromGroup>
+
+	<setPermissions type="EXECUTOR" name="toto" executor="dorothy">
+	    <permission name="READ"/>
+		<permission name="UPDATE"/>
+		<permission name="VIEW_TASKS"/>
+	</setPermissions>
+	
+	<removePermissions type="EXECUTOR" name="toto" executor="dorothy">
+		<permission name="VIEW_TASKS"/>
+	</removePermissions>
+
+	<setPermissions type="EXECUTOR" name="employee" executor="dorothy">
+		<permission name="READ"/>
+		<permission name="UPDATE"/>
+		<permission name="UPDATE_PERMISSIONS"/>
+	</setPermissions>
+		
+	<removePermissions type="EXECUTOR" name="employee" executor="dorothy">
+		<permission name="UPDATE_PERMISSIONS"/>
+	</removePermissions>
+        
+	<addPermissions type="EXECUTOR" name="employee" executor="employee">	
+		<permission name="READ"/>
+		<permission name="UPDATE"/>
+		<permission name="UPDATE_PERMISSIONS"/>
+		<permission name="VIEW_TASKS"/>		
+	</addPermissions>
+	
+	<removePermissions type="EXECUTOR" name="employee" executor="employee">
+		<permission name="UPDATE"/>
+	    <permission name="UPDATE_PERMISSIONS"/>
+	</removePermissions>
+	
+	<addPermissions type="EXECUTOR" name="tin" executor="employee">
+		<permission name="READ"/>
+		<permission name="UPDATE"/>>
+		<permission name="UPDATE_ACTOR_STATUS"/>>
+	</addPermissions>
+
+	<removePermissions type="EXECUTOR" name="tin" executor="employee">			
+		<permission name="UPDATE"/>
+	</removePermissions>
+	
+	<setPermissions type="SYSTEM" executor="employee">
+		<permission name="READ"/>
+		<permission name="LOGIN"/>
+		<permission name="CREATE_DEFINITION"/>
+		<permission name="CREATE_EXECUTOR"/>
+	</setPermissions>
+	
+	<removePermissions type="SYSTEM" executor="employee">
+		<permission name="LOGIN"/>
+	</removePermissions>
+</workflowScript>

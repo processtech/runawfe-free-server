@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<substitutioncriteria>
+    <type class="ru.runa.wfe.ss.SubstitutionCriteriaSwimlane">
+    	<param messageKey="label.substitution_criteria_conf" renderer="ru.runa.af.web.orgfunction.SwimlaneSubstitutionCriteriaRenderer" />
+    </type>
+    <type class="ru.runa.wfe.ss.SubstitutionCriteriaNotEquals">
+    	<param messageKey="label.substitution_criteria_conf" renderer="ru.runa.af.web.orgfunction.StringRenderer" />
+    </type>
+    <type class="ru.runa.wfe.ss.ProcessIdsSubstitutionCriteria">
+    	<param messageKey="label.substitution_criteria_conf" renderer="ru.runa.af.web.orgfunction.StringRenderer" />
+    </type>
+</substitutioncriteria>

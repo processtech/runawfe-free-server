@@ -1,0 +1,349 @@
+<settings>
+
+	<properties_file title="system.properties">
+		<property title="strong.passwords.regexp" />
+		<property title="escalation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="escalation.default.hierarchy.loader"></property>
+		<property title="task.default.deadline" pattern="\s*[+\-]?\d+\s*(business|)\s*(seconds|minutes|hours|days|weeks|months|years)\s*" />
+		<property title="task.almostDeadlinePercents" pattern="\d*"/>
+		<property title="task.delegation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="token.maximum.depth" pattern="\d*"/>
+		<property title="token.maximum.length" pattern="\d*|-1"/>
+		<property title="file.variable.local.storage.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="file.variable.local.storage.enableforfilesgreaterthan" pattern="\d*"/>
+		<property title="date.format.pattern" />
+		<property title="scriptingServiceAPI.executeGroovyScript.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="undefined.variables.allowed">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="strong.variables.format.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="variables.autocast.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="trusted.authentication.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="auto.invocation.local.botstation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.comments.collisions.allowed">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.comments.empty.allowed">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="variables.invalid.default.values.allowed">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="variables.invalid.default.values.allowed.before" />
+		<property title="datasource.password.export">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.execution.node.async.default">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="preferred.messages.language" />
+		<property title="statistic.report.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="processLog.cleanButton.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.update.delete.tokens.for.missing.nodes">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.compatibility.check.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.compatibility.check.processes.limit" pattern="\d*|-1">
+		</property>
+		<property title="reassign.swimlane.to.initializer">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="reassign.swimlane.to.task.performer">
+			<value>true</value>
+			<value>false</value>
+		</property>
+	</properties_file>
+
+	<properties_file title="web.properties">
+		<property title="group.subprocess.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="task.form.autoShowNext">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="task.form.highlightRequiredFields">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="task.form.ajaxFileInputEnabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="ntlm.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="ntlm.domain" />
+		<property title="process.variables.displayJavaType">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="view.logs.limit.lines.count" pattern="\d*"/>
+		<property title="view.logs.limit.line.characters.count" pattern="\d*"/>
+		<property title="view.logs.timeout.autoreload.seconds" pattern="\d*" />
+
+		<property title="menu.additional_links" />
+		<property title="process.showGraphMode">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.graph.autoRefreshInterval.seconds" pattern="\d*" />
+		<property title="process.graph.node.logs.limit.count" pattern="\d*"/>
+		<property title="confirmation.remove.executors">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.remove.executorsfromgroups">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.remove.bot">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.remove.botstation">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.deploy.processdefinition">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.redeploy.processdefinition">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.undeploy.processdefinition">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.remove.substitutioncriteria">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.cancel.process">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.remove.process">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.restore.process">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.accept.task">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.execute.task">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.start.process">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.start.process.noform">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="confirmation.use.default.properties">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.definition.ajax.bulk.deployment.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.removal.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.swimlane.assignment.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.variable.assignment.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.task.filters.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.external.data.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.external.data.url.prefix"/>
+		<property title="import.export.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="hide.temporary.executors">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.processStartButtonName" />
+		<property title="process.completeTaskButtonName" />
+		<property title="process.started"/>
+		<property title="chat.enabled">
+			<value>true</value>
+			<value>false</value></property>
+	</properties_file>
+
+	<properties_file title="office.properties">
+		<property title="docx.placeholder.start" />
+		<property title="docx.placeholder.end" />
+		<property title="docx.element.start" />
+		<property title="docx.element.end" />
+	</properties_file>
+
+	<properties_file title="graph.properties">
+		<property title="edgingOnly">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="bpmn.showSwimlane">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="logs.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="logs.severity.threshold">
+			<value>DEBUG</value>
+			<value>INFO</value>
+		</property>
+		<property title="fontSize" pattern="\d*"/>
+		<property title="fontFamily"/>
+		<property title="backgroundColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
+		<property title="figureBackgroundColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
+		<property title="activeFigureBackgroundColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
+		<property title="baseColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
+		<property title="textColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
+		<property title="transitionColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
+		<property title="highlightColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
+		<property title="alarmColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
+		<property title="lightAlarmColor" pattern="0x([\da-fA-F]{3}|[\da-fA-F]{6})"/>
+	</properties_file>
+
+	<properties_file title="business.calendar.properties">
+		<property title="business.week.expressed.in.business.days" pattern="\d*"/>
+		<property title="business.month.expressed.in.business.days" pattern="\d*"/>
+		<property title="business.year.expressed.in.business.days" pattern="\d*"/>
+		<property title="weekday.monday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
+		<property title="weekday.tuesday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
+		<property title="weekday.wednesday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
+		<property title="weekday.thursday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
+		<property title="weekday.friday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
+		<property title="weekday.saturday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
+		<property title="weekday.sunday" pattern="\s*\d\d?:\d\d\-\d\d?:\d\d(\s*\&amp;\s*\d\d?:\d\d\-\d\d?:\d\d)*\s*"/>
+	</properties_file>
+
+	<property_file title="botstation.properties">
+		<property title="botstation.invocation.period.seconds" pattern="\d*"/>
+		<property title="botstation.system.username" />
+		<property title="botstation.system.password" />
+		<property title="thread.pool.size" pattern="\d*"/>
+		<property title="taskhandler.jar.names" />
+		<property title="bot.logger.class" />
+		<property title="botstations.autostart.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="botstation.failedExecutionInitialDelaySeconds" pattern="\d*"/>
+		<property title="botstation.failedExecutionMaxDelaySeconds" pattern="\d*"/>
+		<property title="botstation.invocation.handler.timeout.milliseconds" pattern="\d*"/>
+	</property_file>
+
+	<property_file title="securitycheck.properties">
+
+		<property title="permission.check.required.EXECUTOR">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.DEFINITION">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.PROCESS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.REPORTS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.REPORT">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.RELATIONS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.RELATION">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.BOTSTATIONS">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.DATASOURCES">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="permission.check.required.SYSTEM">
+			<value>true</value>
+			<value>false</value>
+		</property>
+	</property_file>
+</settings>
