@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Driver;
@@ -268,7 +269,7 @@ public class DataSourceStorage implements DataSourceStuff {
     public static byte[] restore(String dsName) {
         try {
             return FileCopyUtils.copyToByteArray(new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX));
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | NoSuchFileException e) {
             if (DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME.equals(dsName)) {
                 log.warn(DataSourceStuff.INTERNAL_STORAGE_DATA_SOURCE_NAME + " does not exist. Creating one", e);
                 return ExcelStorageInitiator.init();
