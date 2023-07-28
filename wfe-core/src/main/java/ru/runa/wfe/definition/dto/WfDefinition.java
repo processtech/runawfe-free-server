@@ -77,7 +77,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         this.hasStartImage = pd.getFileData(FileDataProvider.START_IMAGE_FILE_NAME) != null;
         this.hasDisabledImage = pd.getFileData(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
         this.subprocessOnly = pd.getAccessType() == ProcessDefinitionAccessType.OnlySubprocess;
-        this.canBeStarted = canBeStarted && !subprocessOnly;
+        this.canBeStarted = canBeStarted && !subprocessOnly && pd.getManualStartNode() != null;
     }
 
     @Override

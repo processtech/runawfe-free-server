@@ -28,6 +28,7 @@ import ru.runa.wfe.lang.EmbeddedSubprocessLikeGraphPartEndNode;
 import ru.runa.wfe.lang.EmbeddedSubprocessLikeSeparateSubprocessEndNode;
 import ru.runa.wfe.lang.EmbeddedSubprocessStartNode;
 import ru.runa.wfe.lang.EndNode;
+import ru.runa.wfe.lang.EventSubprocessStartNode;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.MultiSubprocessNode;
@@ -50,10 +51,13 @@ import ru.runa.wfe.lang.bpmn2.BusinessRule;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.DataStore;
 import ru.runa.wfe.lang.bpmn2.EndToken;
+import ru.runa.wfe.lang.bpmn2.EventHolder;
+import ru.runa.wfe.lang.bpmn2.EventTrigger;
 import ru.runa.wfe.lang.bpmn2.ExclusiveGateway;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.lang.bpmn2.ParallelGateway;
 import ru.runa.wfe.lang.bpmn2.TextAnnotation;
+import ru.runa.wfe.lang.bpmn2.TimerEventDefinition;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.var.VariableMapping;
 
@@ -112,6 +116,7 @@ public class BpmnXmlReader {
     private static final String ASYNC_COMPLETION_MODE = "asyncCompletionMode";
     private static final String ACCESS_TYPE = "accessType";
     private static final String EMBEDDED = "embedded";
+    private static final String TRIGGERED_BY_EVENT = "triggeredByEvent";
     private static final String TRANSACTIONAL = "transactional";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String TEXT_ANNOTATION = "textAnnotation";
@@ -187,6 +192,9 @@ public class BpmnXmlReader {
             if (parsedProcessDefinition instanceof ParsedSubprocessDefinition && processProperties.containsKey(BEHAVIOUR)) {
                 ((ParsedSubprocessDefinition) parsedProcessDefinition).setBehaviorLikeGraphPart("GraphPart".equals(processProperties.get(BEHAVIOUR)));
             }
+            if (processProperties.containsKey(TRIGGERED_BY_EVENT)) {
+                parsedProcessDefinition.setTriggeredByEvent("true".equals(processProperties.get(TRIGGERED_BY_EVENT)));
+            }
             // 1: read most content
             readSwimlanes(parsedProcessDefinition, process);
             readNodes(parsedProcessDefinition, process);
@@ -239,7 +247,11 @@ public class BpmnXmlReader {
                 node = ApplicationContextFactory.createAutowiredBean(nodeTypes.get(nodeName));
             } else if (START_EVENT.equals(nodeName)) {
                 if (parsedProcessDefinition instanceof ParsedSubprocessDefinition) {
-                    node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessStartNode.class);
+                    if (parsedProcessDefinition.isTriggeredByEvent()) {
+                        node = ApplicationContextFactory.createAutowiredBean(EventSubprocessStartNode.class);
+                    } else {
+                        node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessStartNode.class);
+                    }
                 } else {
                     node = ApplicationContextFactory.createAutowiredBean(StartNode.class);
                 }
@@ -300,10 +312,22 @@ public class BpmnXmlReader {
         if (properties.containsKey(NODE_ASYNC_EXECUTION)) {
             node.setAsyncExecution("new".equals(properties.get(NODE_ASYNC_EXECUTION)));
         }
+        if (node instanceof EventHolder) {
+            EventTrigger eventTrigger = ((EventHolder) node).getEventTrigger();
+            String value = element.attributeValue(QName.get(TYPE, RUNA_NAMESPACE));
+            if (value != null) {
+                eventTrigger.setEventType(MessageEventType.valueOf(value));
+            }
+            eventTrigger.setVariableMappings(readVariableMappings(element));
+        }
         parsedProcessDefinition.addNode(node);
         if (node instanceof StartNode) {
             StartNode startNode = (StartNode) node;
-            readTask(parsedProcessDefinition, element, properties, startNode);
+            if (startNode.isStartByEvent()) {
+                readTimer(startNode, element);
+            } else {
+                readTask(parsedProcessDefinition, element, properties, startNode);
+            }
         }
         if (node instanceof BaseTaskNode) {
             BaseTaskNode taskNode = (BaseTaskNode) node;
@@ -328,6 +352,9 @@ public class BpmnXmlReader {
             }
             if (properties.containsKey(EMBEDDED)) {
                 subprocessNode.setEmbedded(Boolean.parseBoolean(properties.get(EMBEDDED)));
+            }
+            if (properties.containsKey(TRIGGERED_BY_EVENT)) {
+                subprocessNode.setTriggeredByEvent(Boolean.parseBoolean(properties.get(TRIGGERED_BY_EVENT)));
             }
             if (properties.containsKey(ASYNC)) {
                 subprocessNode.setAsync(Boolean.valueOf(properties.get(ASYNC)));
@@ -374,6 +401,10 @@ public class BpmnXmlReader {
             node.setName("TextAnnotation_" + node.getNodeId());
             node.setDescription(element.elementTextTrim(TEXT));
         }
+    }
+
+    private void readTimer(StartNode startNode, Element eventElement) {
+        startNode.setTimerEventDefinition(TimerEventDefinition.createFromBpmnElement(eventElement.element(TIMER_EVENT_DEFINITION)));
     }
 
     private void readTimer(TimerNode timerNode, Element eventElement) {

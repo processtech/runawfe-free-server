@@ -73,10 +73,9 @@ public class CurrentToken extends Token implements Serializable {
     /**
      * creates a root token.
      */
-    public CurrentToken(ParsedProcessDefinition parsedProcessDefinition, CurrentProcess process) {
+    public CurrentToken(ParsedProcessDefinition parsedProcessDefinition, CurrentProcess process, StartNode startNode) {
         setStartDate(new Date());
         setProcess(process);
-        StartNode startNode = parsedProcessDefinition.getStartStateNotNull();
         setNodeId(startNode.getNodeId());
         setNodeType(startNode.getNodeType());
         setAbleToReactivateParent(true);

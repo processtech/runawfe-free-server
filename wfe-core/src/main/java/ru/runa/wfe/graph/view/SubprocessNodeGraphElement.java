@@ -29,6 +29,7 @@ public class SubprocessNodeGraphElement extends NodeGraphElement {
     private String embeddedSubprocessId;
     private int embeddedSubprocessGraphWidth;
     private int embeddedSubprocessGraphHeight;
+    private boolean triggeredByEvent;
 
     @Override
     public void initialize(Node node, int[] graphConstraints) {
@@ -36,6 +37,7 @@ public class SubprocessNodeGraphElement extends NodeGraphElement {
         SubprocessNode subprocessNode = (SubprocessNode) node;
         this.subprocessName = subprocessNode.getSubProcessName();
         this.embedded = subprocessNode.isEmbedded();
+        this.triggeredByEvent = subprocessNode.isTriggeredByEvent();
     }
 
     /**
@@ -102,5 +104,9 @@ public class SubprocessNodeGraphElement extends NodeGraphElement {
     public void setEmbeddedSubprocessGraphHeight(int embeddedSubprocessGraphHeight) {
         this.embeddedSubprocessGraphHeight = embeddedSubprocessGraphHeight;
     }
-    
+
+    public boolean isTriggeredByEvent() {
+        return triggeredByEvent;
+    }
+
 }

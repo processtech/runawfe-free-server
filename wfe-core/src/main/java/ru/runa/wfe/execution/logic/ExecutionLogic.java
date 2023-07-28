@@ -57,6 +57,7 @@ import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentProcessClassPresentation;
 import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.EventSubprocessTrigger;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -69,6 +70,7 @@ import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
+import ru.runa.wfe.execution.dao.EventSubprocessTriggerDao;
 import ru.runa.wfe.execution.dto.RestoreProcessStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
@@ -83,6 +85,7 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
 import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.AsyncCompletionMode;
@@ -141,6 +144,8 @@ public class ExecutionLogic extends WfCommonLogic {
     private ProcessDefinitionUpdateManager processDefinitionUpdateManager;
     @Autowired
     private CurrentProcessLogDao currentProcessLogDao;
+    @Autowired
+    private EventSubprocessTriggerDao eventSubprocessTriggerDao;
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -210,8 +215,11 @@ public class ExecutionLogic extends WfCommonLogic {
             executionContext.addLog(new CurrentProcessEndLog());
         }
         TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(process.getId());
-        // end the main path of execution
-        endToken(process.getRootToken(), executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true);
+        List<CurrentToken> tokens = currentTokenDao.findByProcessIdAndParentId(process.getId());
+        for (CurrentToken token : tokens) {
+            endToken(token, executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true);
+        }
+        eventSubprocessTriggerDao.deleteByProcess(process);
         // mark this process as ended
         process.setEndDate(new Date());
         process.setExecutionStatus(ExecutionStatus.ENDED);
@@ -463,7 +471,7 @@ public class ExecutionLogic extends WfCommonLogic {
             return Collections.emptyList();
         }
         val cp = (CurrentProcess) p;
-        List<Job> jobs = jobDao.findByProcess(cp);
+        List<TimerJob> jobs = jobDao.findByProcess(cp);
         if (recursive) {
             List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(cp);
             for (CurrentProcess subProcess : subprocesses) {
@@ -496,14 +504,22 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) {
-        return startProcessImpl(user, getLatestDefinition(definitionName), variables);
+        val def = getLatestDefinition(definitionName);
+        return startProcessImpl(user, def, def.getManualStartStateNotNull(), user.getActor(), variables).getId();
     }
 
     public Long startProcess(User user, Long processDefinitionId, Map<String, Object> variables) {
-        return startProcessImpl(user, getDefinition(processDefinitionId), variables);
+        val def = getDefinition(processDefinitionId);
+        return startProcessImpl(user, def, def.getManualStartStateNotNull(), user.getActor(), variables).getId();
     }
 
-    private Long startProcessImpl(User user, ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables) {
+    public CurrentProcess startProcess(User user, ParsedProcessDefinition parsedProcessDefinition, StartNode startNode, Actor actor,
+            Map<String, Object> variables) {
+        return startProcessImpl(user, parsedProcessDefinition, startNode, null, variables);
+    }
+
+    private CurrentProcess startProcessImpl(User user, ParsedProcessDefinition parsedProcessDefinition, StartNode startNode, Actor actor,
+            Map<String, Object> variables) {
         if (variables == null) {
             variables = Maps.newHashMap();
         }
@@ -514,13 +530,13 @@ public class ExecutionLogic extends WfCommonLogic {
         val extraVariablesMap = new HashMap<String, Object>();
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         VariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(parsedProcessDefinition));
-        StartNode startNode = parsedProcessDefinition.getStartStateNotNull();
         validateVariables(null, variableProvider, parsedProcessDefinition, startNode.getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
-        CurrentProcess process = processFactory.startProcess(parsedProcessDefinition, variables, user.getActor(), transitionName, transientVariables);
+        CurrentProcess process = processFactory
+                .startProcess(parsedProcessDefinition, startNode, variables, actor, transitionName, transientVariables);
         log.info(process + " was successfully started by " + user);
-        return process.getId();
+        return process;
     }
 
     public byte[] getProcessDiagram(User user, Long processId, Long taskId, Long childProcessId, String subprocessId) {
@@ -1011,6 +1027,20 @@ public class ExecutionLogic extends WfCommonLogic {
             }
         } else {
             throw new InternalApplicationException("Method not implemented for process.execution.message.predefined.selector.enabled = false");
+        }
+    }
+
+    public List<EventSubprocessTrigger> findEventTriggersForMessageSelector(Map<String, String> routingData) {
+        if (SystemProperties.isEventSubprocessMessagePredefinedSelectorEnabled()) {
+            if (SystemProperties.isEventSubprocessMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
+                String messageSelector = Utils.getObjectMessageStrictSelector(routingData);
+                return eventSubprocessTriggerDao.findByMessageSelector(messageSelector);
+            } else {
+                Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(routingData);
+                return eventSubprocessTriggerDao.findByMessageSelector(messageSelectors);
+            }
+        } else {
+            throw new InternalApplicationException("Method not implemented for event.subprocess.message.predefined.selector.enabled = false");
         }
     }
 

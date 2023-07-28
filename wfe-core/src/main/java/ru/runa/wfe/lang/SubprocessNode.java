@@ -29,6 +29,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
     private String subProcessName;
     private boolean embedded;
+    private boolean triggeredByEvent;
     private boolean transactional;
     private boolean validateAtStart;
     private boolean disableCascadingSuspension;
@@ -54,8 +55,14 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         super.validate();
         Preconditions.checkNotNull(subProcessName, "subProcessName in " + this);
         if (isEmbedded()) {
-            if (getLeavingTransitions().size() != 1) {
-                throw new InternalApplicationException("Subprocess state for embedded subprocess should have 1 leaving transition");
+            if (!isTriggeredByEvent()) {
+                if (getLeavingTransitions().size() != 1) {
+                    throw new InternalApplicationException("Subprocess state for embedded subprocess should have 1 leaving transition");
+                }
+            } else {
+                if (!getLeavingTransitions().isEmpty() || !getArrivingTransitions().isEmpty()) {
+                    throw new InternalApplicationException("Subprocess state for event subprocess should not have any transition");
+                }
             }
         }
     }
@@ -74,6 +81,14 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
 
     public void setEmbedded(boolean embedded) {
         this.embedded = embedded;
+    }
+
+    public boolean isTriggeredByEvent() {
+        return triggeredByEvent;
+    }
+
+    public void setTriggeredByEvent(boolean triggeredByEvent) {
+        this.triggeredByEvent = triggeredByEvent;
     }
 
     public boolean isTransactional() {

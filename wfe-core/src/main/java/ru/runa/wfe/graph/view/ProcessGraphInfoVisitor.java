@@ -71,7 +71,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
     @Override
     protected void onSubprocessNode(SubprocessNodeGraphElement element) {
         if (element.isEmbedded()) {
-            boolean b = ApplicationContextFactory.getProcessLogDao().isNodeEntered(process, element.getNodeId());
+            boolean b = element.isTriggeredByEvent() || ApplicationContextFactory.getProcessLogDao().isNodeEntered(process, element.getNodeId());
             element.setSubprocessAccessible(b);
             element.setSubprocessId(process.getId());
             ParsedSubprocessDefinition subprocessDefinition = definition.getEmbeddedSubprocessByNameNotNull(element.getSubprocessName());

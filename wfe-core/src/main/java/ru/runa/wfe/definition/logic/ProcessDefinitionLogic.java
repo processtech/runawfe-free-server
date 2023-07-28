@@ -368,7 +368,7 @@ public class ProcessDefinitionLogic extends WfCommonLogic {
 
     public Interaction getStartInteraction(User user, Long processDefinitionId) {
         ParsedProcessDefinition definition = getDefinition(processDefinitionId);
-        Interaction interaction = definition.getInteractionNotNull(definition.getStartStateNotNull().getNodeId());
+        Interaction interaction = definition.getInteractionNotNull(definition.getManualStartStateNotNull().getNodeId());
         Map<String, Object> defaultValues = definition.getDefaultVariableValues();
         for (Entry<String, Object> entry : defaultValues.entrySet()) {
             interaction.getDefaultVariableValues().put(entry.getKey(), entry.getValue());

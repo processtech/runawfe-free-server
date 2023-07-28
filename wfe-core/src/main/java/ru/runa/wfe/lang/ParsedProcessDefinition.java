@@ -43,7 +43,8 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     private final Integer secondsBeforeArchiving;
     private final SecuredObject securedObject = new SecuredObject();;
     private final Map<String, byte[]> processFiles = new HashMap<>();
-    private StartNode startNode;
+    private StartNode manualStartNode;
+    private final List<StartNode> eventStartNodes = new ArrayList<>();
     private final List<Node> nodeList = new ArrayList<>();
     private final Map<String, Node> nodesMap = new HashMap<>();
     private final List<SwimlaneDefinition> swimlaneDefinitions = new ArrayList<>();
@@ -54,6 +55,7 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
     private final Map<String, VariableDefinition> variablesMap = new HashMap<>();
     private final Map<String, ParsedSubprocessDefinition> embeddedSubprocesses = new HashMap<>();
     private ProcessDefinitionAccessType accessType = ProcessDefinitionAccessType.Process;
+    private boolean triggeredByEvent;
     private Boolean nodeAsyncExecution;
     private boolean graphActionsEnabled;
     private final List<ProcessDefinitionChange> changes = new ArrayList<>();
@@ -356,9 +358,25 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
         return result;
     }
 
-    public StartNode getStartStateNotNull() {
-        Preconditions.checkNotNull(startNode, "startNode");
-        return startNode;
+    public StartNode getManualStartNode() {
+        return manualStartNode;
+    }
+
+    public StartNode getManualStartStateNotNull() {
+        Preconditions.checkNotNull(manualStartNode, "startNode");
+        return manualStartNode;
+    }
+
+    public List<StartNode> getEventStartNodes() {
+        return eventStartNodes;
+    }
+
+    public boolean isTriggeredByEvent() {
+        return triggeredByEvent;
+    }
+
+    public void setTriggeredByEvent(boolean triggeredByEvent) {
+        this.triggeredByEvent = triggeredByEvent;
     }
 
     public List<Node> getNodes(boolean withEmbeddedSubprocesses) {
@@ -379,10 +397,14 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
         }
         node.parsedProcessDefinition = this;
         if (node instanceof StartNode) {
-            if (startNode != null) {
-                throw new InvalidDefinitionException(getName(), "only one start-state allowed in a process");
+            if (((StartNode) node).isStartByEvent()) {
+                eventStartNodes.add((StartNode) node);
+            } else {
+                if (manualStartNode != null) {
+                    throw new InvalidDefinitionException(getName(), "only one start-state allowed in a process");
+                }
+                manualStartNode = (StartNode) node;
             }
-            startNode = (StartNode) node;
         }
         return node;
     }
@@ -548,14 +570,23 @@ public class ParsedProcessDefinition extends GraphElement implements FileDataPro
                 SubprocessNode subprocessNode = (SubprocessNode) node;
                 if (subprocessNode.isEmbedded()) {
                     ParsedSubprocessDefinition subprocessDefinition = getEmbeddedSubprocessByNameNotNull(subprocessNode.getSubProcessName());
-                    EmbeddedSubprocessStartNode startNode = subprocessDefinition.getStartStateNotNull();
-                    for (Transition transition : subprocessNode.getArrivingTransitions()) {
-                        startNode.addArrivingTransition(transition);
-                    }
-                    startNode.setSubprocessNode(subprocessNode);
-                    for (EmbeddedSubprocessEndNode endNode : subprocessDefinition.getEndNodes()) {
-                        endNode.addLeavingTransition(subprocessNode.getLeavingTransitions().get(0));
-                        endNode.setSubprocessNode(subprocessNode);
+                    if (!subprocessNode.isTriggeredByEvent()) {
+                        EmbeddedSubprocessStartNode startNode = subprocessDefinition.getManualStartStateNotNull();
+                        for (Transition transition : subprocessNode.getArrivingTransitions()) {
+                            startNode.addArrivingTransition(transition);
+                        }
+                        startNode.setSubprocessNode(subprocessNode);
+                        for (EmbeddedSubprocessEndNode endNode : subprocessDefinition.getEndNodes()) {
+                            endNode.addLeavingTransition(subprocessNode.getLeavingTransitions().get(0));
+                            endNode.setSubprocessNode(subprocessNode);
+                        }
+                    } else {
+                        for (StartNode startNode : subprocessDefinition.getEventStartNodes()) {
+                            ((EmbeddedSubprocessStartNode) startNode).setSubprocessNode(subprocessNode);
+                        }
+                        for (EmbeddedSubprocessEndNode endNode : subprocessDefinition.getEndNodes()) {
+                            endNode.setSubprocessNode(subprocessNode);
+                        }
                     }
                     subprocessDefinition.mergeWithEmbeddedSubprocesses();
                 }

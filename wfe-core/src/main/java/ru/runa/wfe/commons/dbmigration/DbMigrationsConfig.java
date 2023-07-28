@@ -26,6 +26,8 @@ import ru.runa.wfe.commons.dbmigration.impl.AddProcessExternalData;
 import ru.runa.wfe.commons.dbmigration.impl.AddProcessLogCleanBeforeDateColumnPatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbmigration.impl.AddSettingsTable;
+import ru.runa.wfe.commons.dbmigration.impl.AddStartProcessTimerJob;
+import ru.runa.wfe.commons.dbmigration.impl.AddStartProcessTimerJobRefactorRm2681;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubprocessBindingDatePatch;
 import ru.runa.wfe.commons.dbmigration.impl.AddSubprocessRootIdColumn;
@@ -42,6 +44,7 @@ import ru.runa.wfe.commons.dbmigration.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateChatDbPatch;
 import ru.runa.wfe.commons.dbmigration.impl.CreateDigitalSignatureTable;
+import ru.runa.wfe.commons.dbmigration.impl.CreateEventSubprocessTriggerTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalListenerAggregatedLogTable;
 import ru.runa.wfe.commons.dbmigration.impl.CreateSignalTable;
@@ -200,6 +203,9 @@ public class DbMigrationsConfig {
         dbMigrations.add(AddTransitionNameForTaskPatch.class); // depends on SupportProcessArchivingBefore
         dbMigrations.add(RefactorProcessDefinitionsRm2681.class);
         dbMigrations.add(RecreateChatRoomView2.class);
+        dbMigrations.add(AddStartProcessTimerJob.class);
+        dbMigrations.add(AddStartProcessTimerJobRefactorRm2681.class);
+        dbMigrations.add(CreateEventSubprocessTriggerTable.class);
         return dbMigrations;
     }
 }
